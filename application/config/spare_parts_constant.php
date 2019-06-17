@@ -124,3 +124,10 @@ define('AUTO_ACKNOWLEDGE_SPARE_DELIVERED_TO_SF',14);
 define("EXTENDED_WARRANTY_TAG", "Extended Warranty");
 //Pre Sale Repair Tag
 define('PRESALE_REPAIR_TAG', 'Presale Repair');
+define('WAREHOUSE_ACKNOWLEDGED_TO_RECEIVE_PARTS', "Warehouse acknowledged to receive MSL");
+
+define('MSL_TRANSFERED_BY_PARTNER', "1");
+define('MSL_TRANSFERED_BY_WAREHOUSE', "2");
+
+define('GAS_RECHARGE_IN_WARRANTY', 'Gas Recharge - In Warranty');
+define('GAS_RECHARGE_OUT_OF_WARRANTY', 'Gas Recharge - Out of Warranty');

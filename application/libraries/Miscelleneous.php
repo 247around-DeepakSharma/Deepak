@@ -265,11 +265,11 @@ class Miscelleneous {
         $partner_am_email = "";
         $return_status = TRUE;
         
-        $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
+        //$rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
         $rm_email = "";
-        if (!empty($rm)) {
-            $rm_email = ", " . $rm[0]['official_email'];
-        }
+//        if (!empty($rm)) {
+//            $rm_email = ", " . $rm[0]['official_email'];
+//        }
         switch ($data['message']) {
             case UPCOUNTRY_BOOKING:
             case UPCOUNTRY_LIMIT_EXCEED:
@@ -443,12 +443,12 @@ class Miscelleneous {
                         
                         if ($booking['upcountry_distance'] > 300) {
                             $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
-                            $to = ANUJ_EMAIL_ID.$rm_email;
-                            $cc = $partner_am_email;
+                            $to = ANUJ_EMAIL_ID.$partner_am_email;
+                            $cc = "";
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
                             $to = $data['upcountry_approval_email'];
-                            $cc = $partner_am_email.$rm_email;
+                            $cc = $partner_am_email;
                             //Send Push Notification
                         $receiverArray['partner'] = array($query1[0]['partner_id']);
                         $notificationTextArray['msg'] = array($booking_id);
@@ -653,11 +653,21 @@ class Miscelleneous {
                     if (!empty($unit_details)) {
                         log_message('info', __FUNCTION__ . " Booking Unit details exist");
                         foreach ($unit_details as $value) {
-                            $sc_data = $this->My_CI->service_centers_model->get_service_center_action_details("unit_details_id", array('unit_details_id' => $value['id'], 'booking_id' => $booking_id));
-                            if (empty($sc_data)) {
-                                $sc_data['current_status'] = "Pending";
+                            $sc_ba_data = $this->My_CI->service_centers_model->get_service_center_action_details("unit_details_id,current_status,internal_status", array('booking_id' => $booking_id));
+                            $alreadyExist = false;
+                            $sc_current_status = 'Pending';
+                            $sc_internal_status = 'Pending';
+                            foreach($sc_ba_data as $sc_values){
+                                if($sc_values['unit_details_id'] ==  $value['id']){
+                                    $alreadyExist  = true;
+                                }
+                                $sc_current_status = $sc_values['current_status'];
+                                $sc_internal_status = $sc_values['internal_status'];
+                            }
+                            if (!$alreadyExist) {
+                                $sc_data['current_status'] = $sc_current_status;
                                 $sc_data['update_date'] = date('Y-m-d H:i:s');
-                                $sc_data['internal_status'] = "Pending";
+                                $sc_data['internal_status'] = $sc_internal_status;
                                 $sc_data['service_center_id'] = $data[0]['assigned_vendor_id'];
                                 $sc_data['booking_id'] = $booking_id;
                                 $sc_data['unit_details_id'] = $value['id'];
@@ -3229,7 +3239,7 @@ function generate_image($base64, $image_name,$directory){
                     $login_email['password'] = $data['clear_password'];
                     $cc = $login_template[3];
                     $bcc = $login_template[5];
-                    if($accountManagerData){
+                    if(!empty($accountManagerData)){
                         $accountManagerEmail = $accountManagerData[0]['official_email'];
                         $cc = $login_template[3].",".$accountManagerEmail;
                     }
@@ -3334,8 +3344,7 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
         $response = array(); 
 
-        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
-                . 'inventory_master_list.inventory_id, price, gst_rate','inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.part_name, inventory_master_list.inventory_id, price, gst_rate,inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
 
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
         $is_partner_wh = '';
@@ -3344,10 +3353,11 @@ function generate_image($base64, $image_name,$directory){
           $is_partner_wh = $partner_details[0]['is_wh'];
           $is_micro_wh = $partner_details[0]['is_micro_wh'];  
         }
-      
+
         if (!empty($inventory_part_number)) {
             //Check Partner Works Micro
             if ($is_micro_wh == 1) {
+
                 //check SF inventory stock
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id);
                 if (!empty($response)) {
@@ -3379,21 +3389,24 @@ function generate_image($base64, $image_name,$directory){
                 } 
                 
             } else if ($is_partner_wh == 1) {
-
+                
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
                 if(!empty($response)){
+
                     $response['defective_return_to_entity_type'] = $response['entity_type'];
                     $response['defective_return_to_entity_id'] = $response['entity_id'];
                 }
             }
 
         } else {
+
             return false;
         }
 
         if (empty($response) && !empty($inventory_part_number)) {
             $response['stock'] = false;
             $response['entity_id'] = $partner_id;
+            $response['part_name'] = $inventory_part_number[0]['part_name'];
             $response['entity_type'] = _247AROUND_PARTNER_STRING;
             $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
             $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
@@ -3439,7 +3452,7 @@ function generate_image($base64, $image_name,$directory){
         $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
         $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
         
-        
+       
         if (empty($inventory_stock_details)) {
             $alternate_inventory_stock_details = $this->My_CI->inventory_model->get_alternate_inventory_stock_list($inventory_part_number[0]['inventory_id'], $service_center_id);
            
@@ -3453,13 +3466,14 @@ function generate_image($base64, $image_name,$directory){
             }
             
         }
-                
+        
         if(!empty($inventory_stock_details)){
             if(!empty($service_center_id)){
                 $response = array();
                 $response['stock'] = TRUE;
                 $response['entity_id'] = $service_center_id;
                 $response['entity_type'] = _247AROUND_SF_STRING;
+                $response['part_name'] = $inventory_part_number[0]['part_name'];
                 $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
                 $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                 $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
@@ -3467,21 +3481,24 @@ function generate_image($base64, $image_name,$directory){
                 $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
                 
             } else {
+
                 foreach($inventory_stock_details as $value){                    
                     $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
                             array('warehouse_state_relationship.state' => $state,'contact_person.entity_type' => _247AROUND_SF_STRING,
                                 'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1), true, true, true);
-                    
                     if(!empty($warehouse_details)){
                         $response = array();
                         $response['stock'] = TRUE;
                         $response['entity_id'] = $value['entity_id'];
                         $response['entity_type'] = _247AROUND_SF_STRING;
+                        $response['part_name'] = $inventory_part_number[0]['part_name'];
                         $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
                         $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                         $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
                         $response['is_micro_wh'] = 2;
+
                         $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
+                        break;
                     }
                 }
             }
@@ -4111,6 +4128,12 @@ function generate_image($base64, $image_name,$directory){
                 $sms['phone_no'] = $booking_details[0]['booking_primary_contact_no'];
                 $sms['smsData']['part_type'] = $part_type;
                 $sms['smsData']['booking_id'] = $booking_id;
+                if($booking_details[0]['partner_id'] == VIDEOCON_ID){
+                    $sms['smsData']['cc_number'] = "Call 0120-4500600";
+                }
+                else{
+                    $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
+                }
                 $sms['booking_id'] = $booking_id;
                 $sms['type'] = "user";
                 $sms['type_id'] = $booking_details[0]['user_id'];
@@ -4149,6 +4172,12 @@ function generate_image($base64, $image_name,$directory){
                 $sms['phone_no'] = $booking_details[0]['booking_primary_contact_no'];
                 $sms['smsData']['part_type'] = $part_type;
                 $sms['smsData']['booking_id'] = $booking_id;
+                if($booking_details[0]['partner_id'] == VIDEOCON_ID){
+                    $sms['smsData']['cc_number'] = "Call 0120-4500600";
+                }
+                else{
+                    $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
+                }
                 $sms['booking_id'] = $booking_id;
                 $sms['type'] = "user";
                 $sms['type_id'] = $booking_details[0]['user_id'];
@@ -4257,6 +4286,7 @@ function generate_image($base64, $image_name,$directory){
             }
         }
     }
+
     function get_request_type_life_cycle($bookingID) {
         $where['booking_id'] = $bookingID;
         $orderBYArray['date'] = 'ASC';

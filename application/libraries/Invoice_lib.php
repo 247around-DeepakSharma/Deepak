@@ -127,28 +127,34 @@ class Invoice_lib {
         $sign_path = false;
         $imagePath = array();
         
-        if(isset($meta['main_company_logo_cell'])){
-          if($meta['main_company_logo']){
+        if(isset($meta['main_company_logo_cell'])){ 
+          if($meta['main_company_logo']){ 
             $main_logo_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_logo'];
-            if(file_exists($main_logo_path)){
-                $logo_cell = $meta['main_company_logo_cell'];
-                copy($main_logo_path, TMP_FOLDER . $meta['main_company_logo']);
-                $logo_path = TMP_FOLDER . $meta['main_company_logo'];
-                $logo_detail = array("image_path" => $logo_path, "cell" => $logo_cell);
-                array_push($imagePath, $logo_detail);
+            if($this->remote_file_exists($main_logo_path)){ 
+                if(copy($main_logo_path, TMP_FOLDER . $meta['main_company_logo'])){
+                    $logo_cell = $meta['main_company_logo_cell'];
+                    $logo_path = TMP_FOLDER . $meta['main_company_logo'];
+                    $res1 = 0;
+                    system(" chmod 777 " . $logo_path, $res1);
+                    $logo_detail = array("image_path" => $logo_path, "cell" => $logo_cell);
+                    array_push($imagePath, $logo_detail);
+                }
             }
           }
         }
-        
+       
         if(isset($meta['main_company_seal_cell'])){
           if($meta['main_company_seal']){
             $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_seal'];
-            if(file_exists($main_seal_path)){
-                $seal_cell = $meta['main_company_seal_cell'];
-                copy($main_seal_path, TMP_FOLDER . $meta['main_company_seal']);
-                $seal_path = TMP_FOLDER . $meta['main_company_seal'];
-                $seal_detail = array("image_path" => $seal_path, "cell" => $seal_cell);
-                array_push($imagePath, $seal_detail);
+            if($this->remote_file_exists($main_seal_path)){
+                if(copy($main_seal_path, TMP_FOLDER . $meta['main_company_seal'])){
+                    $seal_cell = $meta['main_company_seal_cell'];
+                    $seal_path = TMP_FOLDER . $meta['main_company_seal'];
+                    $res1 = 0;
+                    system(" chmod 777 " . $seal_path, $res1);
+                    $seal_detail = array("image_path" => $seal_path, "cell" => $seal_cell);
+                    array_push($imagePath, $seal_detail);
+                }
             }
           }
         }
@@ -156,16 +162,18 @@ class Invoice_lib {
         if(isset($meta['main_company_sign_cell'])){
             if($meta['main_company_seal']){
                 $main_sign_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_signature'];
-                if(file_exists($main_sign_path)){
-                    $sign_cell = $meta['main_company_sign_cell'];
-                    copy($main_sign_path, TMP_FOLDER . $meta['main_company_signature']);
-                    $sign_path = TMP_FOLDER . $meta['main_company_signature'];
-                    $sign_detail = array("image_path" => $sign_path, "cell" => $sign_cell);
-                    array_push($imagePath, $sign_detail);
+                if($this->remote_file_exists($main_sign_path)){
+                    if(copy($main_sign_path, TMP_FOLDER . $meta['main_company_signature'])){
+                        $sign_cell = $meta['main_company_sign_cell'];
+                        $sign_path = TMP_FOLDER . $meta['main_company_signature'];
+                        $res1 = 0;
+                        system(" chmod 777 " . $sign_path, $res1);
+                        $sign_detail = array("image_path" => $sign_path, "cell" => $sign_cell);
+                        array_push($imagePath, $sign_detail);
+                    }
                 }
             }
         }
-        
         
         $R->render('excel', $output_file_excel,$cell, $imagePath);
         
@@ -684,10 +692,11 @@ class Invoice_lib {
         $main_partner = $this->ci->partner_model->get_main_partner_invoice_detail($partner_on_saas);
         $excel_data['excel_data']['main_company_logo'] = $main_partner['main_company_logo'];
         if(!empty($sf_details)){
-            $excel_data['excel_data']['sf_name'] = $sf_details[0]['name'];
+            $excel_data['excel_data']['sf_name'] = $sf_details[0]['company_name'];
             $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
             $excel_data['excel_data']['sf_contact_person_name'] = $sf_details[0]['contact_person_name'];
-            $excel_data['excel_data']['sf_contact_number'] = $sf_details[0]['primary_contact_number'];
+            $excel_data['excel_data']['sf_contact_number'] = $sf_details[0]['contact_number'];
+            $excel_data['excel_data']['sf_gst_number'] = $sf_details[0]['gst_number'];
         }
                                
         if(!empty($partner_details)){
@@ -721,7 +730,7 @@ class Invoice_lib {
         
         if ($sf_details[0]['is_gst_doc'] == 1) {
             $template = 'delivery_challan_template';
-            $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_no'];
+            $excel_data['excel_data']['sf_gst'] = $sf_details[0]['gst_number'];
             $signature_file = FALSE;
         } else {
             $template = "delivery_challan_without_gst";
@@ -796,7 +805,7 @@ class Invoice_lib {
             $spare_parts_details[0]['part_number']='-';    
             }
 
-            $sf_details = $this->ci->vendor_model->getVendorDetails('name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as primary_contact_number', array('id' => $service_center_id));
+            $sf_details = $this->ci->vendor_model->getVendorDetails('name as company_name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $service_center_id));
 
             $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number";
 
@@ -820,7 +829,8 @@ class Invoice_lib {
             
             }
             
-            
+            $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
+            $partner_details[0]['owner_name'] = $sf_details[0]['owner_name'];
             
             log_message('info', __FUNCTION__ . 'sf challan debugging spare_id: ' . $spare_id, true);
 
@@ -831,7 +841,7 @@ class Invoice_lib {
             }
 
             
-            $sf_challan_file = $this->process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
+            $sf_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
 
             $data['sf_challan_number'] = $sf_challan_number;
             $data['sf_challan_file'] = $sf_challan_file;
@@ -1353,4 +1363,14 @@ class Invoice_lib {
         json_decode($str);
         return (json_last_error()===JSON_ERROR_NONE);
     }
+    
+    /**
+     * @desc this function is used to check file in $url is exist or not
+     * @param $url
+     * @return boolean
+     */
+    function remote_file_exists($url){
+        $header_response = get_headers($url, 1);
+        return(bool)preg_match('~HTTP/1\.\d\s+200\s+OK~', $header_response[0]);
+    }  
 }

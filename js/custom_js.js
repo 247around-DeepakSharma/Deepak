@@ -167,7 +167,9 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
         postData['add_booking'] = add_booking;
         postData['is_repeat'] = (($("#is_repeat").val()) ? $("#is_repeat").val(): 0);
-        $('#submitform').attr('disabled', true);
+        if(postData['is_repeat'] !== 1) {
+            $('#submitform').attr('disabled', true);
+        }
 
         if ($("#appliance_capacity_" + div_no[2]).val() !== "") {
 
@@ -187,6 +189,9 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
                 $("#priceList_" + div_no[2]).html(data1.price_table);
                 $("#upcountry_data").val(data1.upcountry_data);
                 final_price();
+                if(postData['is_repeat'] !== 1) {
+                    $('#submitform').attr('disabled', false);
+                }
             });
         }
 
@@ -220,6 +225,7 @@ function final_price() {
     var final_price = Number(price) - Number(around_discount) - Number(partner_discount);
 
     $("#grand_total_price").val(final_price);
+    
 
 }
 
@@ -434,9 +440,8 @@ function addBookingDialog(chanel = '') {
     }
     var grand_total_price = $("#grand_total_price").val();
     if (Number(grand_total_price) === 0) {
-
-       if (partner_id !== "247001") {
-
+       
+        if (partner_id !== "247001") {
             if(partner_id === "3"){
                 firstPartNumaricValidation = firstPartLengthValidation = false;
                 secondPartNumaricValidation  =  secondPartLengthValidation = true;
@@ -1068,19 +1073,24 @@ function getModelForServiceCategoryCapacity(div_id) {
     postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
     postData['category'] = $("#appliance_category_" + div_no[2]).val();
     postData['capacity'] = $("#appliance_capacity_" + div_no[2]).val();
-
     if (postData['category']) {
         sendAjaxRequest(postData, modelServiceUrl).done(function (data) {
             var obj = JSON.parse(data);
             if(obj.status === false){
                 $('.select-model').hide();
+                $('.select-model').next(".select2-container").hide();
                 $('.input-model').show();
                 $('.input-model').removeAttr('disabled');
             }else{
                 $('.select-model').show();
+                $('.select-model').next(".select2-container").show();
                 $('.input-model').attr('disabled', 'disabled');
                 $('.input-model').hide();
-                $(".select-model#model_number_" + div_no[2]).html(obj.msg);
+                if($.trim(postData['capacity']) !== '' || !$("#is_repeat").val()) {
+                    $('#model_number_1').val('');
+                    $('#select2-model_number_1-container').empty();
+                    $(".select-model#model_number_" + div_no[2]).html(obj.msg);
+                }
             }
             
         });
@@ -1126,9 +1136,3 @@ function get_symptom(symptom_id = ""){
     }
    
 }
-
-
-
-
-
-

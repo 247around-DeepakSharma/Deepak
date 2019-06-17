@@ -1187,9 +1187,17 @@ class vendor extends CI_Controller {
             $sp['service_center_id'] = $service_center_id;
             $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id), $sp);
 
+           $default_id =_247AROUND_DEFAULT_AGENT;
+           $defaultagent_name =_247AROUND_DEFAULT_AGENT_NAME ; 
+           if (!empty($this->session->userdata('id'))  &&  !empty($this->session->userdata('employee_id'))) {
+                $default_id =$this->session->userdata('id');
+                $defaultagent_name =$this->session->userdata('employee_id') ; 
+           }
+
             //Mark Upcountry & Create Job Card
-            $url = base_url() . "employee/vendor/mark_upcountry_booking/" . $booking_id . "/" . $this->session->userdata('id')
-                    . "/" . $this->session->userdata('employee_id');
+            $url = base_url() . "employee/vendor/mark_upcountry_booking/" . $booking_id . "/" . $default_id
+                    . "/" . $defaultagent_name;
+
             $async_data['data'] = array();
             $this->asynchronous_lib->do_background_process($url, $async_data);
 
@@ -1830,7 +1838,9 @@ class vendor extends CI_Controller {
         $data['service_center'] = $this->vendor_model->getactive_vendor();
         $data['services'] = $this->booking_model->selectservice();
         if(!empty($id)){
-            $data['data'] = $this->vendor_model->get_engg_by_id($id); 
+            $select = "engineer_details.*, entity_identity_proof.identity_proof_type as identity_proof, entity_identity_proof.identity_proof_number, entity_identity_proof.identity_proof_pic";
+            $where = array("engineer_details.id"=>$id);
+            $data['data'] = $this->vendor_model->get_engg_full_detail($select, $where); 
         }
         $data['data'][0]['appliance_id'] = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$id, "is_active"=>1), "service_id");
         if($this->session->userdata('userType') == 'service_center'){
@@ -1849,15 +1859,18 @@ class vendor extends CI_Controller {
      *  This  function is used by vendor panel and admin panel to load add engineer details.
      */
     function process_add_engineer() {
-        $engineer_form_validation = $this->engineer_form_validation();
+        $data = array();
+        $data_identity = array();
+        //$engineer_form_validation = $this->engineer_form_validation();
+        $engineer_form_validation = true;
         if ($engineer_form_validation) {
             $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "name, phone");
             if (empty($is_phone)) {
                 $data['name'] = $this->input->post('name');
                 $data['phone'] = $this->input->post('phone');
                 $data['alternate_phone'] = $this->input->post('alternate_phone');
-                $data['identity_proof'] = $this->input->post('identity_proof');
-                $data['identity_proof_number'] = $this->input->post('identity_id_number');
+                $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
+                $data_identity['identity_proof_number'] = $this->input->post('identity_id_number');
                 
                 if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
                     //Making process for file upload
@@ -1869,7 +1882,7 @@ class vendor extends CI_Controller {
                      $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "engineer-id-proofs/" . $pan_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $data['identity_proof_pic'] = $pan_file;
+                    $data_identity['identity_proof_pic'] = $pan_file;
                 }
                 
                  //$data['address'] = $this->input->post('address');
@@ -1907,6 +1920,10 @@ class vendor extends CI_Controller {
                     }
 
                     $this->engineer_model->insert_engineer_appliance_mapping($eng_services_data);
+                    //insert engineer identity proof data
+                    $data_identity['entity_type'] = _247AROUND_ENGINEER_STRING;
+                    $data_identity['entity_id'] = $engineer_id;
+                    $this->vendor_model->add_entity_identity_proof($data_identity);
                     
                     log_message('info', __METHOD__ . "=> Engineer Details Added. " . $engineer_id);
                     $login["entity"] = "engineer";
@@ -1957,16 +1974,16 @@ class vendor extends CI_Controller {
      * 
      */
     function process_edit_engineer() { 
-        $engineer_form_validation = $this->engineer_form_validation();
+        //$engineer_form_validation = $this->engineer_form_validation();
         $engineer_id = $this->input->post('id');
-        if ($engineer_form_validation) {
+        if ($engineer_id) {
             $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "id, name, phone");
             if (empty($is_phone) || $is_phone[0]['id'] == $engineer_id) {
                 $data['name'] = $this->input->post('name');
                 $data['phone'] = $this->input->post('phone');
                 $data['alternate_phone'] = $this->input->post('alternate_phone');             
-                $data['identity_proof'] = $this->input->post('identity_proof');
-                $data['identity_proof_number'] = $this->input->post('identity_id_number');
+                $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
+                $data_identity['identity_proof_number'] = $this->input->post('identity_id_number');
                 
                 if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
                     //Making process for file upload
@@ -1978,7 +1995,7 @@ class vendor extends CI_Controller {
                      $bucket = BITBUCKET_DIRECTORY;
                     $directory_xls = "engineer-id-proofs/" . $pan_file;
                     $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $data['identity_proof_pic'] = $pan_file;
+                    $data_identity['identity_proof_pic'] = $pan_file;
                 }
                
                
@@ -2005,6 +2022,9 @@ class vendor extends CI_Controller {
 
                 $where = array('id' => $engineer_id);
                 $engineer_update_id = $this->vendor_model->update_engineer($where, $data);
+                
+                $where_identity = array("entity_type" => "engineer", "entity_id" => $engineer_id);
+                $this->vendor_model->update_entity_identity_proof($where_identity, $data_identity);
                 
                 if($engineer_id){
                     
@@ -2049,42 +2069,15 @@ class vendor extends CI_Controller {
      */
 
     function get_engineers(){
-        $service_center_id = "";
-        if($this->session->userdata('userType') == 'service_center'){
-
-            $service_center_id = $this->session->userdata('service_center_id');
-            log_message('info', __FUNCTION__ . " view service center Engineer View  " . print_r($service_center_id, true));
-        }
-
-       $data['engineers'] =  $this->vendor_model->get_engineers($service_center_id);
-       foreach ($data['engineers'] as $key => $value) {
-           $where = array('id' => $value['service_center_id'] );
-           $select = "service_centres.name, service_centres.id";
-           $service_center = $this->vendor_model->getVendorDetails($select, $where);
-           $data['engineers'][$key]['service_center_name'] = isset($service_center[0]['name'])?$service_center[0]['name']:'';
-           $service_id  = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$value['id'], "is_active"=>1), "service_id");
-           $appliances = array();
-           if(!empty($service_id)){
-                foreach ($service_id as  $values) {
-                     $service_name = $this->booking_model->selectservicebyid($values['service_id']);
-                     if(!empty($service_name)){
-                        array_push($appliances, $service_name[0]['services']); 
-                     }
-                }
-           }
-           
-
-           $data['engineers'][$key]['appliance_name'] = implode(",", $appliances);
-       }
-       $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+        
        if($this->session->userdata('userType') == 'service_center'){
 
             $this->load->view('service_centers/header');
-            $this->load->view('service_centers/view_engineers', $data);
+            $this->load->view('service_centers/view_engineers');
 
        } else {
             $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/view_engineers', $data);
+            $this->load->view('employee/view_engineers');
        }
 
     }
@@ -4883,6 +4876,7 @@ class vendor extends CI_Controller {
              * This function used to update multiple pincode data in india pincode table
              */
         function add_multiple_pincode(){
+            $finalArray = [];
             $pincodeCount = $this->input->post('pincode_count');
             for($i=0;$i<$pincodeCount;$i++){
                 $cityArray = $this->input->post('city_'.$i);
@@ -5677,7 +5671,6 @@ class vendor extends CI_Controller {
         $wh_details = $this->vendor_model->getVendorContact($id);
         echo json_encode($wh_details);
     }
-    
     /*
      @Desc - This function is used to load view for download SF penalty summary
      */

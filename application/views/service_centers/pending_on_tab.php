@@ -53,7 +53,7 @@
                                             <?php echo $sn_no; if($row->is_upcountry == 1) { ?>
                                             <i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due;?>', '<?php echo $row->flat_upcountry;?>')" style='color: red;font-size: 28px; cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                         </td>
-                                        <td style="vertical-align: middle;">
+                                        <td style="vertical-align: middle;     max-width: 200px;">
                                             <a  target="_blank" 
                                                 <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  style="pointer-events:none" <?php } } ?> 
                                                 href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
@@ -75,6 +75,14 @@
                                                 <br/>
                                                 <a target='_blank' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $row->booking_files_purchase_invoice; ?>"  title = 'Purchase Invoice Varified' aria-hidden = 'true'><img src="<?php echo base_url(); ?>images/varified.png" style="width:30%"/></a>
                                                <?php } ?>
+                                                <br/>
+                                                <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
+                                                <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_delivered_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
+                                                <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');
+                                                         load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');
+                                                });
+                                                
+                                                </script>
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
@@ -263,6 +271,17 @@
                                                 <?php if($row->is_bracket == 1){ ?>
                                                 <img src="<?php echo base_url(); ?>images/Bracket.png" style="width:30%"/>
                                                 <?php }?>
+                                                
+                                                <br/>
+                                                <a href="javascript:void(0)" > <img id="<?php echo 'spare_tomorrow'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:84%"/></a>
+                                                <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_delivered_tomorrow'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
+                                                <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'tomorrow');
+                                                         load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'tomorrow');
+                                                });
+                                                
+                                                
+                                                </script>
+                                                
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
@@ -336,7 +355,6 @@
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
-
                                         <td style="vertical-align: middle;">
                                             <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
@@ -441,6 +459,14 @@
                                                 <?php if($row->is_bracket == 1){ ?>
                                                 <img src="<?php echo base_url(); ?>images/Bracket.png" style="width:30%"/>
                                                 <?php }?>
+                                                <br/>
+                                                <a href="javascript:void(0)" style="width:10px;"> <img id="<?php echo 'spare_rescheduled'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:84%"/></a>
+                                                <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_delivered_rescheduled'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
+                                                <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'rescheduled');
+                                                         load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'rescheduled');
+                                                });
+                                                
+                                                </script>
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
@@ -509,7 +535,7 @@
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
-                            <td style="vertical-align: middle;">
+                                        <td style="vertical-align: middle;">
                                             <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
@@ -528,8 +554,8 @@
                                             <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                         </td>
                                         <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
-<td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>                                        
-                        <td>
+                                            <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>                                        
+<!--                                                                    <td>-->
                                        <!--     <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
                                                title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php // echo $row->count_reschedule; ?></span></a>
                                             
@@ -756,6 +782,7 @@
             }
           });
     }
+    
 </script>
 
 <?php } ?>
@@ -861,7 +888,7 @@
         }
     }
     
-    $(document).ready(function(){
+    function getBookingEngineers(){
         $(".engineer_select").each(function(){  
             var service_id = $(this).attr("service-id");
             var engineer_id = $(this).attr("engineer-id");
@@ -872,17 +899,31 @@
                     url: '<?php echo base_url()  ?>employee/engineer/get_service_based_engineer',
                     data: {'service_id':service_id, 'engineer_id':engineer_id, 'service_center_id':<?php echo $this->session->userdata('service_center_id'); ?>},
                     success: function (response) {
-                        $("#"+id).html(response);
-                        $("#"+id).select2();
+                        response = JSON.parse(response);
+                        if(response.status){
+                            $("#"+id).html(response.html);
+                            $("#"+id).css("display", "inline");
+                            $("#"+id).parent().find("a").css("display", "none");
+                            $("#"+id).select2();
+                        }
+                        else{
+                            $("#"+id).parent().find("a").remove();
+                            $("#"+id).parent().append(response.html);
+                            $("#"+id).css("display", "none");
+                        }
                    }
                 });
             }
         });
+    }
+    
+    $(document).ready(function(){
+        getBookingEngineers();
     });
     
     $(".engineer_select").change(function(){
         var booking_id = $(this).attr("booking-id");
-        if (confirm('Are you sure to assign this engineer for Booking Id'+booking_id)) {
+        if (confirm('Are you sure to assign this engineer for Booking Id '+booking_id)) {
             var engineer = {};
             engineer[booking_id] = $(this).val();
             $.ajax({
@@ -896,4 +937,8 @@
             });
         } 
     });
+    
+    setInterval(function(){ getBookingEngineers(); }, 30000);
+    
+   
     </script>

@@ -17,49 +17,24 @@
                     </div>';
                     }
         ?>
-        <table  class="table table-striped table-bordered">
-          
-          <tr>
+        <table  class="table table-striped table-bordered" id="engineer_datatable">
+          <thead>
+            <tr>
           	<th>No.</th>
           	<th>Name</th>
-            <th>Appliances</th>
+                <th>Appliances</th>
           	<th>Mobile</th>
           	<th>Alternate Mobile</th>
           	<th>ID Proof</th>
-          	
-            <th colspan="3">Actions</th>
-          </tr>
+          	<th>Status</th>
+                <th>Edit</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+           <tbody></tbody>
 
           
-          <?php $sno = 1; foreach($engineers as $key =>$row){?>
-          <tr>
-            <td><?php echo $sno;?></td>
-            <td><a href="<?php echo base_url()?>employee/vendor/get_edit_engineer_form/<?php echo $row['id']?>"><?php echo $row['name'];?></a></td>
-            <td><?php echo $row['appliance_name']; ?></td>
-            <td><?php echo $row['phone'];?></td>
-            <td><?php echo $row['alternate_phone']; ?></td>
-          	<td><?php echo $row['identity_proof'];?></td>
-          	
-            <td><?php if($row['active']==1)
-                {
-                  echo "<a id='edit' class='btn btn-small btn-primary' "
-                                    . "href=" . base_url() . "employee/vendor/change_engineer_activation/$row[id]/0>Disable</a>";                
-                }
-                else
-                {
-                  echo "<a id='edit' class='btn btn-small btn-success' "
-                                    . "href=" . base_url() . "employee/vendor/change_engineer_activation/$row[id]/1>Enable</a>";                
-                }
-              ?>
-            </td>
-            <td><?php  echo "<a id='edit' class='btn btn-small btn-primary' "
-                                    . "href=" . base_url() . "employee/vendor/get_edit_engineer_form/$row[id]>Edit</a>";?></td>
-            <td><?php  echo "<a onClick=\"javascript: return confirm('Delete engineer?');\" id='edit' class='btn btn-small btn-danger' "
-                                    . "href=" . base_url() . "employee/vendor/delete_engineer/$row[id]>Delete</a>";                ?></td>
-          </tr>
-          
-          </tr>
-          <?php $sno++;} ?>
+       
         </table>
 
 
@@ -67,3 +42,46 @@
       </div>
     </div>
 </div>      
+<script>
+    var engineer_datatable = "";
+    engineer_datatable = $('#engineer_datatable').DataTable({
+        processing: true, //Feature control the processing indicator.
+        serverSide: true, //Feature control DataTables' server-side processing mode.
+        order: [], //Initial no order.
+        lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
+        pageLength: 10,
+        // Load data for the table's content from an Ajax source
+        dom: 'lBfrtip',
+        buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Excel Export',
+                    pageSize: 'LEGAL',
+                    title: 'engineers',
+                    exportOptions: {
+                       columns: [1,2,3,4,5],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'All',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
+        ajax: {
+            url: "<?php echo base_url(); ?>employee/engineer/get_engineer_details",
+            type: "POST",
+            data: {service_center_id:<?php echo $this->session->userdata('service_center_id'); ?>}
+        },
+        //Set column definition initialisation properties.
+        columnDefs: [
+            {
+                "targets": [0, 1, 2, 3, 4, 5, 6, 7, 8], //first column / numbering column
+                "orderable": false //set not orderable
+            }
+        ]
+    });
+    
+</script>

@@ -562,7 +562,7 @@ class Notify {
                     if($query1[0]['partner_id'] == GOOGLE_FLIPKART_PARTNER_ID){
                         $sms['tag'] = "flipkart_google_scheduled_sms";
                         $sms['smsData'] = array();
-                    }else{
+                    }else{ 
                         $booking_id=$query1[0]['booking_id'];
                         $jobcard="BookingJobCard-".$booking_id.".pdf";
                         $jobcard_link=S3_WEBSITE_URL."jobcards-pdf/".$jobcard;
@@ -581,7 +581,22 @@ class Notify {
                         }
                         
                         //$sms['smsData']['booking_timeslot'] = explode("-",$query1[0]['booking_timeslot'])[1];
-                         $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
+                        $sms['smsData']['booking_id'] = $query1[0]['booking_id'];
+                        $cc_number = ""; 
+                        if($query1[0]['partner_id'] == VIDEOCON_ID){
+                            $cc_number = "0120-4500600";
+                        }
+                        else{
+                            $cc_number = _247AROUND_CALLCENTER_NUMBER;
+                        }
+                        $sms['smsData']['cc_number'] = $cc_number;
+                        
+                        if($query1[0]['is_upcountry'] == 1){
+                            $sms['tag'] = "upcountry_add_new_booking";
+                        } else {
+                            $sms['tag'] = "add_new_booking";
+                        }
+                        
                         log_message('info', __METHOD__. " ". print_r($sms, true));
                         if ($query1[0]['partner_id'] == JEEVES_ID) {
                             $sms['smsData']['public_name'] = "";
@@ -596,12 +611,7 @@ class Notify {
                             $sms['smsData']['public_name'] = $query1[0]['public_name'];
                         }
                         
-                        if($query1[0]['is_upcountry'] == 1){
-                            $sms['tag'] = "upcountry_add_new_booking";
-                        } else {
-                            $sms['tag'] = "add_new_booking";
-                        }
-                         $sms['smsData']['url']=$tinyUrl;
+                        $sms['smsData']['url']=$tinyUrl;
                         
                     }
 		   //$sms['smsData']['jobcard'] = S3_WEBSITE_URL."jobcards-excel/".$query1[0]['booking_jobcard_filename'];
@@ -748,11 +758,11 @@ class Notify {
                 $to = $vendor_details[0]['primary_contact_email'] . "," . $vendor_details[0]['owner_email'];
 
                 $sid = $query[0]['assigned_vendor_id'];
-                $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($sid);
+                //$rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($sid);
                 $rm_email = "";
-                if (!empty($rm)) {
-                    $rm_email = ", " . $rm[0]['official_email'];
-                }
+//                if (!empty($rm)) {
+//                    $rm_email = ", " . $rm[0]['official_email'];
+//                }
 
                 $bcc = $email_template[5];
                 $subject = vsprintf($email_template[4], array($query[0]['booking_id']));
@@ -1058,7 +1068,7 @@ class Notify {
             return $videocon_states_number[$state];
         }
         else{
-            return _247AROUND_WHATSAPP_NUMBER;
+            return "9810594247";
         }
         
     }

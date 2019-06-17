@@ -399,6 +399,8 @@ class Partner extends CI_Controller {
                                         $requestData['partnerName'],$actor,$next_action, $this->partner['id']);
                                 
                                 //Send sms to customer for asking to send its purchanse invoice in under warrenty calls
+                                //Currently we stop this automatically generated message for asking to send purchase invoice as per Anuj sir email
+                                /*
                                 if($booking['partner_id'] == VIDEOCON_ID){
                                     if((stripos($booking['request_type'], 'In Warranty') !== false) || stripos($booking['request_type'], 'Extended Warranty') !== false){
                                         $url1 = base_url() . "employee/do_background_process/send_sms_email_for_booking";
@@ -407,7 +409,7 @@ class Partner extends CI_Controller {
                                         $this->asynchronous_lib->do_background_process($url1, $send1);
                                     }
                                 }
-                                
+                                */
                                 // if (empty($booking['state'])) {
                                 //$to = NITS_ANUJ_EMAIL_ID;
                                 //$message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
@@ -1603,6 +1605,14 @@ class Partner extends CI_Controller {
                     }
                     $return_id = $this->booking_model->addbooking($booking);
                     $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);
+                    
+                    if(!$symptomStatus) {
+                        log_message('info', __FUNCTION__ . ' Error Partner booking symptom details not inserted: ' . print_r($booking_symptom, true));
+                        //Send response
+                        $this->jsonResponseString['response'] = NULL;
+                        $this->sendJsonResponse(array(ERR_BOOKING_NOT_INSERTED, ERR_BOOKING_NOT_INSERTED_MSG));
+                    }
+                    
                     if (!empty($return_id)) {
                         //Send Push Notification to Partner
 //                        if($booking['partner_id'] !=''){
@@ -1637,10 +1647,13 @@ class Partner extends CI_Controller {
                         $is_price['customer_net_payable'] = $customer_net_payable;
                         $is_price['is_upcountry'] = $booking['is_upcountry'];
                         
+                        //Currently we stop this automatically generated message for asking to send purchase invoice as per Anuj sir email
+                        /*
                         $url1 = base_url() . "employee/do_background_process/send_sms_email_for_booking";
                         $send1['booking_id'] = $booking['booking_id'];
                         $send1['state'] = "SendWhatsAppNo";
                         $this->asynchronous_lib->do_background_process($url1, $send1);
+                        */
 
                         if ($requestData['product_type'] == "Shipped") {
                             $this->initialized_variable->fetch_partner_data($this->partner['id']);
@@ -1741,12 +1754,6 @@ class Partner extends CI_Controller {
                         $this->sendJsonResponse(array(ERR_BOOKING_NOT_INSERTED, ERR_BOOKING_NOT_INSERTED_MSG));
                     }
                     
-                    if(!$symptomStatus) {
-                        log_message('info', __FUNCTION__ . ' Error Partner booking symptom details not inserted: ' . print_r($booking_symptom, true));
-                        //Send response
-                        $this->jsonResponseString['response'] = NULL;
-                        $this->sendJsonResponse(array(ERR_BOOKING_NOT_INSERTED, ERR_BOOKING_NOT_INSERTED_MSG));
-                    }
                 } else {
                     log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
 

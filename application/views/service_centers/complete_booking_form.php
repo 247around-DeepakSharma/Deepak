@@ -137,9 +137,7 @@
                     <input type="hidden" name="approval" value='0' />
                     <input type="hidden" name="count_unit" id ="count_unit" value="<?php echo count($bookng_unit_details);?>" />
                     <input type="hidden" name="mismatch_pincode" id="mismatch_pincode" value="<?php if(isset($mismatch_pincode)) { echo $mismatch_pincode; }?>" />
-                    <input type="hidden" name="is_sf_purchase_invoice_required" id="is_sf_purchase_invoice_required" value="<?= (!empty($is_sf_purchase_invoice_required) ? 1 : 0); ?>">
-            
-                    <?php $count = 0; foreach ($bookng_unit_details as $key1 => $unit_details) {  ?>
+                    <?php $k_count = 0; $count = 0; foreach ($bookng_unit_details as $key1 => $unit_details) { ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <div class="panel-body">
                             <div class="row">
@@ -157,8 +155,8 @@
                                             </div>
                                         </div>
                                         <input type="hidden" id="<?php echo "count_line_item_".$key1;?>" value="<?php echo count($unit_details['quantity']);?>"/>
-                                        <div class="form-group col-md-3" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:16.95%;
-                                            <?php } else {?> width:16.95%;<?php }?>">
+                                        <div class="form-group col-md-3" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:22.6%;
+                                            <?php } else {?> width:22.6%;<?php }?>">
                                             <div class="col-md-12 ">
                                                  <label> Brand</label>
                                                 <select type="text" disabled="" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
@@ -166,7 +164,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-3" style="width:16.95%">
+                                        <div class="form-group col-md-3" style="width:22.6%">
                                             <div class="col-md-12 ">
                                                 <label> Category</label>
                                                 <select type="text" disabled="" class="form-control appliance_category"   id="appliance_category_1" name="appliance_category[]"  >
@@ -174,7 +172,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-3"style="width:16.95%" style=" padding-right: 0px;">
+                                        <div class="form-group col-md-3"style="width:22.6%" style=" padding-right: 0px;">
                                             <div class="col-md-12">
                                                 <label> Capacity</label>
                                                 <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
@@ -185,35 +183,13 @@
                                                 
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-3"style="width:16.95%;margin-left:6px !important;" style=" padding-right: 0px;">
+                                        <div class="form-group col-md-3"style="width:21.6%" style=" padding-right: 0px;">
                                             <label> Purchase Date</label>
                                             <div class="input-group input-append date">
                                                 <input  autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$key1?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                              </div>
                                         </div>
-                                          <?php //echo"<pre>";print_r($booking_history);exit; ?>
-                                        <div class="form-group col-md-3"style="width:16.95%;margin-left:15px !important;">
-                                            <label>SF Purchase Invoice</label>
-                                           
-                                            <input type="file" name="sf_purchase_invoice" 
-                                                   onchange="update_purchase_invoice_for_unit('<?php echo $key1?>')"  id="<?php echo "purchase_invoice_".$key1?>" class="form-control purchase-invoice"
-                                                   value="<?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {  echo $booking_history['spare_parts'][0]['invoice_pic']; } ?>"
-                                            >
-                                            
-                                            <?php $src = base_url() . 'images/no_image.png';
-                                            $image_src = $src;
-                                            if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {
-                                                //Path to be changed
-                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history['spare_parts'][0]['invoice_pic'];
-                                                //$image_src = base_url().'images/view_image.png';
-                                            }
-                                            ?>
-                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic']) ? $booking_history['spare_parts'][0]['invoice_pic'] : ""); ?></small></a>
-                                            
-                                            
-                                        </div>
-
                                         <div class="col-md-12" style="padding-left:0px;">
                                             <table class="table priceList table-striped table-bordered" name="priceList" >
                                                 <tr>
@@ -238,23 +214,21 @@
                                                             ?>
                                                     <tr>
                                                         <td>
-                                                            <?php if(isset($price['model_data']) && !empty($price['model_data'])){ ?>
-                                                            <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>"  required="">
+                                                            <?php if(isset($model_data) && !empty($model_data) ){ ?>
+                                                            <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>"  >
                                                                 <option value="" selected desa>Please Select Model Number</option>
-                                                                <?php foreach ($price['model_data'] as $m) { ?>
-                                                                <option value="<?php echo $m['model_number'];?>"
-                                                                        <?php if(!empty($booking_history['spare_parts']) && $booking_history['spare_parts'][0]['serial_number_pic'] == $m['model_number']){ echo 'selected';} elseif($unit_details['model_number'] == $m['model_number']) { echo 'selected'; } else { echo ''; }  ?>
-                                                                ><?php echo $m['model_number'];?></option>
+                                                                <?php foreach ($model_data as $m) { ?>
+                                                                <option value="<?php echo $m['model_number'];?>"><?php echo $m['model_number'];?></option>
                                                                                 
                                                                 <?php }?>
                                                             </select>
+                                                            <input type="hidden" name="is_model_dropdown" value="1" />
                                                            <?php } else { ?>
-                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?= (!empty($unit_details['model_number']) ? $unit_details['model_number'] : ''); ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
+                                                             <input type="hidden" name="is_model_dropdown" value="0" />
+                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
                                                           <?php } ?>
                                                             <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_dop_".$key1."_".$key;?>" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>" />
-                                                            <input type="hidden" name="<?php echo "appliance_purchase_invoice[" . $price['unit_id'] . "]" ?>" 
-                                                            class="<?php echo "unit_purchase_invoice_".$key1."_".$key;?>" value="<?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])){  echo $booking_history['spare_parts'][0]['invoice_pic']; } ?>" />
                                                         </td>
                                                                
                                                         <td>
@@ -262,45 +236,22 @@
                                                             if ((strpos($price['price_tags'],REPAIR_STRING) !== false) && (strpos($price['price_tags'],IN_WARRANTY_STRING) !== false)) {
                                                                    $dop_mendatory = 1; 
                                                             }
-                                                            
-                                                           // echo"<pre>";var_dump((isset($price['en_serial_number'])));exit;
                                                             ?>
                                                             <?php if ($price['pod'] == "1" || !empty($sr)) { ?>
                                                             <div class="form-group">
                                                                 <div class="col-md-12">
                                                                     <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
-                                                                        value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} elseif(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else { echo $price["serial_number_pic"];}  ?>" placeholder=""   />
+                                                                        value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} else {$price["serial_number_pic"];}  ?>" placeholder=""   />
 <!--                                                                    onblur="validateSerialNo('<?php //echo $count;?>')" -->
                                                                     <input type="text" style="text-transform: uppercase;" id="<?php echo "serial_number" . $count ?>" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  
-                                                                        value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];}
-                                                                        elseif(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number'];} else {echo $price["serial_number"];}  ?>" placeholder="Enter Serial No" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8"   />
+                                                                        value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];} else {$price["serial_number"];}  ?>" placeholder="Enter Serial No" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8"   />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
                                                                     <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <input type="hidden" id="<?php echo "is_sn_correct" . $count ?>" class="form-control" name="<?php echo "is_sn_correct[" . $price['unit_id'] . "]" ?>"/>
                                                                     <br/>
                                                                     <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
-                                                                    <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   
-                                                                        class="form-control serialNumberPic" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"  
-                                                                        value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];}
-                                                                        elseif(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>"
-                                                                    />
-                                                                    <?php $src = base_url() . 'images/no_image.png';
-                                                                    $image_src = $src;
-                                                                    if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['serial_number_pic'])) {
-                                                                        //Path to be changed
-                                                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history['spare_parts'][0]['serial_number_pic'];
-                                                                        //$image_src = base_url().'images/view_image.png';
-                                                                    } elseif(!empty($price["serial_number_pic"])) {
-                                                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$price["serial_number_pic"];
-                                                                    }
-                                                                    
-                                                                    if(!empty($src)) {
-                                                                    ?>
-                                                                    
-                                                                    <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;">
-                                                                            <?= (!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['serial_number_pic']) ? $booking_history['spare_parts'][0]['serial_number_pic'] : !empty($price["serial_number_pic"]) ? $price["serial_number_pic"] : ''); ?></small></a>
-                                                                    <?php } ?>
+                                                                    <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                                 </div>
                                                                 
                                                             </div>
@@ -342,7 +293,7 @@
                                                                     <div class="form-group ">
                                                                         <div class="col-md-12">
                                                                             <div class="radio">
-                                                                                <label><input onclick="check_broken('<?php echo $key1;?>');return change_status('<?php echo $key1;?>');" class="<?php echo "completed_".$key."_".$key1;?>" type="radio"  name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
+                                                                                <label><input onclick="check_broken('<?php echo $key1;?>');return change_status('<?php echo $key;?>');" class="<?php echo "completed_".$key."_".$key1;?>" type="radio"  name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Completed" <?php
                                                                                     if ($price['booking_status'] == "Completed") {
                                                                                     echo "checked";
                                                                                     }
@@ -353,7 +304,7 @@
                                                                                     echo " Completed";
                                                                                     }
                                                                                     ?><br/>
-                                                                                <input onclick="check_broken('<?php echo $key1;?>');return change_status('<?php echo $key1;?>');" class="<?php echo "cancelled_".$key."_".$key1;?>" type="radio" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
+                                                                                <input onclick="check_broken('<?php echo $key1;?>');return change_status('<?php echo $key;?>');" class="<?php echo "cancelled_".$key."_".$key1;?>" type="radio" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
                                                                                     if ($price['booking_status'] == "Cancelled") {
                                                                                     echo "checked";
                                                                                     }
@@ -379,9 +330,106 @@
                                                             $serial_number_pic = $price['en_serial_number_pic'];
                                                         }}
                                                          $count++;
-                                                          
+                                                          $k_count++;
                     } }
                                                           ?>
+                                                    
+                                                    <?php foreach ($prices[$key1] as $index => $value) { ?> 
+                                                    <tr style="background-color:   #bce8f1; color: #222222;">
+                                                        <td style="border-color: #eeee;">
+                                                            <?php if(isset($model_data) && !empty($model_data)){ ?>
+                                                            <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  >
+                                                                <option value="" selected desa>Please Select Model Number</option>
+                                                                <?php foreach ($model_data as $m) { ?>
+                                                                <option value="<?php echo $m['model_number'];?>"><?php echo $m['model_number'];?></option>
+                                                                                
+                                                                <?php }?>
+                                                            </select>
+
+                                                           <?php } else { ?>
+
+                                                            <input type="text" name="<?php echo "model_number[" .$price['unit_id'] . "new" . $value['id'] . "]" ?>" value="" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
+                                                          <?php } ?>
+                                                            <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" 
+                                                            class="<?php echo "unit_dop_".$key1."_".$key;?>" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>" />
+                                                        </td>
+                                                        <td style="border-color: #eeee;"> <?php if ($value['pod'] == "1") { ?>
+                                                            <input type="text" class="form-control" onblur="validateSerialNo('<?php echo $count;?>')"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
+                                                            <input type="hidden"  id="<?php echo "model_number" . $count; ?>" class="form-control" value=""   />
+                                                            <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" />
+                   
+                                                            <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "new" . $value['id']. "]" ?>" value="<?php echo $price['pod']; ?>"   />
+                                                            <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" value="0"   />
+                                                            <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" .$price['unit_id'] . "new" . $value['id'] . "]" ?>" value="0"   />
+                                                            <input type="hidden" id="<?php echo "is_sn_correct" . $count ?>" class="form-control" name="<?php echo "is_sn_correct[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"/>
+                                                            
+                                                            <br/>
+                                                            <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
+                                                            <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" .  $price['unit_id'] . "new" . $value['id'] . "]" ?>"   />
+                                                    <?php } ?>
+                                                        </td>
+                                               
+                                                            <td style="border-color: #eeee;" id="<?php echo "price_tags".$count; ?>"><?php echo $value['service_category']; ?></td>
+                                                            <td style="border-color: #eeee;" id="<?php echo "amount_due".$count; ?>"><?php echo $value['customer_net_payable']; ?></td>
+                                                            <td style="border-color: #eeee;">  
+                                                                <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" value="<?php echo $value['service_category'];?>">
+                                                                <?php if($value['product_or_services'] != "Product"){  ?>
+                                                                <input  id="<?php echo "basic_charge".$count; ?>" type="<?php  if (($value['product_or_services'] == "Service" 
+                                                                    && $value['customer_net_payable'] == 0) ){ echo "hidden";} ?>" 
+                                                                    class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0">
+                                                                <?php } ?>
+                                                        </td>
+                                                        <td style="border-color: #eeee;">  <input id="<?php echo "extra_charge".$count; ?>"  type="<?php  if ($value['product_or_services'] == "Product") { 
+                                                            echo "hidden";} else { echo "text";} ?>" class="form-control cost"  
+                                                            name="<?php echo "additional_charge[" .$price['unit_id'] . "new" . $value['id'] . "]" ?>"  
+                                                            value = "0">
+                                                        </td>
+                                                        <td style="border-color: #eeee;">  
+                                                           
+                                                            <?php  ; if($value['product_or_services'] != "Service"){  ?>
+                                                            <input  id="<?php echo "basic_charge".$count; ?>" type="<?php if ($value['product_or_services'] == "Product"
+                                                                && $value['customer_net_payable'] > 0){ echo "text"; } 
+                                                                else { echo "hidden";}?>" class="form-control cost" 
+                                                                name="<?php echo "customer_basic_charge[" .  $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0">
+                                                            <?php } ?>
+                                                            <input id="<?php echo "parts_cost".$count; ?>"  type="<?php if($value['product_or_services'] != "Service"){ 
+                                                                if ($value['product_or_services'] == "Product" && $value['customer_net_payable'] == 0) { 
+                                                                    echo "text";} else { echo "hidden";} } else { echo "text";}?>" 
+                                                                class="form-control cost" 
+                                                                name="<?php echo "parts_cost[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0" >
+                                                            <input type="hidden" name="<?php echo "appliance_broken[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" 
+                                                            class="<?php echo "is_broken_".$count;?>" value="" />
+                                                        </td>
+                                                        <td style="border-color: #eeee;">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group ">
+                                                                        <div class="col-md-12">
+                                                                            <div class="radio">
+                                                                                <label><input onclick="return change_status('<?php echo $count;?>');" class="<?php echo "completed_".$count."_".$key1;?>" type="radio"  name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id']. "]" ?>"  value="Completed"  id="<?php echo "completed_" . $value['pod'] . "_" . $count; ?>"  ><?php
+                                                                                    if ($value['product_or_services'] == "Product") {
+                                                                                    echo " Delivered";
+                                                                                    } else {
+                                                                                    echo " Completed";
+                                                                                    }
+                                                                                    ?><br/>
+                                                                                <input onclick="return change_status('<?php echo $count;?>');"  class="<?php echo "cancelled_".$count."_".$key1;?>" type="radio" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id']. "]" ?>"  value="Cancelled"  ><?php
+                                                                                    if ($value['product_or_services'] == "Product") {
+                                                                                       echo " Not Delivered";
+                                                                                    } else {
+                                                                                       echo " Not Completed";
+                                                                                    }
+                                                                                    ?>
+                                                                                </label>
+                                                                                
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <?php  $count++; }?>
                                                 </tbody>
                                             </table>
                                             <span class="error_msg" style="color: red"></span>
@@ -516,7 +564,7 @@
                          </center>
                         <?php } else { ?>
                             <center style="margin-top:60px;">
-                                <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $count; ?>', '<?php echo count($bookng_unit_details)?>')" class="btn btn-lg" style="background-color: #2C9D9A;
+                                <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $k_count; ?>', '<?php echo count($bookng_unit_details)?>')" class="btn btn-lg" style="background-color: #2C9D9A;
                                 border-color: #2C9D9A; color:#fff;" value="Complete Booking">
                             </center>
                         <?php }?>
@@ -530,9 +578,7 @@
 </div>
 </div>
 <script>
-    
-    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'price_tags') : [])); ?>
-   
+    $(".model_number").select2();
     $("#technical_problem").select2();
     $('#technical_defect').select2();
     $('#technical_solution').select2();
@@ -555,14 +601,6 @@
         
         $(":radio").each(function() {
             $("#"+this.id).prop("checked",false);
-        });
-        
-        $('.priceList').children('tbody').next('tbody').children('tr').each(function(index){
-            validateSerialNo(index);
-        });
-        
-        $('.serialNumberPic').on('change', function(){
-            $('#'+$(this).attr('id').replace("upload_", "")).val($(this).val());
         });
     });
     
@@ -630,11 +668,12 @@
     }
     
     function onsubmit_form(upcountry_flag, number_of_div, appliance_count) {
-    
+
         var flag = 0;
         var div_count = 0;
         var is_completed_checkbox = [];
         var serial_number_tmp = [];
+        var delivered_price_tags = [];
        
         for(m= 0; m< Number(appliance_count); m++){
             var isbroken = $("#broken_"+ m).val();
@@ -656,25 +695,14 @@
         var prediv = -1;
         $(':radio:checked').each(function(i) {
             div_count = div_count + 1;
-        
+       
             //console.log($(this).val());
             var div_no = this.id.split('_');
             is_completed_checkbox[i] = div_no[0];
             if (div_no[0] === "completed") {
-                if(service_category_pod_required.includes($.trim($('#price_tags'+i).text()))) {
-                    var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required').val();
-                    if(is_sf_purchase_invoice_required == '1') {
-                        var sf_purchase_invoice = $('.purchase-invoice').val();
-                        if(sf_purchase_invoice == '') {
-                            alert("Please upload sf purchase invoice document.");
-                            flag = 1;
-                            return false;
-                        }
-                    }
-                }
+                
                 //if POD is also 1, only then check for serial number.
                 if (div_no[1] === "1") {
-                   
                     var completedRadioButton = document.getElementById(this.id);
                     
                     var className = completedRadioButton.className;
@@ -730,14 +758,14 @@
                             
                         }
                     }
-                    
-
-                        if($('#serial_number_pic'+div_no[2]).val() == '' ){
+                    //var requiredPic = $('#sno_required'+ div_no[2]).val();
+                   // if(requiredPic === '1'){
+                     if( document.getElementById("upload_serial_number_pic"+div_no[2]).files.length === 0 ){
                             alert('Please Attach Serial Number image');
                             document.getElementById('upload_serial_number_pic' + div_no[2]).style.borderColor = "red";
                             flag = 1;
                             return false;
-                        }
+                        }  
                   //  }
                     var duplicateSerialNo = $('#duplicate_sno_required'+ div_no[2]).val();
                     if(duplicateSerialNo === '1'){
@@ -750,9 +778,12 @@
                
                 var amount_due = $("#amount_due" + div_no[2]).text();
                 var price_tags = $("#price_tags" + div_no[2]).text();
+               
                 var basic_charge = $("#basic_charge" + div_no[2]).val();
                 var additional_charge = $("#extra_charge" + div_no[2]).val();
                 var parts_cost = $("#parts_cost" + div_no[2]).val();
+                delivered_price_tags.push(price_tags);
+                
                 if (Number(amount_due) > 0) {
                    
                     var total_sf = Number(basic_charge) + Number(additional_charge) + Number(parts_cost);
@@ -784,8 +815,15 @@
                 }
             }
         });
- 
-        if (Number(number_of_div) !== Number(div_count)) {
+        
+        var pr = checkPriceTagValidation(delivered_price_tags);
+        if(pr === false){
+            alert('Not Allow to Complete/Delivered multiple type of Service category');
+            flag = 1;
+            return false;
+        }
+
+        if (Number(number_of_div) > Number(div_count)) {
             alert('Please Select All Services Delivered Or Not Delivered.');
             flag = 1;
             return false;
@@ -809,7 +847,6 @@
                 return false;
             }
         });
-    
         var is_sp_required = $("#spare_parts_required").val();
         
         if (Number(is_sp_required) === 1) {
@@ -877,7 +914,7 @@
                 return false;
             }
         }
-        
+
         if (flag === 0) {
             $('#submitform').val("Please wait.....");
             return true;
@@ -886,6 +923,83 @@
     
             return false;
         }
+    }
+    
+    function checkPriceTagValidation(delivered_price_tags){
+        var repair_flag = false;
+        var repair_out_flag = false;
+        var installation_flag = false;
+        var pdi = false;
+        var extended_warranty = false;
+        var pre_sales = false;
+        var array =[];
+
+        if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
+                )){
+            
+            repair_flag = true;
+            array.push(repair_flag);
+         } 
+         
+         if((findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1)){
+            
+            repair_out_flag = true;
+            array.push(repair_out_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Extended Warranty') > -1 ){
+             extended_warranty = true;
+             array.push(extended_warranty);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Presale Repair') > -1 ){
+             pre_sales = true;
+             array.push(pre_sales);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 
+                || findInArray(delivered_price_tags, 'Installation & Demo (Paid)') > -1){
+                   installation_flag = true;
+                   array.push(installation_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1){
+                    pdi = true;
+                    array.push(pdi);
+                }
+                
+         if(array.length > 1){
+             return false;
+         } else {
+             return true;
+         }
+//                
+//         if(repair_flag === true && installation_flag === true && pdi === true && repair_out_flag == true && extended_warranty == true){
+//             return false;
+//         } else if(repair_flag === true && installation_flag === true){
+//             return false;
+//         } else if(pdi === true && installation_flag === true){
+//              return false;
+//         } else if(pdi === true && repair_flag === true){
+//              return false;
+//         } else {
+//             return true;
+//         }
+    }
+    
+    function findInArray(ar, val) {
+        for (var i = 0,len = ar.length; i < len; i++) {
+            if ( ar[i] === val ) { // strict equality test
+                return i;
+            }
+        }
+        return -1;
     }
 </script>
 <style type="text/css">
@@ -908,7 +1022,6 @@
     }
 </style>
 <script type="text/javascript">
-    
     (function ($, W, D)
     {
     var JQUERY4U = {};
@@ -952,14 +1065,6 @@
                 $(".unit_dop_"+div+"_"+i).val(dopValue);
          }
     }
-    function update_purchase_invoice_for_unit(div){
-          var div_item_count = $("#count_line_item_"+div).val();
-          var purchase_invoice_value = $("#purchase_invoice_"+div).val();
-         
-        for(i = 0; i < Number(div_item_count); i++ ){
-            $(".unit_purchase_invoice_"+div+"_"+i).val(purchase_invoice_value);
-        }
-    }
     function check_broken(div){
         
         var broken = Number($("#broken_"+ div).val());
@@ -998,7 +1103,7 @@
         var total = parseInt($("#basic_charge"+div).val())+parseInt($("#extra_charge"+div).val())+parseInt($("#parts_cost"+div).val());
         if($(".cancelled_"+div+"_0").is(":checked")) {
             if(total > 0) {
-                var cnfrm = confirm("You have entered cost as Rs. "+total+" . Do you want to change its status as Not Completed ? ");
+                var cnfrm = confirm("You have entered cost as Rs. "+total+" . Do you want to change its status as Not Completed/Delivered ? ");
                 if(!cnfrm){
                     return false;
                 }

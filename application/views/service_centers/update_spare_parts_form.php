@@ -387,7 +387,7 @@
                                 if (form_error('courier_image')) { echo 'has-error';} ?>">
                                 <label for="courier_image" class="col-md-4">Courier Image *</label>
                                 <div class="col-md-6">
-                                    <input type="file" class="form-control"  id="courier_image" name="courier_image" required>
+                                    <input type="file" class="form-control"  id="courier_image" name="courier_image" >
                                     <input type="hidden" class="form-control"  id="exist_courier_image" name="exist_courier_image" >
                                     <?php echo form_error('courier_image'); ?>
                                 </div>
@@ -543,33 +543,31 @@
     function change_shipped_part_type(sp_id){
         var model_number_id = $('#shippedmodelnumberid_' + sp_id).val();
         var part_type = $('#shippedparttype_' + sp_id).val();
+        var requested_inventory_id = $("#requested_inventory_id_"+sp_id).val();
         $('#spinner_' + sp_id).addClass('fa fa-spinner').show();
-        if(model_number_id){
+        if(model_number_id && part_type){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
-                data: { model_number_id:model_number_id, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>',part_type:part_type,is_option_selected:true },
+                data: { model_number_id:model_number_id,requested_inventory_id:requested_inventory_id, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>',part_type:part_type,is_option_selected:true },
                 success:function(data){
-                    
+                    console.log(data);
                     $('#shippedpartsname_' + sp_id).val('val', "");
                     $('#shippedpartsname_' + sp_id).val('Select Part Name').change();
-                    $('#shippedpartsname_' +sp_id).html(data);
+                    $('#shippedpartsname_' +sp_id).html(data).change();
                     $('#spinner_'+ sp_id).removeClass('fa fa-spinner').hide();
                     
-                    var request_part = $("#partsname_"+sp_id).val();
-                    if(request_part){
-                        $('#shippedpartsname_' + sp_id).val(request_part).change(); 
                     }
-                }
             });
         }else{
-            alert("Please Select Model Number");
+            //alert("Please Select Model Number && Part Type");
         }
     }
     
     function change_parts_name(sp_id){
         var model_number_id = $('#shippedmodelnumberid_' + sp_id).val();
         var part_name = $('#shippedpartsname_' +sp_id).val();
+        var invetory_id=  $('#shippedpartsname_' +sp_id).find(':selected').attr('data-inventory');
         if(model_number_id && part_name){
             $.ajax({
                 method:'POST',
@@ -581,7 +579,7 @@
                     if(obj.price){
                         $('#submit_form').attr('disabled',false);
                         $('#approx_value_'+ sp_id).val(obj.price);
-                        $('#inventory_id_' +sp_id).val(obj.inventory_id);
+                        $('#inventory_id_' +sp_id).val(invetory_id);
                     }else{
                         alert("Inventory Details not found for the selected combination.");
                         $('#submit_form').attr('disabled',true);

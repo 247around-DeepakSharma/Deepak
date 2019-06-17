@@ -122,15 +122,15 @@ function send_remarks() {
 }
 function review_search(status,is_partner){
     var bookingID = $('#search_'+status+'_'+is_partner).val();
-   
+
     if(bookingID == '') {
         bookingID = 0;
     }
     var cancellation_reason = '';
     if($('#cancellation_reason').length){
-	cancellation_reason = $('#cancellation_reason').val();
+	cancellation_reason = $('#cancellation_reason').val().replace("/", "__");
     }
-    
+   
     var tab = "#tabs-3";
     if(status == "Completed"){
        var tab = "#tabs-2";
@@ -141,7 +141,8 @@ function review_search(status,is_partner){
     if(is_partner){
         var tab = "#tabs-4";
     }
-     load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+cancellation_reason, tab,0);
+
+ 
+    load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+ cancellation_reason, tab,0);
+
 }
-
-

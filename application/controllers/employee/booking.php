@@ -397,10 +397,11 @@ class Booking extends CI_Controller {
             }
 
             $this->booking_model->update_request_type($booking['booking_id'], $price_tag,$oldPriceTags);
-            
+
             if($booking_id == INSERT_NEW_BOOKING){
                 $this->send_sms_email($booking['booking_id'], "SendWhatsAppNo");
             }
+
             return $booking;
         } else {
             log_message('info', __FUNCTION__ . " Booking Failed!");
@@ -500,6 +501,7 @@ class Booking extends CI_Controller {
                         log_message('info', __FUNCTION__ . "Error in Uploading File  " . $_FILES['support_file']['tmp_name'][$i] . ", Error  " . $_FILES['support_file']['error'][$i] . ", Booking ID: " . $booking['booking_id']);
                     }
                 }
+
             }
         }
         
@@ -970,7 +972,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
-                $id = $this->search_for_key($price_tag['price_tags'], $prices);
+                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
                 // remove array key, if price tag exist into price array
                 unset($prices[$id]);
                 if ($keys == 0) {
@@ -980,6 +982,7 @@ class Booking extends CI_Controller {
 
             array_push($data['prices'], $prices);
         }
+        
         $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
         if(!empty($isPaytmTxn)){
             if($isPaytmTxn['status']){
@@ -1428,13 +1431,13 @@ class Booking extends CI_Controller {
             $i = 0;
 
             foreach ($result as $prices) {
-
+                $checkboxClass = (($prices['service_category'] == REPEAT_BOOKING_TAG) ? "repeat_".$prices['product_or_services'] : $prices['product_or_services']);
                 $html .="<tr><td>" . $prices['service_category'] . "</td>";
                 $html .= "<td>" . $prices['customer_total'] . "</td>";
                 $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
-                $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox'";
+                $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
                 if($is_repeat) {
                     if($prices['service_category'] == REPEAT_BOOKING_TAG) {
                         $html .= " checked ";
@@ -5185,10 +5188,9 @@ class Booking extends CI_Controller {
         }
         $this->load->view('employee/rescheduled_review', $data);
     }
-    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason = NULL){
-        
+    function review_bookings_by_status($status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL){
         $this->checkUserSession();
-        $whereIN = $where = $join = $having = array();
+        $whereIN = $where = $join = array();
         if(!$booking_id) {
             $booking_id  = NULL;
         }
@@ -5197,6 +5199,7 @@ class Booking extends CI_Controller {
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
         }
+        
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
             $where['agent_filters.agent_id ='.$am_id] = NULL;
@@ -5213,14 +5216,15 @@ class Booking extends CI_Controller {
             $status="Completed";
             $whereIN['sc.added_by_SF'] = [1];
         }
-        
-        if(!is_null($cancellation_reason)){
-           $whereIN['sc.cancellation_reason'] = [urldecode($cancellation_reason)];
+
+        if(!is_null($cancellation_reason_id)){
+           $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
+           $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
         }
+        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1);
         $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
-        $data['cancellation_reason_selected'] = $cancellation_reason;
-        
-        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
+        $data['cancellation_reason_selected'] = $cancellation_reason_id;
+        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
             $data['offset'] = $offset;

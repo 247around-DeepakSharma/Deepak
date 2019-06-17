@@ -480,10 +480,10 @@
     function get_services(div_to_update,partner_id){
         
         $.ajax({
-            type:'GET',
+            type:'POST',
             async: false,
-            url:'<?php echo base_url();?>employee/booking/get_service_id_by_partner',
-            data:{is_option_selected:true,partner_id:partner_id},
+            url:'<?php echo base_url();?>employee/service_centre_charges/get_partner_data',
+            data:{partner:partner_id},
             success:function(response){
                 $('#'+div_to_update).html(response);
             }

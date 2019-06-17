@@ -32,7 +32,7 @@
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
-                                    
+
                                 </tr>
                             </thead>
                             <tbody>
@@ -77,7 +77,7 @@
                             <tbody>
                             </tbody>
                         </table>
-                        <div class="col-md-12 col-md-offset-6">
+                        <div class="col-md-12  ">
                             <button onclick="open_create_invoice_form()" class="btn btn-md btn-primary">Create Purchase Invoice</button>
                         </div>
                     </div>
@@ -112,7 +112,7 @@
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
-                                   
+                                
                                 </tr>
                             </thead>
                             <tbody>
@@ -162,7 +162,7 @@
                                     <th class="text-center" data-orderable="false">User</th>
                                     <th class="text-center" data-orderable="false">Mobile</th>
                                     <th class="text-center" data-orderable="false">Service Center</th>
-                                    <th class="text-center" data-orderable="false">Partner</th>                                    
+                                    <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Model Number</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
                                     <th class="text-center" data-orderable="false">Parts Number</th>   
@@ -173,11 +173,12 @@
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
-                                    <th class="text-center" data-orderable="false">Edit Booking</th>
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
+                                    <th class="text-center" data-orderable="false">Edit Booking</th>
                                     <th class="text-center" data-orderable="false">Approval</th>
                                     <th class="text-center" data-orderable="false">Edit Model No.</th>
                                     <?php } ?>
+                                    
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
                                 </tr>
                             </thead>
@@ -190,6 +191,9 @@
         </div>
     </div>
 </div>
+
+
+
 
 <div role="tabpanel" class="tab-pane " id="spare_parts_requested_approved">
     <div class="container-fluid">
@@ -213,10 +217,9 @@
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
-                                    <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <th class="text-center" data-orderable="false">Age Of Requested</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
-                                    <th class="text-center" data-orderable="false">Cancel Part</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -251,10 +254,8 @@
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
-                                    <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <th class="text-center" data-orderable="false">Age Of Rejection</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
-                                    <th class="text-center" data-orderable="false">Cancel Part</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -266,7 +267,6 @@
         </div>
     </div>
 </div>
-
 
 <div id="myModal2" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -309,10 +309,11 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
                                         <th class="text-center" data-orderable="false">Status</th>
@@ -388,9 +389,10 @@
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Quantity</th>
-                                        <th class="text-center" data-orderable="false"> Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Partner Shipped Date</th>
                                         <th class="text-center" data-orderable="false">SF Received Date</th>
@@ -428,10 +430,11 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
-                                        <th class="text-center" data-orderable="false">Parts Number</th>
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="true">Age Of shipped</th>
                                         <th class="text-center" data-orderable="false">SF Remarks</th>
@@ -468,11 +471,12 @@
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
-                                        <th class="text-center" data-orderable="false">Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
                                         <th class="text-center" data-orderable="false">Part Type</th>
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
                                          <th class="text-center" data-orderable="false">Shipped Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part Number </th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="true">Age Of Shipped</th>
                                         <th class="text-center" data-orderable="false">Challan File</th>
@@ -510,9 +514,10 @@
                                         <th class="text-center" data-orderable="false">Requested Part</th>
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Quantity</th>
-                                        <th class="text-center" data-orderable="false">Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Partner Shipped Date</th>
                                         <th class="text-center" data-orderable="false">SF Received Date</th>
@@ -596,6 +601,7 @@
 
 <script>
     var spare_parts_requested_table;
+     var spare_parts_requested_table_approved;
     var partner_shipped_part_table;
     var sf_received_part_table;
     var defective_part_pending_table;
@@ -620,7 +626,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,11,12 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,11,12,13 ]
                     },
                     title: 'partner_shipped_oow_part'
                 }
@@ -728,7 +734,7 @@
     spare_parts_requested_table = $('#spare_parts_requested_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [], //Initial no order.
+            order:[],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -737,7 +743,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14,15 ],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'
@@ -808,7 +814,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4], //first column / numbering column
+                    "targets": [0,1,2,3,4,11,12], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -818,7 +824,6 @@
           }
         });
     
- 
   //spare_parts_requested_rejected  
         spare_parts_requested_table_reject = $('#spare_parts_requested_table_reject').DataTable({
             processing: true, //Feature control the processing indicator.
@@ -845,7 +850,7 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '0', status: '<?php echo _247AROUND_CANCELLED; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data: {type: '11', status: '<?php echo _247AROUND_CANCELLED; ?>', partner_id: '<?php echo $partner_id; ?>'}
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -859,7 +864,8 @@
             $(".dataTables_filter").addClass("pull-right");
           }
         });
-        
+    
+    
     partner_shipped_part_table = $('#partner_shipped_part_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
@@ -963,11 +969,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,5,8,14], //first column / numbering column
+                    "targets": [1,5,8], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                  {
-                    "targets": [0,12,15,16], //first column / numbering column
+                    "targets": [0,12,16,17], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -989,7 +995,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                       columns: [ 1,2,3,4,5,6,7,8,9,10,11 ]
+                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12 ]
                     },
                     title: 'defective_part_rejected'
                 }
@@ -1081,7 +1087,7 @@
                     "orderable": false //set not orderable
                 },
                 {
-                    "targets": [13], //first column / numbering column
+                    "targets": [14], //first column / numbering column
                     "orderable": true //set not orderable
                 }
             ],

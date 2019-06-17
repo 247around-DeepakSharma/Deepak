@@ -133,7 +133,7 @@
                             <div class="form-group col-md-12 <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
                                 <label for="model_number_1">Model Number  <span id="error_model" style="color: red;"></label>
                                 <span id="model_number_2">
-                                    <select class="form-control"  name="model_number" id="model_number_1" >
+                                    <select class="form-control select-model"  name="model_number" id="model_number_1" >
                                         <option selected disabled>Select Model</option>
                                     </select>
                                 </span>
@@ -190,7 +190,7 @@
                         </div>
                         <div class="col-md-4 ">
                             <div class="form-group "  id="repeat_reason_holder" style="display:none;">
-                                <label for="type" class="col-md-12">Repeat Reason</label>
+                                <label for="type" class="col-md-12">Repeat Reason * </label>
                                 <div class="col-md-12">
                                     <input class="form-control"  name="repeat_reason"  id="repeat_reason" placeholder=" Repeat Reason" ><?php if (isset($booking_history[0]['repeat_reason'])) {
                                         echo$booking_history[0]['repeat_reason'];
@@ -339,28 +339,28 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if( form_error('alternate_phone_number') ) { echo 'has-error';} ?>">
                                 <label for="booking_alternate_contact_no">Alternate Mobile</label>
-                                <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if(set_value('alternate_phone_number')){ echo set_value('alternate_phone_number'); } else { echo $booking_history[0]['booking_alternate_contact_no'];} ?>" placeholder ="Please Enter Alternate Contact No" <?php if($is_repeat){echo 'readonly';} ?>>
+                                <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if(set_value('alternate_phone_number')){ echo set_value('alternate_phone_number'); } else { echo $booking_history[0]['booking_alternate_contact_no'];} ?>" placeholder ="Please Enter Alternate Contact No" >
                                 <?php echo form_error('alternate_phone_number'); ?>
                             </div>
                         </div>
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if( form_error('user_email') ) { echo 'has-error';} ?>">
                                 <label for="booking_user_email">Email </label>
-                                <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(set_value('user_email')){ echo set_value('user_email'); } else { echo $booking_history[0]['user_email'];} ?>" placeholder="Please Enter User Email" <?php if($is_repeat){echo 'readonly';} ?>>
+                                <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(set_value('user_email')){ echo set_value('user_email'); } else { echo $booking_history[0]['user_email'];} ?>" placeholder="Please Enter User Email" >
                                 <?php echo form_error('user_email'); ?>
                             </div>
                         </div>
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if( form_error('landmark') ) { echo 'has-error';} ?>">
                                 <label for="landmark">Landmark </label>
-                                <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(set_value('landmark')){ echo set_value('landmark'); } else { echo $booking_history[0]['booking_landmark'];} ?>" placeholder="Enter Any Landmark" <?php if($is_repeat){echo 'readonly';} ?>>
+                                <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(set_value('landmark')){ echo set_value('landmark'); } else { echo $booking_history[0]['booking_landmark'];} ?>" placeholder="Enter Any Landmark" >
                                 <?php echo form_error('landmark'); ?>
                             </div>
                         </div>
                         <div class="col-md-12 ">
                             <div class="form-group col-md-12  <?php if( form_error('booking_address') ) { echo 'has-error';} ?>">
                                 <label for="booking_address">Booking Address *  <span id="error_address" style="color: red;"></label>
-                                <textarea <?php if($is_repeat){echo 'readonly';} ?> class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if(set_value('booking_address')){ echo set_value('booking_address'); } else { echo $booking_history[0]['booking_address'];} ?></textarea>
+                                <textarea class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if(set_value('booking_address')){ echo set_value('booking_address'); } else { echo $booking_history[0]['booking_address'];} ?></textarea>
                                 <?php echo form_error('booking_address'); ?>
                             </div>
                         </div>
@@ -568,6 +568,22 @@
              alert("Please Contact 247Around Team To Update This Booking");
              return false;
         <?php }?>
+            
+        var delivered_price_tags = [];
+        $(".price_checkbox:checked").each(function (i) {
+            var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
+            delivered_price_tags.push(price_tags);
+
+        });
+            
+        var pr = checkPriceTagValidation(delivered_price_tags);
+        if(pr === false){
+            alert('Not Allow to select multiple different type of service category');
+            $("#selected_service").css("color","red");
+            return false;
+        } else {
+            $("#selected_service").css("color","black");
+        }
         
        
     }
@@ -585,6 +601,7 @@
     $("#price_tag").select2();
     // $("#service_name").select2();
     $("#booking_request_symptom").select2();
+    $("#model_number_1").select2();
     $("#appliance_brand_1").select2();
     $("#appliance_capacity_1").select2();
     $("#appliance_category_1").select2();
@@ -736,15 +753,17 @@
                        
                         success: function (data) {
                          
-                                if(data === "Data Not Found"){
+                                if($.trim(data) === "Data Not Found"){
                                     var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model">';
                                     $("#model_number_2").html(input).change();
+                                    $('.select-model').next(".select2-container").hide();
                                 } else {
                                     //First Resetting Options values present if any
-                                     var input_text = '<span id="model_number_2"><select class="form-control"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
+                                     var input_text = '<span id="model_number_2"><select class="form-control select-model"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
                                     $("#model_number_2").html(input_text).change();
                                     $("#model_number_1").append(data).change();
-                                    
+                                    $("#model_number_1").select2();
+                                    $('.select-model').next(".select2-container").show();
                                 }
                             }
                     });
@@ -1056,9 +1075,13 @@
         var price_array ;
         ch =0;
         var appliance_unit =$("#appliance_unit").val();
+        var delivered_price_tags = [];
         
          $("input[type=checkbox]:checked").each(function(i) {
             price_array = $(this).val().split('_');
+            
+             var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
+            delivered_price_tags.push(price_tags);
             //console.log(price_array);
            price += (Number(price_array[1]) -Number(price_array[2]) );
             if(price_array[0] !== "upcountry"){
@@ -1075,7 +1098,85 @@
             $("#grand_total").val(final_price.toFixed(2));
         }
         
+        var pr = checkPriceTagValidation(delivered_price_tags);
+
+        if(pr === false){
+             alert('Not Allow to select multiple different type of service category');
+             $("#selected_service").css("color","red");
+             $(".price_checkbox:checked").prop("checked", false);
+             document.getElementById("checkbox_upcountry").checked = false;
+             $("#grand_total").val("0.00");
+             final_price();
+
+        } else {
+            $("#selected_service").css("color","black");
+        }
+        
     
+    }
+    
+    function checkPriceTagValidation(delivered_price_tags){
+        var repair_flag = false;
+        var repair_out_flag = false;
+        var installation_flag = false;
+        var pdi = false;
+        var extended_warranty = false;
+        var pre_sales = false;
+        var array =[];
+
+        if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
+                )){
+            
+            repair_flag = true;
+            array.push(repair_flag);
+         } 
+         
+         if((findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1)){
+            
+            repair_out_flag = true;
+            array.push(repair_out_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Extended Warranty') > -1 ){
+             extended_warranty = true;
+             array.push(extended_warranty);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Presale Repair') > -1 ){
+             pre_sales = true;
+             array.push(pre_sales);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 
+                || findInArray(delivered_price_tags, 'Installation & Demo (Paid)') > -1){
+                   installation_flag = true;
+                   array.push(installation_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1){
+                    pdi = true;
+                    array.push(pdi);
+                }
+                
+         if(array.length > 1){
+             return false;
+         } else {
+             return true;
+         }
+    }
+    function findInArray(ar, val) {
+        for (var i = 0,len = ar.length; i < len; i++) {
+            if ( ar[i] === val ) { // strict equality test
+                return i;
+            }
+        }
+        return -1;
     }
     
     $(document).ready(function(){

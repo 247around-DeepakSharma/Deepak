@@ -215,7 +215,7 @@ class Booking_model extends CI_Model {
      *  @return : array()
      */
     function get_missed_call_rating_not_taken_booking_data(){
-        $sql = "SELECT DISTINCT  u.name,rp.from_number,
+         $sql = "SELECT DISTINCT  u.name,rp.from_number,rp.create_date,
                  CASE rp.To WHEN '".GOOD_MISSED_CALL_RATING_NUMBER."' "
                 . " THEN 'good_rating' WHEN '".POOR_MISSED_CALL_RATING_NUMBER."' "
                 . " THEN 'bad_rating' ELSE NULL END as "
@@ -229,8 +229,9 @@ class Booking_model extends CI_Model {
                 . " AND bd.closed_date >= DATE_FORMAT(CURDATE(), '%Y-%m-01') - INTERVAL 2 MONTH "
                 . " AND rp.from_number = bd.booking_primary_contact_no "
                 . " AND u.user_id = bd.user_id "
-                . " AND rp.create_date >= bd.closed_date AND rating_unreachable_count < 3";
-        
+                . " AND rp.create_date >= bd.closed_date "
+                . "AND rating_unreachable_count < 3 "
+                 . "AND rp.To IN ('".GOOD_MISSED_CALL_RATING_NUMBER."','".POOR_MISSED_CALL_RATING_NUMBER."') GROUP BY bd.user_id";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -723,7 +724,7 @@ class Booking_model extends CI_Model {
         $query = $this->db->query($sql);
         $result = $query->result_array();
         $post['is_inventory']=1;
-        $post['is_original_inventory']=1;
+        $post['is_original_inventory'] = 1;
         $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,im.part_number as shipped_part_number,original_im.part_number as original_part_number', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
         if(!empty($query1)){
             $result1 = $query1;
@@ -2670,6 +2671,7 @@ class Booking_model extends CI_Model {
     function update_symptom_defect_details($booking_id, $booking_symptom) {
         $this->db->where('booking_id', $booking_id);
         $this->db->update('booking_symptom_defect_details', $booking_symptom);
+        return $this->db->affected_rows();
     }
     /**
      * @Desc: This function is used to get booking symptoms 
@@ -2795,4 +2797,4 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-   }
+}

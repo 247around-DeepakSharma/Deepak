@@ -155,7 +155,7 @@
                                 <div class="form-group col-md-12 <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
                                     <label for="Model Number">Model Number  <span id="error_model" style="color: red;"></label>
                                     <span id="model_number_2">
-                                    <select class="form-control"  name="model_number" id="model_number_1" >
+                                    <select class="form-control select-model"  name="model_number" id="model_number_1" >
                                         <option selected disabled>Select Model</option>
                                     </select>
                                     </span>
@@ -460,6 +460,7 @@
          tags: true
     });
     $("#booking_request_symptom").select2();
+    $("#model_number_1").select2();
     $("#price_tag").select2();
     $("#service_name").select2();
     $("#appliance_brand_1").select2();
@@ -603,15 +604,18 @@
 
                 success: function (data) {
                   console.log(data);
-                        if(data === "Data Not Found"){
+                        if($.trim(data) === "Data Not Found"){
 
                             var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model">';
                             $("#model_number_2").html(input).change();
+                            $('.select-model').next(".select2-container").hide();
                         } else {
                             //First Resetting Options values present if any
-                             var input_text = '<span id="model_number_2"><select class="form-control"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
+                             var input_text = '<span id="model_number_2"><select class="form-control select-model"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
                             $("#model_number_2").html(input_text).change();
                             $("#model_number_1").append(data).change();
+                            $("#model_number_1").select2();
+                            $('.select-model').next(".select2-container").show();
                            // getPrice();
                         }
                     }

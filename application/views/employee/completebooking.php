@@ -268,19 +268,17 @@
                                          </div>
                                     </div>
                                     <div class="form-group">
-                                        <div class="input-group input-append" style="width: 150px;margin-left: 14px;">
-                                            <input type="file" name="sf_purchase_invoice" class="form-control purchase-invoice"
-                                                   onchange="update_purchase_invoice_for_unit('<?php echo $keys?>')"
-                                                   id="<?php echo "purchase_invoice_".$keys?>" value="<?= (!empty($unit_details['quantity'][0]['sf_purchase_invoice']) ? $unit_details['quantity'][0]['sf_purchase_invoice'] : ""); ?>">
+                                        <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
+                                            <input type="file" name="sf_purchase_invoice" id="sf_purchase_invoice" value="<?= (!empty($sf_purchase_invoice) ? $sf_purchase_invoice : ""); ?>">
                                              <?php $src = base_url() . 'images/no_image.png';
                                             $image_src = $src;
-                                            if (!empty($unit_details['quantity'][0]['sf_purchase_invoice'])) {
+                                            if (!empty($sf_purchase_invoice)) {
                                                 //Path to be changed
-                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$unit_details['quantity'][0]['sf_purchase_invoice'];
+                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$sf_purchase_invoice;
                                                 //$image_src = base_url().'images/view_image.png';
                                             }
                                             ?>
-                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($unit_details['quantity'][0]['sf_purchase_invoice']) ? $unit_details['quantity'][0]['sf_purchase_invoice'] : ""); ?></small></a>
+                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($sf_purchase_invoice) ? $sf_purchase_invoice : ""); ?></small></a>
                                             
                                        </div>
                                     </div>
@@ -300,14 +298,12 @@
                                             <?php
                                                 
                                                 foreach ($unit_details['quantity'] as $key => $price) { ?>
-                                                    <input type="hidden" value="<?php echo count($unit_details['quantity']) ?>" id="count_line_item_<?php echo $keys; ?>">
+                                                    <input type="hidden" value="<?php count($unit_details['quantity']) ?>" id="count_line_item_"<?php echo $keys ?>>
                                             <input type="hidden" name="b_unit_id[<?php echo $keys; ?>][]" value="<?php echo $price['unit_id'];?>" />
                                             <tr style="background-color: white; ">
                                                 <td>
                                                                                                         <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_dop_".$keys."_".$key;?>" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>" />
-                                                       <input type="hidden" name="<?php echo "appliance_purchase_invoice[" . $price['unit_id'] . "]" ?>" 
-                                                            class="<?php echo "unit_purchase_invoice_".$keys."_".$key;?>" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_invoice'])){  echo $unit_details['quantity'][0]['sf_purchase_invoice']; } ?>" />
                                                     <?php if ($price['pod'] == "1") { ?>
                                                     <?php  if ((strpos($price['price_tags'],REPAIR_STRING) !== false) && (strpos($price['price_tags'],IN_WARRANTY_STRING) !== false)) {
                                                                    $dop_mendatory = 1; 
@@ -319,6 +315,7 @@
                                                             <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>"  value="<?php echo $price['serial_number_pic']; ?>"  />
                                                             <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
                                                             <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" <?php if(isset($price['is_sn_correct']) && ($price['is_sn_correct'] == IS_SN_CORRECT)){ echo 'value="1"';} else { echo 'value="0"'; }?>   />
+
                                                             <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                             <input type="file" style="margin: 10px 0px;"  id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"   />
                                                             <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
@@ -454,7 +451,7 @@
                                                     <?php } ?>
                                                 </td>
                                                 <td> <?php echo $value['service_category']; ?> </td>
-                                                <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['price_tags'];?>">
+                                                <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" value="<?php echo $price['price_tags'];?>">
                                                 <td><input  type="hidden" class="form-control"   name="<?php echo "customer_net_payable[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "<?php echo $value['customer_net_payable']; ?>"><?php echo $value['customer_net_payable']; ?>  </td>
                                                 <td>  <input  type="text" class="form-control cost"  id="<?php echo "basic_charge".$count; ?>"   name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0.00">
                                                 <td>  <input  type="text" class="form-control cost"  id="<?php echo "extra_charge".$count; ?>"  name="<?php echo "additional_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"   value = " <?php echo "0.00"; ?>">
@@ -645,8 +642,9 @@
 </script>
 <script>
     
-    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'price_tags') : [])); ?>
+    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'service_category') : [])); ?>
 
+    
     $("#service_id").select2();
     $("#booking_city").select2();
     var brandServiceUrl =  '<?php echo base_url();?>/employee/booking/getBrandForService/';
@@ -655,6 +653,7 @@
     
     var solution_id = "";
     $(document).ready(function () {
+        
     //called when key is pressed in textbox
     $(".cost").keypress(function (e) {
      //if the letter is not digit then display error and don't type anything
@@ -766,11 +765,10 @@
         var div_no = this.id.split('_');
         is_completed_checkbox[i] = div_no[0];
         if (div_no[0] === "completed") {
-            var price_tag_row_number = parseInt(i)+1;
-            if(service_category_pod_required.includes($.trim($('#price_tags'+price_tag_row_number).text()))) {
+            if(service_category_pod_required.includes($.trim($('#price_tags'+i).text()))) {
                 var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required').val();
                 if(is_sf_purchase_invoice_required == '1') {
-                    var sf_purchase_invoice = $('.purchase-invoice').val();
+                    var sf_purchase_invoice = $('#sf_purchase_invoice').val();
                     if(sf_purchase_invoice == '') {
                         alert("Please upload sf purchase invoice document.");
                         flag = 1;
@@ -1007,6 +1005,17 @@
 //            return false;
 //        }
 //    }
+
+
+        var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required').val();
+        if(is_sf_purchase_invoice_required == '1') {
+            var sf_purchase_invoice = $('#sf_purchase_invoice').val();
+            if(sf_purchase_invoice == '') {
+                alert("Please upload sf purchase invoice document.");
+                return false;
+            }
+        }
+
     if (flag === 0) {
         return true;
     
@@ -1088,7 +1097,7 @@
         var total = parseInt($("#basic_charge"+div).val())+parseInt($("#extra_charge"+div).val())+parseInt($("#parts_cost"+div).val());
         if($(".cancelled_"+div+"_0").is(":checked")) {
             if(total > 0) {
-                var cnfrm = confirm("You have entered cost as Rs. "+total+" . Do you want to change its status as Not Completed ? ");
+                var cnfrm = confirm("You have entered cost as Rs. "+total+" . Do you want to change its status as Not Completed/Delivered ? ");
                 if(!cnfrm){
                     return false;
                 }
@@ -1241,14 +1250,6 @@
           var dopValue = $("#dop_"+div).val();
             for(i = 0; i < Number(div_item_count); i++ ){
                 $(".unit_dop_"+div+"_"+i).val(dopValue);
-         }
-    }
-    function update_purchase_invoice_for_unit(div){
-          var div_item_count = $("#count_line_item_"+div).val();
-          var purchase_invoice_value = $("#purchase_invoice_"+div).val();
-        
-            for(i = 0; i < Number(div_item_count); i++ ){
-                $(".unit_purchase_invoice_"+div+"_"+i).val(purchase_invoice_value);
          }
     }
       function dop_calendar(id){

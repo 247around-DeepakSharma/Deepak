@@ -93,29 +93,21 @@
 <div class="row" style="border: 1px solid #e6e6e6; padding: 20px;">
 <div class="right_col" role="main">
     <div class="clearfix"></div>
+    <div class="loader hide"></div>
             <div class="title">
             <div class="row">
                 <div class="col-md-12">
                     <h3 style="    padding-left: 150px;
     padding-bottom: 32px;" >Bulk Spare Transfer from Warehouse to Warehouse</h3><hr>
+    <button id="modalauto" style="padding:0px !important;" class="btn  btn-danger hide"  data-toggle="modal" data-target="#myModal" >Details</button>
                 </div>
             </div>
         </div>
-    <h2 ></h2
+    <h2 ></h2>
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
 
             <div class="container" >
-            <?php if(!empty($this->session->flashdata('success'))){ ?>
-           <div class="alert alert-success">
-            <strong>Success!</strong>  <?php echo $this->session->flashdata('success');  ?>
-           </div> 
-            <?php }else if(!empty($this->session->flashdata('error'))){ ?>    
-            <div class="alert alert-danger">
-                <strong>Warning !</strong>  <?php echo $this->session->flashdata('error');  ?> <button id="modalauto" style="padding:0px !important;" class="btn btn-small btn-danger"  data-toggle="modal" data-target="#myModal" >Details</button>
-           </div> 
-            
-           <?php  }  ?> 
                 <form method="POST" id="idForm" action="<?php echo base_url();?>employee/spare_parts/spare_transfer_from_wh_to_wh_process">
                    <div class="row">
                         <div class="col-md-6">
@@ -157,7 +149,6 @@
 
 
 
-<!-- Modal -->
 <div id="myModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -169,30 +160,8 @@
         <h4 class="modal-title">Spare not transferred details</h4>
         </center>
       </div>
-      <div class="modal-body">
-        <table class="table">
-    <thead>
-      <tr>
-        <th>Booking Id</th>
-        <th>Spare Id</th>
-        <th>Part Number</th>
-      </tr>
-    </thead>
-    <tbody>
-        
-      <?php  if(!empty($this->session->flashdata('error_spares'))){
-          $error_spares =$this->session->flashdata('error_spares'); ?>
-    <h5> Total Spare Not Transferred <span style="color: #f3ecec; background: #dd320b;" class="badge"><?php echo count($error_spares);  ?></span> </h5> 
-       <?php   foreach ($error_spares as $data){ ?>
-        <tr>
-        <td><?php echo $data['booking']; ?> </td>
-        <td><?php echo $data['spare_id'];   ?></td>
-        <td><?php echo $data['part_number'];  ?></td>
-        </tr>
-       <?php  }
-        }  ?>
-    </tbody>
-  </table>
+      <div id="errors" class="modal-body">
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -202,7 +171,17 @@
   </div>
 </div>
  
-
+<style>
+    .loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('https://lkp.dispendik.surabaya.go.id/assets/loading.gif') 50% 50% no-repeat rgb(249,249,249);
+}
+</style>
 <script>
     $(document).ready(function(){
        is_wh=1; 
@@ -251,3 +230,36 @@
  
     
  </script>
+ <script type="text/javascript">
+
+    $("#idForm").submit(function(e) {
+    $(".loader").removeClass('hide');
+    e.preventDefault(); // avoid to execute the actual submit of the form.
+
+    var form = $(this);
+    var url = form.attr('action');
+
+    $.ajax({
+           type: "POST",
+           url: url,
+           data: form.serialize(), // serializes the form's elements.
+           success: function(data)
+           {
+               console.log(data); // show response from the php script.
+               if(data=='success'){
+                   swal("Transferred!", "Your spares has been transferred !.", "success"); 
+                   $(".loader").addClass('hide');
+               }else{
+                   swal("Warnings!", "Your all spares has not been transferred !.", "error");
+                   $("#errors").html(data);
+                   $("#modalauto").click();
+                   $(".loader").fadeOut("slow");
+                   $(".loader").addClass('hide');
+                    
+               }
+           }
+         });
+});
+    
+    
+</script>

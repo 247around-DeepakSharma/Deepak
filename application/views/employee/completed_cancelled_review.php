@@ -3,9 +3,10 @@
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>      
 <div class="" style="margin-top: 30px;">
          <div class="row">
-            <div class="col-md-3 pull-right" style="margin-top:20px;">              
+            <div class="col-md-3 pull-right" style="margin-top:20px;">
+               
                 <input type="search" class="form-control pull-right"  id="search_<?=$review_status?>_<?=$is_partner?>" placeholder="search" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
-             </div>
+            </div>
               <?php if($status == 'Cancelled') { 
               ?>
              <div class="col-md-3 pull-right" style="margin-top:20px;">
@@ -93,7 +94,7 @@
                                            <td><span class="<?php echo "model_number".$count; ?>"><?php echo $value1['model_number']; ?></span></td>
                                            <td>
                                               <?php if(!empty($value1['serial_number_pic'])) {?>
-                                              <input type="hidden" style="display:none;" value="<?php echo $value1['is_sn_correct'] ?>" class=<?php echo "sn_".$value['booking_id']; ?>>
+                                               <input type="hidden" style="display:none;" value="<?php echo $value1['is_sn_correct'] ?>" class=<?php echo "sn_".$value['booking_id']; ?>>
                                               <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $value1['serial_number_pic'];?>"> 
                                                   <span class="<?php if($value1['is_sn_correct']==IS_SN_CORRECT){ echo "text-danger ";}else{ echo "text-info ";}?><?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span></a>
                                               <?php } else {
@@ -181,6 +182,7 @@
 <div class = 'msg_holder' style="float:left;"> <?php echo "<p>Showing ".(($initial_offset)+1)." to ". ($offset)." of ".$total_rows." entries</p>"; ?></div>
 <div class="link_holder" style="float:right;">
  <?php
+
              if($is_partner){
                  $tab = "#tabs-4";
              }
@@ -225,10 +227,10 @@
    </div>
 
 <script>
-    $('#cancellation_reason').select2({
+     $('#cancellation_reason').select2({
        placeholder: 'Cancellation Reason'
    }); 
-    $(document).ready(function(){
+   $(document).ready(function(){
         $("#selecctall").change(function(){
             var isChecked = document.getElementById('selecctall').checked;
             $(".checkbox1").prop('checked', $(this).prop("checked"));
@@ -276,4 +278,4 @@
         return false;
     }
     }
-    </script>
+   </script>

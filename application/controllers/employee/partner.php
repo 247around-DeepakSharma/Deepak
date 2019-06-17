@@ -186,28 +186,41 @@ class Partner extends CI_Controller {
             
         }
         
-        $data['symptom'] =  $data['completion_symptom'] = $data['technical_solution'] = array();
+        $data['symptom'] =  $data['completion_symptom'] = $data['technical_defect'] = $data['technical_solution'] = array();
         
         if(count($data['booking_symptom'])>0) {
             if(!is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
                 $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
-
+                
+                if(count($data['symptom'])<=0) {
+                    $data['symptom'][0] = array("symptom" => "Default");
+                }
+        
             } 
             if(!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
                 $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
-
+                
+                if(count($data['completion_symptom'])<=0) {
+                    $data['completion_symptom'][0] = array("symptom" => "Default");
+                }
             }
             if(!is_null($data['booking_symptom'][0]['defect_id_completion'])){
                 $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
                 $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
-
+                
+                if(count($data['technical_defect'])<=0) {
+                    $data['technical_defect'][0] = array("defect" => "Default");
+                }
             }
             if(!is_null($data['booking_symptom'][0]['solution_id'])){
                 $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
-
+                
+                if(count($data['technical_solution'])<=0) {
+                    $data['technical_solution'][0] = array("technical_solution" => "Default");
+                }
             }
         }
-
+        
         if (!empty($data['booking_history']['spare_parts'])) {
             $spare_parts_list = array();
             foreach ($data['booking_history']['spare_parts'] as $key => $val) {
@@ -369,9 +382,9 @@ class Partner extends CI_Controller {
 
             $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
             if ($authToken) {
-                if($this->session->userdata('partner_id') == VIDEOCON_ID) { 
-                    $this->create_booking_or_query();
-                }   
+//                if($this->session->userdata('partner_id') == VIDEOCON_ID) { 
+//                    $this->create_booking_or_query();
+//                }   
                 $post = $this->get_booking_form_data();
                 $postData = json_encode($post, true);
                 $ch = curl_init(base_url() . 'partner/insertBookingByPartner');
@@ -543,6 +556,7 @@ class Partner extends CI_Controller {
 
         $results['services'] = $this->vendor_model->selectservice();
         $results['select_state'] = $this->vendor_model->getall_state();
+        $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $partner_code = $this->partner_model->get_availiable_partner_code();
         foreach ($partner_code as $row) {
             $code[] = $row['code']; // add each partner code to the array
@@ -556,7 +570,7 @@ class Partner extends CI_Controller {
         $employee_list = $this->employee_model->get_employee_by_group(array("groups NOT IN ('developer') AND active = '1'" => NULL));
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/addpartner', array('results' => $results, 'employee_list' => $employee_list));
+        $this->load->view('employee/addpartner', array('results' => $results, 'employee_list' => $employee_list,'saas_flag' => $saas_flag));
     }
 
     /**
@@ -1026,7 +1040,8 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code_availiable'] = $code;
-        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M'));
+        $partner_code_arr = ((isset($saas_flag) && !$saas_flag) ? array('R', 'S', 'P', 'L', 'M') : array('Z'));
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', $partner_code_arr);
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
         }
@@ -1635,9 +1650,9 @@ class Partner extends CI_Controller {
         // $authToken = $this->partner_model->get_authentication_code($this->session->userdata('partner_id'));
 
         if ($validate == true && !empty($booking_id)) {
-            if($this->session->userdata('partner_id') == VIDEOCON_ID) { 
-                $this->create_booking_or_query();
-             }   
+//            if($this->session->userdata('partner_id') == VIDEOCON_ID) { 
+//                $this->create_booking_or_query();
+//             }   
             log_message('info', 'Edit booking validation true' . $this->session->userdata('partner_name'));
             $post = $this->get_booking_form_data();
             $user['name'] = $post['name'];
@@ -1830,7 +1845,7 @@ class Partner extends CI_Controller {
             if(count($booking_symptom)>0)
             {
                 $bookingSymptom['symptom_id_booking_creation_time'] = $post['booking_request_symptom'];
-                $this->booking_model->update_symptom_defect_details($booking_id, $bookingSymptom);
+                $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $bookingSymptom);
             }
             else {
                 $bookingSymptom['booking_id'] = $booking_id;
@@ -1930,7 +1945,7 @@ class Partner extends CI_Controller {
                 . "spare_parts_details.model_number, spare_parts_details.quantity,spare_parts_details.serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, "
                 . "purchase_price, estimate_cost_given_date,booking_details.partner_id,"
-                . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status";
+                . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status, requested_inventory_id";
         $where['is_inventory'] = true;
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $where = array();
@@ -2280,6 +2295,17 @@ class Partner extends CI_Controller {
     function download_shippment_address($booking_address) {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        
+        $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $main_partner = $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+        if(!empty($main_partner)){
+            $main_company_public_name = $main_partner['main_company_public_name'];
+            $main_company_logo = $main_partner['main_company_logo'];
+        }
+        else{
+            $main_company_public_name = "";
+            $main_company_logo = "";
+        }
 
         $booking_history['details'] = array();
         foreach ($booking_address as $key => $value) {
@@ -2323,6 +2349,9 @@ class Partner extends CI_Controller {
             } else {
                 $booking_history['details'][$key]['partner'] = $partner_details;
             }
+            
+            $booking_history['details'][$key]['main_company_public_name'] = $main_company_public_name;
+            $booking_history['details'][$key]['main_company_logo'] = $main_company_logo;
         }
         
         $this->load->view('partner/print_address', $booking_history);
@@ -2685,7 +2714,7 @@ class Partner extends CI_Controller {
                 $option .= " selected ";
             }
             else{
-                if($is_repeat){
+                if($is_repeat && (trim($category) !== '')){
                     $option .= " disabled ";
                 }
             }
@@ -3349,8 +3378,13 @@ class Partner extends CI_Controller {
                     $sms['booking_id'] = $booking_id;
                     $sms['type'] = "user";
                     $sms['type_id'] = $data[0]['user_id'];
-                    $sms['smsData'] = "";
-
+                    if($data[0]['partner_id'] == VIDEOCON_ID){
+                        $sms['smsData']['cc_number'] = "0120-4500600";
+                    }
+                    else{
+                       $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
+                    }
+                    
                     $this->notify->send_sms_msg91($sms);
                     log_message('info', "Send SMS to customer: " . $booking_id);
 
@@ -4515,8 +4549,8 @@ class Partner extends CI_Controller {
 //            if (strpos($type, 'mp4') === false) {
 //                $this->session->set_userdata('error', "Only Mp4 is allowed for video type file");
 //                return false;
-//            }         
-            if($file['size']>100000000){
+//            }
+            if($file['size']>"104857600" ){
                 $this->session->set_userdata('error', "Video File Size Must be less then 100MB");
                 return false;
             }
@@ -4526,13 +4560,13 @@ class Partner extends CI_Controller {
 //                $this->session->set_userdata('error', "Only Mp3 is allowed for audio type file");
 //                return false;
 //            }
-            if($file['size']>50000000){
+            if($file['size']>"52428800‬" ){
                 $this->session->set_userdata('error', "Audio File Size Must be less then 50MB");
                 return false;
             }
         }
        else if (strpos($type, 'pdf') !== false) {
-            if($file['size']>50000000){
+            if($file['size']>"52428800‬" ){
                 $this->session->set_userdata('error', "Pdf File Size Must be less then 50MB");
                 return false;
             }
@@ -5243,6 +5277,7 @@ class Partner extends CI_Controller {
             $appliance_list = $this->partner_model->get_partner_specific_services($partner_id);
             if($this->input->get('is_option_selected')){
                 $option = '<option  selected="" disabled="">Select Appliance</option>';
+                $option = $option.'<option id="allappliance" value="all" >All</option>';
             }else{
                 $option = '';
             }
@@ -7664,7 +7699,6 @@ class Partner extends CI_Controller {
         
         echo json_encode($res);
     }
- 
 
     /**
      * @desc: This function is used to show  history for parts send by partner to Sfs

@@ -213,7 +213,7 @@
         $('#modal-title').text(booking_id);
         $('#textarea').val("");
         $("#url").val(url);
-        $button_text = $(this).attr("data-text");
+        $button_text = $(this).text();
         if($button_text === "Approve Invoice"){
             $("#charges").css("display","block");
              var charge = $(this).data('charge');
@@ -241,12 +241,11 @@
                  
       if(remarks !== "" && warranty_status !=''){
        $('#reject_btn').attr('disabled',true);
-      var charges =  $('#charges').val();
         var url =  $('#url').val();
         $.ajax({
             type:'POST',
             url:url,
-            data:{remarks:remarks,part_warranty_status:warranty_status,charge:charges},
+            data:{remarks:remarks,part_warranty_status:warranty_status},
             success: function(data){
                  var obj = JSON.parse(data); 
                 $('#reject_btn').attr('disabled',false);
@@ -258,7 +257,7 @@
                     alert("Approved Successfully");
                     spare_parts_requested_table.ajax.reload( function ( json ) { 
                       $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
-                    } );
+                    },false );
                     
                 } else {
                     alert("Spare Parts Cancellation Failed!");
@@ -325,7 +324,6 @@
           spare_parts_requested_table_approved.ajax.reload(null, false);  
         }else if(table_type=='spare_parts_requested_table_reject'){
            spare_parts_requested_table_reject.ajax.reload(null, false);  
-
         }
         
     }

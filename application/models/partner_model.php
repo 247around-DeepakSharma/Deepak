@@ -513,7 +513,9 @@ function get_data_for_partner_callback($booking_id) {
 
             foreach ($current_month_booking as $value) {
 
-                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
+                        strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
+                        || strpos($value->request_type, 'Inspection') !== false) {
                     $result['current_month_repair_booking_requested'] ++;
                     switch ($value->current_status) {
                         case _247AROUND_COMPLETED:
@@ -1463,7 +1465,7 @@ function get_data_for_partner_callback($booking_id) {
         
         if(!empty($post['is_inventory'])){
             $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
-            $this->db->join('inventory_master_list as im','im.inventory_id = spare_parts_details.requested_inventory_id', "left");
+            $this->db->join('inventory_master_list as im','im.inventory_id = spare_parts_details.shipped_inventory_id', "left");
         }
         
         if(!empty($post['is_original_inventory'])){
@@ -1927,7 +1929,7 @@ function get_data_for_partner_callback($booking_id) {
     function get_brand_collateral_data($condition,$order_by_column,$sorting_type)
     {
 
-        $group_by=array('`collateral`.`brand`','`collateral`.`collateral_id`','`collateral`.`appliance_id`');
+        $group_by=array('`collateral_type`.`collateral_type`','`collateral`.`model`','`collateral`.`category`','`collateral`.`capacity`','`collateral`.`file`','`collateral`.`document_description`','`collateral`.`start_date`');
         $this->db->select("collateral.id,collateral.appliance_id,collateral.collateral_id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,collateral_type.document_type,collateral.request_type");
         $this->db->from("collateral");
         $this->db->where('entity_type','partner');
@@ -2217,7 +2219,7 @@ function get_data_for_partner_callback($booking_id) {
             $meta['main_company_ifsc_code'] = "ICIC0001024";
             $meta['main_company_seal'] = "247aroundstamp.jpg";
             $meta['main_company_signature'] = "anujsign.jpg";
-            $meta['main_company_logo'] = "logo.png";
+            $meta['main_company_logo'] = "logo.jpg";
             $meta['main_company_description'] = _247AROUND_INVOICE_TEMPLATE_DESCRIPTION;
         }
         return $meta;

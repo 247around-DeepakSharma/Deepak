@@ -131,9 +131,9 @@
                             else{
                             ?>
                         <li style="background:#fff"><a id="1" href="#tabs-1" onclick="load_form(this.id)"><span class="panel-title">Basic Details</span></a></li>
-                        <li><a id="2" href="#tabs-2"  onclick="load_form(this.id)"><span class="panel-title">Documents</span></a></li>
+                        <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>> <a id="2" href="#tabs-2"  onclick="load_form(this.id)"><span class="panel-title">Documents</span></a></li>
                         <li><a id="3" href="#tabs-3" onclick="load_form(this.id)"><span class="panel-title">Operation Region</span></a></li>
-                        <li><a id="4" href="#tabs-4" onclick="load_form(this.id)"><span class="panel-title">Contracts</span></a></li>
+                        <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="4" href="#tabs-4" onclick="load_form(this.id)"><span class="panel-title">Contracts</span></a></li>
                         <li><a id="5" href="#tabs-5" onclick="load_form(this.id)"><span class="panel-title">Brand Mapping</span></a></li>
                         <li><a id="6" href="#tabs-6" onclick="load_form(this.id)"><span class="panel-title">Brand Collateral</span></a></li>
                         <li><a id="7" href="#tabs-7" onclick="load_form(this.id)"><span class="panel-title">Upload Serial No</span></a></li>
@@ -442,7 +442,6 @@
                             </div>
                         </div>
                     </div>
-                    <?php if(!$saas_flag) { ?>
                     <div class="col-md-12">
                         <div class="panel panel-default">
                             <div class="panel-heading"><b>UpCountry Details</b></div>
@@ -514,7 +513,6 @@
                             </div>
                         </div>
                     </div>
-                    <?php } ?>
                     <div class="col-md-12">
                         <div class="panel panel-default">
                             <div class="panel-heading"><b>Spare Parts</b></div>
@@ -688,7 +686,7 @@
                                     <label for="invoice_email_cc" class="col-md-4">cc</label>
                                     <div class="col-md-6">
                                         <input type="text" class="form-control"  name="invoice_email_cc" value = "<?php if (isset($query[0]['invoice_email_cc'])) {
-                                            echo $query[0]['invoice_email_cc'];}  else { echo "anuj@247around.com,nits@247around.com,".ACCOUNTANT_EMAILID; }
+                                            echo $query[0]['invoice_email_cc'];}  else { echo "anuj@247around.com,".ACCOUNTANT_EMAILID; }
                                             ?>">
                                         <?php echo form_error('invoice_email_cc'); ?>
                                     </div>
@@ -2710,8 +2708,8 @@
                                         <thead>
                                             <tr>
                                                 <th>S.No.</th>
-                                                <th>Model Number</th>
                                                 <th>Service</th>
+                                                <th>Model Number</th>
                                                 <th>Brand</th>
                                                 <th>Category</th>
                                                 <th>Capacity</th>

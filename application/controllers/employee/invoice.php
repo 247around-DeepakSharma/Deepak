@@ -704,7 +704,7 @@ class Invoice extends CI_Controller {
             }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
         } else {
-
+           
             $this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_pdf_file_name);
         }
 
@@ -740,6 +740,7 @@ class Invoice extends CI_Controller {
             readfile(TMP_FOLDER . $invoice_id. '.zip');
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '.zip'));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $invoice_id . "-draft.xlsx"));
+            exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $invoice_id . "-draft.pdf"));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.pdf'));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.xlsx'));
         }                                              
@@ -1987,7 +1988,9 @@ class Invoice extends CI_Controller {
             if($status){
                 
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
-               
+                unset($invoices['meta']['main_company_logo_cell']);
+                unset($invoices['meta']['main_company_seal_cell']);
+                unset($invoices['meta']['main_company_sign_cell']);
                 //unset($invoices['booking']);
                 $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoices,$agent_id, $hsn_code);
                 return true;
@@ -3744,7 +3747,7 @@ class Invoice extends CI_Controller {
             $data[0]['description'] = ucwords($sp_data[0]->parts_requested) . " (" . $sp_data[0]->booking_id . ") ";
             $amount = $sp_data[0]->purchase_price + $sp_data[0]->purchase_price * $repair_around_oow_percentage;
             $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $sp_data[0]->invoice_gst_rate);
-            $data[0]['taxable_value'] = ($amount - $tax_charge);
+            $data[0]['taxable_value'] = sprintf("%.2f", ($amount - $tax_charge));
             $data[0]['product_or_services'] = "Product";
             if(!empty($vendor_details[0]['gst_no'])){
                 $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
@@ -4103,15 +4106,17 @@ class Invoice extends CI_Controller {
                     . "spare_parts_details.shipped_inventory_id as inventory_id, service_center_id,"
                     . "spare_parts_details.is_micro_wh, spare_parts_details.booking_id,"
                     . "spare_parts_details.id", array('spare_parts_details.id' => $spare_id ), TRUE, FALSE);
+            
+           
             if(!empty($spare)){
                 $partner_details = $this->partner_model->getpartner($spare[0]['booking_partner_id']);
                 if(!empty($partner_details)){
-                    if ($spare[0]['is_micro_wh'] == 1 && empty($spare[0]['reverse_purchase_invoice_id'])) {
+                    if ($spare[0]['is_micro_wh'] == 1 && empty($spare[0]['reverse_purchase_invoice_id'])) { 
                         if (!empty($spare[0]['shipped_inventory_id'])) {
                             if (empty($spare[0]['gst_number'])) {
                                 $spare[0]['gst_number'] = TRUE;
                             }
-                            $invoice_id = $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
+                            $invoice_id = $invoice_id = $this->invoice_lib->create_invoice_id("Around");
                             $spare[0]['spare_id'] = $spare_id;
                             $spare[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
                             $spare[0]['booking_partner_id'] = $spare[0]['partner_id'];

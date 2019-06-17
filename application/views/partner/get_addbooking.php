@@ -136,7 +136,7 @@
                         <div class="form-group col-md-12 <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
                             <label for="model_number_1">Model Number  <span id="error_model" style="color: red;"></label>
                             <span id="model_number_2">
-                                <select class="form-control"  name="model_number" id="model_number_1" >
+                                <select class="form-control select-model"  name="model_number" id="model_number_1" >
                                     <option selected disabled>Select Model</option>
                                 </select>
                             </span>
@@ -356,11 +356,12 @@
                 <div class="x_panel">
                     <div class="x_content">
                         <input type="hidden" id="not_visible" name="not_visible" value="0"/>
-                        <?php if($this->session->userdata('partner_id') == VIDEOCON_ID) { ?>
-                        <input type="hidden" name="product_type" value="Shipped"/>
-                        <?php } else { ?>
                         <input type="hidden" name="product_type" value="Delivered"/>
-                        <?php  }//if(!empty($this->session->userdata('status'))) {?>
+                        <?php //if($this->session->userdata('partner_id') == VIDEOCON_ID) { ?>
+<!--                        <input type="hidden" name="product_type" value="Shipped"/>-->
+                        <?php// } else { ?>
+<!--                        <input type="hidden" name="product_type" value="Delivered"/>-->
+                        <?php // }//if(!empty($this->session->userdata('status'))) {?>
                         <div class="row">
                             <div class="form-group  col-md-12" >
                                 <center>
@@ -394,7 +395,7 @@
         <div class="modal-content">
             <div class="modal-header" style="text-align: center;margin: 0px;">
                 <button type="button" id="close_modal" class="close btn-primary well" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Verify Address Details</h4>
+                <h4 class="modal-title">Verify Booking Details</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -650,6 +651,22 @@
             document.getElementById('error_remarks').innerHTML = "";  
         }
         
+        var delivered_price_tags = [];
+        $(".price_checkbox:checked").each(function (i) {
+            var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
+            delivered_price_tags.push(price_tags);
+
+        });
+        
+        var pr = checkPriceTagValidation(delivered_price_tags);
+        if(pr === false){
+            alert('Not Allow to select multiple different type of service category');
+            $("#selected_service").css("color","red");
+            return false;
+        } else {
+            $("#selected_service").css("color","black");
+        }
+        
        
         <?php if(empty($this->session->userdata('status'))){   ?>
                 var grand_total = Number($("#grand_total").val());
@@ -747,6 +764,7 @@
          width:"404px"
     });
     $("#booking_request_symptom").select2();
+    $("#model_number_1").select2();
     $("#price_tag").select2();
     $("#service_name").select2();
     $("#appliance_brand_1").select2();
@@ -930,11 +948,14 @@
                 if($.trim(data) === "Data Not Found"){  
                     var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model">';
                     $("#model_number_2").html(input).change();
+                    $('.select-model').next(".select2-container").hide();
                 } else {
                     //First Resetting Options values present if any
-                    var input_text = '<span id="model_number_2"><select class="form-control"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
+                    var input_text = '<span id="model_number_2"><select class="form-control select-model"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
                     $("#model_number_2").html(input_text).change();
                     $("#model_number_1").append(data).change();
+                    $("#model_number_1").select2();
+                    $('.select-model').next(".select2-container").show();
                     
                 }
             }
@@ -1323,6 +1344,7 @@
         var price = 0;
         var price_array ;
         ch =0;
+        var delivered_price_tags = [];
         var appliance_unit =$("#appliance_unit").val();
     
          $("input[type=checkbox]:checked").each(function(i) {
@@ -1332,8 +1354,12 @@
             if(price_array[0] !== "upcountry"){
                 ch = 1;
             }
+            
+            var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
+            delivered_price_tags.push(price_tags);
            
         });
+
         if(ch === 0){
             document.getElementById("checkbox_upcountry").checked = false;
             $("#grand_total").val("0.00");
@@ -1341,6 +1367,20 @@
         } else {
             var final_price = Number(price) * Number(appliance_unit);;
             $("#grand_total").val(final_price.toFixed(2));
+        }
+        
+        
+        var pr = checkPriceTagValidation(delivered_price_tags);
+        if(pr === false){
+             alert('Not Allow to select multiple different type of service category');
+             $("#selected_service").css("color","red");
+             $(".price_checkbox:checked").prop("checked", false);
+             document.getElementById("checkbox_upcountry").checked = false;
+             $("#grand_total").val("0.00");
+             final_price();
+
+        } else {
+            $("#selected_service").css("color","black");
         }
         
     }
@@ -1505,4 +1545,92 @@
         }
 
     }
+    
+ 
+ <?php  
+ if($this->session->userdata('partner_id')==VIDEOCON_ID){ ?>
+    $("#booking_city").change(function(){
+      var cities = ["Mumbai","Thane"];
+      var city = $(this).val();
+      if(jQuery.inArray(city, cities)!='-1'){
+          alert("This PINCODE is not in your Serviceable Area associated with us!");
+          $('#submitform').prop("disabled", true);
+          $('#submitform').attr("type", "button");
+          $('#submitform').removeClass("btn-primary");
+          $("#submitform").removeAttr("onclick");
+     }else{
+          $('#submitform').attr("type", "submit");  
+          $('#submitform').addClass("btn-primary");
+          $('#submitform').attr('onclick',"return check_validation()");
+     }
+   }); 
+     
+ <?php }
+ ?>   
+ 
+ function checkPriceTagValidation(delivered_price_tags){
+        var repair_flag = false;
+        var repair_out_flag = false;
+        var installation_flag = false;
+        var pdi = false;
+        var extended_warranty = false;
+        var pre_sales = false;
+        var array =[];
+
+        if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
+                )){
+            
+            repair_flag = true;
+            array.push(repair_flag);
+         } 
+         
+         if((findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1)){
+            
+            repair_out_flag = true;
+            array.push(repair_out_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Extended Warranty') > -1 ){
+             extended_warranty = true;
+             array.push(extended_warranty);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Presale Repair') > -1 ){
+             pre_sales = true;
+             array.push(pre_sales);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 
+                || findInArray(delivered_price_tags, 'Installation & Demo (Paid)') > -1){
+                   installation_flag = true;
+                   array.push(installation_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1
+                || findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1){
+                    pdi = true;
+                    array.push(pdi);
+                }
+                
+         if(array.length > 1){
+             return false;
+         } else {
+             return true;
+         }
+    }
+    function findInArray(ar, val) {
+        for (var i = 0,len = ar.length; i < len; i++) {
+            if ( ar[i] === val ) { // strict equality test
+                return i;
+            }
+        }
+        return -1;
+    }
+    
 </script>
+ 

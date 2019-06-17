@@ -906,11 +906,6 @@ class File_upload extends CI_Controller {
         $insert_data = array();
         $partner_id = trim($this->input->post('partner_id'));
         
-         $header_column_need_to_be_present = array('part_code', 'alt_part_code');
-        //check if required column is present in upload file header
-        $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
-        if ($check_header['status']) {
-
         $agentid='';
         if ($this->session->userdata('userType') == 'employee') {
             $agentid=$this->session->userdata('id');
@@ -963,11 +958,12 @@ class File_upload extends CI_Controller {
                     $response['message'] = "Spare Parts Code And Alternate Spare Parts Code Is Same.";
                 }
             }
+            
             if(!empty($table_flag)){
-                $not_exist_data_msg .= "<br> Below part number does not exists in our database: <br>";
+                $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
                 $not_exist_data_msg .= $this->table->generate();    
             }
-                                      
+                     
             if(!empty($this->dataToInsert)){
                  $insert_data = $this->inventory_model->insert_alternate_spare_parts($this->dataToInsert);
                  
@@ -1035,7 +1031,8 @@ class File_upload extends CI_Controller {
                  }
                  
             }
-            if (!empty($this->dataToInsert)) {
+                        
+            if ($insert_data) {
                 log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
                 $response['status'] = TRUE;
                 $message = "<b>" . count($this->dataToInsert) . "</b> mapping created successfully.";
@@ -1049,9 +1046,7 @@ class File_upload extends CI_Controller {
             $response['status'] = FALSE;
             $response['message'] = 'Please select correct partner';
         }
-        
         return $response;
-        }
     }
 
     /**

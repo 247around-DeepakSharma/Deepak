@@ -190,6 +190,7 @@
     </div>
     
     
+    
         <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
@@ -631,7 +632,7 @@
                         </div>
                     </div>
                 </div>
-                     <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
+                    <div class="col-md-3" style="margin: 0px;padding: 0px 1px;width: 130px;">
                     <div class="item form-group">
                         <div class="col-md-12 col-sm-12 col-xs-12">
                             <label for="">Is Upcountry</label>
@@ -1002,6 +1003,50 @@
     </div>
     <!-- Escalation End-->
  
+    <!-- Not assigned booking report -->
+    <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+             <div class="x_panel">
+                <div class="x_title" style="padding-left: 0px;">
+                    <h2>Non Assigned Booking Report</h2>
+                    <span class="collape_icon" href="#Unassigned_Booking_Reporting" data-toggle="collapse" <!--onclick="initiate_RM_TAT_Reporting()" --><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <div class="clearfix"></div>
+                </div>
+                <div id="Unassigned_Booking_Reporting" class="collapse in">
+                    <?php 
+                        if(!empty($not_assigned_booking_data)) {
+                           // echo"<pre>";print_r($not_assigned_booking_data);exit; ?>
+                            <table class="table table-striped table-bordered jambo_table bulk_action">
+                            <thead>
+                                <tr>
+                                    <th>S.no</th>
+                                    <th>RM</th>
+                                    <th>Total Booking</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                          <?php foreach ($not_assigned_booking_data as $k => $booking_data) { ?>
+                                <tr>
+                                    <td><?= $k + 1; ?></td>
+                                    <?php if(!empty($booking_data['full_name'])) { ?>
+                                    <td><a class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/unassigned_booking_full_view/<?= $booking_data['id']; ?>"><?= $booking_data['full_name']; ?></a></td>
+                                    <?php } else { ?>
+                                    <td><a class="btn btn-default">Unknown</a></td>
+                                    <?php } ?>
+                                    <td><?= $booking_data['number_of_bookings']; ?></td>
+                                </tr>
+                        <?php }?>
+                                 </tbody>
+                        </table>
+                        <?php } else {
+                            echo 'No Data Found';
+                        }
+                    ?>
+                </div>
+            </div>
+        </div>
+    </div>
     
     <div class="row" style="margin-top:10px;">
         <!-- Company Monthly Status -->
@@ -1047,7 +1092,7 @@
                 </div>
             </div>
         </div>
-        <!-- RM wise booking status --> 
+        <!-- RM wise booking status -->
     </div>
     
     <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
@@ -1081,7 +1126,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-sm-12 col-xs-12" id="completed_booking_closure_status" style="padding-right:0px !important;">
+        <div class="col-md-6 col-sm-12 col-xs-12" id="cancelled_booking_closure_status" style="padding-right:0px !important;">
             <div class="x_panel">
                 <div class="x_title">
                     <div class="col-md-6" style="padding: 0px;"><h2>Review Cancelled Booking Status <button type="button"class="btn btn-default" style="margin-bottom: 10px;padding: 1px 4px;margin-top: 0px;font-size: 8px;margin-left: 5px;background: #f7a35c;
@@ -1110,9 +1155,8 @@
     </div>
     <!-- Closure Team Graph -->
     
-    
-    <div class="row" style="margin-top:10px;">
-        <!-- Logged In Users -->
+    <!-- Logged In Users -->
+    <!-- <div class="row" style="margin-top:10px;">
         <div class="col-md-6 col-sm-12 col-xs-12" id="div_loggedin" style="padding : 0px !important;">
             <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
                 <div class="x_panel">
@@ -1141,8 +1185,8 @@
                 </div>
             </div>
         </div>
-        <!-- Logged In Users -->
-    </div>
+    </div> -->
+    <!-- Logged In Users -->
     <!-- Agent Graph -->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
@@ -1251,10 +1295,10 @@
 
     $('#pending_dependency').select2();
     $('#pending_dependency_am').select2();
-
-     $('#am_id').select2();
     $('#upcountry_rm_pending').select2();
     $('#upcountry_am_pending').select2();
+
+     $('#am_id').select2();
 
     
     $('#process').click(function(){
@@ -1323,9 +1367,47 @@
     var change_chart_data = [];
     var start = moment().startOf('month');
     var end = moment().endOf('month');
+    var start_week = moment().subtract(6, 'days');
+    var end_week = moment();
     var options = {
             startDate: start,
             endDate: end,
+            minDate: '01/01/2000',
+            maxDate: '12/31/2030',
+            dateLimit: {
+                days: 120},
+            showDropdowns: true,
+            showWeekNumbers: true,
+            timePicker: false,
+            timePickerIncrement: 1, timePicker12Hour: true,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            },
+            opens: 'left',
+            buttonClasses: ['btn btn-default'],
+            applyClass: 'btn-small btn-primary',
+            cancelClass: 'btn-small',
+            format: 'MM/DD/YYYY', separator: ' to ',
+            locale: {
+                applyLabel: 'Submit',
+                cancelLabel: 'Clear',
+                fromLabel: 'From',
+                toLabel: 'To',
+                customRangeLabel: 'Custom',
+                daysOfWeek: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                monthNames: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+                firstDay: 1
+            }
+    };
+    
+     var options_week = {
+            startDate: start_week,
+            endDate: end_week,
             minDate: '01/01/2000',
             maxDate: '12/31/2030',
             dateLimit: {
@@ -1400,23 +1482,23 @@
     });
     
     $(function () {
-        function cb(start, end) {
-            $('#reportrange5 span').html(moment().subtract(6, 'days').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+        function cb(start_week, end_week) {
+            $('#reportrange5 span').html(start_week.format('MMMM D, YYYY') + ' - ' + end_week.format('MMMM D, YYYY'));
         }
 
-        $('#reportrange5').daterangepicker(options, cb);
+        $('#reportrange5').daterangepicker(options_week, cb);
 
-        cb(moment().subtract(6, 'days'), moment());
+        cb(start_week, end_week);
     });
     
     $(function () {
-        function cb(start, end) {
-            $('#reportrange6 span').html(moment().subtract(6, 'days').format('MMMM D, YYYY') + ' - ' + moment().format('MMMM D, YYYY'));
+        function cb(start_week, end_week) {
+            $('#reportrange6 span').html(start_week.format('MMMM D, YYYY') + ' - ' + end_week.format('MMMM D, YYYY'));
         }
 
-        $('#reportrange6').daterangepicker(options, cb);
+        $('#reportrange6').daterangepicker(options_week, cb);
 
-        cb(moment().subtract(6, 'days'), moment());
+        cb(start_week, end_week);
     });
     
     $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
@@ -1465,13 +1547,14 @@
             }
             else{
                 alert("Graph Data Not Found");
+                $("#completed_booking_closure_status").find(".collape_icon").click();
             }
         });
     });
     
     $('#reportrange6').on('apply.daterangepicker', function (ev, picker) {
         $('#loader_gif8').show();
-        $('#completed_booking_closure_chart').hide();
+        $('#cancelled_booking_closure_chart').hide();
         var startDate = picker.startDate.format('YYYY-MM-DD');
         var endDate = picker.endDate.format('YYYY-MM-DD');
         url = baseUrl + '/employee/dashboard/get_completed_cancelled_booking_by_closure/Cancelled';
@@ -1483,6 +1566,7 @@
             }
             else{
                 alert("Graph Data Not Found");
+                $("#cancelled_booking_closure_status").find(".collape_icon").click();
             }
         });
     });
@@ -2240,6 +2324,7 @@ function initiate_escalation_data(){
             }
             else{
                 alert("Graph Data Not Found");
+                $("#completed_booking_closure_status").find(".collape_icon").click();
             }
         });
     }
@@ -2319,6 +2404,7 @@ function initiate_escalation_data(){
             }
             else{
                 alert("Graph Data Not Found");
+                $("#cancelled_booking_closure_status").find(".collape_icon").click();
             }
         });
     }
