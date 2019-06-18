@@ -177,6 +177,7 @@
             },
             "order": [], 
             "pageLength": 25,
+            "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
             "ordering": false,
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/inventory/get_partner_mapped_model_details",

@@ -140,7 +140,7 @@
             $("#mytable").dataTable({
                 dom: 'Bfrtip',
                 buttons: [
-                   'excel'
+                   'excel', 'pageLength'
                 ]
             }); 
         }); 
