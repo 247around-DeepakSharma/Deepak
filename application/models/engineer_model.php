@@ -265,14 +265,14 @@ class Engineer_model extends CI_Model {
         }
         
         if(!empty($post_data['engineer_id'])) {
-            //$where .= " and assigned_engineer_id = ".trim($post_data['engineer_id']);
-            $where .= " and assigned_engineer_id = 24700001";
+            $where .= " and assigned_engineer_id = ".trim($post_data['engineer_id']);
+            //$where .= " and assigned_engineer_id = 24700001";
             
         } 
         if(!empty($post_data['status'])) {
             $where .= " and current_status = '".trim($post_data['status'])."'";
         } 
-        //echo $where;exit;
+        
         $sql = "SELECT 
                     booking_details.*,
                     users.name as username,
@@ -289,7 +289,6 @@ class Engineer_model extends CI_Model {
                     1 {$where}";
                      
         $query = $this->db->query($sql);
-        //echo"<pre>";print_r($query->result_array());exit;
         return $query->result_array();
         
     }    
