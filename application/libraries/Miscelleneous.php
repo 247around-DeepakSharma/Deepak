@@ -3480,7 +3480,6 @@ function generate_image($base64, $image_name,$directory){
                 $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                 $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
                 $response['is_micro_wh'] = 1;
-                $response['part_name'] =  $inventory_part_number[0]['part_name'];  //
                 $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
                 
             } else {
@@ -3499,7 +3498,7 @@ function generate_image($base64, $image_name,$directory){
                         $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                         $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
                         $response['is_micro_wh'] = 2;
-                        $response['part_name'] =  $inventory_part_number[0]['part_name']; 
+
                         $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
                         break;
                     }
