@@ -24,7 +24,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <select class="form-control" id="service_id" required name="service_id" onchange='get_brand_model()'>
-                                        <option selected disabled value="option_holder">Select Service</option>
+                                        <option selected disabled value="option_holder">Select Product</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -39,7 +39,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="input-group input-append date" >                                        
-                                        <input type="date" class="form-control purchase_date"  name="purchase_date"  id="purchase_date" required readonly>
+                                        <input type="text" class="form-control purchase_date"  name="purchase_date"  id="purchase_date" required readonly placeholder="Purchase Date">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div> 
                                 </div>
@@ -61,7 +61,7 @@
                                 <th>End Date</th>
                                 <th>States</th>
                                 <th>Free Part Types</th>
-                                <th>SVC Charge</th>
+                                <th>Service Charge</th>
                                 <th>Gas Charge</th>
                                 <th>Warranty Type</th>
                                 <th>Warranty Period</th>
@@ -93,7 +93,7 @@
         }
         else if (service === 'option_holder')
         {
-            alert("Please Select Service ");
+            alert("Please Select Product ");
             return false;
         }
         else if (brand === 'option_holder')
@@ -162,6 +162,7 @@
     }
 
     var ad_table;
+    $('#warranty_details').append('<caption style="caption-side: top;color:#f30;font-weight:bold;text-align:center;font-size:16px;" id="warranty_status"></caption>');
     ad_table = $('#warranty_details').DataTable({
         "processing": true, //Feature control the processing indicator.
         "serverSide": true, //Feature control DataTables' server-side processing mode.
@@ -198,7 +199,26 @@
                 d.model = $("#model option:selected").val();
                 d.brand = $("#brand option:selected").val();
                 d.purchase_date = $("#purchase_date").val();
-            }
+            },
+            "dataSrc" : function (json) {
+                if(json.activeInWarrantyPlans > 0)
+                {
+                    $("#warranty_status").html("In Warranty.");
+                }
+                else if((json.activeExtendedWarrantyPlans > 0) && (json.activeInWarrantyPlans == 0))
+                {
+                    $("#warranty_status").html("Repair-In Warranty has expired, Product lies in extended warranty");
+                }
+                else if((json.activeExtendedWarrantyPlans == 0) && (json.activeInWarrantyPlans == 0))
+                {
+                    $("#warranty_status").html("Warranty not exists.");
+                }
+                else
+                {
+                    $("#warranty_status").html("");
+                }
+                return json.data;
+            } 
         },
         "columnDefs": [
             {
@@ -211,13 +231,13 @@
                 var arrDate = data[11].split("-");
                 var warranty_end_period = new Date(arrDate[2], arrDate[1]-1, arrDate[0]);
                 if(+warranty_end_period.getTime() < +curDate.getTime()){
-                    $(row).addClass('deactive');
+                    $(row).addClass('deactive');              
                 }
         }
     });
 
     $("#partner,#service_id,#brand,#model").select2();
-    $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
+    $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd', maxDate: new Date()});
 
     $('#show').click(function () {
         validateform();
