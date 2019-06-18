@@ -1126,7 +1126,12 @@ class Accounting extends CI_Controller {
      */
     function invoice_summary_bank_transaction_datatable($transaction_list, $no){
         $row = array();
-        $row[] = $no;
+        if($transaction_list->is_advance ==1){ 
+            $row[] = $no.'<p id="advance_text"> Advance</p>';
+        }
+        else{
+            $row[] = $no;
+        }
         $row[] = $transaction_list->transaction_date;
         $row[] = '<span class="text">'.$transaction_list->description.'</span><span class="edit" onclick="bd_update(this, '.$transaction_list->id.')"><i class="fa fa-pencil fa-lg" style="margin-left:5px;"></i></span>';
         $row[] = sprintf("%.2f",$transaction_list->credit_amount); 
