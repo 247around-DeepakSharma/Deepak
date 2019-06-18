@@ -192,7 +192,7 @@ class Dealer_model extends CI_Model {
     }
     function get_entity_login_details($data){
       $this->db->select("entity_role.is_filter_applicable,entity_role.role,contact_person.id,contact_person.official_email,"
-              . "entity_role.department,contact_person.entity_id,entity_login_table.agent_id");
+              . "entity_role.department,contact_person.entity_id,entity_login_table.agent_id,contact_person.name");
       $this->db->where($data);
       $this->db->join("contact_person","entity_login_table.contact_person_id = contact_person.id");
       $this->db->join("entity_role","entity_role.id = contact_person.role");
