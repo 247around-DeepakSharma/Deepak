@@ -913,6 +913,7 @@
                         else{
                             $("#"+id).parent().find("a").remove();
                             $("#"+id).parent().append(response.html);
+                            $("span").attr("aria-labelledby", "select2-"+id+"-container").css("display", "none");
                             $("#"+id).css("display", "none");
                         }
                    }
