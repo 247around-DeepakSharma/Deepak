@@ -541,23 +541,29 @@ $(document).ready(function(){
                 "footerCallback": function ( row, data, start, end, display ) { 
                         var api = this.api();
                         nb_cols = api.columns().nodes().length;
+                        
                         var j = 3;
                         while(j < nb_cols){
-                                var pageTotal = api
-                        .column( j, { page: 'current'} )
-                        .data()
-                        .reduce( function (a, b) {
-                        var rsum = parseFloat(Number(a) + Number(b)).toFixed(2);
-                        if(rsum == "NaN"){
-                            return "";
-                        }
-                        else{
-                            return rsum;
-                        }
+                            var pageTotal = api.column( j, { page: 'current'} ).data().reduce( function (a, b, c) {
+                                //console.log(c);
+                                console.log(api.column( 0, { page: 'current'} ).data()[c].toString());
+                                var str = api.column( 0, { page: 'current'} ).data()[c].toString();
+                                if(str.includes("Advance")){
+                                    return "";
+                                }
+                                else{
+                                    var rsum = parseFloat(Number(a) + Number(b)).toFixed(2);
+                                    if(rsum == "NaN"){
+                                        return "";
+                                    }
+                                    else{
+                                        return rsum;
+                                    }
+                                }
+                            }, 0 );
                        
-                        }, 0 );
-                        $( api.column( j ).footer() ).html(pageTotal);
-                                j++;
+                            $( api.column( j ).footer() ).html(pageTotal);
+                            j++;
                         } 
                 }
                 

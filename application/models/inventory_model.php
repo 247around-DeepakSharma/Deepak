@@ -2570,6 +2570,12 @@ class Inventory_model extends CI_Model {
 
     }
     
+
+    function get_entity_gst_data($select="*", $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->from("entity_gst_details");
+    }
     /**
      * @Desc: This function is used to get data from the inventory_model_mapping
      * @params: $select string
@@ -2588,6 +2594,7 @@ class Inventory_model extends CI_Model {
             $this->db->where('inventory_model_mapping.inventory_id IN (' . $where_in . ') ', NULL);
         }
         $this->db->from('inventory_model_mapping');
+
         $query = $this->db->get();
         return $query->result_array();
     }

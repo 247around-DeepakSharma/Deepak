@@ -108,7 +108,14 @@
                                                 <input type="file" class="form-control" name="courier_file" id="courier_file"/>
                                             </div>
                                         </div>
-                                        
+                                        <div class="form-group">
+                                            <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="from_gst_number" id="from_gst_number" required="">
+                                                    <option value="" disabled="">Select From GST Number</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                     <hr>
                                     <div class="dynamic-form-box">
@@ -273,12 +280,17 @@
         $('#partNumber_0').select2({
             placeholder:'Select Part Number'
         });
-            
+         
+        $('#from_gst_number').select2({
+            placeholder:'Select From GST Number'
+        });
+        
         get_partner_list();
+        get_247around_wh_gst_number();
        // get_vendor('','');        
         $("#partner_id").on('change',function(){
             var partner_id = $("#partner_id").val();
-              get_vendor('1',partner_id);              
+              get_vendor('1',partner_id);  
         });
         
         
@@ -334,7 +346,7 @@
         });
         
         //$("#spareForm").validate();    
-        $("#spareForm").on('submit', function(e) {
+        $("#spareForm").on('submit', function(e) { 
             e.preventDefault();
             var isvalid = $("#spareForm").valid();
             if (isvalid) {
@@ -344,10 +356,9 @@
                 var partner_name = $('#partner_id option:selected').text();
                 $('#partner_name').val(partner_name);
                 
-                var entered_invoice_amt = Number($('#invoice_amount').val());
+                //var entered_invoice_amt = Number($('#invoice_amount').val());
                 var our_invoice_amt = Number($('#total_spare_invoice_price').text());
-                if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
-                    
+                  
                     $(".part-total-price").each(function(i) {
     
                         if(Number($('#partBasicPrice_'+i).val()) == 0){
@@ -383,8 +394,7 @@
                         //Serializing all For Input Values (not files!) in an Array Collection so that we can iterate this collection later.
                         var params = $('#spareForm').serializeArray();
     
-                        //Getting Invoice Files Collection
-                        var invoice_files = $("#invoice_file")[0].files;
+                        
     
                         //Getting Courier Files Collection
                         var courier_file = $("#courier_file")[0].files;
@@ -395,10 +405,8 @@
                         var is_micro = $("#wh_id").find(':selected').attr('data-warehose');
                         formData.append("is_wh_micro", is_micro);
     
-                        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
-                        for (var i = 0; i < invoice_files.length; i++) {
-                            formData.append('invoice_file', invoice_files[i]);
-                        }
+                        var from_gst_number = $("#from_gst_number").find(':selected').text().split(' - ')[1];
+                        formData.append("247around_gst_number", from_gst_number);
     
                         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
                         for (var i = 0; i < courier_file.length; i++) {
@@ -408,7 +416,7 @@
                         $(params).each(function (index, element) {
                             formData.append(element.name, element.value);
                         });
-    
+                        
                         $.ajax({
                             method:"POST",
                             url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
@@ -441,13 +449,6 @@
                     }else{
                         return false;
                     }
-                    
-                }else{
-                    alert('Amount of invoice does not match with total price');
-                    $('#invoice_amount').css('border','1px solid red');
-                    $('#total_spare_invoice_price').addClass('text-danger');
-                    return false;
-                }
             }
         });
         
@@ -1106,6 +1107,17 @@
                     $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                     $('#error_msg').html(obj.message);
                 }
+            }
+        });
+    }
+    
+    function get_247around_wh_gst_number(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/inventory/get_247around_wh_gst_number',
+            data:{partner_id:$("#partner_id").val()},
+            success: function (response) {
+                $("#from_gst_number").html(response);
             }
         });
     }
