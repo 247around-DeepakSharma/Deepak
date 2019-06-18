@@ -67,6 +67,17 @@ var ad_table;
             "order": [], //Initial no order.
             "pageLength": 50,
             "deferLoading": 0,
+            "dom": 'lBfrtip',
+            "buttons": [
+                {
+                    extend: 'excel',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [ 0, 1, 2,3,4, 5,6,7,8,9]
+                    },
+                    title: 'defective_parts_send_to_partner'
+                }
+            ],
             // Load data for the table's content from an Ajax source
             "ajax": {
                 "url": baseUrl+"/employee/booking/get_advance_search_result_view",

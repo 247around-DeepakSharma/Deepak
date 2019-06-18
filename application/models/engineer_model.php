@@ -210,15 +210,15 @@ class Engineer_model extends CI_Model {
         }
     }
     
-//    function get_service_based_engineer($where, $select = "*"){
-//        $this->db->select($select);
-//        $this->db->join('engineer_appliance_mapping', 'engineer_appliance_mapping.engineer_id = engineer_details.id');
-//        if($where){
-//           $this->db->where($where);  
-//        }
-//        $query = $this->db->get("engineer_details");
-//        return $query->result_array();
-//    }
+    function get_service_based_engineer($where, $select = "*"){
+        $this->db->select($select);
+        $this->db->join('engineer_appliance_mapping', 'engineer_appliance_mapping.engineer_id = engineer_details.id');
+        if($where){
+           $this->db->where($where);  
+        }
+        $query = $this->db->get("engineer_details");
+        return $query->result_array();
+    }
     
     function get_engineer_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false, $is_partner = false, $is_vendor = false){
         $this->db->select($select, false);
@@ -265,14 +265,14 @@ class Engineer_model extends CI_Model {
         }
         
         if(!empty($post_data['engineer_id'])) {
-            //$where .= " and assigned_engineer_id = ".trim($post_data['engineer_id']);
-            $where .= " and assigned_engineer_id = 24700001";
+            $where .= " and assigned_engineer_id = ".trim($post_data['engineer_id']);
+            //$where .= " and assigned_engineer_id = 24700001";
             
         } 
         if(!empty($post_data['status'])) {
             $where .= " and current_status = '".trim($post_data['status'])."'";
         } 
-        //echo $where;exit;
+        
         $sql = "SELECT 
                     booking_details.*,
                     users.name as username,
@@ -289,7 +289,6 @@ class Engineer_model extends CI_Model {
                     1 {$where}";
                      
         $query = $this->db->query($sql);
-        //echo"<pre>";print_r($query->result_array());exit;
         return $query->result_array();
         
     }    

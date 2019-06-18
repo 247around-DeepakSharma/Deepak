@@ -46,6 +46,7 @@ $(document).ready(function () {
             "serverSide": true, //Feature control DataTables' server-side processing mode.
             "order": [], //Initial no order.
             "pageLength": 50,
+            "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "All"]],
             dom: 'lBfrtip',
             buttons: [
                 {
