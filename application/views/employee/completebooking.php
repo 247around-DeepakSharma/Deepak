@@ -323,7 +323,7 @@
                                                                     if(isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ 
                                                                         $isModelMandatory =1 ;
                                                                         ?>
-                                                                        <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>">
+                                                                        <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" style="width:266px;">
                                                                             <option value="" selected="" disabled="">Model Number</option>
                                                                             <?php foreach ($unit_details['model_dropdown'] as $m) { ?>
                                                                             <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $unit_details['model_number'] ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  

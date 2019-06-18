@@ -4027,7 +4027,7 @@ class vendor extends CI_Controller {
                         $flag = 1;
                         //$am_detail = $this->partner_model->getpartner_details('official_email, full_name', array('partners.id' => $value->partner_id),"", TRUE);
                         $am_detail = $this->partner_model->getpartner_data("employee.official_email, employee.full_name", 
-                            array('partners.id' => $value->partner_id, 'agent_filters.entity_type' => "247around"),"",1,1,1);
+                            array('partners.id' => $value->partner_id),"",1,1,1);
                         foreach($am_detail as $am) {
                             $this->table->add_row($value->booking_id, $am['full_name']);
                             array_push($am_email, $am['official_email']);

@@ -2459,12 +2459,18 @@ class Booking extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $partner_id = $this->input->post('partner_id');
         $appliance_id = $this->input->post('appliance_id');
-        
-        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id,$appliance_id);
-        if(!empty($status)){
-            echo json_encode($status);
-        } else {
-            echo json_encode(array('code' => 247));
+        if (!ctype_alnum($serial_number)) {
+            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number);
+            log_message('info', "Serial Number Entered With Special Character " . $serial_number);
+            echo json_encode($status, true);
+        }
+        else {
+            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id,$appliance_id);
+            if(!empty($status)){
+                echo json_encode($status);
+            } else {
+                echo json_encode(array('code' => 247));
+            }
         }
     }
     
@@ -2487,6 +2493,11 @@ class Booking extends CI_Controller {
             foreach ($pod as $unit_id => $value) {
                   if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
                     $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                    if (!ctype_alnum($serial_number[$unit_id])) {
+                        log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
+                        $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
+                        return FALSE;
+                    }
                     $price_tag = $price_tags_array[$unit_id];
                 if ($value == '1') {
                     if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
@@ -3265,7 +3276,7 @@ class Booking extends CI_Controller {
         $is_am=0;
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
-            $partnerWhere = array('agent_filters.agent_id' => $am_id, 'agent_filters.entity_type' => "247around");
+            $partnerWhere = array('agent_filters.agent_id' => $am_id);
             $is_am=1;
             $data['state'] = $this->partner_model->getpartner_data('distinct agent_filters.state',$partnerWhere,"",null,1,$is_am);
         }
@@ -5384,7 +5395,7 @@ class Booking extends CI_Controller {
     * @Desc - This is used to show file type list
     */
     function show_file_type_list() {
-        $data['file_type'] = $this->booking_model->get_file_type();
+        $data['file_type'] = $this->booking_model->get_file_type(array(), true);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_file_type_list', $data);
     }

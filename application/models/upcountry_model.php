@@ -752,7 +752,7 @@ class Upcountry_model extends CI_Model {
         if($state == 1){
             $stateWhere['agent_filters.agent_id'] = $this->session->userdata('agent_id');
             $stateWhere['agent_filters.is_active'] = 1;
-            $this->db->join('agent_filters', 'agent_filters.state =  bd.state');
+            $this->db->join('agent_filters', 'agent_filters.state =  bd.state', "left");
             $this->db->where($stateWhere, false);  
         }
         $this->db->join('booking_unit_details','bd.booking_id = booking_unit_details.booking_id');
