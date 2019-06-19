@@ -39,7 +39,7 @@
                                 </div>
                                 <div class="col-md-3">
                                     <div class="input-group input-append date" >                                        
-                                        <input type="text" class="form-control purchase_date"  name="purchase_date"  id="purchase_date" required readonly placeholder="Purchase Date">
+                                        <input type="text" class="form-control purchase_date"  name="purchase_date"  id="purchase_date" required readonly placeholder="Purchase Date"  onfocus="(this.type='date')">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div> 
                                 </div>
@@ -211,7 +211,7 @@
                 }
                 else if((json.activeExtendedWarrantyPlans == 0) && (json.activeInWarrantyPlans == 0))
                 {
-                    $("#warranty_status").html("Warranty not exists.");
+                    $("#warranty_status").html("Out of Warranty.");
                 }
                 else
                 {
