@@ -1869,7 +1869,9 @@ class vendor extends CI_Controller {
                 $data['name'] = $this->input->post('name');
                 $data['phone'] = $this->input->post('phone');
                 $data['alternate_phone'] = $this->input->post('alternate_phone');
-                $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
+                if($this->input->post('identity_proof')){
+                    $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
+                }
                 $data_identity['identity_proof_number'] = $this->input->post('identity_id_number');
                 
                 if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
