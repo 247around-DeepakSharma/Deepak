@@ -124,7 +124,7 @@
                                 <div class="left col-xs-12">
                                     <h2><b>Aurangabad Warehouse</b></h2>
                                     <ul class="list-unstyled">
-                                       <li><i class="fa fa-address-card-o"></i> Address: Dhade No-1 Plot 13, Phase 3 Near Ekdant Udyog Mitra Coprative Estate Chitegaon, Ta Paithan, Dist Aurangabad</li>
+                                       <li><i class="fa fa-newspaper-o"></i> Address: Dhade No-1 Plot 13, Phase 3 Near Ekdant Udyog Mitra Coprative Estate Chitegaon, Ta Paithan, Dist Aurangabad</li>
                                        <li><i class="fa fa-envelope"></i> Email: warehouse_aurangabad@247around.com </li>
                                     </ul>
                                 </div>

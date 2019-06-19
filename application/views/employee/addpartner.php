@@ -2827,6 +2827,7 @@
                     <tbody>
                         <?php
                             $index = 0;
+                            if(!empty($results['partner_am_mapping'])) {
                                 foreach($results['partner_am_mapping'] as $value){
                                     $index ++;
                                 ?>
@@ -2847,6 +2848,7 @@
                         <tr>
                             <?php
                                 }
+                            }
                                 ?>
                 </table>
             </div>

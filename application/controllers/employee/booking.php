@@ -2459,12 +2459,18 @@ class Booking extends CI_Controller {
         $booking_id = $this->input->post('booking_id');
         $partner_id = $this->input->post('partner_id');
         $appliance_id = $this->input->post('appliance_id');
-        
-        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id,$appliance_id);
-        if(!empty($status)){
-            echo json_encode($status);
-        } else {
-            echo json_encode(array('code' => 247));
+        if (!ctype_alnum($serial_number)) {
+            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number);
+            log_message('info', "Serial Number Entered With Special Character " . $serial_number);
+            echo json_encode($status, true);
+        }
+        else {
+            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), $price_tags, $user_id, $booking_id,$appliance_id);
+            if(!empty($status)){
+                echo json_encode($status);
+            } else {
+                echo json_encode(array('code' => 247));
+            }
         }
     }
     
@@ -2487,6 +2493,11 @@ class Booking extends CI_Controller {
             foreach ($pod as $unit_id => $value) {
                   if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
                     $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                    if (!ctype_alnum($serial_number[$unit_id])) {
+                        log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
+                        $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
+                        return FALSE;
+                    }
                     $price_tag = $price_tags_array[$unit_id];
                 if ($value == '1') {
                     if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
@@ -3265,7 +3276,7 @@ class Booking extends CI_Controller {
         $is_am=0;
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
-            $partnerWhere = array('agent_filters.agent_id' => $am_id, 'agent_filters.entity_type' => "247around");
+            $partnerWhere = array('agent_filters.agent_id' => $am_id);
             $is_am=1;
             $data['state'] = $this->partner_model->getpartner_data('distinct agent_filters.state',$partnerWhere,"",null,1,$is_am);
         }
@@ -5188,9 +5199,9 @@ class Booking extends CI_Controller {
         }
         $this->load->view('employee/rescheduled_review', $data);
     }
-    function review_bookings_by_status($status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL){
+    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL){
         $this->checkUserSession();
-        $whereIN = $where = $join = array();
+        $whereIN = $where = $join = $having = array();
         if(!$booking_id) {
             $booking_id  = NULL;
         }
@@ -5221,10 +5232,9 @@ class Booking extends CI_Controller {
            $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
            $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
         }
-        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1);
         $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['cancellation_reason_selected'] = $cancellation_reason_id;
-        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join);
+        $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
             $data['offset'] = $offset;
@@ -5385,7 +5395,7 @@ class Booking extends CI_Controller {
     * @Desc - This is used to show file type list
     */
     function show_file_type_list() {
-        $data['file_type'] = $this->booking_model->get_file_type();
+        $data['file_type'] = $this->booking_model->get_file_type(array(), true);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_file_type_list', $data);
     }

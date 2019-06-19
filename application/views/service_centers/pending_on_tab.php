@@ -263,16 +263,19 @@
                                                 href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
                                             <?php echo $row->booking_id; ?>
                                             </a>
-                                             <br/>
+                                             
                                                 <?php if($row->count_reschedule > 0){ ?>
+                                                <br/>
                                                 <span style="color:#F26722; font-size:13px;"><?php echo $row->count_reschedule; ?> times rescheduled</span>
                                                 <?php } ?>
-                                                <br/>
+                                                
                                                 <?php if($row->is_bracket == 1){ ?>
+                                                <br/>
                                                 <img src="<?php echo base_url(); ?>images/Bracket.png" style="width:30%"/>
+                                                <br/>
                                                 <?php }?>
                                                 
-                                                <br/>
+                                                
                                                 <a href="javascript:void(0)" > <img id="<?php echo 'spare_tomorrow'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:84%"/></a>
                                                 <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_delivered_tomorrow'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'tomorrow');
@@ -281,7 +284,10 @@
                                                 
                                                 
                                                 </script>
-                                                
+                                                <?php if($row->booking_files_purchase_invoice){ ?>
+                                                <br/>
+                                                <a target='_blank' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $row->booking_files_purchase_invoice; ?>"  title = 'Purchase Invoice Varified' aria-hidden = 'true'><img src="<?php echo base_url(); ?>images/varified.png" style="width:30%"/></a>
+                                               <?php } ?>
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
@@ -451,15 +457,18 @@
                                                 href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
                                             <?php echo $row->booking_id; ?>
                                             </a>
-                                             <br/>
+                                             
                                                 <?php if($row->count_reschedule > 0){ ?>
+                                                <br/>
                                                 <span style="color:#F26722; font-size:13px;"><?php echo $row->count_reschedule; ?> times rescheduled</span>
                                                 <?php } ?>
-                                                <br/>
+                                               
                                                 <?php if($row->is_bracket == 1){ ?>
+                                                 <br/>
                                                 <img src="<?php echo base_url(); ?>images/Bracket.png" style="width:30%"/>
+                                                 <br/>
                                                 <?php }?>
-                                                <br/>
+                                               
                                                 <a href="javascript:void(0)" style="width:10px;"> <img id="<?php echo 'spare_rescheduled'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:84%"/></a>
                                                 <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_delivered_rescheduled'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'rescheduled');
@@ -467,6 +476,10 @@
                                                 });
                                                 
                                                 </script>
+                                                <?php if($row->booking_files_purchase_invoice){ ?>
+                                                <br/>
+                                                <a target='_blank' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $row->booking_files_purchase_invoice; ?>"  title = 'Purchase Invoice Varified' aria-hidden = 'true'><img src="<?php echo base_url(); ?>images/varified.png" style="width:30%"/></a>
+                                               <?php } ?>
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?=$row->customername."<br/>".$row->booking_primary_contact_no;?>
@@ -587,6 +600,7 @@
                                 <tr >
                                     <th class="text-center" data-orderable="false">No</th>
                                     <th class="text-center" data-orderable="false">Booking Id</th>
+                                    <th class="text-center" data-orderable="false">Partner/Warehouse</th>
                                     <th class="text-center" data-orderable="false">Model Number</th>
                                     <th class="text-center" data-orderable="false">Serial Number</th>
                                     <th class="text-center" data-orderable="false">Parts</th>                                
@@ -610,6 +624,9 @@
                                     </td>
                                     <td>
                                         <?php echo $row['booking_id']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $row['entity_type']; ?>
                                     </td>
                                     <td>
                                         <?php echo $row['model_number']; ?>
@@ -909,6 +926,7 @@
                         else{
                             $("#"+id).parent().find("a").remove();
                             $("#"+id).parent().append(response.html);
+                            $("span").attr("aria-labelledby", "select2-"+id+"-container").css("display", "none");
                             $("#"+id).css("display", "none");
                         }
                    }

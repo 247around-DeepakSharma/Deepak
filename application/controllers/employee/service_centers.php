@@ -852,8 +852,9 @@ class Service_centers extends CI_Controller {
             $booking_state = $this->reusable_model->get_search_query('booking_details', 'service_centres.state', array('booking_details.booking_id' => $booking_id), $join, NULL, NULL, NULL, $JoinTypeTableArray)->result_array();
 
             //$get_partner_details = $this->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
-            $get_partner_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']), "", 0, 0, 1, "partners.id");
-
+            $get_partner_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+                        array('partners.id' => $partner_id, 'agent_filters.state' => $booking_state[0]['state']),"",0,0,1,"partners.id");
+            
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
 
@@ -1203,7 +1204,8 @@ class Service_centers extends CI_Controller {
             $booking_state = $this->reusable_model->get_search_query('booking_details', 'service_centres.state', array('booking_details.booking_id' => $booking_id), $join, NULL, NULL, NULL, $JoinTypeTableArray)->result_array();
 
             //$get_partner_details = $this->partner_model->getpartner_details('account_manager_id,', array('partners.id' => $partner_id));
-            $get_partner_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']), "", 0, 1, 1, "partners.id");
+            $get_partner_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
+                        array('partners.id' => $partner_id, 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
                 $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
@@ -2348,8 +2350,8 @@ class Service_centers extends CI_Controller {
                 $booking_state = $this->reusable_model->get_search_query('booking_details', 'service_centres.state', array('booking_details.booking_id' => $data['booking_id']), $join, NULL, NULL, NULL, $JoinTypeTableArray)->result_array();
 
                 //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $this->input->post('partner_id')));
-                $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", array('partners.id' => $this->input->post('partner_id'), 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']), "", 0, 1, 1, "partners.id");
-
+                $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
+                            array('partners.id' => $this->input->post('partner_id'), 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
                 $am_email = "";
                 if (!empty($get_partner_details[0]['account_manager_id'])) {
                     //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
@@ -5160,8 +5162,10 @@ class Service_centers extends CI_Controller {
                                 $sp_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $booking_id));
 
                                 $data['entity_type'] = _247AROUND_SF_STRING;
+                                $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
                                 $data['booking_id'] = $booking_id;
                                 $data['partner_id'] = $sf_id;
+                                $data['defective_return_to_entity_id'] = $sf_id;
                                 $data['service_center_id'] = $service_center_id;
                                 $data['model_number'] = $part_details['shipped_model_number'];
                                 $data['serial_number'] = $sp_details[0]['serial_number'];

@@ -1293,6 +1293,8 @@ class Miscelleneous {
         header("Content-type: text/csv");
         header("Content-type: application/csv");
         header("Content-Disposition: attachment; filename=$filename");
+        //readfile(TMP_FOLDER . $filename);
+        //exec("rm -rf " . escapeshellarg(TMP_FOLDER . $filename));
         exit;
     }
 
@@ -2050,7 +2052,7 @@ class Miscelleneous {
             $data = $this->My_CI->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
         }*/
         $am_id = $this->My_CI->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
-                    array('partners.id' => trim($partner_id), 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
+                    array('partners.id' => trim($partner_id)),"",0,1,1,"partners.id");
         if (!empty($am_id[0]['account_manager_id'])) {
             $data = $this->My_CI->employee_model->getemployeeMailFromID($am_id[0]['account_manager_id']);
         }
@@ -3180,7 +3182,7 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', __METHOD__ . " Enterring..");
         //$get_partner_details = $this->My_CI->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
         $get_partner_details = $this->My_CI->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
-                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
+                        array('partners.id' => $partner_id),"",0,1,1,"partners.id");
         $am_email = "";
         if (!empty($get_partner_details[0]['account_manager_id'])) {
             //$am_email = $this->My_CI->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
@@ -4306,15 +4308,10 @@ function generate_image($base64, $image_name,$directory){
             $spareid = $booking['id'];
             $partner_id = $booking['partner_id'];
             $state = $booking['state'];
-            $requested_part_number = '';
-            if (!empty($booking['part_number'])) {
-                $requested_part_number = $booking['part_number'];
-            } else {
-                $requested_part_number = '-';
-            }
+            
             $requested_inventory = $booking['requested_inventory_id'];
             
-            $data = $this->My_CI->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
+            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
             if (!empty($data)) {
                  
                 if ($data['stock']) {
