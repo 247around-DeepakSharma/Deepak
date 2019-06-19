@@ -2718,10 +2718,13 @@ class Booking_model extends CI_Model {
      * @return: array
      * 
      */
-    function get_file_type($where=array()){
+    function get_file_type($where=array(), $showAll = false){
         $this->db->select('*');
+        $this->db->distinct();
         $this->db->from('file_type');
-        $this->db->where('is_active', 1);
+        if(!$showAll) {
+            $this->db->where('is_active', 1);
+        }
         if(!empty($where)){
             $this->db->where($where);
         }

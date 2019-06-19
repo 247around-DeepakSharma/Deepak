@@ -3283,7 +3283,7 @@ class Booking extends CI_Controller {
         $is_am=0;
         if($this->session->userdata('is_am') == '1'){
             $am_id = $this->session->userdata('id');
-            $partnerWhere = array('agent_filters.agent_id' => $am_id, 'agent_filters.entity_type' => "247around");
+            $partnerWhere = array('agent_filters.agent_id' => $am_id);
             $is_am=1;
             $data['state'] = $this->partner_model->getpartner_data('distinct agent_filters.state',$partnerWhere,"",null,1,$is_am);
         }
@@ -5402,7 +5402,7 @@ class Booking extends CI_Controller {
     * @Desc - This is used to show file type list
     */
     function show_file_type_list() {
-        $data['file_type'] = $this->booking_model->get_file_type();
+        $data['file_type'] = $this->booking_model->get_file_type(array(), true);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_file_type_list', $data);
     }

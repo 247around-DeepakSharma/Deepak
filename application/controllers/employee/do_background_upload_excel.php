@@ -240,7 +240,7 @@ class Do_background_upload_excel extends CI_Controller {
        
         //$get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
         $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
-                array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
+                array('partners.id' => $partner_id),"",0,1,1,"partners.id");
         if (!empty($get_partner_am_id[0]['account_manager_id'])) {
             //$file_upload_agent_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
             $file_upload_agent_email = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
@@ -1304,7 +1304,7 @@ class Do_background_upload_excel extends CI_Controller {
             if (empty($this->session->userdata('official_email'))) {
                 //$get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $partner_id));
                 $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
-                    array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
+                    array('partners.id' => $partner_id),"",0,1,1,"partners.id");
                 if (!empty($get_partner_am_id[0]['account_manager_id'])) {
                     $file_upload_agent_email = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
                 } else {
@@ -1542,7 +1542,7 @@ class Do_background_upload_excel extends CI_Controller {
                     //get email details 
                     //$get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id,primary_contact_email', array('partners.id' => $partner_id));
                     $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email", 
-                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
+                        array('partners.id' => $partner_id),"",0,1,1,"partners.id");
                     
                     if (empty($this->email_send_to)) {
                         if (empty($this->session->userdata('official_email'))) {
