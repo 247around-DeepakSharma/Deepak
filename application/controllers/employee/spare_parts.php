@@ -3204,6 +3204,18 @@ class Spare_parts extends CI_Controller {
     }
     }
     
+    function bulkConversion(){
+        
+        
+        if($this->session->userdata('userType') == 'service_center'){
+            $this->load->view('service_centers/header');
+        }else{
+          $this->miscelleneous->load_nav_header();  
+        }
+
+        $this->load->view('employee/bulkPartnerTransfer');
+    }
+    
     function bulkPartnerConversion_process(){
         $agentid='';
         if ($this->session->userdata('userType') == 'employee') {
