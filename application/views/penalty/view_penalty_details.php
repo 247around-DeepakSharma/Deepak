@@ -40,7 +40,7 @@
                         <td>
                             <?php 
                             if(!empty($penalty_detail['escalation_id'])) {
-                                $this->reusable_model->get_search_result_data('vendor_escalation_policy', '*', ['id' => $penalty_detail['escalation_id']], NULL, NULL, NULL, NULL, NULL);
+                               echo $this->reusable_model->get_search_result_data('vendor_escalation_policy', '*', ['id' => $penalty_detail['escalation_id']], NULL, NULL, NULL, NULL, NULL)[0]['escalation_reason'];
                             }
                             
                              ?></td>

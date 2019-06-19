@@ -92,7 +92,7 @@ class Penalty extends CI_Controller {
     function edit_penalty_detail($id) {
         if(!empty($this->input->get('action'))) {
            $data['active'] = ($this->input->get('action') == 'activate' ? 1 : 0); 
-           $this->penalty_model->update_detail($id, $data);
+           $this->reusable_model->update_table('penalty_details',$data,['id' => $id]);
         }
         
         redirect(base_url() . "penalty/view_penalty_details");
