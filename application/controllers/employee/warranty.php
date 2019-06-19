@@ -43,12 +43,12 @@ class Warranty extends CI_Controller {
         $data = array();
         $no = $post['start'];
         $date_period_start = $post_data['purchase_date'];
-        $InWarrantyTimePeriod = "";
-        $InWarrantyGracePeriod = "";
+        $InWarrantyTimePeriod = 12; // Make it 0 if want to take in-warranty data from table.
+        $InWarrantyGracePeriod = 0;
         $activeInWarrantyPlans = 0;
         $activeExtendedWarrantyPlans = 0;
         
-        // get In-Warrenty Period
+        // get In-Warrenty Period        
         if(!empty($list[0]['warranty_type']) && ($list[0]['warranty_type'] == 1))
         {
             $InWarrantyTimePeriod = !empty($list[0]['warranty_period']) ? $list[0]['warranty_period'] : 0;
