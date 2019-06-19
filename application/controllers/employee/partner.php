@@ -643,7 +643,7 @@ class Partner extends CI_Controller {
                
                 //$am_email = $this->employee_model->getemployeefromid($edit_partner_data['partner']['account_manager_id'])[0]['official_email'];
                 $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
-                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,0,1,"partners.id");
+                        array('partners.id' => $partner_id),"",0,0,1,"partners.id");
                
                 if (!empty($get_partner_am_id[0]['account_manager_id'])) {
                     $am_email = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
@@ -934,7 +934,7 @@ class Partner extends CI_Controller {
 
         //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $id));
         $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
-                        array('partners.id' => $id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
+                        array('partners.id' => $id),"",0,1,1,"partners.id");
         $am_email = "";
         if (!empty($get_partner_details[0]['account_manager_id'])) {
             //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
@@ -981,7 +981,7 @@ class Partner extends CI_Controller {
 
         //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $id));
         $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
-                        array('partners.id' => $id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
+                        array('partners.id' => $id),"",0,1,1,"partners.id");
         $am_email = "";
         if (!empty($get_partner_details[0]['account_manager_id'])) {
             //$am_email = $this->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
@@ -1076,7 +1076,7 @@ class Partner extends CI_Controller {
        $charges_type = $this->accounting_model->get_variable_charge("id, type, description");
        $select = 'micro_wh_mp.id,micro_wh_mp.state, micro_wh_mp.active,micro_wh_mp.vendor_id,micro_wh_mp.id as wh_on_of_id,micro_wh_mp.update_date,service_centres.name,micro_wh_mp.id as micro_wh_mp_id,micro_wh_mp.micro_warehouse_charges';
        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id($select, array('micro_wh_mp.partner_id' => $id)); 
-       $results['partner_am_mapping'] = $this->partner_model->getpartner_data("partners.public_name, agent_filters.*, employee.full_name, employee.groups", array("partners.id" => $id, "agent_filters.entity_type" => "247around"),"",TRUE,0,1);
+       $results['partner_am_mapping'] = $this->partner_model->getpartner_data("partners.public_name, agent_filters.*, employee.full_name, employee.groups", array("partners.id" => $id, "agent_filters.entity_id IS NOT NULL" => NULL),"",TRUE,0,1);
        $this->miscelleneous->load_nav_header();
        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 
            'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh,'saas_flag' => $saas_flag));
@@ -4049,7 +4049,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->session->userdata('partner_id');
         //$data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
         $data['account_manager_details'] = $this->partner_model->getpartner_data("employee.*,group_concat(distinct agent_filters.state) as state", 
-                array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",1,1,1,"employee.id");
+                array('partners.id' => $partner_id),"",1,1,1,"employee.id");
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
         $data['holidayList'] = $this->employee_model->get_holiday_list();
         //$this->load->view('partner/header');
@@ -4308,7 +4308,7 @@ class Partner extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         //$p = $this->reusable_model->get_search_result_data("partners", "public_name, account_manager_id", array('id' => $partner_id), NULL, NULL, NULL, NULL, NULL);
         $p = $this->partner_model->getpartner_data("partners.public_name, group_concat(distinct agent_filters.agent_id) as account_manager_id", 
-                array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,0,1,"partners.id");
+                array('partners.id' => $partner_id),"",0,0,1,"partners.id");
         $partnerName = $p[0]['public_name'];
         $start_date_array = $this->input->post('agreement_start_date');
         $end_date_array = $this->input->post('agreement_end_date');

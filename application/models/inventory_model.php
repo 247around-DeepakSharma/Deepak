@@ -1589,8 +1589,8 @@ class Inventory_model extends CI_Model {
         $this->db->join('spare_parts_details','booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->join('partners','booking_details.partner_id = partners.id');
         $this->db->join('service_centres','booking_details.assigned_vendor_id = service_centres.id');
-        $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state");
-        $this->db->join('employee',"employee.id = agent_filters.agent_id");
+        $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state", "left");
+        $this->db->join('employee',"employee.id = agent_filters.agent_id", "left");
         //$this->db->join('employee','partners.account_manager_id = employee.id');
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
         $this->db->where($where,false);
@@ -2591,7 +2591,9 @@ class Inventory_model extends CI_Model {
         }
         
         if (!empty($where_in)) {
-            $this->db->where('inventory_model_mapping.inventory_id IN (' . $where_in . ') ', NULL);
+            foreach ($where_in as $index => $value) {
+                $this->db->where_in($index, $value);
+            }
         }
         $this->db->from('inventory_model_mapping');
 

@@ -1,3 +1,8 @@
+<style>
+    #file_type_list_filter{
+        float: right;
+    }
+</style>
 <div  id="page-wrapper">
     <div class="row">
         <h1 class="col-md-6 col-sm-12 col-xs-12"><b>File Types List</b></h1>
@@ -35,7 +40,7 @@
                 ?>
 
         <div class="clonedInput panel panel-info " id="clonedInput">                      
-            <div class="panel-heading" style=" background-color: #f5f5f5;">
+            <div class="panel-heading">
                 <p style="color: #000;"><b>Add File Type</b></p>
                 <div class="clone_button_holder1" style="float:right;margin-top: -31px;">
                     <button class="clone btn btn-sm btn-info">Add</button>
@@ -69,7 +74,15 @@
                                 } ?>">
                                 <label for="allowed_type" class="col-md-4">Allowed&nbsp;Type</label>
                                 <div class="col-md-8">
-                                    <input type="text" class="form-control" name="allowed_type[]" id="allowed_type_1" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode == 47">
+                                    <select class="form-control" name="allowed_type[]" id="allowed_type_1">
+                                        <option selected="" disabled="" value="">Select File Type</option>
+                                        <option value="image/jpg">image/jpg</option>
+                                        <option value="image/jpeg">image/jpeg</option>
+                                        <option value="image/png">image/png</option>
+                                        <option value="pdf">pdf</option>
+                                        <option value="video/mp4">video/mp4</option>
+                                        <option value="video/avi">video/avi</option>
+                                    </select>
                                     <?php echo form_error('allowed_type'); ?>
                                 </div>
                             </div>
@@ -88,45 +101,40 @@
     <?php
         if(!empty($file_type)){
             ?>
-    <div id="exist_documents">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>S.N</th>
-                    <th>Support File Type</th>
-                    <th>Maximum Allowed Size</th>
-                    <th>Allowed Type</th>
-                    <th>Active / Inactive <br>Mapping</th>
-                    <th>Edit</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                    $index = 0;
-                        foreach($file_type as $value){
-                            $index ++;
-                        ?>
-                <tr>
-                    <td><?php echo $index; ?></td>
-                    <td><?php echo $value['file_type'] ?></td>
-                    <td><?php echo $value['max_allowed_size'] ?></td>
-                    <td><?php echo $value['allowed_type'] ?></td>
-                    <td><?php if($value['is_active']) { ?>
-                        <button type="button" class="btn btn-info btn-sm" onclick="activate_deactive('<?php echo $value['id'] ?>','0','Deactivate')"   value='' style="background: #ff4d4d;border: #ff4d4d;width: 79px;">Deactivate</button>
-                   <?php } else {?>
-                        <button type="button" class="btn btn-info btn-sm" onclick="activate_deactive('<?php echo $value['id'] ?>','1','Activate')"  value='' style="background: #468245;border: #468245; width: 79px;">Activate</button>
-                   <?php } ?>
-                    </td>
-                    <td>
-                        <button type="button" class="btn btn-info btn-sm" onclick="create_edit_file_type_form('<?=$value['file_type']?>','<?=$value['max_allowed_size']?>','<?=$value['allowed_type']?>',<?=$value['id']?>)" data-toggle="modal"  id="edit_button"><i class="fa fa-edit"></i></button>
-                    </td>
-                </tr>
-                <tr>
+        <div class="row">
+            <div class="file_listing container-fluid">
+                <table id="file_type_list" class="table table-bordered table-responsive table-hover">
+                    <thead>
+                        <tr>
+                            <th>S.N</th>
+                            <th>Support File Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
                     <?php
-                        }
-                        ?>
-        </table>
-    </div>
+                        $index = 0;
+                            foreach($file_type as $value){
+                                $index ++;
+                            ?>
+                        <tr>
+                            <td><?php echo $index; ?></td>
+                            <td><?php echo $value['file_type'] ?></td>
+                            <td><?php if($value['is_active']) { ?>
+                                <button type="button" class="btn btn-info btn-sm" onclick="activate_deactive('<?php echo $value['id'] ?>','0','Deactivate')"   value='' style="background: #ff4d4d;border: #ff4d4d;width: 79px;">Deactivate</button>
+                           <?php } else {?>
+                                <button type="button" class="btn btn-info btn-sm" onclick="activate_deactive('<?php echo $value['id'] ?>','1','Activate')"  value='' style="background: #468245;border: #468245; width: 79px;">Activate</button>
+                           <?php } ?>
+                            
+                                <button type="button" class="btn btn-info btn-sm" onclick="create_edit_file_type_form('<?=$value['file_type']?>','<?=$value['max_allowed_size']?>','<?=$value['allowed_type']?>',<?=$value['id']?>)" data-toggle="modal"  id="edit_button">Update</button>
+                            </td>
+                        </tr>
+                
+                    <?php  }  ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     <?php
         }
         ?>
@@ -162,7 +170,15 @@
                         <div class="col-md-6">
                             <label for="allowed_type1" class="col-md-4">Allowed&nbsp;Type</label>
                             <div class="col-md-8">
-                                <input type="text" class="form-control" name="allowed_type1" id="allowed_type1" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || event.charCode == 47">
+                                <select class="form-control" name="allowed_type1" id="allowed_type1">
+                                    <option selected="" disabled="" value="">Select File Type</option>
+                                    <option value="image/jpg">image/jpg</option>
+                                    <option value="image/jpeg">image/jpeg</option>
+                                    <option value="image/png">image/png</option>
+                                    <option value="pdf">pdf</option>
+                                    <option value="video/mp4">video/mp4</option>
+                                    <option value="video/avi">video/avi</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -175,11 +191,46 @@
         </div>
     </div>
 </div>
+<!--File Type Modal ends-->
 <?php if ($this->session->userdata('success')) {$this->session->unset_userdata('success');}
 if ($this->session->userdata('error')) {$this->session->unset_userdata('error');}
 ?>
-<!--File Type Modal ends-->
 <script>
+    $(document).ready(function () {
+         
+        //datatables
+        $('#file_type_list').DataTable({
+            "pageLength": 10,
+            "lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+            dom: 'lBfrtip',
+            buttons: [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span> Export',
+                    pageSize: 'LEGAL',
+                    title: 'file_type_list',
+                    exportOptions: {
+                       columns: [0,1],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
+            "columnDefs": [
+                {
+                    "targets": [0,2], 
+                    "orderable": false 
+                }
+            ]
+            
+        });
+    });
+    
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex = $(".clonedInput").length +1;
     
@@ -237,7 +288,7 @@ if ($this->session->userdata('error')) {$this->session->unset_userdata('error');
     function create_edit_file_type_form(file_type,max_allowed_size,allowed_type,id){
         $('#file_type1').val(file_type);
         $('#max_allowed_size1').val(max_allowed_size);
-        $('#allowed_type1').val(allowed_type);
+        $('#allowed_type1 option[value="'+allowed_type+'"]').prop("selected",true);
         $('#file_type_id').val(id);
         $("#myModal").modal("show");
     }

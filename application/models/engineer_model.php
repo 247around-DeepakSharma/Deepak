@@ -210,15 +210,15 @@ class Engineer_model extends CI_Model {
         }
     }
     
-//    function get_service_based_engineer($where, $select = "*"){
-//        $this->db->select($select);
-//        $this->db->join('engineer_appliance_mapping', 'engineer_appliance_mapping.engineer_id = engineer_details.id');
-//        if($where){
-//           $this->db->where($where);  
-//        }
-//        $query = $this->db->get("engineer_details");
-//        return $query->result_array();
-//    }
+    function get_service_based_engineer($where, $select = "*"){
+        $this->db->select($select);
+        $this->db->join('engineer_appliance_mapping', 'engineer_appliance_mapping.engineer_id = engineer_details.id');
+        if($where){
+           $this->db->where($where);  
+        }
+        $query = $this->db->get("engineer_details");
+        return $query->result_array();
+    }
     
     function get_engineer_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false, $is_partner = false, $is_vendor = false){
         $this->db->select($select, false);
