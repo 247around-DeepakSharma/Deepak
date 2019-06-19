@@ -511,7 +511,7 @@ class File_upload extends CI_Controller {
         if ($this->input->post('partner_id')) {
             //$get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $this->input->post('partner_id')));
             $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
-                        array('partners.id' => $this->input->post('partner_id'), 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
+                        array('partners.id' => $this->input->post('partner_id')),"",0,1,1,"partners.id");
             if (!empty($get_partner_am_id[0]['account_manager_id'])) {
                 //$am_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
                 $am_email = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
@@ -1003,9 +1003,8 @@ class File_upload extends CI_Controller {
                       }
                     
                     $insert_inventory = $this->insert_Inventory_Model_Data(trim($val['inventory_id']), trim($val['alt_inventory_id']));
-                    $insert_alt_inventory = $this->insert_Inventory_Model_Data(trim($val['alt_inventory_id']), trim($val['inventory_id']));
                     
-                    if ($insert_inventory && $insert_alt_inventory) {
+                    if ($insert_inventory) {
                         log_message("info", __METHOD__ . " inventory model mapping created succcessfully");
                         $response['status'] = TRUE;
                         $response['message'] = "Details inserted successfully.";
@@ -1552,13 +1551,15 @@ class File_upload extends CI_Controller {
     function insert_Inventory_Model_Data($inventory_id, $alt_inventory_id) {
         $data_model_mapping = array();
         $insert_id = 0;
-        $where = array('inventory_model_mapping.inventory_id' => trim($inventory_id));
-        $inventory_details = $this->inventory_model->get_inventory_model_data("*", $where);
+        $where_in = array('inventory_model_mapping.inventory_id' => array( trim($inventory_id), trim($alt_inventory_id)));
+        $inventory_details = $this->inventory_model->get_inventory_model_data("*", array(), $where_in);
         if(!empty($inventory_details)) {
             foreach($inventory_details as $inventory) {
                 $tmp = array();
-                $tmp['inventory_id'] = trim($alt_inventory_id);
                 $tmp['model_number_id'] = $inventory['model_number_id'];
+                $tmp['inventory_id'] = trim($inventory_id);
+                array_push($data_model_mapping, $tmp);
+                $tmp['inventory_id'] = trim($alt_inventory_id);
                 array_push($data_model_mapping, $tmp);
             }
         }
