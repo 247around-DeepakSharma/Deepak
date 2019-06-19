@@ -210,7 +210,7 @@ if ($this->session->userdata('error')) {$this->session->unset_userdata('error');
                     pageSize: 'LEGAL',
                     title: 'file_type_list',
                     exportOptions: {
-                       columns: [0,1,2,3],
+                       columns: [0,1],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -223,7 +223,7 @@ if ($this->session->userdata('error')) {$this->session->unset_userdata('error');
             ],
             "columnDefs": [
                 {
-                    "targets": [0,4], 
+                    "targets": [0,2], 
                     "orderable": false 
                 }
             ]
