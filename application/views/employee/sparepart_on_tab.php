@@ -213,8 +213,10 @@
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Model Number</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
-                                    <th class="text-center" data-orderable="false">Parts Number</th>   
+                                    <th class="text-center" data-orderable="false">Parts Number</th> 
+
                                     <th class="text-center" data-orderable="false">Part Type</th>
+                                    <th class="text-center" data-orderable="false">Quantity</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="false">Age Of Requested</th>
@@ -250,7 +252,8 @@
                                     <th class="text-center" data-orderable="false">Partner</th>
                                     <th class="text-center" data-orderable="false">Model Number</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
-                                    <th class="text-center" data-orderable="false">Parts Number</th>   
+                                    <th class="text-center" data-orderable="false">Parts Number</th>
+                                    <th class="text-center" data-orderable="false">Quantity</th>  
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
@@ -618,7 +621,7 @@
         oow_part_shipped_table = $('#oow_part_shipped_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 13, "desc" ]],//Initial no order.
+            order: [[ 14, "desc" ]],//Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -641,7 +644,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4], //first column / numbering column
+                    "targets": [0,1,2,3,4,13], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -679,11 +682,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [13], //first column / numbering column
+                    "targets": [14], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
-                    "targets": [0,1,2,3,4,9,10,11], //first column / numbering column
+                    "targets": [0,1,2,3,4,9,10,11,13], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -735,7 +738,7 @@
     spare_parts_requested_table = $('#spare_parts_requested_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[],
+            order:[[ 14, "desc" ]],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -768,7 +771,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [13], //first column / numbering column
+                    "targets": [14], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
@@ -788,7 +791,7 @@
     spare_parts_requested_table_approved = $('#spare_parts_requested_table_approved').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[],
+            order:[[14,"desc"]],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -815,6 +818,10 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
+                    "targets": [14], //first column / numbering column
+                    "orderable": true //set not orderable
+                },
+                {
                     "targets": [0,1,2,3,4,11,12], //first column / numbering column
                     "orderable": false //set not orderable
                 }
@@ -829,7 +836,7 @@
         spare_parts_requested_table_reject = $('#spare_parts_requested_table_reject').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[],
+            order:[[14,"desc"]],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -856,7 +863,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,11,12,14], //first column / numbering column
+                    "targets": [0,1,2,3,4,11,12,13], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -870,7 +877,7 @@
     partner_shipped_part_table = $('#partner_shipped_part_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[ 13, "desc" ]],//Initial no order.
+            order: [[ 15, "desc" ]],//Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -906,7 +913,7 @@
         sf_received_part_table = $('#sf_received_part_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[16, "desc"]], //Initial no order.
+            order: [[18, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -929,7 +936,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,5,11], //first column / numbering column
+                    "targets": [1,5,11,18], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
@@ -947,7 +954,7 @@
         defective_part_pending_table = $('#defective_part_pending_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[15, "desc"]], 
+            order: [[17, "desc"]], 
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -970,11 +977,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,5,8], //first column / numbering column
+                    "targets": [1,4,8], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                  {
-                    "targets": [0,12,16,17], //first column / numbering column
+                    "targets": [0,8,12,16,18,19], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -987,7 +994,7 @@
         defective_part_rejected_by_partner_table = $('#defective_part_rejected_by_partner_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[12, "desc"]], //Initial no order.
+            order: [[14, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -1061,7 +1068,7 @@
         defective_part_shipped_by_SF_approved_table = $('#defective_part_shipped_by_SF_approved_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[14, "desc"]], //Initial no order.
+            order: [[16, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -1088,7 +1095,7 @@
                     "orderable": false //set not orderable
                 },
                 {
-                    "targets": [14], //first column / numbering column
+                    "targets": [16], //first column / numbering column
                     "orderable": true //set not orderable
                 }
             ],
