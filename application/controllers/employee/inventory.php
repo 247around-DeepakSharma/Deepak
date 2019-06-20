@@ -3242,13 +3242,13 @@ class Inventory extends CI_Controller {
                                                 $invoice_annexure = $this->inventory_invoice_data($invoice_id, $c_s_gst, $value);
                                                 $invoice_annexure['from_gst_number'] = $this->input->post("from_gst_number");
                                                 $invoice_annexure['to_gst_number'] = $this->input->post("to_gst_number");
-                                                $invoice_annexure['247around_gst_number'] = $this->input->post("247around_gst_number");
+                                               
                                                 
                                                 array_push($invoice, $invoice_annexure);
                                                 
                                                 unset($invoice_annexure['from_gst_number']);
                                                 unset($invoice_annexure['to_gst_number']);
-                                                unset($invoice_annexure['247around_gst_number']);
+                                                
                                                 
                                                 $total_basic_amount += $invoice_annexure['taxable_value'];
                                                 $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];

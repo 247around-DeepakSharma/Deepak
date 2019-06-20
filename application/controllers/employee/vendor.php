@@ -5697,7 +5697,7 @@ class vendor extends CI_Controller {
         $endDate = trim($daterange[1]);
         $list = $this->vendor_model->sf_panalty_summary($vendors, $startDate, $endDate);
         $headings = array("Vendor Name", "Penalty Reason", "Total Bookings", "Total Penalties", "Total Penalty Amount");
-        $this->miscelleneous->downloadCSV($list, $headings,"booking_search_summary");
+        $this->miscelleneous->downloadCSV($list, $headings,"SF_penalty_summary");
     }
     
     function engineer_wise_calls() {

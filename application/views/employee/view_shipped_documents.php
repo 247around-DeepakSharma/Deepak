@@ -2,9 +2,13 @@
     <div class="row"style="margin:10px"> 
         <div class="clear"></div>
         <div class="panel panel-info  class-md-3" > 
-            <div class="panel-heading" style="padding-top:1px;padding-bottom:1px">
-                <h4 class="col-md-10" style="color: black;margin: 12px 0px;padding: 0px;">Courier Documents</h4> 
-                <a href="<?php echo base_url();?>employee/accounting/shipped_documents" target="_blank" style="text-align:right;margin-left: 7%;background: #2c9d9c;border: #2c9d9c;" class="btn btn-primary">Add Courier Details</a>
+            <div class="panel-heading col-md-12" style="padding-top:1px;padding-bottom:1px; margin-bottom: 15px;">
+                    <div class="col-md-10">
+                        <h4 style="color: black;margin: 12px 0px;padding: 0px;">Courier Documents</h4> 
+                    </div>
+                    <div class="col-md-2">
+                        <a href="<?php echo base_url();?>employee/accounting/shipped_documents" target="_blank" style="margin-top: 5px;margin-left: 7%;background: #2c9d9c;border: #2c9d9c;" class="btn btn-primary">Add Courier Details</a>
+                    </div>
             </div>    
             
         </div>
