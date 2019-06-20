@@ -1411,7 +1411,7 @@
             minDate: '01/01/2000',
             maxDate: '12/31/2030',
             dateLimit: {
-                days: 120},
+                days: 30},
             showDropdowns: true,
             showWeekNumbers: true,
             timePicker: false,
