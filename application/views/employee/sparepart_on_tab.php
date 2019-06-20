@@ -936,7 +936,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,5,18], //first column / numbering column
+                    "targets": [1,5,11,18], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
@@ -977,11 +977,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,4], //first column / numbering column
+                    "targets": [1,4,8], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                  {
-                    "targets": [0,8,16,18,19], //first column / numbering column
+                    "targets": [0,8,12,16,18,19], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
