@@ -243,7 +243,7 @@
                                             <select required="" class="form-control shipped_part_type spare_parts" onchange="change_shipped_part_type('<?php echo $key;?>')" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]">
                                                 <option selected disabled>Select Part Type</option>
                                             </select>
-                                            <span id="<?php echo "spinner_". $key?>" style="display:none"></span>
+                                        <span id="<?php echo "spinner_". $key?>" style="display:none"></span>
                                         </div>
                                         <?php } else { ?> 
                                         <div class="col-md-7">                                            
