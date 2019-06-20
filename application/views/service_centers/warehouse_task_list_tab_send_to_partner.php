@@ -380,6 +380,7 @@
         postData['courier_name_by_wh'] = $('#courier_name_by_wh').val();
         postData['courier_price_by_wh'] = $('#courier_price_by_wh').val();
         postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_by_wh').val();
+        postData['exist_courier_image'] = $('#exist_courier_image').val();
 //        postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
 //        postData['defective_parts_ewaybill_date_by_wh'] = $('#defective_parts_ewaybill_date_by_wh').val();
         var exist_courier_image = $("#exist_courier_image").val();       

@@ -921,12 +921,12 @@
                             $("#"+id).html(response.html);
                             $("#"+id).css("display", "inline");
                             $("#"+id).parent().find("a").css("display", "none");
-                            $("#"+id).select2();
+                            //$("#"+id).select2();
                         }
                         else{
                             $("#"+id).parent().find("a").remove();
                             $("#"+id).parent().append(response.html);
-                            $("span").attr("aria-labelledby", "select2-"+id+"-container").css("display", "none");
+                            //$("span").attr("aria-labelledby", "select2-"+id+"-container").css("display", "none");
                             $("#"+id).css("display", "none");
                         }
                    }

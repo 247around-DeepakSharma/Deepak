@@ -931,7 +931,7 @@ class Inventory extends CI_Controller {
         //$filename = prev($temp);
 
         if ($file["name"] != null) {
-            if (($file["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+            if (($file["size"] < 5e+6) && in_array($extension, $allowedExts)) {
                 if ($file["error"] > 0) {
                     $this->form_validation->set_message('upload_spare_pic', $file["error"]);
                 } else {
@@ -946,7 +946,7 @@ class Inventory extends CI_Controller {
                 }
             } else {
                 $this->form_validation->set_message('upload_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-                        . 'Maximum file size is 2 MB.');
+                        . 'Maximum file size is 5 MB.');
                 return FALSE;
             }
         }
@@ -4167,7 +4167,7 @@ class Inventory extends CI_Controller {
         $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
         $postData = json_decode($this->input->post('data'));
         $wh_name = $this->input->post('wh_name');
-        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
+        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
             $exist_courier_image = $this->input->post("exist_courier_image");
             if (!empty($exist_courier_image)) {
                 $courier_file['status'] = true;
@@ -4703,7 +4703,7 @@ class Inventory extends CI_Controller {
         //check if upload file is empty or not
         if (!empty($file_details['invoice_file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
-            if ($file_details['invoice_file']['size'] <= 2 * $MB) {
+            if ($file_details['invoice_file']['size'] <= 5 * $MB) {
                 $allowed = array('pdf');
                 $ext = pathinfo($file_details['invoice_file']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
@@ -4723,7 +4723,7 @@ class Inventory extends CI_Controller {
                 }
             } else {
                 $res['status'] = false;
-                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
+                $res['message'] = 'Uploaded file size can not be greater than 5 mb';
             }
         } else {
             $res['status'] = false;
@@ -4788,7 +4788,7 @@ class Inventory extends CI_Controller {
         //check if upload file is empty or not
         if (!empty($file_details['file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
-            if ($file_details['file']['size'] <= 2 * $MB) {
+            if ($file_details['file']['size'] <= 5 * $MB) {
                 $allowed = array('pdf', 'jpg', 'png', 'jpeg');
                 $ext = pathinfo($file_details['file']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
@@ -4808,7 +4808,7 @@ class Inventory extends CI_Controller {
                 }
             } else {
                 $res['status'] = false;
-                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
+                $res['message'] = 'Uploaded file size can not be greater than 5 mb';
             }
         } else {
             $res['status'] = false;
@@ -4855,7 +4855,7 @@ class Inventory extends CI_Controller {
         //check if upload file is empty or not
         if (!empty($file_details['courier_file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
-            if ($file_details['courier_file']['size'] <= 2 * $MB) {
+            if ($file_details['courier_file']['size'] <= 5 * $MB) {
                 $upload_file_name = str_replace(' ', '_', trim($file_details['courier_file']['name']));
 
                 $file_name = 'spare_courier_' . rand(10, 100) . '_' . $upload_file_name;
@@ -4867,7 +4867,7 @@ class Inventory extends CI_Controller {
                 $res['message'] = $file_name;
             } else {
                 $res['status'] = false;
-                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
+                $res['message'] = 'Uploaded file size can not be greater than 5 mb';
             }
         } else {
             $res['status'] = TRUE;
