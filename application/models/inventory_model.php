@@ -2578,6 +2578,8 @@ class Inventory_model extends CI_Model {
         $this->db->select($select);
         $this->db->where($where);
         $this->db->from("entity_gst_details");
+        $query = $this->db->get();
+        return $query->result_array();
     }
     /**
      * @Desc: This function is used to get data from the inventory_model_mapping

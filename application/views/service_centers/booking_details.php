@@ -350,7 +350,6 @@
                                 <th > Requested Part Number </th>
                                 <th >Requested Parts Type</th>
                                 <th >Requested Quantity</th>
-                                <th >Shipped Quantity</th>
                                 <th >Requested Date</th>
                                 <th >Invoice Image </th>
                                 <th >Serial Number Image </th>
@@ -371,7 +370,6 @@
                                 <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; }  ?></td>
                                 <td><?php echo $sp['parts_requested_type']; ?></td>
                                 <td><?php echo $sp['quantity']; ?></td>
-                                 <td><?php echo $sp['shipped_quantity']; ?></td>
                                 <td><?php echo $sp['create_date']; ?></td>
                                 <td><?php if (!is_null($sp['invoice_pic'])) {
                                     if ($sp['invoice_pic'] != '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php }
@@ -440,6 +438,7 @@
                             <tr>
                                 <th>Shipped Parts </th>
                                 <th>Shipped Parts Number </th>
+                                <th >Shipped Quantity</th>
                                 <th>Pickup Request </th>
                                 <th>Pickup Schedule</th>
                                 <th>Courier Name</th>
@@ -457,6 +456,7 @@
                             <tr>
                                 <td><?php echo $sp['parts_shipped']; ?></td>
                                 <td><?php if(!empty($sp['shipped_part_number'])){echo $sp['shipped_part_number'];}else{echo 'Not Available';}  ?></td>
+                                <td><?php echo $sp['shipped_quantity']; ?></td>
                                 <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_REQUEST){    echo 'Pickup Requested';} ?></td>
                                 <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_SCHEDULE){    echo 'Pickup Schedule';} ?></td>
                                 <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
@@ -487,6 +487,7 @@
                             <tr>
                                 <th >Shipped Parts </th>
                                 <th >Shipped Parts Number </th>
+                                <th >Shipped Quantity</th>
                                 <th >Courier Name </th>
                                 <th>AWB </th>
                                 <th> No. Of Boxes </th>
@@ -504,6 +505,7 @@
                             <tr>
                                 <td><?php echo $sp['defective_part_shipped']; ?></td>
                                 <td><?php if(!empty($sp['shipped_part_number'])){echo $sp['shipped_part_number'];}else{ echo 'Not Available';}  ?></td>
+                                <td><?php echo $sp['shipped_quantity']; ?></td>
                                 <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
                                  <?php
                                         $spareStatus = DELIVERED_SPARE_STATUS;
