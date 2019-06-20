@@ -2417,7 +2417,7 @@ class invoices_model extends CI_Model {
                 . ' AND sp.shipped_date < "'.$to_date.'" '
                 . ' AND  parts_shipped IS NOT NULL '
                 . ' AND partner_warehouse_courier_invoice_id IS NULL'
-                . ' GROUP BY awb_by_partner ';
+                . ' GROUP BY awb_by_partner HAVING courier_charges_by_sf > 0 ';
                 
        
         $query = $this->db->query($sql);
@@ -2438,7 +2438,7 @@ class invoices_model extends CI_Model {
                 . ' AND shipment_date >= "'.$from_date.'" '
                 . ' AND shipment_date < "'.$to_date.'" '
                 . ' AND partner_invoice_id IS NULL '
-                . ' GROUP BY `AWB_no` ';
+                . ' GROUP BY `AWB_no`  HAVING courier_charges_by_sf > 0 ';
         
         $query = $this->db->query($sql);
         return $query->result_array();

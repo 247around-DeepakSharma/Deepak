@@ -295,7 +295,7 @@ function addBookingDialog(chanel = '') {
     var div_count = $('.purchase_date').length;
     var partner_id = $("#source_code").find(':selected').attr('data-id');
    if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
-         var service = $("#source_code").val();
+         var partner_id = $("#source_code").val();
     }
     var parant_id = $('#parent_id').val();
     var repeat_reason = $('#repeat_reason').val();

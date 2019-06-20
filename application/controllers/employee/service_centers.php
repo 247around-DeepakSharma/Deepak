@@ -6613,11 +6613,12 @@ class Service_centers extends CI_Controller {
         if ($booking) {
             if (($booking['booking_history'][0]['assigned_vendor_id'] == $this->session->userdata('service_center_id'))) {
                 $is_spare_requested = $this->is_spare_requested($booking);
-                if (!$is_spare_requested) {
-                    $this->load->view('service_centers/header');
-                    $this->load->view('service_centers/update_booking', $booking);
-                } else {
-                    echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Spare is already requested, You can not Edit this Booking</p>";
+                if(!$is_spare_requested){
+                   $this->load->view('service_centers/header');
+                   $this->load->view('service_centers/update_booking', $booking);
+                }
+                else{
+                  echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Spare is already requested, You Can Edit This Booking From Complete Button</p>";
                 }
             } else {
                 echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
