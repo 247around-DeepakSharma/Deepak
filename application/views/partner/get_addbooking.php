@@ -1549,7 +1549,7 @@
  
  <?php  
  if($this->session->userdata('partner_id')==VIDEOCON_ID){ ?>
-    $("#booking_city").change(function(){
+    $("#booking_city, #city").change(function(){
       var cities = ["Mumbai","Thane"];
       var city = $(this).val();
       if(jQuery.inArray(city, cities)!='-1'){
@@ -1559,7 +1559,7 @@
           $('#submitform').removeClass("btn-primary");
           $("#submitform").removeAttr("onclick");
      }else{
-          $('#submitform').attr("type", "submit");  
+          $('#submitform').attr("type", "button");  
           $('#submitform').addClass("btn-primary");
           $('#submitform').attr('onclick',"return check_validation()");
      }

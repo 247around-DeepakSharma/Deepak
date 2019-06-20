@@ -5478,7 +5478,7 @@ class Partner extends CI_Controller {
        }
     }
     /*
-     * This function is used to add partner am mapping
+     * This function is used to add account manager of Partner
      */
     function process_partner_am_mapping(){
         if($this->input->post('partner_id')){
@@ -5493,7 +5493,6 @@ class Partner extends CI_Controller {
                 $states[] = $value['state'];
             }
             $id = $count = 0;
-            $data = $am_record = array();
             foreach($this->input->post('am') as $index=>$am){
                 $arr_states = $this->input->post('am_state')[$index];
                 foreach($this->input->post('am_state')[$index] as $key=>$state){
@@ -5505,7 +5504,6 @@ class Partner extends CI_Controller {
                     $data=array("entity_type" => "247around", "entity_id" => $partnerID, "agent_id" => $am, "state" => $state);
                     $am_data = $this->partner_model->get_am_data("*", $data);
                     if(empty($am_data)) {
-                        $am_record[] = array('am' => $am, 'state' => $state);
                         $id = $this->reusable_model->insert_into_table("agent_filters",$data);
                     } else {
                         ++$count;
@@ -5513,7 +5511,7 @@ class Partner extends CI_Controller {
                 }
             }
             if($id){
-                $msg =  "Partner AM Mapping has been Added successfully ";
+                $msg =  "Account Manager has been Added successfully ";
                 $this->session->set_userdata('success', $msg);
                 
                 $am_id='';
@@ -5531,7 +5529,7 @@ class Partner extends CI_Controller {
                             $account_manager_name = $this->employee_model->getemployeefromid($am)[0]['full_name'];
                         }
                         foreach($this->input->post('am_state')[$index] as $key=>$state){
-                            $state_str = ((strtolower($state) !== 'all') ? (" - ".$state) : '');
+                            $state_str = ((strtolower($state) !== 'all') ? (" - ".$state) : ' - All States');
                             $this->table->add_row(array($company_name,$public_name, $partner_type, $account_manager_name.$state_str));
                         }
                         $am_id = $am;
@@ -5547,7 +5545,7 @@ class Partner extends CI_Controller {
                 }
             }
             else if($count > 0) {
-                $msg =  "AM already added!!";
+                $msg =  "Account Manager already added!!";
                 $this->session->set_userdata('error', $msg);
             }
             else{
@@ -5562,7 +5560,7 @@ class Partner extends CI_Controller {
         redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
     }
     /*
-     * This function is used to edit partner am mapping
+     * This function is used to edit account manager of Partner
      */
     function edit_partner_am_mapping(){
        if($this->input->post('partner_id')){
@@ -5579,9 +5577,27 @@ class Partner extends CI_Controller {
                 $data['agent_id'] = $this->input->post('am1');
                 $where = array('id' => $this->input->post('mapping_id'));
                 
-                $update_data = $this->reusable_model->update_table("agent_filters",$data,$where);
+                if(strtolower($data['state']) !== 'all') {
+                    $update_data = $this->reusable_model->update_table("agent_filters",$data,$where);
+                }
+                else {
+                    $states_arr = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+                    foreach($states_arr as $value) {
+                        $states[] = $value['state'];
+                    }
+                    $count = 0;
+                    foreach($states as $key=>$state){
+                        $insert_data=array("entity_type" => "247around", "entity_id" => $partnerID, "agent_id" => $data['agent_id'], "state" => $state);
+                        $am_data = $this->partner_model->get_am_data("*", $insert_data);
+                        if(empty($am_data)) {
+                            $update_data = $this->reusable_model->insert_into_table("agent_filters",$insert_data);
+                        } else {
+                            ++$count;
+                        }
+                    }
+                }
                 if($update_data){
-                    $msg =  "Partner AM Mapping has been updated successfully ";
+                    $msg =  "Account Manager has been updated successfully ";
                     $this->session->set_userdata('success', $msg);
                     
                     // Send updated brand am notification email to all employee
@@ -5596,7 +5612,7 @@ class Partner extends CI_Controller {
 
                         $account_manager_name = $this->employee_model->getemployeefromid($data['agent_id'])[0]['full_name'];
 
-                        $state_str = ((strtolower($data['state']) !== 'all') ? (" - ".$data['state']) : '');
+                        $state_str = ((strtolower($data['state']) !== 'all') ? (" - ".$data['state']) : " - All States");
                         $this->table->add_row(array($company_name,$public_name, $partner_type, $account_manager_name.$state_str));
 
                         $html_table = $this->table->generate();
@@ -5614,7 +5630,7 @@ class Partner extends CI_Controller {
                     $this->session->set_userdata('error', $msg);
                 }
             } else {
-                $msg =  "AM already added to this state!!";
+                $msg =  "Account Manager already added to this state!!";
                 $this->session->set_userdata('error', $msg);
             }
         }
@@ -5625,7 +5641,7 @@ class Partner extends CI_Controller {
         redirect(base_url() . 'employee/partner/editpartner/' . $partnerID);
     }
     /*
-     * This function is used to activate / deactivate partner am mapping
+     * This function is used to activate / deactivate account manager of Partner
      */
     function activate_deactivate_mapping($id,$action){
         if($id){
@@ -5637,7 +5653,7 @@ class Partner extends CI_Controller {
                 if($action){
                     $v = "Activated";
                 }
-                echo "Mapping has been $v";
+                echo "Account Manager has been $v";
             }
             else{
                 echo "Something Went Wrong Please Try Again";

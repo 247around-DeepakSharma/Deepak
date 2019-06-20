@@ -331,7 +331,7 @@
                         <thead>
                             <tr>
                                 <th>SF Name </th>
-                                <th>AM Name </th>
+                                <th>Account Manager </th>
                                 <th>Engineer Name </th>
                                 <th>Poc Name </th>
                                 <th>Poc Number </th>
