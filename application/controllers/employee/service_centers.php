@@ -6803,6 +6803,19 @@ class Service_centers extends CI_Controller {
             }
         }
     }
+    
+    /**
+     * @desc: this is used to check warranty data
+     * @return: void
+     */
+    function check_warranty($booking_id="") {
+        $partners = $this->partner_model->getpartner();
+        foreach ($partners as $partnersDetails) {
+            $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
+        }
+        $this->load->view('service_centers/header');
+        $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray]);
+    }
 
     /**
      * @desc function change password of service center entity.

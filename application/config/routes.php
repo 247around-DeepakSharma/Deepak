@@ -268,5 +268,6 @@ $route['upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alter
 
 $route['service_center/update_booking_by_sf/(:any)/(:any)'] = 'employee/booking/update_booking_by_sf/$1/$2';
 $route['service_center/get_sf_edit_booking_form/(:any)'] = 'employee/service_centers/get_sf_edit_booking_form/$1';
+$route['service_center/warranty'] = 'employee/service_centers/check_warranty';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

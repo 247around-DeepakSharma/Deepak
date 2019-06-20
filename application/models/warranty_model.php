@@ -15,7 +15,6 @@ class Warranty_model extends CI_Model {
      * @return boolean
      */
     function check_warranty($data) {
-//        echo '<pre>';print_r($data);exit;
         if (empty($data['partner']) || empty($data['service_id']) || empty($data['brand']) || empty($data['model']) || empty($data['purchase_date'])):
             echo "Insufficient data";
             return;
@@ -62,7 +61,6 @@ class Warranty_model extends CI_Model {
         $this->db->group_by('warranty_plans.plan_id');
         $this->db->order_by('warranty_plans.warranty_type,warranty_plans.period_start');
         $query = $this->db->get();
-//        echo '<pre>';print_r($this->db->last_query());exit;
 
         return $query->result_array();
     }
