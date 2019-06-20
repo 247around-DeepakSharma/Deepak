@@ -665,5 +665,6 @@ define('SF_UPDATE_FORM_VALIDATION_TEXT', 'sf_update');
 
 define('_247AROUND_TRANSFERED_TO_VENDOR', 'Spare transfer from  partner to vendor');
 define('_247AROUND_TRANSFERED_TO_PARTNER', 'Spare transfer from  warehouse to partner');
+define('SYMPTOM_DEFECT_SOLUTION_MAPPING_FILE', 'Symptom-Defect_Solution_Mapping_File');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
