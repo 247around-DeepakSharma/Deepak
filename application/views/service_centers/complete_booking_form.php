@@ -193,9 +193,8 @@
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$key1?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                              </div>
                                         </div>
-                                          <?php //echo"<pre>";print_r($booking_history);exit; ?>
                                         <div class="form-group col-md-3"style="width:16.95%;margin-left:15px !important;">
-                                            <label>SF Purchase Invoice</label>
+                                            <label> Purchase Invoice</label>
                                            
                                             <input type="file" name="sf_purchase_invoice" 
                                                    onchange="update_purchase_invoice_for_unit('<?php echo $key1?>')"  id="<?php echo "purchase_invoice_".$key1?>" class="form-control purchase-invoice"
@@ -207,7 +206,6 @@
                                             if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {
                                                 //Path to be changed
                                                 $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history['spare_parts'][0]['invoice_pic'];
-                                                //$image_src = base_url().'images/view_image.png';
                                             }
                                             ?>
                                             <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic']) ? $booking_history['spare_parts'][0]['invoice_pic'] : ""); ?></small></a>
