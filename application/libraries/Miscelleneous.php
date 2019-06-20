@@ -117,7 +117,7 @@ class Miscelleneous {
         $b['assigned_vendor_id'] = $service_center_id;
         // Set Default Engineer
         if (IS_DEFAULT_ENGINEER == TRUE) {
-            $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
+            $b['assigned_engineer_id'] = NULL;
         } else {
             $engineer = $this->My_CI->vendor_model->get_engineers($service_center_id);
             if (!empty($engineer)) {
