@@ -59,7 +59,7 @@ class Booking extends CI_Controller {
         $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details'];
         $arr_url_segments = $this->uri->segments; 
         $allowedForSF = 0;
-        if(empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){        
+        if(!empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){        
             $allowedForSF = 1;
         }
         if(!$allowedForSF){
