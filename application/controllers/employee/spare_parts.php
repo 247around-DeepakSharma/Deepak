@@ -682,11 +682,11 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
         $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
+        $row[] = $spare_list->quantity;
+        $row[] = $spare_list->shipped_quantity;
         $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->defective_part_shipped . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
-        $row[] = $spare_list->quantity;
-        $row[] = $spare_list->shipped_quantity;
         $row[] = $spare_list->request_type;
         $row[] = (empty($spare_list->age_defective_part_shipped_date))?'0 Days':$spare_list->age_defective_part_shipped_date." Days";
         $row[] = $spare_list->remarks_defective_part_by_sf;
@@ -710,16 +710,17 @@ class Spare_parts extends CI_Controller {
      * @param int $no
      * @return Array
      */
-    function parts_delivered_to_sf_table_data($spare_list, $no){
+     function parts_delivered_to_sf_table_data($spare_list, $no) {
         $row = array();
         $row[] = $no;
-        $row[] = '<a href="'. base_url().'employee/booking/viewdetails/'.$spare_list->booking_id.'" target= "_blank" >'.$spare_list->booking_id.'</a>';
-       if($spare_list->is_micro_wh == 1){
-         $spare_pending_on = 'Micro-warehouse';   
-        }elseif ($spare_list->is_micro_wh == 2) {
-          $spare_pending_on = 'Warehouse';   
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
+        if ($spare_list->is_micro_wh == 1) {
+            $spare_pending_on = 'Micro-warehouse';
+        } elseif ($spare_list->is_micro_wh == 2) {
+            $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);
+            $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
         } else {
-          $spare_pending_on = 'Partner';   
+            $spare_pending_on = 'Partner';
         }
         $row[] = $spare_pending_on;
         $row[] = $spare_list->name;
@@ -727,23 +728,24 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->sc_name;
         $row[] = $spare_list->source;
         $row[] = "<span class='line_break'>" . $spare_list->parts_requested . "</span>";
-        $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
-        $row[] = "<span class='line_break'>" . $spare_list->shipped_parts_type . "</span>";
         $row[] = $spare_list->quantity;
         $row[] = $spare_list->shipped_quantity;
+        $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_parts_type . "</span>";
+
         $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->request_type . "</span>";
         $row[] = date('d-m-Y', strtotime($spare_list->shipped_date));
         $row[] = date('d-m-Y', strtotime($spare_list->acknowledge_date));
-        $row[] = "<i class='fa fa-inr'></i> ".$spare_list->challan_approx_value;
-        if($this->input->post("status") == SPARE_DELIVERED_TO_SF){
-            $row[] = (empty($spare_list->age_of_delivered_to_sf))?'0 Days':$spare_list->age_of_delivered_to_sf." Days";;
+        $row[] = "<i class='fa fa-inr'></i> " . $spare_list->challan_approx_value;
+        if ($this->input->post("status") == SPARE_DELIVERED_TO_SF) {
+            $row[] = (empty($spare_list->age_of_delivered_to_sf)) ? '0 Days' : $spare_list->age_of_delivered_to_sf . " Days";
+            ;
         } else {
-            $row[] = (empty($spare_list->age_part_pending_to_sf))?'0 Days':$spare_list->age_part_pending_to_sf." Days";
+            $row[] = (empty($spare_list->age_part_pending_to_sf)) ? '0 Days' : $spare_list->age_part_pending_to_sf . " Days";
         }
-        
-        if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin") {
+        if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer") {
 
             if ($spare_list->defective_part_required == '0') {
                 $required_parts = 'REQUIRED_PARTS';
@@ -3142,18 +3144,7 @@ class Spare_parts extends CI_Controller {
   
     }
     
-    function bulkConversion(){
-        
-        
-        if($this->session->userdata('userType') == 'service_center'){
-            $this->load->view('service_centers/header');
-        }else{
-          $this->miscelleneous->load_nav_header();  
-        }
 
-        $this->load->view('employee/bulkPartnerTransfer');
-    }
-    
     function bulkPartnerConversion_process(){
         $agentid='';
         if ($this->session->userdata('userType') == 'employee') {

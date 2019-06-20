@@ -5129,11 +5129,13 @@ class Partner extends CI_Controller {
             "SF Remarks",
             "Requested Part Code",
             "Requested Part Name",
+            "Requested Quantity",
             "Requested Part Type",
             "Requested Part Date",
             "Parts Charge",
             "Dispatched Part Code (To SF)",
             "Dispatched Part Name (To SF)",
+            "Dispatched Quantity (To SF)",
             "Dispatched Part Type (To SF)",
             "Dispatched Part Date (To SF)",
             "Dispatched Invoice Number (To SF)",
@@ -5166,11 +5168,13 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['remarks_by_sc'];
             $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['part_name'];
+            $tempArray[] = $sparePartBookings['quantity'];
             $tempArray[] = $sparePartBookings['type'];
             $tempArray[] = $sparePartBookings['date_of_request'];
             $tempArray[] = $sparePartBookings['challan_approx_value'];
             $tempArray[] = $sparePartBookings['shipped_part_number'];
             $tempArray[] = $sparePartBookings['shipped_part_name'];
+            $tempArray[] = $sparePartBookings['shipped_quantity'];
             $tempArray[] = $sparePartBookings['shipped_part_type'];
             $tempArray[] = $sparePartBookings['shipped_date'];
             $tempArray[] = $sparePartBookings['purchase_invoice_id'];
