@@ -203,11 +203,11 @@
             "dataSrc" : function (json) {
                 if(json.activeInWarrantyPlans > 0)
                 {
-                    $("#warranty_status").html("In Warranty.");
+                    $("#warranty_status").html("<span style='color:green;'>In Warranty.</span>");
                 }
                 else if((json.activeExtendedWarrantyPlans > 0) && (json.activeInWarrantyPlans == 0))
                 {
-                    $("#warranty_status").html("Repair-In Warranty has expired, Product lies in extended warranty");
+                    $("#warranty_status").html("<span style='color:green;'>In Warranty has expired, Product lies in extended warranty</span>");
                 }
                 else if((json.activeExtendedWarrantyPlans == 0) && (json.activeInWarrantyPlans == 0))
                 {

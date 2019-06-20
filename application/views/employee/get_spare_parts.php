@@ -175,9 +175,9 @@
         var keys = $(this).data('keys'); 
         var split_url = url.split('/');
         if(split_url[8]=='NOT_REQUIRED_PARTS' || split_url[8]=='NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'){
-            button_txt = 'Move To Not  Required';
+            button_txt = 'Move To Not Required';
         }else{
-            button_txt = 'Move To  Required';
+            button_txt = 'Move To Required';
         }
          if(!isNaN(keys)){              
              $("#reject_btn").html("Approve");             
@@ -207,7 +207,10 @@
         }else{
             $("#reject_btn").html(button_txt);  
             $("#status_label").css({'display':'none'});
-            $("#reject_btn").attr("onclick","reject_parts()");                     
+            $("#reject_btn").attr("onclick","reject_parts()");   
+            var btntext = $(this).attr("data-button");
+            console.log(btntext);
+            $("#reject_btn").text(btntext);
             $("#part_warranty_option").css({'display':'none'});
         }
         $('#modal-title').text(booking_id);
