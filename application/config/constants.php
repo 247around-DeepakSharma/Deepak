@@ -655,7 +655,7 @@ define('FREE_INSTALLATION_REQUEST', 'Installation & Demo (Free)');
 //247around engineer string
 define('_247AROUND_ENGINEER_STRING','engineer');
 
-define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
+define('SF_PURCHASE_INVOICE_FILE_TYPE', '4');
 define('BOOKING_PURCHASE_INVOICE_FILE_TYPE', '1');
 
 define('_247AROUND_TRANSFERED_TO_WAREHOUSE', 'Spare transfer from one warehouse to another warehouse');  //

@@ -203,6 +203,18 @@ class Do_background_process extends CI_Controller {
                     $upcountry_charges = 0;
                     log_message('info', ": " . " service center data " . print_r($data, TRUE));
 
+                    // insert in booking files.
+                    if(!empty($value['sf_purchase_invoice'])) {
+                        $booking_file = [];
+                        $booking_file['booking_id'] = $booking_id;
+                        $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
+                        $booking_file['file_name'] = $value['sf_purchase_invoice'];
+                        $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$value['sf_purchase_invoice'], PATHINFO_EXTENSION);
+                        //$booking_file['size'] = filesize("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name);
+                        $booking_file['create_date'] = date("Y-m-d H:i:s");
+                        $this->booking_model->insert_booking_file($booking_file);
+                    }
+                    
                     foreach ($data as $key => $value) {
                         $current_status1 = _247AROUND_CANCELLED;
                         if ($value['internal_status'] == _247AROUND_COMPLETED) {
