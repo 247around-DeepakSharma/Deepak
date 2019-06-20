@@ -4843,11 +4843,11 @@ class Api extends CI_Controller {
             $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'active' => 1);
             $model_detail = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
             if(!empty($model_detail)){
-                $response['model_number'] = $model_detail;
+                $response['sparePartsOrder']['modelNumberList'] = $model_detail;
             }
             else{
                 $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.part_type', array('service_id' => $requestData['service_id']), FALSE);
-                $response['part_type'] = $parts_type_details;
+                $response['sparePartsOrder']['partTypeList'] = $parts_type_details;
             }
             log_message("info", __METHOD__ . "Model Number or Part Type found successfully");
             $this->jsonResponseString['response'] = $response;
