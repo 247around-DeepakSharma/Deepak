@@ -12,7 +12,6 @@ ini_set('max_execution_time', 36000);
 
 define('Partner_Integ_Complete', TRUE);
 
-
 class Booking_request extends CI_Controller {
     /**
      * load list model and helpers
@@ -975,4 +974,246 @@ class Booking_request extends CI_Controller {
         $option .= '<option value="all" >All</option>';
         echo $option;
     }
+
+    
+    function upload_symptom_defect_solution_mapping_file() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_symptom_defect_solution_mapping_file');
+}
+
+    function process_symptom_defect_solution_mapping_file() {
+
+        $file_status = $this->get_upload_file_type();
+        $redirect_to = $this->input->post('redirect_url');
+
+        if ($file_status['file_name_lenth']) {
+            if ($file_status['status']) {
+
+                //get file header
+                $data = $this->read_upload_file_header($file_status);
+                $data['post_data'] = $this->input->post();
+
+                $partner_id = $this->input->post('partner_id');
+                $service_id = $this->input->post('service_id');
+                $sheetUniqueRowData = array();
+                $msg = ""; 
+
+                //column which must be present in the  upload inventory file
+                $header_column_need_to_be_present = array('service', 'call_type', 'symptom', 'defect', 'solution');
+                //check if required column is present in upload file header
+                $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
+
+                if ($check_header['status']) {
+                    
+                    //get file data to process
+                    for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                        $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+
+                        if (!empty(array_filter($sanitizes_row_data))) {
+                            $rowData = array_combine($data['header_data'], $rowData_array[0]);
+
+                            $service = $rowData['service'];
+                            $call_type = $rowData['call_type'];
+                            $symptom = $rowData['symptom'];
+                            $defect = $rowData['defect'];
+                            $solution = $rowData['solution'];
+
+                            if (!empty($service) && !empty($call_type) && !empty($symptom) && !empty($defect) && !empty($solution)) {
+
+                                // get id of service
+                                $service_id = $this->reusable_model->get_search_result_data('services', 'id', ['services' => $service], NULL, NULL, NULL, NULL, NULL);
+                                if (empty($service_id)) {
+                                    $msg .= "Unknown service at line {$row}.<br/>";
+                                    continue;
+                                }
+
+                                // get request type id.
+                                $request_type_id = $this->reusable_model->get_search_result_data('request_type', 'id', ['service_category' => $call_type], NULL, NULL, NULL, NULL, NULL);
+                                if (empty($request_type_id)) {
+                                    $msg .= "Unknown call type at line {$row}.<br/>";
+                                    continue;
+                                }
+
+                                $service_id = $service_id[0]['id'];
+                                $request_type_id = $request_type_id[0]['id'];
+
+                                $is_symptom_exist = $this->reusable_model->get_search_result_data('symptom', '*', ['service_id' => $service_id, 'symptom' => $symptom], NULL, NULL, NULL, NULL, NULL);
+                                if(empty($is_symptom_exist)) {
+                                    // insert symptom.
+                                    $symptom_data = [];
+                                    $symptom_data['service_id'] = $service_id;
+                                    $symptom_data['symptom'] = $symptom;
+                                    $symptom_data['partner_id'] = $partner_id;
+                                    $symptom_id = $this->reusable_model->insert_into_table('symptom', $symptom_data);
+                                } else {
+                                    $symptom_id = $is_symptom_exist[0]['id'];
+                                }
+
+                                $is_defect_exist = $this->reusable_model->get_search_result_data('defect', '*', ['service_id' => $service_id, 'defect' => $defect], NULL, NULL, NULL, NULL, NULL);
+                                if(empty($is_defect_exist)) {
+                                    // insert defect.
+                                    $defect_data = [];
+                                    $defect_data['service_id'] = $service_id;
+                                    $defect_data['defect'] = $defect;
+                                    $defect_data['partner_id'] = $partner_id;
+                                    $defect_id = $this->reusable_model->insert_into_table('defect', $defect_data);
+                                } else {
+                                    $defect_id = $is_defect_exist[0]['id'];
+                                }
+                                
+                                $is_solution_exist = $this->reusable_model->get_search_result_data('symptom_completion_solution', '*', ['service_id' => $service_id, 'technical_solution' => $solution], NULL, NULL, NULL, NULL, NULL);
+                                if(empty($is_solution_exist)) {
+                                    // insert symptom_completion_solution.
+                                    $symptom_completion_solution_data = [];
+                                    $symptom_completion_solution_data['service_id'] = $service_id;
+                                    $symptom_completion_solution_data['technical_solution'] = $solution;
+                                    $symptom_completion_solution_data['partner_id'] = $partner_id;
+                                    $symptom_completion_solution_id = $this->reusable_model->insert_into_table('symptom_completion_solution', $symptom_completion_solution_data);
+                                } else {
+                                    $symptom_completion_solution_id = $is_solution_exist[0]['id'];
+                                }
+                                
+                                $is_already_mapped = $this->reusable_model->get_search_result_data('symptom_defect_solution_mapping', '*', 
+                                        ['product_id' => $service_id, 'entity_id' => $partner_id, 'request_id' => $request_type_id, 'defect_id' => $defect_id,
+                                            'symptom_id' => $symptom_id, 'solution_id' => $symptom_completion_solution_id], NULL, NULL, NULL, NULL, NULL);
+                             
+                                if(empty($is_already_mapped)) {
+                                    // mapping.
+                                    $symptom_defect_solution_mapping_data = [];
+                                    $symptom_defect_solution_mapping_data['product_id'] = $service_id;
+                                    $symptom_defect_solution_mapping_data['entity_id'] = $partner_id;
+                                    $symptom_defect_solution_mapping_data['request_id'] = $request_type_id;
+                                    $symptom_defect_solution_mapping_data['defect_id'] = $defect_id;
+                                    $symptom_defect_solution_mapping_data['solution_id'] = $symptom_completion_solution_id;
+                                    $symptom_defect_solution_mapping_data['symptom_id'] = $symptom_id;
+                                    $insert_id = $this->reusable_model->insert_into_table('symptom_defect_solution_mapping', $symptom_defect_solution_mapping_data);
+                                }
+                                
+                            } else {
+                                $msg .= "Incompelete data found at line {$row}.<br/>";
+                                continue;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if(!empty($msg)) {
+            $this->session->set_userdata('file_error', $msg);
+        } else {
+            $this->session->set_userdata('file_success', 'Data has been saved successfully.');
+        }    
+       
+        // saving history.
+        $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], 
+                    $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "", "partner", $partner_id);
+        
+        echo '';exit;
+    }
+
+    /**
+     * @desc: This function is used to get the file type
+     * @param void
+     * @param $response array   //consist file temporary name, file extension and status(file type is correct or not)
+     */
+    private function get_upload_file_type() {
+        log_message('info', __FUNCTION__ . "=> getting upload file type");
+        if (!empty($_FILES['file']['name']) && strlen($_FILES['file']['name']) <= 44) {
+            if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
+                $pathinfo = pathinfo($_FILES["file"]["name"]);
+
+                switch ($pathinfo['extension']) {
+                    case 'xlsx':
+                        $response['file_tmp_name'] = $_FILES['file']['tmp_name'];
+                        $response['file_ext'] = 'Excel2007';
+                        break;
+                    case 'xls':
+                        $response['file_tmp_name'] = $_FILES['file']['tmp_name'];
+                        $response['file_ext'] = 'Excel5';
+                        break;
+                }
+
+                $response['status'] = True;
+                $response['file_name_lenth'] = True;
+            } else {
+                log_message('info', __FUNCTION__ . ' Empty File Uploaded');
+                $response['status'] = False;
+                $response['file_name_lenth'] = True;
+            }
+        } else {
+            log_message('info', __FUNCTION__ . 'File Name Length Is Long');
+            $response['status'] = False;
+            $response['file_name_lenth'] = false;
+        }
+
+        return $response;
+    }
+
+    /**
+     * @desc: This function is used to get the file header
+     * @param $file array  //consist file temporary name, file extension and status(file type is correct or not)
+     * @param $response array  //consist file name,sheet name(in case of excel),header details,sheet highest row and highest column
+     */
+    private function read_upload_file_header($file) {
+        log_message('info', __FUNCTION__ . "=> getting upload file header");
+        try {
+            $objReader = PHPExcel_IOFactory::createReader($file['file_ext']);
+            $objPHPExcel = $objReader->load($file['file_tmp_name']);
+        } catch (Exception $e) {
+            die('Error loading file "' . pathinfo($file['file_tmp_name'], PATHINFO_BASENAME) . '": ' . $e->getMessage());
+        }
+
+        $file_name = $_FILES["file"]["name"];
+        move_uploaded_file($file['file_tmp_name'], TMP_FOLDER . $file_name);
+        chmod(TMP_FOLDER . $file_name, 0777);
+        //  Get worksheet dimensions
+        $sheet = $objPHPExcel->getSheet(0);
+        $highestRow = $sheet->getHighestDataRow();
+        $highestColumn = $sheet->getHighestDataColumn();
+        $response['status'] = TRUE;
+        //Validation for Empty File
+        if ($highestRow <= 1) {
+            log_message('info', __FUNCTION__ . ' Empty File Uploaded');
+            $response['status'] = False;
+        }
+
+        $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+        $headings_new = array();
+        foreach ($headings as $heading) {
+            $heading = str_replace(array("/", "(", ")", "."), "", $heading);
+            array_push($headings_new, str_replace(array(" "), "_", $heading));
+        }
+
+        $headings_new1 = array_map('strtolower', $headings_new[0]);
+
+        $response['file_name'] = $file_name;
+        $response['header_data'] = $headings_new1;
+        $response['sheet'] = $sheet;
+        $response['highest_row'] = $highestRow;
+        $response['highest_column'] = $highestColumn;
+        return $response;
+    }
+
+    /**
+     * @desc: This function is used to validate upload file header
+     * @param $actual_header array this is actual header. It contains all the required column
+     * @param $upload_file_header array this is upload file header. It contains all column from the upload file header
+     * @param $return_data array
+     */
+    function check_column_exist($actual_header, $upload_file_header) {
+
+        $is_all_header_present = array_diff($actual_header, $upload_file_header);
+        if (empty($is_all_header_present)) {
+            $return_data['status'] = TRUE;
+            $return_data['message'] = '';
+        } else {
+            $this->Columfailed = "<b>" . implode($is_all_header_present, ',') . " </b> column does not exist.Please correct these and upload again. <br><br><b> For reference,Please use previous successfully upload file from CRM</b>";
+            $return_data['status'] = FALSE;
+            $return_data['message'] = $this->Columfailed;
+        }
+
+        return $return_data;
+    }
+
 }
