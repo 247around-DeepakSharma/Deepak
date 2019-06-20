@@ -175,9 +175,9 @@
         var keys = $(this).data('keys'); 
         var split_url = url.split('/');
         if(split_url[8]=='NOT_REQUIRED_PARTS' || split_url[8]=='NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'){
-            button_txt = 'Move To Not  Required';
+            button_txt = 'Move To Required';
         }else{
-            button_txt = 'Move To  Required';
+            button_txt = 'Move To Not Required';
         }
          if(!isNaN(keys)){              
              $("#reject_btn").html("Approve");             
