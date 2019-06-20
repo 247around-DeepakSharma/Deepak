@@ -55,8 +55,10 @@ class Booking extends CI_Controller {
         $this->load->library("booking_creation_lib");
         $this->load->helper('file');
         $this->load->dbutil();
-        $functionName = $this->uri->segment(2);  
-        if($functionName != 'update_booking_by_sf'){
+        // Mention those functions whom you want to skip from employee specific validations
+        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf'];
+        $arr_url_segments = $this->uri->segments; 
+        if(empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){
             if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
                 return TRUE;
             } else {

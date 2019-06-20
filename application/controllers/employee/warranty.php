@@ -14,7 +14,7 @@ class Warranty extends CI_Controller {
         $this->load->model('warranty_model');
         $this->load->library("session");
         $this->load->library('miscelleneous');
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+        if ($this->session->userdata('loggedIn') == TRUE) {
             return TRUE;
         } else {
             redirect(base_url() . "employee/login");
@@ -53,6 +53,12 @@ class Warranty extends CI_Controller {
         {
             $InWarrantyTimePeriod = !empty($list[0]['warranty_period']) ? $list[0]['warranty_period'] : 0;
             $InWarrantyGracePeriod = !empty($list[0]['warranty_grace_period']) ? $list[0]['warranty_grace_period'] : 0;
+        }
+        else
+        {
+            $no++;
+            $row =  $this->in_warranty_data($no, $post_data['purchase_date'], $activeInWarrantyPlans);
+            $data[] = $row;
         }
              
         foreach ($list as $key => $value) {
@@ -132,6 +138,33 @@ class Warranty extends CI_Controller {
                 $activeExtendedWarrantyPlans++;
             }
             $row[] = date('d-m-Y', $warranty_end_period)."<p style='color: green;font-weight:bold;'>Active</p>";
+        }        
+        return $row;        
+    }
+    
+    function in_warranty_data($no, $purchase_date, &$activeInWarrantyPlans){  
+        $warranty_start_period = date('d-m-Y', strtotime($purchase_date));
+        $warranty_end_period = date('d-m-Y', strtotime(date("Y-m-d", strtotime($purchase_date)) . " +1 year"));
+        $row = array();
+        $row[] = $no;
+        $row[] = 'In Warranty';
+        $row[] = $warranty_start_period;
+        $row[] = $warranty_end_period;
+        $row[] = "All";
+        $row[] = "All";
+        $row[] = "Yes";
+        $row[] = "Yes";
+        $row[] = "In Warranty";
+        $row[] = "12 Month(s)";
+        $row[] = "0 Day(s)";
+        if(strtotime($warranty_end_period) < strtotime(date("Y-m-d")))
+        {
+            $row[] = date('d-m-Y', strtotime($warranty_end_period))."<p style='color: #f30;font-weight:bold;'>Expired</p>";
+        }
+        else
+        {
+            $activeInWarrantyPlans++;
+            $row[] = date('d-m-Y', strtotime($warranty_end_period))."<p style='color: green;font-weight:bold;'>Active</p>";
         }        
         return $row;        
     }
