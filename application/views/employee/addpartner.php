@@ -125,7 +125,7 @@
                         <li><a id="13" href="#tabs-13"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Add Margin</span></a></li>
                         <li><a id="14" href="#tabs-14"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Mapping</span></a></li>
-                        <li><a id="16" href="#tabs-16"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Partner AM Mapping</span></a></li>
+                        <li><a id="16" href="#tabs-16"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Account Manager</span></a></li>
                         <?php
                             }
                             else{
@@ -145,7 +145,7 @@
                         <li><a id="13" href="#tabs-13" onclick="load_form(this.id)"><span class="panel-title">Add Margin</span></a></li>
                         <li><a id="14" href="#tabs-14" onclick="load_form(this.id)"><span class="panel-title">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15" onclick="load_form(this.id)"><span class="panel-title">Model Mapping</span></a></li>
-                        <li><a id="16" href="#tabs-16" onclick="load_form(this.id)"><span class="panel-title">Partner AM Mapping</span></a></li>
+                        <li><a id="16" href="#tabs-16" onclick="load_form(this.id)"><span class="panel-title">Account Manager</span></a></li>
                         <?php
                             }
                         ?>
@@ -2729,7 +2729,7 @@
         </div>
         <div class="clear"></div>
             <div id="container_16" style="display:none;margin: 30px 10px;" class="form_container">
-                <button class="btn" onclick="show_partner_am_mapping()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Partner AM Mapping</button>
+                <button class="btn" onclick="show_partner_am_mapping()" style="background-color: #337ab7;color: #fff;margin-bottom: 10px;">Add Account Manager</button>
                 <form name="partner_am_mapping_form" class="form-horizontal" id ="partner_am_mapping_form" action="<?php echo base_url() ?>employee/partner/process_partner_am_mapping" method="POST" enctype="multipart/form-data" onsubmit="return process_partner_am_mapping_validations()" style="display:none;">
                     <!--<input type="hidden" id="final_checkbox_value_holder" name="final_checkbox_value_holder" value="">-->
                         <?php
@@ -2744,7 +2744,7 @@
 
                 <div class="clonedInputMapping panel panel-info " id="clonedInput16">                      
                     <div class="panel-heading" style=" background-color: #f5f5f5;">
-                        <p style="color: #000;"><b>Add Partner AM Mapping</b></p>
+                        <p style="color: #000;"><b>Add Account Manager</b></p>
                         <div class="clone_button_holder1" style="float:right;margin-top: -31px;">
                             <button class="clone2 btn btn-sm btn-info">Add</button>
                             <button class="remove2 btn btn-sm btn-info">Remove</button>
@@ -2820,7 +2820,7 @@
                             <th>S.N</th>
                             <th>Account Manager</th>
                             <th>State</th>
-                            <th>Active / Inactive <br>Mapping</th>
+                            <th>Activate / Deactivate</th>
                             <th>Edit</th>
                         </tr>
                     </thead>
@@ -2991,14 +2991,14 @@
     </div>
 </div>
 <!--Modal ends-->
-<!--Partner AM Mapping Modal -->
+<!--Account Manager Modal -->
 <div id="myMappingModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header" style="text-align: center;margin: 0px;">
                 <button type="button" class="close btn-primary well" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Edit Partner AM Mapping</h4>
+                <h4 class="modal-title">Edit Account Manager</h4>
             </div>
             <div class="modal-body">
                 <form name="edit_partner_am_mapping_form" action="<?php echo base_url().'employee/partner/edit_partner_am_mapping'?>" class="form-horizontal" id ="edit_partner_am_mapping_form" method="POST" enctype="multipart/form-data" onsubmit="return edit_partner_am_mapping_validations()">
@@ -3022,7 +3022,7 @@
                                     <label for="state" class="col-md-4">State *</label>
                                     <div class="col-md-8">
                                         <select class="form-control" name="state1" id="state1">
-                                            <option selected disabled value="option_holder">Select State</option>
+                                            <option value="all">All States</option>
                                             <?php foreach ($results['select_state'] as $state) {    ?>
                                             <option value = "<?php echo $state['state'] ?>"    ><?php echo $state['state']; ?></option>
                                             <?php } ?>
@@ -3041,7 +3041,7 @@
         </div>
     </div>
 </div>
-<!--Partner AM Mapping Modal ends-->
+<!--Account Manager Modal ends-->
 <!-- warehouse modal start-->
 <div id="wh_edit_form_modal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -4943,7 +4943,7 @@
         }
     }
     function activate_deactive_mapping(id,action,status){
-        var cnfrm = confirm("Are you sure, you want to "+status+" this mapping ?");
+        var cnfrm = confirm("Are you sure, you want to "+status+" this account manager ?");
         if(!cnfrm){
             return false;
         }
