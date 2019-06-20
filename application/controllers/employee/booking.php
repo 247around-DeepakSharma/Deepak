@@ -2130,7 +2130,7 @@ class Booking extends CI_Controller {
         }
         $k = 0;
 
-        
+        $purchase_invoice_file_name = '';
         if(!empty($_FILES['sf_purchase_invoice']['name'])) :
             $purchase_invoice_file_name = $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
         endif;   
@@ -2158,7 +2158,10 @@ class Booking extends CI_Controller {
                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
             }
             $data['sf_purchase_invoice'] = NULL;
-            if (isset($purchase_invoice[$unit_id]) && !empty($purchase_invoice_file_name)) {
+            if (!empty($purchase_invoice[$unit_id]) || !empty($purchase_invoice_file_name)) {
+                if(empty($purchase_invoice_file_name)) {
+                   $purchase_invoice_file_name = $purchase_invoice[$unit_id];
+                }
                 $data['sf_purchase_invoice'] = $purchase_invoice_file_name;
             }
             if(!empty($data['serial_number_pic'])){
