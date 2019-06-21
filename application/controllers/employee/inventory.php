@@ -2645,7 +2645,9 @@ class Inventory extends CI_Controller {
             if ($this->input->post('service_id')) {
                 $post['where']['service_id'] = trim($this->input->post('service_id'));
             }
-            $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks.pending_request_count,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
+
+            $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks..pending_request_count,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
+
             //RM Specific stocks
 //            $sfIDArray =array();
 //            if($this->session->userdata('user_group') == 'regionalmanager'){
@@ -2740,7 +2742,9 @@ class Inventory extends CI_Controller {
         $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_number . '</span>';
         $row[] = $inventory_list->description;
         $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
+
         $row[] = $inventory_list->pending_request_count;
+
         $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
         if ($inventory_list->oow_around_margin > 0) {
             $repair_oow_around_percentage = $inventory_list->oow_around_margin / 100;
