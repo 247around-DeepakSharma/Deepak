@@ -3348,7 +3348,7 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
         $response = array(); 
 
-        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.part_name, inventory_master_list.inventory_id, price, gst_rate,inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,entity_id, inventory_master_list.part_name, inventory_master_list.inventory_id, price, gst_rate,inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
 
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
         $is_partner_wh = '';
@@ -3366,7 +3366,12 @@ function generate_image($base64, $image_name,$directory){
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id);
                 if (!empty($response)) {
                     //Defective Parts Return To
-                    if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+                    if($response['is_micro_wh'] == 2){
+                        
+                        $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
+                        $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+                        
+                    } else if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
                         $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
                         if(!empty($wh_address_details)){
                             $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
@@ -3489,7 +3494,8 @@ function generate_image($base64, $image_name,$directory){
                 foreach($inventory_stock_details as $value){                    
                     $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
                             array('warehouse_state_relationship.state' => $state,'contact_person.entity_type' => _247AROUND_SF_STRING,
-                                'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1), true, true, true);
+                                'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1,
+                                'warehouse_details.entity_id' => $inventory_part_number[0]['entity_id']), true, true, true);
                     if(!empty($warehouse_details)){
                         $response = array();
                         $response['stock'] = TRUE;
