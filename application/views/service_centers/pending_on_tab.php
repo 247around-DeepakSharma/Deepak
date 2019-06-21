@@ -600,6 +600,7 @@
                                 <tr >
                                     <th class="text-center" data-orderable="false">No</th>
                                     <th class="text-center" data-orderable="false">Booking Id</th>
+                                    <th class="text-center" data-orderable="false">Part Warranty Status</th>
                                     <th class="text-center" data-orderable="false">Partner/Warehouse</th>
                                     <th class="text-center" data-orderable="false">Model Number</th>
                                     <th class="text-center" data-orderable="false">Serial Number</th>
@@ -611,6 +612,7 @@
                                     <th class="text-center" data-orderable="false">Send Email</th> 
                                     <th class="text-center" data-orderable="false">Contacts</th>
                                     <th class="text-center" data-orderable="false">Update</th>
+                                    <th class="text-center" data-orderable="false">Cancel&nbsp;Part</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -624,6 +626,9 @@
                                     </td>
                                     <td>
                                         <?php echo $row['booking_id']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo (($row['part_warranty_status'] == 1)? "In Warranty": "Out Of Warranty"); ?>
                                     </td>
                                     <td>
                                         <?php echo $row['entity_type']; ?>
@@ -664,6 +669,11 @@
                                         <td style="vertical-align: middle;">
                                         <?php if(($row['status'] == SPARE_PART_ON_APPROVAL && ( $row['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS || $row['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ))){ ?>
                                            <a class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_spare_parts_required/<?php echo urlencode(base64_encode($row['id'])); ?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                        <?php } ?>
+                                        </td>
+                                        <td style="vertical-align: middle;">
+                                        <?php if($row['status'] == SPARE_PARTS_REQUESTED || $row['status'] == SPARE_PART_ON_APPROVAL || $row['status'] == SPARE_OOW_EST_GIVEN || $row['status'] == SPARE_OOW_EST_REQUESTED){ ?>
+                                           <button type="button" data-keys="spare_parts_cancel" data-booking_id="<?php echo $row['booking_id']; ?>" data-url="<?php echo base_url(); ?>employee/inventory/update_action_on_spare_parts/<?php echo $row['id'] . '/' . $row['booking_id'] . '/CANCEL_PARTS';  ?>" class="btn btn-sm btn-danger open-adminremarks" data-toggle="modal" data-target="#cancelSpareModal"><i class='fa fa-times' aria-hidden='true'></i></button>
                                         <?php } ?>
                                         </td>
                                 </tr>
@@ -781,6 +791,34 @@
 
     </div>
 </div>
+<!-- Cancel Spare Modal Starts -->
+<div id="cancelSpareModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header well" style="background-color:  #2C9D9C;border-color: #2C9D9C;">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="modal-title" style="color: white;text-align: center;"></h4>
+            </div>
+            <div class="modal-body">
+                <h4 style="padding: 3px;font-size: 1em;display: block;" id="status_label" class="modal-title">Spare Cancel Reason</h4>
+                <div id="part_warranty_option" style="padding-bottom: 20px; display: block;">
+                    <select class="form-control" id="spare_cancel_reason" name="spare_cancel_reason" value="">
+                    </select>
+                </div>
+                <h4 style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Remarks</h4>
+                <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
+                <input style="margin-top:20px; display: none" type="number" name="charge" class="form-control" id="charges" placeholder="Enter Courier Charge" />
+            </div>
+            <input type="hidden" id="url"></input>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" style="color: #fff;background-color: #2c9d9c;border-color: #2c9d9c;" onclick="reject_parts()" id="reject_btn">Cancel</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Cancel Spare Modal Ends -->
 <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
 <script>
     get_review_table();
@@ -958,5 +996,55 @@
     
     setInterval(function(){ getBookingEngineers(); }, 30000);
     
+    $(document).on("click", ".open-adminremarks", function () {
+        
+        var booking_id = $(this).data('booking_id');
+        var url = $(this).data('url');
+        var keys = $(this).data('keys'); 
+        
+        if(keys == 'spare_parts_cancel'){                      
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons',
+                success: function (data) {
+                    $("#spare_cancel_reason").html(data); 
+                }
+            });
+        }
+        $('#modal-title').text(booking_id);
+        $('#textarea').val("");
+        $("#url").val(url);
+        $("#charges").css("display","none");
+        $("#charges").val(0);
+
+    });
+    
+    function reject_parts(){
+      var remarks =  $('#textarea').val();
+      var courier_charge = $('#charges').val();
+      var reason = $('#spare_cancel_reason').val();
+      
+      if(remarks !== ""){
+        $('#reject_btn').attr('disabled',true);
+        var url =  $('#url').val();
+        $.ajax({
+            type:'POST',
+            url:url,
+            data:{ remarks:remarks,courier_charge:courier_charge, spare_cancel_reason:reason },
+            success: function(data){
+                $('#reject_btn').attr('disabled',false);
+                if(data === "Success"){
+                    $('#cancelSpareModal').modal('hide');
+                    alert("Updated Successfully");
+                    location.reload();
+                } else {
+                    alert("Spare Parts Cancellation Failed!");
+                }
+            }
+        });
+      } else {
+          alert("Please Enter Remarks");
+      }
+    }
    
     </script>
