@@ -455,59 +455,72 @@ class Dashboard extends CI_Controller {
             $partner_id = "";
         }
         foreach ($rm_array as $value) {
+                    $rm_head = false;
             switch ($value['full_name']) {
                 case EAST_RM:
                     $region[] = "East";
+                    $rm_head = true;
                 break;
                 case SOUTH_RM:
                     $region[] = "South";
+                    $rm_head = true;
                 break;
                 case WEST_RM:
                     $region[] = "West";
+                     $rm_head = true;
                 break;
                 case NORTH_RM:
                     $region[] = "North";
+                    $rm_head = true;
                 break;
             }
-            $sf_list = $this->vendor_model->get_employee_relation($value['id']);
-            if (!empty($sf_list)) {
-                $sf_id = $sf_list[0]['service_centres_id'];
-                $region_data = $this->dashboard_model->get_booking_data_by_rm_region($startDate, $endDate, $sf_id, $partner_id);
-                array_push($rm, $value['full_name']);
-                foreach ($region_data[0] as $key => $value) {
-                    switch ($key) {
-                        case 'Cancelled':
-                            if (!empty($value)) {
-                                array_push($cancelled, $value);
-                            } else {
-                                array_push($cancelled, '0');
-                            }
-                            break;
-                        case 'Completed':
-                            if (!empty($value)) {
-                                array_push($completed, $value);
-                            } else {
-                                array_push($completed, '0');
-                            }
-                            break;
-                        case 'Pending':
-                            if (!empty($value)) {
-                                array_push($pending, $value);
-                            } else {
-                                array_push($pending, '0');
-                            }
-                            break;
-                        case 'Total':
-                            if (!empty($value)) {
-                                array_push($total, $value);
-                            } else {
-                                array_push($total, '0');
-                            }
-                            break;
+            if($rm_head){
+                $sf_list = $this->vendor_model->get_employee_relation($value['id']);
+                if (!empty($sf_list)) {
+                    $sf_id = $sf_list[0]['service_centres_id'];
+                    $region_data = $this->dashboard_model->get_booking_data_by_rm_region($startDate, $endDate, $sf_id, $partner_id);
+                    array_push($rm, $value['full_name']);
+                    foreach ($region_data[0] as $key => $value) {
+                        switch ($key) {
+                            case 'Cancelled':
+                                if (!empty($value)) {
+                                    array_push($cancelled, $value);
+                                } else {
+                                    array_push($cancelled, '0');
+                                }
+                                break;
+                            case 'Completed':
+                                if (!empty($value)) {
+                                    array_push($completed, $value);
+                                } else {
+                                    array_push($completed, '0');
+                                }
+                                break;
+                            case 'Pending':
+                                if (!empty($value)) {
+                                    array_push($pending, $value);
+                                } else {
+                                    array_push($pending, '0');
+                                }
+                                break;
+                            case 'Total':
+                                if (!empty($value)) {
+                                    array_push($total, $value);
+                                } else {
+                                    array_push($total, '0');
+                                }
+                                break;
+                        }
                     }
                 }
             }
         }
+        $rm[] = 'Total';
+        $cancelled[] = array_sum($cancelled);
+        $completed[] = array_sum($completed);
+        $pending[] = array_sum($pending);
+        $total[] = array_sum($total);
+        $region[] = 'Total';
         $json_data['rm'] = implode(",", $rm);
         $json_data['cancelled'] = implode(",", $cancelled);
         $json_data['completed'] = implode(",", $completed);

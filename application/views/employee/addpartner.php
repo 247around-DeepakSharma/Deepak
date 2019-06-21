@@ -450,6 +450,7 @@
                                     <div class="form-group">
                                         <label  for="upcountry_rate" class="col-md-4">UpCountry Rate</label>
                                         <div class="col-md-1">
+                                            <input type="hidden" name="is_warehouse" value="<?php echo (!empty($query[0]['is_wh']) ? $query[0]['is_wh'] : '');?>">
                                             <input type="checkbox" name="is_upcountry" id="upcountry" style="zoom:1.5" 
                                                 <?php if (isset($query[0])) {
                                                     if ($query[0]['is_upcountry'] == 1) {
