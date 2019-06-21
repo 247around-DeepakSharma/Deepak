@@ -3523,6 +3523,7 @@ class Booking extends CI_Controller {
                 }
                 else{
                     $post['where']  = array("current_status IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."')" => NULL,"service_center_closed_date IS NULL"=>NULL);
+                    $post['where_not_in']['booking_details.internal_status']  = array('Spare Parts Shipped by Partner','InProcess_Cancelled','InProcess_completed');
                 }
                 $post['order_performed_on_count'] = TRUE;
             }
@@ -3551,8 +3552,9 @@ class Booking extends CI_Controller {
              $post['join']['employee_relation'] =  "FIND_IN_SET( booking_details.assigned_vendor_id , employee_relation.service_centres_id )";
         }
         if(!empty($am_id)){
-             $post['where'] = array("agent_filters.agent_id" => $am_id, "agent_filters.is_active" => 1, "agent_filters.entity_type" => '247around');
-             $post['where_not_in']['booking_details.internal_status'] =  array('InProcess_Cancelled','InProcess_Completed');
+             $post['where']["agent_filters.agent_id"] = $am_id;
+             $post['where']["agent_filters.is_active"] = 1;
+             $post['where']["agent_filters.entity_type"] = '247around';
              $post['join']['agent_filters'] =  "booking_details.partner_id=agent_filters.entity_id and service_centres.state=agent_filters.state";
         }
         if(!empty($request_type)){

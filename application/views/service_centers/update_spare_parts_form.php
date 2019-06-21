@@ -334,7 +334,7 @@
                                         <div class="form-group ">
                                             <label for="quantity" class="col-md-4">Requested  Quantity *</label>
                                             <div class="col-md-6">
-                                                <input  class="form-control quantity "  id="quantity"  />
+                                                <input  class="form-control quantity "  value="1"  readonly  id="quantity"  />
                                               
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
