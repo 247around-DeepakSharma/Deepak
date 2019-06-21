@@ -931,7 +931,7 @@ class Inventory extends CI_Controller {
         //$filename = prev($temp);
 
         if ($file["name"] != null) {
-            if (($file["size"] < 2e+6) && in_array($extension, $allowedExts)) {
+            if (($file["size"] < 5e+6) && in_array($extension, $allowedExts)) {
                 if ($file["error"] > 0) {
                     $this->form_validation->set_message('upload_spare_pic', $file["error"]);
                 } else {
@@ -946,7 +946,7 @@ class Inventory extends CI_Controller {
                 }
             } else {
                 $this->form_validation->set_message('upload_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
-                        . 'Maximum file size is 2 MB.');
+                        . 'Maximum file size is 5 MB.');
                 return FALSE;
             }
         }
@@ -2645,7 +2645,11 @@ class Inventory extends CI_Controller {
             if ($this->input->post('service_id')) {
                 $post['where']['service_id'] = trim($this->input->post('service_id'));
             }
-            $select = "inventory_master_list.*,inventory_stocks.stock,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
+
+
+            $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks..pending_request_count,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
+
+
             //RM Specific stocks
 //            $sfIDArray =array();
 //            if($this->session->userdata('user_group') == 'regionalmanager'){
@@ -2740,6 +2744,8 @@ class Inventory extends CI_Controller {
         $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_number . '</span>';
         $row[] = $inventory_list->description;
         $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
+
+        $row[] = $inventory_list->pending_request_count;
 
         $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
         if ($inventory_list->oow_around_margin > 0) {
@@ -3242,13 +3248,13 @@ class Inventory extends CI_Controller {
                                                 $invoice_annexure = $this->inventory_invoice_data($invoice_id, $c_s_gst, $value);
                                                 $invoice_annexure['from_gst_number'] = $this->input->post("from_gst_number");
                                                 $invoice_annexure['to_gst_number'] = $this->input->post("to_gst_number");
-                                                $invoice_annexure['247around_gst_number'] = $this->input->post("247around_gst_number");
+                                               
                                                 
                                                 array_push($invoice, $invoice_annexure);
                                                 
                                                 unset($invoice_annexure['from_gst_number']);
                                                 unset($invoice_annexure['to_gst_number']);
-                                                unset($invoice_annexure['247around_gst_number']);
+                                                
                                                 
                                                 $total_basic_amount += $invoice_annexure['taxable_value'];
                                                 $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
@@ -4167,7 +4173,7 @@ class Inventory extends CI_Controller {
         $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
         $postData = json_decode($this->input->post('data'));
         $wh_name = $this->input->post('wh_name');
-        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($courier_price_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
+        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
             $exist_courier_image = $this->input->post("exist_courier_image");
             if (!empty($exist_courier_image)) {
                 $courier_file['status'] = true;
@@ -4703,7 +4709,7 @@ class Inventory extends CI_Controller {
         //check if upload file is empty or not
         if (!empty($file_details['invoice_file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
-            if ($file_details['invoice_file']['size'] <= 2 * $MB) {
+            if ($file_details['invoice_file']['size'] <= 5 * $MB) {
                 $allowed = array('pdf');
                 $ext = pathinfo($file_details['invoice_file']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
@@ -4723,7 +4729,7 @@ class Inventory extends CI_Controller {
                 }
             } else {
                 $res['status'] = false;
-                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
+                $res['message'] = 'Uploaded file size can not be greater than 5 mb';
             }
         } else {
             $res['status'] = false;
@@ -4788,7 +4794,7 @@ class Inventory extends CI_Controller {
         //check if upload file is empty or not
         if (!empty($file_details['file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
-            if ($file_details['file']['size'] <= 2 * $MB) {
+            if ($file_details['file']['size'] <= 5 * $MB) {
                 $allowed = array('pdf', 'jpg', 'png', 'jpeg');
                 $ext = pathinfo($file_details['file']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
@@ -4808,7 +4814,7 @@ class Inventory extends CI_Controller {
                 }
             } else {
                 $res['status'] = false;
-                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
+                $res['message'] = 'Uploaded file size can not be greater than 5 mb';
             }
         } else {
             $res['status'] = false;
@@ -4855,7 +4861,7 @@ class Inventory extends CI_Controller {
         //check if upload file is empty or not
         if (!empty($file_details['courier_file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
-            if ($file_details['courier_file']['size'] <= 2 * $MB) {
+            if ($file_details['courier_file']['size'] <= 5 * $MB) {
                 $upload_file_name = str_replace(' ', '_', trim($file_details['courier_file']['name']));
 
                 $file_name = 'spare_courier_' . rand(10, 100) . '_' . $upload_file_name;
@@ -4867,7 +4873,7 @@ class Inventory extends CI_Controller {
                 $res['message'] = $file_name;
             } else {
                 $res['status'] = false;
-                $res['message'] = 'Uploaded file size can not be greater than 2 mb';
+                $res['message'] = 'Uploaded file size can not be greater than 5 mb';
             }
         } else {
             $res['status'] = TRUE;
@@ -5481,7 +5487,7 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . ' Processing...');
 
         $partner_id = $this->input->post('partner_id');
-        $select = "spare_parts_details.id as spare_id, i.part_number, spare_parts_details.model_number, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',employee.full_name as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
+        $select = "spare_parts_details.id as spare_id, i.part_number, spare_parts_details.model_number, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',GROUP_CONCAT(employee.full_name) as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
                 . "service_centres.district as 'SF City', "
                 . "booking_details.current_status as 'Booking Status',spare_parts_details.status as 'Spare Status', "
                 . "spare_parts_details.parts_shipped as 'Part Shipped By Partner',spare_parts_details.shipped_parts_type as 'Part Type',i.part_number as 'Part Code',"
@@ -5494,11 +5500,12 @@ class Inventory extends CI_Controller {
                 . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', defective_part_shipped_date as 'Defective Parts Shipped Date', received_defective_part_date as 'Partner Received Defective Parts Date', "
                 . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age'";
         $where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
+        $group_by = "spare_parts_details.id";
         if (!empty($partner_id)) {
             $where['booking_details.partner_id'] = $partner_id;
         }
 
-        $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where);
+        $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
 
         $this->load->dbutil();
         $this->load->helper('file');
@@ -6395,7 +6402,7 @@ class Inventory extends CI_Controller {
     function get_247around_wh_gst_number(){
         $html = "<option value='' selected disabled>Selet GST Number</option>";
         $where = array(
-            "entity_type" => _247AROUND_EMPLOYEE_STRING,
+            "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => "247001",
             );
         $gst_numbers = $this->inventory_model->get_entity_gst_data("id, gst_number, state", $where);

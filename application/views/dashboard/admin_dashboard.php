@@ -1411,7 +1411,7 @@
             minDate: '01/01/2000',
             maxDate: '12/31/2030',
             dateLimit: {
-                days: 120},
+                days: 30},
             showDropdowns: true,
             showWeekNumbers: true,
             timePicker: false,
@@ -1547,7 +1547,7 @@
             }
             else{
                 alert("Graph Data Not Found");
-                $("#completed_booking_closure_status").find(".collape_icon").click();
+                $('#loader_gif7').hide();
             }
         });
     });
@@ -1566,7 +1566,7 @@
             }
             else{
                 alert("Graph Data Not Found");
-                $("#cancelled_booking_closure_status").find(".collape_icon").click();
+                $('#loader_gif8').hide();
             }
         });
     });
@@ -2324,7 +2324,7 @@ function initiate_escalation_data(){
             }
             else{
                 alert("Graph Data Not Found");
-                $("#completed_booking_closure_status").find(".collape_icon").click();
+                $('#loader_gif7').fadeOut();
             }
         });
     }
@@ -2404,7 +2404,7 @@ function initiate_escalation_data(){
             }
             else{
                 alert("Graph Data Not Found");
-                $("#cancelled_booking_closure_status").find(".collape_icon").click();
+                $('#loader_gif8').fadeOut();
             }
         });
     }

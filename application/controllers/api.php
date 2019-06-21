@@ -57,7 +57,7 @@ class Api extends CI_Controller {
         //$_POST = json_decode($input_d, true);
         
         //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"engineerLogin\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
-        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"sparePartName\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
+        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"getEngineerBookings\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
 
         //$_POST = json_decode($str, true);
             
@@ -481,8 +481,8 @@ class Api extends CI_Controller {
                 $this->getTechSupport();
                 break;
             
-            case 'engineerCancelledBookings':
-                $this->getEngineerCancelledBookings();
+            case 'engineerBookingsByStatus':
+                $this->getEngineerBookingsByStatus();
                 break;
             
             case 'engineerHeplingDocuments':
@@ -4588,7 +4588,7 @@ class Api extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "count(booking_details.booking_id) as bookings";
             $slot_select = 'booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,'
-                    . 'booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due';
+                    . 'booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id';
             $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $tommorow_bookings_count = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $morning_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_10AM_TO_1PM, $requestData["service_center_id"], $requestData["engineer_id"]);
@@ -4601,7 +4601,7 @@ class Api extends CI_Controller {
             $response['todayAfternoonBooking'] = $noon_slot_bookings;
             $response['todayEveningBooking'] = $evening_slot_bookings;
             
-            log_message("info", __METHOD__ . "Booking Found Successfully");
+            log_message("info", __METHOD__ . "Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
         }
@@ -4669,7 +4669,7 @@ class Api extends CI_Controller {
         //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
-                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due";
+                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
             $response['missedBooking'] = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             log_message("info", __METHOD__ . "Missed Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
@@ -4677,7 +4677,7 @@ class Api extends CI_Controller {
         }
         else{
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"]." or Service Center Id not found - ".$requestData["service_center_id"]);
-            $this->sendJsonResponse(array('0023', 'Booking ID Not Found'));
+            $this->sendJsonResponse(array('0023', 'Engineer ID or Service Center Id not found'));
         }
     }
     
@@ -4688,7 +4688,7 @@ class Api extends CI_Controller {
         //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
-                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, "._247AROUND_CALLCENTER_NUMBER." as tech_support_number";
+                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
             $response['tomorrowBooking'] = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             log_message("info", __METHOD__ . "Tommorow Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
@@ -4696,34 +4696,45 @@ class Api extends CI_Controller {
         }
         else{
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"]." or Service Center Id not found - ".$requestData["service_center_id"]);
-            $this->sendJsonResponse(array('0024', 'Booking ID Not Found'));
+            $this->sendJsonResponse(array('0024', 'Engineer ID or Service Center Id not found'));
         }
     }
     
-    function getEngineerCancelledBookings(){
+    function getEngineerBookingsByStatus(){ 
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
-        if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-            $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
-                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, "._247AROUND_CALLCENTER_NUMBER." as tech_support_number";
+        //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "booking_status" => "Completed");
+        if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"]) && !empty($requestData["booking_status"])) {
+            if($requestData["booking_status"] == _247AROUND_CANCELLED || $requestData["booking_status"] == _247AROUND_COMPLETED){
+                $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
+                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
             
-            $where = array(
-                "assigned_vendor_id" => $requestData["service_center_id"],
-                "assigned_engineer_id" => $requestData["engineer_id"],
-                "engineer_booking_action.internal_status = '"._247AROUND_CANCELLED."'" => NULL,
-            );
-            
-            $response['cancelledBookings'] = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false);
-            
-            log_message("info", __METHOD__ . "Cancelled Bookings Found Successfully");
-            $this->jsonResponseString['response'] = $response;
-            $this->sendJsonResponse(array('0000', 'success'));
+                $where = array(
+                    "assigned_vendor_id" => $requestData["service_center_id"],
+                    "assigned_engineer_id" => $requestData["engineer_id"],
+                );
+
+                if($requestData["booking_status"] == _247AROUND_CANCELLED){
+                    $where["engineer_booking_action.internal_status = '"._247AROUND_CANCELLED."'"] = NULL;
+                }
+                else{
+                    $where["engineer_booking_action.internal_status = '"._247AROUND_COMPLETED."'"] = NULL;
+                }
+                $response['cancelledBookings'] = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false);
+
+                log_message("info", __METHOD__ . "Bookings Found Successfully");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            else{
+                log_message("info", __METHOD__ . "Incorrect Booking Status");
+                $this->sendJsonResponse(array('0025', 'Incorrect Booking Status'));
+            }
         }
         else{
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"]." or Service Center Id not found - ".$requestData["service_center_id"]);
-            $this->sendJsonResponse(array('0026', 'Booking ID Not Found'));
+            $this->sendJsonResponse(array('0026', 'Engineer ID Not Found or Service Center Id or Booking Status Not found'));
         }
     }
     
@@ -4741,13 +4752,13 @@ class Api extends CI_Controller {
                 $this->sendJsonResponse(array('0000', 'success'));
             }
             else{
-                log_message("info", __METHOD__ . "Service Center Id not found - ".$requestData["service_center_id"]." Or Booking Id not found".$requestData["booking_id"]);
-            $this->sendJsonResponse(array('0025', 'Service Center id or Booking id not found'));
+                log_message("info", __METHOD__ . "Booking Id not found".$requestData["booking_id"]);
+            $this->sendJsonResponse(array('0027', 'Support Details not found'));
             }
         }
         else{
-            log_message("info", __METHOD__ . "Service Center Id not found - ".$requestData["service_center_id"]." Or Booking Id not found".$requestData["booking_id"]);
-            $this->sendJsonResponse(array('0026', 'Service Center id or Booking id not found'));
+            log_message("info", __METHOD__ . "Booking Id not found".$requestData["booking_id"]);
+            $this->sendJsonResponse(array('0028', 'Booking id not found'));
         }
     }
     
@@ -4794,7 +4805,7 @@ class Api extends CI_Controller {
         }
         else{
             log_message("info", __METHOD__ . "Booking Id not found - ".$requestData["booking_id"]);
-            $this->sendJsonResponse(array('0027', 'Booking Id not found'));
+            $this->sendJsonResponse(array('0029', 'Booking Id not found'));
         }
     }
     
@@ -4814,12 +4825,12 @@ class Api extends CI_Controller {
             }
             else{
                 log_message("info", __METHOD__ . "Engineer Profile not found - ".$requestData["engineer_id"]);
-                $this->sendJsonResponse(array('0028', 'Engineer Profile not found'));
+                $this->sendJsonResponse(array('0030', 'Engineer Profile not found'));
             }
         }
         else{
             log_message("info", __METHOD__ . "Engineer id not found - ".$requestData["engineer_id"]);
-            $this->sendJsonResponse(array('0029', 'Engineer Id not found'));
+            $this->sendJsonResponse(array('0031', 'Engineer Id not found'));
         }
     }
     
@@ -4831,13 +4842,12 @@ class Api extends CI_Controller {
         if (!empty($requestData["partner_id"]) && !empty($requestData["service_id"])) {
             $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'active' => 1);
             $model_detail = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
-            //$model_detail = array();
             if(!empty($model_detail)){
-                $response['model_number'] = $model_detail;
+                $response['sparePartsOrder']['modelNumberList'] = $model_detail;
             }
             else{
                 $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.part_type', array('service_id' => $requestData['service_id']), FALSE);
-                $response['part_type'] = $parts_type_details;
+                $response['sparePartsOrder']['partTypeList'] = $parts_type_details;
             }
             log_message("info", __METHOD__ . "Model Number or Part Type found successfully");
             $this->jsonResponseString['response'] = $response;
@@ -4845,7 +4855,7 @@ class Api extends CI_Controller {
         }
         else{
             log_message("info", __METHOD__ . "Partner Id not found - ".$requestData["partner_id"]." OR Service Id not found ".$requestData["service_id"]);
-            $this->sendJsonResponse(array('0030', 'Booking Id not found'));
+            $this->sendJsonResponse(array('0032', 'Partner Id or Service Id not found'));
         }
     }
     
@@ -4862,7 +4872,7 @@ class Api extends CI_Controller {
         }
         else{
             log_message("info", __METHOD__ . "Model Number Id not found - ".$requestData["model_number_id"]);
-            $this->sendJsonResponse(array('0031', 'Model Number Id not found'));
+            $this->sendJsonResponse(array('0033', 'Model Number Id not found'));
         }
     }
     
@@ -4894,7 +4904,7 @@ class Api extends CI_Controller {
         }
         else{
             log_message("info", __METHOD__ . "Part Type not found - ".$requestData["part_type"]." or Partner Id not found - ".$requestData["partner_id"]." or Service Id not found -".$requestData["service_id"]);
-            $this->sendJsonResponse(array('0032', 'Part Type or Partner Id or Service Id not found'));
+            $this->sendJsonResponse(array('0034', 'Part Type or Partner Id or Service Id not found'));
         }
     }
 }

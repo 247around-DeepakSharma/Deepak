@@ -267,14 +267,14 @@ class Service_centers_model extends CI_Model {
             $filter_value=1;
             $stateWhere['agent_filters.agent_id="'.$this->session->userdata('agent_id').'"'] = NULL;
             $stateWhere['agent_filters.is_active="' .$filter_value.'"']=NULL;
-//            $this->db->join('agent_filters', 'agent_filters.state =  booking_details.state');
+//            $this->db->join('agent_filters', 'agent_filters.state =  booking_details.state', "left");
 //            $this->db->where($stateWhere, false);  
             if(!empty($stateWhere)){
              foreach ($stateWhere as $stateWhereKey=>$stateWhereKeyValue){
                      $where_sc =$where_sc. " AND ".$stateWhereKey;
              }
          }
-         $join=$join." JOIN agent_filters ON agent_filters.state = booking_details.state";
+         $join=$join." LEFT JOIN agent_filters ON agent_filters.state = booking_details.state";
         }
         
          if(!$select){
@@ -436,8 +436,8 @@ class Service_centers_model extends CI_Model {
         $sql = "SELECT distinct sp.*,DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(sp.date_of_request, '%Y-%m-%d')) AS age_of_request,IF( entity_type = 'vendor','Warehouse','Partner' ) as  entity_type , bd.partner_id,bd.request_type "
                 . " FROM spare_parts_details as sp, service_center_booking_action as sc, booking_details as bd "
                 . " WHERE  sp.booking_id = sc.booking_id  AND sp.booking_id = bd.booking_id "
-                . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = '".SPARE_SHIPPED_BY_PARTNER."' OR sp.status = '".SPARE_PART_ON_APPROVAL."' OR sp.status = '".SPARE_OOW_SHIPPED."' ) AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
-                . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."' OR sc.internal_status = '".SPARE_OOW_SHIPPED."' OR sc.internal_status = '"._247AROUND_PENDING."' ) "
+                . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = '".SPARE_SHIPPED_BY_PARTNER."' OR sp.status = '".SPARE_PART_ON_APPROVAL."' OR sp.status = '".SPARE_OOW_SHIPPED."' OR sp.status = '".SPARE_OOW_EST_GIVEN."' OR sp.status = '".SPARE_OOW_EST_REQUESTED."' ) AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
+                . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."' OR sc.internal_status = '".SPARE_OOW_SHIPPED."' OR sc.internal_status = '"._247AROUND_PENDING."' OR sc.internal_status = '".SPARE_OOW_EST_GIVEN."' OR sc.internal_status = '".SPARE_OOW_EST_REQUESTED."' ) "
 
                 . " AND sc.service_center_id = '$sc_id' ";
         $query = $this->db->query($sql);
@@ -478,7 +478,7 @@ class Service_centers_model extends CI_Model {
         if($state == 1){
             $stateWhere['agent_filters.agent_id'] = $this->session->userdata('agent_id');
             $stateWhere['agent_filters.is_active'] = 1;
-            $this->db->join('agent_filters', 'agent_filters.state =  booking_details.state');
+            $this->db->join('agent_filters', 'agent_filters.state =  booking_details.state', "left");
             $this->db->where($stateWhere, false);  
         }
     }

@@ -1869,7 +1869,9 @@ class vendor extends CI_Controller {
                 $data['name'] = $this->input->post('name');
                 $data['phone'] = $this->input->post('phone');
                 $data['alternate_phone'] = $this->input->post('alternate_phone');
-                $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
+                if($this->input->post('identity_proof')){
+                    $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
+                }
                 $data_identity['identity_proof_number'] = $this->input->post('identity_id_number');
                 
                 if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
@@ -4027,7 +4029,7 @@ class vendor extends CI_Controller {
                         $flag = 1;
                         //$am_detail = $this->partner_model->getpartner_details('official_email, full_name', array('partners.id' => $value->partner_id),"", TRUE);
                         $am_detail = $this->partner_model->getpartner_data("employee.official_email, employee.full_name", 
-                            array('partners.id' => $value->partner_id, 'agent_filters.entity_type' => "247around"),"",1,1,1);
+                            array('partners.id' => $value->partner_id),"",1,1,1);
                         foreach($am_detail as $am) {
                             $this->table->add_row($value->booking_id, $am['full_name']);
                             array_push($am_email, $am['official_email']);
@@ -5695,7 +5697,7 @@ class vendor extends CI_Controller {
         $endDate = trim($daterange[1]);
         $list = $this->vendor_model->sf_panalty_summary($vendors, $startDate, $endDate);
         $headings = array("Vendor Name", "Penalty Reason", "Total Bookings", "Total Penalties", "Total Penalty Amount");
-        $this->miscelleneous->downloadCSV($list, $headings,"booking_search_summary");
+        $this->miscelleneous->downloadCSV($list, $headings,"SF_penalty_summary");
     }
     
     function engineer_wise_calls() {

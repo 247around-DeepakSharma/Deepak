@@ -752,7 +752,7 @@ class Upcountry_model extends CI_Model {
         if($state == 1){
             $stateWhere['agent_filters.agent_id'] = $this->session->userdata('agent_id');
             $stateWhere['agent_filters.is_active'] = 1;
-            $this->db->join('agent_filters', 'agent_filters.state =  bd.state');
+            $this->db->join('agent_filters', 'agent_filters.state =  bd.state', "left");
             $this->db->where($stateWhere, false);  
         }
         $this->db->join('booking_unit_details','bd.booking_id = booking_unit_details.booking_id');
@@ -821,23 +821,23 @@ class Upcountry_model extends CI_Model {
                     }
                 }
                 
-                if($partner_id == PAYTM){
-                    $m_data = $this->generate_paytm_upcountry_distance($value['sub_vendor_id'], $value["upcountry_pincode"], $value['booking_pincode']);
-                    if(!empty($m_data)){
-                         if($m_data[0]['distance'] > 0){
-                            $result[$key]['upcountry_distance'] = $m_data[0]['distance'];
-                            $result[$key]['upcountry_price'] = $m_data[0]['distance'] * $value['partner_upcountry_rate'];
-                            $result[$key]['municipal_limit'] = $m_data[0]['municipal_limit'];
-                            $result[$key]['district'] = $m_data[0]['district'];
-                         } else {
-                             unset($result[$key]);
-                         }
-                         
-                    } else {
-                        $result[$key]['municipal_limit'] = "";
-                        $result[$key]['district'] = "";
-                    }
-                }
+//                if($partner_id == PAYTM){
+//                    $m_data = $this->generate_paytm_upcountry_distance($value['sub_vendor_id'], $value["upcountry_pincode"], $value['booking_pincode']);
+//                    if(!empty($m_data)){
+//                         if($m_data[0]['distance'] > 0){
+//                            $result[$key]['upcountry_distance'] = $m_data[0]['distance'];
+//                            $result[$key]['upcountry_price'] = $m_data[0]['distance'] * $value['partner_upcountry_rate'];
+//                            $result[$key]['municipal_limit'] = $m_data[0]['municipal_limit'];
+//                            $result[$key]['district'] = $m_data[0]['district'];
+//                         } else {
+//                             unset($result[$key]);
+//                         }
+//                         
+//                    } else {
+//                        $result[$key]['municipal_limit'] = "";
+//                        $result[$key]['district'] = "";
+//                    }
+//                }
                 if(isset($result[$key])){
                     $total_price += $result[$key]['upcountry_price'];
                     $total_booking += $value['count_booking'];

@@ -362,10 +362,7 @@ class Service_centers extends CI_Controller {
         $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', array('bookings_sources.partner_id' => $data['booking_history'][0]['partner_id']));
         //Add source name in booking_history array
         $data['booking_history'][0]['source_name'] = $source[0]['source'];
-        $is_spare_part_exist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
-        if(!empty($is_spare_part_exist[0]['invoice_pic'])) :
-            $data['sf_purchase_invoice'] = $is_spare_part_exist[0]['invoice_pic'];
-        endif;
+
         $where = array(
                 "partner_appliance_details.partner_id" => $data['booking_history'][0]['partner_id'],
                 'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
@@ -458,7 +455,12 @@ class Service_centers extends CI_Controller {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
         
-        $data['is_sf_purchase_invoice_required'] = $this->reusable_model->get_search_query('booking_unit_details', '*', ['partner_id' => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 'invoice_pod' => 1], null, null, null, null, null)->result_array();
+        $data['is_sf_purchase_invoice_required'] = [];
+        if(!empty($data['bookng_unit_details'][0]['quantity'])) {
+            $data['is_sf_purchase_invoice_required'] = array_filter($data['bookng_unit_details'][0]['quantity'], function ($quantity) {
+                return ($quantity['invoice_pod'] == 1);
+            });
+        }         
          
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
@@ -520,7 +522,7 @@ class Service_centers extends CI_Controller {
                     $technical_defect = $this->input->post('closing_defect');
                     $technical_solution = $this->input->post('technical_solution');
                     $purchase_date = $this->input->post('appliance_dop');
-
+                    $purchase_invoice = $this->input->post('appliance_purchase_invoice');
                     $booking_symptom['solution_id'] = $technical_solution;
                     $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
                     $booking_symptom['defect_id_completion'] = $technical_defect;
@@ -529,6 +531,11 @@ class Service_centers extends CI_Controller {
                     $getremarks = $this->booking_model->getbooking_charges($booking_id);
                     $approval = $this->input->post("approval");
                     $i = 0;
+                    
+                    $purchase_invoice_file_name = '';
+                    if(!empty($_FILES['sf_purchase_invoice']['name'])) :
+                        $purchase_invoice_file_name = $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
+                    endif;   
                     foreach ($customer_basic_charge as $unit_id => $value) {
                         
                         //Check unit id exist in the sc action table.
@@ -598,18 +605,15 @@ class Service_centers extends CI_Controller {
                                     }
                                 }
                                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
-                                $i++;
+                                $data['sf_purchase_invoice'] = NULL;
+                                if (!empty($purchase_invoice[$unit_id]) || !empty($purchase_invoice_file_name)) {
+                                    if(empty($purchase_invoice_file_name)) {
+                                       $purchase_invoice_file_name = $purchase_invoice[$unit_id];
+                                    }
+                                    $data['sf_purchase_invoice'] = $purchase_invoice_file_name;
+                                }
 
-                                $isSparePartExist = $this->reusable_model->get_search_result_data("spare_parts_details", "*", array("booking_id" => $booking_id), NULL, NULL, NULL, NULL, NULL, array());
-                                if(!empty($isSparePartExist[0]['invoice_pic'])) :
-                                    $data['sf_purchase_invoice'] = $isSparePartExist[0]['invoice_pic'];
-                                else :
-                                    if(!empty($_FILES['sf_purchase_invoice']['name'])) :
-                                        $data['sf_purchase_invoice'] = $_FILES['sf_purchase_invoice']['name'];
-                                        $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
-                                    endif;  
-                                endif;
-                                                                
+                                $i++;
                                 $this->vendor_model->update_service_center_action($booking_id, $data);
                             }
                         }
@@ -698,7 +702,7 @@ class Service_centers extends CI_Controller {
  
  
     /**
-     *  @desc : This function is used to upload the support file for order id to s3 and save into database
+     *  @desc : This function is used to upload the purchase invoice to s3 and save into database
      *  @param : string $booking_primary_contact_no
      *  @return : boolean/string
      */
@@ -709,15 +713,16 @@ class Service_centers extends CI_Controller {
         if (($error != 4) && !empty($tmp_name)) {
 
             $tmpFile = $tmp_name;
-            $support_file_name = $booking_id . '_orderId_support_file_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
+            $support_file_name = $booking_id . '_sf_purchase_invoice_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
             //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
             //Upload files to AWS
             $bucket = BITBUCKET_DIRECTORY;
             $directory_xls = "misc-images/" . $support_file_name;
             $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+
             if($upload_file_status){
                 //Logging success for file uppload
-                log_message('info', __METHOD__ . 'Support FILE has been uploaded sucessfully for booking_id: '.$booking_id);
+                log_message('info', __METHOD__ . 'Sf purchase invoice has been uploaded sucessfully for booking_id: '.$booking_id);
                 return $support_file_name;
             }else{
                 //Logging success for file uppload
@@ -875,7 +880,7 @@ class Service_centers extends CI_Controller {
             
             //$get_partner_details = $this->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
             $get_partner_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
-                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,0,1,"partners.id");
+                        array('partners.id' => $partner_id, 'agent_filters.state' => $booking_state[0]['state']),"",0,0,1,"partners.id");
             
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
@@ -1014,7 +1019,7 @@ class Service_centers extends CI_Controller {
             
         } else {
            
-            return FALSE;
+            return TRUE;
         }
     }
 
@@ -1230,7 +1235,7 @@ class Service_centers extends CI_Controller {
 
             //$get_partner_details = $this->partner_model->getpartner_details('account_manager_id,', array('partners.id' => $partner_id));
             $get_partner_details = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
-                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
+                        array('partners.id' => $partner_id, 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
             $am_email = "";
             if (!empty($get_partner_details[0]['account_manager_id'])) {
                 $am_email = $this->employee_model->getemployeeMailFromID($get_partner_details[0]['account_manager_id'])[0]['official_email'];
@@ -2395,7 +2400,7 @@ class Service_centers extends CI_Controller {
 
                 //$get_partner_details = $this->partner_model->getpartner_details('partners.public_name,account_manager_id,primary_contact_email,owner_email', array('partners.id' => $this->input->post('partner_id')));
                 $get_partner_details = $this->partner_model->getpartner_data("partners.public_name,group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
-                            array('partners.id' => $this->input->post('partner_id'), 'agent_filters.entity_type' => "247around", 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
+                            array('partners.id' => $this->input->post('partner_id'), 'agent_filters.state' => $booking_state[0]['state']),"",0,1,1,"partners.id");
                 
                 $am_email = "";
                 if (!empty($get_partner_details[0]['account_manager_id'])) {
@@ -5270,8 +5275,10 @@ class Service_centers extends CI_Controller {
                                 $sp_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $booking_id));
                                   
                                 $data['entity_type'] = _247AROUND_SF_STRING;
+                                $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
                                 $data['booking_id'] = $booking_id;
                                 $data['partner_id'] = $sf_id;
+                                $data['defective_return_to_entity_id'] = $sf_id;
                                 $data['service_center_id'] = $service_center_id;
                                 $data['model_number'] = $part_details['shipped_model_number'];
                                 $data['serial_number'] = $sp_details[0]['serial_number'];
@@ -6982,6 +6989,19 @@ class Service_centers extends CI_Controller {
                
             }
         }
+    }
+    
+    /**
+     * @desc: this is used to check warranty data
+     * @return: void
+     */
+    function check_warranty($booking_id="") {
+        $partners = $this->partner_model->getpartner();
+        foreach ($partners as $partnersDetails) {
+            $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
+        }
+        $this->load->view('service_centers/header');
+        $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray]);
     }
 
 }

@@ -126,7 +126,7 @@ class Booking_model extends CI_Model {
 
         foreach ($appliance as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
-            $this->db->select('id as unit_id, pod, price_tags, customer_total, serial_number_pic, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges');
+            $this->db->select('id as unit_id, pod, invoice_pod, price_tags, customer_total, serial_number_pic, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges');
             $this->db->where('appliance_id', $value['appliance_id']);
             $this->db->where('booking_id', $value['booking_id']);
             $this->db->order_by("price_tags","asc");
@@ -1471,7 +1471,7 @@ class Booking_model extends CI_Model {
 
     function getpricesdetails_with_tax($service_centre_charges_id, $state){
 
-        $sql =" SELECT service_category as price_tags,pod,vendor_basic_percentage, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
+        $sql =" SELECT service_category as price_tags,pod,invoice_pod,vendor_basic_percentage, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
 
         $query = $this->db->query($sql);
         $result =  $query->result_array();
@@ -2718,10 +2718,13 @@ class Booking_model extends CI_Model {
      * @return: array
      * 
      */
-    function get_file_type($where=array()){
+    function get_file_type($where=array(), $showAll = false){
         $this->db->select('*');
+        $this->db->distinct();
         $this->db->from('file_type');
-        $this->db->where('is_active', 1);
+        if(!$showAll) {
+            $this->db->where('is_active', 1);
+        }
         if(!empty($where)){
             $this->db->where($where);
         }

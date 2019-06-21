@@ -108,6 +108,7 @@ class ApiDataRequest extends CI_Controller {
             $row[] = $sp_list->services ;
             $row[] = "<span style='word-break: break-all;'>". $sp_list->parts_requested ."</span>";
             $row[] = $sp_list->part_number ;
+            $row[] = $sp_list->quantity ;
             $row[] = $sp_list->age_of_request;
             $row[] = $sp_list->model_number;
             $row[] = $sp_list->serial_number;
