@@ -297,7 +297,7 @@
                                         <div class="form-group ">
                                             <label for="shippedquantity" class="col-md-4">Shipped Quantity *</label>
                                             <div class="col-md-6">
-                                                <input  class="form-control shippedquantity "  id="shippedquantity"  />
+                                                <input  class="form-control shippedquantity "  value="1"  readonly  id="shippedquantity"  />
                                               
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
