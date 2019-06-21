@@ -9,7 +9,7 @@
         <div class="panel-body">
             <div class="row">
                 <div class="col-md-12 col-sm-12 col-xs-12">
-                    <form method="POST" action="<?php echo base_url();?>employee/booking/download_booking_bulk_search_snapshot">
+                    <form method="POST" id="fileinfo">
                         <div class="form-group">
                             <label for="model_number">PickUp From *</label>
                             <select class="form-control" name="vendor_partner_type" id="vendor_partner_type">
@@ -52,14 +52,11 @@
                 contentType: false,
                 success: function (response) {
                     if(response ==='Success'){
-                        
                         alert('Sucessfuly Updated');
-                        location. reload(true);
+                        window.location.reload();
                     } else {
                         alert('There is issue to update booking');
                     }
-                    $('body').loadingModal('destroy');
-                    
                 }
             });
         } else{
