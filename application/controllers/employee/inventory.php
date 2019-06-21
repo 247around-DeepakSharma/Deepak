@@ -6395,7 +6395,7 @@ class Inventory extends CI_Controller {
     function get_247around_wh_gst_number(){
         $html = "<option value='' selected disabled>Selet GST Number</option>";
         $where = array(
-            "entity_type" => _247AROUND_EMPLOYEE_STRING,
+            "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => "247001",
             );
         $gst_numbers = $this->inventory_model->get_entity_gst_data("id, gst_number, state", $where);
