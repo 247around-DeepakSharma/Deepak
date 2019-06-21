@@ -5132,6 +5132,7 @@ class Partner extends CI_Controller {
             "SF City",
             "SF State",
             "SF Remarks",
+            "Warehouse Name",
             "Requested Part Code",
             "Requested Part Name",
             "Requested Quantity",
@@ -5171,6 +5172,7 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['sf_city'];              
             $tempArray[] = $sparePartBookings['sf_state'];
             $tempArray[] = $sparePartBookings['remarks_by_sc'];
+            $tempArray[] = $sparePartBookings['warehouse_name'];
             $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['part_name'];
             $tempArray[] = $sparePartBookings['quantity'];
