@@ -282,7 +282,7 @@
                                                 //$image_src = base_url().'images/view_image.png';
                                             }
                                             ?>
-                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($unit_details['quantity'][0]['sf_purchase_invoice']) ? $unit_details['quantity'][0]['sf_purchase_invoice'] : ""); ?></small></a>
+                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($unit_details['quantity'][0]['sf_purchase_invoice']) ? "View Purchase Invoice Pic" : ""); ?></small></a>
                                             
                                        </div>
                                     </div>

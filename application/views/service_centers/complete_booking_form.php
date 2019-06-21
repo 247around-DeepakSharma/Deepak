@@ -208,7 +208,7 @@
                                                 $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history['spare_parts'][0]['invoice_pic'];
                                             }
                                             ?>
-                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic']) ? $booking_history['spare_parts'][0]['invoice_pic'] : ""); ?></small></a>
+                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic']) ? "View Purchase Invoice Pic" : ""); ?></small></a>
                                             
                                             
                                         </div>
@@ -302,7 +302,7 @@
                                                                     if(!empty($src)) {
                                                                     ?>
                                                                     
-                                                                    <a id="a_order_support_file_<?php echo $key; ?>" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?php echo $pic_name; ?></small></a>
+                                                                    <a id="a_order_support_file_<?php echo $key; ?>" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?php echo (!empty($pic_name) ? "View Serial Number Pic" : ""); ?></small></a>
                                                                     <?php } ?>
                                                                 </div>
                                                                 
