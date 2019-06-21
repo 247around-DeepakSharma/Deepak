@@ -2505,11 +2505,13 @@ class Booking extends CI_Controller {
         if (isset($_POST['pod'])) {
             foreach ($pod as $unit_id => $value) {
                   if ($booking_status[$unit_id] == _247AROUND_COMPLETED) {
-                    $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
-                    if (!ctype_alnum($serial_number[$unit_id])) {
-                        log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
-                        $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
-                        return FALSE;
+                    if(!empty($serial_number[$unit_id])) {
+                        $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
+                        if (!ctype_alnum($serial_number[$unit_id])) {
+                            log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
+                            $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
+                            return FALSE;
+                        }
                     }
                     $price_tag = $price_tags_array[$unit_id];
                 if ($value == '1') {
