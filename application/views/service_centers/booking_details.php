@@ -188,6 +188,43 @@
                                 </td>
                             </tr> 
                         </table>
+                    <table class="table  table-striped table-bordered cloned" >
+                        <tr>
+                            <th colspan="2" style="font-size: 16px; color: #2c9d9c;">
+                                Support Files
+                                <?php if(isset($booking_files) && !empty($booking_files)) { ?>
+                                <button class="btn btn-sm btn-primary" id="btn_addSupportFile" style="float:right;margin-right:5px;">Add Support File</button>
+                                <?php } ?>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th style="width: 50%;">File Type </th>
+                            <th style="width: 50%;">File</th>
+                        </tr>
+                        <?php $count=0;
+                        if(isset($booking_files) && !empty($booking_files)) {
+                            $count = count($booking_files);
+                        foreach($booking_files as $key => $files) { ?>
+                        <tr class="uploaded_support_file">
+                            <td style="width: 50%;"><?php if(isset($files['file_description'])) echo $files['file_description']; ?></td>
+                            <td style="width: 50%;">
+                                <input type="file" id="supportfileLoader_<?=$key?>" name="files" onchange="uploadsupportingfile(this.id,'<?=$files['id']?>')" style="display:none" />
+                                <div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogress_supproting_file_".$key;?>"  role="progressbar" style="width:0%">0%</div>
+                                <?php $src = base_url() . 'images/no_image.png';
+                                $image_src = $src;
+                                if (isset($files['file_name']) && !empty($files['file_name'])) {
+                                    //Path to be changed
+                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$files['file_name'];
+                                    $image_src = base_url().'images/view_image.png';
+                                }
+                                ?>
+                                <a id="a_order_support_file_<?=$key?>" href="<?php  echo $src?>" target="_blank"><img id="m_order_support_file_<?=$key?>" src="<?php  echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:10px;" /></a>
+                                
+                            </td>
+                        </tr>
+                        <?php } } ?>
+                        
+                    </table>
                         <table class="table  table-striped table-bordered" >
                             <tr>
                                 <th colspan="4" style="font-size: 16px; color: #2c9d9c;">Dealer Detail</th>
@@ -350,6 +387,7 @@
                                 <th > Requested Part Number </th>
                                 <th >Requested Parts Type</th>
                                 <th >Requested Quantity</th>
+                                <th >Shipped Quantity</th>
                                 <th >Requested Date</th>
                                 <th >Invoice Image </th>
                                 <th >Serial Number Image </th>
@@ -370,6 +408,7 @@
                                 <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; }  ?></td>
                                 <td><?php echo $sp['parts_requested_type']; ?></td>
                                 <td><?php echo $sp['quantity']; ?></td>
+                                 <td><?php echo $sp['shipped_quantity']; ?></td>
                                 <td><?php echo $sp['create_date']; ?></td>
                                 <td><?php if (!is_null($sp['invoice_pic'])) {
                                     if ($sp['invoice_pic'] != '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php }
@@ -438,7 +477,6 @@
                             <tr>
                                 <th>Shipped Parts </th>
                                 <th>Shipped Parts Number </th>
-                                <th >Shipped Quantity</th>
                                 <th>Pickup Request </th>
                                 <th>Pickup Schedule</th>
                                 <th>Courier Name</th>
@@ -456,7 +494,6 @@
                             <tr>
                                 <td><?php echo $sp['parts_shipped']; ?></td>
                                 <td><?php if(!empty($sp['shipped_part_number'])){echo $sp['shipped_part_number'];}else{echo 'Not Available';}  ?></td>
-                                <td><?php echo $sp['shipped_quantity']; ?></td>
                                 <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_REQUEST){    echo 'Pickup Requested';} ?></td>
                                 <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_SCHEDULE){    echo 'Pickup Schedule';} ?></td>
                                 <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
@@ -487,7 +524,6 @@
                             <tr>
                                 <th >Shipped Parts </th>
                                 <th >Shipped Parts Number </th>
-                                <th >Shipped Quantity</th>
                                 <th >Courier Name </th>
                                 <th>AWB </th>
                                 <th> No. Of Boxes </th>
@@ -505,7 +541,6 @@
                             <tr>
                                 <td><?php echo $sp['defective_part_shipped']; ?></td>
                                 <td><?php if(!empty($sp['shipped_part_number'])){echo $sp['shipped_part_number'];}else{ echo 'Not Available';}  ?></td>
-                                <td><?php echo $sp['shipped_quantity']; ?></td>
                                 <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
                                  <?php
                                         $spareStatus = DELIVERED_SPARE_STATUS;
