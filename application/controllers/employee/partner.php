@@ -2049,8 +2049,10 @@ class Partner extends CI_Controller {
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
+                    if(isset($value['quantity']) && $value['shipped_quantity']){
                     $data['quantity'] = $value['quantity'];
-                    $data['shipped_quantity']=$value['shipped_quantity'];
+                    $data['shipped_quantity']=$value['shipped_quantity'];  
+                    }
                     $data['remarks_by_partner'] = $value['remarks_by_partner'];
                     if (!empty($value['inventory_id'])) {
                         $data['shipped_inventory_id'] = $value['inventory_id'];
