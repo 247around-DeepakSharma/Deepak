@@ -501,7 +501,7 @@ class Service_centers extends CI_Controller {
                     $technical_defect = $this->input->post('closing_defect');
                     $technical_solution = $this->input->post('technical_solution');
                     $purchase_date = $this->input->post('appliance_dop');
-
+                    $purchase_invoice = $this->input->post('appliance_purchase_invoice');
                     $booking_symptom['solution_id'] = $technical_solution;
                     $booking_symptom['symptom_id_booking_completion_time'] = $technical_symptom;
                     $booking_symptom['defect_id_completion'] = $technical_defect;
@@ -511,6 +511,7 @@ class Service_centers extends CI_Controller {
                     $approval = $this->input->post("approval");
                     $i = 0;
                     
+                    $purchase_invoice_file_name = '';
                     if(!empty($_FILES['sf_purchase_invoice']['name'])) :
                         $purchase_invoice_file_name = $this->upload_sf_purchase_invoice_file($booking_id, $_FILES['sf_purchase_invoice']['tmp_name'], ' ', $_FILES['sf_purchase_invoice']['name']);
                     endif;   
@@ -582,8 +583,11 @@ class Service_centers extends CI_Controller {
                                     }
                                 }
                                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
-
-                                if(!empty($purchase_invoice_file_name)) {
+                                $data['sf_purchase_invoice'] = NULL;
+                                if (!empty($purchase_invoice[$unit_id]) || !empty($purchase_invoice_file_name)) {
+                                    if(empty($purchase_invoice_file_name)) {
+                                       $purchase_invoice_file_name = $purchase_invoice[$unit_id];
+                                    }
                                     $data['sf_purchase_invoice'] = $purchase_invoice_file_name;
                                 }
 
@@ -998,7 +1002,7 @@ class Service_centers extends CI_Controller {
             }
         } else {
 
-            return FALSE;
+            return TRUE;
         }
     }
 

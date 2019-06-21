@@ -2328,6 +2328,15 @@ class Booking extends CI_Controller {
             $this->miscelleneous->update_appliance_details($unit_id);
             $k = $k + 1;
         }
+        // insert in booking files.
+        $booking_file = [];
+        $booking_file['booking_id'] = $booking_id;
+        $booking_file['file_description_id'] = SF_PURCHASE_INVOICE_FILE_TYPE;
+        $booking_file['file_name'] = $purchase_invoice_file_name;
+        $booking_file['file_type'] = 'image/'.pathinfo("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name, PATHINFO_EXTENSION);
+        //$booking_file['size'] = filesize("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name);
+        $booking_file['create_date'] = date("Y-m-d H:i:s");
+        $this->booking_model->insert_booking_file($booking_file);
         $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
         if(!$rowsStatus)
         {
@@ -5356,7 +5365,7 @@ class Booking extends CI_Controller {
             
         } else {
            
-            return FALSE;
+            return TRUE;
         }
     }
 
