@@ -2175,13 +2175,13 @@ class Booking extends CI_Controller {
             if (isset($purchase_date[$unit_id])) {
                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
             }
-            $data['sf_purchase_invoice'] = NULL;
+            
             if (!empty($purchase_invoice[$unit_id]) || !empty($purchase_invoice_file_name)) {
                 if(empty($purchase_invoice_file_name)) {
                    $purchase_invoice_file_name = $purchase_invoice[$unit_id];
                 }
-                $data['sf_purchase_invoice'] = $purchase_invoice_file_name;
             }
+            
             if(!empty($data['serial_number_pic'])){
                 $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
                 $serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
