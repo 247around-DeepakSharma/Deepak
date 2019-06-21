@@ -1583,17 +1583,20 @@ class Inventory_model extends CI_Model {
     }
     
    
-    function get_spare_consolidated_data($select,$where){
+    function get_spare_consolidated_data($select,$where,$group_by=''){
         $this->db->select($select,false);
         $this->db->from('booking_details');
         $this->db->join('spare_parts_details','booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->join('partners','booking_details.partner_id = partners.id');
         $this->db->join('service_centres','booking_details.assigned_vendor_id = service_centres.id');
-        $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state", "left");
-        $this->db->join('employee',"employee.id = agent_filters.agent_id", "left");
-        //$this->db->join('employee','partners.account_manager_id = employee.id');
+        $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='247around' ", "left"); // new query for AM
+        $this->db->join('employee',"employee.id = agent_filters.agent_id", "left"); // new query for AM
+        //$this->db->join('employee','partners.account_manager_id = employee.id'); // old query for AM
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
         $this->db->where($where,false);
+        if(!empty($group_by)) {
+            $this->db->group_by($group_by,false);
+        }
         $query = $this->db->get();
         
         return $query;
@@ -2574,8 +2577,7 @@ class Inventory_model extends CI_Model {
     function get_entity_gst_data($select="*", $where){
         $this->db->select($select);
         $this->db->where($where);
-        $this->db->from("entity_gst_details");
-        $query = $this->db->get();
+        $query = $this->db->get("entity_gst_details");
         return $query->result_array();
     }
     /**

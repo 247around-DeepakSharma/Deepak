@@ -1717,21 +1717,21 @@ class Booking extends CI_Controller {
             }
         }
         
-        if (!empty($data['booking_history']['spare_parts'])) {
-            $spare_parts_list = array();
-            foreach ($data['booking_history']['spare_parts'] as $key => $val) {
-                if (!empty($val['requested_inventory_id'])) {
-                    $inventory_spare_parts_details = $this->inventory_model->get_generic_table_details('inventory_master_list', 'inventory_master_list.part_number,inventory_master_list.part_name', array('inventory_master_list.inventory_id' => $val['requested_inventory_id']), array());
-                    if (!empty($inventory_spare_parts_details)) {
-                        $spare_parts_list[] = array_merge($val, array('final_spare_parts' => $inventory_spare_parts_details[0]['part_name']));
-                    }
-                }
-            }
-        }
-
-        if (!empty($spare_parts_list)) {
-            $data['booking_history']['spare_parts'] = $spare_parts_list;
-        }
+//        if (!empty($data['booking_history']['spare_parts'])) {
+//            $spare_parts_list = array();
+//            foreach ($data['booking_history']['spare_parts'] as $key => $val) {
+//                if (!empty($val['requested_inventory_id'])) {
+//                    $inventory_spare_parts_details = $this->inventory_model->get_generic_table_details('inventory_master_list', 'inventory_master_list.part_number,inventory_master_list.part_name', array('inventory_master_list.inventory_id' => $val['requested_inventory_id']), array());
+//                    if (!empty($inventory_spare_parts_details)) {
+//                        $spare_parts_list[] = array_merge($val, array('final_spare_parts' => $inventory_spare_parts_details[0]['part_name']));
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (!empty($spare_parts_list)) {
+//            $data['booking_history']['spare_parts'] = $spare_parts_list;
+//        }
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
 
         if (!empty($spare_parts_details)) {
