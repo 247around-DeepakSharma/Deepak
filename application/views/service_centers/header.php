@@ -308,7 +308,9 @@
                             <ul class="dropdown-menu">
                                 <li><a href="<?php echo base_url();?>service_center/gst_details"  >GST</a></li>
                                 <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url();?>service_center/warranty">Warranty Checker</a></li>                                
+                                <li><a href="<?php echo base_url();?>service_center/warranty">Warranty Checker</a></li>  
+                                <li role="separator" class="divider"></li>
+                                <li><a href="https://drive.google.com/drive/folders/1Ri7PZJCuCaSSWt-Bv1InrHiQgtb79Hlp" target="_blank">CRM Training</a></li>  
                             </ul>
                         </li>
                         <li class="dropdown">
