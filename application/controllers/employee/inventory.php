@@ -3242,13 +3242,13 @@ class Inventory extends CI_Controller {
                                                 $invoice_annexure = $this->inventory_invoice_data($invoice_id, $c_s_gst, $value);
                                                 $invoice_annexure['from_gst_number'] = $this->input->post("from_gst_number");
                                                 $invoice_annexure['to_gst_number'] = $this->input->post("to_gst_number");
-                                                $invoice_annexure['247around_gst_number'] = $this->input->post("247around_gst_number");
+                                               
                                                 
                                                 array_push($invoice, $invoice_annexure);
                                                 
                                                 unset($invoice_annexure['from_gst_number']);
                                                 unset($invoice_annexure['to_gst_number']);
-                                                unset($invoice_annexure['247around_gst_number']);
+                                                
                                                 
                                                 $total_basic_amount += $invoice_annexure['taxable_value'];
                                                 $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
@@ -5481,7 +5481,7 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . ' Processing...');
 
         $partner_id = $this->input->post('partner_id');
-        $select = "spare_parts_details.id as spare_id, i.part_number, spare_parts_details.model_number, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',employee.full_name as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
+        $select = "spare_parts_details.id as spare_id, i.part_number, spare_parts_details.model_number, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',GROUP_CONCAT(employee.full_name) as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
                 . "service_centres.district as 'SF City', "
                 . "booking_details.current_status as 'Booking Status',spare_parts_details.status as 'Spare Status', "
                 . "spare_parts_details.parts_shipped as 'Part Shipped By Partner',spare_parts_details.shipped_parts_type as 'Part Type',i.part_number as 'Part Code',"
@@ -5494,11 +5494,12 @@ class Inventory extends CI_Controller {
                 . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', defective_part_shipped_date as 'Defective Parts Shipped Date', received_defective_part_date as 'Partner Received Defective Parts Date', "
                 . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age'";
         $where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
+        $group_by = "spare_parts_details.id";
         if (!empty($partner_id)) {
             $where['booking_details.partner_id'] = $partner_id;
         }
 
-        $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where);
+        $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
 
         $this->load->dbutil();
         $this->load->helper('file');
@@ -6395,7 +6396,7 @@ class Inventory extends CI_Controller {
     function get_247around_wh_gst_number(){
         $html = "<option value='' selected disabled>Selet GST Number</option>";
         $where = array(
-            "entity_type" => _247AROUND_EMPLOYEE_STRING,
+            "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => "247001",
             );
         $gst_numbers = $this->inventory_model->get_entity_gst_data("id, gst_number, state", $where);

@@ -209,10 +209,10 @@
                                                 <input type="hidden" id="shippingStatus" value="1">
                                                 <select class="form-control" id="service_id"  required="" onchange="get_part_details(this.id)"></select>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-2">
+                                            <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <select class="form-control" id="part_name"  required="" onchange="get_part_details(this.id)"></select>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-2">
+                                            <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <select class="form-control" id="part_number"></select>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">

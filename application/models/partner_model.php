@@ -2341,7 +2341,7 @@ function get_data_for_partner_callback($booking_id) {
     
     /**
      * @Desc: This function is used to get partner am mapped data
-     * @param $select, Array $where, String $is_reporting_mail (O or 1), $is_am_details  (TRUE or FALSE), $is_booking_source (O or 1)
+     * @param $select, Array $where, String $is_reporting_mail (O or 1), $is_am_details  (TRUE or FALSE), $is_booking_source (O or 1), $is_am ( use group_concat to fetch data otherwise multiple rows as per am will be fetched ) 
      * @return Array
      * 
      */

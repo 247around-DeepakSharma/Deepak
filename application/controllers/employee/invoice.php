@@ -2196,15 +2196,18 @@ class Invoice extends CI_Controller {
                         $str .= " ".TMP_FOLDER . $value['invoice_id']  . '-draft.xlsx' . ' ' .  $value['excel'];
                     }
                 }
-                
+                    $res1 = 0;
+                   ob_start();
                     system('zip '. TMP_FOLDER.$buyback_invoice_id.".zip ". $str);
-                    
+                    system(" chmod 777 " . TMP_FOLDER . $buyback_invoice_id . '.zip ', $res1);
+
                     header('Content-Description: File Transfer');
                     header('Content-Type: application/octet-stream');
                     header("Content-Disposition: attachment; filename=\"$buyback_invoice_id.zip\"");
                     readfile(TMP_FOLDER . $buyback_invoice_id. '.zip');
                     $res1 = 0;
-                    system(" chmod 777 " . TMP_FOLDER . $buyback_invoice_id . '.zip ', $res1);
+                    ob_end_flush();
+                    
                     exec("rm -rf " . escapeshellarg(TMP_FOLDER . $buyback_invoice_id . '.zip'));
                     foreach ($response as $value1) {
                         exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $value1['invoice_id'] . "-draft.xlsx"));
@@ -2310,13 +2313,12 @@ class Invoice extends CI_Controller {
             $out['invoice_id'] = $meta['invoice_id'];
             $out['excel'] = $output_file_excel;
             $out['pdf'] = $output_file_main;
-            $this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_file_main);
         }
         $out['files'] = $files;
         //Do not Delete XLS files now
-        foreach ($files as $file_name) {
-            exec("rm -rf " . escapeshellarg($file_name));
-        }
+//        foreach ($files as $file_name) {
+//            exec("rm -rf " . escapeshellarg($file_name));
+//        }
         unset($meta);
         unset($invoice_details);
         return $out;
