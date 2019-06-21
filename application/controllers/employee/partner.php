@@ -808,6 +808,9 @@ class Partner extends CI_Controller {
         $return_data['grace_period_date'] = $this->input->post('grace_period_date');
         $return_data['oot_spare_to_be_shipped'] = $this->input->post('oot_spare_to_be_shipped');
         $return_data['is_wh'] = $this->input->post('is_wh');
+        if(empty($return_data['is_wh'])) {
+            $return_data['is_wh'] = $this->input->post('is_warehouse');
+        }
         $is_prepaid = $this->input->post('is_prepaid');
         $return_data['is_prepaid'] = 2; // Default set
         if ($is_prepaid == 1) {
