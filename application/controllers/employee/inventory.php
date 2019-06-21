@@ -5481,7 +5481,7 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . ' Processing...');
 
         $partner_id = $this->input->post('partner_id');
-        $select = "spare_parts_details.id as spare_id, i.part_number, spare_parts_details.model_number, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',employee.full_name as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
+        $select = "spare_parts_details.id as spare_id, i.part_number, spare_parts_details.model_number, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',GROUP_CONCAT(employee.full_name) as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
                 . "service_centres.district as 'SF City', "
                 . "booking_details.current_status as 'Booking Status',spare_parts_details.status as 'Spare Status', "
                 . "spare_parts_details.parts_shipped as 'Part Shipped By Partner',spare_parts_details.shipped_parts_type as 'Part Type',i.part_number as 'Part Code',"
@@ -5494,11 +5494,12 @@ class Inventory extends CI_Controller {
                 . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', defective_part_shipped_date as 'Defective Parts Shipped Date', received_defective_part_date as 'Partner Received Defective Parts Date', "
                 . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age'";
         $where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
+        $group_by = "spare_parts_details.id";
         if (!empty($partner_id)) {
             $where['booking_details.partner_id'] = $partner_id;
         }
 
-        $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where);
+        $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
 
         $this->load->dbutil();
         $this->load->helper('file');
