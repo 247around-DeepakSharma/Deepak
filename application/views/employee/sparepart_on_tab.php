@@ -938,7 +938,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,5,11,18], //first column / numbering column
+                    "targets": [1,5,18], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
@@ -979,11 +979,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,4,8], //first column / numbering column
+                    "targets": [1,4], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                  {
-                    "targets": [0,8,12,16,18,19], //first column / numbering column
+                    "targets": [0,8,16,18,19], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -1033,10 +1033,9 @@
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order: [], //Initial no order.
-            "scrollX": true,
-            pageLength: 5,
+            pageLength: 50,
             dom: 'Blfrtip',
-            lengthMenu: [[5, 50, 100, 500, -1 ],[ '5 rows','50 rows', '100 rows', '500 rows', 'All' ]],
+            lengthMenu: [[50, 100, 500, -1 ],['50 rows', '100 rows', '500 rows', 'All' ]],
             buttons: [
                 {
                     extend: 'excelHtml5',

@@ -217,7 +217,7 @@
         $('#textarea').val("");
         $("#url").val(url);
         $button_text = $(this).text();
-        if($button_text === "Approve Invoice"){
+        if(btntext === "Approve Courier"){
             $("#charges").css("display","block");
              var charge = $(this).data('charge');
             $("#charges").val(charge);
