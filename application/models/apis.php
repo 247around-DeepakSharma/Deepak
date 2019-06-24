@@ -1877,7 +1877,7 @@ class Apis extends CI_Model {
     /*This function is used to get tech support numbers for engineer*/
     function techSupportNumberForEngineer($booking_id = false){
         if($booking_id){
-            $sql = "SELECT service_centres.primary_contact_phone_1 as service_manager, employee.exotel_phone as account_manager, "._247AROUND_CALLCENTER_NUMBER." as toll_free_number FROM booking_details 
+            $sql = "SELECT service_centres.primary_contact_phone_1 as service_manager, employee.exotel_phone as account_manager, partners.customer_care_contact as toll_free_number FROM booking_details 
                     JOIN service_centres on service_centres.id = booking_details.assigned_vendor_id 
                     JOIN partners on partners.id = booking_details.partner_id 
                     JOIN employee on employee.id = partners.account_manager_id 

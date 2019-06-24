@@ -57,7 +57,7 @@ class Api extends CI_Controller {
         //$_POST = json_decode($input_d, true);
         
         //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"engineerLogin\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
-        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"getEngineerBookings\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
+        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"techSupport\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
 
         //$_POST = json_decode($str, true);
             
@@ -4846,7 +4846,7 @@ class Api extends CI_Controller {
                 $response['sparePartsOrder']['modelNumberList'] = $model_detail;
             }
             else{
-                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.part_type', array('service_id' => $requestData['service_id']), FALSE);
+                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type', array('service_id' => $requestData['service_id']), FALSE);
                 $response['sparePartsOrder']['partTypeList'] = $parts_type_details;
             }
             log_message("info", __METHOD__ . "Model Number or Part Type found successfully");
@@ -4865,7 +4865,7 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //$requestData = array("model_number_id" => "157");
         if(!empty($requestData["model_number_id"])) {
-            $response = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type', array('model_number_id' => $requestData["model_number_id"]));
+            $response['partTypeList'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type as part_type', array('model_number_id' => $requestData["model_number_id"]));
             log_message("info", __METHOD__ . "Part Type found successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
@@ -4880,7 +4880,7 @@ class Api extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-       // $requestData = array("model_number_id" => "3", "part_type"=> "BACK COVER", "partner_id"=>"247073", "service_id" => "46");
+        //$requestData = array("part_type"=> "Main Board", "partner_id"=>"247010", "service_id" => "46");
         if(!empty($requestData["part_type"]) && !empty($requestData["partner_id"]) && !empty($requestData["service_id"])) {
             $where = array();
             if (!empty($requestData["model_number_id"])) {
@@ -4893,10 +4893,9 @@ class Api extends CI_Controller {
 
             $where['inventory_master_list.service_id'] = $requestData['service_id'];
             $where['inventory_master_list.entity_id'] = $requestData['partner_id'];
-            $where['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;
-
-            $response = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity', $where);
-            
+            $where['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;;
+            $select = "inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_number";
+            $response = $this->inventory_model->get_inventory_model_mapping_data($select, $where);
             log_message("info", __METHOD__ . "Spare Part Name found successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
