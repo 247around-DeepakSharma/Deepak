@@ -1034,7 +1034,7 @@ class File_upload extends CI_Controller {
                  
             }
                         
-            if ($insert_flag) {
+            if (!empty($insert_flag)) {
                 log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
                 $response['status'] = TRUE;
                 $message = "<b>" . count($this->dataToInsert) . "</b> mapping created successfully.";
