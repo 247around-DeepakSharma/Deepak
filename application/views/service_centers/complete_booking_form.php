@@ -417,7 +417,7 @@
                                                             
                                                             <br/>
                                                             <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
-                                                            <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" .  $price['unit_id'] . "new" . $value['id'] . "]" ?>"   />
+                                                            <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control serialNumberPic" name="<?php echo "upload_serial_number_pic[" .  $price['unit_id'] . "new" . $value['id'] . "]" ?>"   />
                                                     <?php } ?>
                                                         </td>
                                                
