@@ -566,7 +566,7 @@ class Api extends CI_Controller {
                 }
 
                 //Send SMS to Vendor
-                $message = "AROUND के ग्राहक $user_number ने संपर्ककिया, अधिककाम के लिए rating कराएं 011-39595200";
+                $message = "AROUND के ग�?राहक $user_number ने संपर�?ककिया, अधिककाम के लि�? rating करा�?ं 011-39595200";
                 $this->notify->sendTransactionalSmsMsg91($phone_number, $message,SMS_WITHOUT_TAG);
 
      
@@ -587,7 +587,7 @@ class Api extends CI_Controller {
             }
 
             //Send SMS to Vendor
-            $message = "AROUND के ग्राहक $user_number ने संपर्ककिया, अधिककाम के लिए rating कराएं। 011-39595200";
+            $message = "AROUND के ग�?राहक $user_number ने संपर�?ककिया, अधिककाम के लि�? rating करा�?ं। 011-39595200";
             $this->notify->sendTransactionalSmsMsg91($extn, $message,SMS_WITHOUT_TAG);
 
             $this->jsonResponseString['response'] = $user_number;
@@ -665,7 +665,7 @@ class Api extends CI_Controller {
             //log_message ( 'info', __METHOD__ . "Handyman not found, error");
         }
 
-        $message = "AROUND के ग्राहक $user_number का पता $address समय पर पहुँचो";
+        $message = "AROUND के ग�?राहक $user_number का पता $address समय पर पह�?�?चो";
         //$message = "AROUND ke grahak $user_number ka pata $address samay pe pahuncho";
         //log_message ('info', "SMS message for address: " . $message);
         //Send Address to Handyman thru SMS
@@ -4846,7 +4846,7 @@ class Api extends CI_Controller {
                 $response['sparePartsOrder']['modelNumberList'] = $model_detail;
             }
             else{
-                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.part_type', array('service_id' => $requestData['service_id']), FALSE);
+                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type', array('service_id' => $requestData['service_id']), FALSE);
                 $response['sparePartsOrder']['partTypeList'] = $parts_type_details;
             }
             log_message("info", __METHOD__ . "Model Number or Part Type found successfully");
@@ -4865,7 +4865,8 @@ class Api extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //$requestData = array("model_number_id" => "157");
         if(!empty($requestData["model_number_id"])) {
-            $response = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type', array('model_number_id' => $requestData["model_number_id"]));
+            $response['partTypeList'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type as part_type', array('model_number_id' => $requestData["model_number_id"]));
+            log_message("info", __METHOD__ . "Part Type found successfully");
             log_message("info", __METHOD__ . "Part Type found successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
@@ -4880,7 +4881,7 @@ class Api extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-       // $requestData = array("model_number_id" => "3", "part_type"=> "BACK COVER", "partner_id"=>"247073", "service_id" => "46");
+        //$requestData = array("part_type"=> "Main Board", "partner_id"=>"247010", "service_id" => "46");
         if(!empty($requestData["part_type"]) && !empty($requestData["partner_id"]) && !empty($requestData["service_id"])) {
             $where = array();
             if (!empty($requestData["model_number_id"])) {
@@ -4893,10 +4894,9 @@ class Api extends CI_Controller {
 
             $where['inventory_master_list.service_id'] = $requestData['service_id'];
             $where['inventory_master_list.entity_id'] = $requestData['partner_id'];
-            $where['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;
-
-            $response = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity', $where);
-            
+            $where['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;;
+            $select = "inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_number";
+            $response = $this->inventory_model->get_inventory_model_mapping_data($select, $where);
             log_message("info", __METHOD__ . "Spare Part Name found successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));

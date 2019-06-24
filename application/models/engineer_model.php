@@ -246,7 +246,7 @@ class Engineer_model extends CI_Model {
     }
     
     function engineer_profile_data($enginner_id){
-        $sql = "SELECT engineer_details.*, GROUP_CONCAT(services), entity_identity_proof.identity_proof_type, entity_identity_proof.identity_proof_number 
+        $sql = "SELECT engineer_details.*, GROUP_CONCAT(services) as appliances, entity_identity_proof.identity_proof_type, entity_identity_proof.identity_proof_number 
                 FROM engineer_details 
                 JOIN entity_identity_proof on entity_identity_proof.entity_id = engineer_details.id AND entity_identity_proof.entity_type = 'engineer' 
                 JOIN engineer_appliance_mapping on engineer_appliance_mapping.engineer_id = engineer_details.id
