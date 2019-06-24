@@ -41,7 +41,7 @@
                                            <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;">
                                                    <div class="left col-xs-12">
                                                        <h2><b><?php echo $am['full_name'] ?></b></h2>
-                                                       <p style="padding: 10px 0px;"> <strong>About: </strong> Escalation <?php echo $am['state'] ?></p>
+                                                       <p style="padding: 10px 0px;"> <strong>About: </strong> Escalation <?php echo " - ".$am['state'] ?></p>
                                                        <ul class="list-unstyled">
                                                            <li><i class="fa fa-phone"></i> Phone: <?php echo $am['phone'] ?></li>
                                                            <li><i class="fa fa-envelope"></i> Email: <?php echo $am['official_email'] ?></li>
@@ -81,7 +81,7 @@
                                     <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;">
                                             <div class="left col-xs-12">
                                                 <h2><b>Mr. <?php echo ucwords($rm['full_name']); ?></b></h2>
-                                                <p><strong>About: </strong> Escalation <?php if(isset(explode(',', $rm['designation'])[1])){echo ucwords(explode(',', $rm['designation'])[1]);} ?> </p>
+                                                <p><strong>About: </strong> Escalation <?php if(isset(explode(',', $rm['designation'])[1])){echo " - ".ucwords(explode(',', $rm['designation'])[1]);} ?> </p>
                                                 <ul class="list-unstyled">
                                                     <li><i class="fa fa-newspaper-o"></i> Office: <?php echo ucwords($rm['office_centre']); ?></li>
                                                     <li><i class="fa fa-phone"></i> Phone: <?php echo $rm['phone']; ?></li>
@@ -175,7 +175,7 @@
                     <div class="col-md-12 col-sm-12 col-xs-12 profile_details">
                         <div class="well profile_view" style="width:100%!important;">
                             <div class="left col-xs-12">
-                                <h2><b>Miss. Geeta Gupta</b></h2>
+                                <h2><b>Ms. Geeta Gupta</b></h2>
                                 <p><strong>About: </strong> Accountant </p>
                                 <ul class="list-unstyled">
                                     <li><i class="fa fa-phone"></i> Phone: 9717165247</li>
