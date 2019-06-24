@@ -808,6 +808,9 @@ class Partner extends CI_Controller {
         $return_data['grace_period_date'] = $this->input->post('grace_period_date');
         $return_data['oot_spare_to_be_shipped'] = $this->input->post('oot_spare_to_be_shipped');
         $return_data['is_wh'] = $this->input->post('is_wh');
+        if(empty($return_data['is_wh'])) {
+            $return_data['is_wh'] = $this->input->post('is_warehouse');
+        }
         $is_prepaid = $this->input->post('is_prepaid');
         $return_data['is_prepaid'] = 2; // Default set
         if ($is_prepaid == 1) {
@@ -2049,8 +2052,10 @@ class Partner extends CI_Controller {
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
+                    if(isset($value['quantity']) && $value['shipped_quantity']){
                     $data['quantity'] = $value['quantity'];
-                    $data['shipped_quantity']=$value['shipped_quantity'];
+                    $data['shipped_quantity']=$value['shipped_quantity'];  
+                    }
                     $data['remarks_by_partner'] = $value['remarks_by_partner'];
                     if (!empty($value['inventory_id'])) {
                         $data['shipped_inventory_id'] = $value['inventory_id'];
@@ -5127,6 +5132,7 @@ class Partner extends CI_Controller {
             "SF City",
             "SF State",
             "SF Remarks",
+            "Warehouse Name",
             "Requested Part Code",
             "Requested Part Name",
             "Requested Quantity",
@@ -5166,6 +5172,7 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['sf_city'];              
             $tempArray[] = $sparePartBookings['sf_state'];
             $tempArray[] = $sparePartBookings['remarks_by_sc'];
+            $tempArray[] = $sparePartBookings['warehouse_name'];
             $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['part_name'];
             $tempArray[] = $sparePartBookings['quantity'];
