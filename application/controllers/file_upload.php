@@ -965,6 +965,7 @@ class File_upload extends CI_Controller {
                      
             if(!empty($this->dataToInsert)){
                  $insert_data = $this->inventory_model->insert_alternate_spare_parts($this->dataToInsert);
+                 $insert_flag = false;
                  
                  foreach ($this->dataToInsert as $val){  
                                            
@@ -978,7 +979,7 @@ class File_upload extends CI_Controller {
                              if($max_group_id !== $min_group_id){
                                  foreach ($inventory_group_id_list as  $value) {
                                     if ($value['group_id'] === $max_group_id) {
-                                        $this->inventory_model->update_group_wise_inventory_id(array('alternate_inventory_set.group_id' => $min_group_id),array('alternate_inventory_set.id' => $value['id']));
+                                        $insert_flag = $this->inventory_model->update_group_wise_inventory_id(array('alternate_inventory_set.group_id' => $min_group_id),array('alternate_inventory_set.id' => $value['id']));
                                     }
                                 }
                             }
@@ -990,15 +991,15 @@ class File_upload extends CI_Controller {
                                 }elseif ($val['alt_inventory_id'] != $inventory_id ) {
                                    $inventory_group_data = array('group_id' => $inventory_group_id_list[0]['group_id'], 'inventory_id' => $val['alt_inventory_id']);
                             }
-                                 $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);                                
+                                 $insert_flag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);                                
                             }
                       }else{
                         $max_group_id_details = $this->inventory_model->get_generic_table_details('alternate_inventory_set','MAX(alternate_inventory_set.group_id) as max_group_id', array(), array()); 
                         $group_id = ($max_group_id_details[0]['max_group_id'] + 1);
                         $inventory_group_data = array('group_id' => $group_id, 'inventory_id' => $val['alt_inventory_id']);  
-                        $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);
+                        $insert_flag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);
                         $inventory_group = array('group_id' => $group_id, 'inventory_id' => $val['inventory_id']);  
-                        $this->inventory_model->insert_group_wise_inventory_id($inventory_group);
+                        $insert_flag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group);
                         
                       }
                     
@@ -1009,9 +1010,9 @@ class File_upload extends CI_Controller {
                         $response['status'] = TRUE;
                         $response['message'] = "Details inserted successfully.";
                     } else {
-                        log_message("info", __METHOD__ . " error in creating inventory model mapping");
-                        $response['status'] = FALSE;
-                        $response['message'] = "Something went wrong in inserting data.";
+                        log_message("info", __METHOD__ . " Inventory Model Mapping already created.");
+                        $response['status'] = TRUE;
+                        $response['message'] = "Inventory Model Mapping already created.";
                     }
                     
                     $where = array(
@@ -1024,13 +1025,15 @@ class File_upload extends CI_Controller {
                     $post['where_in'] = array('spare_parts_details.requested_inventory_id' => array( trim($val['inventory_id']), trim($val['alt_inventory_id'])));
                     $post['is_inventory'] = true;
                     $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
-
-                    $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
+                    
+                    if(!empty($bookings_spare)) {
+                        $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
+                    }
                  }
                  
             }
                         
-            if ($insert_data) {
+            if ($insert_flag) {
                 log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
                 $response['status'] = TRUE;
                 $message = "<b>" . count($this->dataToInsert) . "</b> mapping created successfully.";
