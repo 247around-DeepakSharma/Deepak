@@ -978,8 +978,9 @@ class Booking_request extends CI_Controller {
     
     function upload_symptom_defect_solution_mapping_file() {
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/upload_symptom_defect_solution_mapping_file');
-}
+        $serviceArray = $this->reusable_model->get_search_result_data("services","services",array("isBookingActive"=>1),NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
+        $this->load->view('employee/upload_symptom_defect_solution_mapping_file',array("services"=>$serviceArray));
+    }
 
     function process_symptom_defect_solution_mapping_file() {
 
@@ -1005,7 +1006,51 @@ class Booking_request extends CI_Controller {
 
                 if ($check_header['status']) {
                     
-                    //get file data to process
+                    $is_data_validated = true;
+                    $incomplete_data_error_msg = "Incompelete data found at line ";
+                    $unknown_service_msg = "Unknown service at line ";
+                    $unknown_call_type_msg = "Unknown call type at line ";
+                    
+                    // apply loop for validation.
+                    for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                        $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+
+                        if (!empty(array_filter($sanitizes_row_data))) {
+                            $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                            // check empty data.
+                            if (empty($rowData['service']) || empty($rowData['call_type']) || empty($rowData['symptom']) || empty($rowData['defect']) || empty($rowData['solution'])) {
+                                $incomplete_data_error_msg .= $row.',';
+                                $is_data_validated = false;
+                            }
+                            // check service exist in database.
+                            $service_id = $this->reusable_model->get_search_result_data('services', 'id', ['services' => $rowData['service']], NULL, NULL, NULL, NULL, NULL);
+                            if (empty($service_id)) {
+                                $unknown_service_msg .= $row.",";
+                                $is_data_validated = false;
+                            }
+                            // check call type or request type in database.
+                            $request_type_id = $this->reusable_model->get_search_result_data('request_type', 'id', ['service_category' => $rowData['call_type']], NULL, NULL, NULL, NULL, NULL);
+                            if (empty($request_type_id)) {
+                                $unknown_call_type_msg .= $row.",";
+                                $is_data_validated = false;
+                            }
+                        }
+                    }
+                    
+                    // if data has errors.
+                    if(!$is_data_validated) {
+                        $msg = trim($incomplete_data_error_msg,',')."<br/>".trim($unknown_service_msg, ',')."<br/>".trim($unknown_call_type_msg, ',');
+                        $this->session->set_userdata('file_error', $msg);
+
+                        // saving history of failure.
+                        $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], 
+                                    $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", "partner", $partner_id);
+
+                        echo '0';exit;
+                    }
+                    
+                    //process each row and save in database.
                     for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                         $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                         $sanitizes_row_data = array_map('trim', $rowData_array[0]);
@@ -1019,97 +1064,78 @@ class Booking_request extends CI_Controller {
                             $defect = $rowData['defect'];
                             $solution = $rowData['solution'];
 
-                            if (!empty($service) && !empty($call_type) && !empty($symptom) && !empty($defect) && !empty($solution)) {
+                            // get id of service
+                            $service_id = $this->reusable_model->get_search_result_data('services', 'id', ['services' => $service], NULL, NULL, NULL, NULL, NULL)[0]['id'];
+                            // get request type id.
+                            $request_type_id = $this->reusable_model->get_search_result_data('request_type', 'id', ['service_category' => $call_type], NULL, NULL, NULL, NULL, NULL)[0]['id'];
 
-                                // get id of service
-                                $service_id = $this->reusable_model->get_search_result_data('services', 'id', ['services' => $service], NULL, NULL, NULL, NULL, NULL);
-                                if (empty($service_id)) {
-                                    $msg .= "Unknown service at line {$row}.<br/>";
-                                    continue;
-                                }
-
-                                // get request type id.
-                                $request_type_id = $this->reusable_model->get_search_result_data('request_type', 'id', ['service_category' => $call_type], NULL, NULL, NULL, NULL, NULL);
-                                if (empty($request_type_id)) {
-                                    $msg .= "Unknown call type at line {$row}.<br/>";
-                                    continue;
-                                }
-
-                                $service_id = $service_id[0]['id'];
-                                $request_type_id = $request_type_id[0]['id'];
-
-                                $is_symptom_exist = $this->reusable_model->get_search_result_data('symptom', '*', ['service_id' => $service_id, 'symptom' => $symptom], NULL, NULL, NULL, NULL, NULL);
-                                if(empty($is_symptom_exist)) {
-                                    // insert symptom.
-                                    $symptom_data = [];
-                                    $symptom_data['service_id'] = $service_id;
-                                    $symptom_data['symptom'] = $symptom;
-                                    $symptom_data['partner_id'] = $partner_id;
-                                    $symptom_id = $this->reusable_model->insert_into_table('symptom', $symptom_data);
-                                } else {
-                                    $symptom_id = $is_symptom_exist[0]['id'];
-                                }
-
-                                $is_defect_exist = $this->reusable_model->get_search_result_data('defect', '*', ['service_id' => $service_id, 'defect' => $defect], NULL, NULL, NULL, NULL, NULL);
-                                if(empty($is_defect_exist)) {
-                                    // insert defect.
-                                    $defect_data = [];
-                                    $defect_data['service_id'] = $service_id;
-                                    $defect_data['defect'] = $defect;
-                                    $defect_data['partner_id'] = $partner_id;
-                                    $defect_id = $this->reusable_model->insert_into_table('defect', $defect_data);
-                                } else {
-                                    $defect_id = $is_defect_exist[0]['id'];
-                                }
-                                
-                                $is_solution_exist = $this->reusable_model->get_search_result_data('symptom_completion_solution', '*', ['service_id' => $service_id, 'technical_solution' => $solution], NULL, NULL, NULL, NULL, NULL);
-                                if(empty($is_solution_exist)) {
-                                    // insert symptom_completion_solution.
-                                    $symptom_completion_solution_data = [];
-                                    $symptom_completion_solution_data['service_id'] = $service_id;
-                                    $symptom_completion_solution_data['technical_solution'] = $solution;
-                                    $symptom_completion_solution_data['partner_id'] = $partner_id;
-                                    $symptom_completion_solution_id = $this->reusable_model->insert_into_table('symptom_completion_solution', $symptom_completion_solution_data);
-                                } else {
-                                    $symptom_completion_solution_id = $is_solution_exist[0]['id'];
-                                }
-                                
-                                $is_already_mapped = $this->reusable_model->get_search_result_data('symptom_defect_solution_mapping', '*', 
-                                        ['product_id' => $service_id, 'entity_id' => $partner_id, 'request_id' => $request_type_id, 'defect_id' => $defect_id,
-                                            'symptom_id' => $symptom_id, 'solution_id' => $symptom_completion_solution_id], NULL, NULL, NULL, NULL, NULL);
-                             
-                                if(empty($is_already_mapped)) {
-                                    // mapping.
-                                    $symptom_defect_solution_mapping_data = [];
-                                    $symptom_defect_solution_mapping_data['product_id'] = $service_id;
-                                    $symptom_defect_solution_mapping_data['entity_id'] = $partner_id;
-                                    $symptom_defect_solution_mapping_data['request_id'] = $request_type_id;
-                                    $symptom_defect_solution_mapping_data['defect_id'] = $defect_id;
-                                    $symptom_defect_solution_mapping_data['solution_id'] = $symptom_completion_solution_id;
-                                    $symptom_defect_solution_mapping_data['symptom_id'] = $symptom_id;
-                                    $insert_id = $this->reusable_model->insert_into_table('symptom_defect_solution_mapping', $symptom_defect_solution_mapping_data);
-                                }
-                                
+                            $is_symptom_exist = $this->reusable_model->get_search_result_data('symptom', '*', ['service_id' => $service_id, 'symptom' => $symptom], NULL, NULL, NULL, NULL, NULL);
+                            if(empty($is_symptom_exist)) {
+                                // insert symptom.
+                                $symptom_data = [];
+                                $symptom_data['service_id'] = $service_id;
+                                $symptom_data['symptom'] = $symptom;
+                                $symptom_data['partner_id'] = $partner_id;
+                                $symptom_id = $this->reusable_model->insert_into_table('symptom', $symptom_data);
                             } else {
-                                $msg .= "Incompelete data found at line {$row}.<br/>";
-                                continue;
+                                $symptom_id = $is_symptom_exist[0]['id'];
+                            }
+
+                            $is_defect_exist = $this->reusable_model->get_search_result_data('defect', '*', ['service_id' => $service_id, 'defect' => $defect], NULL, NULL, NULL, NULL, NULL);
+                            if(empty($is_defect_exist)) {
+                                // insert defect.
+                                $defect_data = [];
+                                $defect_data['service_id'] = $service_id;
+                                $defect_data['defect'] = $defect;
+                                $defect_data['partner_id'] = $partner_id;
+                                $defect_id = $this->reusable_model->insert_into_table('defect', $defect_data);
+                            } else {
+                                $defect_id = $is_defect_exist[0]['id'];
+                            }
+                                
+                            $is_solution_exist = $this->reusable_model->get_search_result_data('symptom_completion_solution', '*', ['service_id' => $service_id, 'technical_solution' => $solution], NULL, NULL, NULL, NULL, NULL);
+                            if(empty($is_solution_exist)) {
+                                // insert symptom_completion_solution.
+                                $symptom_completion_solution_data = [];
+                                $symptom_completion_solution_data['service_id'] = $service_id;
+                                $symptom_completion_solution_data['technical_solution'] = $solution;
+                                $symptom_completion_solution_data['partner_id'] = $partner_id;
+                                $symptom_completion_solution_id = $this->reusable_model->insert_into_table('symptom_completion_solution', $symptom_completion_solution_data);
+                            } else {
+                                $symptom_completion_solution_id = $is_solution_exist[0]['id'];
+                            }
+                                
+                            $is_already_mapped = $this->reusable_model->get_search_result_data('symptom_defect_solution_mapping', '*', 
+                                    ['product_id' => $service_id, 'entity_id' => $partner_id, 'request_id' => $request_type_id, 'defect_id' => $defect_id,
+                                        'symptom_id' => $symptom_id, 'solution_id' => $symptom_completion_solution_id], NULL, NULL, NULL, NULL, NULL);
+                             
+                            if(empty($is_already_mapped)) {
+                                // mapping.
+                                $symptom_defect_solution_mapping_data = [];
+                                $symptom_defect_solution_mapping_data['product_id'] = $service_id;
+                                $symptom_defect_solution_mapping_data['entity_id'] = $partner_id;
+                                $symptom_defect_solution_mapping_data['request_id'] = $request_type_id;
+                                $symptom_defect_solution_mapping_data['defect_id'] = $defect_id;
+                                $symptom_defect_solution_mapping_data['solution_id'] = $symptom_completion_solution_id;
+                                $symptom_defect_solution_mapping_data['symptom_id'] = $symptom_id;
+                                $insert_id = $this->reusable_model->insert_into_table('symptom_defect_solution_mapping', $symptom_defect_solution_mapping_data);
                             }
                         }
                     }
+                    
+                    
                 }
             }
         }
-        if(!empty($msg)) {
-            $this->session->set_userdata('file_error', $msg);
-        } else {
-            $this->session->set_userdata('file_success', 'Data has been saved successfully.');
-        }    
+        
+        $this->session->set_userdata('file_success', 'Data has been saved successfully.');
        
-        // saving history.
+        // saving history of success.
         $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], 
                     $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "", "partner", $partner_id);
         
-        echo '';exit;
+        echo '1';exit;
+
     }
 
     /**
