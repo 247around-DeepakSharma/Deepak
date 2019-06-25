@@ -1063,8 +1063,8 @@ class Service_centers extends CI_Controller {
         $appliance_id = $this->input->post("appliance_id");
         $model_number = $this->input->post("model_number");
         if (!ctype_alnum($serial_number)) {
-            $status = array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number);
-            log_message('info', "Serial Number Entered With Special Character " . $serial_number);
+            $status = array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
+            log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             echo json_encode($status, true);
         } else {
             $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id, $model_number);
