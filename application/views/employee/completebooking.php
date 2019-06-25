@@ -1197,7 +1197,7 @@
     
     function validateSerialNo(count){
     var postData = {};
-    postData['serial_number'] = $("#serial_number"+count).val();
+    postData['serial_number'] = $.trim($("#serial_number"+count).val());
     postData['price_tags'] = $("#price_tags"+count).text();
     postData['user_id'] = $("#user_id").val();
     postData['booking_id'] = $("#booking_id").val();
@@ -1241,7 +1241,9 @@
                         //$("#upload_serial_number_pic"+count).css('display', "block");
                         $("#duplicate_sno_required"+count).val('0');
                         $('body').loadingModal('destroy');
-                        $("#submitform").attr("disabled",true);
+                        if(data.code === "247") {
+                            $("#submitform").attr("disabled",true);
+                        }
                     }
                 }
             });
