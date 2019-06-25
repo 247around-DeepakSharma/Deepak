@@ -120,7 +120,7 @@ class Service_centers extends CI_Controller {
             $sf_data['partner_id'] = urldecode($model_number_id);
             $sf_data['service_id'] = $service_id;
         }
-        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+       $sf_data['saas_flag'] = $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if ($this->session->userdata('employee_id')) {
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_inventory_details_by_model', $data);
@@ -1080,8 +1080,8 @@ class Service_centers extends CI_Controller {
         $appliance_id = $this->input->post("appliance_id");
         $model_number = $this->input->post("model_number");
         if (!ctype_alnum($serial_number)) {
-            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number);
-            log_message('info', "Serial Number Entered With Special Character " . $serial_number);
+            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
+            log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             echo json_encode($status, true);
         }
         else {

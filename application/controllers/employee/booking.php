@@ -848,6 +848,7 @@ class Booking extends CI_Controller {
         $where_internal_status = array("page" => "FollowUp", "active" => '1');
         $data['follow_up_internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
         $data['file_type'] = $this->booking_model->get_file_type();
+        $data['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/addbooking', $data);
     }
@@ -1408,6 +1409,7 @@ class Booking extends CI_Controller {
         $clone_number = $this->input->post('clone_number');
         $partner_id =  $this->input->post('partner_id');
         $assigned_vendor_id = $this->input->post('assigned_vendor_id');
+        $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if($this->input->post('add_booking')){
             $add_booking = $this->input->post('add_booking');
         }
@@ -1446,8 +1448,12 @@ class Booking extends CI_Controller {
         }
 
         if (!empty($result)) {
-
-            $html = "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr></thead>";
+            if(!$is_saas){
+                $html = "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr></thead>";
+            }
+            else{
+                $html = "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>Selected Services</th></tr></thead>";
+            }
             $i = 0;
 
             foreach ($result as $prices) {
@@ -1456,7 +1462,9 @@ class Booking extends CI_Controller {
                 $html .= "<td>" . $prices['customer_total'] . "</td>";
                 $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
-                $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
+                if(!$is_saas){
+                    $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
+                }
                 $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
                 if($is_repeat) {
                     if($prices['service_category'] == REPEAT_BOOKING_TAG) {
@@ -1859,6 +1867,7 @@ class Booking extends CI_Controller {
     function get_edit_booking_form($booking_id, $appliance_id = "",$is_repeat = NULL) {
         log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
         $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);
+        $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if($booking){
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
@@ -2509,8 +2518,8 @@ class Booking extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $appliance_id = $this->input->post('appliance_id');
         if (!ctype_alnum($serial_number)) {
-            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number);
-            log_message('info', "Serial Number Entered With Special Character " . $serial_number);
+            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
+            log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             echo json_encode($status, true);
         }
         else {
@@ -2544,8 +2553,8 @@ class Booking extends CI_Controller {
                     if(!empty($serial_number[$unit_id])) {
                         $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
                         if (!ctype_alnum($serial_number[$unit_id])) {
-                            log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
-                            $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
+                            log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
+                            $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
                             return FALSE;
                         }
                     }
@@ -5585,4 +5594,49 @@ class Booking extends CI_Controller {
         }
     }
   
+    function get_summary_report() {
+        
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","state",array(),array(),NULL,array('state'=>'ASC'),NULL,array(),array());
+        $data['services'] = $this->booking_model->selectservice();
+
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/get_partner_summary_report',$data);
+        
+    }
+    
+    function get_summary_report_data($partnerID) {
+       
+        $summaryReportData = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>"partner","entity_id"=>$partnerID),NULL,array("length"=>50,"start"=>""),
+                array('id'=>'DESC'),NULL,NULL,array());
+        
+        $str_body = '';
+        if(!empty($summaryReportData)) {
+            foreach ($summaryReportData as $summaryReport) {
+                $finalFilterArray = array();
+                $filterArray = json_decode($summaryReport['filters'], true);
+                foreach ($filterArray as $key => $value) {
+                    if ($key == "Date_Range") {
+                        $dArray = explode(" - ", $value);
+                        $key = "Registration Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                    }
+                    $finalFilterArray[] = $key . " : " . $value;
+                }
+                
+                $str_body .=  '<tr>';
+                $str_body .=  '<td>' . implode(", ", $finalFilterArray) .'</td>';
+                $str_body .=  '<td>' . $summaryReport['create_date'] .'</td>';
+                $str_body .= '<td><a class="btn btn-success" style="background: #2a3f54;" href="'. base_url() ."employee/partner/download_custom_summary_report/". $summaryReport['url'] .'">Download</a></td>';
+                $str_body .=  '</tr>';
+                
+            }
+        }
+        
+        echo $str_body;
+    }
+
 }
