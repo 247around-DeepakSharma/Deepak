@@ -2525,8 +2525,8 @@ class Booking extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $appliance_id = $this->input->post('appliance_id');
         if (!ctype_alnum($serial_number)) {
-            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number);
-            log_message('info', "Serial Number Entered With Special Character " . $serial_number);
+            $status= array('code' => '247', "message" => "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
+            log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             echo json_encode($status, true);
         }
         else {
@@ -2560,8 +2560,8 @@ class Booking extends CI_Controller {
                     if(!empty($serial_number[$unit_id])) {
                         $trimSno = str_replace(' ', '', trim($serial_number[$unit_id]));
                         if (!ctype_alnum($serial_number[$unit_id])) {
-                            log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
-                            $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id]);
+                            log_message('info', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
+                            $this->form_validation->set_message('validate_serial_no', "Serial Number Entered With Special Character " . $serial_number[$unit_id] . " . This is not allowed.");
                             return FALSE;
                         }
                     }
