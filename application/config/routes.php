@@ -60,6 +60,7 @@ $route['service_center/cancel_booking_form/(:any)'] = 'employee/service_centers/
 $route['service_center/complete_booking_form/(:any)'] = 'employee/service_centers/complete_booking_form/$1';
 $route['service_center/add_engineer'] = 'employee/vendor/add_engineer';
 $route['service_center/get_engineers'] = 'employee/vendor/get_engineers';
+$route['service_center/engineer_wise_calls'] = 'employee/vendor/engineer_wise_calls';
 $route['service_center/invoices_details'] = 'employee/service_centers/invoices_details';
 $route['service_center/bank_transactions'] = 'employee/service_centers/bank_transactions';
 $route['service_center/update_booking_status/(:any)'] = 'employee/service_centers/update_booking_status/$1';
@@ -137,12 +138,9 @@ $route['service_center/inventory/appliance_model_list'] = 'employee/service_cent
 $route['service_center/booking_spare_list'] = 'employee/service_centers/booking_spare_list';
 $route['service_center/spare_transfer'] = 'employee/service_centers/spare_transfer';
 $route['service_center/do_spare_transfer'] = 'employee/service_centers/do_spare_transfer';
-//$route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';
-
-
-
-
-
+$route['service_center/delivered_spare_transfer'] = 'employee/service_centers/delivered_spare_transfer';
+$route['service_center/do_delivered_spare_transfer'] = 'employee/service_centers/do_delivered_spare_transfer';
+//$route['service_center/inventory/inventory_list'] = 'employee/service_centers/inventory_stock_list';  delivered_spare_transfer_list
 
 $route['call-customer-status-callback'] = 'employee/booking/call_customer_status_callback';
 
@@ -266,7 +264,11 @@ $route['check_invoice_id_exists/(:any)'] = 'employee/inventory/check_invoice_id_
 $route['service_center/inventory/requested_spare_on_sf'] = 'employee/service_centers/requested_spare_on_sf';
 $route['service_center/requested_spare_on_sf/(:any)'] = 'employee/service_centers/get_spare_requested_spare_on_sf/$1';
 $route['service_center/send_to_partner_list'] = 'employee/service_centers/warehouse_task_list_tab_send_to_partner';
+$route['service_centers/spare_assigned_to_partner'] = 'employee/service_centers/spare_assigned_to_partner';
 $route['upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alternate_spare_parts_file';
 
+$route['service_center/update_booking_by_sf/(:any)/(:any)'] = 'employee/booking/update_booking_by_sf/$1/$2';
+$route['service_center/get_sf_edit_booking_form/(:any)'] = 'employee/service_centers/get_sf_edit_booking_form/$1';
+$route['service_center/warranty'] = 'employee/service_centers/check_warranty';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

@@ -203,7 +203,7 @@
                         <label for="contact" class="col-md-5 vertical_align" id="label_contact">Email *</label>
                         
                         <input type="email" id="email_input" name="email_input" class="form-control <?php if(!isset($courier_details)) echo 'disabledbutton'?>"
-                               value="<?php if(isset($courier_details)) { if($courier_details[0]->contact_person_name) echo $courier_details[0]->contact_person_name; else echo $courier_details[0]->notification_email1; } ?>"/>
+                               value="<?php if(isset($courier_details)) { if($courier_details[0]->contact_person_name) echo $courier_details[0]->contact_person_name; else echo $courier_details[0]->notification_email; } ?>"/>
                     </div>
                     
                     <div class="clear"></div>
@@ -353,7 +353,6 @@ $(document).ready(function(){
                 break; 
         }
        
-        
         if(is_file == 0){
              track_file= $('#track_file').val();
         }

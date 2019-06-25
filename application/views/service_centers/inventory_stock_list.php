@@ -23,11 +23,27 @@
                         <section class="fetch_inventory_data">
                             <div class="row">
                                 <div class="form-inline">
-                                    <div class="form-group col-md-4">
+                                    <div class="form-group col-md-3">
                                         <select class="form-control" id="partner_id">
                                             <option value="" disabled="">Select Partner</option>
                                         </select>
                                     </div>
+                                    <div class="form-group col-md-3">
+                                        <select class="form-control" id="service_center_id">
+                                            <option value="">Select Service Center</option>
+                                            <?php if(!empty($sf)) { foreach($sf as $sf_data) { ?>
+                                            <option value="<?= $sf_data['id']; ?>"><?= $sf_data['name']; ?></option>
+                                            <?php } } ?>
+                                        </select>
+                                    </div> 
+                                    <div class="form-group col-md-3">
+                                        <select class="form-control" id="warehouse_id">
+                                            <option value="">Select Warehouse</option>
+                                            <?php if(!empty($wh)) { foreach($wh as $wh_data) { ?>
+                                            <option value="<?= $wh_data['id']; ?>"><?= $wh_data['name']; ?></option>
+                                            <?php } } ?>
+                                        </select>
+                                    </div> 
                                     <div class="form-group col-md-2">
                                         <label class="checkbox-inline"><input type="checkbox" value="1" id="show_all_inventory">With Out of Stock</label>
                                     </div>
@@ -49,6 +65,7 @@
                                     <th>  Part Number</th>
                                     <th>Description</th>
                                     <th>  Stock</th>
+                                    <th>  Requested Parts</th>
                                     <th> SF Basic Price</th>
                                     <th>  GST Rate</th>
                                     <th>  Total Price</th>
@@ -68,11 +85,41 @@
 </div>
 <script>
 
+    $('#service_center_id').select2({
+        allowClear: true,
+        placeholder :'Select Sevice Center'
+    });
+    $('#warehouse_id').select2({
+        allowClear: true,
+        placeholder :'Select Warehouse'
+    });
+    
     var inventory_stock_table;
 
     $(document).ready(function () {
         get_partner();
         get_inventory_list();
+        
+        $('#service_center_id').on('select2:selecting', function(){
+            if($('#warehouse_id').val() != '') {
+                $('#warehouse_id').val('').change();
+            } 
+            $('#show_all_inventory').prop("checked", false);
+        });
+
+        $('#warehouse_id').on('select2:selecting', function(){
+            if($('#service_center_id').val() != '') {
+                $('#service_center_id').val('').change();
+            } 
+            $('#show_all_inventory').prop("checked", false);
+        });
+
+        $('#show_all_inventory').on('click', function(){
+            if($(this).prop("checked") == true) {
+                $('#service_center_id').val('').change();
+                $('#warehouse_id').val('').change();
+            } 
+        });
     });
     
     $('#get_inventory_data').on('click',function(){
@@ -128,7 +175,9 @@
                     var entity_details = get_entity_details();
                     d.receiver_entity_id = entity_details.receiver_entity_id,
                     d.receiver_entity_type = entity_details.receiver_entity_type,
-                    d.sender_entity_id = entity_details.sender_entity_id
+                    d.sender_entity_id = entity_details.sender_entity_id,
+                    d.sf_id = entity_details.sf_id,
+                    d.wh_id = entity_details.wh_id,
                     d.sender_entity_type = entity_details.sender_entity_type,
                     d.is_show_all = entity_details.is_show_all_checked
                 }
@@ -142,6 +191,8 @@
             'receiver_entity_id': '<?php echo $this->session->userdata('service_center_id'); ?>',
             'receiver_entity_type' : '<?php echo _247AROUND_SF_STRING; ?>',
             'sender_entity_id': $('#partner_id').val(),
+            'sf_id': $('#service_center_id').val(),
+            'wh_id': $('#warehouse_id').val(),
             'sender_entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
             'is_show_all_checked':$('#show_all_inventory:checked').val()
         };

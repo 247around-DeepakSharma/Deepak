@@ -35,7 +35,17 @@
     .modal-title{
         color:#5bc0de;
     }
+        .loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    background: url('<?php echo base_url();  ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.80);
+  }
 </style>
+ <div class="loader hide"></div>
 <div class="page-wrapper" style="margin-top:35px;">
 <div class="btn-pref btn-group btn-group-justified btn-group-lg" role="group" aria-label="...">
 <div class="btn-group" role="group">
@@ -321,7 +331,7 @@
                         <thead>
                             <tr>
                                 <th>SF Name </th>
-                                <th>AM Name </th>
+                                <th>Account Manager </th>
                                 <th>Engineer Name </th>
                                 <th>Poc Name </th>
                                 <th>Poc Number </th>
@@ -575,9 +585,9 @@
                                         <th >Model Number </th>
                                         <th> Original Requested Parts </th>
                                         <th> Final Requested Parts </th>
+                                        <th> Requested Part Number </th>
                                         <th> Parts Type </th>    
-                                        <th>Requested Quantity </th>
-                                        <th>Shipped Quantity </th>
+                                        <th>Requested Quantity </th>                                
                                         <th >Requested Date</th>
                                         <th >Invoice Image </th>
                                         <th >Serial Number Image </th>
@@ -597,13 +607,16 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                     <tr>
-                                        <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
+                                        <td class="  <?php if($sp['entity_type']==_247AROUND_SF_STRING) echo 'warehouse_name';  ?> "  data-warehouse="<?php echo $sp['partner_id'];  ?>" ><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else {
+                                              echo "Warehouse";
+                                          } 
+                                         ?></span></td>
                                         <td><?php echo $sp['model_number']; ?></td>
-                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                        <td style=" word-break: break-all;"><?php if(isset($sp['original_part_number'])){ echo $sp['original_part_number']; } else { echo $sp['parts_requested']; } ?></td>
                                         <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; } ?></td>
+                                        <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; } ?></td>
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
                                         <td><?php echo $sp['quantity']; ?></td> 
-                                        <td><?php echo $sp['shipped_quantity']; ?></td> 
                                         <td><?php echo $sp['create_date']; ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
@@ -640,11 +653,12 @@
                                                     <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="<?php echo $sp['id']; ?>">
                                                     <input type="hidden" name="booking_partner_id" id="booking_partner_id" value="<?php echo $booking_history[0]['partner_id']; ?>">
                                                     <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_SF_STRING; ?>">
-                                                    <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $sp['booking_id']; ?>">   
+                                                    <input type="hidden" name="bulk_input" id="booking_id" value="<?php echo $sp['booking_id']; ?>">   
                                                     <input type="hidden" name="requested_spare_id" id="rew_in_id" value="<?php echo $sp['requested_inventory_id']; ?>">  
-                                                    <input type="hidden" name="state" id="booking_state" value="<?php echo $booking_history[0]['state']; ?>">   
-
-                                                    <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
+                                                    <input type="hidden" name="state" id="booking_state" value="<?php echo $booking_history[0]['state']; ?>"> 
+                                                    <input type="hidden" name="parts_requested" id="booking_state" value="<?php echo $sp['parts_requested']; ?>"> 
+                                                    <input type="hidden" name="service_center_id" id="booking_state" value="<?php echo $sp['service_center_id']; ?>">   
+                                         <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Vendor</a>
                                                  </form>
                                             </td>
                                         <?php } else {?> 
@@ -654,13 +668,16 @@
                                         <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <?php  if($sp['entity_type']==_247AROUND_SF_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
                                             <td>
-                                                <form id="move_to_update_spare_parts">
+                                                <form id="move_to_update_spare_parts_partner">
                                                     <input type="hidden" name="spare_parts_id" id="spare_parts_id" value="<?php echo $sp['id']; ?>">
                                                     <input type="hidden" name="booking_partner_id" id="booking_partner_id" value="<?php echo $booking_history[0]['partner_id']; ?>">
                                                     <input type="hidden" name="entity_type" id="entity_type" value="<?php echo _247AROUND_PARTNER_STRING; ?>">
-                                                    <input type="hidden" name="booking_id" id="booking_id" value="<?php echo $sp['booking_id']; ?>">     
+                                                    <input type="hidden" name="bulk_input" id="booking_id" value="<?php echo $sp['booking_id']; ?>">     
                                                     <input type="hidden" name="requested_spare_id" id="rew_in_id" value="<?php echo $sp['requested_inventory_id']; ?>">  
-                                                    <a class="move_to_update btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Partner</a>
+                                                    <input type="hidden" name="parts_requested" id="booking_state" value="<?php echo $sp['parts_requested']; ?>"> 
+                                                    <input type="hidden" name="warehouse_id" id="booking_state" value="<?php echo $sp['partner_id']; ?>"> 
+                                                    <a class="move_to_update_partner btn btn-md btn-primary" id="move_to_vendor" href="javascript:void(0);">Move To Partner</a>
+
                                                  </form>
                                             </td>
                                         <?php } else {?> 
@@ -727,6 +744,8 @@
                                     <tr>
                                         <th>Part Shipped By Partner/Warehouse</th>
                                         <th>Shipped Parts </th>
+                                        <th>Shipped  Parts Number</th>
+                                        <th>Shipped Quantity</th>
                                         <th>Pickup Request </th>
                                         <th>Pickup Schedule</th>
                                         <th>Courier Name</th>
@@ -745,7 +764,9 @@
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){ ?>
                                     <tr>
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
-                                        <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td>   
+                                        <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td> 
+                                        <td style="word-break: break-all;"><?php if(!empty($sp['shipped_part_number'])){echo $sp['shipped_part_number'];}else{echo 'Not Available';}  ?></td> 
+                                        <td><?php echo $sp['shipped_quantity'];  ?></td>  
                                         <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_REQUEST){    echo 'Pickup Requested';} ?></td>
                                         <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_SCHEDULE){    echo 'Pickup Schedule';} ?></td>
                                         <td>                                            
@@ -799,6 +820,8 @@
                                 <thead>
                                     <tr>
                                         <th >Shipped Parts </th>
+                                        <th >Shipped Parts Number</th>
+                                        <th >Shipped Quantity</th>
                                         <th >Courier Name </th>
                                         <th>AWB </th>
                                         <th> No. Of Boxes </th>
@@ -817,6 +840,8 @@
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                     <tr>
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
+                                        <td><?php if(!empty($sp['part_number'])){ echo $sp['part_number'];}else{echo 'Not Available';} ?></td>
+                                        <td><?php echo $sp['shipped_quantity']; ?></td>
                                         <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
                                         <?php
                                         $spareStatus = DELIVERED_SPARE_STATUS;
@@ -874,6 +899,7 @@
                                     <tr>
                                         <th> Model Number </th>
                                         <th> Requested Parts </th>
+                                        <th> Requested Parts Number</th>
                                         <th>Parts Type</th>
                                         <th> Purchase Invoice Id </th>
                                         <th>Sale Invoice Id</th>
@@ -893,6 +919,7 @@
                                     <tr>
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                        <td style=" word-break: break-all;"><?php if(!empty($sp['part_number'])){ echo $sp['part_number'];}else{echo 'Not Available';} ?></td>
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
                                         <td><?php echo $sp['purchase_invoice_id']; ?></td>
                                         <td><?php echo $sp['sell_invoice_id']; ?></td>  
@@ -2068,36 +2095,95 @@ background-color: #f5f5f5;
                },
                  function(isConfirm) {
                     if (isConfirm) {
-                        
+                        $(".loader").removeClass('hide');
                         $.ajax({
                         type: "POST",
-                        url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
+                        url: "<?php echo base_url(); ?>employee/spare_parts/bulkConversion_process",
                         data: $("#move_to_update_spare_parts").serialize(),
                         success: function (data) {
                         console.log(data);
-                       if (data != '') {               
+                       if (data != '') {
+                        
                         $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
                         if(data=='success'){
+                          $(".loader").addClass('hide');
                           swal("Transferred!", "Your spare has been transferred !.", "success");
                           $("#move_to_vendor").hide();
                         //  location.reload();
-                        }else if(data='fail_mail'){
-                          swal("Failed", "Your Transferred has been failed. Check your mail for details!", "error"); 
                         }else{
-                           swal("Failed", "Your Transferred has been failed. Either some network error occured or Warehouse data not found !", "error");  
+                           $(".loader").addClass('hide');
+                           swal("Failed", "Spare  transferred has been failed due to stock not available", "error");  
                         }
+                    }else{
+                       $(".loader").addClass('hide');
+                       swal("Failed", "Spare  transferred has been failed. Requested inventory not found/mapped", "error");   
                     }
                     },
                     error: function () {
+                     $(".loader").addClass('hide');
                      swal("Error Occured", "Some error occured data not found", "error");
                     }
                   });
                     } else {
+                       $(".loader").addClass('hide');
                        swal("Cancelled", "Your Transferred has been cancelled !", "error");
                    }
                 });
 
         });
+        
+               $(".move_to_update_partner").on('click', function () { 
+                swal({
+                title: "Are you sure?",
+                text: "You are going to transfer the spare part!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Yes, Transfer it!",
+                cancelButtonText: "No, cancel !",
+                closeOnConfirm: false,
+                closeOnCancel: false
+               },
+                 function(isConfirm) {
+                    if (isConfirm) {
+                        $(".loader").removeClass('hide');
+                        $.ajax({
+                        type: "POST",
+                        url: "<?php echo base_url(); ?>employee/spare_parts/move_to_update_spare_parts_details",
+                        data: $("#move_to_update_spare_parts_partner").serialize(),
+                        success: function (data) {
+                        console.log(data);
+                       if (data != '') {               
+                        $("#entity_type_id").html("<?php echo _247AROUND_PARTNER_STRING; ?>");
+                        if(data=='success'){
+                          $(".loader").addClass('hide');
+                          swal("Transferred!", "Your spare has been transferred to partner!.", "success");
+                          $("#move_to_vendor").hide();
+                        //  location.reload();
+                        }else if(data='fail_mail'){
+                          $(".loader").addClass('hide');
+                          swal("Failed", "Your Transferred has been failed. Check your mail for details!", "error"); 
+                        }else{
+                           $(".loader").addClass('hide');
+                           swal("Failed", "Your Transferred has been failed. Either  network error occured !", "error");  
+                        }
+                    }
+                    },
+                    error: function () {
+                     $(".loader").addClass('hide');
+                     swal("Error Occured", "Some error occured data not found", "error");
+                    }
+                  });
+                    } else {
+                        $(".loader").addClass('hide');
+                       swal("Cancelled", "Your Transferred has been cancelled !", "error");
+                   }
+                });
+
+        });
+        
+        
+        
        
     });
     
@@ -2134,7 +2220,18 @@ background-color: #f5f5f5;
                   });
     }
     
-   
+   $(document).ready(function(){
+    $(".warehouse_name").each(function(){
+        var warehouse_id = $(this).attr("data-warehouse");
+        if (warehouse_id>0) {
+              $.ajax({url: "<?php echo base_url(); ?>employee/vendor/get_warehouse_data/"+warehouse_id, success: function(result){
+              var obj =  JSON.parse(result);
+              console.log(obj[0].district);
+              $(".warehouse_name").html('<span id="entity_type_id">'+obj[0].district + ' Warehouse</span>');
+           }});
+        }
+    });
+   });
     </script>
     
    

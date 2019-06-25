@@ -351,7 +351,9 @@ class Inventory_model extends CI_Model {
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
         if(isset($post['is_inventory'])){
+            
             $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
+            $this->db->join('inventory_master_list as im','im.inventory_id = spare_parts_details.shipped_inventory_id', "left");
         }
         $this->db->join('services', 'booking_details.service_id = services.id','left');
         
@@ -661,7 +663,7 @@ class Inventory_model extends CI_Model {
                 
                 $where .= " AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
                 if (!empty($inventory_ids)) {
-                    $inventory_stock_details = $this->get_inventory_stock_details('max(inventory_stocks.stock) as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id', $where, $inventory_ids);
+                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name', $where, $inventory_ids);
                 }
             }
         }
@@ -1581,17 +1583,20 @@ class Inventory_model extends CI_Model {
     }
     
    
-    function get_spare_consolidated_data($select,$where){
+    function get_spare_consolidated_data($select,$where,$group_by=''){
         $this->db->select($select,false);
         $this->db->from('booking_details');
         $this->db->join('spare_parts_details','booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->join('partners','booking_details.partner_id = partners.id');
         $this->db->join('service_centres','booking_details.assigned_vendor_id = service_centres.id');
-        $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state");
-        $this->db->join('employee',"employee.id = agent_filters.agent_id");
-        //$this->db->join('employee','partners.account_manager_id = employee.id');
+        $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='247around' ", "left"); // new query for AM
+        $this->db->join('employee',"employee.id = agent_filters.agent_id", "left"); // new query for AM
+        //$this->db->join('employee','partners.account_manager_id = employee.id'); // old query for AM
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
         $this->db->where($where,false);
+        if(!empty($group_by)) {
+            $this->db->group_by($group_by,false);
+        }
         $query = $this->db->get();
         
         return $query;
@@ -2475,6 +2480,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
+        $this->db->order_by('inventory_stocks.stock', 'desc');
                 
         $query = $this->db->get();
         return $query->result_array();
@@ -2551,6 +2557,50 @@ class Inventory_model extends CI_Model {
         
         $this->db->group_by('im.inventory_id');
         
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+        /**
+     * @Desc: This function is used to inser gst data data  
+     * @params: $select string
+     * @return: $id  
+     * 
+     */
+    
+    function  insert_entity_gst_data($data){
+        $this->db->insert('entity_gst_details',$data);
+        return $this->db->insert_id();
+
+    }
+    
+
+    function get_entity_gst_data($select="*", $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("entity_gst_details");
+        return $query->result_array();
+    }
+    /**
+     * @Desc: This function is used to get data from the inventory_model_mapping
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_model_data($select, $where = array(), $where_in = array()) {
+        $this->db->distinct();
+        $this->db->select($select);
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        
+        if (!empty($where_in)) {
+            foreach ($where_in as $index => $value) {
+                $this->db->where_in($index, $value);
+            }
+        }
+        $this->db->from('inventory_model_mapping');
+
         $query = $this->db->get();
         return $query->result_array();
     }

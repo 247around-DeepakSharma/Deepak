@@ -52,6 +52,7 @@
                             <th>Service</th>
                             <th>Current Status</th>
                             <th>Internal Status</th>
+                            <th>Purchase Date</th>
                             <th>Brand</th>
                             <th>Category</th>
                             <th>Capacity</th>

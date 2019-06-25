@@ -840,14 +840,16 @@ class Invoice extends CI_Controller {
         log_message('info', 'Excel data: ' . print_r($meta, true));
 
         if ($invoice_type === "final") {
-
+            /* Stop sent invoice mail to RM
             $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
             $rem_email_id = "";
             if (!empty($rm_details)) {
                 $rem_email_id = ", " . $rm_details[0]['official_email'];
             }
-            $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
             $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
+           */
+            $to = $meta['owner_email'] . ", " . $meta['primary_contact_email'];
+            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
             $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                 
             //get email template from database
@@ -1130,13 +1132,13 @@ class Invoice extends CI_Controller {
 
             if ($invoice_type === "final") {
                 log_message('info', __FUNCTION__ . " Final");
-                
+                /* Stop sending invoice email to RM
                 $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
                 $rem_email_id = "";
                 if (!empty($rm_details)) {
                     $rem_email_id = ", " . $rm_details[0]['official_email'];
                 }
-                
+                */
                 //get email template from database
                 $email_template = $this->booking_model->get_booking_email_template(FOC_DETAILS_INVOICE_FOR_VENDORS_EMAIL_TAG);
                 $subject = vsprintf($email_template[4], array($invoice_data['meta']['company_name'],$invoice_data['meta']['sd'],$invoice_data['meta']['ed']));
@@ -1144,7 +1146,7 @@ class Invoice extends CI_Controller {
                 $email_from = $email_template[2];
                 $to = $invoice_data['meta']['owner_email'] . ", " . $invoice_data['meta']['primary_contact_email'];
                 
-                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . $rem_email_id;
+                $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
                 $pdf_attachement = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/invoices-excel/".$output_file_main;
                  //Upload Excel files to AWS
                 $this->upload_invoice_to_S3($invoice_data['meta']['invoice_id']);
@@ -1934,12 +1936,13 @@ class Invoice extends CI_Controller {
         $invoice_month = date('F', strtotime($get_invoice_month));
 
         $vendor_data = $this->vendor_model->getVendorContact($vendor_id);
+        /* Stop senging invoice email to RM
         $rm_details = $this->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
-        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
         if (!empty($rm_details)) {
            $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID . ", " . $rm_details[0]['official_email'];
         }
-        
+        */
+        $cc = ANUJ_EMAIL_ID.", ".ACCOUNTANT_EMAILID;
         //get email template from database
         $email_template = $this->booking_model->get_booking_email_template(BRACKETS_INVOICE_EMAIL_TAG);
         $subject = vsprintf($email_template[4], array($vendor_data[0]['name']));
@@ -2193,15 +2196,18 @@ class Invoice extends CI_Controller {
                         $str .= " ".TMP_FOLDER . $value['invoice_id']  . '-draft.xlsx' . ' ' .  $value['excel'];
                     }
                 }
-                
+                    $res1 = 0;
+                   ob_start();
                     system('zip '. TMP_FOLDER.$buyback_invoice_id.".zip ". $str);
-                    
+                    system(" chmod 777 " . TMP_FOLDER . $buyback_invoice_id . '.zip ', $res1);
+
                     header('Content-Description: File Transfer');
                     header('Content-Type: application/octet-stream');
                     header("Content-Disposition: attachment; filename=\"$buyback_invoice_id.zip\"");
                     readfile(TMP_FOLDER . $buyback_invoice_id. '.zip');
                     $res1 = 0;
-                    system(" chmod 777 " . TMP_FOLDER . $buyback_invoice_id . '.zip ', $res1);
+                    ob_end_flush();
+                    
                     exec("rm -rf " . escapeshellarg(TMP_FOLDER . $buyback_invoice_id . '.zip'));
                     foreach ($response as $value1) {
                         exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $value1['invoice_id'] . "-draft.xlsx"));
@@ -2307,13 +2313,12 @@ class Invoice extends CI_Controller {
             $out['invoice_id'] = $meta['invoice_id'];
             $out['excel'] = $output_file_excel;
             $out['pdf'] = $output_file_main;
-            $this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_file_main);
         }
         $out['files'] = $files;
         //Do not Delete XLS files now
-        foreach ($files as $file_name) {
-            exec("rm -rf " . escapeshellarg($file_name));
-        }
+//        foreach ($files as $file_name) {
+//            exec("rm -rf " . escapeshellarg($file_name));
+//        }
         unset($meta);
         unset($invoice_details);
         return $out;

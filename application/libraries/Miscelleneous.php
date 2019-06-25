@@ -117,7 +117,7 @@ class Miscelleneous {
         $b['assigned_vendor_id'] = $service_center_id;
         // Set Default Engineer
         if (IS_DEFAULT_ENGINEER == TRUE) {
-            $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
+            $b['assigned_engineer_id'] = NULL;
         } else {
             $engineer = $this->My_CI->vendor_model->get_engineers($service_center_id);
             if (!empty($engineer)) {
@@ -1293,6 +1293,8 @@ class Miscelleneous {
         header("Content-type: text/csv");
         header("Content-type: application/csv");
         header("Content-Disposition: attachment; filename=$filename");
+        //readfile(TMP_FOLDER . $filename);
+        //exec("rm -rf " . escapeshellarg(TMP_FOLDER . $filename));
         exit;
     }
 
@@ -1646,7 +1648,13 @@ class Miscelleneous {
         if (array_key_exists('partner_id', $booking)) {
             $notFoundSfArray['partner_id'] = $booking['partner_id'];
         }
-        $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
+        if(isset($notFoundSfArray['state']) && !is_null($notFoundSfArray['state'])) {
+            $this->My_CI->vendor_model->insert_booking_details_sf_not_exist($notFoundSfArray);
+        }
+        else {
+            //Logging Error Message
+            log_message('info', " Error while Insertion into table sf_not_exist_booking_details");
+        }
     }
 
     /**
@@ -2044,7 +2052,7 @@ class Miscelleneous {
             $data = $this->My_CI->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
         }*/
         $am_id = $this->My_CI->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
-                    array('partners.id' => trim($partner_id), 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
+                    array('partners.id' => trim($partner_id)),"",0,1,1,"partners.id");
         if (!empty($am_id[0]['account_manager_id'])) {
             $data = $this->My_CI->employee_model->getemployeeMailFromID($am_id[0]['account_manager_id']);
         }
@@ -3176,7 +3184,7 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', __METHOD__ . " Enterring..");
         //$get_partner_details = $this->My_CI->partner_model->getpartner_details('account_manager_id, primary_contact_email, owner_email', array('partners.id' => $partner_id));
         $get_partner_details = $this->My_CI->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id,primary_contact_email,owner_email", 
-                        array('partners.id' => $partner_id, 'agent_filters.entity_type' => "247around"),"",0,1,1,"partners.id");
+                        array('partners.id' => $partner_id),"",0,1,1,"partners.id");
         $am_email = "";
         if (!empty($get_partner_details[0]['account_manager_id'])) {
             //$am_email = $this->My_CI->employee_model->getemployeefromid($get_partner_details[0]['account_manager_id'])[0]['official_email'];
@@ -3340,7 +3348,7 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
         $response = array(); 
 
-        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, inventory_master_list.inventory_id, price, gst_rate,inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,entity_id, inventory_master_list.entity_id, inventory_master_list.part_name, inventory_master_list.inventory_id, price, gst_rate,inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
 
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
         $is_partner_wh = '';
@@ -3349,15 +3357,21 @@ function generate_image($base64, $image_name,$directory){
           $is_partner_wh = $partner_details[0]['is_wh'];
           $is_micro_wh = $partner_details[0]['is_micro_wh'];  
         }
-      
+
         if (!empty($inventory_part_number)) {
             //Check Partner Works Micro
             if ($is_micro_wh == 1) {
+
                 //check SF inventory stock
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id);
                 if (!empty($response)) {
                     //Defective Parts Return To
-                    if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
+                    if($response['is_micro_wh'] == 2){
+                        
+                        $response['defective_return_to_entity_type'] = $response['entity_type'];
+                        $response['defective_return_to_entity_id'] = $response['entity_id'];
+                        
+                    } else if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
                         $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
                         if(!empty($wh_address_details)){
                             $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
@@ -3384,21 +3398,24 @@ function generate_image($base64, $image_name,$directory){
                 } 
                 
             } else if ($is_partner_wh == 1) {
-
+                
                 $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
                 if(!empty($response)){
+
                     $response['defective_return_to_entity_type'] = $response['entity_type'];
                     $response['defective_return_to_entity_id'] = $response['entity_id'];
                 }
             }
 
         } else {
+
             return false;
         }
 
         if (empty($response) && !empty($inventory_part_number)) {
             $response['stock'] = false;
             $response['entity_id'] = $partner_id;
+            $response['part_name'] = $inventory_part_number[0]['part_name'];
             $response['entity_type'] = _247AROUND_PARTNER_STRING;
             $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
             $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
@@ -3431,7 +3448,7 @@ function generate_image($base64, $image_name,$directory){
         return $this->My_CI->inventory_model->get_warehouse_details($select,$where1,true);
     }
 
-    function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id= ""){
+     function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id= ""){
         $response = array();
         $post['length'] = -1;
                
@@ -3444,48 +3461,54 @@ function generate_image($base64, $image_name,$directory){
         $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
         $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
         
-        
+       
         if (empty($inventory_stock_details)) {
             $alternate_inventory_stock_details = $this->My_CI->inventory_model->get_alternate_inventory_stock_list($inventory_part_number[0]['inventory_id'], $service_center_id);
            
             if (!empty($alternate_inventory_stock_details)) {
                 if (!empty($alternate_inventory_stock_details[0]['stocks']) && !empty($alternate_inventory_stock_details[0]['inventory_id'])) {
-                    $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number, '
-                            . 'inventory_master_list.inventory_id, price, gst_rate', array('inventory_id' => $alternate_inventory_stock_details[0]['inventory_id']));
+                    $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.part_name, '
+                            . 'inventory_master_list.inventory_id, price, gst_rate,oow_around_margin, inventory_master_list.entity_id', array('inventory_id' => $alternate_inventory_stock_details[0]['inventory_id']));
 
                     $inventory_stock_details = $alternate_inventory_stock_details;
                 }
             }
             
         }
-                
+        
         if(!empty($inventory_stock_details)){
             if(!empty($service_center_id)){
                 $response = array();
                 $response['stock'] = TRUE;
                 $response['entity_id'] = $service_center_id;
                 $response['entity_type'] = _247AROUND_SF_STRING;
+                $response['part_name'] = $inventory_part_number[0]['part_name'];
                 $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
                 $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                 $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
                 $response['is_micro_wh'] = 1;
+                $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
                 
             } else {
-                foreach($inventory_stock_details as $value){
+
+                foreach($inventory_stock_details as $value){                    
                     $warehouse_details = $this->My_CI->inventory_model->get_warehouse_details('warehouse_state_relationship.state,contact_person.entity_id',
                             array('warehouse_state_relationship.state' => $state,'contact_person.entity_type' => _247AROUND_SF_STRING,
-                                'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1), true, true, true);
-
-                    
+                                'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1,
+                                'warehouse_details.entity_id' => $inventory_part_number[0]['entity_id']), true, true, true);
                     if(!empty($warehouse_details)){
                         $response = array();
                         $response['stock'] = TRUE;
                         $response['entity_id'] = $value['entity_id'];
                         $response['entity_type'] = _247AROUND_SF_STRING;
+                        $response['part_name'] = $inventory_part_number[0]['part_name'];
                         $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
                         $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                         $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
                         $response['is_micro_wh'] = 2;
+
+                        $response['challan_approx_value'] = round($response['estimate_cost'] * ( 1 + $inventory_part_number[0]['oow_around_margin'] / 100), 0);
+                        break;
                     }
                 }
             }
@@ -4272,6 +4295,73 @@ function generate_image($base64, $image_name,$directory){
                 log_message('info', __FUNCTION__ . ' Approved Booking Empty from Post');
             }
         }
+    }
+    function get_request_type_life_cycle($bookingID) {
+        $where['booking_id'] = $bookingID;
+        $orderBYArray['date'] = 'ASC';
+        return $this->My_CI->reusable_model->get_search_result_data("booking_request_type_state_change","*",$where,NULL,NULL,$orderBYArray,NULL,NULL,NULL,array());
+        
+    }
+
+    /**
+     * @desc This function is used to process spare transfer
+     */
+    function spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id) {
+        $tcount = 0;
+        $booking_error_array = array();
+        $add_row = array();
+        
+        foreach ($bookings_spare as $booking) {
+            $spareid = $booking['id'];
+            $partner_id = $booking['partner_id'];
+            $state = $booking['state'];
+            
+            $requested_inventory = $booking['requested_inventory_id'];
+            
+            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
+            if (!empty($data)) {
+                 
+                if ($data['stock']) {
+                    $dataupdate = array(
+                        'is_micro_wh' => $data['is_micro_wh'],
+                        'entity_type' => $data['entity_type'],
+                        'defective_return_to_entity_id' => $data['defective_return_to_entity_id'],
+                        'partner_id' => $data['entity_id'],
+                        'defective_return_to_entity_type' => $data['defective_return_to_entity_type'],
+                        'challan_approx_value' => $data['challan_approx_value'],
+                        'requested_inventory_id' => $data['inventory_id'],
+                        'parts_requested' => $data['part_name']
+                    );
+                    $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
+                    $actor = 'Warehouse';
+                    $new_state = 'Spare Part Transferred to ' . $data['entity_id'];
+                    $old_state = 'Spare Part Transferred from ' . $partner_id;
+                    $this->My_CI->inventory_model->update_spare_courier_details($spareid, $dataupdate);
+                    if ($data['entity_type'] == _247AROUND_SF_STRING) {
+                        $remarks = _247AROUND_TRANSFERED_TO_VENDOR;
+                        $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
+                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], 1);
+                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -1);
+                    } else if ($data['entity_type'] == _247AROUND_PARTNER_STRING && $booking['entity_type'] != _247AROUND_PARTNER_STRING) {
+                        $remarks = _247AROUND_TRANSFERED_TO_PARTNER;
+                        $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
+                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -1);
+                    }
+                    $tcount++;
+                } else {
+
+                    $add_row[] = array($booking['booking_id'], $booking['part_number'],$spareid);
+                    array_push($booking_error_array, $booking['booking_id']);
+                    
+                }
+            } else {
+                $add_row[] = array($booking['booking_id'], $booking['part_number'],$spareid);
+                array_push($booking_error_array, $booking['booking_id']);
+                                    
+            }
+        }   /// for loop ends
+        
+        return array($tcount, $booking_error_array, $add_row);
     }
     
 }

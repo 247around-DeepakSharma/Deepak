@@ -126,7 +126,7 @@ class Booking_model extends CI_Model {
 
         foreach ($appliance as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
-            $this->db->select('id as unit_id, pod, price_tags, customer_total, serial_number_pic, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges');
+            $this->db->select('id as unit_id, pod, invoice_pod, price_tags, customer_total, serial_number_pic, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges');
             $this->db->where('appliance_id', $value['appliance_id']);
             $this->db->where('booking_id', $value['booking_id']);
             $this->db->order_by("price_tags","asc");
@@ -725,8 +725,9 @@ class Booking_model extends CI_Model {
 
         $query = $this->db->query($sql);
         $result = $query->result_array();
-   
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*', array('booking_id' => $booking_id));//, symptom_spare_request.spare_request_symptom
+        $post['is_inventory']=1;
+        $post['is_original_inventory']=1;
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_number as original_part_number', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
@@ -1470,7 +1471,7 @@ class Booking_model extends CI_Model {
 
     function getpricesdetails_with_tax($service_centre_charges_id, $state){
 
-        $sql =" SELECT service_category as price_tags,pod,vendor_basic_percentage, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
+        $sql =" SELECT service_category as price_tags,pod,invoice_pod,vendor_basic_percentage, customer_total, partner_net_payable, product_or_services  from service_centre_charges where `service_centre_charges`.id = '$service_centre_charges_id' ";
 
         $query = $this->db->query($sql);
         $result =  $query->result_array();
@@ -1653,10 +1654,87 @@ class Booking_model extends CI_Model {
         $result['DEFAULT_TAX_RATE'] = $default_tax_rate_flag;
         return $result;
     }
-    
-    function update_request_type($booking_id, $price_tag) {
+    function get_old_request_type($booking_id){
+        $where['booking_id'] = $booking_id;
+        $this->db->select('request_type');
+        $this->db->from('booking_details');
+        $this->db->where($where);
+        $query = $this->db->get();
+        $requesstDataArray = $query->result_array();
+        $requestType = NULL;
+        if(!empty($requesstDataArray)){
+            $requestType =  $requesstDataArray[0]['request_type'];
+        }
+        return $requestType;
+    }
+    function update_request_type_history_table($booking_id,$oldRequestType,$oldPriceTag,$newRequest){
+            log_message('info', __METHOD__ . " Booking ID " . $booking_id . "Old Price Tags " . print_r($oldPriceTag, true));
+            $whereNewPrice['booking_id'] = $booking_id;
+            $groupBY  = array('appliance_id');
+            $newPriceTag = $this->reusable_model->get_search_result_data('booking_unit_details','appliance_id,GROUP_CONCAT(price_tags) as price_tag',$whereNewPrice,NULL,NULL,NULL,NULL,NULL,$groupBY);
+            foreach($newPriceTag as $values ){
+                $finalNewPrice[$values['appliance_id']] = $values['price_tag'];
+            }
+            foreach($oldPriceTag as $values2 ){
+                $finalOldPrice[$values2['appliance_id']] = $values2['price_tag'];
+            }
+            $shouldChange = false;
+            foreach($finalOldPrice as $key => $values3){
+                if(array_key_exists($key, $finalNewPrice)){
+                    if($values3 != $finalNewPrice[$key]){
+                        $shouldChange = true;
+                    }
+                }
+               else{
+                   $shouldChange = true;
+                }
+            }
+             if($shouldChange){
+                $data['booking_id'] = $booking_id;
+                $data['old_request_type'] = $oldRequestType;
+                $data['new_request_type'] = $newRequest;
+                $data['new_price_tag'] = json_encode($finalNewPrice);
+                $data['old_price_tag'] = json_encode($finalOldPrice);
+                if(!empty($this->session->userdata('service_center_id'))){
+                    $entity_type = "Service Center";
+                    $entity_id = $this->session->userdata('service_center_id');
+                    $agentID = $this->session->userdata('service_center_agent_id');
+                    $entity_name = $this->session->userdata('service_center_name');
+                    $agent_name = $this->session->userdata('agent_name');
+                }
+                else if(!empty($this->session->userdata('partner_id'))){
+                    $entity_type = "Partner";
+                    $entity_id = $this->session->userdata('partner_id');
+                    $agentID = $this->session->userdata('agent_id');
+                    $entity_name = $this->session->userdata('partner_name');
+                    $agent_name = $this->session->userdata('emp_name');
+                }
+                else if(!empty($this->session->userdata('id'))){
+                    $entity_type = "247around";
+                    $entity_id = _247AROUND;
+                    $agentID = $this->session->userdata('id');
+                    $entity_name = "247around";
+                    $agent_name = $this->session->userdata('employee_id');
+                }
+                else{
+                    $entity_type = "247around";
+                    $entity_id = _247AROUND;
+                    $agentID = _247AROUND_DEFAULT_AGENT;
+                    $entity_name = "247around";
+                    $agent_name = "Default Agent";
+                }
+                $data['entity_type']  = $entity_type;
+                $data['entity_id'] = $entity_id;
+                $data['agent_id'] = $agentID;
+                $data['entity_name'] = $entity_name;
+                $data['agent_name'] = $agent_name;
+                $this->reusable_model->insert_into_table('booking_request_type_state_change',$data);
+                log_message('info', __METHOD__ . " Booking ID " . $booking_id . " Updated Data Array " . print_r($data, true));
+            }
+    }
+    function update_request_type($booking_id, $price_tag,$oldPriceTag = array()) {
         log_message('info', __METHOD__ . " Booking ID " . $booking_id . " Price Tags " . print_r($price_tag, true));
-
+        $oldRequestType =  $this->get_old_request_type($booking_id);
         if (!empty($price_tag)) {
             $results = array_filter($price_tag, function($value) {
                 if ((stripos($value, 'Installation') !== false) || stripos($value, 'Repair') !== false) {
@@ -1669,12 +1747,13 @@ class Booking_model extends CI_Model {
             });
 
             if (!empty($results)) {
-
-                $this->update_booking($booking_id, array('request_type' => array_values($results)[0]));
+                $newRequest = array_values($results)[0];
             } else {
-                $this->update_booking($booking_id, array('request_type' => $price_tag[0]));
+                $newRequest = $price_tag[0];
             }
+            $this->update_booking($booking_id, array('request_type' => $newRequest));
         }
+        $this->update_request_type_history_table($booking_id,$oldRequestType,$oldPriceTag,$newRequest);
     }
 
     /**
@@ -2217,6 +2296,11 @@ class Booking_model extends CI_Model {
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
+        if (!empty($post['join'])) {
+            foreach($post['join'] as $key=>$values){
+                $this->db->join($key, $values);
+            }
+        }
         
         $check_pincode = "(SELECT 1
                                 FROM (vendor_pincode_mapping)
@@ -2639,10 +2723,13 @@ class Booking_model extends CI_Model {
      * @return: array
      * 
      */
-    function get_file_type($where=array()){
+    function get_file_type($where=array(), $showAll = false){
         $this->db->select('*');
+        $this->db->distinct();
         $this->db->from('file_type');
-        $this->db->where('is_active', 1);
+        if(!$showAll) {
+            $this->db->where('is_active', 1);
+        }
         if(!empty($where)){
             $this->db->where($where);
         }

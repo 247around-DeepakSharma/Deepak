@@ -19,7 +19,7 @@ class Initialized_variable {
      * @param Int $partner_id
      */
     function fetch_partner_data($partner_id){
-        $where_get_partner = array('bookings_sources.partner_id' => $partner_id, 'agent_filters.entity_type' => "247around");
+        $where_get_partner = array('bookings_sources.partner_id' => $partner_id);
         $select = "partners.id, bookings_sources.partner_id,bookings_sources.partner_type, bookings_sources.source, bookings_sources.code, "
                                 . " partners.upcountry_approval, upcountry_mid_distance_threshold,"
                                 . " upcountry_min_distance_threshold, upcountry_max_distance_threshold, "

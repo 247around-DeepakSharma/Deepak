@@ -164,7 +164,7 @@
                                         <label for="shipped_parts_name" class="col-md-4">Requested Quantity *</label>
                                         <div class="col-md-6">
                                             <input class="form-control" value="<?php echo $sp->quantity; ?>" id="<?php echo "quantity_".$skey;?>" name="part[<?php echo $skey;?>][quantity]" readonly="readonly" required />
-                                            <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
+                                           
                                             <?php echo form_error('quantity'); ?>
                                         </div>
                                     </div>
@@ -227,7 +227,7 @@
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Quantity *</label>
                                         <div class="col-md-6">
                                             <input class="form-control" value="<?php echo $sp->quantity; ?>" id="<?php echo "shippedquantity_".$skey;?>" name="part[<?php echo $skey;?>][shipped_quantity]" readonly="readonly" required />
-                                            <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
+                                           
                                             <?php echo form_error('quantity'); ?>
                                         </div>
                                     </div>
@@ -334,8 +334,7 @@
                                             <label for="quantity" class="col-md-4">Requested  Quantity *</label>
                                             <div class="col-md-6">
                                                 <input  class="form-control quantity "  id="quantity"  />
-                                              
-                                                <span id="spinner" style="display:none"></span>
+
                                             </div>
                                         </div>.
                                         
@@ -395,7 +394,7 @@
                         <div class="col-md-6">
                             <div class="form-group <?php
                                 if (form_error('courier_name')) {echo 'has-error';} ?>">
-                                <label for="courier" class="col-md-4">Courier Name *</label>
+                                <label for="courier" class="col-md-4">Courier Name </label>
                                 <div class="col-md-6">
                                     <!--                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>-->
                                     <select class="form-control" id="courier_name" name="courier_name" required>
@@ -542,33 +541,31 @@
     function change_shipped_part_type(sp_id){
         var model_number_id = $('#shippedmodelnumberid_' + sp_id).val();
         var part_type = $('#shippedparttype_' + sp_id).val();
+        var requested_inventory_id = $("#requested_inventory_id_"+sp_id).val();
         $('#spinner_' + sp_id).addClass('fa fa-spinner').show();
-        if(model_number_id){
+        if(model_number_id && part_type){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
-                data: { model_number_id:model_number_id, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>',part_type:part_type,is_option_selected:true },
+                data: { model_number_id:model_number_id,requested_inventory_id:requested_inventory_id, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>',part_type:part_type,is_option_selected:true },
                 success:function(data){
-                    
+                    console.log(data);
                     $('#shippedpartsname_' + sp_id).val('val', "");
                     $('#shippedpartsname_' + sp_id).val('Select Part Name').change();
-                    $('#shippedpartsname_' +sp_id).html(data);
+                    $('#shippedpartsname_' +sp_id).html(data).change();
                     $('#spinner_'+ sp_id).removeClass('fa fa-spinner').hide();
                     
-                    var request_part = $("#partsname_"+sp_id).val();
-                    if(request_part){
-                        $('#shippedpartsname_' + sp_id).val(request_part).change(); 
                     }
-                }
             });
         }else{
-            alert("Please Select Model Number");
+            //alert("Please Select Model Number && Part Type");
         }
     }
     
     function change_parts_name(sp_id){
         var model_number_id = $('#shippedmodelnumberid_' + sp_id).val();
         var part_name = $('#shippedpartsname_' +sp_id).val();
+        var invetory_id=  $('#shippedpartsname_' +sp_id).find(':selected').attr('data-inventory');
         if(model_number_id && part_name){
             $.ajax({
                 method:'POST',
@@ -580,7 +577,7 @@
                     if(obj.price){
                         $('#submit_form').attr('disabled',false);
                         $('#approx_value_'+ sp_id).val(obj.price);
-                        $('#inventory_id_' +sp_id).val(obj.inventory_id);
+                        $('#inventory_id_' +sp_id).val(invetory_id);
                     }else{
                         alert("Inventory Details not found for the selected combination.");
                         $('#submit_form').attr('disabled',true);

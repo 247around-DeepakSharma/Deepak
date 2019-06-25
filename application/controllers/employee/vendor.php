@@ -1869,7 +1869,9 @@ class vendor extends CI_Controller {
                 $data['name'] = $this->input->post('name');
                 $data['phone'] = $this->input->post('phone');
                 $data['alternate_phone'] = $this->input->post('alternate_phone');
-                $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
+                if($this->input->post('identity_proof')){
+                    $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
+                }
                 $data_identity['identity_proof_number'] = $this->input->post('identity_id_number');
                 
                 if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
@@ -4027,7 +4029,7 @@ class vendor extends CI_Controller {
                         $flag = 1;
                         //$am_detail = $this->partner_model->getpartner_details('official_email, full_name', array('partners.id' => $value->partner_id),"", TRUE);
                         $am_detail = $this->partner_model->getpartner_data("employee.official_email, employee.full_name", 
-                            array('partners.id' => $value->partner_id, 'agent_filters.entity_type' => "247around"),"",1,1,1);
+                            array('partners.id' => $value->partner_id),"",1,1,1);
                         foreach($am_detail as $am) {
                             $this->table->add_row($value->booking_id, $am['full_name']);
                             array_push($am_email, $am['official_email']);
@@ -5666,6 +5668,100 @@ class vendor extends CI_Controller {
        
         echo $option;
     }
+
+    function get_warehouse_data($id){
+        $wh_details = $this->vendor_model->getVendorContact($id);
+        echo json_encode($wh_details);
+    }
     
+    /*
+     @Desc - This function is used to load view for download SF penalty summary
+     */
+    function penalty_summary(){
+        $this->checkUserSession();
+        $data = array();
+        $where['is_sf'] = 1;
+        $where['active'] = 1;
+        $data['vendor'] = $this->vendor_model->getVendorDetails("service_centres.name, service_centres.id", $where);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/vendor_penalty_summary', $data);
+    }
     
+    /*
+     @Desc - This function is used to download SF penalty summary csv
+     */
+    function download_vendor_penalty_summary(){
+        $vendors = $this->input->post("service_center");
+        $daterange = explode("-", $this->input->post("daterange"));
+        $startDate = trim($daterange[0]);
+        $endDate = trim($daterange[1]);
+        $list = $this->vendor_model->sf_panalty_summary($vendors, $startDate, $endDate);
+        $headings = array("Vendor Name", "Penalty Reason", "Total Bookings", "Total Penalties", "Total Penalty Amount");
+        $this->miscelleneous->downloadCSV($list, $headings,"SF_penalty_summary");
+    }
+    
+    function engineer_wise_calls() {
+        
+        $this->load->view('service_centers/header');
+        $data['engineers'] = $this->reusable_model->get_search_result_data("engineer_details","engineer_details.id,name",[],NULL,NULL,array("name"=>"ASC"),NULL,array());
+        $data['status'] = ['Pending', 'FollowUp', 'Completed', 'Rescheduled', 'Cancelled'];
+        $this->load->view('service_centers/view_engineer_vise_calls',$data);
+        
+    }
+    
+    function get_engineer_vise_call_details() {
+        $post = $this->get_post_data();
+        if ($this->input->post('engineer_id')) {
+            $post[''] = array();
+          
+            $list = $this->engineer_model->get_engineer_vise_call_list($this->input->post());
+           
+            $data = array();
+            $no = $post['start'];
+            foreach ($list as $call_list) {
+                
+                $no++;
+                $row = $this->get_engineer_vise_calls_table($call_list, $no);
+                $data[] = $row;
+            }
+            $post['length'] = -1;
+            //$countlist = $this->inventory_model->get_inventory_stock_list($post, "sum(inventory_stocks.stock) as stock");
+
+
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => count($list),
+                "recordsFiltered" => count($list),
+                'stock' => 0,
+                "data" => $data,
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                'stock' => 0,
+                "data" => array(),
+            );
+        }
+        echo json_encode($output);
+
+    }
+    
+    private function get_engineer_vise_calls_table($call_list, $sn) {
+        $row = array();
+        
+        $row[] = $sn;
+        $row[] = '<span>' . $call_list['booking_id'] . '</span>';
+        $row[] = '<span>' . $call_list['username']."<br>".$call_list['booking_primary_contact_no'] . '</span>';
+        $row[] = '<span>' . $call_list['booking_address'] . '</span>';
+        $row[] = '<span><b>' . $call_list['request_type'] .'</b> '.$call_list['services'] . '</span>';
+        $row[] = '<span>' . $call_list['booking_date'] . '</span>';
+        $row[] = '<span>' . $call_list['age_of_booking'] . '</span>';
+        $row[] = '<span>' . $call_list['partner_name'] . '</span>';
+        $row[] = '<span>' . $call_list['appliance_brand'] . '</span>';
+        $row[] = '<span>' . $call_list['count_escalation'] . '</span>';
+
+        return $row;
+    }
 }

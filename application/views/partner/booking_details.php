@@ -310,7 +310,6 @@
                                                             <th >Final Requested Parts </th>
                                                             <th >Requested Parts type </th>
                                                             <th>Requested Quantity</th>
-                                                            <th>Shipped Quantity</th>
                                                             <th >Requested Date</th>
                                                             <th >Invoice Image </th>
                                                             <th >Serial Number Image </th>
@@ -327,11 +326,10 @@
                                                             <tr>
                                                                 <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
                                                                 <td><?php echo $sp['model_number']; ?></td>
-                                                                <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                                                <td style=" word-break: break-all;"><?php if(isset($sp['original_part_number'])){ echo $sp['original_part_number']; } else { echo $sp['parts_requested']; } ?></td>
                                                                 <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; }  ?></td>
                                                                 <td><?php echo $sp['parts_requested_type']; ?></td>       
-                                                                <td><?php echo $sp['quantity']; ?></td>  
-                                                                <td><?php echo $sp['shipped_quantity']; ?></td> 
+                                                                <td><?php echo $sp['quantity']; ?></td>
                                                                 <td><?php echo $sp['create_date']; ?></td>
                                                                 <td><?php
                                                                     if (!is_null($sp['invoice_pic'])) {
@@ -451,6 +449,7 @@
                                                             <tr>
                                                                 <th>Part Shipped By Partner/Warehouse</th>
                                                                 <th >Shipped Parts </th>
+                                                                <th >Shipped Quantity </th>
                                                                 <th >Courier Name</th>
                                                                 <th >AWB </th>
                                                                 <th >Shipped date </th>
@@ -464,6 +463,7 @@
                                                                 <tr>
                                                                     <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                                                     <td><?php echo $sp['parts_shipped']; ?></td>
+                                                                    <th ><?php echo $sp['shipped_quantity']; ?></th>
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                                                     <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
@@ -494,6 +494,7 @@
                                                         <thead>
                                                             <tr>
                                                                 <th >Shipped Parts </th>
+                                                                <th >Shipped Quantity </th>
                                                                 <th >Courier Name </th>
                                                                 <th >AWB </th>
                                                                 <th> No. Of Boxes </th>
@@ -510,6 +511,7 @@
                                                             <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                                                 <tr>
                                                                     <td><?php echo $sp['defective_part_shipped']; ?></td>
+                                                                    <td><?php echo $sp['shipped_quantity']; ?></td>
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
                                                                             <?php
                                                                             $spareStatus = DELIVERED_SPARE_STATUS;
@@ -571,14 +573,18 @@
                                     <table class="table table-striped table-bordered" >
                                         <tr>
                                             <th>Back Office Person</th>
+                                            <?php if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP) { ?>
                                             <th>Mobile</th>
+                                            <?php } ?>
                                             <th>Email</th>
                                             <th>Municipal Limit </th>
                                         </tr>
                                         <tbody>
                                             <tr>
                                                 <td><?php echo $booking_history[0]['primary_contact_name'];?></td>
+                                                <?php if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP) { ?>
                                                 <td><?php echo $booking_history[0]['primary_contact_phone_1'];?></td>
+                                                <?php } ?>
                                                 <td><?php echo $booking_history[0]['primary_contact_email'];?></td>
                                                 <td><?php if($booking_history[0]['is_upcountry'] == 1){ echo $booking_history[0]["municipal_limit"]." KM";}  ?></td>
                                             </tr>

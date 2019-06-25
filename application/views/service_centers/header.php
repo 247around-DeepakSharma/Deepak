@@ -124,6 +124,9 @@
             opacity: 1;
             color: #fff;
             }
+			.nav>li>a{
+				padding : 10px 12px;
+			}
         </style>
         <?php if(ENVIRONMENT === 'production') { ?> 
         <!-- Global site tag (gtag.js) - Google Analytics -->
@@ -204,12 +207,10 @@
                                 if ($this->session->userdata('is_wh') == 1) { ?> 
                                 <li><a href="<?php echo base_url(); ?>service_center/spare_transfer">Spare Transfer</a></li>
                                 <li class="divider"></li>
-                                <li><a href="<?php echo base_url(); ?>service_center/bulkConversion">Bulk Spare Transfer</a></li> 
-                                <li class="divider"></li>
-                                 <li><a href="<?php echo base_url(); ?>service_center/spare_transfer_from_wh_to_wh">Bulk Spare Transfer from Warehouse to Warehouse</a></li> 
-                                <li class="divider"></li>
                                 <?php   }
                                 ?>
+                                <li><a href="<?php echo base_url(); ?>service_center/delivered_spare_transfer">Delivered Spare Transfer</a></li>
+                                <li class="divider"></li>
 
                             </ul>
                         </li>
@@ -291,14 +292,26 @@
                                 <li class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a></li>
                                 <li class="divider" style="height: 1.5px;"></li>
-
                                 <?php }?>  
+                                
+                                 <?php if($this->session->userdata('is_wh') == 1){ ?>
+                                <li><a href="<?php echo base_url(); ?>service_center/bulkConversion"><strong>Bulk Spare Transfer</strong></a></li> 
+                                <li class="divider"></li>
+                                <li><a href="<?php echo base_url(); ?>service_center/spare_transfer_from_wh_to_wh"><strong>Bulk Spare Transfer from Warehouse to Warehouse</strong></a></li> 
+                                <li class="divider"></li>
+                                  <?php }?>  
                             </ul>
                         </li>
 
-                      
-                        <li>
-                            <a href="<?php echo base_url();?>service_center/gst_details"  >GST</a>
+						<li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Others <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="<?php echo base_url();?>service_center/gst_details"  >GST</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="<?php echo base_url();?>service_center/warranty">Warranty Checker</a></li>  
+                                <li role="separator" class="divider"></li>
+                                <li><a href="https://drive.google.com/drive/folders/1Ri7PZJCuCaSSWt-Bv1InrHiQgtb79Hlp" target="_blank">CRM Training</a></li>  
+                            </ul>
                         </li>
                         <li class="dropdown">
                             <a class="dropdown-toggle" data-toggle="dropdown" href="#">

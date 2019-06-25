@@ -5,30 +5,25 @@
 <div class="right_col" role="main">
     <div class="clearfix"></div>
     
+    <div class="loader hide"></div>
+    
     <div class="row"  >
         <div class="col-md-12 col-sm-12 col-xs-12" >
-            
             <div class="container"  style="border: 1px solid #e6e6e6; padding: 20px;" >
-                <h2 style="padding-bottom: 32px;">Bulk Spare Transfer From Partner To Warehouse</h2><hr>
-            <?php if(!empty($this->session->flashdata('success'))){ ?>
-           <div class="alert alert-success">
-            <strong>Success!</strong>  <?php echo $this->session->flashdata('success');  ?>
-           </div> 
-            <?php }else if(!empty($this->session->flashdata('error'))){ ?>    
-            <div class="alert alert-danger">
-                <strong>Warning !</strong>  <?php echo $this->session->flashdata('error');  ?> <button id="modalauto" style="padding:0px !important;" class="btn btn-small btn-danger"  data-toggle="modal" data-target="#myModal" >Details</button>
-           </div> 
-            
-           <?php  }  ?>   ?> 
+            <h2 style="padding-bottom: 32px;">Bulk Spare Transfer From Partner To Warehouse</h2><hr>
+           <button id="modalauto" style="padding:0px !important;" class="btn  btn-danger hide"  data-toggle="modal" data-target="#myModal" >Details</button>
                 <form method="POST" id="idForm" action="<?php echo base_url();?>employee/spare_parts/bulkConversion_process">
                     <div class="form-group">
-                        <textarea class="form-control"  required="" rows="5" id="bulk_input"  name="bulk_input" placeholder="Booking Ids"></textarea>
+                        <textarea style="resize: none;" class="form-control"  required="" rows="5" id="bulk_input"  name="bulk_input" placeholder="Booking Ids"></textarea>
                     </div>
 
                     <div class="form-group">
-                        <button type="submit" class="btn btn-small btn-success" id="search">Transfer</button>
+                         <button type="submit" class="btn btn-small btn-success" id="search">Transfer</button>
+                        
                     </div>
+                    
                 </form>
+             
             </div>
 
         </div>
@@ -47,30 +42,8 @@
         <h4 class="modal-title">Spare not transferred details</h4>
         </center>
       </div>
-      <div class="modal-body">
-        <table class="table">
-    <thead>
-      <tr>
-        <th>Booking Id</th>
-        <th>Spare Id</th>
-        <th>Part Number</th>
-      </tr>
-    </thead>
-    <tbody>
-        
-      <?php  if(!empty($this->session->flashdata('error_spares'))){
-          $error_spares =$this->session->flashdata('error_spares'); ?>
-    <h5> Total Spare Not Transferred <span style="color: #f3ecec; background: #dd320b;" class="badge"><?php echo count($error_spares);  ?></span> </h5> 
-       <?php   foreach ($error_spares as $data){ ?>
-        <tr>
-        <td><?php echo $data['booking']; ?> </td>
-        <td><?php echo $data['spare_id'];   ?></td>
-        <td><?php echo $data['part_number'];  ?></td>
-        </tr>
-       <?php  }
-        }  ?>
-    </tbody>
-  </table>
+      <div id="errors" class="modal-body">
+
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -79,8 +52,47 @@
 
   </div>
 </div>
+<style>
+    .loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('<?php echo base_url();  ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.62);
+  }
+</style>
 <script type="text/javascript">
-    $(document).ready(function(){
-        $("#modalauto").click();
-    });
+
+    $("#idForm").submit(function(e) {
+    $(".loader").removeClass('hide');
+    e.preventDefault(); // avoid to execute the actual submit of the form.
+
+    var form = $(this);
+    var url = form.attr('action');
+
+    $.ajax({
+           type: "POST",
+           url: url,
+           data: form.serialize(), // serializes the form's elements.
+           success: function(data)
+           {
+               console.log(data); // show response from the php script.
+               if(data=='success'){
+                   swal("Transferred!", "Your spares has been transferred !.", "success"); 
+                   $(".loader").addClass('hide');
+               }else{
+                   swal("Warnings!", "Your all spares has not been transferred !.", "error");
+                   $("#errors").html(data);
+                   $("#modalauto").click();
+                   $(".loader").fadeOut("slow");
+                   $(".loader").addClass('hide');
+                    
+               }
+           }
+         });
+});
+    
+    
 </script>

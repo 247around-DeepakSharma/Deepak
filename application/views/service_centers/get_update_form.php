@@ -3,7 +3,8 @@
         <div class="row">
             <div class="col-md-12">
                 <h2 class="page-header">
-                    Update Booking                    
+                    Update Booking      
+                       <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="float: right;height: 29px;width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
                 </h2>
                 <?php if(validation_errors()) { ?>
                 <div class=" alert alert-danger">
@@ -181,11 +182,11 @@
                                                 <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]"> 
                                                     <option selected disabled>Select Part Warranty Status</option>
                                                     <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if($bookinghistory[0]['request_type'] == REPAIR_IN_WARRANTY_TAG  || 
-                                                            $bookinghistory[0]['request_type'] == EXTENDED_WARRANTY_TAG || $bookinghistory['request_type'] == GAS_RECHARGE_IN_WARRANTY
-                                                            || $bookinghistory['request_type'] == PRESALE_REPAIR_TAG) { echo "SELECTED";}?>> In Warranty </option>
+                                                            $bookinghistory[0]['request_type'] == EXTENDED_WARRANTY_TAG || $bookinghistory[0]['request_type'] == GAS_RECHARGE_IN_WARRANTY
+                                                            || $bookinghistory[0]['request_type'] == PRESALE_REPAIR_TAG) { echo "SELECTED";}?>> In Warranty </option>
                                                     <option value="2" data-request_type = "<?php echo REPAIR_OOW_TAG;?>" 
                                                             <?php if($bookinghistory[0]['request_type'] == REPAIR_OOW_TAG  || 
-                                                                    $bookinghistory['request_type'] == GAS_RECHARGE_OUT_OF_WARRANTY) { echo "SELECTED";}?>> Out Of Warranty </option>
+                                                                    $bookinghistory[0]['request_type'] == GAS_RECHARGE_OUT_OF_WARRANTY) { echo "SELECTED";}?>> Out Of Warranty </option>
                                                 </select>
                                             </div>
                                         </div>
@@ -244,7 +245,7 @@
                                         <div class="form-group">
                                             <label for="quantity" class="col-md-4">Quantity *</label>
                                             <div class="col-md-6">
-                                                <input type="text" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                                <input type="text"  readonly="" value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
                                             </div>
                                         </div>
                                     </div>
@@ -340,7 +341,7 @@
                                             <div class="form-group">
                                                 <label for="quantity" class="col-md-4">Quantity *</label>
                                                 <div class="col-md-6">
-                                                    <input type="text" class="form-control  spare_parts" id="quantity" >
+                                                    <input type="text"  readonly="" value="1" class="form-control  spare_parts" id="quantity" >
                                                 </div>
                                             </div>
                                         </div>

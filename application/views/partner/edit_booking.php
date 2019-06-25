@@ -190,7 +190,7 @@
                         </div>
                         <div class="col-md-4 ">
                             <div class="form-group "  id="repeat_reason_holder" style="display:none;">
-                                <label for="type" class="col-md-12">Repeat Reason</label>
+                                <label for="type" class="col-md-12">Repeat Reason * </label>
                                 <div class="col-md-12">
                                     <input class="form-control"  name="repeat_reason"  id="repeat_reason" placeholder=" Repeat Reason" ><?php if (isset($booking_history[0]['repeat_reason'])) {
                                         echo$booking_history[0]['repeat_reason'];
@@ -243,12 +243,12 @@
                     <div class="x_content">
                         <div class="col-md-3 ">
                             <div class="form-group col-md-12    <?php if (form_error('order_id')) {echo 'has-error';} ?>">
-                                <label for="order_id">Order ID * <span id="error_order_id" style="color:red"></span></label>
+                                <label for="order_id">Reference / Invoice / Order Number * <span id="error_order_id" style="color:red"></span></label>
                                 <input class="form-control" name= "order_id" value="<?php if (!empty(set_value('order_id'))) {
                                     echo set_value('order_id');
                                     } else {
                                     echo $booking_history[0]['order_id'];
-                                    } ?>" placeholder ="Please Enter Order ID" id="order_id" <?php if($is_repeat){echo 'readonly';} ?>/>
+                                    } ?>" placeholder ="Please Enter Reference / Invoice / Order Number" id="order_id" <?php if($is_repeat){echo 'readonly';} ?>/>
                             </div>
                         </div>
                         <div class="col-md-3 ">
@@ -319,12 +319,7 @@
                         <div class="col-md-6">
                             <div class="form-group col-md-12  <?php if (form_error('query_remarks')) {echo 'has-error';} ?>">
                                 <label for="remarks">Remarks  <span id="error_remarks" style="color: red;"></label>
-                                <textarea <?php if($is_repeat){echo 'readonly';} ?> class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php if (set_value('query_remarks')) {
-                                    echo set_value('query_remarks');
-                                    } else {
-                                    echo $booking_history[0]['booking_remarks'];
-                                    } ?>
-                                </textarea>
+                                <textarea <?php if($is_repeat){echo 'readonly';} ?> class="form-control" rows="2" id="remarks" name="query_remarks"  placeholder="Enter Problem Description" ><?php if (set_value('query_remarks')) {  echo set_value('query_remarks'); } else { echo $booking_history[0]['booking_remarks']; } ?></textarea>
                                 <?php echo form_error('query_remarks'); ?>
                             </div>
                         </div>
@@ -344,28 +339,28 @@
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if( form_error('alternate_phone_number') ) { echo 'has-error';} ?>">
                                 <label for="booking_alternate_contact_no">Alternate Mobile</label>
-                                <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if(set_value('alternate_phone_number')){ echo set_value('alternate_phone_number'); } else { echo $booking_history[0]['booking_alternate_contact_no'];} ?>" placeholder ="Please Enter Alternate Contact No" <?php if($is_repeat){echo 'readonly';} ?>>
+                                <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if(set_value('alternate_phone_number')){ echo set_value('alternate_phone_number'); } else { echo $booking_history[0]['booking_alternate_contact_no'];} ?>" placeholder ="Please Enter Alternate Contact No" >
                                 <?php echo form_error('alternate_phone_number'); ?>
                             </div>
                         </div>
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if( form_error('user_email') ) { echo 'has-error';} ?>">
                                 <label for="booking_user_email">Email </label>
-                                <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(set_value('user_email')){ echo set_value('user_email'); } else { echo $booking_history[0]['user_email'];} ?>" placeholder="Please Enter User Email" <?php if($is_repeat){echo 'readonly';} ?>>
+                                <input type="email" class="form-control"  id="booking_user_email" name="user_email" value = "<?php if(set_value('user_email')){ echo set_value('user_email'); } else { echo $booking_history[0]['user_email'];} ?>" placeholder="Please Enter User Email" >
                                 <?php echo form_error('user_email'); ?>
                             </div>
                         </div>
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if( form_error('landmark') ) { echo 'has-error';} ?>">
                                 <label for="landmark">Landmark </label>
-                                <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(set_value('landmark')){ echo set_value('landmark'); } else { echo $booking_history[0]['booking_landmark'];} ?>" placeholder="Enter Any Landmark" <?php if($is_repeat){echo 'readonly';} ?>>
+                                <input type="text" class="form-control" id="landmark" name="landmark" value = "<?php if(set_value('landmark')){ echo set_value('landmark'); } else { echo $booking_history[0]['booking_landmark'];} ?>" placeholder="Enter Any Landmark" >
                                 <?php echo form_error('landmark'); ?>
                             </div>
                         </div>
                         <div class="col-md-12 ">
                             <div class="form-group col-md-12  <?php if( form_error('booking_address') ) { echo 'has-error';} ?>">
                                 <label for="booking_address">Booking Address *  <span id="error_address" style="color: red;"></label>
-                                <textarea <?php if($is_repeat){echo 'readonly';} ?> class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if(set_value('booking_address')){ echo set_value('booking_address'); } else { echo $booking_history[0]['booking_address'];} ?></textarea>
+                                <textarea class="form-control" rows="2" id="booking_address" name="booking_address" placeholder="Please Enter Address"  required ><?php if(set_value('booking_address')){ echo set_value('booking_address'); } else { echo $booking_history[0]['booking_address'];} ?></textarea>
                                 <?php echo form_error('booking_address'); ?>
                             </div>
                         </div>
@@ -410,6 +405,9 @@
     </div>
 </div>
 <script type="text/javascript">
+    
+    var blDisableAcCategoryOptions = "<?= ($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP ? '1' : '0'); ?>";
+    
     function check_validation(){
         var exp1 = /^[6-9]{1}[0-9]{9}$/;
         var order_id =  $('#order_id').val();
@@ -821,6 +819,18 @@
                           $("#priceList").html(data1.table);
                           $("#upcountry_data").val(data1.upcountry_data);
                           $('#submitform').attr('disabled',false);
+                          
+                        if(blDisableAcCategoryOptions == '1') {
+                            $('.price_checkbox[data-price_tag="Gas Recharge (R410) - In Warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge (R410) - Out of warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge - In Warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge - Out of Warranty"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Small Stand"]').css('pointer-events', 'none');
+                            $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').css('pointer-events', 'none');
+                            $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').css('pointer-events', 'none');
+                        }
+
+
                           final_price();
                           set_upcountry();
                           //get_symptom('<?php echo (!empty($symptom[0]['symptom'])?$symptom[0]['symptom']:''); ?>');
@@ -838,6 +848,31 @@
     });
     
     
+    }
+    
+    
+    // In AC Installation case drain pipe per litter and 22 gauge and small stand should be auto select
+    function disableCheckbox(obj) {
+        if($(obj).prop("checked") == true) {
+            var price_tag = $(obj).attr('data-price_tag');
+            if(price_tag.indexOf('Installation') != -1 && $("#service_name").val() == '50') {
+                $('.price_checkbox[data-price_tag="Small Stand"]').prop('checked', true).css('pointer-events', 'none');
+                $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', true).css('pointer-events', 'none');
+                $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').prop('checked', true).css('pointer-events', 'none');
+            } 
+        } else {
+            $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', false).css('pointer-events', 'auto');
+            $('.price_checkbox[data-price_tag="Small Stand"]').prop('checked', false).css('pointer-events', 'auto');
+            $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').prop('checked', false).css('pointer-events', 'auto');
+        }
+        
+        $('#priceList').children('tbody').children('tr').each(function(index) {
+            if($('#checkbox_'+index).prop("checked") == true && $('#checkbox_'+index).attr('data-price_tag').indexOf('Installation') != -1 && $("#service_name").val() == '50') {
+                $('.price_checkbox[data-price_tag="Small Stand"]').prop('checked', true).css('pointer-events', 'none');
+                $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').prop('checked', true).css('pointer-events', 'none');
+                $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').prop('checked', true).css('pointer-events', 'none');
+            }
+        });
     }
     
     $("#booking_pincode").keyup(function(event) {
@@ -1086,6 +1121,7 @@
         var installation_flag = false;
         var pdi = false;
         var extended_warranty = false;
+        var pre_sales = false;
         var array =[];
 
         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
@@ -1107,6 +1143,11 @@
          if(findInArray(delivered_price_tags, 'Extended Warranty') > -1 ){
              extended_warranty = true;
              array.push(extended_warranty);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Presale Repair') > -1 ){
+             pre_sales = true;
+             array.push(pre_sales);
          }
          
          if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 

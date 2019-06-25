@@ -73,6 +73,9 @@ class Dashboard extends CI_Controller {
                 $am_data=$this->reusable_model->get_search_result_data("employee","id,full_name",$am_where,NULL,NULL,array("id"=>"ASC"),NULL,NULL,array()); 
                 $data['am_data']=$am_data;
 
+                
+                $data['not_assigned_booking_data'] = $this->dashboard_model->get_not_assigned_booking_report_data();
+                //echo"<pre>";print_r($s);exit;
                 $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
             }
             $this->load->view('dashboard/dashboard_footer');
@@ -452,59 +455,72 @@ class Dashboard extends CI_Controller {
             $partner_id = "";
         }
         foreach ($rm_array as $value) {
+                    $rm_head = false;
             switch ($value['full_name']) {
                 case EAST_RM:
                     $region[] = "East";
+                    $rm_head = true;
                 break;
                 case SOUTH_RM:
                     $region[] = "South";
+                    $rm_head = true;
                 break;
                 case WEST_RM:
                     $region[] = "West";
+                     $rm_head = true;
                 break;
                 case NORTH_RM:
                     $region[] = "North";
+                    $rm_head = true;
                 break;
             }
-            $sf_list = $this->vendor_model->get_employee_relation($value['id']);
-            if (!empty($sf_list)) {
-                $sf_id = $sf_list[0]['service_centres_id'];
-                $region_data = $this->dashboard_model->get_booking_data_by_rm_region($startDate, $endDate, $sf_id, $partner_id);
-                array_push($rm, $value['full_name']);
-                foreach ($region_data[0] as $key => $value) {
-                    switch ($key) {
-                        case 'Cancelled':
-                            if (!empty($value)) {
-                                array_push($cancelled, $value);
-                            } else {
-                                array_push($cancelled, '0');
-                            }
-                            break;
-                        case 'Completed':
-                            if (!empty($value)) {
-                                array_push($completed, $value);
-                            } else {
-                                array_push($completed, '0');
-                            }
-                            break;
-                        case 'Pending':
-                            if (!empty($value)) {
-                                array_push($pending, $value);
-                            } else {
-                                array_push($pending, '0');
-                            }
-                            break;
-                        case 'Total':
-                            if (!empty($value)) {
-                                array_push($total, $value);
-                            } else {
-                                array_push($total, '0');
-                            }
-                            break;
+            if($rm_head){
+                $sf_list = $this->vendor_model->get_employee_relation($value['id']);
+                if (!empty($sf_list)) {
+                    $sf_id = $sf_list[0]['service_centres_id'];
+                    $region_data = $this->dashboard_model->get_booking_data_by_rm_region($startDate, $endDate, $sf_id, $partner_id);
+                    array_push($rm, $value['full_name']);
+                    foreach ($region_data[0] as $key => $value) {
+                        switch ($key) {
+                            case 'Cancelled':
+                                if (!empty($value)) {
+                                    array_push($cancelled, $value);
+                                } else {
+                                    array_push($cancelled, '0');
+                                }
+                                break;
+                            case 'Completed':
+                                if (!empty($value)) {
+                                    array_push($completed, $value);
+                                } else {
+                                    array_push($completed, '0');
+                                }
+                                break;
+                            case 'Pending':
+                                if (!empty($value)) {
+                                    array_push($pending, $value);
+                                } else {
+                                    array_push($pending, '0');
+                                }
+                                break;
+                            case 'Total':
+                                if (!empty($value)) {
+                                    array_push($total, $value);
+                                } else {
+                                    array_push($total, '0');
+                                }
+                                break;
+                        }
                     }
                 }
             }
         }
+        $rm[] = 'Total';
+        $cancelled[] = array_sum($cancelled);
+        $completed[] = array_sum($completed);
+        $pending[] = array_sum($pending);
+        $total[] = array_sum($total);
+        $region[] = 'Total';
         $json_data['rm'] = implode(",", $rm);
         $json_data['cancelled'] = implode(",", $cancelled);
         $json_data['completed'] = implode(",", $completed);
@@ -3101,5 +3117,37 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 
         echo json_encode($res);
     }
+    
+    function unassigned_booking_full_view($manager_id = NULL) {
+        
+        // get employees associated with manager.
+        $employees = $this->reusable_model->get_search_result_data('employee_hierarchy_mapping', '*', ['manager_id' => $manager_id], NULL, NULL, NULL, NULL, NULL);
+        
+        if($this->session->userdata('userType') == 'employee'){
+            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        }
+        else if($this->session->userdata('userType') == 'partner'){
+            $this->miscelleneous->load_partner_nav_header();
+        }
+        
+        $state_wise_unassigned_booking = [];
+        $child_employees = null;
+        if(!empty($employees)) {
+            $child_employees = implode(',',array_column($employees, 'employee_id'));
+        }
+       
+        $state_wise_unassigned_booking = $this->dashboard_model->get_not_assigned_booking_report_data($manager_id, $child_employees, true);
+       
+        $full_view_data = [];
+        if(!empty($state_wise_unassigned_booking)) {
+            foreach($state_wise_unassigned_booking as $unassigned_booking) {
+               $full_view_data[$unassigned_booking['full_name']][] = $unassigned_booking;
+            }
+        }
+        
+        $this->load->view('dashboard/unassigned_booking_full_view',array('full_view_data' => $full_view_data));
+        $this->load->view('dashboard/dashboard_footer');  
+    }
+    
 }
 

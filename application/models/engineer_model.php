@@ -210,15 +210,15 @@ class Engineer_model extends CI_Model {
         }
     }
     
-//    function get_service_based_engineer($where, $select = "*"){
-//        $this->db->select($select);
-//        $this->db->join('engineer_appliance_mapping', 'engineer_appliance_mapping.engineer_id = engineer_details.id');
-//        if($where){
-//           $this->db->where($where);  
-//        }
-//        $query = $this->db->get("engineer_details");
-//        return $query->result_array();
-//    }
+    function get_service_based_engineer($where, $select = "*"){
+        $this->db->select($select);
+        $this->db->join('engineer_appliance_mapping', 'engineer_appliance_mapping.engineer_id = engineer_details.id');
+        if($where){
+           $this->db->where($where);  
+        }
+        $query = $this->db->get("engineer_details");
+        return $query->result_array();
+    }
     
     function get_engineer_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false, $is_partner = false, $is_vendor = false){
         $this->db->select($select, false);
@@ -246,7 +246,7 @@ class Engineer_model extends CI_Model {
     }
     
     function engineer_profile_data($enginner_id){
-        $sql = "SELECT engineer_details.*, GROUP_CONCAT(services), entity_identity_proof.identity_proof_type, entity_identity_proof.identity_proof_number 
+        $sql = "SELECT engineer_details.*, GROUP_CONCAT(services) as appliances, entity_identity_proof.identity_proof_type, entity_identity_proof.identity_proof_number 
                 FROM engineer_details 
                 JOIN entity_identity_proof on entity_identity_proof.entity_id = engineer_details.id AND entity_identity_proof.entity_type = 'engineer' 
                 JOIN engineer_appliance_mapping on engineer_appliance_mapping.engineer_id = engineer_details.id
@@ -256,5 +256,40 @@ class Engineer_model extends CI_Model {
         return $query->result_array();
     }
         
+    function get_engineer_vise_call_list($post_data) {
+       
+        $where = '';
         
+        if ($post_data['length'] != -1) {
+            $this->db->limit($post_data['length'], $post_data['start']);
+        }
+        
+        if(!empty($post_data['engineer_id'])) {
+            $where .= " and assigned_engineer_id = ".trim($post_data['engineer_id']);
+            //$where .= " and assigned_engineer_id = 24700001";
+            
+        } 
+        if(!empty($post_data['status'])) {
+            $where .= " and current_status = '".trim($post_data['status'])."'";
+        } 
+        
+        $sql = "SELECT 
+                    booking_details.*,
+                    users.name as username,
+                    partners.public_name as partner_name,
+                    services.services,
+                    DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as age_of_booking,
+                    (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = booking_details.booking_id GROUP BY brand.booking_id ) as appliance_brand
+                FROM 
+                    booking_details 
+                    LEFT JOIN partners ON (booking_details.partner_id = partners.id)
+                    LEFT JOIN users ON (booking_details.user_id = users.user_id)
+                    LEFT JOIN services ON (booking_details.service_id = services.id)
+                WHERE 
+                    1 {$where}";
+                     
+        $query = $this->db->query($sql);
+        return $query->result_array();
+        
+    }    
 }

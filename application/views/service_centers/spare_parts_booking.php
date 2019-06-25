@@ -55,7 +55,7 @@ if ($this->uri->segment(3)) {
                 </div>
                 <div class="x_content">
                     <form target="_blank"  action="<?php echo base_url(); ?>service_center/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                        <table class="table table-bordered table-hover table-striped">
+                        <table id="datatable1" class="table table-bordered table-hover table-striped">
                             <thead>
                                 <tr>
                                     <th class="text-center">No</th>
@@ -156,7 +156,7 @@ if ($this->uri->segment(3)) {
                                         </td>-->
                                         
                                         <td>
-                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[]" id="generate_challan_<?php echo $key; ?>" onclick='check_checkbox(2)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
+                                            <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $key; ?>" onclick='check_checkbox(2)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
                                         </td>
 
                                     </tr>
@@ -214,6 +214,11 @@ if ($this->uri->segment(3)) {
                 show: 50,
                 hide: 100
             }
+        });
+
+        $("#datatable1").dataTable({
+            "pageLength": 200,
+            "lengthMenu": [[200, 500,-1], [200, 500, "All"]],
         });
     });
     
@@ -312,11 +317,9 @@ if ($this->uri->segment(3)) {
     
        var sf_id = $("#generate_challan_0").data("service_center_id");
        var flag = false;
+
        $('.checkbox_challan:checked').each(function(i) {
-          var service_center_id = $(this).data("service_center_id");
-          if(service_center_id != sf_id){
-              flag = true;
-          }
+
         });
         
         if(flag){
@@ -324,8 +327,14 @@ if ($this->uri->segment(3)) {
             $('#selectall_challan').prop('checked', false);
             alert("Not allow to select all option.");
         }
-        
-        
+    });
+
+    $(".checkbox_challan").change(function(){
+             if ($('.checkbox_challan:checked').length == $('.checkbox_challan').length) {
+                   $('#selectall_challan').prop('checked', true);
+              }else{
+                $('#selectall_challan').removeAttr('checked');
+              }
     });
 
 
@@ -454,25 +463,7 @@ if ($this->uri->segment(3)) {
             return false;
         }
    }
-   $(document).on("click", ".checkbox_challan", function (i) {
-        var service_center_id_arr = [];
-        generate_challan_id = $(this).attr('id');
-        $('.checkbox_challan:checked').each(function(i) {
-           var service_center_id = $(this).data("service_center_id");
-            
-            if(i === 0){
-                 service_center_id_arr.push(service_center_id);
-            } else {
-                if ($.inArray(service_center_id, service_center_id_arr) !== -1) {                
-                  service_center_id_arr.push(service_center_id);
-              } else {                  
-                  $("#"+generate_challan_id).prop('checked', false);
-                  alert("Do not allow to tick different vendor booking");
-                  return false;
-              }
-            }
-        });
-   });
+
 </script>
 <?php if ($this->session->userdata('success')) {
     $this->session->unset_userdata('success');

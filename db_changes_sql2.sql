@@ -108,10 +108,49 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'send_mail_for_insert_update_applaince_by_sf', 'Update Appliance By SF', 'Hi ,<br> Charges Not add fro below category <br> Brand -%s , Category - %s <br> Capacity - %s <br> Service Category - %s . Please add the charges . <br> Thanks<br> 247Around Team', 'booking@247around.com', 'gurpreets@247around.com', 'abhaya@247around.com', 'abhisheka@247around.com', '1', '2016-09-26 18:30:00');
  
  UPDATE `email_template` SET `template` = 'Hi ,<br> Charges Not add for below category <br> Brand -%s , <br>Category - %s <br> Capacity - %s <br> Service Category - %s  <br> . Please add the charges . <br> Thanks<br> 247Around Team' WHERE `email_template`.`id` = 158;
-  ---Abhishek ---
+----Abhishek ----
+--
+-- Table structure for table `entity_gst_details`
+--
+
+CREATE TABLE `entity_gst_details` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_type` varchar(15) NOT NULL,
+  `gst_number` varchar(16) NOT NULL,
+  `gst_file` varchar(500) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `entity_gst_details`
+--
+ALTER TABLE `entity_gst_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `entity_gst_details`
+--
+ALTER TABLE `entity_gst_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ 
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-----  Abhishek End ------
+ ---Abhishek ---
 
  
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'spare_not_transfer_from_wh_to_wh', 'Spare for booking ID - %s not transferred', 'Spare not transferred due to no available of stock ,Booking ID is %s, <br/>Inventory ID is %s . <br>\r\n', 'noreply@247around.com', '247around_dev@247around.com', 'abhisheka@247around.com', 'abhaya@247around.com', '1', '', '2018-10-30 10:48:05');
+<<<<<<< HEAD
  
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'spare_not_transfer_from_wh_to_wh', 'Spare for booking ID - %s not transferred', 'Spare not transferred due to no available of stock ,Booking ID is %s, <br/>Inventory ID is %s . <br>\r\n', 'noreply@247around.com', '247around_dev@247around.com', 'abhisheka@247around.com', 'abhaya@247around.com', '1', '', '2018-10-30 10:48:05');
 --Chhavi
@@ -146,3 +185,44 @@ ALTER TABLE `fake_cancellation_missed_call_log`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
  
+
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Download SF Penalty Summary', '', 'employee/vendor/penalty_summary', '2', '36', 'admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);--Chhavi 12-June-2019
+CREATE TABLE `booking_request_type_state_change` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(256) NOT NULL,
+  `old_request_type` varchar(256) NOT NULL,
+  `new_request_type` varchar(256) NOT NULL,
+  `old_price_tag` text NOT NULL,
+  `new_price_tag` text NOT NULL,
+  `entity_type` varchar(164) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `agent_id` int(11) NOT NULL,
+  `date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `booking_request_type_state_change`
+--
+ALTER TABLE `booking_request_type_state_change`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `booking_id` (`booking_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `booking_request_type_state_change`
+--
+ALTER TABLE `booking_request_type_state_change`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+UPDATE `email_template` SET `template` = 'Spare not transferred due to no available of stock ,Details are - %s,', `to` = 'abhisheka@247around.com', `bcc` = 'abhisheka@247around.com' WHERE `email_template`.`id` = 159;
+--Kalyani 07-June-2019
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Download SF Penalty Summary', '', 'employee/vendor/penalty_summary', '2', '36', 'admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
+ALTER TABLE `invoice_details` ADD `from_gst_number` VARCHAR(25) NULL DEFAULT NULL AFTER `total_amount`, ADD `to_gst_number` VARCHAR(25) NULL DEFAULT NULL AFTER `from_gst_number`;

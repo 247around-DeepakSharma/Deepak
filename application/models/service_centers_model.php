@@ -267,14 +267,14 @@ class Service_centers_model extends CI_Model {
             $filter_value=1;
             $stateWhere['agent_filters.agent_id="'.$this->session->userdata('agent_id').'"'] = NULL;
             $stateWhere['agent_filters.is_active="' .$filter_value.'"']=NULL;
-//            $this->db->join('agent_filters', 'agent_filters.state =  booking_details.state');
+//            $this->db->join('agent_filters', 'agent_filters.state =  booking_details.state', "left");
 //            $this->db->where($stateWhere, false);  
             if(!empty($stateWhere)){
              foreach ($stateWhere as $stateWhereKey=>$stateWhereKeyValue){
                      $where_sc =$where_sc. " AND ".$stateWhereKey;
              }
          }
-         $join=$join." JOIN agent_filters ON agent_filters.state = booking_details.state";
+         $join=$join." LEFT JOIN agent_filters ON agent_filters.state = booking_details.state";
         }
         
          if(!$select){
@@ -433,11 +433,11 @@ class Service_centers_model extends CI_Model {
      * @return type Array
      */
     function get_updated_spare_parts_booking($sc_id){
-        $sql = "SELECT distinct sp.*,DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(sp.date_of_request, '%Y-%m-%d')) AS age_of_request, bd.partner_id,bd.request_type "
+        $sql = "SELECT distinct sp.*,DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(sp.date_of_request, '%Y-%m-%d')) AS age_of_request,IF( entity_type = 'vendor','Warehouse','Partner' ) as  entity_type , bd.partner_id,bd.request_type "
                 . " FROM spare_parts_details as sp, service_center_booking_action as sc, booking_details as bd "
                 . " WHERE  sp.booking_id = sc.booking_id  AND sp.booking_id = bd.booking_id "
-                . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = '".SPARE_SHIPPED_BY_PARTNER."' OR sp.status = '".SPARE_PART_ON_APPROVAL."' OR sp.status = '".SPARE_OOW_SHIPPED."' ) AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
-                . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."' OR sc.internal_status = '".SPARE_OOW_SHIPPED."' OR sc.internal_status = '"._247AROUND_PENDING."' ) "
+                . " AND (sp.status = '".SPARE_PARTS_REQUESTED."' OR sp.status = '".SPARE_SHIPPED_BY_PARTNER."' OR sp.status = '".SPARE_PART_ON_APPROVAL."' OR sp.status = '".SPARE_OOW_SHIPPED."' OR sp.status = '".SPARE_OOW_EST_GIVEN."' OR sp.status = '".SPARE_OOW_EST_REQUESTED."' ) AND (sc.current_status = 'InProcess' OR sc.current_status = 'Pending')"
+                . " AND ( sc.internal_status = '".SPARE_PARTS_REQUIRED."' OR sc.internal_status = '".SPARE_PARTS_SHIPPED."' OR sc.internal_status = '".SPARE_OOW_SHIPPED."' OR sc.internal_status = '"._247AROUND_PENDING."' OR sc.internal_status = '".SPARE_OOW_EST_GIVEN."' OR sc.internal_status = '".SPARE_OOW_EST_REQUESTED."' ) "
 
                 . " AND sc.service_center_id = '$sc_id' ";
         $query = $this->db->query($sql);
@@ -478,7 +478,7 @@ class Service_centers_model extends CI_Model {
         if($state == 1){
             $stateWhere['agent_filters.agent_id'] = $this->session->userdata('agent_id');
             $stateWhere['agent_filters.is_active'] = 1;
-            $this->db->join('agent_filters', 'agent_filters.state =  booking_details.state');
+            $this->db->join('agent_filters', 'agent_filters.state =  booking_details.state', "left");
             $this->db->where($stateWhere, false);  
         }
     }
@@ -1032,5 +1032,51 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $result = $query1->result();
 
         return $result;
+    }
+    
+    function spare_assigned_to_partner($where, $select, $group_by, $sf_id = false, $start = -1, $end = -1,$count = 0,$orderBY=array()){
+        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+        $this->db->_protect_identifiers = FALSE;
+        $this->db->select($select, false);
+        $this->db->from("spare_parts_details");
+        $this->db->join('booking_details', " booking_details.booking_id = spare_parts_details.booking_id");
+        $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
+        $this->db->join('services', " services.id = booking_details.service_id");
+        if($sf_id){
+            $this->db->join("inventory_stocks", "inventory_stocks.inventory_id = requested_inventory_id AND inventory_stocks.entity_id = '".$sf_id."' and inventory_stocks.entity_type = '"._247AROUND_SF_STRING."'", "left");
+        }
+        $this->db->join("users", "users.user_id = booking_details.user_id");
+        $this->db->join("service_centres", "service_centres.id = booking_details.assigned_vendor_id");
+        $this->db->where($where);
+        if($start > -1){
+            $this->db->limit($start, $end);
+        }
+        if(!$count){
+        $this->db->group_by($group_by);
+        }
+        if(!empty($orderBY)){
+            $this->db->order_by($orderBY['column'], $orderBY['sorting']);
+        }
+        $query = $this->db->get();
+        //echo $this->db->last_query();exit;
+        log_message('info', __METHOD__. "  ".$this->db->last_query());
+        return $query->result_array();
+    }
+    
+    /**
+     * 
+     * @param type $warehouse_id
+     */
+    function get_warehouse_state($warehouse_id) {
+        $sql = "SELECT 
+                    warehouse_state_relationship.state
+                FROM 
+                    contact_person 
+                    join warehouse_person_relationship on (contact_person.id = warehouse_person_relationship.contact_person_id)
+                    join warehouse_state_relationship on (warehouse_person_relationship.warehouse_id = warehouse_state_relationship.warehouse_id)
+                WHERE 
+                    entity_id = {$warehouse_id} and entity_type = '"._247AROUND_SF_STRING."';";
+        
+        return array_column($this->db->query($sql)->result_array(), 'state');            
     }
 }

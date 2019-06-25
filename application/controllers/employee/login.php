@@ -367,7 +367,7 @@ class Login extends CI_Controller {
                 }
              $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
                         $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['department'],$agent[0]['role'],$agent[0]['is_filter_applicable'],
-                     $booking_review,$partner_details[0]['is_micro_wh']);
+                     $booking_review,$partner_details[0]['is_micro_wh'],$agent[0]['name']);
                 log_message('info', 'Partner loggedIn  partner id' .$partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");
@@ -386,7 +386,7 @@ class Login extends CI_Controller {
      * @param: Partner name
      * @return: void
      */
-    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_wh,$logo_img,$is_login_by_247=1,$department,$role,$filter,$review,$is_micro_wh) {
+    function setPartnerSession($partner_id, $partner_name, $agent_id,$status, $is_prepaid,$is_wh,$logo_img,$is_login_by_247=1,$department,$role,$filter,$review,$is_micro_wh,$agentName) {
         $userSession = array(
             'session_id' => md5(uniqid(mt_rand(), true)),
             'partner_id' => $partner_id,
@@ -403,7 +403,8 @@ class Login extends CI_Controller {
             'department' => $department,
             'user_group' => $role,
             'is_filter_applicable' => $filter,
-            'review' => $review
+            'review' => $review,
+            'emp_name' => $agentName,
         );
         
         $this->session->set_userdata($userSession);
@@ -451,7 +452,7 @@ class Login extends CI_Controller {
                 }
                 $this->setPartnerSession($partner_details[0]['id'], $partner_details[0]['public_name'], $agent[0]['agent_id'],
                         $partner_details[0]['is_active'], $partner_details[0]['is_prepaid'],$partner_details[0]['is_wh'],$logo_img,0,$agent[0]['department'],$agent[0]['role'],$agent[0]['is_filter_applicable'],
-                        $booking_review,$partner_details[0]['is_micro_wh']);
+                        $booking_review,$partner_details[0]['is_micro_wh'],$agent[0]['name']);
                 log_message('info', 'Partner loggedIn  partner id' .$partner_details[0]['id'] . " Partner name" . $partner_details[0]['public_name']);
                 // Add Navigation Header In Cache
                 $this->miscelleneous->set_header_navigation_in_cache("Partner");
@@ -497,7 +498,7 @@ class Login extends CI_Controller {
             $this->setVendorSession($sc_details[0]['id'], $sc_details[0]['name'], 
                     $agent[0]['id'], $sc_details[0]['is_update'], 
                     $sc_details[0]['is_upcountry'],$sc_details[0]['is_sf'], $sc_details[0]['is_cp'], $sc_details[0]['is_wh'],$wh_name,$is_gst_exist, $sc_details[0]['isEngineerApp'],
-                    $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'], TRUE);
+                    $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'], TRUE,$sc_details[0]['primary_contact_email'],$agent[0]['full_name']);
            
             if ($this->session->userdata('is_sf') === '1') {
                 echo "service_center/dashboard";
@@ -517,7 +518,7 @@ class Login extends CI_Controller {
      * @param: is update
      * @return: void
      */
-    function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$wh,$wh_name,$is_gst_doc,$engineer, $municipal_limit, $is_micro_wh, $is_login_by_247=1) {
+    function setVendorSession($service_center_id, $service_center_name, $sc_agent_id, $update, $is_upcountry,$sf, $cp,$wh,$wh_name,$is_gst_doc,$engineer, $municipal_limit, $is_micro_wh, $is_login_by_247=1,$poc_email,$agent_name) {
 	$userSession = array(
 	    'session_id' => md5(uniqid(mt_rand(), true)),
 	    'service_center_id' => $service_center_id,
@@ -535,7 +536,9 @@ class Login extends CI_Controller {
             'is_wh' => $wh,
             'wh_name' => $wh_name,
             'is_gst_exist' => $is_gst_doc,
-            'is_micro_wh'=>$is_micro_wh    
+            'is_micro_wh'=>$is_micro_wh,
+            'poc_email'=>$poc_email,
+            'agent_name'=>$agent_name
 	);
 
         $this->session->set_userdata($userSession);
@@ -587,7 +590,7 @@ class Login extends CI_Controller {
                         $sc_details[0]['is_cp'],
                         $sc_details[0]['is_wh'],
                         $wh_name,
-                        $is_gst_exist,$sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'],0);
+                        $is_gst_exist,$sc_details[0]['isEngineerApp'], $sc_details[0]['min_upcountry_distance'],$sc_details[0]['is_micro_wh'],0,$sc_details[0]['primary_contact_email'],$agent['full_name']);
                 
                 if($this->session->userdata('is_sf') === '1'){
                     redirect(base_url() . "service_center/dashboard");
