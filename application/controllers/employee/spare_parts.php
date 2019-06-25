@@ -2112,9 +2112,7 @@ class Spare_parts extends CI_Controller {
 
                     if (!empty($is_warehouse)) {
                         
-                         if ($spare_data['status'] == SPARE_PARTS_REQUESTED) {
-
-                            $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $spare_parts_details[0]['original_inventory_id'], 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id), $partner_id);
+                            $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $spare_parts_details[0]['requested_inventory_id'], 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id), $partner_id);
 
                             if (!empty($warehouse_details)) {
                                 $spare_data['partner_id'] = $warehouse_details['entity_id'];
@@ -2124,10 +2122,9 @@ class Spare_parts extends CI_Controller {
                                 $spare_data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
                                 $spare_data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
                                 $spare_data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
+                                $spare_data['parts_requested'] = $warehouse_details['part_name'];
+                                $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
 
-                                if (!empty($warehouse_details['inventory_id'])) {
-                                    $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
-                                }
                             } else {
                                 $spare_data['partner_id'] = $partner_id;
                                 $spare_data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -2135,7 +2132,7 @@ class Spare_parts extends CI_Controller {
                                 $spare_data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                                 $spare_data['defective_return_to_entity_id'] = $partner_id;
                             }
-                        }
+
                     } else {
                         $spare_data['partner_id'] = $partner_id;
                         $spare_data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -2143,7 +2140,7 @@ class Spare_parts extends CI_Controller {
                         $spare_data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                         $spare_data['defective_return_to_entity_id'] = $partner_id;
                     }
-                }
+                } 
 
                                                
                 $spare_data['part_requested_on_approval'] = 1;
