@@ -808,6 +808,9 @@ class Partner extends CI_Controller {
         $return_data['grace_period_date'] = $this->input->post('grace_period_date');
         $return_data['oot_spare_to_be_shipped'] = $this->input->post('oot_spare_to_be_shipped');
         $return_data['is_wh'] = $this->input->post('is_wh');
+        if(empty($return_data['is_wh'])) {
+            $return_data['is_wh'] = $this->input->post('is_warehouse');
+        }
         $is_prepaid = $this->input->post('is_prepaid');
         $return_data['is_prepaid'] = 2; // Default set
         if ($is_prepaid == 1) {
@@ -4050,8 +4053,13 @@ class Partner extends CI_Controller {
     public function get_contact_us_page() {
         $partner_id = $this->session->userdata('partner_id');
         //$data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
-        $data['account_manager_details'] = $this->partner_model->getpartner_data("employee.*,group_concat(distinct agent_filters.state) as state", 
+        $data['account_manager_details'] = $this->partner_model->getpartner_data("employee.*,group_concat(distinct agent_filters.state separator ', ') as state", 
                 array('partners.id' => $partner_id),"",1,1,1,"employee.id");
+        $state_arr = explode(", ", $data['account_manager_details'][0]['state']);
+        $arr_state = $this->booking_model->get_state();
+        if(count($state_arr) === count($arr_state)) {
+            $data['account_manager_details'][0]['state'] = "Pan India";
+        }
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
         $data['holidayList'] = $this->employee_model->get_holiday_list();
         //$this->load->view('partner/header');
@@ -5129,6 +5137,7 @@ class Partner extends CI_Controller {
             "SF City",
             "SF State",
             "SF Remarks",
+            "Warehouse Name",
             "Requested Part Code",
             "Requested Part Name",
             "Requested Quantity",
@@ -5168,6 +5177,7 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['sf_city'];              
             $tempArray[] = $sparePartBookings['sf_state'];
             $tempArray[] = $sparePartBookings['remarks_by_sc'];
+            $tempArray[] = $sparePartBookings['warehouse_name'];
             $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['part_name'];
             $tempArray[] = $sparePartBookings['quantity'];
