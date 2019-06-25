@@ -2296,6 +2296,11 @@ class Booking_model extends CI_Model {
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
+        if (!empty($post['join'])) {
+            foreach($post['join'] as $key=>$values){
+                $this->db->join($key, $values);
+            }
+        }
         
         $check_pincode = "(SELECT 1
                                 FROM (vendor_pincode_mapping)
