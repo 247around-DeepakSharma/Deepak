@@ -490,7 +490,9 @@
                                                         <th>Std. Charges</th>
                                                         <th>Partner Discount</th>
                                                         <th>Final Charges</th>
+                                                        <?php if(!$is_saas){?>
                                                         <th>247around Discount</th>
+                                                        <?php } ?>
                                                         <th>Selected Services</th>
                                                     </tr>
                                                     <tbody>
@@ -540,6 +542,7 @@
                                                                     echo $customer_net_payable;
                                                                     ?>
                                                             </td>
+                                                            <?php if(!$is_saas){?>
                                                             <td><input type="text" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand_id']."][".$clone_number."][". $price['id']."][]"; ?>" id="<?php echo "discount_".$div . "_1"; ?>"
                                                                 value = "<?php  if(isset($unit_details[0]['quantity'])){
                                                                     $around_net_payable = NUll;
@@ -549,7 +552,6 @@
                                                                            }
                                                                         }
                                                                     }
-                                                                    
                                                                     if(is_null($around_net_payable)){
                                                                         echo intval($price['around_net_payable']);
                                                                     } else {
@@ -557,6 +559,9 @@
                                                                     }?>"
                                                                 placeholder='Enter discount' readonly />
                                                             </td>
+                                                            <?php } else{
+                                                             $around_net_payable = 0;
+                                                            } ?>
                                                             <td>
                                                                 <?php
                                                                  $onclick = "onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()'";
