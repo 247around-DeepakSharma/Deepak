@@ -296,7 +296,7 @@
                                 if (is_null($row->booking_jobcard_filename)) {
                                     echo $row->booking_id;
                                 } else {
-                                    echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';
+                                    echo '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';
                                 }
                                 ?>
                         </td>
