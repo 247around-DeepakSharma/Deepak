@@ -4053,8 +4053,13 @@ class Partner extends CI_Controller {
     public function get_contact_us_page() {
         $partner_id = $this->session->userdata('partner_id');
         //$data['account_manager_details'] = $this->miscelleneous->get_am_data($partner_id);
-        $data['account_manager_details'] = $this->partner_model->getpartner_data("employee.*,group_concat(distinct agent_filters.state) as state", 
+        $data['account_manager_details'] = $this->partner_model->getpartner_data("employee.*,group_concat(distinct agent_filters.state separator ', ') as state", 
                 array('partners.id' => $partner_id),"",1,1,1,"employee.id");
+        $state_arr = explode(", ", $data['account_manager_details'][0]['state']);
+        $arr_state = $this->booking_model->get_state();
+        if(count($state_arr) === count($arr_state)) {
+            $data['account_manager_details'][0]['state'] = "Pan India";
+        }
         $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
         $data['holidayList'] = $this->employee_model->get_holiday_list();
         //$this->load->view('partner/header');
@@ -4726,14 +4731,16 @@ class Partner extends CI_Controller {
         $select = "partners.id,public_name,company_type,primary_contact_name,"
                 . "primary_contact_email,primary_contact_phone_1,"
                 . "owner_name,owner_email,owner_phone_1,gst_number,pan,"
-                . "customer_care_contact as customer_care_num,address,employee.full_name as am_name,employee.official_email as am_email, agreement_start_date, agreement_end_date,"
+                . "customer_care_contact as customer_care_num,address,GROUP_CONCAT(DISTINCT employee.full_name) as am_name,GROUP_CONCAT(DISTINCT employee.official_email) as am_email, agreement_start_date, agreement_end_date,"
                 . "upcountry_rate, CASE WHEN is_upcountry = 1 THEN 'Yes' ELSE 'No' END as upcountry, upcountry_max_distance_threshold, CASE WHEN upcountry_approval = 1 THEN 'Yes' ELSE 'No' END as upcountry_approval,"
                 . "upcountry_approval_email, invoice_email_to, invoice_email_cc, invoice_email_bcc,"
                 . "CASE WHEN is_prepaid = 0 THEN 'PostPaid' WHEN is_prepaid = 1 THEN 'PrePaid' ELSE ' ' END as is_prepaid, prepaid_amount_limit, prepaid_notification_amount,"
                 . "postpaid_credit_period, postpaid_notification_limit, postpaid_grace_period";
-        $where = array('is_active' => 1);
-       
-        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"");//,TRUE
+        $where = array('partners.is_active' => 1);
+        $group_by = "partners.id";
+
+        //$partner_details['excel_data_line_item'] = $this->partner_model->getpartner_details($select,$where,"",TRUE);//,TRUE
+        $partner_details['excel_data_line_item'] = $this->partner_model->getpartner_data($select, $where, "",1,1,1,$group_by);
         $service_brands=array();
         //add appliance of partner
         foreach ($partner_details['excel_data_line_item'] as $key => $value) {
@@ -5132,6 +5139,7 @@ class Partner extends CI_Controller {
             "SF City",
             "SF State",
             "SF Remarks",
+            "Warehouse Name",
             "Requested Part Code",
             "Requested Part Name",
             "Requested Quantity",
@@ -5171,6 +5179,7 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['sf_city'];              
             $tempArray[] = $sparePartBookings['sf_state'];
             $tempArray[] = $sparePartBookings['remarks_by_sc'];
+            $tempArray[] = $sparePartBookings['warehouse_name'];
             $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['part_name'];
             $tempArray[] = $sparePartBookings['quantity'];

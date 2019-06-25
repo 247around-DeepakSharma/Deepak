@@ -727,7 +727,7 @@ class Booking_model extends CI_Model {
         $result = $query->result_array();
         $post['is_inventory']=1;
         $post['is_original_inventory']=1;
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,im.part_number as shipped_part_number,original_im.part_number as original_part_number', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_number as original_part_number', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
@@ -2295,6 +2295,11 @@ class Booking_model extends CI_Model {
         $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR booking_details.booking_date = '')",NULL);
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
+        }
+        if (!empty($post['join'])) {
+            foreach($post['join'] as $key=>$values){
+                $this->db->join($key, $values);
+            }
         }
         
         $check_pincode = "(SELECT 1

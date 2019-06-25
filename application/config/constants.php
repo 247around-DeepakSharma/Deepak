@@ -645,7 +645,7 @@ define('_247AROUND_CANCELED_APPROVED','Cancelled_Approved');
 //247around engineer string
 define('_247AROUND_ENGINEER_STRING','engineer');
 
-define('SF_PURCHASE_INVOICE_FILE_TYPE', '3');
+define('SF_PURCHASE_INVOICE_FILE_TYPE', '4');
 define('FREE_INSTALLATION_REQUEST', 'Installation & Demo (Free)');
 define('BOOKING_PURCHASE_INVOICE_FILE_TYPE', '1');
 
@@ -655,6 +655,6 @@ define('_247AROUND_TRANSFERED_TO_VENDOR', 'Spare transfer from  partner to vendo
 define('_247AROUND_TRANSFERED_TO_NEXT_ACTION', 'Spare Part to be shipped');
 define('SF_UPDATE_FORM_VALIDATION_TEXT', 'sf_update');
 define('_247AROUND_TRANSFERED_TO_PARTNER', 'Spare transfer from  warehouse to partner');
-
+define('SYMPTOM_DEFECT_SOLUTION_MAPPING_FILE', 'Symptom_Defect_Solution_Mapping_File');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
