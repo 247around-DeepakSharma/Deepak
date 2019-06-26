@@ -174,8 +174,28 @@
                                 <div class="col-md-12 col-sm-12 col-xs-12">
                                     <div class="x_panel">
                                         <div class="x_title" style="border-bottom: none;">
-                                            <a style="float: left;background: #2a3f54;border: #2a3f54;" class="btn btn-success" href="<?php echo base_url(); ?>partner/upcountry_report">Download Upcountry Details</a>
-                                           <a style="float: left;background: #2a3f54;border: #2a3f54;" class="btn btn-success" href="<?php echo base_url(); ?>partner/download_spare_part_shipped_by_partner">Download All Shipped Spare Parts</a>
+                                            <table class="table table-bordered table-condensed" width="50%">
+                                                <thead>
+                                                    <tr>
+                                                        <th width="10%">S.No.</th>
+                                                        <th width="70%">Description</th>
+                                                        <th width="20%">Download Link</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php 
+                                                        $rows = ['Download Upcountry Details' => 'partner/upcountry_report', 'Download All Shipped Spare Parts' => 'partner/download_spare_part_shipped_by_partner']; 
+                                                        $sno = 1;
+                                                        foreach($rows as $description => $link) {?>
+                                                    <tr>
+                                                        <td><?php echo $sno; ?></td>
+                                                        <td><?php echo $description; ?></td>
+                                                        <td><a href="<?php echo base_url().$link; ?>"><span style="color:blue;" class="glyphicon glyphicon-download"></span></a></td>
+                                                    </tr>
+                                                    <?php $sno++; } ?>
+                                                </tbody>
+                                            </table>
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -188,6 +208,7 @@
         </div>
     </div>
 </div>
+
 <script type="text/javascript">
     
     $("#state").select2({

@@ -38,6 +38,7 @@
                                 <th>City</th>
                                 <th>State</th>
                                 <th>Booking Date</th>
+                                <th>Completion Date</th>
                                 <?php if ($status != "Cancelled") { ?>
                                 <th>TAT (Days)</th>
 
@@ -96,6 +97,9 @@
                                     </td>
                                     <td>
                                         <?php if(!empty($row['booking_date'])){ echo date('d-m-y', strtotime($row['booking_date'])); } ?> 
+                                    </td>
+                                    <td>
+                                        <?php if(!empty($row['service_center_closed_date'])){ echo date('d-m-y', strtotime($row['service_center_closed_date'])); } ?> 
                                     </td>
                                     <?php if ($status != "Cancelled") { ?>
                                 <td><?php echo $row['tat']; ?></td>
