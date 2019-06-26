@@ -1312,7 +1312,7 @@ class Booking extends CI_Controller {
             } else {
                 $data['prepaid_msg'] = "";
             }
-            $data['services'] = "<option selected disabled>Select Product</option>";
+            $data['services'] = "<option selected disabled value='option_holder'>Select Product</option>";
             foreach ($services as $appliance) {
                 $data['services'] .= "<option ";
                 if ($selected_service_id == $appliance->id) {
