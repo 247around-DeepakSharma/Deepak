@@ -66,18 +66,13 @@
                                     <th>Basic Price</th>
  
                                     <th>GST Rate</th>-->
-                                    <th>SF Price(including GST)</th>
-                                    <th>SF Margin</th>
-                                    <th>Customer Price (including GST)</th>
- 
                                     <th>GST Rate</th>
-                                    <th>Total Price</th>
-                                    <th>Vendor Margin</th>
+                                    <th>SF Price(including GST)</th>
+                                    <th>SF Margin</th>                                  
                                     <?php if(!$saas_flag){?>
                                     <th>Around Margin </th> 
                                    <?php  } ?>
-                                    <th>Customer Price</th>
- 
+                                    <th>Customer Price (including GST)</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
