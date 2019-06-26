@@ -2189,9 +2189,12 @@ class Spare_parts extends CI_Controller {
                     }
                 } else {
                     //Send Push Notification 
-
+                    
+                    if (!empty($spare_data['status'])) {
+                        $data['status'] = $spare_data['status'];
+                    }
                     array_push($data_to_insert, $data);
-
+                                       
                     $receiverArray[array_unique(array_column($data_to_insert, 'entity_type'))[0]] = array(array_unique(array_column($data_to_insert, 'partner_id'))[0]);
                     $notificationTextArray['msg'] = array($data['parts_requested_type'], $booking_id);
                     $this->push_notification_lib->create_and_send_push_notiifcation(SPARE_PART_REQUEST_TO_PARTNER, $receiverArray, $notificationTextArray);
@@ -2209,11 +2212,7 @@ class Spare_parts extends CI_Controller {
                     }
                 }
                
-                if (!empty($spare_data['status'])) {
-                    $data['status'] = $spare_data['status'];
-                }
-                array_push($data_to_insert, $data);
-
+               
                 if ($affected_id) {
                     $actor = _247AROUND_PARTNER_STRING;
                     $next_action = PARTNER_WILL_SEND_NEW_PARTS;
