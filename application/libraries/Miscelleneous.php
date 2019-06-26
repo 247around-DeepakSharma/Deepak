@@ -3464,12 +3464,8 @@ function generate_image($base64, $image_name,$directory){
             $alternate_inventory_stock_details = $this->My_CI->inventory_model->get_alternate_inventory_stock_list($inventory_part_number[0]['inventory_id'], $service_center_id);
            
             if (!empty($alternate_inventory_stock_details)) {
-                if (!empty($alternate_inventory_stock_details[0]['stocks']) && !empty($alternate_inventory_stock_details[0]['inventory_id'])) {
-                    $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.part_name, '
-                            . 'inventory_master_list.inventory_id, price, gst_rate,oow_around_margin, inventory_master_list.entity_id', array('inventory_id' => $alternate_inventory_stock_details[0]['inventory_id']));
-
-                    $inventory_stock_details = $alternate_inventory_stock_details;
-                }
+                $inventory_stock_details = $alternate_inventory_stock_details;
+                
             }
             
         }
@@ -3495,6 +3491,12 @@ function generate_image($base64, $image_name,$directory){
                                 'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1,
                                 'warehouse_details.entity_id' => $inventory_part_number[0]['entity_id']), true, true, true);
                     if(!empty($warehouse_details)){
+                        
+                        if($inventory_part_number[0]['inventory_id'] != $value['inventory_id'] ){
+                            $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.part_name, '
+                            . 'inventory_master_list.inventory_id, price, gst_rate,oow_around_margin, inventory_master_list.entity_id', array('inventory_id' => $value['inventory_id']));
+
+                        }
                         $response = array();
                         $response['stock'] = TRUE;
                         $response['entity_id'] = $value['entity_id'];

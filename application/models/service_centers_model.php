@@ -324,7 +324,7 @@ class Service_centers_model extends CI_Model {
      * @desc: this method update service center action table
      */
     function update_service_centers_action_table($booking_id, $data) {
-       if(!empty($booking_id) || $booking_id != '0'){
+       if((!empty($booking_id)) && ($booking_id != '0') && (!empty($data))){
         $this->db->where('booking_id', $booking_id);
         $result = $this->db->update('service_center_booking_action', $data);
         log_message('info', __FUNCTION__ . '=> Update sc table: ' .$this->db->last_query());
@@ -1029,5 +1029,51 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $result = $query1->result();
 
         return $result;
+    }
+    
+    function spare_assigned_to_partner($where, $select, $group_by, $sf_id = false, $start = -1, $end = -1,$count = 0,$orderBY=array()){
+        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+        $this->db->_protect_identifiers = FALSE;
+        $this->db->select($select, false);
+        $this->db->from("spare_parts_details");
+        $this->db->join('booking_details', " booking_details.booking_id = spare_parts_details.booking_id");
+        $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
+        $this->db->join('services', " services.id = booking_details.service_id");
+        if($sf_id){
+            $this->db->join("inventory_stocks", "inventory_stocks.inventory_id = requested_inventory_id AND inventory_stocks.entity_id = '".$sf_id."' and inventory_stocks.entity_type = '"._247AROUND_SF_STRING."'", "left");
+        }
+        $this->db->join("users", "users.user_id = booking_details.user_id");
+        $this->db->join("service_centres", "service_centres.id = booking_details.assigned_vendor_id");
+        $this->db->where($where);
+        if($start > -1){
+            $this->db->limit($start, $end);
+        }
+        if(!$count){
+        $this->db->group_by($group_by);
+        }
+        if(!empty($orderBY)){
+            $this->db->order_by($orderBY['column'], $orderBY['sorting']);
+        }
+        $query = $this->db->get();
+        //echo $this->db->last_query();exit;
+        log_message('info', __METHOD__. "  ".$this->db->last_query());
+        return $query->result_array();
+    }
+    
+    /**
+     * 
+     * @param type $warehouse_id
+     */
+    function get_warehouse_state($warehouse_id) {
+        $sql = "SELECT 
+                    warehouse_state_relationship.state
+                FROM 
+                    contact_person 
+                    join warehouse_person_relationship on (contact_person.id = warehouse_person_relationship.contact_person_id)
+                    join warehouse_state_relationship on (warehouse_person_relationship.warehouse_id = warehouse_state_relationship.warehouse_id)
+                WHERE 
+                    entity_id = {$warehouse_id} and entity_type = '"._247AROUND_SF_STRING."';";
+        
+        return array_column($this->db->query($sql)->result_array(), 'state');            
     }
 }

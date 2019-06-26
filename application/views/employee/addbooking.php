@@ -316,7 +316,9 @@
                                                         <th>Std. Charges</th>
                                                         <th>Partner Discount</th>
                                                         <th>Final Charges</th>
+                                                        <?php if(!$is_saas){ ?>
                                                         <th>247around Discount</th>
+                                                        <?php } ?>
                                                         <th>Selected Services</th>
                                                     </tr>
                                                 </table>

@@ -36,13 +36,19 @@
                                     Send To Partner
                                 </a>
                             </li>
-                            
-                            
+                            <?php if(!empty($is_warehouse)) {?>
+                            <li role="presentation">
+                                <a href="#tabs-7" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_centers/spare_assigned_to_partner">
+                                    Spare Assigned To Partner
+                                </a>
+                            </li>
+                            <?php } ?>
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane" id="tabs-2"></div>
                             <div class="tab-pane" id="tabs-5"></div>
-                            <div class="tab-pane" id="tabs-3"></div>                            
+                            <div class="tab-pane" id="tabs-3"></div>     
+                            <div class="tab-pane" id="tabs-7"></div>
                             <div class="tab-pane active" id="tabs-6">
                                 <div class="right_col" role="main">
                                     <div class="row">
@@ -319,9 +325,10 @@
         $('#loading_image').show();
         //Loading view with Ajax data
         $(tab).html("<center>  <img style='width: 46px;' src='<?php echo base_url(); ?>images/loader.gif'/> </center>");
+       
         $.ajax({
             type: "POST",
-            url: "<?php echo base_url() ?>" + url,
+            url: url,
             data: {is_ajax:true},
             success: function (data) {
                 $(tab).html(data);                

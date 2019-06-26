@@ -113,7 +113,7 @@ class Service_centers extends CI_Controller {
             $sf_data['partner_id'] = urldecode($model_number_id);
             $sf_data['service_id'] = $service_id;
         }
-        $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+       $sf_data['saas_flag'] = $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if ($this->session->userdata('employee_id')) {
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_inventory_details_by_model', $data);
@@ -4879,6 +4879,7 @@ class Service_centers extends CI_Controller {
     function warehouse_default_page() {
         $this->check_WH_UserSession();
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $data['is_warehouse'] = $this->reusable_model->get_search_result_data('service_centres', '*', ['id' => $this->session->userdata('service_center_id'), 'is_wh' => 1], NULL, NULL, NULL, NULL, NULL);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/warehouse_default_page', $data);
     }
@@ -6803,7 +6804,7 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray]);
     }
-
+    
     /**
      * @desc function change password of service center entity.
      * @author Ankit Rajvanshi
