@@ -69,7 +69,7 @@
                                     <th>GST Rate</th>
                                     <th>SF Price(including GST)</th>
                                     <th>SF Margin</th>                                  
-                                    <?php if(!$saas_flag){?>
+                                    <?php if($saas_flag){?>
                                     <th>Around Margin </th> 
                                    <?php  } ?>
                                     <th>Customer Price (including GST)</th>
