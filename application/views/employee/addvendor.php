@@ -849,7 +849,10 @@
                         </div>
                     </div>
                     <div  class = "panel panel-info">
-                        <div class="panel-heading" style="background-color:#ECF0F1"><b>Brands</b></div>
+                        <div class="panel-heading" style="background-color:#ECF0F1">
+                            <b>Brands</b>
+                            <label class="pull-right">All <input type="checkbox" name="brands_all" id="brands_all" value="All" title="Select All"></label>
+                        </div>
                         <div class="panel-body">
                             <div class="col-md-12">
                                 <?php foreach ($results['brands'] as $key => $brands) {
@@ -1848,6 +1851,17 @@ function manageAccountNameField(value){
         }
         return true;
     }
+    
+    $('#brands_all').click(function(){
+        if($(this).prop('checked'))
+        {
+            $('input[name="brands[]"]').prop("checked", true);
+        }
+        else
+        {
+            $('input[name="brands[]"]').prop("checked", false);
+        }
+    });
 </script>
 
 

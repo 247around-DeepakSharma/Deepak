@@ -2161,5 +2161,22 @@ class vendor_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+   
+    function map_vendor_brands($sf_id, $arr_brands)
+    {
+        $this->db->delete('service_center_brand_mapping', array('service_center_id' => $sf_id));
+        foreach ($arr_brands as $rec_brand) {
+            $data = array('service_center_id' => $sf_id, 'brand_name' => $rec_brand);
+            $this->db->insert('service_center_brand_mapping',$data);
+        }
+    }
+    
+    function get_mapped_brands($sf_id)
+    {
+        $this->db->select('GROUP_CONCAT(service_center_brand_mapping.brand_name) as map_brands');
+        $this->db->where(['service_center_id' => $sf_id, 'isActive' => 1]);
+        $query = $this->db->get('service_center_brand_mapping');
+        return $query->result_array()[0]['map_brands']; 
+    }
 }
 
