@@ -2065,8 +2065,7 @@ class Spare_parts extends CI_Controller {
                 $data['entity_type'] = $entity_type;
                 $data['partner_id'] = $partner_id;
                 $data['is_micro_wh'] = $spare_parts_details[0]['is_micro_wh'];
-                $data['shipped_inventory_id'] = $spare_parts_details[0]['shipped_inventory_id'];
-
+                
                 /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
                 if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                     $spare_data['status'] = SPARE_OOW_EST_REQUESTED;

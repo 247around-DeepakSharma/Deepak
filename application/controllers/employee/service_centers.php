@@ -4642,9 +4642,12 @@ class Service_centers extends CI_Controller {
                     . "spare_parts_details.parts_requested_type,"
                     . "spare_parts_details.date_of_request,"
                     . "spare_parts_details.service_center_id,"
-                    . "spare_parts_details.booking_id";
+                    . "spare_parts_details.booking_id,"
+                    . "spare_parts_details.shipped_inventory_id";
 
             $sp_data = $this->inventory_model->get_spare_parts_query($req);
+            
+            
             if ($this->session->userdata('service_center_id')) {
                 $agent_id = $this->session->userdata('service_center_agent_id');
                 $agent_name = $this->session->userdata('service_center_name');
@@ -4661,8 +4664,21 @@ class Service_centers extends CI_Controller {
                 $flag = TRUE;
                 $next_action = '';
                 foreach ($sp_data as $key => $value) {
+                                      
+                    $spare_data = array();
+                    $spare_data['model_number'] = $value->model_number;
+                    $spare_data['parts_requested'] = $value->parts_requested;
+                    $spare_data['parts_requested_type'] = $value->parts_requested_type;
+                    $spare_data['date_of_request'] = $value->date_of_request;
+                    $spare_data['shipped_inventory_id'] = $value->shipped_inventory_id;
+                    $spare_data['requested_inventory_id'] = $value->requested_inventory_id;
+                    $spare_data['service_center_id'] = $service_center_id;
+                    $spare_data['booking_id'] = $booking_id;
+                    $spare_data['entity_type'] = $value->entity_type;
+                    $spare_data['partner_id'] = $partner_id;
+                    $spare_data['is_micro_wh'] = $value->is_micro_wh;
+                   
                     $data = array();
-
                     $entity_type = $value->entity_type;
                     $is_micro_wh = $value->is_micro_wh;
                     $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
@@ -4710,7 +4726,11 @@ class Service_centers extends CI_Controller {
                         $is_micro_wh = 0;
                     }
 
-
+                    if (isset($spare_data['is_micro_wh']) && $spare_data['is_micro_wh'] == 1) {
+                        $spare_data['spare_id'] = $spare_id;
+                        array_push($delivered_sp, $spare_data);
+                        $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                    }
 
                     if ($entity_type == _247AROUND_SF_STRING) {
                         if ($is_micro_wh == 1) {
