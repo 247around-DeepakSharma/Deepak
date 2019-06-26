@@ -560,7 +560,23 @@
                                                                 placeholder='Enter discount' readonly />
                                                             </td>
                                                             <?php } else{
-                                                             $around_net_payable = 0;
+                                                            ?>
+                                                            <input type="hidden" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand_id']."][".$clone_number."][". $price['id']."][]"; ?>" id="<?php echo "discount_".$div . "_1"; ?>"
+                                                                value = "<?php  if(isset($unit_details[0]['quantity'])){
+                                                                    $around_net_payable = NUll;
+                                                                       foreach ($unit_details[0]['quantity'] as  $tags) {
+                                                                           if($tags['price_tags'] == $price['service_category'] ){
+                                                                              $around_net_payable = $tags['around_net_payable'];
+                                                                           }
+                                                                        }
+                                                                    }
+                                                                    if(is_null($around_net_payable)){
+                                                                        echo intval($price['around_net_payable']);
+                                                                    } else {
+                                                                        echo $around_net_payable;
+                                                                    }?>"
+                                                                placeholder='Enter discount' readonly />
+                                                            <?php
                                                             } ?>
                                                             <td>
                                                                 <?php
