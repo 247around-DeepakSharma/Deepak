@@ -30,19 +30,21 @@
 <div id="for_appliance" class="col-md-12"  style="display:none;">
     <h2><b>Appliance Wallet:</b></h2>
     <div>
-        <table>
-            <th>S. No.</th>
-            <th>Service</th>
-            <th>Brand</th>
-            <th>Category</th>
-            <th>Capacity</th>
-            <th>Model Number</th>
-            <th>Purchase Year</th>
-            <th>Book Now</th>
+        <table class="table table-striped table-bordered table-hover">
+        <tr>
+            <th class="jumbotron">S. No.</th>
+            <th class="jumbotron">Service</th>
+            <th class="jumbotron">Brand</th>
+            <th class="jumbotron">Category</th>
+            <th class="jumbotron">Capacity</th>
+            <th class="jumbotron">Model Number</th>
+            <th class="jumbotron">Purchase Year</th>
+            <th class="jumbotron">Book Now</th>
+        </tr>
             <?php $count = 1; ?>
             <?php foreach($appliance_details as $key =>$row){?>
             <tr>
-                <td><?php //echo "$count"; $count++;?></td>
+                <td><?php echo "$count"; $count++;?></td>
                 <td><?=$row['services']?></td>
                 <td><?=$row['brand']?></td>
                 <td><?=$row['category']?></td>

@@ -2296,6 +2296,11 @@ class Booking_model extends CI_Model {
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
+        if (!empty($post['join'])) {
+            foreach($post['join'] as $key=>$values){
+                $this->db->join($key, $values);
+            }
+        }
         
         $check_pincode = "(SELECT 1
                                 FROM (vendor_pincode_mapping)
@@ -2806,4 +2811,16 @@ class Booking_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-   }
+    
+    /**
+     * @Desc: This function is used to get Booking cancellation reasons
+     * @return: array
+     */
+    function get_cancellation_reasons($select="*")
+    {
+        $this->db->select($select);
+        $this->db->from("booking_cancellation_reasons");
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+}

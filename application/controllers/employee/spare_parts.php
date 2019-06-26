@@ -753,6 +753,7 @@ class Spare_parts extends CI_Controller {
         } else {
             $row[] = (empty($spare_list->age_part_pending_to_sf)) ? '0 Days' : $spare_list->age_part_pending_to_sf . " Days";
         }
+
         if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager" ) {
 
             if ($spare_list->defective_part_required == '0') {
@@ -1070,7 +1071,6 @@ class Spare_parts extends CI_Controller {
                 $row[] = '<a  class="btn btn-primary" href="" disabled><i class="fa fa-edit" aria-hidden="true"></button>';
                 $row[] = '<a  class="btn btn-success" href="" disabled><i class="glyphicon glyphicon-ok-sign" aria-hidden="true"></button>';
                 }
-
             }
             
             if ($spare_list->part_requested_on_approval == '0' && $spare_list->status == SPARE_PART_ON_APPROVAL) {
@@ -2005,7 +2005,7 @@ class Spare_parts extends CI_Controller {
                 }
                 
                 if ($entity_type == _247AROUND_PARTNER_STRING && $part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS) {
-                    $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
+                    $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
 
                     /** search if there is any warehouse for requested spare parts
                      * if any warehouse exist then assign this spare request to that service center otherwise assign
@@ -2023,30 +2023,28 @@ class Spare_parts extends CI_Controller {
                     }
 
                     if (!empty($is_warehouse)) {
-
-                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $spare_parts_details[0]['original_inventory_id'], 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id), $partner_id);
                         
-                        if (!empty($warehouse_details)) {
-                            $spare_data['partner_id'] = $warehouse_details['entity_id'];
-                            $spare_data['entity_type'] = $warehouse_details['entity_type'];
-                            $spare_data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
-                            $spare_data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
-                            $spare_data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
-                            $spare_data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
-                            $spare_data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
+                            $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $spare_parts_details[0]['requested_inventory_id'], 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id), $partner_id);
 
-                            if (!empty($warehouse_details['inventory_id'])) {
+                            if (!empty($warehouse_details)) {
+                                $spare_data['partner_id'] = $warehouse_details['entity_id'];
+                                $spare_data['entity_type'] = $warehouse_details['entity_type'];
+                                $spare_data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
+                                $spare_data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
+                                $spare_data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
+                                $spare_data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
+                                $spare_data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
+                                $spare_data['parts_requested'] = $warehouse_details['part_name'];
                                 $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+
+                            } else {
+                                $spare_data['partner_id'] = $partner_id;
+                                $spare_data['entity_type'] = _247AROUND_PARTNER_STRING;
+                                $spare_data['is_micro_wh'] = 0;
+                                $spare_data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                                $spare_data['defective_return_to_entity_id'] = $partner_id;
                             }
-                           
-                        } else {
-                            $spare_data['partner_id'] = $partner_id;
-                            $spare_data['entity_type'] = _247AROUND_PARTNER_STRING;
-                            $spare_data['is_micro_wh'] = 0;
-                            $spare_data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
-                            $spare_data['defective_return_to_entity_id'] = $partner_id;
-                           
-                        }
+
                     } else {
                         $spare_data['partner_id'] = $partner_id;
                         $spare_data['entity_type'] = _247AROUND_PARTNER_STRING;
@@ -2054,7 +2052,7 @@ class Spare_parts extends CI_Controller {
                         $spare_data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                         $spare_data['defective_return_to_entity_id'] = $partner_id;
                     }
-                }
+                } 
 
                                                
                 $spare_data['part_requested_on_approval'] = 1;

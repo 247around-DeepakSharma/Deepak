@@ -3348,7 +3348,7 @@ function generate_image($base64, $image_name,$directory){
         log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
         $response = array(); 
 
-        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,entity_id, inventory_master_list.part_name, inventory_master_list.inventory_id, price, gst_rate,inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,entity_id, inventory_master_list.entity_id, inventory_master_list.part_name, inventory_master_list.inventory_id, price, gst_rate,inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
 
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
         $is_partner_wh = '';
@@ -3368,8 +3368,8 @@ function generate_image($base64, $image_name,$directory){
                     //Defective Parts Return To
                     if($response['is_micro_wh'] == 2){
                         
-                        $response['defective_return_to_entity_type'] = $wh_address_details[0]['entity_type'];
-                        $response['defective_return_to_entity_id'] = $wh_address_details[0]['entity_id'];
+                        $response['defective_return_to_entity_type'] = $response['entity_type'];
+                        $response['defective_return_to_entity_id'] = $response['entity_id'];
                         
                     } else if ($partner_details[0]['is_defective_part_return_wh'] == 1) {
                         $wh_address_details = $this->get_247aroud_warehouse_in_sf_state($state);
@@ -3466,12 +3466,8 @@ function generate_image($base64, $image_name,$directory){
             $alternate_inventory_stock_details = $this->My_CI->inventory_model->get_alternate_inventory_stock_list($inventory_part_number[0]['inventory_id'], $service_center_id);
            
             if (!empty($alternate_inventory_stock_details)) {
-                if (!empty($alternate_inventory_stock_details[0]['stocks']) && !empty($alternate_inventory_stock_details[0]['inventory_id'])) {
-                    $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.part_name, '
-                            . 'inventory_master_list.inventory_id, price, gst_rate,oow_around_margin', array('inventory_id' => $alternate_inventory_stock_details[0]['inventory_id']));
-
-                    $inventory_stock_details = $alternate_inventory_stock_details;
-                }
+                $inventory_stock_details = $alternate_inventory_stock_details;
+                
             }
             
         }
@@ -3497,6 +3493,12 @@ function generate_image($base64, $image_name,$directory){
                                 'contact_person.entity_id' => $value['entity_id'], 'service_centres.is_wh' => 1,
                                 'warehouse_details.entity_id' => $inventory_part_number[0]['entity_id']), true, true, true);
                     if(!empty($warehouse_details)){
+                        
+                        if($inventory_part_number[0]['inventory_id'] != $value['inventory_id'] ){
+                            $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.part_name, '
+                            . 'inventory_master_list.inventory_id, price, gst_rate,oow_around_margin, inventory_master_list.entity_id', array('inventory_id' => $value['inventory_id']));
+
+                        }
                         $response = array();
                         $response['stock'] = TRUE;
                         $response['entity_id'] = $value['entity_id'];
