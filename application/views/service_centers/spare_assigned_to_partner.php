@@ -138,7 +138,7 @@ if ($this->uri->segment(3)) {
                             }
                             ?>
                         </div>
-                        <center style="margin-bottom: 10px;"><input type= "submit" onclick="return checkValidationForBlank()"  class="btn btn-md" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print / Download" > </center>
+                        <!--<center style="margin-bottom: 10px;"><input type= "submit" onclick="return checkValidationForBlank()"  class="btn btn-md" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" name="download_shippment_address" value ="Print / Download" > </center>-->
                     </form>
                 </div>
             </div>
@@ -182,7 +182,7 @@ if ($this->uri->segment(3)) {
         });
     });
     
-    function downloadSpare(){
+    function downloadList(){
         $("#spareDownload").attr("disabled", true).html("Download In Progress");
         //$("#messageSpare").text("");
          $.ajax({
@@ -197,14 +197,14 @@ if ($this->uri->segment(3)) {
                 if(jsondata['response'] === "success"){
                     //$("#spareDownload").css("display", "block");
                     //$("#messageSpare").text("");
-                    $("#spareDownload").attr("disabled", false).html("Download Spare");
+                    $("#spareDownload").attr("disabled", false).html("Download List");
                     window.location.href = jsondata['path'];
                 } else if(jsondata['response'] === "failed"){
                     alert(jsondata['message']);
-                    $("#spareDownload").attr("disabled", false).html("Download Spare");
+                    $("#spareDownload").attr("disabled", false).html("Download List");
                     //$("#messageSpare").text("");
                 } else {
-                     $("#spareDownload").attr("disabled", false).html("Download Spare");
+                     $("#spareDownload").attr("disabled", false).html("Download List");
                 }
             }
         });
