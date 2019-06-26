@@ -986,6 +986,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_invoice'] = $service_center_data[0]['sf_purchase_invoice'];
+                    $data['booking_unit_details'][$keys]['model_number'] = $service_center_data[0]['model_number'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
@@ -1464,6 +1465,9 @@ class Booking extends CI_Controller {
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 if(!$is_saas){
                     $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
+                }
+                else{
+                    $html .= "<td><input  type='hidden' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
                 }
                 $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
                 if($is_repeat) {
@@ -5637,6 +5641,46 @@ class Booking extends CI_Controller {
         }
         
         echo $str_body;
+    }
+    
+    /**
+     * @desc: This funtion is used to get booking cancellation reason list.
+     * @param : void
+     * @return : void
+     * @author : Prity Sharma
+     * @date : 21-06-2019
+     */
+    public function cancellation_reasons()
+    {
+        $this->miscelleneous->load_nav_header();
+        $data = $this->booking_model->get_cancellation_reasons();
+        $this->load->view('employee/view_cancellation_reasons', ['data' => $data]);
+    }
+    /**
+     * @desc: This funtion is used to change booking cancellation reason decision flag.
+     * This function is called from ajax
+     * @param : void
+     * @return : integer
+     * @author : Prity Sharma
+     * @date : 21-06-2019
+     */
+    public function change_booking_cancellation_flag()
+    {
+        $post_data = $this->input->post();
+        $id = !empty($post_data['id']) ? substr($post_data['id'], 6) : "";
+        $decision_flag = !empty($post_data['flag_value']) ? $post_data['flag_value'] : 0;
+        if(!empty($id)):
+            $data = array( 
+                'id' => $id, 
+                'decision_flag' => $decision_flag 
+             ); 
+
+            $this->db->set($data); 
+            $this->db->where('id', $id);
+            $this->db->update('booking_cancellation_reasons', $data);
+            exit("1");
+        endif;
+        exit("2");
     }
 
 }
