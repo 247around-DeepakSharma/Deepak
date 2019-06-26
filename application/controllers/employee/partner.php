@@ -4989,6 +4989,15 @@ class Partner extends CI_Controller {
         else{
             $state =array('All');
         }
+        
+        if(!empty($postArray['Completion_Date_Range'])) {
+            $completionDateArray = explode(" - ",$postArray['Completion_Date_Range']);
+            $completion_start_date = date('Y-m-d',strtotime($completionDateArray[0]));
+            $completion_end_date = date('Y-m-d',strtotime($completionDateArray[1]));
+            
+            $where[] = "(date(booking_details.service_center_closed_date)>='".$completion_start_date."' AND date(booking_details.service_center_closed_date)<='".$completion_end_date."')";
+        }
+        
         $newCSVFileName = "Booking_summary_" . date('Y-m-d').($partnerID+211).rand(10,100000000). ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
