@@ -183,6 +183,12 @@
                     </tr>
                 </table>
             </div>
+            <?php
+                if((!$send_as_attachment) && (!empty($original_file_name))){
+                    $path = S3_WEBSITE_URL.'summary-excels/'.$original_file_name;
+                    echo '<div style="padding: 15px;"><a href="'.$path.'">Download Report</a></div>';
+                }
+            ?>
              <div style="float:left; padding: 15px;"><p><b>Best regards, <br>247around Team</b></p>
 
             </div>
