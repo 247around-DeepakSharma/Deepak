@@ -1082,6 +1082,9 @@ class vendor extends CI_Controller {
             $booking_id = $this->input->post('booking_id');
             $service_center_id = $this->input->post('service');
             $remarks = $this->input->post('remarks');
+            $select = "service_center_booking_action.id, service_center_booking_action.booking_id, service_center_booking_action.current_status,service_center_booking_action.internal_status";
+            $where = array("service_center_booking_action.booking_id"=>$booking_id);
+            $booking_action_details = $this->vendor_model->get_service_center_booking_action_details($select, $where);
             $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id, booking_details.partner_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
 //            if (IS_DEFAULT_ENGINEER == TRUE) {
 //                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
@@ -1126,15 +1129,15 @@ class vendor extends CI_Controller {
             
             foreach ($unit_details[0]['quantity'] as $value) {
                 
-                $data['current_status'] = _247AROUND_PENDING;
-                $data['internal_status'] = _247AROUND_PENDING;
+                $data['current_status'] = $booking_action_details[0]['current_status'];
+                $data['internal_status'] = $booking_action_details[0]['internal_status'];
                 $data['service_center_id'] = $service_center_id;
                 $data['booking_id'] = $booking_id;
                 $data['create_date'] = date('Y-m-d H:i:s');
                 $data['update_date'] = date('Y-m-d H:i:s');
                 $data['unit_details_id'] = $value['unit_id'];
                 $this->vendor_model->insert_service_center_action($data);
-                
+
                 if(!empty($vendor_data)){
                     $engineer_action['unit_details_id'] = $value['unit_id'];
                     $engineer_action['service_center_id'] = $service_center_id;
@@ -1168,7 +1171,7 @@ class vendor extends CI_Controller {
                         } else if ($match[0] > 32) {
                             $inventory_data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
                         }
-                        
+
                         //increase stock for previous assigned vendor
                         $inventory_data['receiver_entity_id'] = $previous_sf_id[0]['assigned_vendor_id'];
                         $inventory_data['stock'] = 1 ;
@@ -1180,7 +1183,7 @@ class vendor extends CI_Controller {
                     }
                 }
             }
-            
+
             $this->notify->insert_state_change($booking_id, RE_ASSIGNED_VENDOR, ASSIGNED_VENDOR, "Re-Assigned SF ID: " . $service_center_id . " ". $remarks, $this->session->userdata('id'), 
                     $this->session->userdata('employee_id'), $actor,$next_action, _247AROUND);
 

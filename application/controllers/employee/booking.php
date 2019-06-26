@@ -5641,5 +5641,45 @@ class Booking extends CI_Controller {
         
         echo $str_body;
     }
+    
+    /**
+     * @desc: This funtion is used to get booking cancellation reason list.
+     * @param : void
+     * @return : void
+     * @author : Prity Sharma
+     * @date : 21-06-2019
+     */
+    public function cancellation_reasons()
+    {
+        $this->miscelleneous->load_nav_header();
+        $data = $this->booking_model->get_cancellation_reasons();
+        $this->load->view('employee/view_cancellation_reasons', ['data' => $data]);
+    }
+    /**
+     * @desc: This funtion is used to change booking cancellation reason decision flag.
+     * This function is called from ajax
+     * @param : void
+     * @return : integer
+     * @author : Prity Sharma
+     * @date : 21-06-2019
+     */
+    public function change_booking_cancellation_flag()
+    {
+        $post_data = $this->input->post();
+        $id = !empty($post_data['id']) ? substr($post_data['id'], 6) : "";
+        $decision_flag = !empty($post_data['flag_value']) ? $post_data['flag_value'] : 0;
+        if(!empty($id)):
+            $data = array( 
+                'id' => $id, 
+                'decision_flag' => $decision_flag 
+             ); 
+
+            $this->db->set($data); 
+            $this->db->where('id', $id);
+            $this->db->update('booking_cancellation_reasons', $data);
+            exit("1");
+        endif;
+        exit("2");
+    }
 
 }
