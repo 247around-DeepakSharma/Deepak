@@ -5655,6 +5655,16 @@ class Booking extends CI_Controller {
                         $endD = date('d-F-Y', $endTemp);
                         $value = $startD . " To " . $endD;
                     }
+                    if ($key == "Completion_Date_Range") { 
+                        $dArray = explode(" - ", $value);
+                        $key = "Completion Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                        
+                    }
                     $finalFilterArray[] = $key . " : " . $value;
                 }
                 
