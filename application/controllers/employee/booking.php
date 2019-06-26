@@ -963,9 +963,7 @@ class Booking extends CI_Controller {
                     "partner_appliance_details.partner_id" => $partner_id, 
                     'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
                     'partner_appliance_details.brand' => $value['brand'],
-                    'partner_appliance_details.category' => $value['category'],
                     'appliance_model_details.active'=> 1, 
-                    'partner_appliance_details.capacity' => $value['capacity'],
                     "NULLIF(model, '') IS NOT NULL" => NULL
                 );
                 $data['booking_unit_details'][$keys]['model_dropdown'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
