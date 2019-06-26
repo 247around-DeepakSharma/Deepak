@@ -761,7 +761,7 @@ class vendor extends CI_Controller {
 
         $appliances = $query[0]['appliances'];
         $selected_appliance_list = explode(",", $appliances);
-        $brands = $query[0]['brands'];
+        $brands = $this->vendor_model->get_mapped_brands($id);
         $selected_brands_list = explode(",", $brands);
 
         $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
@@ -5200,14 +5200,15 @@ class vendor extends CI_Controller {
         $vendor = [];
         $agentID = $this->session->userdata('id');
         if (!empty($this->input->post('id'))) {
+            $arr_brands = !empty($this->input->post('brands')) ? $this->input->post('brands') : [];
+            $arr_brands = array_filter($arr_brands);
+            $vendor_data['brands'] = !empty($arr_brands) ? implode(",",$arr_brands) : "";               
             if(!empty($this->input->post('appliances'))){
                 $vendor_data['appliances'] = implode(",",$this->input->post('appliances'));
-                }
-            if(!empty($this->input->post('brands'))){
-                $vendor_data['brands'] = implode(",",$this->input->post('brands'));  
-            } 
+            }
             $vendor_data['agent_id'] = $agentID;
             $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
+            $this->vendor_model->map_vendor_brands($this->input->post('id'), $arr_brands);
             $this->notify->insert_state_change('', NEW_SF_BRANDS, NEW_SF_BRANDS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
             $this->session->set_flashdata('vendor_added', "Vendor Brands Has been updated Successfully , Please Fill other details");
