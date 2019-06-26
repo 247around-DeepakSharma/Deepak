@@ -2250,7 +2250,7 @@ class Inventory extends CI_Controller {
         $row[] = "<i class ='fa fa-inr'></i> " . $total;
         $row[] = $stock_list->oow_vendor_margin . " %";
         $saas_partner = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        if(!$saas_partner){
+        if($saas_partner){
         $row[] = $stock_list->oow_around_margin . " %";
         }
         $row[] = number_format((float)$total+($total*($stock_list->oow_vendor_margin)/100), 2, '.', '');
