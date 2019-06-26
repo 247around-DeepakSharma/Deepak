@@ -977,6 +977,21 @@ class vendor_model extends CI_Model {
         return $assign_sc_id;
 
     }
+        
+    /**
+     * @Desc: This function is used to get data from the  service_center_booking_action table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    
+    function get_service_center_booking_action_details($select, $where=array()){
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get("service_center_booking_action");
+        return $query->result_array();
+    }
 
     /**
      *  @desc:  When reassign service center, update previous action perform by service center
