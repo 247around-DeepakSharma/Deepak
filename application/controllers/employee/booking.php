@@ -988,6 +988,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_invoice'] = $service_center_data[0]['sf_purchase_invoice'];
+                    $data['booking_unit_details'][$keys]['model_number'] = $service_center_data[0]['model_number'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
                  $id = $this->search_for_key($price_tag['price_tags'], $prices);
