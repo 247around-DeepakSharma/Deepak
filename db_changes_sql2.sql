@@ -169,3 +169,17 @@ ALTER TABLE `booking_request_type_state_change`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 UPDATE `email_template` SET `template` = 'Spare not transferred due to no available of stock ,Details are - %s,', `to` = 'abhisheka@247around.com', `bcc` = 'abhisheka@247around.com' WHERE `email_template`.`id` = 159;
+-- Prity Bhardwaj 26-June-2019
+CREATE TABLE `service_center_brand_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `service_center_id` int(11) NOT NULL,
+  `brand_id` int(11) NULL DEFAULT NULL,
+  `brand_name` varchar(25) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `isActive` int(1) DEFAULT 1,
+  PRIMARY KEY (`id`),  
+  KEY fk_scbm_service_center_id_service_centers_id (service_center_id),
+  KEY fk_scbm_brand_id_appliance_brands_id (brand_id),
+  CONSTRAINT fk_scbm_service_center_id_service_centers_id FOREIGN KEY (service_center_id) REFERENCES service_centres (id),
+  CONSTRAINT fk_scbm_brand_id_appliance_brands_id FOREIGN KEY (brand_id) REFERENCES appliance_brands (id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
