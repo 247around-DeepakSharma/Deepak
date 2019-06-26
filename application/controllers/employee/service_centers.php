@@ -125,7 +125,6 @@ class Service_centers extends CI_Controller {
 
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/show_inventory_details_by_model', $sf_data);
-            $this->load->view('partner/partner_footer');
         }
     }
 
