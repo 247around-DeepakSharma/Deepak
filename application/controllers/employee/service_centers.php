@@ -1672,6 +1672,7 @@ class Service_centers extends CI_Controller {
                             || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
                             || stristr($value['price_tags'], PRESALE_REPAIR_TAG)
                             || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY)
+                            || stristr($value['price_tags'], AMC_PRICE_TAGS)
                             || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
 
                         $data['spare_flag'] = SPARE_PARTS_REQUIRED;
