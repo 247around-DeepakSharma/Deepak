@@ -5140,14 +5140,22 @@ class Partner extends CI_Controller {
         }
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Waiting_Upcountry_Bookings_".date("Y-m-d"));
     }
-    function download_spare_part_shipped_by_partner(){
+    function download_spare_part_shipped_by_partner($isAdmin=0){
         ob_start();
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
-        $this->checkUserSession();
+        $where == '1';
+        if($isAdmin == 0) {
+             log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+             $this->checkUserSession();
+             $partner_id = $this->session->userdata('partner_id');
+             $where = "booking_details.partner_id = '" . $partner_id . "' ";
+         }
+         else
+         {
+             $this->checkEmployeeUserSession();
+         }
         $CSVData = array();
-        $partner_id = $this->session->userdata('partner_id');
-        $where = "booking_details.partner_id = '" . $partner_id . "' "
-                . " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
+        
+        $where .= " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Booking ID",
             "Product",
@@ -6136,7 +6144,7 @@ class Partner extends CI_Controller {
                } 
              $tempArray[] = $sn_no . $upcountryString;
             if($row->booking_files_purchase_inv){
-                $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a><br><a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/'.$row->booking_files_purchase_inv.'" title = "Purchase Invoice Varified" aria-hidden="true"><img src="http://localhost/247around-adminp-aws/images/varified.png" style="width:20px; height: 20px;"></a>';
+                $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a><br><a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/'.$row->booking_files_purchase_inv.'" title = "Purchase Invoice Verified" aria-hidden="true"><img src="http://localhost/247around-adminp-aws/images/varified.png" style="width:20px; height: 20px;"></a>';
             }
             else{
                 $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a>';
@@ -7840,4 +7848,19 @@ class Partner extends CI_Controller {
 
         echo $option;
     }
+    
+    
+            /**
+     * @desc This function is used to get success message when spare cancelled but this is not on priority.
+     * @param String $booking_id
+     */
+    function msl_excel_upload(){
+        
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/msl_excel_upload');
+        $this->load->view('partner/partner_footer');
+        
+    }
+    
+    
 }
