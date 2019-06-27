@@ -12,11 +12,11 @@
                     <div class='panel-body' style='padding:0px !important;'>
                         <form>
                             <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-2">
                                 <label for="partner_id" style='margin-left:0% !important;'>Partner</label>
                                 <select class="form-control" id="partner_id" required="" name="partner_id"></select>
                             </div> 
-                            <div class="col-md-3"> 
+                            <div class="col-md-2"> 
                                 <label class="control-label" for="daterange">Registration Date</label><br>
                                 <?php
                                 $endDate = date('Y/m/d');
@@ -24,9 +24,19 @@
                                 //$startDate = date('Y/m/d', strtotime("-".(date('d')-1)." days"));
                                 $dateRange = $startDate . " - " . $endDate;
                                 ?>
-                                <input style="border-radius: 5px;"  type="text" placeholder="Registration Date" class="form-control" id="create_date" value="<?php echo $dateRange ?>" name="create_date"/>
+                                <input style="border-radius: 5px;"  type="text" placeholder="Registration Date" class="form-control" id="create_date" value="" name="create_date"/>
                             </div>
-
+                                <div class="col-md-2">
+                                    <div class="form-group">
+                                        <label class="control-label" for="daterange">Completion Date</label><br>
+                                        <?php
+                                        $endDate = date('Y/m/d');
+                                        $startDate = date('Y/m/d', strtotime('-1 day', strtotime($endDate)));
+                                        $dateRange = $startDate." - ".$endDate;
+                                        ?>
+                                        <input style="border-radius: 5px;"  type="text" placeholder="Completion Date" class="form-control" id="completion_date" value="" name="completion_date"/>
+                                    </div>
+                                </div> 
                             <div class="col-md-2">
                                 <label for="Status">Status</label><br>
                                 <select class="form-control" id="status" name="status">
@@ -120,11 +130,21 @@
             maxDate: 'now'
         }
     });
+     $('input[name="completion_date"]').daterangepicker({
+            autoUpdateInput: false,
+            locale: {
+                format: 'YYYY/MM/DD',
+                 cancelLabel: 'Clear',
+                 maxDate: 'now'
+            }
+        });
     $('input[name="create_date"]').on('apply.daterangepicker', function (ev, picker) {
         $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));
 
     });
-
+    $('input[name="completion_date"]').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));  
+    });
 
     $(document).ready(function () {
         
@@ -172,39 +192,57 @@
         var endDateObj = new Date(endDate);
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+        
         if(diffDays>30){
             alert("Maximum range allowed is 1 month");
+            return false;
+        }  
+        
+        var completion_date = $('#completion_date').val();
+        if(completion_date != '') {
+            var completionDateArray = completion_date.split(" - ");
+            var completionStartDate = completionDateArray[0];
+            var completionEndDate =   completionDateArray[1];
+            var completionStartDateObj = new Date(completionStartDate);
+            var completionEndDateObj = new Date(completionEndDate);
+            var completionTimeDiff = Math.abs(completionEndDateObj.getTime() - completionStartDateObj.getTime());
+            var completiondiffDays = Math.ceil(completionTimeDiff / (1000 * 3600 * 24)); 
+
+            if(completiondiffDays > 90){
+                alert("Maximum range allowed is 3 months");
+                return false;
+            }        
         }
-        else{
-            var status = $('#status').val();
-            var state = getMultipleSelectedValues('state');
-            if(!state){
-                state = 'All';
+        
+        var status = $('#status').val();
+        var state = getMultipleSelectedValues('state');
+        if(!state){
+            state = 'All';
+        }
+        var cur_date = "<?php echo date("Y-m-d")?>";
+        var table = document.getElementById("summary_report_table").getElementsByTagName('tbody')[0];
+        var row = table.insertRow(0);
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+        cell1.innerHTML = " Registration Date :"+create_date+", Completion Date : "+completion_date+", Status : "+status+", State : "+state;
+        cell2.innerHTML = cur_date;
+        cell3.innerHTML = '<img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif" style="width: 15%;">';
+        $.ajax({
+        type: 'POST',
+        url: '<?php echo base_url(); ?>employee/partner/create_and_save_partner_report/'+partnerID,
+        data: {Date_Range: create_date,Completion_Date_Range: completion_date,Status: status,State: state},
+        success: function (response) {
+            var obj = JSON.parse(response);
+            if(obj.response === "SUCCESS"){
+                cell3.innerHTML = '<a class="btn btn-success" style="background: #2a3f54;" href="'+obj.url+'">Download</a>';
             }
-            var cur_date = "<?php echo date("Y-m-d")?>";
-            var table = document.getElementById("summary_report_table").getElementsByTagName('tbody')[0];
-            var row = table.insertRow(0);
-            var cell1 = row.insertCell(0);
-            var cell2 = row.insertCell(1);
-            var cell3 = row.insertCell(2);
-            cell1.innerHTML = " Registration Date :"+create_date+", Status : "+status+", State : "+state;
-            cell2.innerHTML = cur_date;
-            cell3.innerHTML = '<img id="loader_gif_title" src="<?php echo base_url(); ?>images/loadring.gif" style="width: 15%;">';
-            $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/partner/create_and_save_partner_report/'+partnerID,
-            data: {Date_Range: create_date,Status: status,State: state},
-            success: function (response) {
-                var obj = JSON.parse(response);
-                if(obj.response === "SUCCESS"){
-                    cell3.innerHTML = '<a class="btn btn-success" style="background: #2a3f54;" href="'+obj.url+'">Download</a>';
-                }
-                else{
-                    alert("Something Went Wrong Please Try Again");
-                    location.reload();
-                }
+            else{
+                alert("Something Went Wrong Please Try Again");
+                location.reload();
             }
-            });
-       }
+        }
+        });
+       
     }
 </script>

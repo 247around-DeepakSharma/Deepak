@@ -238,7 +238,7 @@ function get_data_for_partner_callback($booking_id) {
             $this->db->limit($limit, $start);
         }
         $this->db->_protect_identifiers = FALSE;
-        $this->db->select('request_type,booking_details.booking_id, booking_details.flat_upcountry, booking_details.closed_date, users.name as customername, '
+        $this->db->select('request_type,booking_details.booking_id, booking_details.flat_upcountry, booking_details.closed_date, booking_details.service_center_closed_date, users.name as customername, '
                 . ' booking_details.booking_primary_contact_no, services.services, '
                 . ' booking_details.booking_date, booking_details.closing_remarks, '
                 . ' booking_details.booking_timeslot, booking_details.city, booking_details.state,'
@@ -389,7 +389,7 @@ function get_data_for_partner_callback($booking_id) {
             $subQueryArray[$values['Title']] = $values['sub_query'];
         }
         if(!$whereConditions){
-            $where = "((booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)) OR (booking_details.current_status NOT IN ('"._247AROUND_CANCELLED."','"._247AROUND_COMPLETED."')))";
+            $where = "((booking_details.create_date > (CURDATE() - INTERVAL 3 MONTH)) OR (booking_details.current_status NOT IN ('"._247AROUND_CANCELLED."','"._247AROUND_COMPLETED."')))";
         }
         else{
             $where = $whereConditions;
@@ -876,7 +876,7 @@ function get_data_for_partner_callback($booking_id) {
                     . ' FROM spare_parts_details'
                     . ' JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id'
                     . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
-                    . ' LEFT JOIN service_centres sc ON spare_parts_details.partner_id = sc.id'
+                    . ' LEFT JOIN service_centres sc ON spare_parts_details.partner_id = sc.id AND spare_parts_details.entity_type="vendor" '
                     . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                     . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                     . ' JOIN users ON users.user_id = booking_details.user_id '.$join
@@ -892,7 +892,7 @@ function get_data_for_partner_callback($booking_id) {
                 . " JOIN booking_details ON  booking_details.booking_id = spare_parts_details.booking_id "
                 . ' JOIN users ON users.user_id = booking_details.user_id '
                 . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
-                . ' LEFT JOIN service_centres sc ON spare_parts_details.partner_id = sc.id'
+                . ' LEFT JOIN service_centres sc ON spare_parts_details.partner_id = sc.id AND spare_parts_details.entity_type="vendor" '
                 . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                 . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                 . ' LEFT JOIN services ON booking_details.service_id=services.id '
@@ -906,7 +906,7 @@ function get_data_for_partner_callback($booking_id) {
                           . " JOIN booking_details ON  booking_details.booking_id = spare_parts_details.booking_id "
                     . ' JOIN users ON users.user_id = booking_details.user_id '
                     . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
-                    . ' LEFT JOIN service_centres sc ON spare_parts_details.partner_id = sc.id'
+                    . ' LEFT JOIN service_centres sc ON spare_parts_details.partner_id = sc.id AND spare_parts_details.entity_type="vendor" '
                     . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                     . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
@@ -2388,6 +2388,35 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->order_by('appliance_model_details.model_number', 'asc');        
         $query = $this->db->get('appliance_model_details');
         return $query->result_array();
+    }
+    
+    /**
+     * This function returns agent wise bookings summary for a partner on a specific date
+     * @author Prity Sharma
+     * @date 24-06-2019
+     * @param type $partner_id
+     * @param type $booking_date
+     * @return array
+     */
+    function get_agent_wise_booking_summary($partner_id, $booking_date)
+    {
+        $strQuery = "SELECT 
+                        booking_details.booking_id,
+                        bs.agent_id,
+                        date_format(booking_details.create_date, '%d-%m-%Y %H:%m') as booking_date,
+                        date_format(booking_details.create_date, '%d') as booking_day, 
+                        entity_login_table.agent_name,
+                        booking_details.user_id
+                    FROM
+                        booking_details
+                        LEFT JOIN booking_state_change bs ON (booking_details.booking_id = bs.booking_id) 
+                        LEFT JOIN entity_login_table ON (bs.agent_id = entity_login_table.agent_id)
+                    WHERE 
+                        (booking_details.partner_id = $partner_id OR booking_details.origin_partner_id = '$partner_id' )
+                        AND booking_details.booking_date = '".$booking_date."'
+                        AND bs.old_state IN ('New_Booking', 'New_Query')
+                    GROUP BY bs.booking_id";
+        return $query = $this->db->query($strQuery);
     }
 }
 

@@ -66,18 +66,13 @@
                                     <th>Basic Price</th>
  
                                     <th>GST Rate</th>-->
-                                    <th>SF Price(including GST)</th>
-                                    <th>SF Margin</th>
-                                    <th>Customer Price (including GST)</th>
- 
                                     <th>GST Rate</th>
-                                    <th>Total Price</th>
-                                    <th>Vendor Margin</th>
-                                    <?php if(!$saas_flag){?>
+                                    <th>SF Price(including GST)</th>
+                                    <th>SF Margin</th>                                  
+                                    <?php if($saas_flag){?>
                                     <th>Around Margin </th> 
                                    <?php  } ?>
-                                    <th>Customer Price</th>
- 
+                                    <th>Customer Price (including GST)</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -224,20 +219,30 @@
         var service_id = $('#inventory_service_id').val();
         var entity_id = $('#partner_id').val();
         
-        get_model_number_list()
+        get_model_number_list(entity_id,service_id);
      
     });
     
     function get_model_number_list(entity_id,service_id){
-       
+       console.log('<?php echo $partner_id; ?>');
         if(service_id && entity_id){
             
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/get_appliance_model_number',
                 data:{partner_id:entity_id,entity_type: '<?php echo _247AROUND_PARTNER_STRING ; ?>', service_id:service_id},
-                success:function(data){   
-                    $("#model_number_id").html(data);
+                success:function(data){  
+                     $("#model_number_id").html(data);
+                     <?php  if(!empty($model)){ ?>
+                     $("#model_number_id  option").each(function(){
+                         var txt = $(this).text();
+                         if($.trim(txt)=='<?php echo $model;?>'){
+                             $(this).attr('selected', 'selected'); 
+                             $("#model_number_id").change();
+                             $("#get_inventory_data").click();
+                         }   
+                     });   
+                     <?php   } ?>
                 }
             });
             

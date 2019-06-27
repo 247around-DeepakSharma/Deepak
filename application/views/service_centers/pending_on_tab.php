@@ -71,7 +71,7 @@
                                             
                                                <?php if($row->booking_files_purchase_invoice){ ?>
                                                 <br/>
-                                                <a target='_blank' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $row->booking_files_purchase_invoice; ?>"  title = 'Purchase Invoice Varified' aria-hidden = 'true'><img src="<?php echo base_url(); ?>images/varified.png" style="width:20%"/></a>
+                                                <a target='_blank' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $row->booking_files_purchase_invoice; ?>"  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src="<?php echo base_url(); ?>images/varified.png" style="width:20%"/></a>
                                                <?php } ?>
                                                 <br/>
                                                 <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
@@ -163,7 +163,7 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -284,7 +284,7 @@
                                                 </script>
                                                 <?php if($row->booking_files_purchase_invoice){ ?>
                                                 <br/>
-                                                <a target='_blank' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $row->booking_files_purchase_invoice; ?>"  title = 'Purchase Invoice Varified' aria-hidden = 'true'><img src="<?php echo base_url(); ?>images/varified.png" style="width:30%"/></a>
+                                                <a target='_blank' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $row->booking_files_purchase_invoice; ?>"  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src="<?php echo base_url(); ?>images/varified.png" style="width:30%"/></a>
                                                <?php } ?>
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
@@ -360,7 +360,7 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -476,7 +476,7 @@
                                                 </script>
                                                 <?php if($row->booking_files_purchase_invoice){ ?>
                                                 <br/>
-                                                <a target='_blank' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $row->booking_files_purchase_invoice; ?>"  title = 'Purchase Invoice Varified' aria-hidden = 'true'><img src="<?php echo base_url(); ?>images/varified.png" style="width:30%"/></a>
+                                                <a target='_blank' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $row->booking_files_purchase_invoice; ?>"  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src="<?php echo base_url(); ?>images/varified.png" style="width:30%"/></a>
                                                <?php } ?>
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
@@ -547,11 +547,11 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                            <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?>  //disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                                         </td>
                                         <?php } ?>
                                         <?php if($this->session->userdata('is_update') == 0){ ?>
@@ -562,9 +562,9 @@
                                         <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                                            <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  //disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                         </td>
-                                        <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
+                                        <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  //disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                                             <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>                                        
 <!--                                                                    <td>-->
                                        <!--     <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"

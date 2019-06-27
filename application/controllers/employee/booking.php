@@ -963,9 +963,7 @@ class Booking extends CI_Controller {
                     "partner_appliance_details.partner_id" => $partner_id, 
                     'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
                     'partner_appliance_details.brand' => $value['brand'],
-                    'partner_appliance_details.category' => $value['category'],
                     'appliance_model_details.active'=> 1, 
-                    'partner_appliance_details.capacity' => $value['capacity'],
                     "NULLIF(model, '') IS NOT NULL" => NULL
                 );
                 $data['booking_unit_details'][$keys]['model_dropdown'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
@@ -986,6 +984,7 @@ class Booking extends CI_Controller {
                     $data['booking_unit_details'][$keys]['quantity'][$key]['is_sn_correct'] = $service_center_data[0]['is_sn_correct'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_date'] = $service_center_data[0]['sf_purchase_date'];
                     $data['booking_unit_details'][$keys]['quantity'][$key]['sf_purchase_invoice'] = $service_center_data[0]['sf_purchase_invoice'];
+                    $data['booking_unit_details'][$keys]['model_number'] = $service_center_data[0]['model_number'];
                 }
                 // Searched already inserted price tag exist in the price array (get all service category)
                 $id = $this->search_for_key($price_tag['price_tags'], $prices);
@@ -1313,7 +1312,7 @@ class Booking extends CI_Controller {
             } else {
                 $data['prepaid_msg'] = "";
             }
-            $data['services'] = "<option selected disabled>Select Product</option>";
+            $data['services'] = "<option selected disabled value='option_holder'>Select Product</option>";
             foreach ($services as $appliance) {
                 $data['services'] .= "<option ";
                 if ($selected_service_id == $appliance->id) {
@@ -1464,6 +1463,9 @@ class Booking extends CI_Controller {
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 if(!$is_saas){
                     $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
+                }
+                else{
+                    $html .= "<td><input  type='hidden' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
                 }
                 $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
                 if($is_repeat) {
@@ -4150,7 +4152,7 @@ class Booking extends CI_Controller {
          }
         $row[] = $no.$sn;
         if($order_list->booking_files_bookings){
-            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Varified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p>";
+            $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a><p><a target='_blank' href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$order_list->booking_files_bookings."'  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src='".base_url()."images/varified.png' style='width:20px; height: 20px;'></a></p>";
         }
         else{
             $row[] = "<a href='"."https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$order_list->booking_jobcard_filename."'>$order_list->booking_id</a>";
@@ -5615,7 +5617,7 @@ class Booking extends CI_Controller {
                 $finalFilterArray = array();
                 $filterArray = json_decode($summaryReport['filters'], true);
                 foreach ($filterArray as $key => $value) {
-                    if ($key == "Date_Range") {
+                    if ($key == "Date_Range" && is_array($value) && !empty(array_filter($value))) {
                         $dArray = explode(" - ", $value);
                         $key = "Registration Date";
                         $startTemp = strtotime($dArray[0]);
@@ -5623,6 +5625,16 @@ class Booking extends CI_Controller {
                         $startD = date('d-F-Y', $startTemp);
                         $endD = date('d-F-Y', $endTemp);
                         $value = $startD . " To " . $endD;
+                    }
+                    if ($key == "Completion_Date_Range" && is_array($value) && !empty(array_filter($value))) { 
+                        $dArray = explode(" - ", $value);
+                        $key = "Completion Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                        
                     }
                     $finalFilterArray[] = $key . " : " . $value;
                 }
@@ -5637,6 +5649,46 @@ class Booking extends CI_Controller {
         }
         
         echo $str_body;
+    }
+    
+    /**
+     * @desc: This funtion is used to get booking cancellation reason list.
+     * @param : void
+     * @return : void
+     * @author : Prity Sharma
+     * @date : 21-06-2019
+     */
+    public function cancellation_reasons()
+    {
+        $this->miscelleneous->load_nav_header();
+        $data = $this->booking_model->get_cancellation_reasons();
+        $this->load->view('employee/view_cancellation_reasons', ['data' => $data]);
+    }
+    /**
+     * @desc: This funtion is used to change booking cancellation reason decision flag.
+     * This function is called from ajax
+     * @param : void
+     * @return : integer
+     * @author : Prity Sharma
+     * @date : 21-06-2019
+     */
+    public function change_booking_cancellation_flag()
+    {
+        $post_data = $this->input->post();
+        $id = !empty($post_data['id']) ? substr($post_data['id'], 6) : "";
+        $decision_flag = !empty($post_data['flag_value']) ? $post_data['flag_value'] : 0;
+        if(!empty($id)):
+            $data = array( 
+                'id' => $id, 
+                'decision_flag' => $decision_flag 
+             ); 
+
+            $this->db->set($data); 
+            $this->db->where('id', $id);
+            $this->db->update('booking_cancellation_reasons', $data);
+            exit("1");
+        endif;
+        exit("2");
     }
 
 }
