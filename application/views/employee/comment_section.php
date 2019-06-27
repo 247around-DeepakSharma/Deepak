@@ -6,7 +6,7 @@
         <tr>
             <td style="font-size: 90%;">
                 <p style="color:#0033cc">
-                    <strong><b> <?php echo $row['employee_id']; ?></b></strong> added a comment on -<?php
+                    <strong><b> <?php echo $row['full_name']; ?></b></strong> added a comment on -<?php
                 $old_date = $row['create_date'];
                 $old_date_timestamp = strtotime($old_date);
                 $new_date = date('j F, Y g:i A', $old_date_timestamp);
