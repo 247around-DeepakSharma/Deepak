@@ -5148,7 +5148,6 @@ class Partner extends CI_Controller {
             "SF City",
             "SF State",
             "SF Remarks",
-            "Warehouse Name",
             "Requested Part Code",
             "Requested Part Name",
             "Requested Quantity",
@@ -5180,7 +5179,7 @@ class Partner extends CI_Controller {
             $tempArray = array();            
             $tempArray[] = $sparePartBookings['booking_id'];
             $tempArray[] = $sparePartBookings['services'];
-            $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse" : "Warehouse"));
+            $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse - " : "").$sparePartBookings['warehouse_name']);
             $tempArray[] = $sparePartBookings['status'];
             $tempArray[] = $sparePartBookings['partner_current_status'];     
             $tempArray[] = $sparePartBookings['partner_internal_status'];     
@@ -5188,7 +5187,6 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['sf_city'];              
             $tempArray[] = $sparePartBookings['sf_state'];
             $tempArray[] = $sparePartBookings['remarks_by_sc'];
-            $tempArray[] = $sparePartBookings['warehouse_name'];
             $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['part_name'];
             $tempArray[] = $sparePartBookings['quantity'];
