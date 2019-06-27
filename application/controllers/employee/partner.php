@@ -4988,10 +4988,16 @@ class Partner extends CI_Controller {
         if($status != 'All'){
             if($status == _247AROUND_PENDING){
                 $where[] = "booking_details.current_status NOT IN ('Cancelled','Completed')";
-          }
-                else{
-                    $where[] = "booking_details.current_status IN('".$status."')";
-                }
+                $where[] = "booking_details.service_center_closed_date IS NULL";
+            }
+            else if($status == _247AROUND_COMPLETED){
+                    $where[] = "!(booking_details.current_status = 'Cancelled' OR booking_details.internal_status = 'InProcess_Cancelled')";
+                    $where[] = "booking_details.service_center_closed_date IS NOT NULL";
+            }
+            else{
+                $where[] = "(booking_details.current_status = 'Cancelled' OR booking_details.internal_status = 'InProcess_Cancelled')";
+                $where[] = "booking_details.service_center_closed_date IS NOT NULL";
+            }
             }
             if(!in_array('All',$state)){
                 $where[] = "booking_details.state IN ('".implode("','",$state)."')";
