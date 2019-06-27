@@ -5679,3 +5679,4 @@ class Booking extends CI_Controller {
         echo $str_body;
     }
     
+}
