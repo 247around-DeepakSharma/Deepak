@@ -1312,7 +1312,7 @@ class Booking extends CI_Controller {
             } else {
                 $data['prepaid_msg'] = "";
             }
-            $data['services'] = "<option selected disabled>Select Product</option>";
+            $data['services'] = "<option selected disabled value='option_holder'>Select Product</option>";
             foreach ($services as $appliance) {
                 $data['services'] .= "<option ";
                 if ($selected_service_id == $appliance->id) {
@@ -5617,7 +5617,7 @@ class Booking extends CI_Controller {
                 $finalFilterArray = array();
                 $filterArray = json_decode($summaryReport['filters'], true);
                 foreach ($filterArray as $key => $value) {
-                    if ($key == "Date_Range") {
+                    if ($key == "Date_Range" && is_array($value) && !empty(array_filter($value))) {
                         $dArray = explode(" - ", $value);
                         $key = "Registration Date";
                         $startTemp = strtotime($dArray[0]);
@@ -5626,7 +5626,7 @@ class Booking extends CI_Controller {
                         $endD = date('d-F-Y', $endTemp);
                         $value = $startD . " To " . $endD;
                     }
-                    if ($key == "Completion_Date_Range") { 
+                    if ($key == "Completion_Date_Range" && is_array($value) && !empty(array_filter($value))) { 
                         $dArray = explode(" - ", $value);
                         $key = "Completion Date";
                         $startTemp = strtotime($dArray[0]);
