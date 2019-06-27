@@ -5597,4 +5597,99 @@ class Booking extends CI_Controller {
         }
     }
   
+    /**
+     * @desc: This funtion is used to get booking cancellation reason list.
+     * @param : void
+     * @return : void
+     * @author : Prity Sharma
+     * @date : 21-06-2019
+     */
+    public function cancellation_reasons()
+    {
+        $this->miscelleneous->load_nav_header();
+        $data = $this->booking_model->get_cancellation_reasons();
+        $this->load->view('employee/view_cancellation_reasons', ['data' => $data]);
+    }
+    /**
+     * @desc: This funtion is used to change booking cancellation reason decision flag.
+     * This function is called from ajax
+     * @param : void
+     * @return : integer
+     * @author : Prity Sharma
+     * @date : 21-06-2019
+     */
+    public function change_booking_cancellation_flag()
+    {
+        $post_data = $this->input->post();
+        $id = !empty($post_data['id']) ? substr($post_data['id'], 6) : "";
+        $decision_flag = !empty($post_data['flag_value']) ? $post_data['flag_value'] : 0;
+        if(!empty($id)):
+            $data = array( 
+                'id' => $id, 
+                'decision_flag' => $decision_flag 
+             ); 
+
+            $this->db->set($data); 
+            $this->db->where('id', $id);
+            $this->db->update('booking_cancellation_reasons', $data);
+            exit("1");
+        endif;
+        exit("2");
+    }
+    
+    function get_summary_report() {
+        
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","state",array(),array(),NULL,array('state'=>'ASC'),NULL,array(),array());
+        $data['services'] = $this->booking_model->selectservice();
+
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/get_partner_summary_report',$data);
+        
+    }
+    
+    function get_summary_report_data($partnerID) {
+       
+        $summaryReportData = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>"partner","entity_id"=>$partnerID),NULL,array("length"=>50,"start"=>""),
+                array('id'=>'DESC'),NULL,NULL,array());
+        
+        $str_body = '';
+        if(!empty($summaryReportData)) {
+            foreach ($summaryReportData as $summaryReport) {
+                $finalFilterArray = array();
+                $filterArray = json_decode($summaryReport['filters'], true);
+                foreach ($filterArray as $key => $value) {
+                    if ($key == "Date_Range" && is_array($value) && !empty(array_filter($value))) {
+                        $dArray = explode(" - ", $value);
+                        $key = "Registration Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                    }
+                    if ($key == "Completion_Date_Range" && is_array($value) && !empty(array_filter($value))) { 
+                        $dArray = explode(" - ", $value);
+                        $key = "Completion Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                    }
+                    $finalFilterArray[] = $key . " : " . $value;
+                }
+                
+                $str_body .=  '<tr>';
+                $str_body .=  '<td>' . implode(", ", $finalFilterArray) .'</td>';
+                $str_body .=  '<td>' . $summaryReport['create_date'] .'</td>';
+                $str_body .= '<td><a class="btn btn-success" style="background: #2a3f54;" href="'. base_url() ."employee/partner/download_custom_summary_report/". $summaryReport['url'] .'">Download</a></td>';
+                $str_body .=  '</tr>';
+                
+            }
+        }
+        
+        echo $str_body;
+    }
+    
+
 }
