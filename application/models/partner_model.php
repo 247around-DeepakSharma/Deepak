@@ -238,7 +238,7 @@ function get_data_for_partner_callback($booking_id) {
             $this->db->limit($limit, $start);
         }
         $this->db->_protect_identifiers = FALSE;
-        $this->db->select('request_type,booking_details.booking_id, booking_details.flat_upcountry, booking_details.closed_date, users.name as customername, '
+        $this->db->select('request_type,booking_details.booking_id, booking_details.flat_upcountry, booking_details.closed_date, booking_details.service_center_closed_date, users.name as customername, '
                 . ' booking_details.booking_primary_contact_no, services.services, '
                 . ' booking_details.booking_date, booking_details.closing_remarks, '
                 . ' booking_details.booking_timeslot, booking_details.city, booking_details.state,'
