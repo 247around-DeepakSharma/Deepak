@@ -854,7 +854,7 @@ function get_data_for_partner_callback($booking_id) {
                     . "booking_details.amount_due,booking_details.state, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state as sf_state, service_centres.gst_no, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
-                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request ";
+                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name ";
             if($end){
                 $limit = "LIMIT $start, $end";
             }
@@ -875,6 +875,7 @@ function get_data_for_partner_callback($booking_id) {
                     . ' FROM spare_parts_details'
                     . ' JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id'
                     . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
+                    . ' LEFT JOIN service_centres sc ON spare_parts_details.partner_id = sc.id AND spare_parts_details.entity_type="vendor" '
                     . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                     . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                     . ' JOIN users ON users.user_id = booking_details.user_id '.$join
@@ -890,6 +891,7 @@ function get_data_for_partner_callback($booking_id) {
                 . " JOIN booking_details ON  booking_details.booking_id = spare_parts_details.booking_id "
                 . ' JOIN users ON users.user_id = booking_details.user_id '
                 . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
+                . ' LEFT JOIN service_centres sc ON spare_parts_details.partner_id = sc.id AND spare_parts_details.entity_type="vendor" '
                 . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                 . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                 . ' LEFT JOIN services ON booking_details.service_id=services.id '
@@ -903,6 +905,7 @@ function get_data_for_partner_callback($booking_id) {
                           . " JOIN booking_details ON  booking_details.booking_id = spare_parts_details.booking_id "
                     . ' JOIN users ON users.user_id = booking_details.user_id '
                     . ' JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id'
+                    . ' LEFT JOIN service_centres sc ON spare_parts_details.partner_id = sc.id AND spare_parts_details.entity_type="vendor" '
                     . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                     . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
