@@ -57,7 +57,8 @@ class Api extends CI_Controller {
         //$_POST = json_decode($input_d, true);
         
         //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"engineerLogin\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
-        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"getEngineerBookings\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
+
+        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"submitSparePartsOrder\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
 
         //$_POST = json_decode($str, true);
             
@@ -503,6 +504,10 @@ class Api extends CI_Controller {
             
             case 'sparePartName':
                 $this->getSparePartName();
+                break;
+            
+            case 'submitSparePartsOrder':
+                $this->processSubmitSparePartsOrder();
                 break;
             
             default:
@@ -4895,7 +4900,7 @@ class Api extends CI_Controller {
             $where['inventory_master_list.service_id'] = $requestData['service_id'];
             $where['inventory_master_list.entity_id'] = $requestData['partner_id'];
             $where['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;;
-            $select = "inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_number";
+            $select = "inventory_master_list.part_name, inventory_master_list.inventory_id, inventory_model_mapping.max_quantity, inventory_master_list.part_number, CAST((price + (price*gst_rate/100) + (price*oow_around_margin/100) + (price*oow_vendor_margin/100)) as INT) as amount";
             $response = $this->inventory_model->get_inventory_model_mapping_data($select, $where);
             log_message("info", __METHOD__ . "Spare Part Name found successfully");
             $this->jsonResponseString['response'] = $response;
@@ -4906,5 +4911,140 @@ class Api extends CI_Controller {
             log_message("info", __METHOD__ . "Part Type not found - ".$requestData["part_type"]." or Partner Id not found - ".$requestData["partner_id"]." or Service Id not found -".$requestData["service_id"]);
             $this->sendJsonResponse(array('0034', 'Part Type or Partner Id or Service Id not found'));
         }
+    }
+    
+    function processSubmitSparePartsOrder(){ 
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($qsh->submitSparePartsOrder, true);
+        $requestData["call_from_api"] = TRUE;
+        $validation = $this->validateSparePartsOrderRequest($requestData);
+        if($validation['status']){ 
+            //Call curl for updating spare parts using code from where service center ask for spare parts
+            $url = base_url()."employee/service_centers/update_spare_parts"; 
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_HEADER, false);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
+            $curl_response = curl_exec($ch);
+            curl_close($ch);
+            $response = json_decode($curl_response);
+            if($response->status){
+                log_message("info", __METHOD__ . "Part  Updated successfully");
+                $this->jsonResponseString['response'] = $response->message;
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            else{
+                log_message("info", __METHOD__ . "Part Not Updated Error - ".$response->message);
+                $this->sendJsonResponse(array('0036', $response->message));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . "Request validation failed ".$validation['message']);
+            $this->sendJsonResponse(array('0035', $validation['message']));
+        }
+    }
+    
+    function validateSparePartsOrderRequest($requestData){
+        $response = array();
+        $response['status'] = false;
+        if(!isset($requestData['booking_id'])){
+            $response['message'] = "Booking id not found!";
+        }
+        else if(!isset($requestData['amount_due'])){
+            $response['message'] = "Amount Due not found";
+        }
+        else if(!isset($requestData['partner_id'])){
+            $response['message'] = "Partner Id not found";
+        }
+        else if(!isset($requestData['price_tags'])){
+            $response['message'] = "Request Type not found";
+        }
+        else if(!isset($requestData['partner_flag'])){
+            $response['message'] = "Partner Flag not found";
+        }
+        else if(!isset($requestData['spare_shipped'])){
+            $response['message'] = "Shipped Spare not found";
+        }
+        else if(!isset($requestData['reason'])){
+            $response['message'] = "Spare Remarks not found";
+        }
+        else if(!isset($requestData['days'])){
+            $response['message'] = "Days not found";
+        }
+        else if(!isset($requestData['model_number_id'])){
+            $response['message'] = "Model Number Id not found";
+        }
+        else if(!isset($requestData['model_number'])){
+            $response['message'] = "Model Number not found";
+        }
+        else if(!isset($requestData['dop'])){
+            $response['message'] = "Date of purchase not found";
+        }
+        else if(!isset($requestData['serial_number'])){
+            $response['message'] = "Serial Number not found";
+        }
+        else if(!isset($requestData['service_center_id'])){
+            $response['message'] = "Service Center Id not found";
+        }
+        else if(!isset($requestData['part'])){
+            $response['message'] = "Parts Array not found";
+        }
+        else if(isset($requestData['part'])){
+           
+            $check = true;
+            $keys = array("part_warranty_status", "parts_type", "parts_name", "requested_inventory_id", "quantity");
+            foreach($requestData['part'] as $parts){
+                foreach ($keys as $key){
+                    if (!array_key_exists($key, $parts)){ 
+                        $check = false; 
+                    }
+                }
+            }
+            if($check){
+                $response['status'] = true;
+                $response['message'] = "success";
+            }
+            else{
+                $response['message'] = $check;
+            }
+        }
+        else{
+            $response['status'] = true;
+            $response['message'] = "success";
+        }
+        
+        if($response['status']){
+            foreach ($requestData['part'] as $key => $value){
+                //upload defective front part pic
+                if($value["defective_front_parts"]){
+                    $defective_part_pic = "Defective_Parts_".date("YmdHis").".png";
+                    $this->miscelleneous->generate_image($value["defective_front_parts"], $defective_part_pic, "misc-images");
+                    $requestData['part'][$key]['defective_parts'] = $defective_part_pic;
+                }
+                
+                //upload defective back part pick
+                if($value["defective_back_parts"]){
+                    $defective_back_part_pic = "Defective_Parts_".date("YmdHis").".png";
+                    $this->miscelleneous->generate_image($value["defective_back_parts"], $defective_back_part_pic, "misc-images");
+                    $requestData['part'][$key]['defective_back_parts_pic'] = $defective_back_part_pic;
+                }
+            }
+        
+        
+            if($requestData['serial_number_pic_exist']){
+                $serial_number_pic = "serial_number_pic_".date("YmdHis").".png";
+                $this->miscelleneous->generate_image($requestData['serial_number_pic_exist'], $serial_number_pic, "misc-images");
+                $requestData['serial_number_pic'] = $serial_number_pic;
+            }
+
+            if($requestData['invoice_number_pic_exist']){
+                $invoice_pic = "invoice_".$requestData['booking_id']."_".date("YmdHis").".png";
+                $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "misc-images");
+                $requestData['invoice_pic'] = $invoice_pic;
+            }
+        
+        }
+        return $response;
     }
 }

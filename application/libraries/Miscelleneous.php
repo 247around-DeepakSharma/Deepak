@@ -1795,7 +1795,7 @@ class Miscelleneous {
         //$filename = prev($temp);
 
         if ($file["name"] != null) {
-            if (($file["size"] < 2 * $MB) && in_array($extension, $allowedExts)) {
+            if (($file["size"] < 5 * $MB) && in_array($extension, $allowedExts)) {
                 if ($file["error"] > 0) {
 
                     $this->My_CI->form_validation->set_message('upload_file_to_s3', $file["error"]);
