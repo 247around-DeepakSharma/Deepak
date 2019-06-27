@@ -388,7 +388,7 @@ function get_data_for_partner_callback($booking_id) {
             $subQueryArray[$values['Title']] = $values['sub_query'];
         }
         if(!$whereConditions){
-            $where = "((booking_details.create_date > (CURDATE() - INTERVAL 1 MONTH)) OR (booking_details.current_status NOT IN ('"._247AROUND_CANCELLED."','"._247AROUND_COMPLETED."')))";
+            $where = "((booking_details.create_date > (CURDATE() - INTERVAL 3 MONTH)) OR (booking_details.current_status NOT IN ('"._247AROUND_CANCELLED."','"._247AROUND_COMPLETED."')))";
         }
         else{
             $where = $whereConditions;
