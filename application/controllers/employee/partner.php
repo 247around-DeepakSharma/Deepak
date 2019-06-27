@@ -4979,9 +4979,14 @@ class Partner extends CI_Controller {
         $this->load->view('partner/partner_footer');
     }
     private function create_custom_summary_report($partnerID,$postArray){
-        $dateArray  = explode(" - ",$postArray['Date_Range']);
-        $start = date('Y-m-d',strtotime($dateArray[0]));
-        $end = date('Y-m-d',strtotime($dateArray[1]));
+        if(!empty($postArray['Date_Range'])) {
+            $dateArray  = explode(" - ",$postArray['Date_Range']);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
+        }
+        
         $status = $postArray['Status'];
         if($postArray['State']){
             $state = explode(",",$postArray['State']);
@@ -4989,16 +4994,31 @@ class Partner extends CI_Controller {
         else{
             $state =array('All');
         }
+        
+        if(!empty($postArray['Completion_Date_Range'])) {
+            $completionDateArray = explode(" - ",$postArray['Completion_Date_Range']);
+            $completion_start_date = date('Y-m-d',strtotime($completionDateArray[0]));
+            $completion_end_date = date('Y-m-d',strtotime($completionDateArray[1]));
+            
+            $where[] = "(date(booking_details.service_center_closed_date)>='".$completion_start_date."' AND date(booking_details.service_center_closed_date)<='".$completion_end_date."')";
+        }
+        
         $newCSVFileName = "Booking_summary_" . date('Y-m-d').($partnerID+211).rand(10,100000000). ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
-        $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
+        
         if($status != 'All'){
             if($status == _247AROUND_PENDING){
                 $where[] = "booking_details.current_status NOT IN ('Cancelled','Completed')";
-          }
-                else{
-                    $where[] = "booking_details.current_status IN('".$status."')";
-                }
+                $where[] = "booking_details.service_center_closed_date IS NULL";
+            }
+            else if($status == _247AROUND_COMPLETED){
+                    $where[] = "!(booking_details.current_status = 'Cancelled' OR booking_details.internal_status = 'InProcess_Cancelled')";
+                    $where[] = "booking_details.service_center_closed_date IS NOT NULL";
+            }
+            else{
+                $where[] = "(booking_details.current_status = 'Cancelled' OR booking_details.internal_status = 'InProcess_Cancelled')";
+                $where[] = "booking_details.service_center_closed_date IS NOT NULL";
+            }
             }
             if(!in_array('All',$state)){
                 $where[] = "booking_details.state IN ('".implode("','",$state)."')";
@@ -5120,14 +5140,22 @@ class Partner extends CI_Controller {
         }
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Waiting_Upcountry_Bookings_".date("Y-m-d"));
     }
-    function download_spare_part_shipped_by_partner(){
+    function download_spare_part_shipped_by_partner($isAdmin=0){
         ob_start();
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
-        $this->checkUserSession();
+        $where == '1';
+        if($isAdmin == 0) {
+             log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+             $this->checkUserSession();
+             $partner_id = $this->session->userdata('partner_id');
+             $where = "booking_details.partner_id = '" . $partner_id . "' ";
+         }
+         else
+         {
+             $this->checkEmployeeUserSession();
+         }
         $CSVData = array();
-        $partner_id = $this->session->userdata('partner_id');
-        $where = "booking_details.partner_id = '" . $partner_id . "' "
-                . " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
+        
+        $where .= " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Booking ID",
             "Product",
@@ -5139,7 +5167,6 @@ class Partner extends CI_Controller {
             "SF City",
             "SF State",
             "SF Remarks",
-            "Warehouse Name",
             "Requested Part Code",
             "Requested Part Name",
             "Requested Quantity",
@@ -5171,7 +5198,7 @@ class Partner extends CI_Controller {
             $tempArray = array();            
             $tempArray[] = $sparePartBookings['booking_id'];
             $tempArray[] = $sparePartBookings['services'];
-            $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse" : "Warehouse"));
+            $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse - " : "").$sparePartBookings['warehouse_name']);
             $tempArray[] = $sparePartBookings['status'];
             $tempArray[] = $sparePartBookings['partner_current_status'];     
             $tempArray[] = $sparePartBookings['partner_internal_status'];     
@@ -5179,7 +5206,6 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['sf_city'];              
             $tempArray[] = $sparePartBookings['sf_state'];
             $tempArray[] = $sparePartBookings['remarks_by_sc'];
-            $tempArray[] = $sparePartBookings['warehouse_name'];
             $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['part_name'];
             $tempArray[] = $sparePartBookings['quantity'];
@@ -7822,4 +7848,19 @@ class Partner extends CI_Controller {
 
         echo $option;
     }
+    
+    
+            /**
+     * @desc This function is used to get success message when spare cancelled but this is not on priority.
+     * @param String $booking_id
+     */
+    function msl_excel_upload(){
+        
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/msl_excel_upload');
+        $this->load->view('partner/partner_footer');
+        
+    }
+    
+    
 }

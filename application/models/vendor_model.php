@@ -2161,5 +2161,34 @@ class vendor_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+   
+    /*
+     * @Desc - This function is used to map brands to a SF
+     * @author - Prity Sharma
+     * @date - 26-06-2019
+     * @params - $Sf_id (Service Center Id) 
+    */
+    function map_vendor_brands($sf_id, $arr_brands)
+    {
+        $this->db->delete('service_center_brand_mapping', array('service_center_id' => $sf_id));
+        foreach ($arr_brands as $rec_brand) {
+            $data = array('service_center_id' => $sf_id, 'brand_name' => $rec_brand);
+            $this->db->insert('service_center_brand_mapping',$data);
+        }
+    }
+    
+    /*
+     * @Desc - This function is used to get brands mappad to a SF
+     * @author - Prity Sharma
+     * @date - 26-06-2019
+     * @params - $Sf_id (Service Center Id) 
+    */
+    function get_mapped_brands($sf_id)
+    {
+        $this->db->select('GROUP_CONCAT(service_center_brand_mapping.brand_name) as map_brands');
+        $this->db->where(['service_center_id' => $sf_id, 'isActive' => 1]);
+        $query = $this->db->get('service_center_brand_mapping');
+        return $query->result_array()[0]['map_brands']; 
+    }
 }
 
