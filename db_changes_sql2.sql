@@ -150,7 +150,6 @@ ALTER TABLE `entity_gst_details`
 
  
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'spare_not_transfer_from_wh_to_wh', 'Spare for booking ID - %s not transferred', 'Spare not transferred due to no available of stock ,Booking ID is %s, <br/>Inventory ID is %s . <br>\r\n', 'noreply@247around.com', '247around_dev@247around.com', 'abhisheka@247around.com', 'abhaya@247around.com', '1', '', '2018-10-30 10:48:05');
-<<<<<<< HEAD
  
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'spare_not_transfer_from_wh_to_wh', 'Spare for booking ID - %s not transferred', 'Spare not transferred due to no available of stock ,Booking ID is %s, <br/>Inventory ID is %s . <br>\r\n', 'noreply@247around.com', '247around_dev@247around.com', 'abhisheka@247around.com', 'abhaya@247around.com', '1', '', '2018-10-30 10:48:05');
 --Chhavi
@@ -228,4 +227,22 @@ INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `li
 ALTER TABLE `invoice_details` ADD `from_gst_number` VARCHAR(25) NULL DEFAULT NULL AFTER `total_amount`, ADD `to_gst_number` VARCHAR(25) NULL DEFAULT NULL AFTER `from_gst_number`;
 
 
+
 ALTER TABLE `vendor_partner_invoices` CHANGE `invoice_file_main` `invoice_file_main` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
+-- Prity Bhardwaj 26-June-2019
+CREATE TABLE `service_center_brand_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `service_center_id` int(11) NOT NULL,
+  `brand_id` int(11) NULL DEFAULT NULL,
+  `brand_name` varchar(25) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `isActive` int(1) DEFAULT 1,
+  PRIMARY KEY (`id`),  
+  KEY fk_scbm_service_center_id_service_centers_id (service_center_id),
+  KEY fk_scbm_brand_id_appliance_brands_id (brand_id),
+  CONSTRAINT fk_scbm_service_center_id_service_centers_id FOREIGN KEY (service_center_id) REFERENCES service_centres (id),
+  CONSTRAINT fk_scbm_brand_id_appliance_brands_id FOREIGN KEY (brand_id) REFERENCES appliance_brands (id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+

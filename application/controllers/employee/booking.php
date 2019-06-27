@@ -963,9 +963,7 @@ class Booking extends CI_Controller {
                     "partner_appliance_details.partner_id" => $partner_id, 
                     'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
                     'partner_appliance_details.brand' => $value['brand'],
-                    'partner_appliance_details.category' => $value['category'],
                     'appliance_model_details.active'=> 1, 
-                    'partner_appliance_details.capacity' => $value['capacity'],
                     "NULLIF(model, '') IS NOT NULL" => NULL
                 );
                 $data['booking_unit_details'][$keys]['model_dropdown'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
@@ -1314,7 +1312,7 @@ class Booking extends CI_Controller {
             } else {
                 $data['prepaid_msg'] = "";
             }
-            $data['services'] = "<option selected disabled>Select Product</option>";
+            $data['services'] = "<option selected disabled value='option_holder'>Select Product</option>";
             foreach ($services as $appliance) {
                 $data['services'] .= "<option ";
                 if ($selected_service_id == $appliance->id) {
@@ -5619,7 +5617,7 @@ class Booking extends CI_Controller {
                 $finalFilterArray = array();
                 $filterArray = json_decode($summaryReport['filters'], true);
                 foreach ($filterArray as $key => $value) {
-                    if ($key == "Date_Range") {
+                    if ($key == "Date_Range" && is_array($value) && !empty(array_filter($value))) {
                         $dArray = explode(" - ", $value);
                         $key = "Registration Date";
                         $startTemp = strtotime($dArray[0]);
@@ -5627,6 +5625,16 @@ class Booking extends CI_Controller {
                         $startD = date('d-F-Y', $startTemp);
                         $endD = date('d-F-Y', $endTemp);
                         $value = $startD . " To " . $endD;
+                    }
+                    if ($key == "Completion_Date_Range" && is_array($value) && !empty(array_filter($value))) { 
+                        $dArray = explode(" - ", $value);
+                        $key = "Completion Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                        
                     }
                     $finalFilterArray[] = $key . " : " . $value;
                 }
