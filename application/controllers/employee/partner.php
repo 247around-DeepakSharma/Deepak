@@ -4979,9 +4979,14 @@ class Partner extends CI_Controller {
         $this->load->view('partner/partner_footer');
     }
     private function create_custom_summary_report($partnerID,$postArray){
-        $dateArray  = explode(" - ",$postArray['Date_Range']);
-        $start = date('Y-m-d',strtotime($dateArray[0]));
-        $end = date('Y-m-d',strtotime($dateArray[1]));
+        if(!empty($postArray['Date_Range'])) {
+            $dateArray  = explode(" - ",$postArray['Date_Range']);
+            $start = date('Y-m-d',strtotime($dateArray[0]));
+            $end = date('Y-m-d',strtotime($dateArray[1]));
+            
+            $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
+        }
+        
         $status = $postArray['Status'];
         if($postArray['State']){
             $state = explode(",",$postArray['State']);
@@ -5000,7 +5005,7 @@ class Partner extends CI_Controller {
         
         $newCSVFileName = "Booking_summary_" . date('Y-m-d').($partnerID+211).rand(10,100000000). ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
-        $where[] = "(date(booking_details.create_date)>='".$start."' AND date(booking_details.create_date)<='".$end."')";
+        
         if($status != 'All'){
             if($status == _247AROUND_PENDING){
                 $where[] = "booking_details.current_status NOT IN ('Cancelled','Completed')";
