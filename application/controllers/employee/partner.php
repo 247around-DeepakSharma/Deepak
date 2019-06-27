@@ -5119,14 +5119,22 @@ class Partner extends CI_Controller {
         }
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Waiting_Upcountry_Bookings_".date("Y-m-d"));
     }
-    function download_spare_part_shipped_by_partner(){
+    function download_spare_part_shipped_by_partner($isAdmin=0){
         ob_start();
-        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
-        $this->checkUserSession();
+        $where == '1';
+        if($isAdmin == 0) {
+             log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+             $this->checkUserSession();
+             $partner_id = $this->session->userdata('partner_id');
+             $where = "booking_details.partner_id = '" . $partner_id . "' ";
+         }
+         else
+         {
+             $this->checkEmployeeUserSession();
+         }
         $CSVData = array();
-        $partner_id = $this->session->userdata('partner_id');
-        $where = "booking_details.partner_id = '" . $partner_id . "' "
-                . " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
+        
+        $where .= " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Booking ID",
             "Product",
