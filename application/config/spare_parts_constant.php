@@ -131,4 +131,8 @@ define('MSL_TRANSFERED_BY_WAREHOUSE', "2");
 
 define('GAS_RECHARGE_IN_WARRANTY', 'Gas Recharge - In Warranty');
 define('GAS_RECHARGE_OUT_OF_WARRANTY', 'Gas Recharge - Out of Warranty');
+ 
 define('AMC_PRICE_TAGS', 'AMC (Annual Maintenance Contract)');
+ 
+define('MSL_TRANSFERED_BY_PARTNER_BY_EXCEL', 'Msl send by partner by excel upload');
+ 

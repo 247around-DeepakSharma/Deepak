@@ -169,7 +169,6 @@ ALTER TABLE `booking_request_type_state_change`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 UPDATE `email_template` SET `template` = 'Spare not transferred due to no available of stock ,Details are - %s,', `to` = 'abhisheka@247around.com', `bcc` = 'abhisheka@247around.com' WHERE `email_template`.`id` = 159;
- 
 
 -- Prity Bhardwaj 26-June-2019
 CREATE TABLE `service_center_brand_mapping` (
@@ -210,4 +209,3 @@ INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`
 
 --Abhishek----
 ALTER TABLE `appliance_updated_by_sf` CHANGE `capacity` `capacity` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
-

@@ -222,11 +222,7 @@ $route['partner/review_bookings/(:any)/(:any)'] = 'employee/partner/partner_revi
 $route['partner/contacts'] = 'partner/manage_partner_contacts';
 $route['partner/brand_collateral']='employee/partner/brandCollateral';
 $route['partner/inventory/model_mapping'] = 'employee/partner/show_appliance_model_mapping';
-
-
-
-
-
+$route['partner/msl_excel_upload']='employee/partner/msl_excel_upload';
 
 //$route['service_center/inventory/appliance_model_list'] = 'employee/inventory/appliance_model_list';
 

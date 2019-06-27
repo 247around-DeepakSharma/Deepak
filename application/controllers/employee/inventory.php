@@ -3127,13 +3127,26 @@ class Inventory extends CI_Controller {
 
         echo $option;
     }
+    
+    function  process_msl_upload_excel(){
+            $input_d = file_get_contents('php://input');
+            $_POST = json_decode($input_d, TRUE);
+           // print_r($_POST);
+            if (!(json_last_error() === JSON_ERROR_NONE)) {
+                log_message('info', __METHOD__ . ":: Invalid JSON");
+            }else{
+                $invoice_file=false;
+                $this->process_spare_invoice_tagging($invoice_file);  
+            }           
+        
+    }
 
     /**
      *  @desc : This function is used to insert spare data send by partner to warehouse
      *  @param : void
      *  @return : $res JSON // consist response message and response status
      */
-    function process_spare_invoice_tagging() {
+    function process_spare_invoice_tagging($invoice_file=true) {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
 //        $str = '{"is_wh_micro":"2","dated":"2018-11-20","invoice_id":"123456789","invoice_amount":"859","courier_name":"DTDC","awb_number":"123456","courier_shipment_date":"2018-11-20","wh_id":"1","part":[{"shippingStatus":"1","service_id":"46","part_name":"Back Cabinet  (TSA-2419)","part_number":"Back Cabinet  (TSA-2419)","booking_id":"","quantity":"1","part_total_price":"409.32","hsn_code":"8529","gst_rate":"18","inventory_id":"17"},{"shippingStatus":"1","service_id":"46","part_name":"Back Cover (Led Tsa 2276)","part_number":"Back Cover (Led Tsa 2276)","booking_id":"","quantity":"1","part_total_price":"318.64","hsn_code":"8529","gst_rate":"18","inventory_id":"179"}],"partner_id":"247073","partner_name":"T-Series","wh_name":" Delhi UNITED HOME CARE"}';
 //        $_POST = json_decode($str, true);        
@@ -3148,209 +3161,251 @@ class Inventory extends CI_Controller {
         $courier_shipment_date = $this->input->post('courier_shipment_date');
         $partner_name = trim($this->input->post('partner_name'));
         $wh_name = trim($this->input->post('wh_name'));
+        $transfered_by = $this->input->post('transfered_by');
         $is_defective_part_return_wh = trim($this->input->post('is_defective_part_return_wh'));
-        if (!empty($partner_id) && !empty($invoice_id) && !empty($invoice_dated) && !empty($wh_id) && !empty($invoice_amount) && !empty($awb_number) && !empty($courier_name)) {
-            $parts_details = $this->input->post('part');
-            if (!empty($parts_details)) {
+        $req = TRUE;
+        if (!empty($partner_id) && !empty($invoice_dated) && !empty($wh_id) && !empty($awb_number) && !empty($courier_name)) {
+            if ($transfered_by == MSL_TRANSFERED_BY_PARTNER && (empty($invoice_id) || empty($invoice_amount))) {
+                $req = FALSE;
+                
+            } else {
+                $req = TRUE;
+                
+            }
+            if ($transfered_by == MSL_TRANSFERED_BY_PARTNER){
+                $sender_enity_id = $partner_id;
+                $sender_entity_type = _247AROUND_PARTNER_STRING;
 
-                if (strpos($invoice_id, '/') === false) {
-                    $is_invoice_exists = $this->check_invoice_id_exists($invoice_id);
-                    if (!$is_invoice_exists['status']) {
-                        $invoice_file = $this->upload_spare_invoice_file($_FILES);
-                        $courier_file = $this->upload_spare_courier_file($_FILES);
-                        $not_updated_data = array();
+            } else {
+                $sender_entity_type = $this->input->post("sender_entity_type");
+                $sender_enity_id = $this->input->post("sender_entity_id");
 
-                        if ($invoice_file['status']) {
-                            if ($courier_file['status']) {
+            }
+            if ($req) { 
+                $parts_details = $this->input->post('part');
+                if (!empty($parts_details)) {
+                    if($invoice_file){
+                         $invoice_file = $this->check_msl_invoice_id($transfered_by, $invoice_id);
+                    }else{
+                      $invoice_file['status']=true;  
+                      $invoice_file['message']= 'Invoice By Excel';
+                    }
+                    if ($invoice_file['status']) { 
+                         if($invoice_file){
+                             $courier_file = $this->upload_spare_courier_file($_FILES);
+                         }else{
+                             $courier_file['status']=true;
+                             $invoice_file['message']='Invoice By Excel';
+                         }
+                            $not_updated_data = array();
+                                if ($courier_file['status']) {
 
-                                $template1 = array(
-                                    'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
-                                );
+                                    $template1 = array(
+                                        'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
+                                    );
 
-                                $this->table->set_template($template1);
+                                    $this->table->set_template($template1);
 
-                                $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity', 'Booking Id', 'Basic Price', 'GST Rate', 'HSN Code'));
-                                $action_entity_id = "";
-                                $action_agent_id = "";
-                                if ($this->session->userdata('id')) {
-                                    $agent_id = $this->session->userdata('id');
-                                    $action_agent_id = $this->session->userdata('id');
-                                    $action_entity_id = _247AROUND;
-                                    $agent_type = _247AROUND_EMPLOYEE_STRING;
-                                } else {
-                                    $agent_id = $this->session->userdata('partner_id');
-                                    $action_agent_id = $this->session->userdata('agent_id');
-                                    $action_entity_id = $this->session->userdata('partner_id');
-                                    $agent_type = _247AROUND_PARTNER_STRING;
-                                }
-                                $entity_details = $this->partner_model->getpartner_details("state", array('partners.id' => $partner_id));
-                                $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
-                                $booking_id_array = array_column($parts_details, 'booking_id');
-                                $tqty = 0;
-                                $total_basic_amount = 0;
-                                $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
-                                $invoice = array();
-
-                                //update courier details
-                                $courier_data = array();
-                                $courier_data['sender_entity_id'] = $partner_id;
-                                $courier_data['sender_entity_type'] = _247AROUND_PARTNER_STRING;
-                                $courier_data['receiver_entity_id'] = $wh_id;
-                                $courier_data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                                $courier_data['AWB_no'] = $awb_number;
-                                $courier_data['courier_name'] = $courier_name;
-                                $courier_data['create_date'] = date('Y-m-d H:i:s');
-                                $courier_data['quantity'] = count($booking_id_array);
-                                $courier_data['bill_to_partner'] = $partner_id;
-                                $courier_data['status'] = COURIER_DETAILS_STATUS;
-                                if (!empty($booking_id_array)) {
-                                    $courier_data['booking_id'] = implode(",", $booking_id_array);
-                                }
-
-                                if (!empty($courier_file['message'])) {
-                                    $courier_data['courier_file'] = $courier_file['message'];
-                                }
-
-                                if (!empty($courier_shipment_date)) {
-                                    $courier_data['shipment_date'] = $courier_shipment_date;
-                                }
-
-                                $insert_courier_details = $this->inventory_model->insert_courier_details($courier_data);
-
-                                if (!empty($insert_courier_details)) {
-                                    log_message('info', 'Courier Details added successfully.');
-                                    foreach ($parts_details as $value) {
-                                        if ($value['shippingStatus'] == 1) {
-                                            //Parts shipped
-                                            $this->table->add_row($value['part_name'], $value['part_number'], $value['quantity'], $value['booking_id'], $value['part_total_price'], $value['gst_rate'], $value['hsn_code']);
-
-                                            $tqty += $value['quantity'];
-
-                                            $invoice_annexure = $this->inventory_invoice_data($invoice_id, $c_s_gst, $value);
-                                            array_push($invoice, $invoice_annexure);
-                                            $total_basic_amount += $invoice_annexure['taxable_value'];
-                                            $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
-                                            $total_sgst_tax_amount += $invoice_annexure['sgst_tax_amount'];
-                                            $total_igst_tax_amount += $invoice_annexure['igst_tax_amount'];
-
-                                            $ledger_data = array();
-
-                                            $ledger_data['receiver_entity_id'] = $wh_id;
-                                            $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                                            $ledger_data['sender_entity_id'] = $partner_id;
-                                            $ledger_data['sender_entity_type'] = _247AROUND_PARTNER_STRING;
-                                            $ledger_data['inventory_id'] = $value['inventory_id'];
-                                            $ledger_data['quantity'] = $value['quantity'];
-                                            $ledger_data['agent_id'] = $agent_id;
-                                            $ledger_data['agent_type'] = $agent_type;
-                                            $ledger_data['booking_id'] = trim($value['booking_id']);
-                                            $ledger_data['invoice_id'] = $invoice_id;
-                                            $ledger_data['is_wh_ack'] = 0;
-                                            $ledger_data['courier_id'] = $insert_courier_details;
-                                            $ledger_data['is_wh_micro'] = $is_wh_micro;
-                                            $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
-                                            $ledger_data['is_defective_part_return_wh'] = $is_defective_part_return_wh;
-
-                                            if ($insert_id) {
-                                                log_message("info", "Ledger details added successfully");
-                                                $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, $is_wh_micro, $action_agent_id);
-                                            } else {
-                                                array_push($not_updated_data, $value['part_number']);
-                                                log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
-                                            }
-                                        } else if ($value['shippingStatus'] == 0) {
-                                            if (isset($value['spare_id']) && !empty($value['spare_id']) && ($value['spare_id'] != "new_spare_id")) {
-                                                //Cancelled Spare line item
-                                                $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
-
-                                                $this->notify->insert_state_change($value['booking_id'], SPARE_PARTS_CANCELLED, SPARE_PARTS_CANCELLED, "", $action_agent_id, "", ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $action_entity_id);
-                                            }
-                                        } else if ($value['shippingStatus'] == -1) {
-                                            //Partner will shipe later
-                                            $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('remarks_by_partner' => "Part will be sent later"));
-                                        }
-                                    }
-
-                                    $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount, $invoice_file['message'], $wh_id);
-
-                                    $this->invoices_model->insert_invoice_breakup($invoice);
-                                    // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
-                                    If ($is_wh_micro == 2) {
-                                        $this->generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_dated, $tqty, $partner_id);
-                                    }
-                                    //send email to 247around warehouse incharge
-                                    $email_template = $this->booking_model->get_booking_email_template("spare_send_by_partner_to_wh");
-                                    $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
-                                    if (!empty($wh_incharge_id)) {
-
-                                        //get 247around warehouse incharge email
-                                        $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
-                                            'contact_person.entity_id' => $wh_id,
-                                            'contact_person.entity_type' => _247AROUND_SF_STRING
-                                        );
-
-                                        $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
-                                        if (empty($email_details)) {
-                                            $email_details = $this->vendor_model->getVendorDetails('primary_contact_email as official_email', array('id' => $wh_id));
-                                        }
-                                        if (!empty($email_details) && !empty($email_template)) {
-                                            //generate part details table                                        
-                                            $parts_details_table = $this->table->generate();
-
-                                            //generate courier details table
-                                            $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date', 'Invoice Amount', 'Invoice Number'));
-                                            $this->table->add_row(array($courier_name, $awb_number, $courier_shipment_date, round($invoice_amount), $invoice_id));
-                                            $courier_details_table = $this->table->generate();
-
-                                            $to = $email_details[0]['official_email'];
-                                            $cc = $email_template[3];
-                                            $subject = vsprintf($email_template[4], array($partner_name, $wh_name));
-                                            $message = vsprintf($email_template[0], array($partner_name, $parts_details_table, $courier_details_table));
-                                            if (!empty($invoice_file['message'])) {
-                                                $invoice_attchment = S3_WEBSITE_URL . "invoices-excel/" . $invoice_file['message'];
-                                            } else {
-                                                $invoice_attchment = '';
-                                            }
-                                            if (!empty($courier_file['message'])) {
-                                                $courier_attchment = S3_WEBSITE_URL . "vendor-partner-docs/" . $courier_file['message'];
-                                            } else {
-                                                $courier_attchment = '';
-                                            }
-                                            $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, $invoice_attchment, 'spare_send_by_partner_to_wh', $courier_attchment);
-                                        }
-                                    }
-
-                                    if (empty($not_updated_data)) {
-                                        $res['status'] = TRUE;
-                                        $res['message'] = 'Details Updated Successfully';
-                                        $res['warehouse_id'] = $wh_id;
-                                        $res['total_quantity'] = $tqty;
-                                        $res['partner_id'] = $partner_id;
+                                    $this->table->set_heading(array('Part Name', 'Part Number', 'Quantity', 'Booking Id', 'Basic Price', 'GST Rate', 'HSN Code'));
+                                    $action_entity_id = "";
+                                    $action_agent_id = "";
+                                    if($this->session->userdata('service_center_id')){
+                                        $agent_id = $this->session->userdata('service_center_id');
+                                        $action_agent_id = $this->session->userdata('id');
+                                        $action_entity_id = $this->session->userdata('service_center_id');;
+                                        $agent_type = _247AROUND_SF_STRING;
+                                    } else if ($this->session->userdata('id')) {
+                                        $agent_id = $this->session->userdata('id');
+                                        $action_agent_id = $this->session->userdata('id');
+                                        $action_entity_id = _247AROUND;
+                                        $agent_type = _247AROUND_EMPLOYEE_STRING;
                                     } else {
-                                        $res['status'] = false;
-                                        $res['message'] = "For These Parts Details not updated :" . implode(',', $not_updated_data) . " Please Try again for these parts";
+                                        $agent_id = $this->session->userdata('partner_id');
+                                        $action_agent_id = $this->session->userdata('agent_id');
+                                        $action_entity_id = $this->session->userdata('partner_id');
+                                        $agent_type = _247AROUND_PARTNER_STRING;
                                     }
-                                } else {
-                                    log_message('info', 'Error in inserting courier details.');
-                                    $res['status'] = false;
-                                    $res['message'] = 'Something went wrong. Please try again.';
+                                    $entity_details = $this->partner_model->getpartner_details("state", array('partners.id' => $partner_id));
+                                    $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
+                                    $booking_id_array = array_column($parts_details, 'booking_id');
+                                    $tqty = 0;
+                                    $total_basic_amount = 0;
+                                    $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
+                                    $invoice = array();
+
+                                    //update courier details
+                                    $courier_data = array();
+                                    $courier_data['sender_entity_id'] = $sender_enity_id;
+                                    $courier_data['sender_entity_type'] = $sender_entity_type;
+                                    $courier_data['receiver_entity_id'] = $wh_id;
+                                    $courier_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                                    $courier_data['AWB_no'] = $awb_number;
+                                    $courier_data['courier_name'] = $courier_name;
+                                    $courier_data['create_date'] = date('Y-m-d H:i:s');
+                                    $courier_data['quantity'] = count($booking_id_array);
+                                    $courier_data['bill_to_partner'] = $partner_id;
+                                    $courier_data['status'] = COURIER_DETAILS_STATUS;
+                                    if (!empty($booking_id_array)) {
+                                        $courier_data['booking_id'] = implode(",", $booking_id_array);
+                                    }
+
+                                    if (!empty($courier_file['message'])) {
+                                        $courier_data['courier_file'] = $courier_file['message'];
+                                    }
+
+                                    if (!empty($courier_shipment_date)) {
+                                        $courier_data['shipment_date'] = $courier_shipment_date;
+                                    }
+
+                                    $insert_courier_details = $this->inventory_model->insert_courier_details($courier_data);
+
+                                    if (!empty($insert_courier_details)) {
+                                        log_message('info', 'Courier Details added successfully.');
+                                        foreach ($parts_details as $value) {
+                                            if ($value['shippingStatus'] == 1) {
+                                                //Parts shipped
+                                                $this->table->add_row($value['part_name'], $value['part_number'], $value['quantity'], $value['booking_id'], $value['part_total_price'], $value['gst_rate'], $value['hsn_code']);
+
+                                                $tqty += $value['quantity'];
+
+                                                $invoice_annexure = $this->inventory_invoice_data($invoice_id, $c_s_gst, $value);
+                                                $invoice_annexure['from_gst_number'] = $this->input->post("from_gst_number");
+                                                $invoice_annexure['to_gst_number'] = $this->input->post("to_gst_number");
+                                               
+                                                
+                                                array_push($invoice, $invoice_annexure);
+                                                
+                                                unset($invoice_annexure['from_gst_number']);
+                                                unset($invoice_annexure['to_gst_number']);
+                                                
+                                                
+                                                $total_basic_amount += $invoice_annexure['taxable_value'];
+                                                $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
+                                                $total_sgst_tax_amount += $invoice_annexure['sgst_tax_amount'];
+                                                $total_igst_tax_amount += $invoice_annexure['igst_tax_amount'];
+
+                                                $ledger_data = array();
+
+                                                $ledger_data['receiver_entity_id'] = $wh_id;
+                                                $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                                                $ledger_data['sender_entity_id'] = $sender_enity_id;
+                                                $ledger_data['sender_entity_type'] = $sender_entity_type;
+                                                $ledger_data['inventory_id'] = $value['inventory_id'];
+                                                $ledger_data['quantity'] = $value['quantity'];
+                                                $ledger_data['agent_id'] = $agent_id;
+                                                $ledger_data['agent_type'] = $agent_type;
+                                                $ledger_data['booking_id'] = trim($value['booking_id']);
+                                                $ledger_data['invoice_id'] = $invoice_id;
+                                                $ledger_data['is_wh_ack'] = 0;
+                                                $ledger_data['courier_id'] = $insert_courier_details;
+                                                $ledger_data['is_wh_micro'] = $is_wh_micro;
+                                                $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+                                                $ledger_data['is_defective_part_return_wh'] = $is_defective_part_return_wh;
+
+                                                if ($insert_id) {
+                                                    log_message("info", "Ledger details added successfully");
+                                                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, $is_wh_micro, $action_agent_id);
+                                                } else {
+                                                    array_push($not_updated_data, $value['part_number']);
+                                                    log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
+                                                }
+                                            } else if ($value['shippingStatus'] == 0) {
+                                                if (isset($value['spare_id']) && !empty($value['spare_id']) && ($value['spare_id'] != "new_spare_id")) {
+                                                    //Cancelled Spare line item
+                                                    $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
+
+                                                    $this->notify->insert_state_change($value['booking_id'], SPARE_PARTS_CANCELLED, SPARE_PARTS_CANCELLED, "", $action_agent_id, "", ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $action_entity_id);
+                                                }
+                                            } else if ($value['shippingStatus'] == -1) {
+                                                //Partner will shipe later
+                                                $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('remarks_by_partner' => "Part will be sent later"));
+                                            }
+                                        }
+                                        
+                                        if ($transfered_by == MSL_TRANSFERED_BY_PARTNER){
+                                            $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount, $invoice_file['message'], $wh_id);
+
+                                            $this->invoices_model->insert_invoice_breakup($invoice);
+                                        } else {
+                                            $this->remove_inventory_from_warehouse($invoice, $sender_enity_id, $wh_id, $action_agent_id);
+                                        }
+
+                                        
+                                        // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
+                                        If ($is_wh_micro == 2) {
+                                            $this->generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_dated, $tqty, $partner_id);
+                                        }
+                                        
+                                        //send email to 247around warehouse incharge
+                                        $email_template = $this->booking_model->get_booking_email_template("spare_send_by_partner_to_wh");
+                                        $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_SF_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
+                                        if (!empty($wh_incharge_id)) {
+
+                                            //get 247around warehouse incharge email
+                                            $wh_where = array('contact_person.role' => $wh_incharge_id[0]['id'],
+                                                'contact_person.entity_id' => $wh_id,
+                                                'contact_person.entity_type' => _247AROUND_SF_STRING
+                                            );
+
+                                            $email_details = $this->inventory_model->get_warehouse_details('contact_person.official_email', $wh_where, FALSE, TRUE);
+                                            if (empty($email_details)) {
+                                                $email_details = $this->vendor_model->getVendorDetails('primary_contact_email as official_email', array('id' => $wh_id));
+                                            }
+                                            if (!empty($email_details) && !empty($email_template)) {
+                                                //generate part details table                                        
+                                                $parts_details_table = $this->table->generate();
+
+                                                //generate courier details table
+                                                $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date', 'Invoice Amount', 'Invoice Number'));
+                                                $this->table->add_row(array($courier_name, $awb_number, $courier_shipment_date, round($invoice_amount), $invoice_id));
+                                                $courier_details_table = $this->table->generate();
+
+                                                $to = $email_details[0]['official_email'];
+                                                $cc = $email_template[3];
+                                                $subject = vsprintf($email_template[4], array($partner_name, $wh_name));
+                                                $message = vsprintf($email_template[0], array($partner_name, $parts_details_table, $courier_details_table));
+                                                if (!empty($invoice_file['message'])) {
+                                                    $invoice_attchment = S3_WEBSITE_URL . "invoices-excel/" . $invoice_file['message'];
+                                                } else {
+                                                    $invoice_attchment = '';
+                                                }
+                                                if (!empty($courier_file['message'])) {
+                                                    $courier_attchment = S3_WEBSITE_URL . "vendor-partner-docs/" . $courier_file['message'];
+                                                } else {
+                                                    $courier_attchment = '';
+                                                }
+                                                $this->notify->sendEmail($email_template[2], $to, $cc, "", $subject, $message, $invoice_attchment, 'spare_send_by_partner_to_wh', $courier_attchment);
+                                            }
+                                        }
+
+                                        if (empty($not_updated_data)) {
+                                            $res['status'] = TRUE;
+                                            $res['message'] = 'Details Updated Successfully';
+                                            $res['warehouse_id'] = $wh_id;
+                                            $res['total_quantity'] = $tqty;
+                                            $res['partner_id'] = $partner_id;
+                                        } else {
+                                            $res['status'] = false;
+                                            $res['message'] = "For These Parts Details not updated :" . implode(',', $not_updated_data) . " Please Try again for these parts";
+                                        }
+                                    } else {
+                                        log_message('info', 'Error in inserting courier details.');
+                                        $res['status'] = false;
+                                        $res['message'] = 'Something went wrong. Please try again.';
+                                    }
                                 }
-                            }
-                        } else {
-                            $res['status'] = false;
-                            $res['message'] = $invoice_file['message'];
-                        }
+                        
                     } else {
-                        $res['status'] = false;
-                        $res['message'] = 'Enter invoice number already exists in our record.';
+                       $res['status'] = false;
+                       $res['message'] = $invoice_file['message'];
                     }
                 } else {
                     $res['status'] = false;
-                    $res['message'] = "Invoice ID is invalid.Please make sure invoice number does not contain '/'. You can replace '/' with '-'";
+                    $res['message'] = 'Please select parts details';
                 }
             } else {
                 $res['status'] = false;
-                $res['message'] = 'Please select parts details';
+                $res['message'] = 'Please enter invoice id';
             }
         } else {
             $res['status'] = false;
@@ -6302,4 +6357,48 @@ class Inventory extends CI_Controller {
             echo "Not Exist";
         }
     }
+   function remove_inventory_from_warehouse($invoice, $sender_enity_id, $wh_id, $agent_id){
+        foreach ($invoice as $value) {
+            $in['receiver_entity_id'] = $wh_id;
+            $in['receiver_entity_type'] = _247AROUND_SF_STRING;
+            $in['sender_entity_id'] = $sender_enity_id;
+            $in['sender_entity_type'] = _247AROUND_SF_STRING;
+            $in['stock'] = -$value['qty'];
+            if(isset($value['booking_id'])){
+                $in['booking_id'] = $value['booking_id'];
+            }
+            $in['agent_id'] = $agent_id;
+            $in['agent_type'] = _247AROUND_SF_STRING;
+            $in['is_wh'] = TRUE;
+            $in['inventory_id'] = $value['inventory_id'];
+            $this->miscelleneous->process_inventory_stocks($in);
+        }
+    }
+    
+    function get_partner_gst_number(){
+        $html = "<option value='' selected disabled>Selet GST Number</option>";
+        $where = array(
+            "entity_type" => _247AROUND_PARTNER_STRING,
+            "entity_id" => $this->input->post("partner_id")
+            );
+        $gst_numbers = $this->inventory_model->get_entity_gst_data("id, gst_number, state", $where);
+        foreach($gst_numbers as $key => $value){
+            $html .= "<option value='".$value['id']."'>".$value['state']." - ".$value['gst_number']."</option>";
+        }
+        echo $html;
+    }
+    
+    function get_247around_wh_gst_number(){
+        $html = "<option value='' selected disabled>Selet GST Number</option>";
+        $where = array(
+            "entity_type" => _247AROUND_PARTNER_STRING,
+            "entity_id" => "247001",
+            );
+        $gst_numbers = $this->inventory_model->get_entity_gst_data("id, gst_number, state", $where);
+        foreach($gst_numbers as $key => $value){
+            $html .= "<option value='".$value['id']."'>".$value['state']." - ".$value['gst_number']."</option>";
+        }
+        echo $html;
+    }
+    
 }
