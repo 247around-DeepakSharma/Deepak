@@ -47,7 +47,7 @@
                             //$startDate = date('Y/m/d', strtotime("-".(date('d')-1)." days"));
                             $dateRange = $startDate." - ".$endDate;
                             ?>
-                            <input style="border-radius: 5px;"  type="text" placeholder="Registration Date" class="form-control" id="create_date" value="<?php echo $dateRange ?>" name="create_date"/>
+                            <input style="border-radius: 5px;"  type="text" placeholder="Registration Date" class="form-control" id="create_date" value="" name="create_date"/>
                         </div>
                         <div class="form-group col-md-3">
                             <label class="control-label" for="daterange">Completion Date</label><br>
@@ -56,7 +56,7 @@
                             $startDate = date('Y/m/d', strtotime('-1 day', strtotime($endDate)));
                             $dateRange = $startDate." - ".$endDate;
                             ?>
-                            <input style="border-radius: 5px;"  type="text" placeholder="Completion Date" class="form-control" id="completion_date" value="<?php echo $dateRange ?>" name="completion_date"/>
+                            <input style="border-radius: 5px;"  type="text" placeholder="Completion Date" class="form-control" id="completion_date" value="" name="completion_date"/>
                         </div>
                         <div class="form-group col-md-3">
                         <label for="Status">Status</label><br>
