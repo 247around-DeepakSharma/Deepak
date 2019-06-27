@@ -5162,7 +5162,7 @@ class Partner extends CI_Controller {
             $tempArray = array();            
             $tempArray[] = $sparePartBookings['booking_id'];
             $tempArray[] = $sparePartBookings['services'];
-            $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse" : "Warehouse"));
+            $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse - " : "").$sparePartBookings['warehouse_name']);
             $tempArray[] = $sparePartBookings['status'];
             $tempArray[] = $sparePartBookings['partner_current_status'];     
             $tempArray[] = $sparePartBookings['partner_internal_status'];     
