@@ -2588,16 +2588,41 @@ class Spare_parts extends CI_Controller {
         }
     }
     
+    /**
+     * @desc: This function is used to check partner session.
+     * @param: void
+     * @return: true if details matches else session is destroyed.
+     */
+    function check_PartnerSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner')) {
+            return TRUE;
+        } else {
+            log_message('info', __FUNCTION__ . " Session Expire for Partner");
+            $this->session->sess_destroy();
+            redirect(base_url() . "partner/login");
+        }
+    }
 /* 
   *  @desc : This function is used to upload alternate spare parts 
     *  @param : void
     *  @return :void
     */
 
-    function upload_alternate_spare_parts_file() {     
-        $this->checkUserSession();
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/upload_alternate_spare_parts_mapping');
+    function upload_alternate_spare_parts_file($isAdmin = 1) {     
+        if($isAdmin == 1) {
+            log_message('info', __FUNCTION__ . ' Function Start For Admin '.$this->session->userdata('id'));
+            $this->checkUserSession();
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/upload_alternate_spare_parts_mapping');
+        }
+        else
+        {
+            log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+            $this->check_PartnerSession();
+            $this->miscelleneous->load_partner_nav_header();
+            $this->load->view('partner/upload_alternate_spare_parts_mapping');
+            $this->load->view('partner/partner_footer');
+        }
     }
     
     /**
