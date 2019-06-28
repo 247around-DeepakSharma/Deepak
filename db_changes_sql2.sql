@@ -245,4 +245,11 @@ CREATE TABLE `service_center_brand_mapping` (
   CONSTRAINT fk_scbm_brand_id_appliance_brands_id FOREIGN KEY (brand_id) REFERENCES appliance_brands (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+--Kajal 26/06/2019 starting --
+UPDATE `header_navigation` SET `title` = 'Inventory Master List' WHERE `header_navigation`.`title`='Spare Part List';
 
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('Partner', 'Upload Inventory Master File', NULL, 'partner/inventory/upload_inventory_details_file', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', 1, CURRENT_TIMESTAMP),
+('Partner', 'Upload Serviceable BOM File', NULL, 'partner/inventory/upload_bom_file', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', 1, CURRENT_TIMESTAMP),
+('Partner', 'Upload Alternate Parts', NULL, 'partner/inventory/upload_alternate_spare_parts_file', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', 1, CURRENT_TIMESTAMP);
+--Kajal 26/06/2019 ending --

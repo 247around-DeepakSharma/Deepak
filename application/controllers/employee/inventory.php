@@ -2615,10 +2615,21 @@ class Inventory extends CI_Controller {
      * @param: void
      * @return void
      */
-    function upload_inventory_details_file() {
-        $this->checkUserSession();
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/upload_spare_part_details');
+    function upload_inventory_details_file($isAdmin = 1) {     
+        if($isAdmin == 1) {
+            log_message('info', __FUNCTION__ . ' Function Start For Admin '.$this->session->userdata('id'));
+            $this->checkUserSession();
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/upload_spare_part_details');
+        }
+        else
+        {
+            log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+            $this->check_PartnerSession();
+            $this->miscelleneous->load_partner_nav_header();
+            $this->load->view('partner/upload_spare_part_details');
+            $this->load->view('partner/partner_footer');
+        }
     }
 
     function get_inventory_stocks_details() {
@@ -4872,10 +4883,21 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return :void
      */
-    function upload_bom_file() {
-        $this->checkUserSession();
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/upload_applinace_model_mapping_with_inventory');
+    function upload_bom_file($isAdmin = 1) {
+        if($isAdmin == 1) {
+            log_message('info', __FUNCTION__ . ' Function Start For Admin '.$this->session->userdata('id'));
+            $this->checkUserSession();
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/upload_applinace_model_mapping_with_inventory');
+        }
+        else
+        {
+            log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+            $this->check_PartnerSession();
+            $this->miscelleneous->load_partner_nav_header();
+            $this->load->view('partner/upload_appliance_model_mapping_with_inventory');
+            $this->load->view('partner/partner_footer');
+        }
     }
 
     /**
@@ -5333,7 +5355,7 @@ class Inventory extends CI_Controller {
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner')) {
             return TRUE;
         } else {
-            log_message('info', __FUNCTION__ . " Session Expire for Service Center");
+            log_message('info', __FUNCTION__ . " Session Expire for Partner");
             $this->session->sess_destroy();
             redirect(base_url() . "partner/login");
         }
