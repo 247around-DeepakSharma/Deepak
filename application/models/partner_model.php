@@ -2365,5 +2365,36 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get('appliance_model_details');
         return $query->result_array();
     }
+    
+    /**
+     * This function returns agent wise bookings summary for a partner on a specific date
+     * @author Prity Sharma
+     * @date 24-06-2019
+     * @param type $partner_id
+     * @param type $start_date, $end_date
+     * @return array
+     */
+    function get_agent_wise_call_center_booking_summary($partner_id, $start_date, $end_date)
+    {
+        $start_date = date("Y-m-d 00:00:00", strtotime($start_date));
+        $end_date = date("Y-m-d 23:59:59", strtotime($end_date));
+        $strQuery = "SELECT 
+                        booking_details.booking_id,
+                        bs.agent_id,
+                        date_format(booking_details.create_date, '%d-%m-%Y %H:%m') as create_date,
+                        date_format(booking_details.create_date, '%d') as date, 
+                        entity_login_table.agent_name,
+                        entity_login_table.user_id
+                    FROM
+                        booking_details
+                        LEFT JOIN booking_state_change bs ON (booking_details.booking_id = bs.booking_id) 
+                        LEFT JOIN entity_login_table ON (bs.agent_id = entity_login_table.agent_id)
+                    WHERE 
+                        (booking_details.create_date BETWEEN '".$start_date."' AND '".$end_date."')
+                        AND (booking_details.partner_id = $partner_id OR booking_details.origin_partner_id = '$partner_id' ) 
+                        AND bs.old_state IN ('New_Booking', 'New_Query')
+                    GROUP BY bs.booking_id";
+        return $query = $this->db->query($strQuery);
+    }
 }
 
