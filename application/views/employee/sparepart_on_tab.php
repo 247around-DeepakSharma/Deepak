@@ -935,7 +935,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 ]
                     },
                     title: 'sf_received_part'
                 }
@@ -1407,6 +1407,8 @@
             },
             success: function (response) {
                 console.log(response);
+                response=$.trim(response);
+                response.trim();
                 if (response=='success') {
                    $(".loader").addClass('hide');
                   swal("Done!", "It was succesfully opened!", "success");  

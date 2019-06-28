@@ -2821,8 +2821,9 @@
                             <th>S.N</th>
                             <th>Account Manager</th>
                             <th>State</th>
-                            <th>Activate / Deactivate</th>
+                            <!--<th>Activate / Deactivate</th>-->
                             <th>Edit</th>
+                            <th><input type="checkbox" id="selectall" class="selectall" style="width:18px;height:18px;vertical-align:middle;"> <button class="btn btn-sm btn-danger" onclick="delete_am()"><i class="fa fa-trash" aria-hidden="true"></i> Delete</button></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -2836,15 +2837,18 @@
                             <td><?php echo $index; ?></td>
                             <td><?php echo $value['full_name'] ?></td>
                             <td><?php echo $value['state'] ?></td>
-                            <td><?php if($value['is_active']) { ?>
+                            <!--<td><?php if($value['is_active']) { ?>
                                 <button type="button" class="btn btn-info btn-sm" onclick="activate_deactive_mapping('<?php echo $value['id'] ?>','0','Deactivate')"   value='' style="background: #ff4d4d;border: #ff4d4d;width: 79px;">Deactivate</button>
                            <?php } else {?>
                                 <button type="button" class="btn btn-info btn-sm" onclick="activate_deactive_mapping('<?php echo $value['id'] ?>','1','Activate')"  value='' style="background: #468245;border: #468245; width: 79px;">Activate</button>
                            <?php } ?>
+                            </td>-->
+                            <td>
+                                <button type="button" class="btn btn-info btn-sm" onclick="create_edit_mapping_form('<?=$value['state']?>','<?=$value['full_name']?>',<?=$value['agent_id']?>,<?=$value['id']?>)" data-toggle="modal"  id="edit_button"><i class="fa fa-edit"></i></button>
                             </td>
-                                <td>
-                                    <button type="button" class="btn btn-info btn-sm" onclick="create_edit_mapping_form('<?=$value['state']?>','<?=$value['full_name']?>',<?=$value['agent_id']?>,<?=$value['id']?>)" data-toggle="modal"  id="edit_button"><i class="fa fa-edit"></i></button>
-                                    </td>
+                            <td>
+                                <input type="checkbox" class="checkbox_delete" id="checkbox_delete_<?php echo $value['id'];?>" value="<?php echo $value['id'];?>" style="width:18px;height:18px;vertical-align:middle;" />
+                            </td>
                         </tr>
                         <tr>
                             <?php
@@ -3504,6 +3508,25 @@
     }
     });
     
+    $('#selectall').on('click',function(){
+        if(this.checked){
+            $('.checkbox_delete').each(function(){
+                this.checked = true;
+            });
+        }else{
+             $('.checkbox_delete').each(function(){
+                this.checked = false;
+            });
+        }
+    });
+
+    $('.checkbox_delete').on('click',function(){
+        if($('.checkbox_delete:checked').length == $('.checkbox_delete').length){
+            $('#selectall').prop('checked',true);
+        }else{
+            $('#selectall').prop('checked',false);
+        }
+    });
     
     });
     up_message();
@@ -4233,6 +4256,32 @@
         }
         else{
             alert('Please add all mandatory fields!');
+            return false;
+        }
+    }
+    function delete_am() {
+        var id = new Array();
+        $('.checkbox_delete:checked').each(function(){
+            id[id.length] = $(this).val();
+        });
+
+        if(id.length > 0){
+            var cnfrm = confirm("Are you sure, you want to delete these account managers ?");
+            if(!cnfrm){
+                return false;
+            }
+            $.ajax({
+                type: 'POST',
+                data: {'id':id, 'partner_id': $('#partner_id').val()},
+                url: '<?php echo base_url(); ?>employee/partner/delete_partner_am',
+                success: function (data) {
+                    alert(data);
+                    location.reload();
+                }
+            });
+        }
+        else {
+            alert('Please select atleast one account manager to delete!');
             return false;
         }
     }
