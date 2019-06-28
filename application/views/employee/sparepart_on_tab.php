@@ -1407,6 +1407,8 @@
             },
             success: function (response) {
                 console.log(response);
+                response=$.trim(response);
+                response.trim();
                 if (response=='success') {
                    $(".loader").addClass('hide');
                   swal("Done!", "It was succesfully opened!", "success");  
