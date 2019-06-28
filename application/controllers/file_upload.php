@@ -117,11 +117,11 @@ class File_upload extends CI_Controller {
                 }
             } else {
                 //redirect to upload page
-                $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+                $this->session->set_flashdata('file_error', $file_status['message']);
                 redirect(base_url() . $redirect_to);
             }
         } else {
-            $this->session->set_flashdata('file_error', 'File name length is long.');
+            $this->session->set_flashdata('file_error', $file_status['message']);
             redirect(base_url() . $redirect_to);
         }
     }
@@ -133,7 +133,7 @@ class File_upload extends CI_Controller {
      */
     private function get_upload_file_type(){ 
         log_message('info', __FUNCTION__ . "=> getting upload file type"); 
-        if (!empty($_FILES['file']['name']) && strlen($_FILES['file']['name']) <= 44) {
+        if (!empty($_FILES['file']['name']) && strlen($_FILES['file']['name']) > 0 && strlen($_FILES['file']['name']) <= 44) {
             if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
                 $pathinfo = pathinfo($_FILES["file"]["name"]);
 
@@ -150,15 +150,23 @@ class File_upload extends CI_Controller {
 
                 $response['status'] = True;
                 $response['file_name_lenth'] = True;
+                $response['message'] = 'File has been uploaded successfully. ';
             } else {
                 log_message('info', __FUNCTION__ . ' Empty File Uploaded');
                 $response['status'] = False;
                 $response['file_name_lenth'] = True;
+                $response['message'] = 'File upload Failed. Empty file has been uploaded';
             }
-        } else {
+        } else if (!empty($_FILES['file']['name']) && strlen($_FILES['file']['name']) > 44) {
             log_message('info', __FUNCTION__ . 'File Name Length Is Long');
             $response['status'] = False;
             $response['file_name_lenth'] = false;
+            $response['message'] = 'File upload Failed. File name length is long.';
+        } else {
+            log_message('info', __FUNCTION__ . 'No File Selected!! ');
+            $response['status'] = False;
+            $response['file_name_lenth'] = True;
+            $response['message'] = 'File upload Failed. No File Selected!! ';
         }
 
         return $response;
