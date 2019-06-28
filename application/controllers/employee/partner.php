@@ -5520,9 +5520,10 @@ class Partner extends CI_Controller {
                     }
                 }
                 foreach($arr_states as $key=>$state){
-                    $data=array("entity_type" => "247around", "entity_id" => $partnerID, "agent_id" => $am, "state" => $state);
+                    $data=array("entity_type" => "247around", "entity_id" => $partnerID, "state" => $state);//, "agent_id" => $am
                     $am_data = $this->partner_model->get_am_data("*", $data);
                     if(empty($am_data)) {
+                        $data["agent_id"] = $am;
                         $id = $this->reusable_model->insert_into_table("agent_filters",$data);
                     } else {
                         ++$count;
@@ -5564,7 +5565,7 @@ class Partner extends CI_Controller {
                 }
             }
             else if($count > 0) {
-                $msg =  "Account Manager already added!!";
+                $msg =  "Account Manager already added to this state!!";
                 $this->session->set_userdata('error', $msg);
             }
             else{
@@ -5590,12 +5591,13 @@ class Partner extends CI_Controller {
             $public_name = $get_partner_details[0]['public_name'];
             $partner_type = $get_partner_details[0]['partner_type'];
             
-            $am_data = $this->partner_model->get_am_data("*", array("entity_type" => "247around", "entity_id" => $partnerID, 'state' => $this->input->post('state1'), 'agent_id' => $this->input->post('am1')));
-            if(empty($am_data)) {
-                $data['state'] = $this->input->post('state1');
-                $data['agent_id'] = $this->input->post('am1');
-                $where = array('id' => $this->input->post('mapping_id'));
+            $data['state'] = $this->input->post('state1');
+            $data['agent_id'] = $this->input->post('am1');
+            $where = array("entity_type" => "247around", "entity_id" => $partnerID, 'state' => $data['state']);//, 'agent_id' => $data['agent_id']
                 
+            $am_data = $this->partner_model->get_am_data("*", $where);
+            if(empty($am_data) || ($am_data[0]['agent_id'] !== $data['agent_id'])) {
+                //$where = array('id' => $this->input->post('mapping_id'));
                 if(strtolower($data['state']) !== 'all') {
                     $update_data = $this->reusable_model->update_table("agent_filters",$data,$where);
                 }
@@ -5606,9 +5608,10 @@ class Partner extends CI_Controller {
                     }
                     $count = 0;
                     foreach($states as $key=>$state){
-                        $insert_data=array("entity_type" => "247around", "entity_id" => $partnerID, "agent_id" => $data['agent_id'], "state" => $state);
+                        $insert_data=array("entity_type" => "247around", "entity_id" => $partnerID, "state" => $state);
                         $am_data = $this->partner_model->get_am_data("*", $insert_data);
                         if(empty($am_data)) {
+                            $insert_data["agent_id"]=$data['agent_id'];
                             $update_data = $this->reusable_model->insert_into_table("agent_filters",$insert_data);
                         } else {
                             ++$count;
@@ -5677,6 +5680,29 @@ class Partner extends CI_Controller {
             else{
                 echo "Something Went Wrong Please Try Again";
             }
+        }
+    }
+    /*
+     * This function is used to delete account manager of Partner
+     */
+    function delete_partner_am() {
+        if($this->input->post('partner_id')){
+            $partnerID = $this->input->post('partner_id');
+            $am_data = $this->partner_model->get_am_data("*", array("entity_type" => "247around", "entity_id" => $partnerID),"","",0,array('id' => $this->input->post('id')));
+            if(!empty($am_data)) {
+                $sql = "DELETE FROM agent_filters WHERE entity_type='247around' AND entity_id='".$partnerID."' AND id in ('".implode("','",$this->input->post('id'))."') ";
+                $affected_rows =  $this->reusable_model->execute_custom_insert_update_delete_query($sql);
+                
+                if($affected_rows){
+                    echo "Account Managers has been deleted successfully ";
+                }
+                else{
+                    echo "No deletion done";
+                }
+            }
+        }
+        else{
+            echo "Something went Wrong Please try again or contact to admin!";
         }
     }
     

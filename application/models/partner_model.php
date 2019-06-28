@@ -2302,7 +2302,7 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array
      * 
      */
-    function get_am_data($select="*", $where=array(), $order_by = "" , $group_by = "", $is_am_details = 0){
+    function get_am_data($select="*", $where=array(), $order_by = "" , $group_by = "", $is_am_details = 0, $where_in = ""){
         $this->db->select($select);
         $this->db->where($where);
         if(!empty($group_by)){
@@ -2310,6 +2310,11 @@ function get_data_for_partner_callback($booking_id) {
         }
         if(!empty($order_by)){
             $this->db->order_by($order_by,false);
+        }
+        if(!empty($where_in)){
+            foreach($where_in as $index => $value){
+                $this->db->where_in($index, $value);
+            } 
         }
         if($is_am_details){
             $this->db->join('employee','agent_filters.agent_id = employee.id');
