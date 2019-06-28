@@ -997,8 +997,8 @@ class Spare_parts extends CI_Controller {
         $row[] = $part_status_text;
         $row[] = (empty($spare_list->spare_cancelled_date)) ? '0 Days' : $spare_list->spare_cancelled_date . " Days";
 
-        $row[] = '<button class="btn btn-success open_spare_part"  data-bookingid="'.$spare_list->booking_id.'"   data-spareid="'.$spare_list->id.'">Open</button>';
-        return $row;
+        $row[] = '<button class="btn btn-success open_spare_part"   data-bookingid="'.$spare_list->booking_id.'"   data-spareid="'.$spare_list->id.'">Open</button>';
+
     }
 
         /**
@@ -1390,8 +1390,13 @@ class Spare_parts extends CI_Controller {
         $spare_parts_id = $this->input->post('spare_parts_id');
         $status = $this->input->post('status');
         $spare_update_flag =$this->input->post('spare_update');
-        $reason = 'Spare parts Copy By ' . $this->session->userdata('emp_name');
         
+        if(!empty($this->input->post('open_remark'))){
+            $reason = 'Spare parts reopened By ' . $this->session->userdata('employee_id').' Reason : '.$this->input->post('open_remark'); 
+        }else{
+           $reason = 'Spare parts Copy By ' . $this->session->userdata('employee_id');
+        }
+                
         $select = 'spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.status,spare_parts_details.partner_id,spare_parts_details.date_of_request,'
                 . ', spare_parts_details.service_center_id, spare_parts_details.model_number, spare_parts_details.serial_number,'
                 . ' spare_parts_details.date_of_purchase, spare_parts_details.invoice_gst_rate, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.invoice_pic,'
@@ -1577,7 +1582,7 @@ class Spare_parts extends CI_Controller {
                     $body_msg = $this->table->generate();
                     $to = $get_partner_details[0]['primary_contact_email'] . "," . $get_partner_details[0]['owner_email'];
                     $cc = $email_template[3] . "," . $am_email;
-                    $subject = vsprintf($email_template[4], array($parts_stock_not_found[0]['model_number'], $parts_stock_not_found[0]['parts_requested']));
+                    $subject = vsprintf($email_template[4], array($parts_stock_not_found[0]['model_number'], $parts_stock_not_found[0]['part_name']));
                     $emailBody = vsprintf($email_template[0], $body_msg);
                     $this->notify->sendEmail($email_template[2], $to, $cc, '', $subject, $emailBody, "", 'out_of_stock_inventory');
                 }
