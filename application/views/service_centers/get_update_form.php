@@ -178,9 +178,9 @@
                                 <div class="row">
                                     <div class = 'col-md-6 hide'>
                                         <div class="form-group ">
-                                            <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
+                                            <label for="part_warranty" class="col-md-4">Part Warranty Status  <?php echo $bookinghistory[0]['request_type'];  ?></label>                                             
                                             <div class="col-md-6">
-                                             <input type="text"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">  
+        <input type="text" id="sparewarranty"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">  
                                             </div>
                                         </div>
                                     </div>
@@ -276,10 +276,9 @@
                                     <div class = "row">
                                         <div class = 'col-md-6 hide'>
                                             <div class="form-group ">
-                                                <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
+                                                <label for="part_warranty" class="col-md-4">Part Warranty Status </label>                               
                                                 <div class="col-md-6">
-                                                    <input type="text" id="part_warranty_status"
-  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">
+<input type="text" id="sparewarranty"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]"> 
                                                 </div>
                                             </div>
                                         </div>
@@ -795,7 +794,7 @@ function alpha(e) {
                 maxDate:+7
         }).datepicker('show');
     }
-    
+
     var partIndex = 0;
     $('#requested_parts').on('click', '.addButton', function () {
         
@@ -810,7 +809,9 @@ function alpha(e) {
                         .removeAttr('id')
                         .attr('data-book-index', partIndex)
                         .insertBefore($template);
-    
+        
+
+
             // Update the name attributes
             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                     $clone
@@ -892,6 +893,8 @@ function alpha(e) {
             }
         });
     });
+
+ 
      
 </script>
 <style type="text/css">
