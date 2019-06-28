@@ -998,7 +998,7 @@ class Spare_parts extends CI_Controller {
         $row[] = (empty($spare_list->spare_cancelled_date)) ? '0 Days' : $spare_list->spare_cancelled_date . " Days";
 
         $row[] = '<button class="btn btn-success open_spare_part"   data-bookingid="'.$spare_list->booking_id.'"   data-spareid="'.$spare_list->id.'">Open</button>';
-
+        return $row;
     }
 
         /**
