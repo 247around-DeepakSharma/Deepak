@@ -33,7 +33,7 @@ class BookingSummary extends CI_Controller {
         $this->load->library('session');
         $this->load->library('s3');
         $this->load->library('booking_utilities');
-        $this->load->library('booking_summary');
+        $this->load->library('call_center_summary');
         
         $this->load->helper('url');
 
@@ -1677,9 +1677,10 @@ EOD;
      * @param type $date_report
      * @return NULL
      */
-    function send_booking_summary_mail_to_partner($partner_id = "", $date_report = "") {
-        $partner_id = !empty($partner_id) ? $partner_id : '247130';
-        $date_report = !empty($date_report) ? $date_report : date('d-m-Y', strtotime(' -1 day'));
-        $this->booking_summary->send_booking_summary_mail_to_partner($partner_id, $date_report);
+    function send_call_center_report_to_partner($partner_id = "", $date_report_start = "", $date_report_end = "") {
+        $partner_id = !empty($partner_id) ? $partner_id : VIDEOCON_ID;
+        $date_report_start = !empty($date_report_start) ? $date_report_start : date('d-m-Y', strtotime(' -1 day'));
+        $date_report_end = !empty($date_report_end) ? $date_report_end : date('d-m-Y', strtotime(' -1 day'));
+        $this->call_center_summary->send_call_center_summary_mail_to_partner($partner_id, $date_report_start, $date_report_end);
     }
 }
