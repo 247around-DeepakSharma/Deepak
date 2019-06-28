@@ -33,7 +33,8 @@ class BookingSummary extends CI_Controller {
         $this->load->library('session');
         $this->load->library('s3');
         $this->load->library('booking_utilities');
-
+        $this->load->library('call_center_summary');
+        
         $this->load->helper('url');
 
         $this->load->dbutil();
@@ -1549,6 +1550,7 @@ EOD;
      * @Desc: This function is used to send summary email to partner 
      * @params:$partner_data array
      * @params:$csv_file array
+     * @params:$send_as_attachment boolean => Set to true if wants to send file as attachment and false if wants to send link to the file. 
      * @return:$response boolean
      *
      */
@@ -1664,5 +1666,20 @@ EOD;
             $this->notify->sendEmail(NOREPLY_EMAIL_ID,"anuj@247around.com,nits@247around.com", "arunk@247around.com,souvikg@247around.com,suresh@247around.com,oza@247around.com",
                     "chhavid@247around.com", $subject, $email_body,"","partner_summary_report_percentage_format");
         }
+    }
+    
+    /**
+     * This function sends mail to the partner for agent wise bookings summary report on a specific date
+     * @author Prity Sharma
+     * @date 24-06-2019
+     * @param type $partner_id
+     * @param type $date_report
+     * @return NULL
+     */
+    function send_call_center_report_to_partner($partner_id = "", $date_report_start = "", $date_report_end = "") {
+        $partner_id = !empty($partner_id) ? $partner_id : VIDEOCON_ID;
+        $date_report_start = !empty($date_report_start) ? $date_report_start : date('d-m-Y', strtotime(' -1 day'));
+        $date_report_end = !empty($date_report_end) ? $date_report_end : date('d-m-Y', strtotime(' -1 day'));
+        $this->call_center_summary->send_call_center_summary_mail_to_partner($partner_id, $date_report_start, $date_report_end);
     }
 }
