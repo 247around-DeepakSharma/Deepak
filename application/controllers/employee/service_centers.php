@@ -102,10 +102,13 @@ class Service_centers extends CI_Controller {
 
         function get_inventory_by_model($model_number_id = '', $service_id = '',$booking_id='') {
             
-            $booking_unit = $this->booking_model->getunit_details($booking_id,$service_id);
+            if(!empty($booking_id)){
+             $booking_unit = $this->booking_model->getunit_details($booking_id,$service_id);
             if(!empty($booking_unit)){
                $sf_data['model'] = $booking_unit[0]['model_number'];  
+            }   
             }
+
         if (!empty($model_number_id) && empty($service_id)) {
             $model_number_id = urldecode($model_number_id);
             $sf_data['model_number_id'] = $model_number_id;
