@@ -272,7 +272,7 @@ class Engineer_model extends CI_Model {
         if(!empty($post_data['status'])) {
             $where .= " and current_status = '".trim($post_data['status'])."'";
         } 
-        
+
         $sql = "SELECT 
                     booking_details.*,
                     users.name as username,
@@ -289,6 +289,7 @@ class Engineer_model extends CI_Model {
                     1 {$where}";
                      
         $query = $this->db->query($sql);
+
         return $query->result_array();
         
     }    
