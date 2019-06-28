@@ -413,6 +413,7 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN inventory_master_list as i ON i.inventory_id = spare_parts_details.requested_inventory_id
             LEFT JOIN inventory_master_list as im ON im.inventory_id = spare_parts_details.shipped_inventory_id
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
+            LEFT JOIN service_centres ON service_center_booking_action.service_center_id = service_centres.id
             WHERE product_or_services != 'Product' AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' ) AND $where GROUP BY ud.booking_id");
     } 
     
