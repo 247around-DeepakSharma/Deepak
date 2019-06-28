@@ -97,8 +97,9 @@
                                 foreach($summaryReportData as $summaryReport){
                                     $finalFilterArray = array();
                                     $filterArray = json_decode($summaryReport['filters'],true);
+                                    
                                     foreach($filterArray as $key=>$value){
-                                        if($key == "Date_Range"){
+                                        if($key == "Date_Range" && !empty($value)){
                                             $dArray = explode(" - ",$value);
                                             $key  = "Registration Date";
                                             $startTemp = strtotime($dArray[0]);
@@ -106,6 +107,16 @@
                                             $startD = date('d-F-Y',$startTemp);
                                             $endD = date('d-F-Y',$endTemp);
                                             $value = $startD." To ".$endD;
+                                        }
+                                        if($key == "Completion_Date_Range" && !empty($value)){
+                                            $dArray = explode(" - ",$value);
+                                            $key  = "Completion Date";
+                                            $startTemp = strtotime($dArray[0]);
+                                            $endTemp = strtotime($dArray[1]);
+                                            $startD = date('d-F-Y',$startTemp);
+                                            $endD = date('d-F-Y',$endTemp);
+                                            $value = $startD." To ".$endD;
+                                           
                                         }
                                         $finalFilterArray[] = $key." : ". $value; 
                                         
@@ -340,8 +351,8 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
-        if(diffDays>30){
-            alert("Maximum range allowed is 1 month");
+        if(diffDays>90){
+            alert("Maximum range allowed is 3 months");
             return false;
         }        
         

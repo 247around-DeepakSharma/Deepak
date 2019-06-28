@@ -73,9 +73,6 @@ class Dashboard extends CI_Controller {
                 $am_data=$this->reusable_model->get_search_result_data("employee","id,full_name",$am_where,NULL,NULL,array("id"=>"ASC"),NULL,NULL,array()); 
                 $data['am_data']=$am_data;
 
-                
-                $data['not_assigned_booking_data'] = $this->dashboard_model->get_not_assigned_booking_report_data();
-                //echo"<pre>";print_r($s);exit;
                 $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
             }
             $this->load->view('dashboard/dashboard_footer');
@@ -3149,5 +3146,21 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $this->load->view('dashboard/dashboard_footer');  
     }
     
+    function get_non_assigned_bookings() {
+        $not_assigned_booking_data = $this->dashboard_model->get_not_assigned_booking_report_data();
+        $str_body = '';
+        foreach ($not_assigned_booking_data as $k => $booking_data) { 
+            $str_body .= '<tr>';
+            $str_body .= '<td>'.($k + 1).'</td>';
+            if(!empty($booking_data['full_name'])) { 
+                $str_body .= '<td><a class="btn btn-info" target="_blank" href="' .base_url(). 'employee/dashboard/unassigned_booking_full_view/'.$booking_data['id'].'">'. $booking_data['full_name'].'</a></td>';
+            } else { 
+                $str_body .= '<td><a class="btn btn-default">Unknown</a></td>';
+            } 
+            $str_body .= '<td>'. $booking_data['number_of_bookings']. '</td>';
+            $str_body .= '</tr>';
+        }
+        echo $str_body;
+    }
 }
 

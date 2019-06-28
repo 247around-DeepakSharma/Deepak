@@ -1672,6 +1672,7 @@ class Booking_model extends CI_Model {
             $whereNewPrice['booking_id'] = $booking_id;
             $groupBY  = array('appliance_id');
             $newPriceTag = $this->reusable_model->get_search_result_data('booking_unit_details','appliance_id,GROUP_CONCAT(price_tags) as price_tag',$whereNewPrice,NULL,NULL,NULL,NULL,NULL,$groupBY);
+            $finalOldPrice = array();
             foreach($newPriceTag as $values ){
                 $finalNewPrice[$values['appliance_id']] = $values['price_tag'];
             }
