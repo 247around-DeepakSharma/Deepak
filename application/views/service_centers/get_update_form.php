@@ -181,7 +181,7 @@
                                         <div class="form-group ">
                                             <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
                                             <div class="col-md-6">
-                                             <input type="text"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out of Warranty') == true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">
+                                             <input type="text"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">  
                                             </div>
                                         </div>
                                     </div>
@@ -280,7 +280,7 @@
                                                 <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
                                                 <div class="col-md-6">
                                                     <input type="text" id="part_warranty_status"
-  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">
+  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">
                                                 </div>
                                             </div>
                                         </div>
