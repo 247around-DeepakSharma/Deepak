@@ -189,8 +189,8 @@
                                                         foreach($rows as $description => $link) {?>
                                                     <tr>
                                                         <td><?php echo $sno; ?></td>
-                                                        <td><?php echo $description; ?></td>
-                                                        <td><a href="<?php echo base_url().$link; ?>"><span style="color:blue;" class="glyphicon glyphicon-download"></span></a></td>
+                                                        <td style="font-size:15px;"><?php echo $description; ?></td>
+                                                        <td><a href="<?php echo base_url().$link; ?>"><span style="color:blue;font-size:30px;" class="glyphicon glyphicon-download"></span></a></td>
                                                     </tr>
                                                     <?php $sno++; } ?>
                                                 </tbody>
