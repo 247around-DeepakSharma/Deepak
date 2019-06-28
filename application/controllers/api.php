@@ -5066,7 +5066,7 @@ class Api extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $requestData = array("booking_id" => "PV-16565919062733", "service_id" => 28, "partner_id" => 236, "request_type" => 'Installation & Demo');
+        //$requestData = array("booking_id" => "PV-16565919062733", "service_id" => 28, "partner_id" => 236, "request_type" => 'Installation & Demo');
         if(!empty($requestData["booking_id"]) && !empty($requestData["service_id"]) && !empty($requestData["partner_id"]) && !empty($requestData["request_type"])){
             $response['booking_symptom'] = $this->booking_model->getBookingSymptom($requestData["booking_id"]);
             $price_tags = str_replace('(Free)', '', $requestData["request_type"]);
@@ -5107,7 +5107,7 @@ class Api extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $requestData = array("technical_problem" => "1");
+        //$requestData = array("technical_problem" => "1");
         if(!empty($requestData["technical_problem"])){
             $response = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', array('symptom_id' => $requestData['technical_problem']));
             if(count($response)<=0) {
@@ -5133,7 +5133,7 @@ class Api extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $requestData = array("technical_symptom" => "1", "technical_defect" => "1");
+        //$requestData = array("technical_symptom" => "1", "technical_defect" => "1");
         if(!empty($requestData["technical_symptom"]) && !empty($requestData["technical_defect"])){
             $response = $this->booking_request_model->get_solution_of_symptom('solution_id,technical_solution', array('symptom_id' => $requestData["technical_symptom"], 'defect_id' => $requestData["technical_defect"]));
             if(count($response)<=0) {

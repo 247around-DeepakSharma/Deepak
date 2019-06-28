@@ -5142,7 +5142,7 @@ class Partner extends CI_Controller {
     }
     function download_spare_part_shipped_by_partner($isAdmin=0){
         ob_start();
-        $where == '1';
+        $where = '1';
         if($isAdmin == 0) {
              log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
              $this->checkUserSession();

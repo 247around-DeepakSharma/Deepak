@@ -414,6 +414,7 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN inventory_master_list as i ON i.inventory_id = spare_parts_details.requested_inventory_id
             LEFT JOIN inventory_master_list as im ON im.inventory_id = spare_parts_details.shipped_inventory_id
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
+            LEFT JOIN service_centres ON service_center_booking_action.service_center_id = service_centres.id
             WHERE product_or_services != 'Product' AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' ) AND $where GROUP BY ud.booking_id");
     } 
     
@@ -2395,25 +2396,27 @@ function get_data_for_partner_callback($booking_id) {
      * @author Prity Sharma
      * @date 24-06-2019
      * @param type $partner_id
-     * @param type $booking_date
+     * @param type $start_date, $end_date
      * @return array
      */
-    function get_agent_wise_booking_summary($partner_id, $booking_date)
+    function get_agent_wise_call_center_booking_summary($partner_id, $start_date, $end_date)
     {
+        $start_date = date("Y-m-d 00:00:00", strtotime($start_date));
+        $end_date = date("Y-m-d 23:59:59", strtotime($end_date));
         $strQuery = "SELECT 
                         booking_details.booking_id,
                         bs.agent_id,
-                        date_format(booking_details.create_date, '%d-%m-%Y %H:%m') as booking_date,
-                        date_format(booking_details.create_date, '%d') as booking_day, 
+                        date_format(booking_details.create_date, '%d-%m-%Y %H:%m') as create_date,
+                        date_format(booking_details.create_date, '%d') as date, 
                         entity_login_table.agent_name,
-                        booking_details.user_id
+                        entity_login_table.user_id
                     FROM
                         booking_details
                         LEFT JOIN booking_state_change bs ON (booking_details.booking_id = bs.booking_id) 
                         LEFT JOIN entity_login_table ON (bs.agent_id = entity_login_table.agent_id)
                     WHERE 
-                        (booking_details.partner_id = $partner_id OR booking_details.origin_partner_id = '$partner_id' )
-                        AND booking_details.booking_date = '".$booking_date."'
+                        (booking_details.create_date BETWEEN '".$start_date."' AND '".$end_date."')
+                        AND (booking_details.partner_id = $partner_id OR booking_details.origin_partner_id = '$partner_id' ) 
                         AND bs.old_state IN ('New_Booking', 'New_Query')
                     GROUP BY bs.booking_id";
         return $query = $this->db->query($strQuery);
