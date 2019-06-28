@@ -40,19 +40,13 @@ class File_upload extends CI_Controller {
     public function process_upload_file() {
         log_message('info', __FUNCTION__ . "=> File Upload Process Begin " . print_r($_POST, true));
         //get file extension and file tmp name
-
         $file_status = $this->get_upload_file_type();
-        $redirect_to = $this->input->post('redirect_url');
-              
+        $redirect_to = $this->input->post('redirect_url');   
         if ($file_status['file_name_lenth']) {
-
             if ($file_status['status']) {
-
                 //get file header
                 $data = $this->read_upload_file_header($file_status);
-
                 $data['post_data'] = $this->input->post();
-
                 if (!empty($data['post_data']['partner_id'])) {
                     $data['post_data']['entity_type'] = "partner";
                     $data['post_data']['entity_id'] = $data['post_data']['partner_id'];
@@ -63,7 +57,6 @@ class File_upload extends CI_Controller {
                     $data['post_data']['entity_type'] = "";
                     $data['post_data']['entity_id'] = "";
                 }
-
                 //check all required header and file type 
                 if ($data['status']) {
                     $response = array();
@@ -89,6 +82,10 @@ class File_upload extends CI_Controller {
                             //process Alternate Spare Parts 
                             $response = $this->process_upload_alternate_spare_parts($data);
                             break;
+                        case MSL_TRANSFERED_BY_PARTNER_BY_EXCEL:
+                            //process msl excel  
+                            $response = $this->process_msl_upload_file($data);
+                            break;
                         default :
                             log_message("info", " upload file type not found");
                             $response['status'] = FALSE;
@@ -96,7 +93,7 @@ class File_upload extends CI_Controller {
                     }
 
                     //save file into database send send response based on file upload status               
-                    if ($response['status']) {
+                    if (isset($response['status']) && ($response['status'])) {
 
                         //save file and upload on s3
                         $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
@@ -108,8 +105,10 @@ class File_upload extends CI_Controller {
 
                     //send email
                     $this->send_email($data, $response);
-
-                    redirect(base_url() . $redirect_to);
+                    
+                    if (isset($response['status']) && ($response['status'])) {
+                        redirect(base_url() . $redirect_to);
+                    }
                 } else {
                     //redirect to upload page
                     $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
@@ -219,6 +218,7 @@ class File_upload extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $sheetUniqueRowData = array();
+        $response = array();
         //$file_appliance_arr = array();
         //column which must be present in the  upload inventory file
         $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate', 'around_margin', 'vendor_margin');
@@ -359,6 +359,167 @@ class File_upload extends CI_Controller {
         }
 
         return $response;
+    }
+
+
+
+/**
+
+     * @desc: This function is used to validate upload file header
+     * @param $actual_header array this is actual header. It contains all the required column
+     * @param $upload_file_header array this is upload file header. It contains all column from the upload file header
+     * @param $return_data array
+
+**/
+
+
+    function process_msl_upload_file($data) {
+        log_message('info', __FUNCTION__ . " => process upload msl file");
+        //  $partner_id = $this->input->post('partner_id');
+        //  $service_id = $this->input->post('service_id');
+        $action_entity_id = "";
+        $action_agent_id = "";
+        if ($this->session->userdata('service_center_id')) {
+            $agent_id = $this->session->userdata('service_center_id');
+            $action_agent_id = $this->session->userdata('id');
+            $action_entity_id = $this->session->userdata('service_center_id');
+            ;
+            $agent_type = _247AROUND_SF_STRING;
+        } else if ($this->session->userdata('id')) {
+            $agent_id = $this->session->userdata('id');
+            $action_agent_id = $this->session->userdata('id');
+            $action_entity_id = _247AROUND;
+            $agent_type = _247AROUND_EMPLOYEE_STRING;
+        } else {
+            $agent_id = $this->session->userdata('partner_id');
+            $action_agent_id = $this->session->userdata('agent_id');
+            $action_entity_id = $this->session->userdata('partner_id');
+            $agent_type = _247AROUND_PARTNER_STRING;
+        }
+        $sheetUniqueRowData = array();
+        //$file_appliance_arr = array();
+        //column which must be present in the  upload inventory file
+        $header_column_need_to_be_present = array('sap_vendor_id', 'part_code', 'vendor_id', 'quantity', 'basic_price', 'hsn_code', 'invoice_id', 'gst_rate', 'from_gst', 'to_gst');
+        //check if required column is present in upload file header
+        $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+        if ($check_header['status']) {
+            $invalid_data = array();
+            $flag = 1;
+            $valid_flage = 1;
+            $msg = "";
+            $template1 = array(
+                'table_open' => '<table border="1" class="table" cellpadding="2" cellspacing="0" class="mytable">'
+            );
+
+            $this->table->set_template($template1);
+            $this->table->set_heading(array('Part Number', 'Invoice Id','HSN Code'));
+            //get file data to process
+            $post_data = array();
+            $reciver_entity_id = 0;
+            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                if (!empty(array_filter($sanitizes_row_data))) {
+                    $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                    if (!empty($rowData['sap_vendor_id']) && !empty($rowData['part_code'])  && !empty($rowData['quantity'])  && !empty($rowData['basic_price'])  &&!empty($rowData['hsn_code']) &&!empty($rowData['invoice_id']) &&!empty($rowData['gst_rate']) &&!empty($rowData['from_gst']) &&!empty($rowData['to_gst'])) {
+                        $select = '*';
+                        $where_part = array('part_number' => $rowData['part_code']);
+                        $where_in_parts = array();
+                        $part_details = $this->inventory_model->get_inventory_master_list_data($select, $where_part, $where_in_parts);
+
+                        $from_gst_data = $this->inventory_model->get_entity_gst_data('*', $where = array('gst_number' => $rowData['from_gst']));
+                        $to_gst_data = $this->inventory_model->get_entity_gst_data('*', $where = array('gst_number' => $rowData['to_gst']));
+                        $wh_details = $this->vendor_model->getVendorContact(trim($rowData['sap_vendor_id']));
+                        if (!empty($part_details) && !empty($from_gst_data) && !empty($to_gst_data) && !empty($wh_details)  && !empty($part_details) ) {
+                         //   echo "if";
+                            $reciver_entity_id = $wh_details[0]['id'];
+                            $is_wh_micro = $wh_details[0]['is_micro_wh'];    
+                            $invoice_price=0;
+                            if (array_key_exists($rowData['invoice_id'], $post_data)) {
+                                
+                                $invoice_price = $invoice_price+$part_details[0]['price'];
+                                $part = array(
+                                    'shippingStatus' => 1,
+                                    'service_id' => $part_details[0]['service_id'],
+                                    'part_name' => $part_details[0]['part_name'],
+                                    'part_number' => $part_details[0]['part_number'],
+                                    'booking_id' => '',
+                                    'quantity' => $rowData['quantity'],
+                                    'part_total_price' => $part_details[0]['price'],
+                                    'hsn_code' => $rowData['hsn_code'],
+                                    'gst_rate' => $rowData['gst_rate'],
+                                    'inventory_id' => $part_details[0]['inventory_id'],
+                                );
+                                array_push($post_data[$rowData['invoice_id']]['part'], $part);
+                            } else {
+
+                                $part = array(
+                                    'shippingStatus' => 1,
+                                    'service_id' => $part_details[0]['service_id'],
+                                    'part_name' => $part_details[0]['part_name'],
+                                    'part_number' => $part_details[0]['part_number'],
+                                    'booking_id' => '',
+                                    'quantity' => $rowData['quantity'],
+                                    'part_total_price' => $part_details[0]['price'],
+                                    'hsn_code' => $rowData['hsn_code'],
+                                    'gst_rate' => $rowData['gst_rate'],
+                                    'inventory_id' => $part_details[0]['inventory_id'],
+                                );
+                                $parts_array[] = $part;
+                                $invoice_price = $invoice_price+$part_details[0]['price'];
+                                $post_data[$rowData['invoice_id']]['is_wh_micro'] = $is_wh_micro;
+                                $post_data[$rowData['invoice_id']]['dated'] = date('Y-m-d H:i:s');
+                                $post_data[$rowData['invoice_id']]['invoice_id'] = $rowData['invoice_id'];
+                                $post_data[$rowData['invoice_id']]['invoice_amount'] = $invoice_price+(($invoice_price*$rowData['gst_rate'])/100);
+                                $post_data[$rowData['invoice_id']]['courier_name'] = $rowData['courier_name'];
+                                $post_data[$rowData['invoice_id']]['awb_number'] = $rowData['awb_number'];
+                                $post_data[$rowData['invoice_id']]['courier_shipment_date'] = $rowData['courier_shipment_date'];
+                                $post_data[$rowData['invoice_id']]['from_gst_number'] = $from_gst_data[0]['id'];
+                                $post_data[$rowData['invoice_id']]['to_gst_number'] = $to_gst_data[0]['id'];
+                                $post_data[$rowData['invoice_id']]['wh_id'] = $wh_details[0]['id'];
+                                $post_data[$rowData['invoice_id']]['partner_id'] = _247AROUND;
+                                $post_data[$rowData['invoice_id']]['partner_name'] = $is_wh_micro;
+                                $post_data[$rowData['invoice_id']]['wh_name'] = $wh_details[0]['company_name'];
+                                $post_data[$rowData['invoice_id']]['invoice_tag'] = 'MSL';
+                                $post_data[$rowData['invoice_id']]['transfered_by'] = MSL_TRANSFERED_BY_PARTNER;
+                                $post_data[$rowData['invoice_id']]['is_defective_part_return_wh'] = 1;
+                                $post_data[$rowData['invoice_id']]['part'] = array();
+                                 array_push($post_data[$rowData['invoice_id']]['part'], $part);
+                            }
+                        }else{
+                            
+                           $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code']);  
+                        }
+                    } else {
+                        $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code']);
+                    }
+                }
+            }
+            
+             $err_msg = $this->table->generate();
+        } else {
+             $this->session->set_flashdata('fail','Excel header is incorrect');
+             redirect(base_url() . "partner/msl_excel_upload");
+        }
+
+        foreach ($post_data as $post) {
+            
+            $post_json = json_encode($post, true);
+            $url = base_url() . 'employee/inventory/process_msl_upload_excel';
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_json);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+            // execute!
+            $response = curl_exec($ch);
+         //   print_r($response);
+            // close the connection, release resources used
+            curl_close($ch);
+        }
+          //echo $err_msg;  exit;
+         $this->session->set_flashdata('details',$err_msg);
+         redirect(base_url() . "partner/msl_excel_upload");
+        //return $response;
     }
 
     /**
@@ -917,131 +1078,147 @@ class File_upload extends CI_Controller {
             $login_service_center_id = $this->session->userdata('service_center_id');
             $login_partner_id =NULL;
         }
+        else if($this->session->userdata('userType') == _247AROUND_PARTNER_STRING){
+            $agentid=$this->session->userdata('agent_id');
+            $agent_name =$this->session->userdata('partner_name');
+            $login_partner_id = $this->session->userdata('partner_id');
+            $login_service_center_id =NULL;
+        }
         
         if ($partner_id) {
-            //get file data to process
-            $table_flag = false;
-            $not_exist_data_msg ='';
-            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
-                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+            //column which must be present in the  upload inventory file
+            $header_column_need_to_be_present = array('part_code', 'alt_part_code');
+            //check if required column is present in upload file header
+            $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
 
-                if (!empty(array_filter($sanitizes_row_data))) {
-                    $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                }
-              
-                if ($rowData['part_code'] != $rowData['alt_part_code']) {
+            if ($check_header['status']) {
+                //get file data to process
+                $table_flag = false;
+                $not_exist_data_msg ='';
+                for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                    $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                    $sanitizes_row_data = array_map('trim', $rowData_array[0]);
 
-                    $where = array('inventory_master_list.entity_id' => $partner_id, 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING);
-                    $where_in = array(trim($rowData['part_code']), trim($rowData['alt_part_code']));
-                    $select = 'inventory_master_list.inventory_id, inventory_master_list.part_number';
-                    $inventory_id_details = $this->inventory_model->get_inventory_master_list_data($select, $where, $where_in);
-                                        
-                    if (!empty($inventory_id_details) && count($inventory_id_details) >1) {
-                        $tmp_arr = array();
-                        $tmp_arr['inventory_id'] = $inventory_id_details[0]['inventory_id'];
-                        $tmp_arr['alt_inventory_id'] = $inventory_id_details[1]['inventory_id'];
-                        array_push($this->dataToInsert, $tmp_arr);
-                    } else {
-                        $template = array(
-                            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                        );
-                        $this->table->set_template($template);
-                        $this->table->set_heading(array('Part Code', 'Alt Part Code'));
-                        $this->table->add_row($rowData['part_code'], $rowData['alt_part_code']);                        
-                        $table_flag = true;
+                    if (!empty(array_filter($sanitizes_row_data))) {
+                        $rowData = array_combine($data['header_data'], $rowData_array[0]);
                     }
+
+                    if ($rowData['part_code'] != $rowData['alt_part_code']) {
+
+                        $where = array('inventory_master_list.entity_id' => $partner_id, 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING);
+                        $where_in = array(trim($rowData['part_code']), trim($rowData['alt_part_code']));
+                        $select = 'inventory_master_list.inventory_id, inventory_master_list.part_number';
+                        $inventory_id_details = $this->inventory_model->get_inventory_master_list_data($select, $where, $where_in);
+
+                        if (!empty($inventory_id_details) && count($inventory_id_details) >1) {
+                            $tmp_arr = array();
+                            $tmp_arr['inventory_id'] = $inventory_id_details[0]['inventory_id'];
+                            $tmp_arr['alt_inventory_id'] = $inventory_id_details[1]['inventory_id'];
+                            array_push($this->dataToInsert, $tmp_arr);
+                        } else {
+                            $template = array(
+                                'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                            );
+                            $this->table->set_template($template);
+                            $this->table->set_heading(array('Part Code', 'Alt Part Code'));
+                            $this->table->add_row($rowData['part_code'], $rowData['alt_part_code']);                        
+                            $table_flag = true;
+                        }
+                    } else {
+                        log_message("info", __METHOD__ . " error in creating mapping.");
+                        $response['status'] = FALSE;
+                        $response['message'] = "Spare Parts Code And Alternate Spare Parts Code Is Same.";
+                    }
+                }
+
+                if(!empty($table_flag)){
+                    $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
+                    $not_exist_data_msg .= $this->table->generate();    
+                }
+
+                $insert_flag = false;
+                if(!empty($this->dataToInsert)){
+                     $insert_data = $this->inventory_model->insert_alternate_spare_parts($this->dataToInsert);
+
+                     foreach ($this->dataToInsert as $val){  
+
+                          $inventory_group_id_list = $this->inventory_model->get_generic_table_details('alternate_inventory_set','alternate_inventory_set.id,alternate_inventory_set.inventory_id, alternate_inventory_set.group_id', array(), array( trim($val['inventory_id']), trim($val['alt_inventory_id'])));
+
+                          if(!empty($inventory_group_id_list)){
+
+                              if(count($inventory_group_id_list) > 1){
+                                 $min_group_id = min(array_column($inventory_group_id_list, 'group_id'));
+                                 $max_group_id = max(array_column($inventory_group_id_list, 'group_id'));
+                                 if($max_group_id !== $min_group_id){
+                                     foreach ($inventory_group_id_list as  $value) {
+                                        if ($value['group_id'] === $max_group_id) {
+                                            $insert_flag = $this->inventory_model->update_group_wise_inventory_id(array('alternate_inventory_set.group_id' => $min_group_id),array('alternate_inventory_set.id' => $value['id']));
+                                        }
+                                    }
+                                }
+
+                              } else if(count($inventory_group_id_list) == 1){
+                                   $inventory_id = $inventory_group_id_list[0]['inventory_id'];
+                                    if($val['inventory_id'] != $inventory_id ){
+                                       $inventory_group_data = array('group_id' => $inventory_group_id_list[0]['group_id'], 'inventory_id' => $val['inventory_id']); 
+                                    }elseif ($val['alt_inventory_id'] != $inventory_id ) {
+                                       $inventory_group_data = array('group_id' => $inventory_group_id_list[0]['group_id'], 'inventory_id' => $val['alt_inventory_id']);
+                                }
+                                     $insert_flag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);                                
+                                }
+                          }else{
+                            $max_group_id_details = $this->inventory_model->get_generic_table_details('alternate_inventory_set','MAX(alternate_inventory_set.group_id) as max_group_id', array(), array()); 
+                            $group_id = ($max_group_id_details[0]['max_group_id'] + 1);
+                            $inventory_group_data = array('group_id' => $group_id, 'inventory_id' => $val['alt_inventory_id']);  
+                            $insert_flag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);
+                            $inventory_group = array('group_id' => $group_id, 'inventory_id' => $val['inventory_id']);  
+                            $insert_flag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group);
+
+                          }
+
+                        $insert_inventory = $this->insert_Inventory_Model_Data(trim($val['inventory_id']), trim($val['alt_inventory_id']));
+
+                        if ($insert_inventory) {
+                            log_message("info", __METHOD__ . " inventory model mapping created succcessfully");
+                            $response['status'] = TRUE;
+                            $response['message'] = "Details inserted successfully.";
+                        } else {
+                            log_message("info", __METHOD__ . " Inventory Model Mapping already created.");
+                            $response['status'] = TRUE;
+                            $response['message'] = "Inventory Model Mapping already created.";
+                        }
+
+                        $where = array(
+                            'spare_parts_details.status' => SPARE_PARTS_REQUESTED,
+                            'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
+                            'spare_parts_details.requested_inventory_id IS NOT NULL ' => NULL
+                        );
+                        $select = "spare_parts_details.id,spare_parts_details.booking_id, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
+                                . " requested_inventory_id";
+                        $post['where_in'] = array('spare_parts_details.requested_inventory_id' => array( trim($val['inventory_id']), trim($val['alt_inventory_id'])));
+                        $post['is_inventory'] = true;
+                        $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
+
+                        if(!empty($bookings_spare)) {
+                            $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
+                        }
+                     }
+
+                }
+
+                if (!empty($insert_flag)) {
+                    log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
+                    $response['status'] = TRUE;
+                    $message = "<b>" . count($this->dataToInsert) . "</b> mapping created successfully.";
+                    $response['message'] = $message . ' ' . $not_exist_data_msg;
                 } else {
                     log_message("info", __METHOD__ . " error in creating mapping.");
                     $response['status'] = FALSE;
-                    $response['message'] = "Spare Parts Code And Alternate Spare Parts Code Is Same.";
+                    $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
                 }
-            }
-            
-            if(!empty($table_flag)){
-                $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
-                $not_exist_data_msg .= $this->table->generate();    
-            }
-                     
-            if(!empty($this->dataToInsert)){
-                 $insert_data = $this->inventory_model->insert_alternate_spare_parts($this->dataToInsert);
-                 $insert_flag = false;
-                 
-                 foreach ($this->dataToInsert as $val){  
-                                           
-                      $inventory_group_id_list = $this->inventory_model->get_generic_table_details('alternate_inventory_set','alternate_inventory_set.id,alternate_inventory_set.inventory_id, alternate_inventory_set.group_id', array(), array( trim($val['inventory_id']), trim($val['alt_inventory_id'])));
-                     
-                      if(!empty($inventory_group_id_list)){
-                          
-                          if(count($inventory_group_id_list) > 1){
-                             $min_group_id = min(array_column($inventory_group_id_list, 'group_id'));
-                             $max_group_id = max(array_column($inventory_group_id_list, 'group_id'));
-                             if($max_group_id !== $min_group_id){
-                                 foreach ($inventory_group_id_list as  $value) {
-                                    if ($value['group_id'] === $max_group_id) {
-                                        $insert_flag = $this->inventory_model->update_group_wise_inventory_id(array('alternate_inventory_set.group_id' => $min_group_id),array('alternate_inventory_set.id' => $value['id']));
-                                    }
-                                }
-                            }
-                                          
-                          } else if(count($inventory_group_id_list) == 1){
-                               $inventory_id = $inventory_group_id_list[0]['inventory_id'];
-                                if($val['inventory_id'] != $inventory_id ){
-                                   $inventory_group_data = array('group_id' => $inventory_group_id_list[0]['group_id'], 'inventory_id' => $val['inventory_id']); 
-                                }elseif ($val['alt_inventory_id'] != $inventory_id ) {
-                                   $inventory_group_data = array('group_id' => $inventory_group_id_list[0]['group_id'], 'inventory_id' => $val['alt_inventory_id']);
-                            }
-                                 $insert_flag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);                                
-                            }
-                      }else{
-                        $max_group_id_details = $this->inventory_model->get_generic_table_details('alternate_inventory_set','MAX(alternate_inventory_set.group_id) as max_group_id', array(), array()); 
-                        $group_id = ($max_group_id_details[0]['max_group_id'] + 1);
-                        $inventory_group_data = array('group_id' => $group_id, 'inventory_id' => $val['alt_inventory_id']);  
-                        $insert_flag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);
-                        $inventory_group = array('group_id' => $group_id, 'inventory_id' => $val['inventory_id']);  
-                        $insert_flag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group);
-                        
-                      }
-                    
-                    $insert_inventory = $this->insert_Inventory_Model_Data(trim($val['inventory_id']), trim($val['alt_inventory_id']));
-                    
-                    if ($insert_inventory) {
-                        log_message("info", __METHOD__ . " inventory model mapping created succcessfully");
-                        $response['status'] = TRUE;
-                        $response['message'] = "Details inserted successfully.";
-                    } else {
-                        log_message("info", __METHOD__ . " Inventory Model Mapping already created.");
-                        $response['status'] = TRUE;
-                        $response['message'] = "Inventory Model Mapping already created.";
-                    }
-                    
-                    $where = array(
-                        'spare_parts_details.status' => SPARE_PARTS_REQUESTED,
-                        'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
-                        'spare_parts_details.requested_inventory_id IS NOT NULL ' => NULL
-                    );
-                    $select = "spare_parts_details.id,spare_parts_details.booking_id, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
-                            . " requested_inventory_id";
-                    $post['where_in'] = array('spare_parts_details.requested_inventory_id' => array( trim($val['inventory_id']), trim($val['alt_inventory_id'])));
-                    $post['is_inventory'] = true;
-                    $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
-                    
-                    if(!empty($bookings_spare)) {
-                        $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
-                    }
-                 }
-                 
-            }
-                        
-            if (!empty($insert_flag)) {
-                log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
-                $response['status'] = TRUE;
-                $message = "<b>" . count($this->dataToInsert) . "</b> mapping created successfully.";
-                $response['message'] = $message . ' ' . $not_exist_data_msg;
             } else {
-                log_message("info", __METHOD__ . " error in creating mapping.");
-                $response['status'] = FALSE;
-                $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
+                $response['status'] = $check_header['status'];
+                $response['message'] = $check_header['message'];
             }
         } else {
             $response['status'] = FALSE;

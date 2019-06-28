@@ -43,7 +43,7 @@ class Upload_booking_file extends CI_Controller {
         $this->load->model('vendor_model');
         $this->load->library('table');
 
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+        if (($this->session->userdata('loggedIn') == TRUE) && (($this->session->userdata('userType') == 'employee') || ($this->session->userdata('userType') == 'partner'))) {
             return TRUE;
         } else {
             redirect(base_url() . "employee/login");
