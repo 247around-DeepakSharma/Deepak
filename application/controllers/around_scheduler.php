@@ -2293,4 +2293,129 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             echo "Success";
         }
     }
+        
+    /*
+     * @desc - This function is used to send email to Trackon couriers
+     * @param - empty
+     * @return - empty
+     */
+    function send_email_to_trackon_couriers() {
+       
+        $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_partner as courier_name, spare_parts_details.awb_by_partner as awb_no, spare_parts_details.shipped_date as spare_shipped_date, 'New Pickup' as shipment_type";
+        $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
+            "status IN('" . SPARE_SHIPPED_BY_PARTNER . "')" => NULL,
+            'spare_parts_details.courier_name_by_partner LIKE "%trackon%"' => NULL);
+        $spare_parts_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);
+
+        $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_sf as courier_name, spare_parts_details.awb_by_sf as awb_no,spare_parts_details.shipped_date as spare_shipped_date, 'Reverse Pickup' as shipment_type";
+        $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
+            "status IN('" . DEFECTIVE_PARTS_SHIPPED . "')" => NULL,
+            'spare_parts_details.courier_name_by_sf LIKE "%trackon%"' => NULL);
+        $defective_parts_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post, $where);
+
+        $spare_part_data = array_merge($spare_parts_shipped_by_partner, $defective_parts_shipped_by_sf);
+
+        $template = 'shipment-pending.xlsx';
+        $output_file_excel = TMP_FOLDER . "shipment-pending-detailed.xlsx";
+        
+        if (!empty($spare_part_data)) {
+            $email_to = 'gorakhn@247around.com';
+            $this->generate_spare_pending_shipment_excel($template, $spare_part_data, $output_file_excel,$email_to);
+        }
+    }
+    
+    
+    /*
+     * @desc - This function is used to send email to Gati couriers
+     * @param - empty
+     * @return - empty
+     */
+    function send_email_to_gati_couriers() {
+        
+        $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_partner as courier_name, spare_parts_details.awb_by_partner as awb_no, spare_parts_details.shipped_date as spare_shipped_date, 'New Pickup' as shipment_type";
+        $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
+            "status IN('" . SPARE_SHIPPED_BY_PARTNER . "')" => NULL,
+            'spare_parts_details.courier_name_by_partner LIKE "%trackon%"' => NULL);
+        $spare_parts_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);
+
+        $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_sf as courier_name, spare_parts_details.awb_by_sf as awb_no,spare_parts_details.shipped_date as spare_shipped_date, 'Reverse Pickup' as shipment_type";
+        $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
+            "status IN('" . DEFECTIVE_PARTS_SHIPPED . "')" => NULL,
+            'spare_parts_details.courier_name_by_sf LIKE "%trackon%"' => NULL);
+        $defective_parts_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post, $where);
+
+        $spare_part_data = array_merge($spare_parts_shipped_by_partner, $defective_parts_shipped_by_sf);
+
+        $template = 'shipment-pending.xlsx';
+        $output_file_excel = TMP_FOLDER . "shipment-pending-detailed.xlsx";
+        
+        if (!empty($spare_part_data)) {
+            $email_to = 'gorakhn@247around.com';
+            $this->generate_spare_pending_shipment_excel($template, $spare_part_data, $output_file_excel,$email_to);
+        }
+    }
+
+     /*
+     * @desc - This function is used to generate excel to attached with email
+     * @param - $template
+     * @param - $spare_part_data
+     * @param - $output_file_excel
+     * @return - true or false
+     */
+    
+    function generate_spare_pending_shipment_excel($template, $spare_part_data, $output_file_excel,$email_to) {
+
+        // directory
+        $templateDir = __DIR__ . "/excel-templates/";
+        $config = array(
+            'template' => $template,
+            'templateDir' => $templateDir
+        );
+
+        //load template
+        if (ob_get_length() > 0) {
+            ob_end_clean();
+        }
+        $R = new PHPReport($config);
+        $R->load(array(
+            array(
+                'id' => 'spare',
+                'data' => $spare_part_data,
+                'repeat' => true
+            ),
+                )
+        );
+
+        $res1 = 0;
+        if (file_exists($output_file_excel)) {
+
+            system(" chmod 777 " . $output_file_excel, $res1);
+            unlink($output_file_excel);
+        }
+
+        $R->render('excel', $output_file_excel);
+
+        $email_template = $this->booking_model->get_booking_email_template(SPARE_PART_SHIPMENT_PENDING);
+        if (!empty($email_template)) {
+            $subject = $email_template[4];
+            $message = $email_template[0];
+            $email_from = $email_template[2];
+
+            $to = $email_to;
+            $cc = $email_template[3];
+            $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_excel, SPARE_PART_SHIPMENT_PENDING);
+            unlink($output_file_excel);
+        }
+
+        log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
+
+        if (file_exists($output_file_excel)) {
+            system(" chmod 777 " . $output_file_excel, $res1);
+            unlink($output_file_excel);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 }
