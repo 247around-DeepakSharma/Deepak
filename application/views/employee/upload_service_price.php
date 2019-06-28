@@ -97,7 +97,7 @@
                         </select>
                     </div>
                     <div class="col-md-3">
-                       <input type="file" class="form-control"  name="file" >
+                       <input type="file" class="form-control"  name="file" required="">
                        <?php echo form_error('file'); ?>
                     </div>
                     <input type= "submit"  class="col-md-2 btn btn-success btn-sm" value ="Upload" > 
