@@ -57,8 +57,8 @@ class Api extends CI_Controller {
         //$_POST = json_decode($input_d, true);
         
         //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"engineerLogin\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
+        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"solutionCompleteBooking\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
 
-        //$str = '{"request":"{\"requestId\":\"249c0d03-5123-487a-9ad9-cbe487ed95bc\",\"requestUrl\":\"submitSparePartsOrder\",\"deviceId\":\"MzU4MjQwMDUxMTExMTEwLWU0YmNiNTcwM2MyZjczMGUtMDI6MDA6MDA6MDA6MDA6MDAtbnVsbA\\u003d\\u003d\",\"token\":\"eyJhbGciOiJzaGEyNTYiLCJ0eXAiOiJKV1QifQ\\u003d\\u003d.eyJleHAiOjE1NTYwOTA4NzYsImlhdCI6MTU1NjA5MDY5NiwiaXNzIjoiYm9sb2Fha2EtbW9iaWxlLWFwcGxpY2F0aW9uIiwicXNoIjoie1wicGFzc3dvcmRcIjpcIjc4MjA5Mzk0NjlcIixcIm1ldGhvZFwiOlwicG9zdFwiLFwiYXBwX3ZlcnNpb25cIjpcIjEuMFwiLFwiYXBpUGF0aFwiOlwiYXBpXCIsXCJtb2JpbGVcIjpcIjc4MjA5Mzk0NjlcIixcImRldmljZUluZm9cIjpcIntcXFwiaXNFbXVsYXRvclxcXCI6XFxcImZhbHNlXFxcIixcXFwib3NcXFwiOlxcXCIzLjE4LjkxK1xcXCIsXFxcIm1vZGVsVmVyc2lvblxcXCI6XFxcImdlbmVyaWNfeDg2XFxcIixcXFwicGxhdGZvcm1WZXJzaW9uXFxcIjpcXFwiOC4wLjBcXFwiLFxcXCJtb2RlbFxcXCI6XFxcIkdvb2dsZVxcXCIsXFxcImlzUm9vdGVkXFxcIjpcXFwidHJ1ZVxcXCJ9XCJ9In0\\u003d.NWM2ZjY0NDEyODRmY2ZkNzQ5ZTk1NWVlOGEzOWYzYTJmZTA5MmI2MTk3YzNkZTJjYzJiNWMzZDUwM2JjNWYyNA\\u003d\\u003d\"}"}';
 
         //$_POST = json_decode($str, true);
             
@@ -508,6 +508,22 @@ class Api extends CI_Controller {
             
             case 'submitSparePartsOrder':
                 $this->processSubmitSparePartsOrder();
+                break;
+            
+            case 'bookingProductDetails':
+                $this->getBookingProductDetails();
+                break;
+            
+            case 'symptomCompleteBooking':
+                $this->getSymptomCompleteBooking();
+                break;
+            
+            case 'defectCompleteBooking':
+                $this->getDefectCompleteBooking();
+                break;
+            
+            case 'solutionCompleteBooking':
+                $this->getSolutionCompleteBooking();
                 break;
             
             default:
@@ -4936,12 +4952,12 @@ class Api extends CI_Controller {
             }
             else{
                 log_message("info", __METHOD__ . "Part Not Updated Error - ".$response->message);
-                $this->sendJsonResponse(array('0036', $response->message));
+                $this->sendJsonResponse(array('0035', $response->message));
             }
         }
         else{
             log_message("info", __METHOD__ . "Request validation failed ".$validation['message']);
-            $this->sendJsonResponse(array('0035', $validation['message']));
+            $this->sendJsonResponse(array('0036', $validation['message']));
         }
     }
     
@@ -5046,5 +5062,102 @@ class Api extends CI_Controller {
         
         }
         return $response;
+    }
+    
+    function getSymptomCompleteBooking(){ 
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $requestData = array("booking_id" => "PV-16565919062733", "service_id" => 28, "partner_id" => 236, "request_type" => 'Installation & Demo');
+        if(!empty($requestData["booking_id"]) && !empty($requestData["service_id"]) && !empty($requestData["partner_id"]) && !empty($requestData["request_type"])){
+            $response['booking_symptom'] = $this->booking_model->getBookingSymptom($requestData["booking_id"]);
+            $price_tags = str_replace('(Free)', '', $requestData["request_type"]);
+            $price_tags1 = str_replace('(Paid)', '', $requestData["request_type"]);
+            $where = array(
+                'symptom.service_id' => $requestData["service_id"], 
+                'symptom.active' => 1, 
+                'symptom.partner_id' => $requestData["partner_id"]
+            );
+            $where_in = array(
+                'request_type.service_category' => $price_tags1
+            );
+            $response['symptoms'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', $where, $where_in);
+            
+            $defect_where = array(
+                'symptom_id' => $response['booking_symptom'][0]['symptom_id_booking_creation_time'],
+                'partner_id' => $requestData["partner_id"]
+            );
+            $response['defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', $defect_where);
+            
+            if(!empty($response['symptoms']) || !empty($response['defect'])){
+                log_message("info", __METHOD__ . "Symptoms or Defects found successfully successfully");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            else{
+                log_message("info", __METHOD__ . "Symptom or Defects not found");
+                $this->sendJsonResponse(array('0037', 'Symptom not found'));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . "Service Id - ".$requestData["service_id"]." or Partner Id - ".$requestData["partner_id"]." or Request Type - ".$requestData["request_type"]." not found");
+            $this->sendJsonResponse(array('0037', 'Booking Id or Service Id or Partner Id or Request Type not found'));
+        }
+    }
+    
+    function getDefectCompleteBooking(){
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $requestData = array("technical_problem" => "1");
+        if(!empty($requestData["technical_problem"])){
+            $response = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', array('symptom_id' => $requestData['technical_problem']));
+            if(count($response)<=0) {
+                $response = array('defect_id' => 0, 'defect' => 'Default');
+            }
+            if(!empty($response)){
+                log_message("info", __METHOD__ . "Defects found successfully");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            else{
+                log_message("info", __METHOD__ . "Defects not found");
+                $this->sendJsonResponse(array('0038', 'Defects not found'));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . " ");
+            $this->sendJsonResponse(array('0039', 'Technical Problem not found'));
+        }
+    }
+    
+    function getSolutionCompleteBooking(){
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $requestData = array("technical_symptom" => "1", "technical_defect" => "1");
+        if(!empty($requestData["technical_symptom"]) && !empty($requestData["technical_defect"])){
+            $response = $this->booking_request_model->get_solution_of_symptom('solution_id,technical_solution', array('symptom_id' => $requestData["technical_symptom"], 'defect_id' => $requestData["technical_defect"]));
+            if(count($response)<=0) {
+                $response = array('solution_id' => 0, 'technical_solution' => 'Default');
+            }
+            if(!empty($response)){
+                log_message("info", __METHOD__ . "Solution found successfully");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            else{
+                log_message("info", __METHOD__ . "Solution not found");
+                $this->sendJsonResponse(array('0040', 'Solution not found'));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . " ");
+            $this->sendJsonResponse(array('0041', 'Technical Problem or Defect not found'));
+        }
+    }
+    
+    function getBookingProductDetails(){
+        
     }
 }
