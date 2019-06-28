@@ -494,6 +494,7 @@ EOD;
     function send_leads_summary_mail_to_partners($partner_id = "") {
         
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
+        $arrContentType = ['Content-Disposition' => 'attachment', 'Content-Type' => 'application/vnd.ms-excel'];
         $csv = TMP_FOLDER . $newCSVFileName;
         
         if(!empty($partner_id))
@@ -512,10 +513,10 @@ EOD;
                 log_message('info', __FUNCTION__ . ' => Rendered CSV');
                 write_file($csv, $new_report);
                 //Upload File On AWS and save link in file_upload table
-                $this->save_partner_summary_report($partners[0]['id'],$newCSVFileName,$csv);
+                $this->save_partner_summary_report($partners[0]['id'],$newCSVFileName,$csv,[],$arrContentType);
                 if($this->session->userdata('employee_id'))
                 {
-                    $this->generate_partner_summary_email_data($partners[0],$csv);
+                    $this->generate_partner_summary_email_data($partners[0],$csv,$newCSVFileName,false);
                 }
                 else
                 {
@@ -566,9 +567,11 @@ EOD;
                 $newline = "\r\n";
                 $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
                 write_file($csv, $new_report);
-                $this->generate_partner_summary_email_data($partners[$key],$csv);
+                
                 //Upload File On AWS and save link in file_upload table
-                $this->save_partner_summary_report($p['id'],$newCSVFileName,$csv);
+                $this->save_partner_summary_report($p['id'],$newCSVFileName,$csv,[],$arrContentType);
+                
+                $this->generate_partner_summary_email_data($partners[$key],$csv,$newCSVFileName,false);
                 //Delete this file
                 $out = '';
                 $return = 0;
@@ -1549,7 +1552,7 @@ EOD;
      * @return:$response boolean
      *
      */
-    function generate_partner_summary_email_data($partner_data, $csv_file) {
+    function generate_partner_summary_email_data($partner_data, $csv_file,$csv_file_name = "", $send_as_attachment = true) {
         
         $subject = "247around Services Report - " . $partner_data['public_name'] . " - " . date('d-M-Y');
         $accountManagerData = $this->miscelleneous->get_am_data($partner_data['id']);
@@ -1569,12 +1572,17 @@ EOD;
         $emailBasicDataArray['fromName'] = "247around Team";
         //$emailTemplateDataArray['templateId'] = PARTNER_SUMMARY_EMAIL_TEMPLATE;
         $emailTemplateDataArray['dynamicParams'] = $this->partner_model->get_partner_summary_params($partner_data['id']);
+        $emailTemplateDataArray['send_as_attachment'] = $send_as_attachment;
+        $emailTemplateDataArray['original_file_name'] = $csv_file_name;
         if(!empty($emailTemplateDataArray['dynamicParams'])){
             $emailAttachmentDataArray['type'] = "csv";
             $emailAttachmentDataArray['fileName'] = "247around-Services-Consolidated-Data - " . date('d-M-Y');
             $emailAttachmentDataArray['filePath'] = $csv_file;
             $email_body = $this->load->view('employee/partner_summary_email_template',$emailTemplateDataArray,true);
-            
+            if(!$send_as_attachment)
+            {
+                $csv_file = "";
+            }
             $send_email = $this->notify->sendEmail($emailBasicDataArray['from'], $emailBasicDataArray['to'], $emailBasicDataArray['cc'], "", $subject, $email_body, $csv_file,"summary_report");
             //$emailStatus = $this->send_grid_api->send_email_using_send_grid_templates($emailBasicDataArray, $emailTemplateDataArray, $emailAttachmentDataArray);
             if ($send_email) {
@@ -1616,10 +1624,10 @@ EOD;
     /*
      * This Function is use to upload Partner Summary Report on Aws and saved that link in file_upload table
      */
-    function save_partner_summary_report($partnerID,$fileName,$filePath){
+    function save_partner_summary_report($partnerID,$fileName,$filePath,$metaHeaders = array(), $contentType = null){
         $bucket = BITBUCKET_DIRECTORY;
         $directory_xls = "summary-excels/" . $fileName;
-        $this->s3->putObjectFile($filePath, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+        $this->s3->putObjectFile($filePath, $bucket, $directory_xls, S3::ACL_PUBLIC_READ, $metaHeaders, $contentType);
         $fileData['entity_type'] = "Partner";
         $fileData['entity_id'] = $partnerID;
         $fileData['file_type'] = "Partner_Summary_Reports";
