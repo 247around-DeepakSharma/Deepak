@@ -495,7 +495,7 @@ EOD;
     function send_leads_summary_mail_to_partners($partner_id = "") {
 
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
-        $arrContentType = ['Content-Disposition' => 'attachment'];
+        $arrContentType = ['Content-Disposition' => 'attachment', 'Content-Type' => 'application/vnd.ms-excel'];
         $csv = TMP_FOLDER . $newCSVFileName;
         
         if(!empty($partner_id))
