@@ -4972,7 +4972,7 @@ class Inventory extends CI_Controller {
         $post = $this->get_post_data();
 
         $post['column_order'] = array();
-        $post['column_search'] = array('model_number', 'services.services');
+        $post['column_search'] = array('model_number', 'services.services', 'partner_appliance_details.category','partner_appliance_details.capacity');
 
         $post['where'] = array('appliance_model_details.entity_id' => trim($this->input->post('partner_id')), 'appliance_model_details.entity_type' => trim($this->input->post('entity_type')));
 
@@ -5996,7 +5996,7 @@ class Inventory extends CI_Controller {
         $post['column_order'] = array();
 
         $post['order'] = array('appliance_model_details.model_number' => "ASC", "services.services" => "ASC");
-        $post['column_search'] = array('appliance_model_details.model_number', 'partner_appliance_details.brand', 'services.services');
+        $post['column_search'] = array('appliance_model_details.model_number', 'partner_appliance_details.brand', 'services.services','partner_appliance_details.category', 'partner_appliance_details.capacity');
 
         if ($this->input->post('service_id') && $this->input->post('service_id') !== 'all') {
             $post['where'] = array('partner_appliance_details.partner_id' => $this->input->post('partner_id'),'partner_appliance_details.service_id'=>$this->input->post('service_id'));
