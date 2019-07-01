@@ -1379,7 +1379,7 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->where('partner_id', $partner_id);
         $this->db->from('partner_appliance_details');
         $this->db->join("services","services.id = partner_appliance_details.service_id");
-        $this->db->where('partner_appliance_details.active',1);
+        $this->db->where(array('partner_appliance_details.active' => 1, 'services.isBookingActive' => 1));
         $this->db->order_by('services', 'asc');
         $query = $this->db->get();
         return $query->result();
