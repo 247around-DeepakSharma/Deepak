@@ -112,16 +112,16 @@ class File_upload extends CI_Controller {
                 } else {
                     //redirect to upload page
                     $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
-                    redirect(base_url() . $redirect_to);
+                    //redirect(base_url() . $redirect_to);
                 }
             } else {
                 //redirect to upload page
                 $this->session->set_flashdata('file_error', $file_status['message']);
-                redirect(base_url() . $redirect_to);
+                //redirect(base_url() . $redirect_to);
             }
         } else {
             $this->session->set_flashdata('file_error', $file_status['message']);
-            redirect(base_url() . $redirect_to);
+            //redirect(base_url() . $redirect_to);
         }
     }
 
@@ -146,10 +146,16 @@ class File_upload extends CI_Controller {
                         $response['file_ext'] = 'Excel5';
                         break;
                 }
-
-                $response['status'] = True;
-                $response['file_name_lenth'] = True;
-                $response['message'] = 'File has been uploaded successfully. ';
+                if(!empty($response['file_ext'])) {
+                    $response['status'] = True;
+                    $response['file_name_lenth'] = True;
+                    $response['message'] = 'File has been uploaded successfully. ';
+                }
+                else {
+                    $response['status'] = False;
+                    $response['file_name_lenth'] = false;
+                    $response['message'] = 'File type is not supported. Allowed extentions are xls or xlsx. ';
+                }
             } else {
                 log_message('info', __FUNCTION__ . ' Empty File Uploaded');
                 $response['status'] = False;

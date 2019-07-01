@@ -623,7 +623,11 @@
                                         <?php echo $sn_no1; ?>
                                     </td>
                                     <td>
-                                        <?php echo $row['booking_id']; ?>
+                                        
+                                        <a  target="_blank" href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'>
+                                            <?php echo $row['booking_id']; ?>
+                                                
+                                            </a>
                                     </td>
                                     <td>
                                         <?php echo (($row['part_warranty_status'] == 1)? "In Warranty": "Out Of Warranty"); ?>

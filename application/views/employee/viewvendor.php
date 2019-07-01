@@ -37,8 +37,8 @@
     function createPinCodeForm(id,name){
       // document.getElementById("download_pin_code").href ="download_vendor_pin_code/"+id;
        $('#download_pin_code').attr('data-vendor_id', id);
-       document.getElementById("upload_pin_code").href ="upload_pin_code_vendor/"+id;
-       document.getElementById("download_pin_code").href ="download_vendor_pin_code/"+id;
+       document.getElementById("upload_pin_code").href ="<?php echo base_url(); ?>employee/vendor/upload_pin_code_vendor/"+id;
+       document.getElementById("download_pin_code").href ="<?php echo base_url(); ?>employee/vendor/download_vendor_pin_code/"+id;
        document.getElementById("v_name").innerHTML = name;
     }
 </script>
