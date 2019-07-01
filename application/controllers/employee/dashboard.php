@@ -73,9 +73,6 @@ class Dashboard extends CI_Controller {
                 $am_data=$this->reusable_model->get_search_result_data("employee","id,full_name",$am_where,NULL,NULL,array("id"=>"ASC"),NULL,NULL,array()); 
                 $data['am_data']=$am_data;
 
-                
-                $data['not_assigned_booking_data'] = $this->dashboard_model->get_not_assigned_booking_report_data();
-                //echo"<pre>";print_r($s);exit;
                 $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
             }
             $this->load->view('dashboard/dashboard_footer');
@@ -1972,10 +1969,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             //Filter on status
             if($status !="not_set"){
                 if($status == 'Completed'){
-                     $conditionArray['where']['current_status'] = 'Completed'; 
+                     $conditionArray['where']['!(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
                 }
                 else{
-                    $conditionArray['where']['current_status'] = 'Cancelled'; 
+                    $conditionArray['where']['(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
                 }
             }
             //only is sf closed date is not null
@@ -2012,11 +2009,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
                 else{
                     if($request_type == 'Repair_with_part'){
-                        $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_tat.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                        $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_tat.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                     }
                     else{
                         $select = "employee.full_name as entity,agent_filters.agent_id as id,booking_tat.booking_id,"
-                                . "(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
+                                . "(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
                     }
                 }
             $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '247around'";
@@ -2031,11 +2028,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
                 else{
                      if($request_type == 'Repair_with_part'){
-                        $select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_details.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                        $select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_details.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                     }
                     else{
                         $select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_details.booking_id,booking_tat.booking_id,"
-                                . "(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
+                                . "(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
                     }
                 }
             }
@@ -2046,11 +2043,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
                 else{
                      if($request_type == 'Repair_with_part'){
-                        $select = "employee.full_name as entity,employee_relation.agent_id as id,booking_details.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                        $select = "employee.full_name as entity,employee_relation.agent_id as id,booking_details.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                     }
                     else{
                         $select = "employee.full_name as entity,employee_relation.agent_id as id,booking_details.booking_id,"
-                                . "(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
+                                . "(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
                     }
                 }
             }
@@ -2088,11 +2085,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         else{
             if($request_type == 'Repair_with_part'){
                         $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_tat.booking_id,"
-                                . "MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                                . "MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                }
                else{
                         $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_tat.booking_id"
-                                . ",(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
+                                . ",(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
               }
         }
         $sfData = array();
@@ -2135,11 +2132,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         else{
               if($request_type == 'Repair_with_part'){
                         $stateSelect = "booking_details.State as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE booking_details.State END ) as entity,"
-                . "booking_details.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                . "booking_details.booking_id,MIN(leg_1) as leg_1,MIN(leg_2) as leg_2,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                }
                else{
                         $stateSelect = "booking_details.State as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE booking_details.State END ) as entity,"
-                . "booking_details.booking_id,(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
+                . "booking_details.booking_id,(CASE WHEN booking_tat.spare_id IS NULL THEN MIN(leg_1) ELSE DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) END) as TAT";
               }
         }
         $stateData = array();
@@ -3149,5 +3146,21 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $this->load->view('dashboard/dashboard_footer');  
     }
     
+    function get_non_assigned_bookings() {
+        $not_assigned_booking_data = $this->dashboard_model->get_not_assigned_booking_report_data();
+        $str_body = '';
+        foreach ($not_assigned_booking_data as $k => $booking_data) { 
+            $str_body .= '<tr>';
+            $str_body .= '<td>'.($k + 1).'</td>';
+            if(!empty($booking_data['full_name'])) { 
+                $str_body .= '<td><a class="btn btn-info" target="_blank" href="' .base_url(). 'employee/dashboard/unassigned_booking_full_view/'.$booking_data['id'].'">'. $booking_data['full_name'].'</a></td>';
+            } else { 
+                $str_body .= '<td><a class="btn btn-default">Unknown</a></td>';
+            } 
+            $str_body .= '<td>'. $booking_data['number_of_bookings']. '</td>';
+            $str_body .= '</tr>';
+        }
+        echo $str_body;
+    }
 }
 

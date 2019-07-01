@@ -35,6 +35,8 @@
                     </div>
                     <input type="hidden" class="form-control"  name="booking_id" value = "<?php echo $booking_id; ?>">
                     <input type="hidden" class="form-control"  name="amount_due" value = "<?php if (isset($bookinghistory[0]['amount_due'])) {echo $bookinghistory[0]['amount_due']; }?>">
+
+  
                     <input type="hidden" class="form-control"  name="partner_id" value = "<?php if (isset($bookinghistory[0]['partner_id'])) {echo $bookinghistory[0]['partner_id']; }?>">
                     <input type="hidden" class="form-control"  name="price_tags" value = "<?php if (isset($price_tags)) {echo $price_tags; }?>">
                     <input type="hidden" class="form-control" id="partner_flag" name="partner_flag" value="0" />
@@ -175,19 +177,11 @@
                         <div class="panel panel-default" style="margin-left:10px; margin-right:10px;">
                             <div class="panel-body" >
                                 <div class="row">
-                                    <div class = 'col-md-6'>
-                                        <div class="form-group">
-                                            <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
+                                    <div class = 'col-md-6 hide'>
+                                        <div class="form-group ">
+                                            <label for="part_warranty" class="col-md-4">Part Warranty Status  <?php echo $bookinghistory[0]['request_type'];  ?></label>                                             
                                             <div class="col-md-6">
-                                                <select class="form-control part_in_warranty_status" id="part_warranty_status_0" name="part[0][part_warranty_status]"> 
-                                                    <option selected disabled>Select Part Warranty Status</option>
-                                                    <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>" <?php if($bookinghistory[0]['request_type'] == REPAIR_IN_WARRANTY_TAG  || 
-                                                            $bookinghistory[0]['request_type'] == EXTENDED_WARRANTY_TAG || $bookinghistory[0]['request_type'] == GAS_RECHARGE_IN_WARRANTY
-                                                            || $bookinghistory[0]['request_type'] == PRESALE_REPAIR_TAG) { echo "SELECTED";}?>> In Warranty </option>
-                                                    <option value="2" data-request_type = "<?php echo REPAIR_OOW_TAG;?>" 
-                                                            <?php if($bookinghistory[0]['request_type'] == REPAIR_OOW_TAG  || 
-                                                                    $bookinghistory[0]['request_type'] == GAS_RECHARGE_OUT_OF_WARRANTY) { echo "SELECTED";}?>> Out Of Warranty </option>
-                                                </select>
+        <input type="text" id="sparewarranty"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">  
                                             </div>
                                         </div>
                                     </div>
@@ -220,9 +214,9 @@
                                             <?php } ?>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
+
+
+                                         <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="parts_name" class="col-md-4">Part Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
@@ -241,17 +235,13 @@
                                             <?php } ?>                                           
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="quantity" class="col-md-4">Quantity *</label>
-                                            <div class="col-md-6">
-                                                <input type="text"  readonly="" value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
-                                            </div>
-                                        </div>
-                                    </div>
+
+
+
                                 </div>
-                                <div class="row">                                
-                                   <div class="col-md-6">
+                                <div class="row">
+
+                                        <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture *</label>
                                             <div class="col-md-6">
@@ -259,11 +249,22 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+
+
+                                      <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defective_back_parts_pic spare_parts" id="defective_back_parts_pic_0" name="defective_back_parts_pic[0]" >
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="quantity" class="col-md-4">Quantity *</label>
+                                            <div class="col-md-6">
+                                                <input type="text"  readonly="" value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
                                             </div>
                                         </div>
                                     </div>
@@ -274,15 +275,11 @@
                             <div class="panel panel-default spare_clone " style="margin-left:10px; margin-right:10px;" >
                                 <div class="panel-body" >
                                     <div class = "row">
-                                        <div class = 'col-md-6'>
-                                            <div class="form-group">
-                                                <label for="part_warranty" class="col-md-4">Part Warranty Status *</label>                                             
+                                        <div class = 'col-md-6 hide'>
+                                            <div class="form-group ">
+                                                <label for="part_warranty" class="col-md-4">Part Warranty Status </label>                               
                                                 <div class="col-md-6">
-                                                    <select class="form-control" id="part_warranty_status" >
-                                                        <option selected disabled>Select Part Warranty Status</option>
-                                                        <option value="1"  data-request_type = "<?php echo REPAIR_IN_WARRANTY_TAG;?>"> In Warranty </option>
-                                                        <option value="2" data-request_type = "<?php echo REPAIR_OOW_TAG;?>"> Out Of Warranty </option>
-                                                    </select>
+<input type="text" id="sparewarranty"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]"> 
                                                 </div>
                                             </div>
                                         </div>
@@ -313,12 +310,12 @@
                                                     </select>
                                                 </div>
                                                 <?php } ?>
-                                                <button type="button" id="remove_section" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
+
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
+
+
+                                           <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="parts_name" class="col-md-4">Part Name *</label>
                                                 <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
@@ -335,21 +332,17 @@
                                                     <input type="text" class="form-control spare_parts parts_name" id="parts_name" value = "" placeholder="Part Name" >
                                                 </div>
                                                 <?php } ?>
+                                                 <button type="button" id="remove_section" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                             </div>
+
                                         </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label for="quantity" class="col-md-4">Quantity *</label>
-                                                <div class="col-md-6">
-                                                    <input type="text"  readonly="" value="1" class="form-control  spare_parts" id="quantity" >
-                                                </div>
-                                            </div>
-                                        </div>
+
+
+
                                     </div>
                                     <div class="row">
-                                        
-                                        
-                                     <div class="col-md-6">
+
+                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture *</label>
                                                 <div class="col-md-6">
@@ -362,6 +355,15 @@
                                                 <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
                                                 <div class="col-md-6">
                                                     <input type="file" class="form-control defective_back_parts_pic spare_parts " id="defective_back_parts_pic" >
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="quantity" class="col-md-4">Quantity *</label>
+                                                <div class="col-md-6">
+                                                    <input type="text"  readonly="" value="1" class="form-control  spare_parts" id="quantity" >
                                                 </div>
                                             </div>
                                         </div>
@@ -793,7 +795,7 @@ function alpha(e) {
                 maxDate:+7
         }).datepicker('show');
     }
-    
+
     var partIndex = 0;
     $('#requested_parts').on('click', '.addButton', function () {
         
@@ -808,7 +810,9 @@ function alpha(e) {
                         .removeAttr('id')
                         .attr('data-book-index', partIndex)
                         .insertBefore($template);
-    
+        
+
+
             // Update the name attributes
             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                     $clone
@@ -890,6 +894,8 @@ function alpha(e) {
             }
         });
     });
+
+ 
      
 </script>
 <style type="text/css">

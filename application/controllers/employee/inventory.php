@@ -2615,10 +2615,21 @@ class Inventory extends CI_Controller {
      * @param: void
      * @return void
      */
-    function upload_inventory_details_file() {
-        $this->checkUserSession();
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/upload_spare_part_details');
+    function upload_inventory_details_file($isAdmin = 1) {     
+        if($isAdmin == 1) {
+            log_message('info', __FUNCTION__ . ' Function Start For Admin '.$this->session->userdata('id'));
+            $this->checkUserSession();
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/upload_spare_part_details');
+        }
+        else
+        {
+            log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+            $this->check_PartnerSession();
+            $this->miscelleneous->load_partner_nav_header();
+            $this->load->view('partner/upload_spare_part_details');
+            $this->load->view('partner/partner_footer');
+        }
     }
 
     function get_inventory_stocks_details() {
@@ -4895,10 +4906,21 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return :void
      */
-    function upload_bom_file() {
-        $this->checkUserSession();
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/upload_applinace_model_mapping_with_inventory');
+    function upload_bom_file($isAdmin = 1) {
+        if($isAdmin == 1) {
+            log_message('info', __FUNCTION__ . ' Function Start For Admin '.$this->session->userdata('id'));
+            $this->checkUserSession();
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/upload_applinace_model_mapping_with_inventory');
+        }
+        else
+        {
+            log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
+            $this->check_PartnerSession();
+            $this->miscelleneous->load_partner_nav_header();
+            $this->load->view('partner/upload_appliance_model_mapping_with_inventory');
+            $this->load->view('partner/partner_footer');
+        }
     }
 
     /**
@@ -5089,7 +5111,7 @@ class Inventory extends CI_Controller {
         $post = $this->get_post_data();
 
         $post['column_order'] = array();
-        $post['column_search'] = array('model_number', 'services.services');
+        $post['column_search'] = array('model_number', 'services.services', 'partner_appliance_details.category','partner_appliance_details.capacity');
 
         $post['where'] = array('appliance_model_details.entity_id' => trim($this->input->post('partner_id')), 'appliance_model_details.entity_type' => trim($this->input->post('entity_type')));
 
@@ -5356,7 +5378,7 @@ class Inventory extends CI_Controller {
         if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'partner')) {
             return TRUE;
         } else {
-            log_message('info', __FUNCTION__ . " Session Expire for Service Center");
+            log_message('info', __FUNCTION__ . " Session Expire for Partner");
             $this->session->sess_destroy();
             redirect(base_url() . "partner/login");
         }
@@ -6113,7 +6135,7 @@ class Inventory extends CI_Controller {
         $post['column_order'] = array();
 
         $post['order'] = array('appliance_model_details.model_number' => "ASC", "services.services" => "ASC");
-        $post['column_search'] = array('appliance_model_details.model_number', 'partner_appliance_details.brand', 'services.services');
+        $post['column_search'] = array('appliance_model_details.model_number', 'partner_appliance_details.brand', 'services.services','partner_appliance_details.category', 'partner_appliance_details.capacity');
 
         if ($this->input->post('service_id') && $this->input->post('service_id') !== 'all') {
             $post['where'] = array('partner_appliance_details.partner_id' => $this->input->post('partner_id'),'partner_appliance_details.service_id'=>$this->input->post('service_id'));

@@ -604,7 +604,18 @@
         </div>
     </div>
 </div>
-
+<div class="loader hide"></div>
+<style>
+    .loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 99999999;
+    background: url('<?php echo base_url();  ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.62);
+  }
+</style>
 <script>
     var spare_parts_requested_table;
      var spare_parts_requested_table_approved;
@@ -924,7 +935,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18 ]
                     },
                     title: 'sf_received_part'
                 }
@@ -1362,20 +1373,28 @@
     }
     $(document).on('click', '.open_spare_part', function(){
 
-     var spare_id = $(this).data('spareid');
-        console.log(spare_id);
+        var spare_id = $(this).data('spareid');
         var status = '<?php echo SPARE_PARTS_REQUESTED;  ?>';
         var new_booking_id = $(this).data('bookingid');
         swal({
         title: "Are you sure?",
         text: "Your rejected spare will be opened again!",
-        type: "warning",
+        inputPlaceholder: "Enter remarks",
+        type: "input",
         showCancelButton: true,
         confirmButtonColor: "#DD6B55",
         confirmButtonText: "Yes, open it!",
         closeOnConfirm: false
-    }, function (isConfirm) {
-        if (!isConfirm) return;
+    }, function (inputValue) {
+        
+        
+        if (inputValue === false) return false;
+         if (inputValue === "") {
+         swal.showInputError("You need to write something!");
+         return false
+         }
+        $(".loader").removeClass('hide');
+        //if (!inputValue) return;
         $.ajax({
             url: "<?php  echo base_url(); ?>employee/spare_parts/copy_booking_details_by_spare_parts_id",
             type: "POST",
@@ -1383,13 +1402,19 @@
                 spare_parts_id: spare_id,
                 status:status,
                 new_booking_id:new_booking_id,
-                spare_update:true
+                spare_update:true,
+                open_remark:inputValue
             },
             success: function (response) {
                 console.log(response);
+                response=$.trim(response);
+                response.trim();
                 if (response=='success') {
+                   $(".loader").addClass('hide');
                   swal("Done!", "It was succesfully opened!", "success");  
                 }else{
+                  $(".loader").fadeOut("slow");
+                  $(".loader").addClass('hide');
                   swal("Error Occured!", "Error in opening the spare request", "error");
                 }
                 
@@ -1397,6 +1422,7 @@
                 
             },
             error: function (xhr, ajaxOptions, thrownError) {
+                $(".loader").addClass('hide');
                 swal("Network Error!", "This is caused due to network problem . Please try again !", "error");
             }
         });
