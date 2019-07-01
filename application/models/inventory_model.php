@@ -1220,7 +1220,7 @@ class Inventory_model extends CI_Model {
      */
     function get_inventory_model_mapping_data($select,$where = array()){
         $this->db->distinct();
-        $this->db->select($select);
+        $this->db->select($select, false);
         if(!empty($where)){
             $this->db->where($where);
         }
