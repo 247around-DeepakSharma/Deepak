@@ -4914,7 +4914,7 @@ class Api extends CI_Controller {
             $where['inventory_master_list.service_id'] = $requestData['service_id'];
             $where['inventory_master_list.entity_id'] = $requestData['partner_id'];
             $where['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;;
-            $select = "inventory_master_list.part_name, inventory_master_list.inventory_id, inventory_model_mapping.max_quantity, inventory_master_list.part_number, CAST((price + (price*gst_rate/100) + (price*oow_around_margin/100) + (price*oow_vendor_margin/100)) as INT) as amount";
+            $select = "inventory_master_list.part_name, inventory_master_list.inventory_id, inventory_model_mapping.max_quantity, inventory_master_list.part_number, CAST((price + (price*gst_rate/100) + (price*oow_around_margin/100) + (price*oow_vendor_margin/100)) as decimal(10,2)) as amount";
             $response = $this->inventory_model->get_inventory_model_mapping_data($select, $where);
             log_message("info", __METHOD__ . "Spare Part Name found successfully");
             $this->jsonResponseString['response'] = $response;
@@ -5104,7 +5104,7 @@ class Api extends CI_Controller {
             }
         }
         else{
-            log_message("info", __METHOD__ . "Service Id - ".$requestData["service_id"]." or Partner Id - ".$requestData["partner_id"]." or Request Type - ".$requestData["request_type"]." not found");
+            log_message("info", __METHOD__ . "Service Id or Partner Id - or Request Type - not found");
             $this->sendJsonResponse(array('0037', 'Booking Id or Service Id or Partner Id or Request Type not found'));
         }
     }
@@ -5117,7 +5117,7 @@ class Api extends CI_Controller {
         if(!empty($requestData["technical_problem"])){
             $response = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', array('symptom_id' => $requestData['technical_problem']));
             if(count($response)<=0) {
-                $response = array('defect_id' => 0, 'defect' => 'Default');
+                array_push($response, array('defect_id' => 0, 'defect' => 'Default'));
             }
             if(!empty($response)){
                 log_message("info", __METHOD__ . "Defects found successfully");
@@ -5143,7 +5143,7 @@ class Api extends CI_Controller {
         if(!empty($requestData["technical_symptom"]) && !empty($requestData["technical_defect"])){
             $response = $this->booking_request_model->get_solution_of_symptom('solution_id,technical_solution', array('symptom_id' => $requestData["technical_symptom"], 'defect_id' => $requestData["technical_defect"]));
             if(count($response)<=0) {
-                $response = array('solution_id' => 0, 'technical_solution' => 'Default');
+                array_push($response, array('solution_id' => 0, 'technical_solution' => 'Default'));
             }
             if(!empty($response)){
                 log_message("info", __METHOD__ . "Solution found successfully");
@@ -5165,13 +5165,58 @@ class Api extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("booking_id" => "SY-6082918020810");
-        if(!empty($requestData["booking_id"])){
-           
+        //$requestData = array("booking_id" => "PV-16565919070134", "brand"=>"TSeries", "partner_id" => 247073, "service_id"=> 45);
+        if(!empty($requestData["booking_id"]) && !empty($requestData["brand"]) && !empty($requestData["partner_id"]) && !empty($requestData["service_id"])){
+            $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', array('bookings_sources.partner_id' => $requestData['partner_id']));
+            $where = array(
+                "partner_appliance_details.partner_id" => $requestData["partner_id"],
+                'partner_appliance_details.service_id' => $requestData["service_id"], 
+                'partner_appliance_details.brand' => $requestData["brand"], 
+                'appliance_model_details.active'=> 1, 
+                "NULLIF(model, '') IS NOT NULL" => NULL);
+        
+            $response['model_data'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
+            $response['prices'] = array();
+            $bookng_unit_details = $this->booking_model->getunit_details($requestData["booking_id"]);
+            $price_tags = array();
+            foreach ($bookng_unit_details as $key1 => $b) {
+
+                if ($source[0]['partner_type'] == OEM) {
+                    $prices = $this->booking_model->getPricesForCategoryCapacity($requestData['service_id'], $bookng_unit_details[$key1]['category'], $bookng_unit_details[$key1]['capacity'], $requestData['partner_id'], $b['brand']);
+                } 
+                //If partner type is not OEM then check is brand white list for partner if brand is white listed then use brands if not then 
+                else {
+                    $isWbrand = "";
+                    $whiteListBrand = $this->partner_model->get_partner_blocklist_brand(array("partner_id" => $requestData['partner_id'], "brand" => $b['brand'],"service_id" => $requestData['service_id'], "whitelist" => 1), "*");
+                    if(!empty($whiteListBrand)){
+                        $isWbrand = $b['brand'];
+                    }
+                    $prices = $this->booking_model->getPricesForCategoryCapacity($requestData['service_id'], $bookng_unit_details[$key1]['category'], $bookng_unit_details[$key1]['capacity'], $requestData['partner_id'], $isWbrand);
+                }
+
+                $broken = 0;
+                foreach ($b['quantity'] as $key2 => $u) {
+                    $price_tags1 = str_replace('(Free)', '', $u['price_tags']);
+                    $price_tags2 = str_replace('(Paid)', '', $price_tags1);
+                    array_push($price_tags, $price_tags2);
+                    $pid = $this->miscelleneous->search_for_pice_tag_key($u['price_tags'], $prices);
+                    // remove array key, if price tag exist into price array
+                    unset($prices[$pid]);
+
+                }
+                array_push($response['prices'], $prices);
+                $bookng_unit_details[$key1]['is_broken'] = $broken;
+                $bookng_unit_details[$key1]['dop'] = $broken;
+            }
+            $response['bookng_unit_details'] = $bookng_unit_details;
+            
+            log_message("info", __METHOD__ . "Product details found successfully");
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', 'success'));
         }
         else{
-            log_message("info", __METHOD__ . " ");
-            $this->sendJsonResponse(array('0042', 'Booking Id not found'));
+            log_message("info", __METHOD__ . "Booking Id or Brand or Partner Id or Service Id not found");
+            $this->sendJsonResponse(array('0042', 'Booking Id or Brand or Partner Id or Service Id not found'));
         }
     }
 }
