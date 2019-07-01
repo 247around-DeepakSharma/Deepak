@@ -38,9 +38,9 @@ class partner_sd_cb {
     private $requestUrl = '';
     private $jsonRequestData = null;
     private $jsonResponseString;
-    private $akaiApiTokenUrl = "https://api2.zed-axis.in/service.svc/AuthunticateUserAndGetToken";
-    private $akaiAddNewUrl = "https://api2.zed-axis.in/service.svc/ServiceRequest";
-    private $akaiUpdateUrl = "https://api2.zed-axis.in/service.svc/ServiceFeedback";
+    private $akaiApiTokenUrl = "http://api2.zed-axis.in/service.svc/AuthunticateUserAndGetToken";
+    private $akaiAddNewUrl = "http://api2.zed-axis.in/service.svc/ServiceRequest";
+    private $akaiUpdateUrl = "http://api2.zed-axis.in/service.svc/ServiceFeedback";
     function __Construct() {
         $this->My_CI = & get_instance();
 
