@@ -753,7 +753,6 @@ class Invoice_lib {
             $output_file = "delivery_challan_" . $booking_id . "_" . rand(10, 100) . "_" . date('d_M_Y_H_i_s');
             //generated pdf file template
             $html_file = $this->ci->load->view('templates/' . $template, $excel_data, true);
-            echo $html_file;
             $output_pdf_file_name = $output_file . ".pdf";
              $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html_file, $booking_id, $output_pdf_file_name, 'vendor-partner-docs');
             log_message('info', __FUNCTION__ . 'HTML TO PDF JSON RESPONSE' . print_r($json_result, TRUE));
