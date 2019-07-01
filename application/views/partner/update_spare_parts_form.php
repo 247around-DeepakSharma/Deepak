@@ -170,7 +170,7 @@
                                         <?php } else if(isset($appliance_model_details) && !empty($appliance_model_details)){ ?>
                                             <div class="col-md-7">
                                             <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $key;?>')" id="<?php echo "shippedmodelnumberid_".$key;?>" name="part[<?php echo $key; ?>][shipped_model_number_id]" required="">
-                                                <option value="" disabled="" selected="">Select Model Number  2</option>
+                                                <option value="" disabled="" selected="">Select Model Number</option>
                                                 <?php foreach ($appliance_model_details as $key1 => $value1) { ?> 
                                                 <option value="<?php echo $value1['id']; ?>" <?php if($value1['model_number'] == $value->model_number){ echo "selected"; } ?> ><?php echo $value1['model_number']; ?></option>
                                                 <?php } ?>
@@ -249,7 +249,7 @@
                                         </div>
                                         <?php } else { ?> 
                                         <div class="col-md-7">                                            
-                                            <select required="" class="form-control spare_parts_type" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]" value = "">
+                                            <select required="" class="form-control spare_parts_type" id="<?php echo "shippedpart_type_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]" value = "">
                                                 <option selected disabled>Select Part Type</option>
                                             </select>
                                         </div>
@@ -793,10 +793,10 @@
        success:function(data){                       
            $('#'+spare_part_type_id).html(data);  
            var section_length = $(".div_class").length
-            for(i=1; i < section_length; i++){
-                $("#shippedparttype_"+i).html(data);
+            for(i=0; i < section_length; i++){
+                $("#shippedpart_type_"+i).html(data);
             }
-           $('#shippedparttype_0 option[value="<?php echo (isset($spare_parts[0]->parts_requested) ? strtoupper($spare_parts[0]->parts_requested) : '') ?>"]').attr('selected','selected');                
+           $('#shippedpart_type_0 option[value="<?php echo (isset($spare_parts[0]->parts_requested) ? strtoupper($spare_parts[0]->parts_requested) : '') ?>"]').attr('selected','selected');                
        }
     });
     }        
