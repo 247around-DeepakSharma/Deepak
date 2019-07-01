@@ -958,15 +958,19 @@ class invoices_model extends CI_Model {
     function _set_partner_excel_invoice_data($result, $sd, $ed, $invoice_type, 
             $invoice_date = false, $is_customer = false, $customer_state =false){
             //get company detail who generated invoice
-            
-            $c_s_gst =$this->check_gst_tax_type($result[0]['state'], $customer_state);
+            if(isset($result[0]['state_code'])  && !empty($result[0]['state_code'])){
+                $state = $this->get_state_code(array('state_code' => $result[0]['state_code']))[0]['state'];
+            } else {
+                $state = $result[0]['state'];
+            }
+            $c_s_gst =$this->check_gst_tax_type($state, $customer_state);
             
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
                     $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
             $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
             $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-            $meta += $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+            $meta += $this->partner_model->get_main_partner_invoice_detail($partner_on_saas, $result[0]['main_gst_number'] );
             
             $parts_count = 0;
             $service_count = 0;
@@ -1082,8 +1086,8 @@ class invoices_model extends CI_Model {
                     $result[0]['district'] . ", Pincode -" . $result[0]['pincode'] . ", " . $result[0]['state'];
             $meta['reference_invoice_id'] = "";
            
-            $meta['state_code'] = $this->get_state_code(array('state' => $result[0]['state']))[0]['state_code'];
-            $meta['state'] = $result[0]['state'];
+            $meta['state_code'] = $this->get_state_code(array('state' => $state))[0]['state_code'];
+            $meta['state'] = $state;
             return array(
                 "meta" => $meta,
                 "booking" => $result
