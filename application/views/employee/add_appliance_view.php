@@ -53,6 +53,7 @@
                     <thead>
                         <tr>
                             <th>Appliance</th>
+                            <th>Status</th>
                             <th>Edit</th>
                         </tr>
                     </thead>
@@ -63,7 +64,16 @@
                                ?>
                         <tr>
                             <td><?php echo $row->services;?></td>
-                            
+                            <td id='row<?=$row->id?>'>
+                                <?php
+                                    $str = "<button class='btn btn-success status' style='width:80px;' value='0' id='btn".$row->id."' onClick='return changeStatus(this.id, this.value);'>Active</button>";
+                                    if(empty($row->isBookingActive))
+                                    {
+                                        $str = "<button class='btn btn-warning status' style='width:80px;' value='1' id='btn".$row->id."' onClick='return changeStatus(this.id, this.value);'>Deactive</button>";
+                                    }
+                                    echo $str;
+                                ?>
+                            </td>
                          
                             
                             <td>
@@ -143,7 +153,36 @@
            
        }
        
-    
+       function changeStatus(btnId, status)
+       {
+           var statusFlag = "Deactivate";
+           if(status == '1')
+           {
+               statusFlag = "Activate";
+           }
+           
+           if(!confirm("Are you sure, You want to "+statusFlag+" service ?"))
+           {
+               return false;
+           }
+           
+           var id = btnId.substr(3);
+           $.post('<?php echo base_url(); ?>employee/service_centre_charges/update_service_status',{id : id, status : status}, function(data){
+               if(data == '1')
+               {
+                    if(status == '1')
+                    {
+                        $("#row"+id).html("<button class='btn btn-success status' style='width:80px;' value='0' id='btn"+id+"' onClick='return changeStatus(this.id, this.value);'>Active</button>");
+                        
+                    }
+                     else
+                    {
+                        $("#row"+id).html("<button class='btn btn-warning status' style='width:80px;' value='1' id='btn"+id+"' onClick='return changeStatus(this.id, this.value);'>Deactive</button>");
+                        
+                    }
+                }
+           });
+       };
     </script>
     <script>
         

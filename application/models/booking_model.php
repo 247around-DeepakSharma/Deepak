@@ -424,8 +424,13 @@ class Booking_model extends CI_Model {
      *  @param : void
      *  @return : array with active services
      */
-    function selectservice($format = null) {
-        $query = $this->db->query("Select id,services from services where isBookingActive='1' order by services");
+    function selectservice($format = null, $showAll = null) {
+        $strWhere = 1;
+        if(empty($showAll))
+        {
+            $strWhere = 'isBookingActive = 1';
+        }
+        $query = $this->db->query("Select id,services,isBookingActive from services where ".$strWhere." order by services");
         if(empty($format)){
             return $query->result();
         }else{
@@ -2808,5 +2813,14 @@ class Booking_model extends CI_Model {
         $this->db->join("employee", "employee.id = agent_filters.agent_id");
         $query = $this->db->get();
         return $query->result_array();
+    }
+    function update_service_status($where, $data){
+        $this->db->where($where,FALSE);
+        $this->db->update('services', $data);
+        if ($this->db->affected_rows() > 0) {
+                return 1;            
+        } else {
+            return 0;
+        }
     }
 }
