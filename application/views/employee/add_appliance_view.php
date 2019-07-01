@@ -168,8 +168,9 @@
            
            var id = btnId.substr(3);
            $.post('<?php echo base_url(); ?>employee/service_centre_charges/update_service_status',{id : id, status : status}, function(data){
-               if(data == '1')
-               {
+                data = $.trim(data);
+                if(data == '1')
+                {
                     if(status == '1')
                     {
                         $("#row"+id).html("<button class='btn btn-success status' style='width:80px;' value='0' id='btn"+id+"' onClick='return changeStatus(this.id, this.value);'>Active</button>");
