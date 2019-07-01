@@ -256,3 +256,5 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 ('Partner', 'Upload Serviceable BOM File', NULL, 'partner/inventory/upload_bom_file', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', 1, CURRENT_TIMESTAMP),
 ('Partner', 'Upload Alternate Parts', NULL, 'partner/inventory/upload_alternate_spare_parts_file', 2, '148', 'Primary Contact,Area Sales Manager,Booking Manager,Owner', 'main_nav', 1, CURRENT_TIMESTAMP);
 --Kajal 26/06/2019 ending --
+--Abhishek----
+ALTER TABLE `appliance_updated_by_sf` CHANGE `capacity` `capacity` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
