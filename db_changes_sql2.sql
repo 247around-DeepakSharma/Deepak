@@ -202,6 +202,11 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 
 ALTER TABLE `file_uploads` ADD `agent_type` VARCHAR(25) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'employee' AFTER `agent_id`;
 --Kajal 26/06/2019 ending --
+
 --- Gorakh 28-06-2019 
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 ('spare_part_shipment_pending', 'Spare Parts Shipment Pending', 'Please find the attachment', NULL, 'noreply@247around.com', '', 'gorakhn@247around.com,gorakhn@247around.com,gorakhn@247around.com', '', '1', '2019-06-28 05:52:56');
+
+--Abhishek----
+ALTER TABLE `appliance_updated_by_sf` CHANGE `capacity` `capacity` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+
