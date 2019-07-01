@@ -695,6 +695,13 @@ class Invoice extends CI_Controller {
                                 'basic_billed_charge_to_partner' => $spare_array['courier_charges_by_sf']));
                 }
             }
+            
+            if(!empty($misc_data['packaging_data'])){
+                foreach ($misc_data['packaging_data'] as $p) {
+                   
+                    $this->service_centers_model->update_spare_parts(array('id' => $p['sp_id']), array('partner_warehouse_packaging_invoice_id' => $meta['invoice_id']));
+                }
+            }
 
             if(!empty($misc_data['misc'])){
                 foreach ($misc_data['misc'] as $value) {
