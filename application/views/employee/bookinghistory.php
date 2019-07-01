@@ -92,18 +92,23 @@
                     </div>
                 </div>
             </div>
-            <script>
-                $.ajax({
-                       type: 'POST',
-                       url: '<?php echo base_url(); ?>employee/user/get_sms_Send_detail_and_user_applinace/<?php echo $Bookings[0]->phone_number;?>',
-                       success: function (data) {
-                         console.log(data);
-                         $("#ap_sms").html(data);
-                                           
-                       }
-                     });
-            </script>
-            <?php } ?>
+            <?php
+                if(!empty($Bookings[0]->phone_number)){
+            ?>
+                <script>
+                    $.ajax({
+                           type: 'POST',
+                           url: '<?php echo base_url(); ?>employee/user/get_sms_Send_detail_and_user_applinace/<?php echo $Bookings[0]->phone_number;?>',
+                           success: function (data) {
+                             console.log(data);
+                             $("#ap_sms").html(data);
+
+                           }
+                         });
+                </script>
+            <?php
+                }
+            } ?>
         </div>
         <div id="ap_sms"></div>
     </div>
