@@ -4972,14 +4972,17 @@ class Service_centers extends CI_Controller {
                             $this->miscelleneous->process_inventory_stocks($in);
 
                             $this->acknowledge_delivered_spare_parts($value->booking_id, $value->service_center_id, $value->id, $partner_id, TRUE, FALSE);
-                        } else if ($value->is_micro_wh == 2) {
+                        } else if ($is_micro_wh == 2) {
                             $actor = "warehouse";
                             $next_action = "Send OOW Part";
                             $sc['current_status'] = "InProcess";
                             $sc['update_date'] = date('Y-m-d H:i:s');
                             $sc['internal_status'] = SPARE_PARTS_REQUIRED;
                             $status = SPARE_PARTS_REQUESTED;
-                            $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("status" => $status, 'date_of_request' => date('Y-m-d')));
+                            $data['status'] = $status;
+                            $data['date_of_request'] = date('Y-m-d');
+                                                                     
+                            $this->service_centers_model->update_spare_parts(array('id' => $value->id), $data);
                         }
                     } else {
                         log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);

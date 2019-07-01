@@ -258,3 +258,7 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 
 ALTER TABLE `file_uploads` ADD `agent_type` VARCHAR(25) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'employee' AFTER `agent_id`;
 --Kajal 26/06/2019 ending --
+
+--Abhay 01/07/2019
+
+ALTER TABLE `spare_parts_details` ADD `partner_warehouse_packaging_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `vendor_courier_invoice_id`;
