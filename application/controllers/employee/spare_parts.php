@@ -3161,11 +3161,28 @@ class Spare_parts extends CI_Controller {
                         'requested_inventory_id' => $data['inventory_id'],
                         'parts_requested' => $data['part_name']
                     );
+
+                    $spare_pending_on_to='';
+                    $wh_details_to = $this->vendor_model->getVendorContact($service_center_to);
+                    if(!empty($wh_details_to)){
+                    $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';   
+                    }else{
+                    $spare_pending_on_to = ' Warehouse'; 
+                    }
+                    
+                    $spare_pending_on='';
+                    $wh_details = $this->vendor_model->getVendorContact($service_center);
+                    if(!empty($wh_details)){
+                    $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
+                    }else{
+                    $spare_pending_on= ' Warehouse'; 
+                    }
+
                     $remarks = _247AROUND_TRANSFERED_TO_WAREHOUSE;
                     $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
                     $actor = 'Warehouse';
-                    $new_state = 'Spare Part Transferred to ' . $service_center_to;
-                     $old_state = 'Spare Part Transferred from ' . $service_center;
+                    $new_state = 'Spare Part Transferred to ' . $spare_pending_on_to;
+                    $old_state = 'Spare Part Transferred from ' . $spare_pending_on;
                     $this->inventory_model->update_spare_courier_details($spareid, $dataupdate);
                     if($this->db->affected_rows()>0){
                      $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $this->session->userdata('agent_id'), $this->session->userdata('service_center_name'), $actor, $next_action, NULL,$this->session->userdata('service_center_id') );
@@ -3274,8 +3291,16 @@ class Spare_parts extends CI_Controller {
                         'parts_requested' => $data['part_name']
                     );
                     $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
+
+                    $spare_pending_on='';
+                    $wh_details = $this->vendor_model->getVendorContact($data['entity_id']);
+                    if(!empty($wh_details)){
+                    $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
+                    }else{
+                    $spare_pending_on = ' Warehouse'; 
+                    }
                     $actor = 'Warehouse';
-                    $new_state = 'Spare Part Transferred to ' . $data['entity_id'];
+                    $new_state = 'Spare Part Transferred to ' . $spare_pending_on;
                     $old_state = 'Spare Part Transferred from ' . $booking['partner_id'];
                     
                 if (empty($data['stock'])) {
