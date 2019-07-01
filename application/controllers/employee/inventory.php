@@ -5337,7 +5337,7 @@ class Inventory extends CI_Controller {
      */
     function get_appliance_models() {
         $post['length'] = -1;
-        $post['where'] = array('active' => 1);
+        $post['where'] = array('appliance_model_details.active' => 1);
         if ($this->input->post('entity_id') && $this->input->post('entity_type')) {
             $post['where']['appliance_model_details.entity_id'] = $this->input->post('entity_id');
             $post['where']['appliance_model_details.entity_type'] = trim($this->input->post('entity_type'));
