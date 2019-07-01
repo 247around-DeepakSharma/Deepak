@@ -1886,7 +1886,7 @@ class service_centre_charges extends CI_Controller {
 
     public function appliance_list() {
         $this->miscelleneous->load_nav_header(); 
-        $data['appliance_name'] = $this->booking_model->selectservice();
+        $data['appliance_name'] = $this->booking_model->selectservice(null, 1);
         $this->load->view('employee/add_appliance_view', $data);
     }
     
@@ -2178,4 +2178,21 @@ class service_centre_charges extends CI_Controller {
         $response = $this->service_centre_charges_model->update_bank_details($where, $data);
         echo $response;
     }
+    
+     /**
+     * @desc: This function is used to activate and deactivate service status
+     * @params: void
+     * @return: boolean
+    */
+    public function update_service_status(){
+        $data = array(
+            'isBookingActive' =>$this->input->post('status')
+        ); 
+        $where =array(
+            'id'=> $this->input->post('id')
+        );
+        $response = $this->booking_model->update_service_status($where, $data);
+        echo $response;
+    }
+    
 }
