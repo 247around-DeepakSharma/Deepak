@@ -216,7 +216,7 @@ function return_new_parts(){
     formData.append("partner_id", $('#partner_id').val());
     formData.append("wh_type", $("#wh_id").find(':selected').attr('data-warehose'));
     formData.append("warehouse_id", $("#wh_id").val());
-    console.log(JSON.stringify(returnItemArray));
+   // console.log(JSON.stringify(returnItemArray));
 
     $.ajax({
         method:'POST',
@@ -237,6 +237,7 @@ function return_new_parts(){
 
         },
         success:function(response){
+            console.log(response);
             var data = jQuery.parseJSON(response);
             if(data.status){
                 alert(data.message);
