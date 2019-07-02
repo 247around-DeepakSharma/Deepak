@@ -2555,6 +2555,7 @@ class Inventory_model extends CI_Model {
     }
     
     /**
+
      * @Desc: This function is used to get data from the inventory_model_mapping
      * @params: $select string
      * @params: $where array
