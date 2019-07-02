@@ -712,12 +712,12 @@ class Invoice_lib {
         $excel_data['excel_data']['sf_challan_no'] = $sf_challan_number;
         $excel_data['excel_data']['date'] = "";
         
-        $booking_id = $spare_details[0]['booking_id'];
+        $booking_id = $spare_details[0][0]['booking_id'];
         $excel_data['excel_data_line_item'] = array();
 
 
         foreach ($spare_details as $value2) {
-            
+
             if (!empty($value2)) {
                 $tmp_arr = array();
                 $tmp_arr['value'] = $value2[0]['challan_approx_value'];
@@ -754,7 +754,6 @@ class Invoice_lib {
             $output_file = "delivery_challan_" . $booking_id . "_" . rand(10, 100) . "_" . date('d_M_Y_H_i_s');
             //generated pdf file template
             $html_file = $this->ci->load->view('templates/' . $template, $excel_data, true);
-            echo $html_file;
             $output_pdf_file_name = $output_file . ".pdf";
              $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html_file, $booking_id, $output_pdf_file_name, 'vendor-partner-docs');
             log_message('info', __FUNCTION__ . 'HTML TO PDF JSON RESPONSE' . print_r($json_result, TRUE));
@@ -885,17 +884,19 @@ class Invoice_lib {
      * @param String $invoice_id
      * @return boolean
      */
-    function settle_inventory_invoice_annexure($postData, $invoice_id) {
+    function settle_inventory_invoice_annexure($postData) { 
         $processPostData = array();
         $not_updated = array();
-       
+        $booking_partner_id = "";
         foreach ($postData as $value) {
-            if (!empty($value['inventory_id'])) {
+            if (!empty($value['inventory_id'])) { 
+                $booking_partner_id = $value['booking_partner_id'];
                 $where = array('inventory_id' => $value['inventory_id'],
                     'vendor_partner_id' => $value['booking_partner_id'], "invoice_details.is_settle" => 0);
                 $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
-
+                
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
+                
                 if (!empty($unsettle)) {
                     $qty = 1;
                     $inventory_details = $this->ci->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $value['inventory_id']));
@@ -905,50 +906,68 @@ class Invoice_lib {
                         $restQty = $b['qty'] - $b['settle_qty'];
                         if ($restQty == $qty) {
 
-                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
-                            
-                            
-                            $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $invoice_id,
-                    'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
-                            
-                            $this->ci->invoices_model->insert_inventory_invoice($mapping);
-
+                            //$this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
+                            $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
 
+                            if (!array_key_exists($s['from_state_code']."-".$s['to_state_code'], $processPostData)) {
+                               
+                                $processPostData[$s['from_state_code']."-".$s['to_state_code']]['data'][0] = $s;
+                                $processPostData[$s['from_state_code']."-".$s['to_state_code']]['from_state_code'][0] = $s['from_state_code'];
+                                
+                                $processPostData[$s['from_state_code']."-".$s['to_state_code']]['mapping'][0] = $mapping;
+                                
+                            } else {
+                                
+                                array_push($processPostData[$s['from_state_code']."-".$s['to_state_code']]['data'], $s);
+                                array_push($processPostData[$s['from_state_code']."-".$s['to_state_code']]['mapping'], $mapping);
+                                
+                            }
 
-                            array_push($processPostData, $s);
                             log_message('info', __METHOD__ . " Settle " . print_r($s, true));
                             $qty = 0;
                             break;
                         } else if ($restQty < $qty) {
                            
-                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
+                            //$this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
 
-
-                            $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $invoice_id,
-                    'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
-                            
-                            $this->ci->invoices_model->insert_inventory_invoice($mapping);
-                            
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             
-                          
-                            array_push($processPostData, $s);
+                            $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
+                            
+                            if (!array_key_exists($s['from_state_code']."-".$s['to_state_code'], $processPostData)) {
+                               
+                                $processPostData[$s['from_state_code']."-".$s['to_state_code']]['data'][0] = $s;
+                                
+                                $processPostData[$s['from_state_code']."-".$s['to_state_code']]['mapping'][0] = $mapping;
+                                
+                            } else {
+                                
+                                array_push($processPostData[$s['from_state_code']."-".$s['to_state_code']]['data'], $s);
+                                array_push($processPostData[$s['from_state_code']."-".$s['to_state_code']]['mapping'], $mapping);
+                            }
+                            
                             $qty = $qty - $restQty;
                         } else if ($restQty > $qty) {
 
-                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 0, 'settle_qty' => $b['settle_qty'] + $qty));
-                            
-                            $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'outgoing_invoice_id' => $invoice_id,
-                    'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
-                            
-                            
-                            $s = $this->get_array_settle_data($b, $inventory_details, $qty, $value);
-                            
-                            $this->ci->invoices_model->insert_inventory_invoice($mapping);
+                            //$this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 0, 'settle_qty' => $b['settle_qty'] + $qty));
 
-                            array_push($processPostData, $s);
+                            $s = $this->get_array_settle_data($b, $inventory_details, $qty, $value);
+                              $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
+
+                            if (!array_key_exists($s['from_state_code']."-".$s['to_state_code'], $processPostData)) {
+                               
+                                $processPostData[$s['from_state_code']."-".$s['to_state_code']]['data'][0] = $s;
+                                
+                                $processPostData[$s['from_state_code']."-".$s['to_state_code']]['mapping'][0] = $mapping;
+                                
+                            } else {
+                                
+                                array_push($processPostData[$s['from_state_code']."-".$s['to_state_code']]['data'], $s);
+                                array_push($processPostData[$s['from_state_code']."-".$s['to_state_code']]['mapping'], $mapping);
+                            }
+                            
                             $qty = 0;
 
                             break;
@@ -971,24 +990,47 @@ class Invoice_lib {
                 log_message('info', __METHOD__. " Inventory ID Missing. Spare Invoice is not generating for booking id ".$value['booking_id']. " Inventory id ". $value['inventory_id']);
             }
         }
+        
         return array(
             'processData' => $processPostData,
-            'not_update_booking_id' => $not_updated);
+            'not_update_booking_id' => $not_updated,
+            'booking_partner_id' => $booking_partner_id);
     }
     
     function get_array_settle_data($b, $inventory_details, $restQty, $value){
+        
+        $partner_gst = $this->ci->inventory_model->get_entity_gst_data("*", array('id' => $b['from_gst_number']));
+        $around_gst = $this->ci->inventory_model->get_entity_gst_data("*", array('id' => $b['to_gst_number']));
+        $around_gst_number = "";
+        $around_state_code = "";
+        $partner_gst_number = "";
+        $partner_state_code = "";
+        if(!empty($around_gst)){
+            $around_gst_number = $around_gst[0]['gst_number'];
+            $around_state_code = $around_gst[0]['state'];
+        }
+        
+        if(!empty($partner_gst)){
+            $partner_state_code = $partner_gst[0]['state'];
+            $partner_gst_number = $partner_gst[0]['gst_number'];
+        }
         return array(
             'incoming_invoice_id' => $b['invoice_id'], 
             "qty" => $restQty, 
             "part_name" => $inventory_details[0]['part_name'],
             "part_number" => $inventory_details[0]['part_number'],
-            "booking_id" => $value['booking_id'],
+            "booking_id" => (isset($value['booking_id']))?$value['booking_id']:"",
             "rate" => $b['rate'],
-            "spare_id" => $value['spare_id'],
+            "spare_id" => (isset($value['spare_id']))?$value['spare_id']:"",
             "booking_partner_id" => $value['booking_partner_id'],
             "inventory_id" => $value['inventory_id'],
             "hsn_code" => $inventory_details[0]['hsn_code'],
-            "gst_rate" => $b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate']);
+            "gst_rate" => $b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate'],
+            "to_gst_number" => $partner_gst_number,
+            "to_state_code" => $partner_state_code,
+            "from_gst_number" => $around_gst_number,
+            "from_state_code" =>$around_state_code
+            );
     }
     
     /**
@@ -1072,66 +1114,7 @@ class Invoice_lib {
         return $this->ci->invoices_model->insert_invoice_breakup($a);
         
     }
-    /**
-     * @desc This function is used to map unsettle inventory invoice with new inventory invoice.
-     * This function is called when we are returning new part from Warehouse/Micro warehouse to Partner
-     * @param Array $postData
-     * @return Array
-     */
-    function get_unsettle_inventory_invoice_data($postData, $invoice_id){
-        $mapping_data = array();
-        $settle_data = array();
-        $processData = array();
-        foreach ($postData as $value) {
-            if (!empty($value['inventory_id'])) {
-                
-                $where = array('inventory_id' => $value['inventory_id'],
-                    'vendor_partner_id' => $value['booking_partner_id'], "invoice_details.is_settle" => 0);
-                $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
-                $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
-                if(!empty($unsettle)){
-                    $qty = $value['quantity'];
-                    foreach ($unsettle as $key => $b) {
-                        
-                        $restQty = $b['qty'] - $b['settle_qty'];
-                        if ($restQty == $qty) {
-                            array_push($settle_data, array('is_settle' => 1, 'settle_qty' => $b['qty'], 'breakup_invoice_id' => $b['id']));
-                            
-                            array_push($mapping_data, array('outgoing_invoice_id' => $invoice_id,'incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']));
-                            
-                           $processData = $this->get_array_settle_data_for_new_part_return($processData, $b, $restQty, $value);
-                           
-                           $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']),  array('is_settle' => 1, 'settle_qty' => $b['qty']));
-                           
-                           $qty = $qty - $restQty;
-                           
-                        } else if ($restQty < $qty) {
-                            array_push($settle_data, array('is_settle' => 1, 'settle_qty' => $b['qty'], 'breakup_invoice_id' => $b['id']));
-                            array_push($mapping_data, array('outgoing_invoice_id' => $invoice_id,'incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']));
-                            
-                            $processData = $this->get_array_settle_data_for_new_part_return($processData, $b, $restQty, $value);
-                            
-                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']),  array('is_settle' => 1, 'settle_qty' => $b['qty']));
-                            
-                            $qty = 0;
-                        } else {
-                            if ($qty > 0) {
-                                $this->invoices_not_found($value);
-                               
-                            }
-                        }
-                    }
-                }
-                
-            }
-        }
-        
-        return array(
-            'processData' => $processData,
-            'settle_data' => $settle_data,
-            'mapping_data' => $mapping_data
-        );
-    }
+    
     /**
      * @desc This function is used to generate array( return inventory ledger). This array will be use in the invoice generation.
      * @param Array $processData
@@ -1141,35 +1124,40 @@ class Invoice_lib {
      * @return Array
      */
     function get_array_settle_data_for_new_part_return($processData, $b, $restQty, $value){
-        $gst_rate = ($b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate']);
-        if (!array_key_exists($value['inventory_id']."_".$gst_rate."-".round($b['rate'],0), $processData)) {
-             $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)] = array(
-                "qty" => $restQty,
-                "part_name" => $value['part_name'],
-                "part_number" => $value['part_number'],
-                "rate" => $b['rate'],
-                "inventory_id" => $value['inventory_id'],
-                "hsn_code" => $b['hsn_code'],
-                "partner_id" =>  $value['booking_partner_id'],
-                "taxable_value" =>  $b['rate'] * $restQty,
-                "product_or_services" => "Product",
-                "incoming_invoice_id" => $b['invoice_id'],
-                "booking_id" => "",
-                "gst_rate" => ($b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate']),
-                "description" => $value['part_name'] . "Reference Invoice ID " . $b['invoice_id']
-            );
-        } else {
-            $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['qty'] = $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['qty'] + $restQty;
-            
-            $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['taxable_value'] = $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['qty'] * $b['rate'];
-            
-            if (strpos($processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['description'], $b['invoice_id']) == false) {
-                $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['description'] = $processData[$value['inventory_id']."-".round($b['rate'],0)]['description'] . " - " . $b['invoice_id'];
-                $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['incoming_invoice_id'] = $processData[$value['inventory_id']."_".$gst_rate."-".round($b['rate'],0)]['incoming_invoice_id']. ", ".$b['invoice_id'];
-            } 
+        $partner_gst = $this->ci->inventory_model->get_entity_gst_data("*", array('id' => $b['from_gst_number']));
+        $around_gst = $this->ci->inventory_model->get_entity_gst_data("*", array('id' => $b['to_gst_number']));
+        $around_gst_number = "";
+        $around_state_code = "";
+        $partner_gst_number = "";
+        $partner_state_code = "";
+        if(!empty($around_gst)){
+            $around_gst_number = $around_gst[0]['gst_number'];
+            $around_state_code = $around_gst[0]['state'];
         }
+
+        if(!empty($partner_gst)){
+            $partner_state_code = $partner_gst[0]['state'];
+            $partner_gst_number = $partner_gst[0]['gst_number'];
+        }
+        return array(
+            'incoming_invoice_id' => $b['invoice_id'], 
+            "qty" => $restQty, 
+            "part_name" => $value['part_name'],
+            "part_number" => $value['part_number'],
+            "rate" => $b['rate'],
+            "inventory_id" => $value['inventory_id'],
+            "hsn_code" => $b['hsn_code'],
+            "gst_rate" => ($b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate']),
+            "to_gst_number" => $partner_gst_number,
+            "to_state_code" => $partner_state_code,
+            "from_gst_number" => $around_gst_number,
+            "from_state_code" => $around_state_code,
+            "product_or_services" => "Product",
+            "booking_id" => "",
+            "taxable_value" =>  $b['rate'] * $restQty,
+            "partner_id" =>  $value['booking_partner_id']
+            );
         
-        return $processData;
     }
     
     /**
