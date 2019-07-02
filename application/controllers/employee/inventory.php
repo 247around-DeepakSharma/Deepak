@@ -3146,8 +3146,7 @@ class Inventory extends CI_Controller {
             if (!(json_last_error() === JSON_ERROR_NONE)) {
                 log_message('info', __METHOD__ . ":: Invalid JSON");
             }else{
-                $invoice_file=false;
-                $this->process_spare_invoice_tagging($invoice_file);  
+                $this->process_spare_invoice_tagging();  
             }           
         
     }
@@ -3157,10 +3156,16 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return : $res JSON // consist response message and response status
      */
-    function process_spare_invoice_tagging($invoice_file=true) {
+ 
+
+    function process_spare_invoice_tagging() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
 //        $str = '{"is_wh_micro":"2","dated":"2018-11-20","invoice_id":"123456789","invoice_amount":"859","courier_name":"DTDC","awb_number":"123456","courier_shipment_date":"2018-11-20","wh_id":"1","part":[{"shippingStatus":"1","service_id":"46","part_name":"Back Cabinet  (TSA-2419)","part_number":"Back Cabinet  (TSA-2419)","booking_id":"","quantity":"1","part_total_price":"409.32","hsn_code":"8529","gst_rate":"18","inventory_id":"17"},{"shippingStatus":"1","service_id":"46","part_name":"Back Cover (Led Tsa 2276)","part_number":"Back Cover (Led Tsa 2276)","booking_id":"","quantity":"1","part_total_price":"318.64","hsn_code":"8529","gst_rate":"18","inventory_id":"179"}],"partner_id":"247073","partner_name":"T-Series","wh_name":" Delhi UNITED HOME CARE"}';
-//        $_POST = json_decode($str, true);        
+//        $_POST = json_decode($str, true);  
+        $invoice_file=true;
+        if (!empty($this->input->post('invoice_file'))) {
+           $invoice_file=false;     
+        }      
         $partner_id = $this->input->post('partner_id');
         $invoice_id = $this->input->post('invoice_id');
         $invoice_dated = $this->input->post('dated');
