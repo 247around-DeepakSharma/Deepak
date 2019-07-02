@@ -6465,7 +6465,7 @@ class Inventory extends CI_Controller {
             "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => $this->input->post("partner_id")
             );
-        $gst_numbers = $this->inventory_model->get_entity_gst_data("id, gst_number, state", $where);
+        $gst_numbers = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $where);
         foreach($gst_numbers as $key => $value){
             $html .= "<option value='".$value['id']."'>".$value['state']." - ".$value['gst_number']."</option>";
         }
@@ -6478,7 +6478,7 @@ class Inventory extends CI_Controller {
             "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => "247001",
             );
-        $gst_numbers = $this->inventory_model->get_entity_gst_data("id, gst_number, state", $where);
+        $gst_numbers = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $where);
         foreach($gst_numbers as $key => $value){
             $html .= "<option value='".$value['id']."'>".$value['state']." - ".$value['gst_number']."</option>";
         }
