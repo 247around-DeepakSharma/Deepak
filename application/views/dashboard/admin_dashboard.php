@@ -1008,41 +1008,21 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
              <div class="x_panel">
                 <div class="x_title" style="padding-left: 0px;">
-                    <h2>Non Assigned Booking Report</h2>
-                    <span class="collape_icon" href="#Unassigned_Booking_Reporting" data-toggle="collapse" <!--onclick="initiate_RM_TAT_Reporting()" --><i class="fa fa-minus-square" aria-hidden="true"></i></span>
+                    <h2>Non Assigned Bookings</h2>
+                    <span class="collape_icon" href="#Unassigned_Booking_Reporting" data-toggle="collapse" onclick="initiate_non_assigned_booking_Reporting()" ><i class="fa fa-plus-square" aria-hidden="true"></i></span>
                     <div class="clearfix"></div>
                 </div>
-                <div id="Unassigned_Booking_Reporting" class="collapse in">
-                    <?php 
-                        if(!empty($not_assigned_booking_data)) {
-                           // echo"<pre>";print_r($not_assigned_booking_data);exit; ?>
-                            <table class="table table-striped table-bordered jambo_table bulk_action">
-                            <thead>
-                                <tr>
-                                    <th>S.no</th>
-                                    <th>RM</th>
-                                    <th>Total Booking</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                
-                          <?php foreach ($not_assigned_booking_data as $k => $booking_data) { ?>
-                                <tr>
-                                    <td><?= $k + 1; ?></td>
-                                    <?php if(!empty($booking_data['full_name'])) { ?>
-                                    <td><a class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/unassigned_booking_full_view/<?= $booking_data['id']; ?>"><?= $booking_data['full_name']; ?></a></td>
-                                    <?php } else { ?>
-                                    <td><a class="btn btn-default">Unknown</a></td>
-                                    <?php } ?>
-                                    <td><?= $booking_data['number_of_bookings']; ?></td>
-                                </tr>
-                        <?php }?>
-                                 </tbody>
+                <div id="Unassigned_Booking_Reporting" class="collapse">
+                    <table class="table table-striped table-bordered jambo_table bulk_action">
+                        <thead>
+                            <tr>
+                                <th>S.no</th>
+                                <th>RM</th>
+                                <th>Total Booking</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
                         </table>
-                        <?php } else {
-                            echo 'No Data Found';
-                        }
-                    ?>
                 </div>
             </div>
         </div>
@@ -1668,6 +1648,16 @@
         });
     }
     
+    function initiate_non_assigned_booking_Reporting() {
+        $('#loader_gif_title').fadeIn();
+        var data = {};
+        url = '<?php echo base_url(); ?>employee/dashboard/get_non_assigned_bookings';
+        
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            $('#loader_gif_title').hide();
+            $('#Unassigned_Booking_Reporting').children('table').children('tbody').html(response);
+        });
+    } 
     
     function get_query_data(){
         $('#loader_gif_title').fadeIn();

@@ -1404,7 +1404,19 @@ class Miscelleneous {
 
         $data['file_type'] = $type;
         $data['file_name'] = date('d-M-Y-H-i-s') . "-" . $file_name;
-        $data['agent_id'] = !empty($this->My_CI->session->userdata('id')) ? $this->My_CI->session->userdata('id') : _247AROUND_DEFAULT_AGENT;
+        $agentid=$agent_type='';
+        if ($this->My_CI->session->userdata('userType') == 'employee') {
+            $agentid=$this->My_CI->session->userdata('id');
+            $agent_type=$this->My_CI->session->userdata('userType');
+        }else if($this->My_CI->session->userdata('userType') == 'service_center'){
+            $agentid=$this->My_CI->session->userdata('agent_id');
+            $agent_type=_247AROUND_SF_STRING;
+        }else if($this->My_CI->session->userdata('userType') == _247AROUND_PARTNER_STRING){
+            $agentid=$this->My_CI->session->userdata('agent_id');
+            $agent_type=_247AROUND_PARTNER_STRING;
+        }
+        $data['agent_id'] = !empty($agentid) ? $agentid : _247AROUND_DEFAULT_AGENT;
+        $data['agent_type'] = $agent_type;
         $data['entity_id'] = $entity_id;
         $data['entity_type'] = $entity_type;
         $data['result'] = $result;
@@ -2042,17 +2054,21 @@ class Miscelleneous {
 
     /**
      * @desc Return Account Manager ID
-     * @param int $partner_id
+     * @param int $partner_id, $state
      * @return Email ID
      */
-    function get_am_data($partner_id) {
+    function get_am_data($partner_id, $state='') {
         $data = [];
         /*$am_id = $this->My_CI->partner_model->getpartner_details('account_manager_id', array('partners.id' => trim($partner_id)));
         if (!empty($am_id)) {
             $data = $this->My_CI->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
         }*/
+        $where['partners.id'] = trim($partner_id);
+        if(trim($state) !== '') {
+            $where['agent_filters.state'] = $state;
+        }
         $am_id = $this->My_CI->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
-                    array('partners.id' => trim($partner_id)),"",0,1,1,"partners.id");
+                    $where,"",0,1,1,"partners.id");
         if (!empty($am_id[0]['account_manager_id'])) {
             $data = $this->My_CI->employee_model->getemployeeMailFromID($am_id[0]['account_manager_id']);
         }
@@ -2353,8 +2369,12 @@ class Miscelleneous {
         $where["header_navigation.nav_type"]=$nav_type;
         $where["header_navigation.entity_type"]=$entity_type;
         $parentArray = $structuredData=$navFlowArray=array();
+        $orderBYArray = array("level"=>"ASC");
+        if($entity_type == "Partner"){
+            $orderBYArray = array("level"=>"ASC","header_navigation.title"=>"ASC");
+        }
         $data= $this->My_CI->reusable_model->get_search_result_data("header_navigation","header_navigation.*,GROUP_CONCAT(p_m.title) as parent_name",$where,
-                array("header_navigation p_m"=>"FIND_IN_SET(p_m.id,header_navigation.parent_ids)"),NULL,array("level"=>"ASC"),NULL,array("header_navigation p_m"=>"LEFT"),array('header_navigation.id'));
+                array("header_navigation p_m"=>"FIND_IN_SET(p_m.id,header_navigation.parent_ids)"),NULL,$orderBYArray,NULL,array("header_navigation p_m"=>"LEFT"),array('header_navigation.id'));
          foreach($data as $navData){
             $structuredData["id_".$navData['id']]['title'] = $navData['title'];
             $structuredData["id_".$navData['id']]['title_icon'] = $navData['title_icon'];
@@ -2563,9 +2583,9 @@ class Miscelleneous {
                 log_message('info', "Vendor_ID " . $escalation['vendor_id']);
                 //get account manager details
                 $am_email = "";
-                $partner_id = $this->My_CI->booking_model->get_bookings_count_by_any('booking_details.partner_id',array('booking_details.booking_id'=>$booking_id));
-                if(!empty($partner_id)){
-                    $accountManagerData = $this->get_am_data($partner_id[0]['partner_id']);
+                $booking_data = $this->My_CI->booking_model->get_bookings_count_by_any('booking_details.partner_id, booking_details.state',array('booking_details.booking_id'=>$booking_id));
+                if(!empty($booking_data)){
+                    $accountManagerData = $this->get_am_data($booking_data[0]['partner_id'],$booking_data[0]['state']);
                     
                     if(!empty($accountManagerData)){
                         $am_email = $accountManagerData[0]['official_email'];

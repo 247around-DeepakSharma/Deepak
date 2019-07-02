@@ -658,14 +658,14 @@ class Service_centers extends CI_Controller {
 
                     if ($is_update_spare_parts) {
                         foreach ($sp_required_id as $sp_id) {
-
                             $sp['status'] = DEFECTIVE_PARTS_PENDING;
                             $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $sp);
-                            $this->invoice_lib->generate_challan_file($sp_id, $this->session->userdata('service_center_id'));
-                        }
-
+                            $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                            if (!$partner_on_saas) {
+                            $this->invoice_lib->generate_challan_file($sp_id, $this->session->userdata('service_center_id')); 
+                            }
+                          }
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
-
                         $this->session->set_userdata('success', "Updated Successfully!!");
 
                         redirect(base_url() . "service_center/get_defective_parts_booking");
@@ -2665,7 +2665,7 @@ class Service_centers extends CI_Controller {
                 . " spare_parts_details.booking_id, users.name, "
                 . " sf_challan_file as challan_file, "
                 . " remarks_defective_part_by_partner, "
-                . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.entity_type,"
+                . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
                 . " spare_parts_details.id,spare_parts_details.challan_approx_value ,i.part_number ";
 
         $group_by = "spare_parts_details.id";
@@ -2685,6 +2685,7 @@ class Service_centers extends CI_Controller {
 
         $data['count'] = $config['total_rows'];
         $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        $data['partner_on_saas']= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/defective_parts', $data);
     }
@@ -2928,48 +2929,85 @@ class Service_centers extends CI_Controller {
         if (!empty($booking_address)) {
             $this->print_partner_address();
         } else if (!empty($challan_booking_id)) {
-            $this->print_challan_file();
+
+             
+            $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            if ($partner_on_saas) {
+              log_message('info', __METHOD__ . 'partner on saas',true);
+                $delivery_challan_file_name_array = array();
+                foreach ($challan_booking_id as $partner => $spare_and_service) {
+                    $sp_id = implode(',', $spare_and_service);
+                    $data['partner_challan_file'] = $this->invoice_lib->generate_challan_file($sp_id, $this->session->userdata('service_center_id'));
+                    array_push($delivery_challan_file_name_array, $data['partner_challan_file']);
+                }
+                ////  ZIP The Challan files ///
+                $challan_file = 'challan_file' . date('dmYHis');
+                if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+                    unlink(TMP_FOLDER . $challan_file . '.zip');
+                }
+                $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
+
+                foreach ($delivery_challan_file_name_array as $value1) {
+                    $zip .= " " . TMP_FOLDER . $value1 . " ";
+                }
+                $challan_file_zip = $challan_file . ".zip";
+                $res = 0;
+                system($zip, $res);
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
+                $res2 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
+                readfile(TMP_FOLDER . $challan_file . '.zip');
+                if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+                    unlink(TMP_FOLDER . $challan_file . '.zip');
+                    foreach ($delivery_challan_file_name_array as $value_unlink) {
+                        unlink(TMP_FOLDER . $value_unlink);
+                    }
+                }
+            } else {
+                $this->print_challan_file();
+            }
         }
     }
 
     /**
      * @desc This function is used to download SF challan file in zip
      */
-    function print_challan_file() {
-        log_message('info', __METHOD__ . json_encode($_POST, true));
+    function print_challan_file(){
+        log_message('info', __METHOD__. json_encode($_POST, true),true);
         $this->checkUserSession();
         $challan = $this->input->post('download_challan');
-
-        $challan_file = 'challan_file' . date('dmYHis');
-
-        $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
-        if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
-            unlink(TMP_FOLDER . $challan_file . '.zip');
+        
+        $challan_file = 'challan_file'.date('dmYHis');
+        
+        $zip = 'zip '.TMP_FOLDER.$challan_file.'.zip ';
+        if(file_exists(TMP_FOLDER .  $challan_file.'.zip')){
+            unlink(TMP_FOLDER . $challan_file.'.zip');
         }
         foreach ($challan as $file) {
             $explode = explode(",", $file);
             foreach ($explode as $value) {
-                if (copy(S3_WEBSITE_URL . "vendor-partner-docs/" . trim($value), TMP_FOLDER . $value)) {
-                    $zip .= TMP_FOLDER . $value . " ";
-                }
+               if(copy(S3_WEBSITE_URL."vendor-partner-docs/".trim($value), TMP_FOLDER.$value)){
+                   $zip .= TMP_FOLDER. $value. " ";
+               }   
             }
         }
-
-        $challan_file_zip = $challan_file . ".zip";
+        
+        $challan_file_zip = $challan_file.".zip";
         $res = 0;
         system($zip, $res);
         header('Content-Description: File Transfer');
         header('Content-Type: application/octet-stream');
         header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
-
+        
         $res2 = 0;
-        system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
-        readfile(TMP_FOLDER . $challan_file . '.zip');
-        if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
-            unlink(TMP_FOLDER . $challan_file . '.zip');
+        system(" chmod 777 " . TMP_FOLDER .$challan_file.'.zip ', $res2);
+        readfile(TMP_FOLDER .  $challan_file.'.zip');
+        if(file_exists(TMP_FOLDER .  $challan_file.'.zip')){
+             unlink(TMP_FOLDER . $challan_file.'.zip');
         }
     }
-
     /**
      * @desc: This is used to print booking partner Address
      */

@@ -90,7 +90,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Spare Part List</h2>
+                    <h2>Inventory Master List</h2>
                     <ul class="nav navbar-right panel_toolbox">
                         <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_master_list" title="Add Item"><i class="fa fa-plus"></i></a>
                     </ul>

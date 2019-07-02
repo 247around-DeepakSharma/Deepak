@@ -72,6 +72,7 @@ class Dashboard extends CI_Controller {
                 $am_where=array('active'=>'1','groups'=>'accountmanager');
                 $am_data=$this->reusable_model->get_search_result_data("employee","id,full_name",$am_where,NULL,NULL,array("id"=>"ASC"),NULL,NULL,array()); 
                 $data['am_data']=$am_data;
+
                 $this->load->view("dashboard/".$this->session->userdata('user_group')."_dashboard",$data);
             }
             $this->load->view('dashboard/dashboard_footer');
@@ -3115,4 +3116,54 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
 
         echo json_encode($res);
     }
+
+    
+    function unassigned_booking_full_view($manager_id = NULL) {
+        
+        // get employees associated with manager.
+        $employees = $this->reusable_model->get_search_result_data('employee_hierarchy_mapping', '*', ['manager_id' => $manager_id], NULL, NULL, NULL, NULL, NULL);
+        
+        if($this->session->userdata('userType') == 'employee'){
+            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+        }
+        else if($this->session->userdata('userType') == 'partner'){
+            $this->miscelleneous->load_partner_nav_header();
+        }
+        
+        $state_wise_unassigned_booking = [];
+        $child_employees = null;
+        if(!empty($employees)) {
+            $child_employees = implode(',',array_column($employees, 'employee_id'));
+        }
+       
+        $state_wise_unassigned_booking = $this->dashboard_model->get_not_assigned_booking_report_data($manager_id, $child_employees, true);
+       
+        $full_view_data = [];
+        if(!empty($state_wise_unassigned_booking)) {
+            foreach($state_wise_unassigned_booking as $unassigned_booking) {
+               $full_view_data[$unassigned_booking['full_name']][] = $unassigned_booking;
+            }
+        }
+        
+        $this->load->view('dashboard/unassigned_booking_full_view',array('full_view_data' => $full_view_data));
+        $this->load->view('dashboard/dashboard_footer');  
+    }
+    
+    function get_non_assigned_bookings() {
+        $not_assigned_booking_data = $this->dashboard_model->get_not_assigned_booking_report_data();
+        $str_body = '';
+        foreach ($not_assigned_booking_data as $k => $booking_data) { 
+            $str_body .= '<tr>';
+            $str_body .= '<td>'.($k + 1).'</td>';
+            if(!empty($booking_data['full_name'])) { 
+                $str_body .= '<td><a class="btn btn-info" target="_blank" href="' .base_url(). 'employee/dashboard/unassigned_booking_full_view/'.$booking_data['id'].'">'. $booking_data['full_name'].'</a></td>';
+            } else { 
+                $str_body .= '<td><a class="btn btn-default">Unknown</a></td>';
+            } 
+            $str_body .= '<td>'. $booking_data['number_of_bookings']. '</td>';
+            $str_body .= '</tr>';
+        }
+        echo $str_body;
+    }
+
 }
