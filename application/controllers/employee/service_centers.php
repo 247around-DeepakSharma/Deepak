@@ -197,6 +197,7 @@ class Service_centers extends CI_Controller {
         //$data['collateral'] = $this->service_centers_model->get_collateral_for_service_center_bookings($service_center_id);
         $data['service_center_id'] = $service_center_id;
         $data['is_engineer_app'] = $this->vendor_model->getVendorDetails("isEngineerApp", array("id" => $service_center_id))[0]['isEngineerApp'];
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view('service_centers/pending_on_tab', $data);
     }
 
