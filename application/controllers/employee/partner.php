@@ -1492,7 +1492,7 @@ class Partner extends CI_Controller {
             //Send Email
             //get account manager details
                 $am_email = "";
-                $accountManagerData = $this->miscelleneous->get_am_data($this->session->userdata('partner_id'));
+                $accountManagerData = $this->miscelleneous->get_am_data($this->session->userdata('partner_id'),$bookinghistory[0]['state']);
 
                 if (!empty($accountManagerData)) {
                     $am_email = $accountManagerData[0]['official_email'];
