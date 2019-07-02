@@ -2854,7 +2854,7 @@ class Inventory extends CI_Controller {
             $where['inventory_master_list.entity_type'] = $this->input->post('entity_type');
         }
 
-        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity', $where);
+        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_image', $where);
 
         if ($this->input->post('is_option_selected')) {
             $option = '<option selected disabled>Select Part Name</option>';
@@ -2863,7 +2863,7 @@ class Inventory extends CI_Controller {
         }
 
         foreach ($inventory_type as $value) {
-            $option .= "<option  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_name'] . "'";
+            $option .= "<option  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' data-partimage='" . $value['part_image'] . "' value='" . $value['part_name'] . "'";
             if($requested_inventory_id == $value['inventory_id']){
                 $option .= " selected ";
             }
@@ -6465,7 +6465,7 @@ class Inventory extends CI_Controller {
             "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => $this->input->post("partner_id")
             );
-        $gst_numbers = $this->inventory_model->get_entity_gst_data("id, gst_number, state", $where);
+        $gst_numbers = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $where);
         foreach($gst_numbers as $key => $value){
             $html .= "<option value='".$value['id']."'>".$value['state']." - ".$value['gst_number']."</option>";
         }
@@ -6478,11 +6478,25 @@ class Inventory extends CI_Controller {
             "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => "247001",
             );
-        $gst_numbers = $this->inventory_model->get_entity_gst_data("id, gst_number, state", $where);
+        $gst_numbers = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $where);
         foreach($gst_numbers as $key => $value){
             $html .= "<option value='".$value['id']."'>".$value['state']." - ".$value['gst_number']."</option>";
         }
         echo $html;
+    }
+
+
+
+                /**
+    * @desc This function is used to get success message when spare cancelled but this is not on priority.
+     * @param String $booking_id
+     */
+    function msl_excel_upload(){
+        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/msl_excel_upload');
+       
+        
     }
     
     

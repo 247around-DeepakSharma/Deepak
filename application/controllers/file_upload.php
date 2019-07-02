@@ -42,7 +42,8 @@ class File_upload extends CI_Controller {
         log_message('info', __FUNCTION__ . "=> File Upload Process Begin " . print_r($_POST, true));
         //get file extension and file tmp name
         $file_status = $this->get_upload_file_type();
-        $redirect_to = $this->input->post('redirect_url');   
+        $redirect_to = $this->input->post('redirect_url'); 
+
         if ($file_status['file_name_lenth']) {
             if ($file_status['status']) {
                 //get file header
@@ -532,8 +533,9 @@ class File_upload extends CI_Controller {
             
              $err_msg = $this->table->generate();
         } else {
+    $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $this->session->userdata('id'));
              $this->session->set_flashdata('fail','Excel header is incorrect');
-             redirect(base_url() . "partner/msl_excel_upload");
+             redirect(base_url() . "inventory/msl_excel_upload");
         }
 
         foreach ($post_data as $post) {
@@ -550,9 +552,13 @@ class File_upload extends CI_Controller {
             // close the connection, release resources used
             curl_close($ch);
         }
+
+
+       $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $this->session->userdata('id'));
+
           //echo $err_msg;  exit;
          $this->session->set_flashdata('details',$err_msg);
-         redirect(base_url() . "partner/msl_excel_upload");
+         redirect(base_url() . "inventory/msl_excel_upload");
         //return $response;
     }
 
@@ -806,27 +812,45 @@ class File_upload extends CI_Controller {
                             "model" => $appliance_model_id
                         );
                         $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where, 'id');
-                        if(empty($partner_model_details)){ 
-                            unset($partner_model_where["model"]); 
-                            $partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"] = NULL;
-                            $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where, 'id, model');
-                            if(!empty($partner_model_details)){
-                                if($partner_model_details[0]['model'] == NULL){
-                                   $partner_appliance_id = $this->partner_model->update_partner_appliance_details(array("id"=>$partner_model_details[0]['id']), array("model"=>$appliance_model_id));
+                        if(empty($partner_model_details)){
+                            // ---------------------------------------------------------------------
+                            // Check case if model exists with some other capacity/category
+                            // update data in this case
+                            // Added by Prity Sharma on 01-07-2019
+                            $partner_model_where_without_category_capacity = array(
+                                "partner_id" => $this->input->post('partner_id'),
+                                "service_id" => $this->input->post('service_id'),
+                                "brand" => $rowData['brand'],
+                                "model" => $appliance_model_id
+                            );
+                            $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where_without_category_capacity, 'id, model');
+                            if(!empty($partner_model_details))
+                            {
+                                $partner_appliance_id = $this->partner_model->update_partner_appliance_details(array("id"=>$partner_model_details[0]['id']), array("category"=>$partner_model_where["category"], 'capacity' => $partner_model_where["capacity"]));
+                            }
+                            else {
+                                // ----------------------------------------------------------------------
+                                unset($partner_model_where["model"]); 
+                                $partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"] = NULL;
+                                $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where, 'id, model');
+                                if(!empty($partner_model_details)){
+                                    if($partner_model_details[0]['model'] == NULL){
+                                       $partner_appliance_id = $this->partner_model->update_partner_appliance_details(array("id"=>$partner_model_details[0]['id']), array("model"=>$appliance_model_id));
+                                    }
+                                    else if($partner_model_details[0]['model'] != $appliance_model_id){
+                                        unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
+                                        $partner_model_where['model'] = $appliance_model_id;
+                                        $partner_model_where['partner_brand_id'] = $partner_brand_id;
+                                        $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
+                                    }
                                 }
-                                else if($partner_model_details[0]['model'] != $appliance_model_id){
+                                else{
                                     unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
                                     $partner_model_where['model'] = $appliance_model_id;
                                     $partner_model_where['partner_brand_id'] = $partner_brand_id;
                                     $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
                                 }
-                            }
-                            else{
-                                unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
-                                $partner_model_where['model'] = $appliance_model_id;
-                                $partner_model_where['partner_brand_id'] = $partner_brand_id;
-                                $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
-                            }
+                            }                            
                         }
                         else{
                            $partner_appliance_id =  $partner_model_details[0]['id'];

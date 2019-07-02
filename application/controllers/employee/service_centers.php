@@ -2810,7 +2810,7 @@ class Service_centers extends CI_Controller {
                 . " spare_parts_details.booking_id, users.name, "
                 . " sf_challan_file as challan_file, "
                 . " remarks_defective_part_by_partner, "
-                . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.entity_type,"
+                . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
                 . " spare_parts_details.id,spare_parts_details.challan_approx_value ,i.part_number ";
         
         $group_by = "spare_parts_details.id";
@@ -3079,8 +3079,11 @@ class Service_centers extends CI_Controller {
         if (!empty($booking_address)) {
             $this->print_partner_address();
         } else if (!empty($challan_booking_id)) {
+
+             
             $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
             if ($partner_on_saas) {
+              log_message('info', __METHOD__ . 'partner on saas',true);
                 $delivery_challan_file_name_array = array();
                 foreach ($challan_booking_id as $partner => $spare_and_service) {
                     $sp_id = implode(',', $spare_and_service);
@@ -3093,6 +3096,7 @@ class Service_centers extends CI_Controller {
                     unlink(TMP_FOLDER . $challan_file . '.zip');
                 }
                 $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
+
                 foreach ($delivery_challan_file_name_array as $value1) {
                     $zip .= " " . TMP_FOLDER . $value1 . " ";
                 }

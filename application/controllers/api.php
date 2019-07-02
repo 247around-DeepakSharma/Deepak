@@ -4929,7 +4929,8 @@ class Api extends CI_Controller {
     
     function processSubmitSparePartsOrder(){ 
         log_message("info", __METHOD__. " Entering..");
-        $requestData = json_decode($qsh->submitSparePartsOrder, true);
+        $postData = json_decode($this->jsonRequestData['qsh'], true);
+        $requestData = json_decode($postData['submitSparePartsOrder'], true);
         $requestData["call_from_api"] = TRUE;
         $validation = $this->validateSparePartsOrderRequest($requestData);
         if($validation['status']){ 
