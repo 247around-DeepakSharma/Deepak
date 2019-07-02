@@ -73,7 +73,7 @@
                                              <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[]"  value="<?php echo $row['challan_file'];?>" />
                                      <?php  }else{ ?>
 
-                                      <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[<?php echo $row['partner_id'];  ?>][]"  value="<?php echo $row['id']?>" />
+                                      <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[<?php echo $row['defective_return_to_entity_id'];  ?>][]"  value="<?php echo $row['id']?>" />
 
                                       <?php } ?>
                                        

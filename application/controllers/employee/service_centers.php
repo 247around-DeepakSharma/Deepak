@@ -2765,7 +2765,7 @@ class Service_centers extends CI_Controller {
                 . " spare_parts_details.booking_id, users.name, "
                 . " sf_challan_file as challan_file, "
                 . " remarks_defective_part_by_partner, "
-                . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.entity_type,"
+                . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
                 . " spare_parts_details.id,spare_parts_details.challan_approx_value ,i.part_number ";
 
         $group_by = "spare_parts_details.id";
