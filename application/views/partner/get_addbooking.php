@@ -1579,6 +1579,7 @@
 
         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
                 || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - In Warranty (Customer Location)') > -1 
                 )){
             
             repair_flag = true;
@@ -1587,6 +1588,7 @@
          
          if((findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 
                 || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Customer Location)') > -1
                 || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1)){
             
             repair_out_flag = true;
