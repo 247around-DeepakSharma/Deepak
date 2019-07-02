@@ -150,6 +150,7 @@ class User extends CI_Controller {
     function load_search_view($data,$view){
         $this->miscelleneous->load_nav_header();
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view($view, $data);
     }
 

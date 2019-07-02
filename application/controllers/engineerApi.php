@@ -2090,11 +2090,13 @@ class engineerApi extends CI_Controller {
         else if(isset($requestData['part'])){
            
             $check = true;
+            $missing_key = "";
             $keys = array("part_warranty_status", "parts_type", "parts_name", "requested_inventory_id", "quantity");
             foreach($requestData['part'] as $parts){
                 foreach ($keys as $key){
                     if (!array_key_exists($key, $parts)){ 
-                        $check = false; 
+                        $check = false;
+                        $missing_key = $key;
                     }
                 }
             }
@@ -2103,7 +2105,7 @@ class engineerApi extends CI_Controller {
                 $response['message'] = "success";
             }
             else{
-                $response['message'] = $check;
+                $response['message'] = $missing_key;
             }
         }
         else{
