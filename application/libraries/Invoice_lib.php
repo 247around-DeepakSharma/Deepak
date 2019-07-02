@@ -861,12 +861,20 @@ class Invoice_lib {
             $data['sf_challan_number'] = $sf_challan_number;
             $data['sf_challan_file'] = $sf_challan_file;
 
+
+
             foreach ($spare_parts_details as $value) {
                 $this->ci->service_centers_model->update_spare_parts(array('id' => $value[0]['id']), $data);
             }
         }
+           $partner_on_saas = $this->ci->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            if ($partner_on_saas) {
+                return $sf_challan_file;
+            }else{
+                return true; 
+            }
 
-        return true;
+       
     }
 
     /**

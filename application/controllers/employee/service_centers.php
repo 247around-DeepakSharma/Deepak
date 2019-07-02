@@ -2929,8 +2929,11 @@ class Service_centers extends CI_Controller {
         if (!empty($booking_address)) {
             $this->print_partner_address();
         } else if (!empty($challan_booking_id)) {
+
+             
             $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
             if ($partner_on_saas) {
+              log_message('info', __METHOD__ . 'partner on saas',true);
                 $delivery_challan_file_name_array = array();
                 foreach ($challan_booking_id as $partner => $spare_and_service) {
                     $sp_id = implode(',', $spare_and_service);
@@ -2943,6 +2946,7 @@ class Service_centers extends CI_Controller {
                     unlink(TMP_FOLDER . $challan_file . '.zip');
                 }
                 $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
+
                 foreach ($delivery_challan_file_name_array as $value1) {
                     $zip .= " " . TMP_FOLDER . $value1 . " ";
                 }
