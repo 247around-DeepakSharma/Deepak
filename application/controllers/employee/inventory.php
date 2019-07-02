@@ -6199,8 +6199,9 @@ function check_msl_invoice_id($transfered_by, $invoice_id) {
             if ($this->session->userdata('userType') == 'service_center') {
             $row[] = $model_list->model_number; 
             } else {
-             $row[] =$model_list->model_number. "<a href='javascript:void(0)'  style='font-size: 20px;
-             padding-left: 10px;' id='appliance_model_details_dataeditmodel' data-id='$json' title='Edit Model'><i class = 'fa fa-edit'></i></a>";
+//             $row[] =$model_list->model_number. "<a href='javascript:void(0)'  style='font-size: 20px;
+//             padding-left: 10px;' id='appliance_model_details_dataeditmodel' data-id='$json' title='Edit Model'><i class = 'fa fa-edit'></i></a>";
+                $row[] =$model_list->model_number;
            }  
         }else{
            $row[] = "<span>Not Available</span>"; 
