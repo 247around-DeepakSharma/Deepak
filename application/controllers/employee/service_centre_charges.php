@@ -1361,6 +1361,7 @@ class service_centre_charges extends CI_Controller {
             $agent_id = $this->session->userdata("id");
             $this->service_centre_charges_model->insert_deleted_s_charge_in_trigger($agent_id, $form_data);
             $status = $this->service_centre_charges_model->delete_service_charges($form_data);
+            ob_end_clean();
             if($status){
                 echo "success";
             } else {
