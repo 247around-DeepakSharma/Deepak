@@ -2186,7 +2186,7 @@ function get_data_for_partner_callback($booking_id) {
         return $query->result_array();
     }
     
-    function get_main_partner_invoice_detail($partner_on_saas = false){
+    function get_main_partner_invoice_detail($partner_on_saas = false, $gst_number = ""){
         $meta = array(); 
         if($partner_on_saas){
             $main_partner = $this->get_partner_invoice_details("company_name, public_name,  address, state, pincode, primary_contact_phone_1, primary_contact_email, gst_number,"
@@ -2200,7 +2200,7 @@ function get_data_for_partner_callback($booking_id) {
                 $meta['main_company_pincode'] = $main_partner[0]['pincode'];
                 $meta['main_company_email'] = $main_partner[0]['primary_contact_email'];
                 $meta['main_company_phone'] = $main_partner[0]['primary_contact_phone_1'];
-                $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
+                
                 $meta['main_company_bank_name'] = $main_partner[0]['bank_name'];
                 $meta['main_company_bank_account'] = $main_partner[0]['bank_account'];
                 $meta['main_company_ifsc_code'] = $main_partner[0]['ifsc_code'];
@@ -2208,6 +2208,12 @@ function get_data_for_partner_callback($booking_id) {
                 $meta['main_company_signature'] = $main_partner[0]['signature'];
                 $meta['main_company_logo'] = $main_partner[0]['partner_logo'];
                 $meta['main_company_description'] = "";
+                
+                if(!empty($gst_number)){
+                    $meta['main_company_gst_number'] = $gst_number;
+                } else {
+                    $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
+                }
             }
         }
         else{
@@ -2218,7 +2224,6 @@ function get_data_for_partner_callback($booking_id) {
             $meta['main_company_pincode'] = "110051";
             $meta['main_company_email'] = "seller@247around.com";
             $meta['main_company_phone'] = "";
-            $meta['main_company_gst_number'] = "07AAFCB1281J1ZQ";
             $meta['main_company_bank_name'] = "ICICI Bank";
             $meta['main_company_bank_account'] = "102405500277";
             $meta['main_company_ifsc_code'] = "ICIC0001024";
@@ -2226,6 +2231,11 @@ function get_data_for_partner_callback($booking_id) {
             $meta['main_company_signature'] = "anujsign.jpg";
             $meta['main_company_logo'] = "logo.jpg";
             $meta['main_company_description'] = _247AROUND_INVOICE_TEMPLATE_DESCRIPTION;
+            if(!empty($gst_number)){
+                    $meta['main_company_gst_number'] = $gst_number;
+                } else {
+                    $meta['main_company_gst_number'] = "07AAFCB1281J1ZQ";
+                }
         }
         return $meta;
     }

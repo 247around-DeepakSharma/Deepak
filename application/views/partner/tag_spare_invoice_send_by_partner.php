@@ -132,6 +132,20 @@
                                             <input type="file" class="form-control" name="courier_file" id="courier_file"/>
                                         </div>
                                     </div>
+                                     <div class="form-group">
+                                        <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
+                                        <div class="col-xs-4">
+                                            <select class="form-control" name="from_gst_number" id="from_gst_number" required="">
+                                                <option value="" disabled="">Select From GST Number</option>
+                                            </select>
+                                        </div>
+                                        <label class="col-xs-2 control-label">To GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="247around GST Number print on invoice"><i class="fa fa-info"></i></span></label>
+                                        <div class="col-xs-8 col-sm-4">
+                                            <select class="form-control" name="to_gst_number" id="to_gst_number" required="">
+                                                <option value="" disabled="">Select To GST Number</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                     <div class="form-group">
                                         <label class="col-xs-4 col-sm-2 control-label">247around Warehouse *</label>
                                         <div class="col-xs-8 col-sm-4">
@@ -240,7 +254,7 @@
                                         <div class="col-xs-12 col-md-12">
                                             <div class="pull-right" style="margin-right:15px;">
                                                 <strong>
-                                                Total Price : <span id="total_spare_invoice_price">0</span>
+                                                Total Price1 : <span id="total_spare_invoice_price">0</span>
                                                 </strong>
                                             </div>
                                         </div>
@@ -252,6 +266,7 @@
                                             <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name');?>"/>
                                             <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
                                             <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
+                                            <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_PARTNER; ?>">
                                             <input type="hidden" id="is_defective_part_return_wh" name="is_defective_part_return_wh" value="<?php echo $is_defective_part_return_wh; ?>"/>
                                             <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
                                         </div>
@@ -407,6 +422,7 @@
                         <input type="hidden" class="form-control" id="on_partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name'); ?>"/>
                         <input type="hidden" class="form-control" id="on_wh_name"  name="wh_name" value=""/>
                         <input type="hidden" name="invoice_tag" value="<?php echo IN_WARRANTY; ?>">
+                        <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_PARTNER; ?>">
                         <button type="button" class="btn btn-default onaddButton">Add Booking</button>
                         <button type="submit" class="btn btn-success" id="on_submit_btn">Submit</button>
                     </div>
@@ -443,9 +459,19 @@
             placeholder:'Select Part Number'
         });
         
+        $('#from_gst_number').select2({
+            placeholder:'Select From GST Number'
+        });
+        
+        $('#to_gst_number').select2({
+            placeholder:'Select To GST Number'
+        });
+        
         get_vendor();
         get_vendor_by_booking_id();
         get_appliance(0);
+        get_partner_gst_number();
+        get_247around_wh_gst_number();
         
         $('[data-toggle="popover"]').popover(); 
         $('#dated').daterangepicker({
@@ -997,7 +1023,7 @@
            $row.remove();
        });
        
-       function get_part_number_on_booking(index){
+        function get_part_number_on_booking(index){
             var partner_id = $('#onpartnerId_'+index).val();
             var service_id = $('#onserviceId_'+index).val();
             var part_name = $('#onpartName_'+index).val();
@@ -1026,7 +1052,8 @@
             }else{
                 showConfirmDialougeBox('Please Select All Field', 'warning');
             }
-       }
+        }
+       
        function bookingBlur(count){
           var booking_id = $("onbookingid_"+count).val();
           if(booking_id === ''){
@@ -1276,6 +1303,28 @@
           
            var total_spare_invoice_price = Number($('#onpartBasicPrice_'+id).val()) + (Number($('#onpartBasicPrice_'+id).val()) * Number($('#onpartGstRate_'+id).val())/100);
            $('#ontotal_amount_'+id).val(Number(Math.round(total_spare_invoice_price)));
+       }
+       
+       function get_partner_gst_number(){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url() ?>employee/inventory/get_partner_gst_number',
+                data:{partner_id:$("#partner_id").val()},
+                success: function (response) {
+                    $("#from_gst_number").html(response);
+                }
+            });
+       }
+       
+       function get_247around_wh_gst_number(){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url() ?>employee/inventory/get_247around_wh_gst_number',
+                data:{partner_id:$("#partner_id").val()},
+                success: function (response) {
+                    $("#to_gst_number").html(response);
+                }
+            });
        }
        
 </script>
