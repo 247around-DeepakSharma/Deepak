@@ -145,7 +145,7 @@
                         <li><a id="13" href="#tabs-13" onclick="load_form(this.id)"><span class="panel-title">Add Margin</span></a></li>
                         <li><a id="14" href="#tabs-14" onclick="load_form(this.id)"><span class="panel-title">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15" onclick="load_form(this.id)"><span class="panel-title">Model Mapping</span></a></li>
-                        <li><a id="16" href="#tabs-16" onclick="load_form(this.id)"><span class="panel-title">Account Manager</span></a></li>
+                        <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="16" href="#tabs-16" onclick="load_form(this.id)"><span class="panel-title">Account Manager</span></a></li>
                         <?php
                             }
                         ?>
