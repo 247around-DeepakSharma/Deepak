@@ -1,3 +1,8 @@
+<style>
+    .disable_link {
+        display: none;
+    }
+</style>
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
@@ -215,23 +220,24 @@
                                     </div>
 
 
-                                         <div class="col-md-6">
+                                    <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="parts_name" class="col-md-4">Part Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
-                                            <div class="col-md-6">
-                                                <select class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
-                                                    <option selected disabled>Select Part Name</option>
-                                                </select>
-                                                <span id="spinner" style="display:none"></span>
-                                                <span id="inventory_stock_0"></span>
-                                            </div>
-                                            <input type="hidden" id="requested_inventory_id_0" name="part[0][requested_inventory_id]" value="" /> 
+                                                <div class="col-md-6">
+                                                    <select class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
+                                                        <option selected disabled>Select Part Name</option>
+                                                    </select>
+                                                    <span id="spinner" style="display:none"></span>
+                                                    <span id="inventory_stock_0"></span>
+                                                </div>
+                                                <input type="hidden" id="requested_inventory_id_0" name="part[0][requested_inventory_id]" value="" /> 
                                             <?php } else { ?> 
-                                            <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" value = "" placeholder="Part Name" required="">
-                                            </div>
-                                            <?php } ?>                                           
+                                                <div class="col-md-6">
+                                                    <input type="text" class="form-control spare_parts parts_name" id="parts_name_0" name="part[0][parts_name]" value = "" placeholder="Part Name" required="">
+                                                </div>
+                                            <?php } ?> 
+                                                <a target="_blank"  href="#" id="parts_image_0" class="disable_link"><i style="font-size: 25px;" class="glyphicon glyphicon-picture"></i></a>
                                         </div>
                                     </div>
 
@@ -331,7 +337,8 @@
                                                     <input type="text" class="form-control spare_parts parts_name" id="parts_name" value = "" placeholder="Part Name" >
                                                 </div>
                                                 <?php } ?>
-                                                 <button type="button" id="remove_section" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
+                                                <a target="_blank"  href="#" id="parts_image" style="padding-right: 10px;" class="disable_link"><i style="font-size: 25px;" class="glyphicon glyphicon-picture"></i></a>
+                                                <button type="button" id="remove_section" style="display: inline-block;margin-bottom: 14px; padding: 3px 8px;" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                             </div>
 
                                         </div>
@@ -821,8 +828,9 @@ function alpha(e) {
                         .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
                         .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
                         .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')")
-                        .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','quantity_name_'+partIndex).attr("required", true).select2({placeholder:'Enter Quantity'}).end()
+                        .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','quantity_name_'+partIndex).attr("required", true).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
+                        .find('[id="parts_image"]').attr('id', 'parts_image_'+partIndex).end()                
                         .find('[id="remove_section"]').attr('id', 'remove_section_'+partIndex).end()
                 
             <?php } else { ?>
@@ -835,6 +843,7 @@ function alpha(e) {
                    .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','quantity'+partIndex).attr("required", true).end()
                    .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
                    .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
+                   .find('[id="parts_image"]').attr('id', 'parts_image_'+partIndex).end()  
                    .find('[id="remove_section"]').attr('id', 'remove_section_'+partIndex).end()
             <?php } ?>
     
@@ -850,9 +859,17 @@ function alpha(e) {
         });
     function get_inventory_id(id){       
         var inventory_id =$("#"+id).find('option:selected').attr("data-inventory"); 
+        var part_image =$("#"+id).find('option:selected').attr("data-partimage"); 
         var str_arr =id.split("_");
         indexId = str_arr[2]; 
         $("#requested_inventory_id_"+indexId).val(inventory_id);
+        if((part_image !=undefined || part_image !=null) && part_image !=''){
+           $("#parts_image_"+indexId).attr("href", "<?php echo S3_WEBSITE_URL."misc-images/"; ?>"+part_image); 
+           $("#parts_image_"+indexId).css('display','inline');
+        }else{
+            $("#parts_image_"+indexId).css('display','none');
+        }
+        
         if(inventory_id!=undefined){           
            $.ajax({
                     method:'POST',
