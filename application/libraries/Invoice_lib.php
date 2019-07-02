@@ -753,7 +753,6 @@ class Invoice_lib {
             $output_file = "delivery_challan_" . $booking_id . "_" . rand(10, 100) . "_" . date('d_M_Y_H_i_s');
             //generated pdf file template
             $html_file = $this->ci->load->view('templates/' . $template, $excel_data, true);
-            echo $html_file;
             $output_pdf_file_name = $output_file . ".pdf";
              $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html_file, $booking_id, $output_pdf_file_name, 'vendor-partner-docs');
             log_message('info', __FUNCTION__ . 'HTML TO PDF JSON RESPONSE' . print_r($json_result, TRUE));
@@ -862,12 +861,20 @@ class Invoice_lib {
             $data['sf_challan_number'] = $sf_challan_number;
             $data['sf_challan_file'] = $sf_challan_file;
 
+
+
             foreach ($spare_parts_details as $value) {
                 $this->ci->service_centers_model->update_spare_parts(array('id' => $value[0]['id']), $data);
             }
         }
+           $partner_on_saas = $this->ci->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            if ($partner_on_saas) {
+                return $sf_challan_file;
+            }else{
+                return true; 
+            }
 
-        return true;
+       
     }
 
     /**
