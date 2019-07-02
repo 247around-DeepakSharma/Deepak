@@ -65,6 +65,33 @@ class dashboard_model extends CI_Model {
         
     }
     
+    function get_not_assigned_booking_report_data($manager_id = NULL, $employee_id = NULL, $group_by_state = false) {
+        
+        $where = '';
+        if(!empty($employee_id) || !empty($manager_id)) {
+            $where .= " and employee_relation.agent_id IN (".trim($manager_id.','.$employee_id, ',').")";
+        }
+        
+        $sql = "select 
+                    employee.id,
+                    employee.full_name,
+                    booking_details.state,
+                    group_concat(distinct state_code.state_code) as state_codes,
+                    count(booking_details.id) as number_of_bookings
+                from 
+                    booking_details
+                    left join state_code on (booking_details.state = state_code.state)
+                    left join employee_relation on find_in_set(state_code.state_code, employee_relation.state_code)
+                    left join employee_hierarchy_mapping on (employee_relation.agent_id = employee_hierarchy_mapping.manager_id)
+                    left join employee on (employee_relation.agent_id = employee.id and employee.groups = 'regionalmanager')
+                where 
+                    assigned_vendor_id is null AND booking_details.state <> ''	{$where}
+                group by 
+                    employee_relation.agent_id".(!empty($group_by_state) ? ',booking_details.state' : '')." order by employee.full_name";
+                    
+       $query = $this->db->query($sql);
+       return $query->result_array(); 
+    }
     
     /**
      * @desc This function is used to get partner booking data group by appliance
@@ -835,4 +862,5 @@ class dashboard_model extends CI_Model {
         $result = $this->db->query($query);
         return $result->result_array();
     }
+
 }
