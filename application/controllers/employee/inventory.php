@@ -6484,6 +6484,20 @@ class Inventory extends CI_Controller {
         }
         echo $html;
     }
+
+
+
+                /**
+    * @desc This function is used to get success message when spare cancelled but this is not on priority.
+     * @param String $booking_id
+     */
+    function msl_excel_upload(){
+        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/msl_excel_upload');
+       
+        
+    }
     
     
 
