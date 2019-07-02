@@ -1095,7 +1095,6 @@ class Inventory extends CI_Controller {
                         . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '") ' => NULL), TRUE, false, false);
 
                     $line_items = count($spare_parts_details);
-
                     if ($requestType == "CANCEL_PARTS") {
                         if ($line_items < 2) {
                             $b['internal_status'] = SPARE_PARTS_CANCELLED;
@@ -1145,7 +1144,7 @@ class Inventory extends CI_Controller {
 
                     $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     $data['approved_defective_parts_by_admin'] = 1;
-                    $courier_charge = $this->input->post("courier_charge");
+                    $courier_charge = $this->input->post("charge");
                     if (!empty($courier_charge)) {
                         $data['courier_charges_by_sf'] = $courier_charge;
                     } else {
@@ -1256,7 +1255,7 @@ class Inventory extends CI_Controller {
             echo "Success";
             //redirect(base_url()."employee/inventory/get_spare_parts");
         } else {
-            echo "Error";
+            echo json_encode(array('status'=>FALSE));
         }
     }
 
@@ -2661,8 +2660,6 @@ class Inventory extends CI_Controller {
             if ($this->input->post('service_id')) {
                 $post['where']['service_id'] = trim($this->input->post('service_id'));
             }
-
-
             $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks.pending_request_count,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
 
             //RM Specific stocks
@@ -2747,8 +2744,6 @@ class Inventory extends CI_Controller {
 
         echo json_encode($output);
     }
-    
-    
     private function get_inventory_stocks_details_table($inventory_list, $sn) {
         $row = array();
         
@@ -2759,8 +2754,7 @@ class Inventory extends CI_Controller {
         $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_number . '</span>';
         $row[] = $inventory_list->description;
         $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
-
-        $row[] = $inventory_list->pending_request_count;
+         $row[] = $inventory_list->pending_request_count;
 
         $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
         if ($inventory_list->oow_around_margin > 0) {
@@ -6501,8 +6495,5 @@ class Inventory extends CI_Controller {
        
         
     }
-    
-    
-
     
 }

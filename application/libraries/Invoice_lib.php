@@ -905,7 +905,7 @@ class Invoice_lib {
                         $restQty = $b['qty'] - $b['settle_qty'];
                         if ($restQty == $qty) {
 
-                            //$this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
@@ -929,7 +929,7 @@ class Invoice_lib {
                             break;
                         } else if ($restQty < $qty) {
                            
-                            //$this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             
@@ -950,7 +950,7 @@ class Invoice_lib {
                             $qty = $qty - $restQty;
                         } else if ($restQty > $qty) {
 
-                            //$this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 0, 'settle_qty' => $b['settle_qty'] + $qty));
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 0, 'settle_qty' => $b['settle_qty'] + $qty));
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $qty, $value);
                               $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
