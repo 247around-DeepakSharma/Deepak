@@ -41,7 +41,8 @@ class File_upload extends CI_Controller {
         log_message('info', __FUNCTION__ . "=> File Upload Process Begin " . print_r($_POST, true));
         //get file extension and file tmp name
         $file_status = $this->get_upload_file_type();
-        $redirect_to = $this->input->post('redirect_url');   
+        $redirect_to = $this->input->post('redirect_url'); 
+
         if ($file_status['file_name_lenth']) {
             if ($file_status['status']) {
                 //get file header
@@ -512,8 +513,9 @@ class File_upload extends CI_Controller {
             
              $err_msg = $this->table->generate();
         } else {
+    $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $this->session->userdata('id'));
              $this->session->set_flashdata('fail','Excel header is incorrect');
-             redirect(base_url() . "partner/msl_excel_upload");
+             redirect(base_url() . "inventory/msl_excel_upload");
         }
 
         foreach ($post_data as $post) {
@@ -530,9 +532,13 @@ class File_upload extends CI_Controller {
             // close the connection, release resources used
             curl_close($ch);
         }
+
+
+       $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $this->session->userdata('id'));
+
           //echo $err_msg;  exit;
          $this->session->set_flashdata('details',$err_msg);
-         redirect(base_url() . "partner/msl_excel_upload");
+         redirect(base_url() . "inventory/msl_excel_upload");
         //return $response;
     }
 

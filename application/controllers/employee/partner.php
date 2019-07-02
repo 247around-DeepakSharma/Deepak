@@ -7842,17 +7842,7 @@ class Partner extends CI_Controller {
     }
     
     
-            /**
-     * @desc This function is used to get success message when spare cancelled but this is not on priority.
-     * @param String $booking_id
-     */
-    function msl_excel_upload(){
-        
-        $this->miscelleneous->load_partner_nav_header();
-        $this->load->view('partner/msl_excel_upload');
-        $this->load->view('partner/partner_footer');
-        
-    }
+
     
     
 }
