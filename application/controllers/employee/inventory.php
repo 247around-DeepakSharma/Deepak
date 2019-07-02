@@ -3433,6 +3433,33 @@ class Inventory extends CI_Controller {
         echo json_encode($res);
     }
 
+
+
+
+function check_msl_invoice_id($transfered_by, $invoice_id) {
+        if ($transfered_by == MSL_TRANSFERED_BY_PARTNER){
+            if (strpos($invoice_id, '/') === false) {
+                $is_invoice_exists = $this->check_invoice_id_exists($invoice_id);
+                if (!$is_invoice_exists['status']) {
+                    return $this->upload_spare_invoice_file($_FILES);
+                } else {
+                    $invoice_file['status'] = FALSE;
+                    $invoice_file['message'] = "Entered invoice number already exists in our record.";
+                }
+            } else {
+                $invoice_file['status'] = FALSE;
+                $invoice_file['message'] = "Invoice ID is invalid.Please make sure invoice number does not contain '/'. You can replace '/' with '-'";
+            }
+        } else {
+            $invoice_file['status'] = true;
+            $invoice_file['message'] = "";
+            
+            return $invoice_file;
+        }
+    }
+
+
+
     /**
      * @desc
      * @param Array $ledger

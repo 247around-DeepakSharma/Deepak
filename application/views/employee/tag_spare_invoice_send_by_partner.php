@@ -593,6 +593,7 @@
                             contentType: false,
                             processData: false,
                             success:function(response){
+                                console.log(response);
                                 obj = JSON.parse(response);
 //                                if(obj['warehouse_id']!='' && obj['total_quantity']!=''){                                   
 //                                    var confirmation = confirm("Want to Print Warehouse Address");
