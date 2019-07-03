@@ -149,9 +149,9 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="serial_number_pic" class="col-md-4">Serial Number Picture <?php if(!isset($unit_serial_number_pic) || empty($unit_serial_number_pic)){echo '*';}  ?></label>
+                                        <label for="serial_number_pic" class="col-md-4">Serial Number Picture <?php if((!isset($unit_serial_number_pic) || empty($unit_serial_number_pic)) && empty($on_saas)){echo '*';}  ?></label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts   " id="serial_number_pic"       name="serial_number_pic" >
+                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
                                             <input type="hidden" value="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo $unit_serial_number_pic;}  ?>"  name="serial_number_pic_exist" >
                                         </div>
 
@@ -621,7 +621,7 @@ function alpha(e) {
                 checkbox_value = 0;
                 return false;
               }
-  <?php if(!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)){ ?>
+  <?php if((!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)) && empty($on_saas)){ ?>
       
                 if(serial_number_pic.length === 0){
                 alert("Please Upload Serial Number Image");
@@ -679,7 +679,7 @@ function alpha(e) {
                     }
                 }
             });
-    <?php } ?>
+    
         var invoice_pic = $("#invoice_pic").val();    
             $('.part_in_warranty_status').each(function() {
                 var id = $(this).attr('id');
@@ -694,6 +694,8 @@ function alpha(e) {
                     }
                 }
             });
+            
+            <?php } ?>
             
             /*$('.spare_request_symptom').each(function() {
                 var id = $(this).attr('id');
