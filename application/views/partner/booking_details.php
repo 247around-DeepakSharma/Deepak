@@ -123,7 +123,7 @@
                                         <td><?php if($booking_history[0]['repeat_reason']){ echo $booking_history[0]['repeat_reason'];  } ?></td>
                                         <th>Job Card</th>
                                         <td><?php if(!empty($booking_history['0']['booking_jobcard_filename'])){ ?> 
-                                                    <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/<?php echo $booking_history['0']['booking_jobcard_filename']; ?>" class="btn btn-sm btn-primary btn-xs"><i class="fa fa-download" aria-hidden="true"></i></a>
+                                                    <a target="_blank" href='<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/jobcards-pdf/".$booking_history['0']['booking_jobcard_filename']; ?>' class="btn btn-sm btn-primary btn-xs"><i class="fa fa-download" aria-hidden="true"></i></a>
                                             <?php } ?></td>
                                     </tr>
                                     <tr>
