@@ -1612,7 +1612,17 @@ class Service_centers extends CI_Controller {
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
             $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
-                   
+            
+            $data['on_saas'] = FALSE;
+            if (!empty($data['bookinghistory'])) {
+                $partner_id = $data['bookinghistory'][0]['partner_id'];
+                $access = $this->partner_model->get_partner_permission(array('partner_id' => $partner_id,
+                    'permission_type' => PARTNER_ON_SAAS, 'is_on' => 1));
+                if (!empty($access)) {
+                    $data['on_saas'] = TRUE;
+                }
+            }
+
             if (!empty($data['bookinghistory'][0])) {
                 $spare_shipped_flag = false;
                 $data['internal_status'] = array();
@@ -1725,6 +1735,7 @@ class Service_centers extends CI_Controller {
                 $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'],'active' => 1);
                 $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
+                $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/get_update_form', $data);
             } else {
@@ -2081,7 +2092,7 @@ class Service_centers extends CI_Controller {
      */
     function update_spare_parts() { 
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
-        log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));
+        log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));                
         if(!$this->input->post("call_from_api")){
             $this->checkUserSession();
         }
@@ -2096,11 +2107,13 @@ class Service_centers extends CI_Controller {
 
         $this->form_validation->set_rules('invoice_image', 'Invoice Image', 'callback_validate_invoice_image_upload_file');
         $this->form_validation->set_rules('serial_number_pic', 'Invoice Image', 'callback_validate_serial_number_pic_upload_file');
-        
+
         $is_same_parts_type = $this->is_part_already_requested();
+        $access = $this->partner_model->get_partner_permission(array('partner_id' => $this->input->post('partner_id'),
+            'permission_type' => PARTNER_ON_SAAS, 'is_on' => 1));
 
         if (empty($is_same_parts_type)) { 
-            
+                       
             if(!$this->input->post("call_from_api")){
                 $service_center_id = $this->session->userdata('service_center_id');
                 if(!$this->form_validation->run()){
@@ -2111,13 +2124,17 @@ class Service_centers extends CI_Controller {
                     }
                     $this->update_booking_status($booking_id);
                 }
-                $is_file = $this->validate_part_data();
-            }
-            else{
+                if(empty($access)){
+                   $is_file = $this->validate_part_data(); 
+                } else {
+                    $is_file['code'] = true;
+                }
+                
+            } else {
                 $is_file['code'] = true;
                 $service_center_id = $this->input->post("service_center_id");
             }
-            
+          
             if (!empty($is_file['code'])) { 
                 $parts_requested = $this->input->post('part');
                 $booking_id = $this->input->post('booking_id');

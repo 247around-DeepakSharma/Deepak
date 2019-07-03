@@ -9,7 +9,7 @@ if (!defined('BASEPATH'))
  * Generate Partner wise Booking summary repory on daily basis 
  * @author Prity Sharma
  */
-class call_center_summary {
+class reporting_lib {
 
     private $My_CI;
 
@@ -52,7 +52,7 @@ class call_center_summary {
             log_message('info', __FUNCTION__ . ' => Rendered CSV');
             write_file($csv, $new_report);
             $this->put_file_data($partner_id, $csv, $bucket, $directory_xls);
-            $this->sendmail($date_report_start, $newCSVFileName, $csv);
+            $this->sendmail($date_report_start, $newCSVFileName, $csv, 'videocon_callcenter_report');
             if (file_exists($csv)) {
                 unlink($csv);
             }
@@ -69,15 +69,16 @@ class call_center_summary {
         $this->My_CI->reusable_model->insert_into_table("file_uploads", $fileData);
     }
 
-    function sendmail($date_report, $newCSVFileName, $csv) {
+    function sendmail($date_report, $newCSVFileName, $csv, $template) {
         
-        $email_template = $this->My_CI->booking_model->get_booking_email_template('videocon_callcenter_report');
+        $email_template = $this->My_CI->booking_model->get_booking_email_template($template);
         $subject = vsprintf($email_template[4], array($date_report));
         $message = $email_template[0];
         $email_from = $email_template[2];
         $to = $email_template[1];
-
-        $this->My_CI->notify->sendEmail($email_from, $to, '', '', $subject, $message, $csv, $newCSVFileName);
+        $cc = $email_template[3];
+        $bcc = $email_template[5];
+        $this->My_CI->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $csv, $newCSVFileName);
     }
 
 }

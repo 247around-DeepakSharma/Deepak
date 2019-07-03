@@ -9,7 +9,9 @@
             <div class="col-md-12">
                 <h2 class="page-header">
                     Update Booking      
+                    <?php if(isset($saas_module) && (!$saas_module)) { ?>
                        <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="float: right;height: 29px;width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
+                    <?php } ?>
                 </h2>
                 <?php if(validation_errors()) { ?>
                 <div class=" alert alert-danger">
@@ -186,7 +188,7 @@
                                         <div class="form-group ">
                                             <label for="part_warranty" class="col-md-4">Part Warranty Status  <?php echo $bookinghistory[0]['request_type'];  ?></label>                                             
                                             <div class="col-md-6">
-        <input type="text" id="sparewarranty"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">  
+        <input type="text" id="part_warranty_status_0"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">  
                                             </div>
                                         </div>
                                     </div>
@@ -249,7 +251,7 @@
 
                                         <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture *</label>
+                                            <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture <?php if(empty($on_saas)){ ?> * <?php } ?></label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic_0" name="defective_parts_pic[0]" >
                                             </div>
@@ -259,7 +261,7 @@
 
                                       <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
+                                            <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture <?php if(empty($on_saas)){ ?> *<?php } ?></label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defective_back_parts_pic spare_parts" id="defective_back_parts_pic_0" name="defective_back_parts_pic[0]" >
                                             </div>
@@ -285,7 +287,7 @@
                                             <div class="form-group ">
                                                 <label for="part_warranty" class="col-md-4">Part Warranty Status </label>                               
                                                 <div class="col-md-6">
-<input type="text" id="sparewarranty"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]"> 
+<input type="text" id="part_warranty_status"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>"> 
                                                 </div>
                                             </div>
                                         </div>
@@ -351,7 +353,7 @@
 
                                          <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture *</label>
+                                                <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture <?php if(empty($on_saas)){ ?>*<?php } ?></label>
                                                 <div class="col-md-6">
                                                     <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic" >
                                                 </div>
@@ -359,7 +361,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
+                                                <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture <?php if(empty($on_saas)){ ?> *<?php } ?></label>
                                                 <div class="col-md-6">
                                                     <input type="file" class="form-control defective_back_parts_pic spare_parts " id="defective_back_parts_pic" >
                                                 </div>
@@ -655,7 +657,7 @@ function alpha(e) {
                 }
             });
               
-    
+    <?php if(empty($on_saas)){ ?>
             $('.defective_parts_pic').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "defective_parts_pic"){
@@ -677,7 +679,7 @@ function alpha(e) {
                     }
                 }
             });
-    
+    <?php } ?>
         var invoice_pic = $("#invoice_pic").val();    
             $('.part_in_warranty_status').each(function() {
                 var id = $(this).attr('id');
@@ -826,8 +828,8 @@ function alpha(e) {
                         .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).select2({placeholder:'Select Part Type'}).attr("required", true).end()
                         .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
                         .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
-                        .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
-                        .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
+                        .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
+                        .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).end()
                         .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')")
                         .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','quantity_name_'+partIndex).attr("required", true).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
@@ -839,10 +841,10 @@ function alpha(e) {
                    .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
-                   .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
+                   .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
                    .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')")
                    .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','quantity'+partIndex).attr("required", true).end()
-                   .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
+                   .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).end()
                    .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
                    .find('[id="parts_image"]').attr('id', 'parts_image_'+partIndex).end()  
                    .find('[id="remove_section"]').attr('id', 'remove_section_'+partIndex).end()
