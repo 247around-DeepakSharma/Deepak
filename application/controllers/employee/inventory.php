@@ -5634,7 +5634,7 @@ class Inventory extends CI_Controller {
 
     function download_spare_consolidated_data($partner_id = NULL) {
         log_message('info', __METHOD__ . ' Processing...');
-
+       
         $partner_id = $this->input->post('partner_id');
         $select = "spare_parts_details.id as spare_id, i.part_number, spare_parts_details.model_number, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',GROUP_CONCAT(employee.full_name) as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
                 . "service_centres.district as 'SF City', "
@@ -5650,7 +5650,7 @@ class Inventory extends CI_Controller {
                 . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age'";
         $where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $group_by = "spare_parts_details.id";
-        if (!empty($partner_id)) {
+        if (!empty($partner_id) && is_numeric($partner_id)) {
             $where['booking_details.partner_id'] = $partner_id;
         }
 
