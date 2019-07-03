@@ -196,6 +196,7 @@ class Service_centers extends CI_Controller {
         //$data['collateral'] = $this->service_centers_model->get_collateral_for_service_center_bookings($service_center_id);
         $data['service_center_id'] = $service_center_id;
         $data['is_engineer_app'] = $this->vendor_model->getVendorDetails("isEngineerApp", array("id" => $service_center_id))[0]['isEngineerApp'];
+        $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view('service_centers/pending_on_tab', $data);
     }
 
@@ -1696,6 +1697,7 @@ class Service_centers extends CI_Controller {
                 $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'], 'active' => 1);
                 $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
+                $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/get_update_form', $data);
             } else {
@@ -3176,6 +3178,7 @@ class Service_centers extends CI_Controller {
     function generate_sf_challan($generate_challan) {
 
         $delivery_challan_file_name_array = array();
+
         foreach ($generate_challan as $key => $value) {
             if (!empty($generate_challan)) {
                 $post = array();
@@ -3183,6 +3186,9 @@ class Service_centers extends CI_Controller {
                 $post['is_inventory'] = true;
                 $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
+
+
+
                 if (!empty($part_details)) {
                     $spare_details = array();
                     foreach ($part_details as $value) {
@@ -3195,13 +3201,17 @@ class Service_centers extends CI_Controller {
                             $spare_parts['part_number'] = $value['part_number'];
                             $spare_parts['quantity'] = $value['quantity'];
                         }
-                        $spare_details[] = $spare_parts;
+                        $spare_details[][] = $spare_parts;
                     }
                     $assigned_vendor_id = $part_details[0]['partner_id'];
                     $service_center_id = $part_details[0]['assigned_vendor_id'];
                 }
 
+
+
                 $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as contact_number, service_centres.gst_no as gst_number', array('id' => $service_center_id));
+
+
 
                 if (!empty($part_details)) {
                     $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number,service_centres.gst_no as gst_number";
@@ -3238,7 +3248,7 @@ class Service_centers extends CI_Controller {
                     if (!empty($data['partner_challan_file'])) {
                         if (!empty($spare_details)) {
                             foreach ($spare_details as $val) {
-                                $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
+                                $this->service_centers_model->update_spare_parts(array('id' => $val[0]['spare_id']), $data);
                             }
                         }
                     }

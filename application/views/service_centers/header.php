@@ -288,15 +288,17 @@
                                 <li><a href="<?php echo base_url(); ?>service_center/inventory/alternate_parts_inventory_list"><strong>Alternate Parts Inventory List</strong></a></li>
                                 <li class="divider" style="height: 1.5px;"></li>
                                 <li class=""><a href="<?php echo base_url(); ?>service_center/inventory/appliance_model_list"><strong>Inventory Model Detail  </strong></a></li>
-                                <?php if($this->session->userdata('is_micro_wh') == 1){ ?>
                                 <li class="divider"></li>
+                                <?php if($this->session->userdata('is_micro_wh') == 1){ ?>
                                 <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a></li>
                                 <li class="divider" style="height: 1.5px;"></li>
                                 <?php }?>  
                                 
                                  <?php if($this->session->userdata('is_wh') == 1){ ?>
+                                <li><a href="<?php echo base_url(); ?>service_center/dispatch_msl_to_warehouse"><strong>Dispatch MSL To Warehouse</strong></a></li> 
+                                <li class="divider" style="height: 1.5px;"></li>
                                 <li><a href="<?php echo base_url(); ?>service_center/bulkConversion"><strong>Bulk Spare Transfer</strong></a></li> 
-                                <li class="divider"></li>
+                                <li class="divider" style="height: 1.5px;"></li>
                                 <li><a href="<?php echo base_url(); ?>service_center/spare_transfer_from_wh_to_wh"><strong>Bulk Spare Transfer from Warehouse to Warehouse</strong></a></li> 
                                 <li class="divider"></li>
                                   <?php }?>  

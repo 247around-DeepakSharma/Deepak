@@ -98,6 +98,7 @@ $route['service_center/buyback/get_bb_order_history_details/(:any)'] = 'employee
 $route['service_center/buyback/get_bb_order_appliance_details/(:any)'] = 'employee/service_centers/get_bb_order_appliance_details/$1';
 
 $route['service_center/inventory'] = 'employee/service_centers/warehouse_default_page';
+$route['service_center/dispatch_msl_to_warehouse'] = 'employee/spare_parts/get_dispatch_msl_form';
 $route['service_center/bulkConversion'] = 'employee/spare_parts/bulkConversion';
 $route['service_center/bulkConversion_process'] = 'employee/service_centers/bulkConversion_process';
 
@@ -268,5 +269,8 @@ $route['upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alter
 $route['service_center/update_booking_by_sf/(:any)/(:any)'] = 'employee/booking/update_booking_by_sf/$1/$2';
 $route['service_center/get_sf_edit_booking_form/(:any)'] = 'employee/service_centers/get_sf_edit_booking_form/$1';
 $route['service_center/warranty'] = 'employee/service_centers/check_warranty';
+$route['partner/inventory/upload_inventory_details_file'] = 'employee/inventory/upload_inventory_details_file/0';
+$route['partner/inventory/upload_bom_file'] = 'employee/inventory/upload_bom_file/0';
+$route['partner/inventory/upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alternate_spare_parts_file/0';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

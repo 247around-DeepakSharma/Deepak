@@ -268,8 +268,9 @@
                             <th>Booking Date</th>
                             <th>Status</th>
                             <th>Service Center</th>
+                            <?php if(isset($saas_module) && (!$saas_module)) { ?>
                             <th>Contacts</th>
-                            <?php if($c2c) { ?>
+                            <?php } if($c2c) { ?>
                                  <th>Call</th>
                             <?php } ?>
                             <th>View</th>
@@ -306,9 +307,10 @@
                         <td><?= $row->booking_date; ?> / <?= $row->booking_timeslot; ?></td>
                         <td id="status_<?php echo $row->booking_id; ?>"><?php echo $row->current_status; ?></td>
                         <td><a href="<?php echo base_url();?>employee/vendor/viewvendor/<?=$row->assigned_vendor_id;?>" target="_blank"><?php if(!empty($row->service_centre_name)){ echo $row->service_centre_name." / ".$row->primary_contact_name." / ".$row->primary_contact_phone_1 ; } ?></a></td>
+                        <?php if(isset($saas_module) && (!$saas_module)) { ?>
                         <td><button type="button" title = "Booking Contacts" class="btn btn-sm btn-color" data-toggle="modal" data-target="#relevant_content_modal" id ='<?php echo $row->booking_id ?>' onclick="show_contacts(this.id,1)">
                 <span class="glyphicon glyphicon-user"></span></button></td>
-                        <?php if($c2c) { ?>
+                        <?php } if($c2c) { ?>
                         <td><button type="button" onclick="outbound_call(<?php echo $row->phone_number; ?>)" class="btn btn-sm btn-color"><i class = 'fa fa-phone fa-lg' aria-hidden = 'true'></i></button></td>
                         <?php } ?>
                         <td>
@@ -472,7 +474,7 @@
                     <tr>
                         <td><?php if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>', '<?php echo $row->flat_upcountry;?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
                         <td><?php
-                            echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
+                            echo '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
                         </td>
                         <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                         <td><?= $row->booking_primary_contact_no; ?></td>
@@ -607,7 +609,7 @@
                     <tr>
                        
                         <td><?php
-                            echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
+                            echo '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
                         </td>
                         <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                         <td><?= $row->booking_primary_contact_no; ?></td>
