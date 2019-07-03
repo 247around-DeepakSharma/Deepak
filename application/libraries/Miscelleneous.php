@@ -30,6 +30,22 @@ class Miscelleneous {
         $this->My_CI->load->driver('cache');
         $this->My_CI->load->model('dashboard_model');
     }
+    function process_to_choose_sf_if_multiple_sf_available($data){
+        $sfArray = array();
+        foreach($data as $values){
+            $sfArray[] = $values['vendor_id'];
+        }
+        if(!empty($sfArray)){
+            $sfCallLoadArray = $this->My_CI->vendor_model->get_sf_call_load($sfArray);
+            if(empty($sfCallLoadArray)){
+               return $data[0]['vendor_id'];
+            }
+            else{
+                return $sfCallLoadArray[0]['assigned_vendor_id'];
+            }
+        }
+        return false;
+    }
 
     /**
      * @desc This method is used to check upcountry availability on the basis of booking pincode, service id.
@@ -85,9 +101,18 @@ class Miscelleneous {
                 if ($is_return == 1) {
 
                     if (count($mesg1) > 1) {
-                        $multiple_vendor['message'] = SF_DOES_NOT_EXIST;
-                        $multiple_vendor['upcountry_remarks'] = MULTIPLE_NON_UPCOUNTRY_VENDOR;
-                        return $multiple_vendor;
+                        $selectedSf = $this->process_to_choose_sf_if_multiple_sf_available($mesg1);
+                            if($selectedSf){
+                                $msg['vendor_id'] = $selectedSf;
+                                $msg['message'] = NOT_UPCOUNTRY_BOOKING;
+                                $msg['upcountry_remarks'] = NON_UPCOUNTRY_VENDOR;
+                                $msg['upcountry_distance'] = 0;
+                            }
+                            else{
+                                $multiple_vendor['message'] = SF_DOES_NOT_EXIST;
+                                $multiple_vendor['upcountry_remarks'] = MULTIPLE_NON_UPCOUNTRY_VENDOR;
+                                return $multiple_vendor;
+                            }
                     } else {
                         $mesg1[0]['upcountry_remarks'] = NON_UPCOUNTRY_VENDOR;
                         return $mesg1[0];
