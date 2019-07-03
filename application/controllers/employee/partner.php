@@ -7841,8 +7841,20 @@ class Partner extends CI_Controller {
         echo $option;
     }
     
-    
-
-    
-    
+    function old_summary_report_view(){
+        $this->checkUserSession();
+        $where['entity_type'] = 'Partner';
+        $where['entity_id'] = $this->session->userdata('partner_id');
+        $where['file_type'] = "Partner_Summary_Reports";
+        $limitArray['length'] = 50;
+        $limitArray['start'] = "";
+        $join['partners'] = "partners.id = file_uploads.entity_id";
+        $orderBYArray["file_uploads.create_date"] = "DESC";
+        $data['summaryReports'] = $this->reusable_model->get_search_result_data("file_uploads","file_name,date(file_uploads.create_date) as date,partners.public_name",
+                $where,$join,$limitArray,$orderBYArray,NULL,NULL,array());
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/partner_summary_report_list', $data);
+        $this->load->view('partner/partner_footer');
+    }
+   
 }
