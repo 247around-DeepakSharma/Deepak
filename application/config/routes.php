@@ -98,6 +98,7 @@ $route['service_center/buyback/get_bb_order_history_details/(:any)'] = 'employee
 $route['service_center/buyback/get_bb_order_appliance_details/(:any)'] = 'employee/service_centers/get_bb_order_appliance_details/$1';
 
 $route['service_center/inventory'] = 'employee/service_centers/warehouse_default_page';
+$route['service_center/dispatch_msl_to_warehouse'] = 'employee/spare_parts/get_dispatch_msl_form';
 $route['service_center/bulkConversion'] = 'employee/spare_parts/bulkConversion';
 $route['service_center/bulkConversion_process'] = 'employee/service_centers/bulkConversion_process';
 
