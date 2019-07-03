@@ -4018,7 +4018,6 @@ class Invoice extends CI_Controller {
             log_message('info', __METHOD__ . " Empty Spare ");
         }
     }
-
     /**
      * @desc This function is used to insert sale invoice and mail with invoice file
      * @param String $invoice_id
@@ -5293,5 +5292,4 @@ class Invoice extends CI_Controller {
             $this->invoice_partner_view();
         }
     }
-    
 }
