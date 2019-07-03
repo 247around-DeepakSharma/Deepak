@@ -9,7 +9,9 @@
             <div class="col-md-12">
                 <h2 class="page-header">
                     Update Booking      
+                    <?php if(isset($saas_module) && (!$saas_module)) { ?>
                        <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="float: right;height: 29px;width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
+                    <?php } ?>
                 </h2>
                 <?php if(validation_errors()) { ?>
                 <div class=" alert alert-danger">
@@ -147,9 +149,9 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="serial_number_pic" class="col-md-4">Serial Number Picture <?php if(!isset($unit_serial_number_pic) || empty($unit_serial_number_pic)){echo '*';}  ?></label>
+                                        <label for="serial_number_pic" class="col-md-4">Serial Number Picture <?php if((!isset($unit_serial_number_pic) || empty($unit_serial_number_pic)) && empty($on_saas)){echo '*';}  ?></label>
                                         <div class="col-md-6">
-                                            <input type="file" class="form-control spare_parts   " id="serial_number_pic"       name="serial_number_pic" >
+                                            <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
                                             <input type="hidden" value="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo $unit_serial_number_pic;}  ?>"  name="serial_number_pic_exist" >
                                         </div>
 
@@ -619,7 +621,7 @@ function alpha(e) {
                 checkbox_value = 0;
                 return false;
               }
-  <?php if(!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)){ ?>
+  <?php if((!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)) && empty($on_saas)){ ?>
       
                 if(serial_number_pic.length === 0){
                 alert("Please Upload Serial Number Image");
@@ -677,7 +679,7 @@ function alpha(e) {
                     }
                 }
             });
-    <?php } ?>
+    
         var invoice_pic = $("#invoice_pic").val();    
             $('.part_in_warranty_status').each(function() {
                 var id = $(this).attr('id');
@@ -692,6 +694,8 @@ function alpha(e) {
                     }
                 }
             });
+            
+            <?php } ?>
             
             /*$('.spare_request_symptom').each(function() {
                 var id = $(this).attr('id');
