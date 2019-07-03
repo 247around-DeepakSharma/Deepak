@@ -290,11 +290,11 @@ class Miscelleneous {
         $partner_am_email = "";
         $return_status = TRUE;
         
-        $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
+        //$rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
         $rm_email = "";
-        if (!empty($rm)) {
-            $rm_email = ", " . $rm[0]['official_email'];
-        }
+//        if (!empty($rm)) {
+//            $rm_email = ", " . $rm[0]['official_email'];
+//        }
         switch ($data['message']) {
             case UPCOUNTRY_BOOKING:
             case UPCOUNTRY_LIMIT_EXCEED:
@@ -468,12 +468,12 @@ class Miscelleneous {
                         
                         if ($booking['upcountry_distance'] > 300) {
                             $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
-                            $to = ANUJ_EMAIL_ID.$rm_email;
-                            $cc = $partner_am_email;
+                            $to = ANUJ_EMAIL_ID.$partner_am_email;
+                            $cc = "";
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
                             $to = $data['upcountry_approval_email'];
-                            $cc = $partner_am_email.$rm_email;
+                            $cc = $partner_am_email;
                             //Send Push Notification
                         $receiverArray['partner'] = array($query1[0]['partner_id']);
                         $notificationTextArray['msg'] = array($booking_id);
@@ -2079,17 +2079,21 @@ class Miscelleneous {
 
     /**
      * @desc Return Account Manager ID
-     * @param int $partner_id
+     * @param int $partner_id, $state
      * @return Email ID
      */
-    function get_am_data($partner_id) {
+    function get_am_data($partner_id, $state='') {
         $data = [];
         /*$am_id = $this->My_CI->partner_model->getpartner_details('account_manager_id', array('partners.id' => trim($partner_id)));
         if (!empty($am_id)) {
             $data = $this->My_CI->employee_model->getemployeefromid($am_id[0]['account_manager_id']);
         }*/
+        $where['partners.id'] = trim($partner_id);
+        if(trim($state) !== '') {
+            $where['agent_filters.state'] = $state;
+        }
         $am_id = $this->My_CI->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
-                    array('partners.id' => trim($partner_id)),"",0,1,1,"partners.id");
+                    $where,"",0,1,1,"partners.id");
         if (!empty($am_id[0]['account_manager_id'])) {
             $data = $this->My_CI->employee_model->getemployeeMailFromID($am_id[0]['account_manager_id']);
         }
@@ -2606,9 +2610,9 @@ class Miscelleneous {
                 log_message('info', "Vendor_ID " . $escalation['vendor_id']);
                 //get account manager details
                 $am_email = "";
-                $partner_id = $this->My_CI->booking_model->get_bookings_count_by_any('booking_details.partner_id',array('booking_details.booking_id'=>$booking_id));
-                if(!empty($partner_id)){
-                    $accountManagerData = $this->get_am_data($partner_id[0]['partner_id']);
+                $booking_data = $this->My_CI->booking_model->get_bookings_count_by_any('booking_details.partner_id, booking_details.state',array('booking_details.booking_id'=>$booking_id));
+                if(!empty($booking_data)){
+                    $accountManagerData = $this->get_am_data($booking_data[0]['partner_id'],$booking_data[0]['state']);
                     
                     if(!empty($accountManagerData)){
                         $am_email = $accountManagerData[0]['official_email'];

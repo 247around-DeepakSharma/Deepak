@@ -1095,7 +1095,6 @@ class Inventory extends CI_Controller {
                         . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '") ' => NULL), TRUE, false, false);
 
                     $line_items = count($spare_parts_details);
-
                     if ($requestType == "CANCEL_PARTS") {
                         if ($line_items < 2) {
                             $b['internal_status'] = SPARE_PARTS_CANCELLED;
@@ -1145,7 +1144,7 @@ class Inventory extends CI_Controller {
 
                     $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     $data['approved_defective_parts_by_admin'] = 1;
-                    $courier_charge = $this->input->post("courier_charge");
+                    $courier_charge = $this->input->post("charge");
                     if (!empty($courier_charge)) {
                         $data['courier_charges_by_sf'] = $courier_charge;
                     } else {
@@ -1256,7 +1255,7 @@ class Inventory extends CI_Controller {
             echo "Success";
             //redirect(base_url()."employee/inventory/get_spare_parts");
         } else {
-            echo "Error";
+            echo json_encode(array('status'=>FALSE));
         }
     }
 
@@ -2661,8 +2660,6 @@ class Inventory extends CI_Controller {
             if ($this->input->post('service_id')) {
                 $post['where']['service_id'] = trim($this->input->post('service_id'));
             }
-
-
             $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks.pending_request_count,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
 
             //RM Specific stocks
@@ -2747,8 +2744,6 @@ class Inventory extends CI_Controller {
 
         echo json_encode($output);
     }
-    
-    
     private function get_inventory_stocks_details_table($inventory_list, $sn) {
         $row = array();
         
@@ -2759,8 +2754,7 @@ class Inventory extends CI_Controller {
         $row[] = '<span id="part_number_' . $inventory_list->inventory_id . '" style="word-break: break-all;">' . $inventory_list->part_number . '</span>';
         $row[] = $inventory_list->description;
         $row[] = '<a href="' . base_url() . 'employee/inventory/show_inventory_ledger_list/0/' . $inventory_list->receiver_entity_type . '/' . $inventory_list->receiver_entity_id . '/' . $inventory_list->inventory_id . '" target="_blank" title="Get Ledger Details">' . $inventory_list->stock . '<a>';
-
-        $row[] = $inventory_list->pending_request_count;
+         $row[] = $inventory_list->pending_request_count;
 
         $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
         if ($inventory_list->oow_around_margin > 0) {
@@ -2854,7 +2848,7 @@ class Inventory extends CI_Controller {
             $where['inventory_master_list.entity_type'] = $this->input->post('entity_type');
         }
 
-        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity', $where);
+        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_image', $where);
 
         if ($this->input->post('is_option_selected')) {
             $option = '<option selected disabled>Select Part Name</option>';
@@ -2863,7 +2857,7 @@ class Inventory extends CI_Controller {
         }
 
         foreach ($inventory_type as $value) {
-            $option .= "<option  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_name'] . "'";
+            $option .= "<option  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' data-partimage='" . $value['part_image'] . "' value='" . $value['part_name'] . "'";
             if($requested_inventory_id == $value['inventory_id']){
                 $option .= " selected ";
             }
@@ -3150,8 +3144,7 @@ class Inventory extends CI_Controller {
             if (!(json_last_error() === JSON_ERROR_NONE)) {
                 log_message('info', __METHOD__ . ":: Invalid JSON");
             }else{
-                $invoice_file=false;
-                $this->process_spare_invoice_tagging($invoice_file);  
+                $this->process_spare_invoice_tagging();  
             }           
         
     }
@@ -3162,10 +3155,14 @@ class Inventory extends CI_Controller {
      *  @return : $res JSON // consist response message and response status
      */
 
-    function process_spare_invoice_tagging($invoice_file=true) {
+    function process_spare_invoice_tagging() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
 //        $str = '{"is_wh_micro":"2","dated":"2018-11-20","invoice_id":"123456789","invoice_amount":"859","courier_name":"DTDC","awb_number":"123456","courier_shipment_date":"2018-11-20","wh_id":"1","part":[{"shippingStatus":"1","service_id":"46","part_name":"Back Cabinet  (TSA-2419)","part_number":"Back Cabinet  (TSA-2419)","booking_id":"","quantity":"1","part_total_price":"409.32","hsn_code":"8529","gst_rate":"18","inventory_id":"17"},{"shippingStatus":"1","service_id":"46","part_name":"Back Cover (Led Tsa 2276)","part_number":"Back Cover (Led Tsa 2276)","booking_id":"","quantity":"1","part_total_price":"318.64","hsn_code":"8529","gst_rate":"18","inventory_id":"179"}],"partner_id":"247073","partner_name":"T-Series","wh_name":" Delhi UNITED HOME CARE"}';
-//        $_POST = json_decode($str, true);        
+//        $_POST = json_decode($str, true);  
+        $invoice_file=true;
+        if (!empty($this->input->post('invoice_file'))) {
+           $invoice_file=false;     
+        }      
         $partner_id = $this->input->post('partner_id');
         $invoice_id = $this->input->post('invoice_id');
         $invoice_dated = $this->input->post('dated');
@@ -3452,6 +3449,33 @@ class Inventory extends CI_Controller {
             return $invoice_file;
         }
     }
+
+
+
+
+function check_msl_invoice_id($transfered_by, $invoice_id) {
+        if ($transfered_by == MSL_TRANSFERED_BY_PARTNER){
+            if (strpos($invoice_id, '/') === false) {
+                $is_invoice_exists = $this->check_invoice_id_exists($invoice_id);
+                if (!$is_invoice_exists['status']) {
+                    return $this->upload_spare_invoice_file($_FILES);
+                } else {
+                    $invoice_file['status'] = FALSE;
+                    $invoice_file['message'] = "Entered invoice number already exists in our record.";
+                }
+            } else {
+                $invoice_file['status'] = FALSE;
+                $invoice_file['message'] = "Invoice ID is invalid.Please make sure invoice number does not contain '/'. You can replace '/' with '-'";
+            }
+        } else {
+            $invoice_file['status'] = true;
+            $invoice_file['message'] = "";
+            
+            return $invoice_file;
+        }
+    }
+
+
 
     /**
      * @desc
@@ -6175,8 +6199,9 @@ class Inventory extends CI_Controller {
             if ($this->session->userdata('userType') == 'service_center') {
             $row[] = $model_list->model_number; 
             } else {
-             $row[] =$model_list->model_number. "<a href='javascript:void(0)'  style='font-size: 20px;
-             padding-left: 10px;' id='appliance_model_details_dataeditmodel' data-id='$json' title='Edit Model'><i class = 'fa fa-edit'></i></a>";
+//             $row[] =$model_list->model_number. "<a href='javascript:void(0)'  style='font-size: 20px;
+//             padding-left: 10px;' id='appliance_model_details_dataeditmodel' data-id='$json' title='Edit Model'><i class = 'fa fa-edit'></i></a>";
+                $row[] =$model_list->model_number;
            }  
         }else{
            $row[] = "<span>Not Available</span>"; 
@@ -6465,7 +6490,7 @@ class Inventory extends CI_Controller {
             "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => $this->input->post("partner_id")
             );
-        $gst_numbers = $this->inventory_model->get_entity_gst_data("id, gst_number, state", $where);
+        $gst_numbers = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $where);
         foreach($gst_numbers as $key => $value){
             $html .= "<option value='".$value['id']."'>".$value['state']." - ".$value['gst_number']."</option>";
         }
@@ -6478,14 +6503,25 @@ class Inventory extends CI_Controller {
             "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => "247001",
             );
-        $gst_numbers = $this->inventory_model->get_entity_gst_data("id, gst_number, state", $where);
+        $gst_numbers = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $where);
         foreach($gst_numbers as $key => $value){
             $html .= "<option value='".$value['id']."'>".$value['state']." - ".$value['gst_number']."</option>";
         }
         echo $html;
     }
-    
-    
 
+
+
+                /**
+    * @desc This function is used to get success message when spare cancelled but this is not on priority.
+     * @param String $booking_id
+     */
+    function msl_excel_upload(){
+        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/msl_excel_upload');
+       
+        
+    }
     
 }

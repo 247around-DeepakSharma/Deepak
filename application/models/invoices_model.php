@@ -1415,21 +1415,21 @@ class invoices_model extends CI_Model {
             $result['misc'] = $misc;
         }
         
-        $micro_invoice = $this->get_micro_warehoue_invoice_ledger_details($vendor_id, $from_date_tmp, $to_date);
-        if(!empty($micro_invoice) && $micro_invoice['count'] > 0){
-
-            $c_data = array();
-            $c_data[0]['description'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
-            $c_data[0]['hsn_code'] = HSN_CODE;
-            $c_data[0]['qty'] = $micro_invoice['count'];
-            $c_data[0]['rate'] = "";
-            $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
-            $c_data[0]['product_or_services'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
-            $c_data[0]['taxable_value'] = $micro_invoice['charge'];
-            $result['booking'] = array_merge($result['booking'], $c_data);
-            $result['micro_warehouse_list'] = $micro_invoice['list'];
-                
-        }
+//        $micro_invoice = $this->get_micro_warehoue_invoice_ledger_details($vendor_id, $from_date_tmp, $to_date);
+//        if(!empty($micro_invoice) && $micro_invoice['count'] > 0){
+//
+//            $c_data = array();
+//            $c_data[0]['description'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
+//            $c_data[0]['hsn_code'] = HSN_CODE;
+//            $c_data[0]['qty'] = $micro_invoice['count'];
+//            $c_data[0]['rate'] = "";
+//            $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+//            $c_data[0]['product_or_services'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
+//            $c_data[0]['taxable_value'] = $micro_invoice['charge'];
+//            $result['booking'] = array_merge($result['booking'], $c_data);
+//            $result['micro_warehouse_list'] = $micro_invoice['list'];
+//                
+//        }
         
 //            if (!empty($warehouse_courier)) {
 //                $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_SF_STRING,

@@ -810,7 +810,7 @@ class Partner extends CI_Controller {
             "Uninstallation", "Validation", "Visit Inspection", "Repair - In Warranty", "Repair - Out Of Warranty",
             "Gas Recharge", "Wet Service", "Repair - In Warranty (Home Visit)", "Repair - In Warranty (Service Center Visit)",
             "Repair - Out Of Warranty (Home Visit)", "Repair - Out Of Warranty (Service Center Visit)", "Installation & Demo (Free)", 
-            "Installation & Demo (Paid)");
+            "Installation & Demo (Paid)",'Repair - In Warranty (Customer Location)','Repair - Out Of Warranty (Customer Location)');
         if (($flag === TRUE) &&
                 (in_array($request['requestType'], $valid_request_types) == FALSE)) {
             $resultArr['code'] = ERR_INVALID_REQUEST_TYPE_CODE;
