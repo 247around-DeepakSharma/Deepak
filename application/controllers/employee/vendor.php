@@ -729,7 +729,7 @@ class vendor extends CI_Controller {
         $this->checkUserSession();
         $results['services'] = $this->vendor_model->selectservice();
         $results['brands'] = $this->vendor_model->selectbrand();
-        $results['select_state'] = $this->vendor_model->getall_state();
+        $results['select_state'] = $this->vendor_model->get_allstates();
         $results['employee_rm'] = $this->employee_model->get_rm_details();
         $results['bank_name'] = $this->vendor_model->get_bank_details();
    
@@ -755,7 +755,7 @@ class vendor extends CI_Controller {
         if(!empty($query)){
         $results['services'] = $this->vendor_model->selectservice();
         $results['brands'] = $this->vendor_model->selectbrand();
-        $results['select_state'] = $this->vendor_model->getall_state();
+        $results['select_state'] = $this->vendor_model->get_allstates();
         $results['employee_rm'] = $this->employee_model->get_rm_details();
         $results['bank_name'] = $this->vendor_model->get_bank_details();
 
@@ -2381,7 +2381,7 @@ class vendor extends CI_Controller {
         $select = "service_centres.name, service_centres.id";
 	$data['vendor_details'] = $this->vendor_model->getVendorDetails($select);
 	$data['appliance'] = $this->booking_model->selectservice();
-	$data['state'] = $this->vendor_model->getall_state();
+	$data['state'] = $this->vendor_model->get_allstates();
 
 	//Process Form
 	if ($this->input->post()) {
@@ -4585,7 +4585,7 @@ class vendor extends CI_Controller {
                   $stateArray = $state['state'];
               }
                   if(empty($stateArray)){
-                     $states  =   $this->vendor_model->getall_state();
+                     $states  =   $this->vendor_model->get_allstates();
                      $city  =   $this->vendor_model->getDistrict_from_india_pincode();
                      $this->miscelleneous->load_nav_header();
                      $this->load->view('employee/add_new_pincode',array('pincode'=>$pincode,'states'=>$states,'city'=>$city));
@@ -4841,7 +4841,7 @@ class vendor extends CI_Controller {
          * This Function is used to open multiple pincode form, (Pincode which are not available in india pincode and someone try to add those in vendor pincode table)
          */
         function add_multiple_entry_in_india_pincode($pincodeArray){
-            $states  =   $this->vendor_model->getall_state();
+            $states  =   $this->vendor_model->get_allstates();
             $city  =   $this->vendor_model->getDistrict_from_india_pincode();
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/add_multiple_new_pincode',array('pincodeArray'=>$pincodeArray,'states'=>$states,'city'=>$city));

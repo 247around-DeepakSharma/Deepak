@@ -39,7 +39,7 @@ class Upcountry extends CI_Controller {
         $data['service_center_id'] = $this->input->post("service_center_id");
         $data['state'] = $this->input->post("state");
         if (!empty($data['service_center_id'])) {
-            $data['all_state'] = $this->vendor_model->getall_state();
+            $data['all_state'] = $this->vendor_model->get_allstates();
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/assign_vendor_to_upcountry', $data);
         } else {
