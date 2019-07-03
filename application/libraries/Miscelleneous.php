@@ -30,6 +30,22 @@ class Miscelleneous {
         $this->My_CI->load->driver('cache');
         $this->My_CI->load->model('dashboard_model');
     }
+    function process_to_choose_sf_if_multiple_sf_available($data){
+        $sfArray = array();
+        foreach($data as $values){
+            $sfArray[] = $values['vendor_id'];
+        }
+        if(!empty($sfArray)){
+            $sfCallLoadArray = $this->My_CI->vendor_model->get_sf_call_load($sfArray);
+            if(empty($sfCallLoadArray)){
+               return $data[0]['vendor_id'];
+            }
+            else{
+                return $sfCallLoadArray[0]['assigned_vendor_id'];
+            }
+        }
+        return false;
+    }
 
     /**
      * @desc This method is used to check upcountry availability on the basis of booking pincode, service id.
@@ -85,9 +101,18 @@ class Miscelleneous {
                 if ($is_return == 1) {
 
                     if (count($mesg1) > 1) {
-                        $multiple_vendor['message'] = SF_DOES_NOT_EXIST;
-                        $multiple_vendor['upcountry_remarks'] = MULTIPLE_NON_UPCOUNTRY_VENDOR;
-                        return $multiple_vendor;
+                        $selectedSf = $this->process_to_choose_sf_if_multiple_sf_available($mesg1);
+                            if($selectedSf){
+                                $msg['vendor_id'] = $selectedSf;
+                                $msg['message'] = NOT_UPCOUNTRY_BOOKING;
+                                $msg['upcountry_remarks'] = NON_UPCOUNTRY_VENDOR;
+                                $msg['upcountry_distance'] = 0;
+                            }
+                            else{
+                                $multiple_vendor['message'] = SF_DOES_NOT_EXIST;
+                                $multiple_vendor['upcountry_remarks'] = MULTIPLE_NON_UPCOUNTRY_VENDOR;
+                                return $multiple_vendor;
+                            }
                     } else {
                         $mesg1[0]['upcountry_remarks'] = NON_UPCOUNTRY_VENDOR;
                         return $mesg1[0];
@@ -265,11 +290,11 @@ class Miscelleneous {
         $partner_am_email = "";
         $return_status = TRUE;
         
-        $rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
+        //$rm = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($query1[0]['assigned_vendor_id']);
         $rm_email = "";
-        if (!empty($rm)) {
-            $rm_email = ", " . $rm[0]['official_email'];
-        }
+//        if (!empty($rm)) {
+//            $rm_email = ", " . $rm[0]['official_email'];
+//        }
         switch ($data['message']) {
             case UPCOUNTRY_BOOKING:
             case UPCOUNTRY_LIMIT_EXCEED:
@@ -443,12 +468,12 @@ class Miscelleneous {
                         
                         if ($booking['upcountry_distance'] > 300) {
                             $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
-                            $to = ANUJ_EMAIL_ID.$rm_email;
-                            $cc = $partner_am_email;
+                            $to = ANUJ_EMAIL_ID.$partner_am_email;
+                            $cc = "";
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
                             $to = $data['upcountry_approval_email'];
-                            $cc = $partner_am_email.$rm_email;
+                            $cc = $partner_am_email;
                             //Send Push Notification
                         $receiverArray['partner'] = array($query1[0]['partner_id']);
                         $notificationTextArray['msg'] = array($booking_id);

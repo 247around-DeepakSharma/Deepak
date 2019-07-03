@@ -688,7 +688,6 @@ class Invoice_lib {
      */
     function process_create_sf_challan_file($sf_details, $partner_details, $sf_challan_number, $spare_details, $partner_challan_number = "", $service_center_closed_date = "") {
         $excel_data = array();
-
         $partner_on_saas = $this->ci->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $main_partner = $this->ci->partner_model->get_main_partner_invoice_detail($partner_on_saas);
         $excel_data['excel_data']['main_company_logo'] = $main_partner['main_company_logo'];
@@ -699,7 +698,7 @@ class Invoice_lib {
             $excel_data['excel_data']['sf_contact_number'] = $sf_details[0]['contact_number'];
             $excel_data['excel_data']['sf_gst_number'] = $sf_details[0]['gst_number'];
         }
-                               
+                            
         if(!empty($partner_details)){
                         
             $excel_data['excel_data']['partner_name'] = $partner_details[0]['company_name'];
@@ -713,17 +712,19 @@ class Invoice_lib {
         $excel_data['excel_data']['sf_challan_no'] = $sf_challan_number;
         $excel_data['excel_data']['date'] = "";
         
-        $booking_id = $spare_details[0][0]['booking_id'];
+        $booking_id = $spare_details[0]['booking_id'];
         $excel_data['excel_data_line_item'] = array();
 
-        foreach ($spare_details as $value) {
-            if (!empty($value)) {
+
+        foreach ($spare_details as $value2) {
+            
+            if (!empty($value2)) {
                 $tmp_arr = array();
-                $tmp_arr['value'] = $value[0]['challan_approx_value'];
-                $tmp_arr['booking_id'] = $value[0]['booking_id'];
-                $tmp_arr['spare_desc'] = $value[0]['parts_shipped'];
-                $tmp_arr['part_number'] =(isset($value[0]['part_number'])) ? $value[0]['part_number'] : '-'; 
-                $tmp_arr['qty'] = $value[0]['quantity'];
+                $tmp_arr['value'] = $value2[0]['challan_approx_value'];
+                $tmp_arr['booking_id'] = $value2[0]['booking_id'];
+                $tmp_arr['spare_desc'] = $value2[0]['parts_shipped'];
+                $tmp_arr['part_number'] =(isset($value2[0]['part_number'])) ? $value2[0]['part_number'] : '-'; 
+                $tmp_arr['qty'] = $value2[0]['quantity'];
 
                 array_push($excel_data['excel_data_line_item'], $tmp_arr);
             }
@@ -753,6 +754,7 @@ class Invoice_lib {
             $output_file = "delivery_challan_" . $booking_id . "_" . rand(10, 100) . "_" . date('d_M_Y_H_i_s');
             //generated pdf file template
             $html_file = $this->ci->load->view('templates/' . $template, $excel_data, true);
+            echo $html_file;
             $output_pdf_file_name = $output_file . ".pdf";
              $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html_file, $booking_id, $output_pdf_file_name, 'vendor-partner-docs');
             log_message('info', __FUNCTION__ . 'HTML TO PDF JSON RESPONSE' . print_r($json_result, TRUE));
@@ -905,7 +907,7 @@ class Invoice_lib {
                         $restQty = $b['qty'] - $b['settle_qty'];
                         if ($restQty == $qty) {
 
-                            //$this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
@@ -929,7 +931,7 @@ class Invoice_lib {
                             break;
                         } else if ($restQty < $qty) {
                            
-                            //$this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             
@@ -950,7 +952,7 @@ class Invoice_lib {
                             $qty = $qty - $restQty;
                         } else if ($restQty > $qty) {
 
-                            //$this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 0, 'settle_qty' => $b['settle_qty'] + $qty));
+                            $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 0, 'settle_qty' => $b['settle_qty'] + $qty));
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $qty, $value);
                               $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $qty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
