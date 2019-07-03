@@ -184,7 +184,7 @@ class User extends CI_Controller {
         $results['user'] = $output;
         
         //gets all states while adding user as users can be of any state
-        $results['state'] = $this->vendor_model->getall_state();
+        $results['state'] = $this->vendor_model->get_allstates();
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/adduser', $results);
     }
@@ -252,7 +252,7 @@ class User extends CI_Controller {
         }
 
         $data['user'] = $this->user_model->search_user($phone_number);
-        $data['state'] = $this->vendor_model->getall_state();
+        $data['state'] = $this->vendor_model->get_allstates();
         $data['c2c'] = $this->booking_utilities->check_feature_enable_or_not(CALLING_FEATURE_IS_ENABLE);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/edituser', $data);

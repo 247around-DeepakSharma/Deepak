@@ -555,7 +555,7 @@ class Partner extends CI_Controller {
     function get_add_partner_form() {
 
         $results['services'] = $this->vendor_model->selectservice();
-        $results['select_state'] = $this->vendor_model->getall_state();
+        $results['select_state'] = $this->vendor_model->get_allstates();
         $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $partner_code = $this->partner_model->get_availiable_partner_code();
         foreach ($partner_code as $row) {
@@ -4280,7 +4280,7 @@ class Partner extends CI_Controller {
                 foreach ($value as $val) {
                     //Checking if ALL state has been selected
                     if ($val == 'all') {
-                        $all_states = $this->vendor_model->getall_state();
+                        $all_states = $this->vendor_model->get_allstates();
                         foreach ($all_states as $value) {
                             $data['partner_id'] = $partner_id;
                             $data['service_id'] = $key;

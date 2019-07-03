@@ -382,6 +382,24 @@ class vendor_model extends CI_Model {
 
 	return $query->result_array();
     }
+    
+    /**
+     *  @desc : This function is to get all states.
+     *
+     *  All the distinct states of India in Ascending order From Table state_code
+     *
+     *  @param : void
+     *  @return : array of states
+     */
+    function get_allstates() {
+	$this->db->distinct();
+	$this->db->select('state');
+	
+	$this->db->order_by('state');
+	$query = $this->db->get('state_code');
+
+	return $query->result_array();
+    }
 
     /**
      *  @desc : This function is to get State specific to a Pincode
