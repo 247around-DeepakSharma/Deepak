@@ -979,6 +979,7 @@ class service_centre_charges extends CI_Controller {
      */
     function generate_service_charges(){
         $form_data = $this->input->post();
+        
         $where = array("service_id" => $form_data['service_id'], 'partner_id' => $form_data['partner_id']);
         
         $where_in['category'] = $form_data['category'];
@@ -1030,6 +1031,13 @@ class service_centre_charges extends CI_Controller {
         if(!isset($form_data['paid_pod'])){
             $form_data['paid_pod'] = 0;
         }
+        if(!isset($form_data['free_invoice_pod'])){
+            $form_data['free_invoice_pod'] = 0;
+        }
+        if(!isset($form_data['paid_invoice_pod'])){
+            $form_data['paid_invoice_pod'] = 0;
+        }
+        
         if(!empty($form_data['brand'])){
             $where_in['brand'] = $form_data['brand'];
         }
@@ -1038,6 +1046,7 @@ class service_centre_charges extends CI_Controller {
         }
         
         $charges = $this->service_centre_charges_model->get_service_caharges_data("*", $where, "", $where_in);
+        
         $key_data = array();
         foreach($charges as $value){
             
@@ -1187,6 +1196,7 @@ class service_centre_charges extends CI_Controller {
             $data['tax_code'] = "ST";
         }
         $data['pod'] = $form_data['paid_pod'];
+        $data['invoice_pod'] = $form_data['paid_invoice_pod'];
         $data['is_upcountry'] = $form_data['paid_upcountry'];
         $data['customer_total'] = $form_data['paid_customer_total'];
         $data['customer_net_payable'] = $form_data['paid_customer_total'];
@@ -1225,6 +1235,7 @@ class service_centre_charges extends CI_Controller {
             $data['tax_code'] = "ST";
         }
         $data['pod'] = $form_data['free_pod'];
+        $data['invoice_pod'] = $form_data['free_invoice_pod'];
         $data['is_upcountry'] = $form_data['free_upcountry'];
         $data['customer_total'] = $form_data['free_customer_total'];
         $data['customer_net_payable'] = 0;

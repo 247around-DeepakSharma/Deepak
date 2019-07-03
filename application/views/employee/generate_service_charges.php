@@ -107,6 +107,23 @@
                         </div>
                     </td>
                     <td>
+                        <div class="items ">
+                            <div class="info-block block-info clearfix">
+                                <div class="square-box pull-left">
+                                </div>
+                                <div data-toggle="buttons" class="btn-group bizmoduleselect">
+                                    <label class="btn btn-default">
+                                        <div class="bizcontent">
+                                            <input type="checkbox" name="free_invoice_pod" autocomplete="off" value="1">
+                                            <span class="glyphicon glyphicon-ok glyphicon-lg"></span>
+                                            <h5>Invoice POD</h5>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
                         <div class="col-md-12">
                             <label for="upcountry" >Upcountry  </label><br>
                             <input type="radio" onchange="addcheckforFlatUpcountry('Free', 0)" name="free_upcountry" value="0"> Customer Paid<br>
@@ -183,6 +200,23 @@
                                             <input type="checkbox" name="paid_pod" autocomplete="off" value="1">
                                             <span class="glyphicon glyphicon-ok glyphicon-lg"></span>
                                             <h5>POD</h5>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="items">
+                            <div class="info-block block-info clearfix">
+                                <div class="square-box pull-left">
+                                </div>
+                                <div data-toggle="buttons" class="btn-group bizmoduleselect">
+                                    <label class="btn btn-default">
+                                        <div class="bizcontent">
+                                            <input type="checkbox" name="paid_invoice_pod" autocomplete="off" value="1">
+                                            <span class="glyphicon glyphicon-ok glyphicon-lg"></span>
+                                            <h5>Invoice POD</h5>
                                         </div>
                                     </label>
                                 </div>
