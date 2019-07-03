@@ -33,7 +33,7 @@ class BookingSummary extends CI_Controller {
         $this->load->library('session');
         $this->load->library('s3');
         $this->load->library('booking_utilities');
-        $this->load->library('call_center_summary');
+        $this->load->library('reporting_lib');
         
         $this->load->helper('url');
 
@@ -1681,6 +1681,6 @@ EOD;
         $partner_id = !empty($partner_id) ? $partner_id : VIDEOCON_ID;
         $date_report_start = !empty($date_report_start) ? $date_report_start : date('d-m-Y', strtotime(' -1 day'));
         $date_report_end = !empty($date_report_end) ? $date_report_end : date('d-m-Y', strtotime(' -1 day'));
-        $this->call_center_summary->send_call_center_summary_mail_to_partner($partner_id, $date_report_start, $date_report_end);
+        $this->reporting_lib->send_call_center_summary_mail_to_partner($partner_id, $date_report_start, $date_report_end);
     }
 }
