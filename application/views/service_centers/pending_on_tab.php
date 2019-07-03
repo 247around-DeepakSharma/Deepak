@@ -260,9 +260,7 @@
                                             <?php echo $sn_no1; if($row->is_upcountry == 1) { ?><i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>','<?php echo $row->amount_due; ?>', '<?php echo $row->flat_upcountry; ?>')" style='color: red;font-size: 28px;cursor: pointer' class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a  target="_blank" 
-                                                <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  style="pointer-events:none" <?php } } ?> 
-                                                href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
+                                            <a  target="_blank" href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
                                             <?php echo $row->booking_id; ?>
                                             </a>
                                              
@@ -454,9 +452,7 @@
                                             <?php echo $sn_no2; if($row->is_upcountry == 1) { ?><i data-popover="true" data-html=true data-content="Click on it to display upcountry details" onclick="open_upcountry_model('<?php echo $row->booking_id; ?>', '<?php echo $row->amount_due; ?>', '<?php echo $row->flat_upcountry; ?>')" style='color: red;font-size: 28px;cursor: pointer;' class="fa fa-road" aria-hidden="true"></i><?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a  target="_blank" 
-                                                <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id)) { ?>  style="pointer-events:none" <?php } } ?> 
-                                                href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
+                                            <a  target="_blank" href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id));?>"  title='View'>
                                             <?php echo $row->booking_id; ?>
                                             </a>
                                              
