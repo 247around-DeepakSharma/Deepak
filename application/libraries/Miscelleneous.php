@@ -107,6 +107,7 @@ class Miscelleneous {
                                 $msg['message'] = NOT_UPCOUNTRY_BOOKING;
                                 $msg['upcountry_remarks'] = NON_UPCOUNTRY_VENDOR;
                                 $msg['upcountry_distance'] = 0;
+                                return $msg;
                             }
                             else{
                                 $multiple_vendor['message'] = SF_DOES_NOT_EXIST;
