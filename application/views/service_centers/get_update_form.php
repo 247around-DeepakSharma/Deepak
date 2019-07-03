@@ -679,7 +679,7 @@ function alpha(e) {
                     }
                 }
             });
-    <?php } ?>
+    
         var invoice_pic = $("#invoice_pic").val();    
             $('.part_in_warranty_status').each(function() {
                 var id = $(this).attr('id');
@@ -694,6 +694,8 @@ function alpha(e) {
                     }
                 }
             });
+            
+            <?php } ?>
             
             /*$('.spare_request_symptom').each(function() {
                 var id = $(this).attr('id');
