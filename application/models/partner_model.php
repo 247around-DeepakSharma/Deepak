@@ -2407,8 +2407,8 @@ function get_data_for_partner_callback($booking_id) {
                         entity_login_table.user_id
                     FROM
                         booking_details
-                        LEFT JOIN booking_state_change bs ON (booking_details.booking_id = bs.booking_id) 
-                        LEFT JOIN entity_login_table ON (bs.agent_id = entity_login_table.agent_id)
+                        JOIN booking_state_change bs ON (booking_details.booking_id = bs.booking_id) 
+                        JOIN entity_login_table ON (bs.agent_id = entity_login_table.agent_id)
                     WHERE 
                         (booking_details.create_date BETWEEN '".$start_date."' AND '".$end_date."')
                         AND (booking_details.partner_id = $partner_id OR booking_details.origin_partner_id = '$partner_id' ) 
