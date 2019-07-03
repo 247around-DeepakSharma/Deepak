@@ -249,7 +249,7 @@
 
                                         <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture *</label>
+                                            <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture <?php if(empty($on_saas)){ ?> * <?php } ?></label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic_0" name="defective_parts_pic[0]" >
                                             </div>
@@ -259,7 +259,7 @@
 
                                       <div class="col-md-6">
                                         <div class="form-group">
-                                            <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
+                                            <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture <?php if(empty($on_saas)){ ?> *<?php } ?></label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defective_back_parts_pic spare_parts" id="defective_back_parts_pic_0" name="defective_back_parts_pic[0]" >
                                             </div>
@@ -351,7 +351,7 @@
 
                                          <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture *</label>
+                                                <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture <?php if(empty($on_saas)){ ?>*<?php } ?></label>
                                                 <div class="col-md-6">
                                                     <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic" >
                                                 </div>
@@ -359,7 +359,7 @@
                                         </div>
                                         <div class="col-md-6">
                                             <div class="form-group">
-                                                <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
+                                                <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture <?php if(empty($on_saas)){ ?> *<?php } ?></label>
                                                 <div class="col-md-6">
                                                     <input type="file" class="form-control defective_back_parts_pic spare_parts " id="defective_back_parts_pic" >
                                                 </div>
@@ -655,7 +655,7 @@ function alpha(e) {
                 }
             });
               
-    
+    <?php if(empty($on_saas)){ ?>
             $('.defective_parts_pic').each(function() {
                 var id = $(this).attr('id');
                 if(id !== "defective_parts_pic"){
@@ -677,7 +677,7 @@ function alpha(e) {
                     }
                 }
             });
-    
+    <?php } ?>
         var invoice_pic = $("#invoice_pic").val();    
             $('.part_in_warranty_status').each(function() {
                 var id = $(this).attr('id');
@@ -826,8 +826,8 @@ function alpha(e) {
                         .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).select2({placeholder:'Select Part Type'}).attr("required", true).end()
                         .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
                         .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
-                        .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
-                        .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
+                        .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
+                        .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).end()
                         .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')")
                         .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','quantity_name_'+partIndex).attr("required", true).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
@@ -839,10 +839,10 @@ function alpha(e) {
                    .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
-                   .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).attr("required", true).end()
+                   .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
                    .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')")
                    .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','quantity'+partIndex).attr("required", true).end()
-                   .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).attr("required", true).end()
+                   .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).end()
                    .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
                    .find('[id="parts_image"]').attr('id', 'parts_image_'+partIndex).end()  
                    .find('[id="remove_section"]').attr('id', 'remove_section_'+partIndex).end()
