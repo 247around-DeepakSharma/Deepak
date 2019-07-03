@@ -2222,11 +2222,12 @@ background-color: #f5f5f5;
    $(document).ready(function(){
     $(".warehouse_name").each(function(){
         var warehouse_id = $(this).attr("data-warehouse");
+        var namewarehouse  = $(this);
         if (warehouse_id>0) {
               $.ajax({url: "<?php echo base_url(); ?>employee/vendor/get_warehouse_data/"+warehouse_id, success: function(result){
               var obj =  JSON.parse(result);
               console.log(obj[0].district);
-              $(".warehouse_name").html('<span id="entity_type_id">'+obj[0].district + ' Warehouse</span>');
+              $(namewarehouse).html('<span id="entity_type_id">'+obj[0].district + ' Warehouse</span>');
            }});
         }
     });
