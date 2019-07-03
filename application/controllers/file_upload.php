@@ -734,6 +734,9 @@ class File_upload extends CI_Controller {
         $attachment = TMP_FOLDER.$data['file_name'];
         if (!empty($template)) {
             $body = $response['message'];
+            if(!empty($response['data'])) {
+                $body .= "<br> ".$response['data'];
+            }
             $body .= "<br> <b>File Name</b> " . $data['file_name'];
             
             $sendmail = $this->notify->sendEmail($template[2], $to, $template[3], "", $subject, $body, $attachment, 'inventory_not_found');
@@ -1173,6 +1176,8 @@ class File_upload extends CI_Controller {
                             $tmp_arr = array();
                             $tmp_arr['inventory_id'] = $inventory_id_details[0]['inventory_id'];
                             $tmp_arr['alt_inventory_id'] = $inventory_id_details[1]['inventory_id'];
+                            $tmp_arr['part_code'] = $inventory_id_details[0]['part_number'];
+                            $tmp_arr['alt_part_code'] = $inventory_id_details[1]['part_number'];
                             array_push($this->dataToInsert, $tmp_arr);
                         } else {
                             $template = array(
@@ -1194,13 +1199,19 @@ class File_upload extends CI_Controller {
                     $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
                     $not_exist_data_msg .= $this->table->generate();    
                 }
-
-                $insert_flag = false;
+                
+                $count=0;$insertUpdateFlag = false;
+                $notInserted = $insertArr = array();
                 if(!empty($this->dataToInsert)){
-                     $insert_data = $this->inventory_model->insert_alternate_spare_parts($this->dataToInsert);
 
-                     foreach ($this->dataToInsert as $val){  
+                    foreach ($this->dataToInsert as $key=>$val){
+                        $insertArr[$key]['inventory_id'] = $val['inventory_id'];
+                        $insertArr[$key]['alt_inventory_id'] = $val['alt_inventory_id'];
+                    }
+                    
+                     $insert_data = $this->inventory_model->insert_alternate_spare_parts($insertArr);
 
+                     foreach ($this->dataToInsert as $val){
                           $inventory_group_id_list = $this->inventory_model->get_generic_table_details('alternate_inventory_set','alternate_inventory_set.id,alternate_inventory_set.inventory_id, alternate_inventory_set.group_id', array(), array( trim($val['inventory_id']), trim($val['alt_inventory_id'])));
 
                           if(!empty($inventory_group_id_list)){
@@ -1211,9 +1222,16 @@ class File_upload extends CI_Controller {
                                  if($max_group_id !== $min_group_id){
                                      foreach ($inventory_group_id_list as  $value) {
                                         if ($value['group_id'] === $max_group_id) {
-                                            $insert_flag = $this->inventory_model->update_group_wise_inventory_id(array('alternate_inventory_set.group_id' => $min_group_id),array('alternate_inventory_set.id' => $value['id']));
+                                            $insertUpdateFlag = $this->inventory_model->update_group_wise_inventory_id(array('alternate_inventory_set.group_id' => $min_group_id),array('alternate_inventory_set.id' => $value['id']));
+                                            (!empty($insertUpdateFlag)?++$count:array_push($notInserted,$val));
+                                        }
+                                        else {
+                                            array_push($notInserted,$val);
                                         }
                                     }
+                                }
+                                else{
+                                    array_push($notInserted,$val);
                                 }
 
                               } else if(count($inventory_group_id_list) == 1){
@@ -1222,16 +1240,20 @@ class File_upload extends CI_Controller {
                                        $inventory_group_data = array('group_id' => $inventory_group_id_list[0]['group_id'], 'inventory_id' => $val['inventory_id']); 
                                     }elseif ($val['alt_inventory_id'] != $inventory_id ) {
                                        $inventory_group_data = array('group_id' => $inventory_group_id_list[0]['group_id'], 'inventory_id' => $val['alt_inventory_id']);
-                                }
-                                     $insert_flag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);                                
+                                    }
+                                     $insertUpdateFlag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);
+                                     (!empty($insertUpdateFlag)?++$count:array_push($notInserted,$val));
                                 }
                           }else{
                             $max_group_id_details = $this->inventory_model->get_generic_table_details('alternate_inventory_set','MAX(alternate_inventory_set.group_id) as max_group_id', array(), array()); 
                             $group_id = ($max_group_id_details[0]['max_group_id'] + 1);
                             $inventory_group_data = array('group_id' => $group_id, 'inventory_id' => $val['alt_inventory_id']);  
-                            $insert_flag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);
+                            $insertUpdateFlag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);
+                            (!empty($insertUpdateFlag)?++$count:array_push($notInserted,$val));
+                            
                             $inventory_group = array('group_id' => $group_id, 'inventory_id' => $val['inventory_id']);  
-                            $insert_flag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group);
+                            $insertUpdateFlag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group);
+                            (!empty($insertUpdateFlag)?++$count:array_push($notInserted,$val));
 
                           }
 
@@ -1264,16 +1286,28 @@ class File_upload extends CI_Controller {
                      }
 
                 }
-
-                if (!empty($insert_flag)) {
-                    log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
+                
+                if ($count>0) {
+                    log_message("info", __METHOD__ . $count . " mapping created succcessfully");
                     $response['status'] = TRUE;
-                    $message = "<b>" . count($this->dataToInsert) . "</b> mapping created successfully.";
+                    $message = "<b>" . $count . "</b> mapping created successfully.";//count($this->dataToInsert)
                     $response['message'] = $message . ' ' . $not_exist_data_msg;
                 } else {
                     log_message("info", __METHOD__ . " error in creating mapping.");
                     $response['status'] = FALSE;
                     $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
+                }
+                
+                if(!empty($notInserted)){
+                    $template = array(
+                        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                    );
+                    $this->table->set_template($template);
+                    $this->table->set_heading(array('Part Code', 'Alt Part Code'));
+                    foreach ($notInserted as $val){  
+                        $this->table->add_row($val['part_code'], $val['alt_part_code']);
+                    }
+                    $response['data'] = "<br><b> Error in creating mapping.<br> " . $this->table->generate();
                 }
             } else {
                 $response['status'] = $check_header['status'];
