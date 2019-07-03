@@ -1547,6 +1547,11 @@ function get_data_for_partner_callback($booking_id) {
      */
     function update_partner_appliance_details($where, $data){
         if(!empty($where)){
+            $appliance_model_id = $this->reusable_model->get_search_result_data('partner_appliance_details', '*', $where, NULL, NULL, NULL, NULL, NULL);
+            if(!empty($appliance_model_id)) {
+                $appliance_model_id = $appliance_model_id[0]['model'];
+                $this->reusable_model->update_table('appliance_model_details',$data,['id' => $appliance_model_id]);
+            }
             $this->db->where($where);
             return $this->db->update("partner_appliance_details",$data);
         }
@@ -2402,8 +2407,8 @@ function get_data_for_partner_callback($booking_id) {
                         entity_login_table.user_id
                     FROM
                         booking_details
-                        LEFT JOIN booking_state_change bs ON (booking_details.booking_id = bs.booking_id) 
-                        LEFT JOIN entity_login_table ON (bs.agent_id = entity_login_table.agent_id)
+                        JOIN booking_state_change bs ON (booking_details.booking_id = bs.booking_id) 
+                        JOIN entity_login_table ON (bs.agent_id = entity_login_table.agent_id)
                     WHERE 
                         (booking_details.create_date BETWEEN '".$start_date."' AND '".$end_date."')
                         AND (booking_details.partner_id = $partner_id OR booking_details.origin_partner_id = '$partner_id' ) 

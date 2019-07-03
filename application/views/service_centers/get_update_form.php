@@ -9,7 +9,9 @@
             <div class="col-md-12">
                 <h2 class="page-header">
                     Update Booking      
+                    <?php if(isset($saas_module) && (!$saas_module)) { ?>
                        <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="float: right;height: 29px;width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
+                    <?php } ?>
                 </h2>
                 <?php if(validation_errors()) { ?>
                 <div class=" alert alert-danger">
@@ -186,7 +188,7 @@
                                         <div class="form-group ">
                                             <label for="part_warranty" class="col-md-4">Part Warranty Status  <?php echo $bookinghistory[0]['request_type'];  ?></label>                                             
                                             <div class="col-md-6">
-        <input type="text" id="sparewarranty"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">  
+        <input type="text" id="part_warranty_status_0"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]">  
                                             </div>
                                         </div>
                                     </div>
@@ -285,7 +287,7 @@
                                             <div class="form-group ">
                                                 <label for="part_warranty" class="col-md-4">Part Warranty Status </label>                               
                                                 <div class="col-md-6">
-<input type="text" id="sparewarranty"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>" name="part[0][part_warranty_status]"> 
+<input type="text" id="part_warranty_status"  value="<?php if(strpos($bookinghistory[0]['request_type'],'Out Of Warranty') == true || strpos($bookinghistory[0]['request_type'],'Gas Recharge - Out')==true ){echo '2';}else{echo '1';}  ?>"> 
                                                 </div>
                                             </div>
                                         </div>
