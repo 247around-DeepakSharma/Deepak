@@ -474,7 +474,7 @@
                     <tr>
                         <td><?php if($row->is_upcountry == 1) { ?>.<i style="color:red; font-size:20px;" onclick="open_upcountry_model('<?php echo $row->assigned_vendor_id;?>','<?php echo $row->booking_id;?>', '<?php echo $row->amount_due;?>', '<?php echo $row->flat_upcountry;?>')" class="fa fa-road" aria-hidden="true"></i><?php } ?></td>
                         <td><?php
-                            echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
+                            echo '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
                         </td>
                         <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                         <td><?= $row->booking_primary_contact_no; ?></td>
@@ -609,7 +609,7 @@
                     <tr>
                        
                         <td><?php
-                            echo '<a href="https://s3.amazonaws.com/bookings-collateral/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
+                            echo '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';?>
                         </td>
                         <td><a href="<?php echo base_url();?>employee/user/finduser?phone_number=<?=$row->phone_number;?>"><?=$row->customername;?></a></td>
                         <td><?= $row->booking_primary_contact_no; ?></td>
