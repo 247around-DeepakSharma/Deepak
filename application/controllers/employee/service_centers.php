@@ -2784,7 +2784,7 @@ class Service_centers extends CI_Controller {
 
             $results['services'] = $this->vendor_model->selectservice();
             $results['brands'] = $this->vendor_model->selectbrand();
-            $results['select_state'] = $this->vendor_model->getall_state();
+            $results['select_state'] = $this->vendor_model->get_allstates();
             $results['employee_rm'] = $this->employee_model->get_rm_details();
 
             $appliances = $query[0]['appliances'];

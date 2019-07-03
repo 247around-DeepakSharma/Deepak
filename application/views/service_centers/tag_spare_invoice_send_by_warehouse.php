@@ -620,6 +620,7 @@
             var partner_id = $('#partner_id').val();
             var service_id = $('#serviceId_'+index).val();
             var part_number = $('#partNumber_'+index).val();
+            var quantity = $("#quantity_"+index).val();
             if(partner_id && service_id && part_number){
                
                 $.ajax({
@@ -628,23 +629,32 @@
                     data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_number:part_number},
                     success: function (response) {
                         var obj = JSON.parse(response);
-    
+                        console.log(obj);
                         if(obj.inventory_id){
                             $('#submit_btn').attr('disabled',false);
                             var parts_total_price = Number($('#quantity_'+index).val()) * Number(obj.price);
                             $('#inventoryId_'+index).val(obj.inventory_id);
-                            
                             $('#partBasicPrice_'+index).val(parts_total_price);
                             $('#partGstRate_'+index).val(obj.gst_rate);
                             $('#partHsnCode_'+index).val(obj.hsn_code);
-                            
-                            
                             $('#partHsnCode_'+index).val(obj.hsn_code);
+
+                            if (Number($.trim(quantity)) > Number($.trim(obj.total_stock))) {
+                                swal("Stock is less!", "Stock availability is less than your entered quantity!", "error");
+                                $("#quantity_"+index).val("");
+                                $('#partHsnCode_'+index).val("");
+                                $('#partGstRate_'+index).val("");
+                                $('#partBasicPrice_'+index).val("");
+                                $('#inventoryId_'+index).val("");
+                            }else{
+
                             var total_spare_invoice_price = 0;
                             $(".part-total-price").each(function(i) {
                                 total_spare_invoice_price += Number($('#partBasicPrice_'+i).val()) + (Number($('#partBasicPrice_'+i).val()) * Number($('#partGstRate_'+i).val())/100);
                             });
                             $('#total_spare_invoice_price').html(Number(Math.round(total_spare_invoice_price)));
+                            }
+
                         }else{
                             alert("Inventory Details not found for the selected combination.");
                             $('#submit_btn').attr('disabled',true);

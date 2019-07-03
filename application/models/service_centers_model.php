@@ -132,7 +132,7 @@ class Service_centers_model extends CI_Model {
                 . " AND bd.assigned_vendor_id = '$service_center_id' "
                 . $status
                 . "  ".$day . $booking
-                . " ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
+                . " GROUP BY bd.booking_id ORDER BY count_escalation desc, STR_TO_DATE(`bd`.booking_date,'%d-%m-%Y') desc ";
              
             $query1 = $this->db->query($sql);
             //echo $this->db->last_query(); die();
