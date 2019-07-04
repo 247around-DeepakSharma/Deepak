@@ -2916,7 +2916,7 @@ class Service_centers extends CI_Controller {
     }
 
 
-    function test(){
+    function do_multiple_spare_shipping(){
 
 
      $sp_ids =  explode(',',$_POST['sp_ids']);

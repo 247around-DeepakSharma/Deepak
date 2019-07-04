@@ -237,7 +237,7 @@
        var form_data = new FormData(document.getElementById("idForm"));
 
                $.ajax({
-                   url: "<?php echo base_url()  ?>employee/service_centers/test",
+                   url: "<?php echo base_url()  ?>employee/service_centers/do_multiple_spare_shipping",
                    type: "POST",
                    data: form_data,
                    processData: false,  // tell jQuery not to process the data
