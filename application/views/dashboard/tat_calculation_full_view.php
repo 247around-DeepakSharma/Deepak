@@ -209,45 +209,7 @@
             <td><?php echo $index;?></td>
             <td><?php echo $values['entity']?></td>
             <?php
-            if(!$is_pending || $this->session->userdata('partner_id')){
-                if(count($filters['request_type']) == 1 && $filters['request_type'][0] == 'Repair_with_part'){
-                    ?>
-                <td>
-                    <?php echo $stateTemp['leg_1'][$index-1]['TAT_0'] ." (". $stateTemp['leg_1'][$index-1]['TAT_0_per']."%)";?><br>
-                    <?php echo $stateTemp['leg_2'][$index-1]['TAT_0'] ." (". $stateTemp['leg_2'][$index-1]['TAT_0_per']."%)";?><br>
-                    <?php echo $values['TAT_0'] ."(". $values['TAT_0_per']."%)";?></td>
-                <td>
-                    <?php echo $stateTemp['leg_1'][$index-1]['TAT_1'] ." (". $stateTemp['leg_1'][$index-1]['TAT_1_per']."%)";?><br>
-                    <?php echo $stateTemp['leg_2'][$index-1]['TAT_1'] ." (". $stateTemp['leg_2'][$index-1]['TAT_1_per']."%)";?><br>
-                    <?php echo $values['TAT_1'] ." (". $values['TAT_1_per']."%)";?></td>
-                <td>
-                    <?php echo $stateTemp['leg_1'][$index-1]['TAT_2'] ." (". $stateTemp['leg_1'][$index-1]['TAT_2_per']."%)";?><br>
-                    <?php echo $stateTemp['leg_2'][$index-1]['TAT_2'] ." (". $stateTemp['leg_2'][$index-1]['TAT_2_per']."%)";?><br>
-                    <?php echo $values['TAT_2'] ." (". $values['TAT_2_per']."%)";?></td>
-                <td>
-                    <?php echo $stateTemp['leg_1'][$index-1]['TAT_3'] ."(". $stateTemp['leg_1'][$index-1]['TAT_3_per']."%)";?><br>
-                    <?php echo $stateTemp['leg_2'][$index-1]['TAT_3'] ."(". $stateTemp['leg_2'][$index-1]['TAT_3_per']."%)";?><br>
-                    <?php echo $values['TAT_3'] ." (". $values['TAT_3_per']."%)";?></td>
-                <td>
-                    <?php echo $stateTemp['leg_1'][$index-1]['TAT_4'] ."(". $stateTemp['leg_1'][$index-1]['TAT_4_per']."%)";?><br>
-                    <?php echo $stateTemp['leg_2'][$index-1]['TAT_4'] ."(". $stateTemp['leg_2'][$index-1]['TAT_4_per']."%)";?><br>
-                    <?php echo $values['TAT_4'] ." (". $values['TAT_4_per']."%)";?></td>
-                <td>
-                    <?php echo $stateTemp['leg_1'][$index-1]['TAT_5'] ."(". $stateTemp['leg_1'][$index-1]['TAT_5_per']."%)";?><br>
-                    <?php echo $stateTemp['leg_2'][$index-1]['TAT_5'] ."(". $stateTemp['leg_2'][$index-1]['TAT_5_per']."%)";?><br>
-                    <?php echo $values['TAT_5'] ." (". $values['TAT_5_per']."%)";?></td>
-                <td>
-                    <?php echo $stateTemp['leg_1'][$index-1]['TAT_8'] ."(". $stateTemp['leg_1'][$index-1]['TAT_8_per']."%)";?><br>
-                    <?php echo $stateTemp['leg_2'][$index-1]['TAT_8'] ."(". $stateTemp['leg_2'][$index-1]['TAT_8_per']."%)";?><br>
-                    <?php echo $values['TAT_8'] ." (". $values['TAT_8_per']."%)";?></td>
-                <td>
-                    <?php echo $stateTemp['leg_1'][$index-1]['TAT_16'] ."(". $stateTemp['leg_1'][$index-1]['TAT_16_per']."%)";?><br>
-                    <?php echo $stateTemp['leg_2'][$index-1]['TAT_16'] ."(". $stateTemp['leg_2'][$index-1]['TAT_16_per']."%)";?><br>
-                    <?php echo $values['TAT_16'] ." (".$values['TAT_16_per']."%)";?></td>
-             <?php
-                }
-                else{
-                ?>
+            if(!$is_pending || $this->session->userdata('partner_id')){ ?>
                 <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
                 <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
                 <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>
@@ -257,7 +219,6 @@
                 <td><?php echo $values['TAT_8'] ."<br>(". $values['TAT_8_per']."%)";?></td>
                 <td><?php echo $values['TAT_16'] ."<br>(".$values['TAT_16_per']."%)";?></td>
             <?php
-                }
                 if($is_pending){
                     ?>
                     <td><?php echo $values['Total_Pending'] ."<br>(".$values['TAT_total_per']."%)";?></td>
@@ -398,43 +359,6 @@
             ?></td>
             <?php
             if(!$is_pending || $this->session->userdata('partner_id')){
-                if(count($filters['request_type']) == 1 && $filters['request_type'][0] == 'Repair_with_part'){
-                    ?>
-                <td>
-                    <?php echo $sfTemp['leg_1'][$index-1]['TAT_0'] ." (". $sfTemp['leg_1'][$index-1]['TAT_0_per']."%)";?><br>
-                    <?php echo $sfTemp['leg_2'][$index-1]['TAT_0'] ." (". $sfTemp['leg_2'][$index-1]['TAT_0_per']."%)";?><br>
-                    <?php echo $values['TAT_0'] ."(". $values['TAT_0_per']."%)";?></td>
-                <td>
-                    <?php echo $sfTemp['leg_1'][$index-1]['TAT_1'] ." (". $sfTemp['leg_1'][$index-1]['TAT_1_per']."%)";?><br>
-                    <?php echo $sfTemp['leg_2'][$index-1]['TAT_1'] ." (". $sfTemp['leg_2'][$index-1]['TAT_1_per']."%)";?><br>
-                    <?php echo $values['TAT_1'] ." (". $values['TAT_1_per']."%)";?></td>
-                <td>
-                    <?php echo $sfTemp['leg_1'][$index-1]['TAT_2'] ." (". $sfTemp['leg_1'][$index-1]['TAT_2_per']."%)";?><br>
-                    <?php echo $sfTemp['leg_2'][$index-1]['TAT_2'] ." (". $sfTemp['leg_2'][$index-1]['TAT_2_per']."%)";?><br>
-                    <?php echo $values['TAT_2'] ." (". $values['TAT_2_per']."%)";?></td>
-                <td>
-                    <?php echo $sfTemp['leg_1'][$index-1]['TAT_3'] ."(". $sfTemp['leg_1'][$index-1]['TAT_3_per']."%)";?><br>
-                    <?php echo $sfTemp['leg_2'][$index-1]['TAT_3'] ."(". $sfTemp['leg_2'][$index-1]['TAT_3_per']."%)";?><br>
-                    <?php echo $values['TAT_3'] ." (". $values['TAT_3_per']."%)";?></td>
-                <td>
-                    <?php echo $sfTemp['leg_1'][$index-1]['TAT_4'] ."(". $sfTemp['leg_1'][$index-1]['TAT_4_per']."%)";?><br>
-                    <?php echo $sfTemp['leg_2'][$index-1]['TAT_4'] ."(". $sfTemp['leg_2'][$index-1]['TAT_4_per']."%)";?><br>
-                    <?php echo $values['TAT_4'] ." (". $values['TAT_4_per']."%)";?></td>
-                <td>
-                    <?php echo $sfTemp['leg_1'][$index-1]['TAT_5'] ."(". $sfTemp['leg_1'][$index-1]['TAT_5_per']."%)";?><br>
-                    <?php echo $sfTemp['leg_2'][$index-1]['TAT_5'] ."(". $sfTemp['leg_2'][$index-1]['TAT_5_per']."%)";?><br>
-                    <?php echo $values['TAT_5'] ." (". $values['TAT_5_per']."%)";?></td>
-                <td>
-                    <?php echo $sfTemp['leg_1'][$index-1]['TAT_8'] ."(". $sfTemp['leg_1'][$index-1]['TAT_8_per']."%)";?><br>
-                    <?php echo $sfTemp['leg_2'][$index-1]['TAT_8'] ."(". $sfTemp['leg_2'][$index-1]['TAT_8_per']."%)";?><br>
-                    <?php echo $values['TAT_8'] ." (". $values['TAT_8_per']."%)";?></td>
-                <td>
-                    <?php echo $sfTemp['leg_1'][$index-1]['TAT_16'] ."(". $sfTemp['leg_1'][$index-1]['TAT_16_per']."%)";?><br>
-                    <?php echo $sfTemp['leg_2'][$index-1]['TAT_16'] ."(". $sfTemp['leg_2'][$index-1]['TAT_16_per']."%)";?><br>
-                    <?php echo $values['TAT_16'] ." (".$values['TAT_16_per']."%)";?></td>
-             <?php
-                }
-                else {
                 ?>
                 <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
                 <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
@@ -445,7 +369,6 @@
                 <td><?php echo $values['TAT_8'] ."<br>(". $values['TAT_8_per']."%)";?></td>
                 <td><?php echo $values['TAT_16'] ."<br>(".$values['TAT_16_per']."%)";?></td>
             <?php
-                }
                 if($is_pending){
                     ?>
                     <td><?php echo $values['Total_Pending'] ."<br>(".$values['TAT_total_per']."%)";?></td>
