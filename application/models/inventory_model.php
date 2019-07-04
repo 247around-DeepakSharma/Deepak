@@ -2553,9 +2553,15 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-    
+ 
+    function get_entity_gst_data($select="entity_gst_details.*", $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->join("state_code", "state_code.state_code = entity_gst_details.state");
+        $query = $this->db->get("entity_gst_details");
+        return $query->result_array();
+    }
     /**
-
      * @Desc: This function is used to get data from the inventory_model_mapping
      * @params: $select string
      * @params: $where array
@@ -2576,15 +2582,6 @@ class Inventory_model extends CI_Model {
         }
         $this->db->from('inventory_model_mapping');
         $query = $this->db->get();
-        return $query->result_array();
-    }
-
-
-       function get_entity_gst_data($select="*", $where){
-        $this->db->select($select);
-        $this->db->where($where);
-        $this->db->join("state_code", "state_code.state_code = entity_gst_details.state");
-        $query = $this->db->get("entity_gst_details");
         return $query->result_array();
     }
 
