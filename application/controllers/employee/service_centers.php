@@ -464,13 +464,6 @@ class Service_centers extends CI_Controller {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
         
-        $data['is_sf_purchase_invoice_required'] = [];
-        if(!empty($data['bookng_unit_details'][0]['quantity'])) {
-            $data['is_sf_purchase_invoice_required'] = array_filter($data['bookng_unit_details'][0]['quantity'], function ($quantity) {
-                return ($quantity['invoice_pod'] == 1);
-            });
-        }         
-         
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
     }
