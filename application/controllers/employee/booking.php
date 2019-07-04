@@ -1028,15 +1028,7 @@ class Booking extends CI_Controller {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
         
-       
         $data['upcountry_charges'] = $upcountry_price;
-        $data['is_sf_purchase_invoice_required'] = [];
-        if(!empty($data['booking_unit_details'][0]['quantity'])) {
-            $data['is_sf_purchase_invoice_required'] = array_filter($data['booking_unit_details'][0]['quantity'], function ($quantity) {
-                return ($quantity['invoice_pod'] == 1);
-            });
-        }
-        
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
     }
