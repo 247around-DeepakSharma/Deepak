@@ -379,7 +379,7 @@ class Bb_model extends CI_Model {
     }
 
     function get_bb_order_appliance_details($where, $select) {
-        $this->db->select($select);
+        $this->db->select($select, false);
         $this->db->from('bb_unit_details as bb_unit ');
         $this->db->join('services as s', 'bb_unit.service_id = s.id');
         $this->db->where($where);
