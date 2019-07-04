@@ -5161,6 +5161,10 @@ class Partner extends CI_Controller {
         $where .= " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Booking ID",
+            "Booking Create Date",
+            "Initial Booking Date",
+            "Current Booking Date",
+            "Booking Completion Date",
             "Product",
             "Requested On Partner/Warehouse",
             "Spare Status",
@@ -5200,6 +5204,10 @@ class Partner extends CI_Controller {
         foreach($data as $sparePartBookings){
             $tempArray = array();            
             $tempArray[] = $sparePartBookings['booking_id'];
+            $tempArray[] = ((!empty($sparePartBookings['create_date']))?date("d-m-Y",strtotime($sparePartBookings['create_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['initial_booking_date']))?date("d-m-Y",strtotime($sparePartBookings['initial_booking_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['booking_date']))?date("d-m-Y",strtotime($sparePartBookings['booking_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['closed_date']))?date("d-m-Y",strtotime($sparePartBookings['closed_date'])):'');
             $tempArray[] = $sparePartBookings['services'];
             $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse - " : "").$sparePartBookings['warehouse_name']);
             $tempArray[] = $sparePartBookings['status'];
@@ -5213,23 +5221,23 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['part_name'];
             $tempArray[] = $sparePartBookings['quantity'];
             $tempArray[] = $sparePartBookings['type'];
-            $tempArray[] = $sparePartBookings['date_of_request'];
+            $tempArray[] = ((!empty($sparePartBookings['date_of_request']))?date("d-m-Y",strtotime($sparePartBookings['date_of_request'])):'');
             $tempArray[] = $sparePartBookings['challan_approx_value'];
             $tempArray[] = $sparePartBookings['shipped_part_number'];
             $tempArray[] = $sparePartBookings['shipped_part_name'];
             $tempArray[] = $sparePartBookings['shipped_quantity'];
             $tempArray[] = $sparePartBookings['shipped_part_type'];
-            $tempArray[] = $sparePartBookings['shipped_date'];
+            $tempArray[] = ((!empty($sparePartBookings['shipped_date']))?date("d-m-Y",strtotime($sparePartBookings['shipped_date'])):'');
             $tempArray[] = $sparePartBookings['purchase_invoice_id'];
             $tempArray[] = $sparePartBookings['partner_challan_number'];
             $tempArray[] = $sparePartBookings['awb_by_partner'];
             $tempArray[] = $sparePartBookings['courier_name_by_partner'];
             $tempArray[] = $sparePartBookings['courier_price_by_partner'];            
-            $tempArray[] = $sparePartBookings['acknowledge_date'];            
+            $tempArray[] = ((!empty($sparePartBookings['acknowledge_date']))?date("d-m-Y",strtotime($sparePartBookings['acknowledge_date'])):'');            
             $tempArray[] = $sparePartBookings['remarks_by_partner'];
             $tempArray[] = $sparePartBookings['defective_part_shipped'];
-            $tempArray[] = $sparePartBookings['received_defective_part_date'];
-            $tempArray[] = $sparePartBookings['defective_part_shipped_date'];
+            $tempArray[] = ((!empty($sparePartBookings['received_defective_part_date']))?date("d-m-Y",strtotime($sparePartBookings['received_defective_part_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['defective_part_shipped_date']))?date("d-m-Y",strtotime($sparePartBookings['defective_part_shipped_date'])):'');
             $tempArray[] = $sparePartBookings['remarks_defective_part_by_sf'];
             $tempArray[] = $sparePartBookings['sf_challan_number'];
             $tempArray[] = $sparePartBookings['awb_by_sf'];
