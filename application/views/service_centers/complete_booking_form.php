@@ -139,8 +139,6 @@
                     <input type="hidden" name="mismatch_pincode" id="mismatch_pincode" value="<?php if(isset($mismatch_pincode)) { echo $mismatch_pincode; }?>" />
                     <?php $k_count = 0; $count = 0; foreach ($bookng_unit_details as $key1 => $unit_details) { ?>
 
-                    <input type="hidden" name="is_sf_purchase_invoice_required" id="is_sf_purchase_invoice_required" value="<?= (!empty($is_sf_purchase_invoice_required) ? 1 : 0); ?>">
-            
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <div class="panel-body">
                             <div class="row">
@@ -186,7 +184,7 @@
                                                 
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-3"style="width:16.95%;margin-left:6px !important;" style=" padding-right: 0px;">
+                                        <div class="form-group col-md-3"style="width:16.95%" style=" padding-right: 0px;">
                                             <label> Purchase Date</label>
                                             <div class="input-group input-append date">
                                                 <input  autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>">
@@ -244,8 +242,8 @@
                                                             ?>
                                                     <tr>
                                                         <td>
-                                                            <?php 
-                                                            if(isset($model_data) && !empty($model_data) ){ ?>
+                                                            <input type="hidden" name="is_sf_purchase_invoice_required_<?php echo $key1; ?>" id="is_sf_purchase_invoice_required_<?php echo $key1; ?>" value="<?= (!empty(array_filter($unit_details['quantity'], function ($quantity) {return ($quantity['invoice_pod'] == 1);})) ? 1 : 0); ?>" data-priceTags='<?php echo json_encode(array_column(array_filter($unit_details['quantity'], function ($quantity) {return ($quantity['invoice_pod'] == 1); }), 'price_tags')); ?>'>
+                                                            <?php if(isset($model_data) && !empty($model_data) ){ ?>
                                                             <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>"  >
                                                                 <option value="" selected desa>Please Select Model Number</option>
                                                                 <?php foreach ($model_data as $m) { ?>
@@ -638,7 +636,6 @@
 </div>
 <script>
 
-    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'price_tags') : [])).';'; ?>
     $(".model_number").select2();
     $("#technical_problem").select2();
     $('#technical_defect').select2();
@@ -746,7 +743,6 @@
        
         for(m= 0; m< Number(appliance_count); m++){
             var isbroken = $("#broken_"+ m).val();
-          
             if(isbroken === null){
                 alert("Please Select Is Broken DropDown");
                 document.getElementById("broken_"+ m).style.borderColor = "red";
@@ -767,16 +763,21 @@
        
             //console.log($(this).val());
             var div_no = this.id.split('_');
+            var div_class = $(this).attr('class').split('_')[1];
+            
             is_completed_checkbox[i] = div_no[0];
             if (div_no[0] === "completed") {
-                if(service_category_pod_required.includes($.trim($('#price_tags'+i).text()))) {
-                    var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required').val();
-                    if(is_sf_purchase_invoice_required == '1') {
-                        var sf_purchase_invoice = $('.purchase-invoice').val();
-                        if(sf_purchase_invoice == '') {
-                            alert("Please upload sf purchase invoice document.");
-                            flag = 1;
-                            return false;
+                var service_category_pod_required = $('#is_sf_purchase_invoice_required_'+div_class).attr('data-pricetags');
+                if (typeof service_category_pod_required !== "undefined") { 
+                    if(service_category_pod_required.includes($.trim($('#price_tags'+i).text()))) {
+                        var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required_'+div_class).val();
+                        if(is_sf_purchase_invoice_required == '1') {
+                           var sf_purchase_invoice = $('#purchase_invoice_'+div_class).val();
+                            if(sf_purchase_invoice == '') {
+                                alert("Please upload sf purchase invoice document.");
+                                flag = 1;
+                                return false;
+                            }
                         }
                     }
                 }

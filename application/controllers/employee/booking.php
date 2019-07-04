@@ -1034,13 +1034,6 @@ class Booking extends CI_Controller {
         $data['is_sf_purchase_invoice_required'] = $this->reusable_model->get_search_query('booking_unit_details', '*', ['partner_id' => $data['booking_history'][0]['partner_id'], 'service_id' => $data['booking_history'][0]['service_id'], 'invoice_pod' => 1], null, null, null, null, null)->result_array();
 
         $data['upcountry_charges'] = $upcountry_price;
-        $data['is_sf_purchase_invoice_required'] = [];
-        if(!empty($data['booking_unit_details'][0]['quantity'])) {
-            $data['is_sf_purchase_invoice_required'] = array_filter($data['booking_unit_details'][0]['quantity'], function ($quantity) {
-                return ($quantity['invoice_pod'] == 1);
-            });
-        }
-        
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
     }

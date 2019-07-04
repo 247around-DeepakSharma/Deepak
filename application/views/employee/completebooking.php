@@ -94,7 +94,6 @@
                                         <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
                                         <input type="hidden" id="sp_required_id" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
                                         <input type="hidden" name="can_sp_required_id" value='<?php echo json_encode($can_sp_id,TRUE); ?>' />
-                                        <input type="hidden" name="is_sf_purchase_invoice_required" id="is_sf_purchase_invoice_required" value="<?= (!empty($is_sf_purchase_invoice_required) ? 1 : 0); ?>">
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -232,6 +231,7 @@
                     ?>
                     <!-- row End  -->
                     <?php $k_count = 0;$count = 1; foreach ($booking_unit_details as $keys => $unit_details) { ?>
+
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
                             <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
@@ -302,6 +302,8 @@
                                             <?php
                                                 
                                                 foreach ($unit_details['quantity'] as $key => $price) { ?>
+                                                <input type="hidden" name="is_sf_purchase_invoice_required_<?php echo $keys; ?>" id="is_sf_purchase_invoice_required_<?php echo $keys; ?>" value="<?= (!empty(array_filter($unit_details['quantity'], function ($quantity) {return ($quantity['invoice_pod'] == 1);})) ? 1 : 0); ?>" data-priceTags='<?php echo json_encode(array_column(array_filter($unit_details['quantity'], function ($quantity) {return ($quantity['invoice_pod'] == 1); }), 'price_tags')); ?>'>
+
                                                     <input type="hidden" value="<?php echo count($unit_details['quantity']) ?>" id="count_line_item_<?php echo $keys; ?>">
                                             <input type="hidden" name="b_unit_id[<?php echo $keys; ?>][]" value="<?php echo $price['unit_id'];?>" />
                                             <tr style="background-color: white; ">
@@ -648,7 +650,6 @@
 </script>
 <script>
     
-    var service_category_pod_required = <?php echo json_encode((!empty($is_sf_purchase_invoice_required)? array_column($is_sf_purchase_invoice_required, 'price_tags') : [])).';'; ?>
     $("#service_id").select2();
     $("#booking_city").select2();
     var brandServiceUrl =  '<?php echo base_url();?>/employee/booking/getBrandForService/';
@@ -767,17 +768,21 @@
     
         //console.log($(this).val());
         var div_no = this.id.split('_');
+        var div_class = $(this).attr('class').split('_')[2];
         is_completed_checkbox[i] = div_no[0];
         if (div_no[0] === "completed") {
             var price_tag_row_number = parseInt(i)+1;
-            if(service_category_pod_required.includes($.trim($('#price_tags'+price_tag_row_number).text()))) {
-                var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required').val();
-                if(is_sf_purchase_invoice_required == '1') {
-                    var sf_purchase_invoice = $('.purchase-invoice').val();
-                    if(sf_purchase_invoice == '') {
-                        alert("Please upload sf purchase invoice document.");
-                        flag = 1;
-                        return false;
+            var service_category_pod_required = $('#is_sf_purchase_invoice_required_'+div_class).attr('data-pricetags');
+            if (typeof service_category_pod_required !== "undefined") { 
+                if(service_category_pod_required.includes($.trim($('#price_tags'+price_tag_row_number).text()))) {
+                    var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required_'+div_class).val();
+                    if(is_sf_purchase_invoice_required == '1') {
+                        var sf_purchase_invoice = $('#purchase_invoice_'+div_class).attr('value');
+                        if(sf_purchase_invoice == '') {
+                            alert("Please upload sf purchase invoice document.");
+                            flag = 1;
+                            return false;
+                        }
                     }
                 }
             }
