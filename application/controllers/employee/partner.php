@@ -5137,6 +5137,10 @@ class Partner extends CI_Controller {
         $where .= " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Booking ID",
+            "Booking Create Date",
+            "Initial Booking Date",
+            "Current Booking Date",
+            "Booking Completion Date",
             "Product",
             "Booking Request Type",
             "Part Warranty Status",
