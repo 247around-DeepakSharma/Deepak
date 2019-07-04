@@ -2946,7 +2946,8 @@ class Service_centers extends CI_Controller {
                     . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
 
         $spare_part = $this->partner_model->get_spare_parts_booking($where);
-
+        if (!empty($$spare_part)) {
+        	
         $_POST['sf_id'] = $spare_part[0]['service_center_id'];
         $_POST['booking_id'] = $spare_part[0]['booking_id'];
         $_POST['user_name'] = $spare_part[0]['name'];
@@ -2969,7 +2970,9 @@ class Service_centers extends CI_Controller {
              } 
        
 
-        $this->process_update_defective_parts($value);
+        $this->process_update_defective_parts($value); 
+        }
+
       }
 
       echo 'success';
