@@ -1594,10 +1594,26 @@ class Service_centers extends CI_Controller {
      * @desc: This is used to load update form for service center
      * @param String Base_encode form - $booking_id
      */
-    function update_booking_status($code) {
+    function update_booking_status($code, $flag = '') {
         log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode(urldecode($code)));
         $this->checkUserSession();
-        $booking_id = base64_decode(urldecode($code));        
+        $data = array();
+        if (!empty($flag)) {
+
+            if (is_numeric($flag)) {
+                if ($flag == 1) {
+                    $data['consume_spare_status'] = true;
+                } else {
+                    $data['consume_spare_status'] = false;
+                }
+            } else {
+                $data['consume_spare_status'] = false;
+            }
+        } else {
+            $data['consume_spare_status'] = false;
+        }
+
+        $booking_id = base64_decode(urldecode($code));
         if (!empty($booking_id) || $booking_id != 0) {
             $data['booking_id'] = $booking_id;
             $where_internal_status = array("page" => "update_sc", "active" => '1');
