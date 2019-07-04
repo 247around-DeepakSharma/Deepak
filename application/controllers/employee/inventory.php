@@ -3640,7 +3640,7 @@ class Inventory extends CI_Controller {
             $entity_details[0]['gst_number'] = true;
         }
         
-        $around_gst = $this->ci->inventory_model->get_entity_gst_data("*", array('id' => $to_gst_number));
+        $around_gst = $this->ci->inventory_model->get_entity_gst_data("entity_gst_details.*", array('id' => $to_gst_number));
         
         $invoice_id = $this->invoice_lib->create_invoice_id("ARD-".$around_gst[0]['state_code']);
         $a = array();
