@@ -2399,12 +2399,10 @@ function get_data_for_partner_callback($booking_id) {
         $start_date = date("Y-m-d 00:00:00", strtotime($start_date));
         $end_date = date("Y-m-d 23:59:59", strtotime($end_date));
         $strQuery = "SELECT 
-                        booking_details.booking_id,
-                        bs.agent_id,
-                        date_format(booking_details.create_date, '%d-%m-%Y %H:%m') as create_date,
-                        date_format(booking_details.create_date, '%d') as date, 
-                        entity_login_table.agent_name,
-                        entity_login_table.user_id
+                        booking_details.booking_id as 'Booking ID',
+                        date_format(booking_details.create_date, '%d-%m-%Y %H:%m') as 'Registration Date', 
+                        entity_login_table.agent_name as 'Agent Name',
+                        entity_login_table.user_id as 'Agent Login ID'
                     FROM
                         booking_details
                         JOIN booking_state_change bs ON (booking_details.booking_id = bs.booking_id) 
