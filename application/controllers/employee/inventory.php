@@ -2900,16 +2900,11 @@ class Inventory extends CI_Controller {
         if ($part_number && $entity_id && $entity_type && $service_id) {
             $where = array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id, 'part_number' => $part_number);
             $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate', $where);
-
             if (!empty($inventory_details)) {
-
                 if($this->session->userdata('userType')=='service_center'){
-
                 $select_stock = "*";
                 $service_centres_id=$this->session->userdata('service_center_id');
                 $where_stock=array('entity_id' => $service_centres_id, 'entity_type' =>_247AROUND_SF_STRING, 'inventory_id' => $inventory_details[0]['inventory_id']);
-                $data['price'] = $inventory_details[0]['price'];
-                $data['inventory_id'] = $inventory_details[0]['inventory_id'];
                 $stock_details = $this->inventory_model->get_inventory_stock_count_details($select_stock,$where_stock);
 
                  if (!empty($stock_details)) {
@@ -2918,6 +2913,8 @@ class Inventory extends CI_Controller {
                  $data['total_stock'] = 0;
                  }
                 }
+                $data['price'] = $inventory_details[0]['price'];
+                $data['inventory_id'] = $inventory_details[0]['inventory_id'];
                 $data['gst_rate'] = $inventory_details[0]['gst_rate'];
                 $data['hsn_code'] = $inventory_details[0]['hsn_code'];
             } else {
@@ -2925,14 +2922,14 @@ class Inventory extends CI_Controller {
                 $data['inventory_id'] = '';
                 $data['gst_rate'] = '';
                 $data['hsn_code'] = '';
-                $data['total_stock'] = 00;
+                $data['total_stock'] = 0;
             }
         } else {
             $data['price'] = '';
             $data['inventory_id'] = '';
             $data['gst_rate'] = '';
             $data['hsn_code'] = '';
-            $data['total_stock'] = 00;
+            $data['total_stock'] = 0;
 
             //Getting template from Database
             $template = $this->booking_model->get_booking_email_template("inventory_details_mapping_not_found");
