@@ -4494,9 +4494,6 @@ class Partner extends CI_Controller {
         }
         $partner_list = $this->partner_model->get_all_partner($where);
         $option = '<option selected="" disabled="">Select Partner</option>';
-        if(!empty($this->input->post('is_all_partner'))){
-          $option .= '<option value="all">All</option>';  
-        }
 
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
@@ -5140,7 +5137,13 @@ class Partner extends CI_Controller {
         $where .= " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Booking ID",
+            "Booking Create Date",
+            "Initial Booking Date",
+            "Current Booking Date",
+            "Booking Completion Date",
             "Product",
+            "Booking Request Type",
+            "Part Warranty Status",
             "Requested On Partner/Warehouse",
             "Spare Status",
             "Booking Status Level 1",
@@ -5177,7 +5180,14 @@ class Partner extends CI_Controller {
         foreach($data as $sparePartBookings){
             $tempArray = array();            
             $tempArray[] = $sparePartBookings['booking_id'];
+            $tempArray[] = ((!empty($sparePartBookings['create_date']))?date("d-m-Y",strtotime($sparePartBookings['create_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['initial_booking_date']))?date("d-m-Y",strtotime($sparePartBookings['initial_booking_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['booking_date']))?date("d-m-Y",strtotime($sparePartBookings['booking_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['service_center_closed_date']))?date("d-m-Y",strtotime($sparePartBookings['service_center_closed_date'])):'');
+
             $tempArray[] = $sparePartBookings['services'];
+            $tempArray[] = $sparePartBookings['request_type'];
+            $tempArray[] = (($sparePartBookings['is_micro_wh'] == 1)? "In- Warranty" :(($sparePartBookings['is_micro_wh'] == 2)? "Out of Warranty" : ""));
             $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse - " : "").$sparePartBookings['warehouse_name']);
             $tempArray[] = $sparePartBookings['status'];
             $tempArray[] = $sparePartBookings['partner_current_status'];     

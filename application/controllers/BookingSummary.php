@@ -1607,21 +1607,35 @@ EOD;
         $subject = "247around Services Report  - Jeeves - " . date('d-M-Y');
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') ."_".$partnerID.".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
-        $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,1);
-        $delimiter = ",";
-        $newline = "\r\n";
-        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
-        log_message('info', __FUNCTION__ . ' => Rendered CSV');
-        write_file($csv, $new_report);
-        //Upload File On AWS and save link in file_upload table
-        $this->save_partner_summary_report($partnerID,$newCSVFileName,$csv);
-        $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"date(booking_details.create_date)");
-        $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')");
-        $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
-        $this->notify->sendEmail(NOREPLY_EMAIL_ID,"bsdflipkart@jeeves.co.in, radha.c@jeeves.co.in, naveen.n@jeeves.co.in, manish.agarwal@flipkart.com, vinesh.poojari@flipkart.com, sathis.s@mnw.co.in, dilipkumar.ms@flipkart.com", "anuj@247around.com,nits@247around.com", "", 
-                $subject, $email_body,
-                $csv,"partner_summary_report_percentage_format");
-        unlink($csv);
+        $where_get_partner = array('partners.id' => $partnerID, 'partners.is_active' => '1');
+        $select = "partners.id, partners.summary_email_to, partners.summary_email_cc, "
+                . " partners.summary_email_bcc, partners.public_name";
+        $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
+        if(!empty($partners)){
+            $to = $partners[0]['summary_email_to'];
+            $cc = $partners[0]['summary_email_cc'];
+            $bcc = $partners[0]['summary_email_bcc'];
+            
+            $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,1);
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+            log_message('info', __FUNCTION__ . ' => Rendered CSV');
+            write_file($csv, $new_report);
+            //Upload File On AWS and save link in file_upload table
+            $this->save_partner_summary_report($partnerID,$newCSVFileName,$csv);
+            $emailTemplateDataArray['jeevesDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"date(booking_details.create_date)");
+            $emailTemplateDataArray['aroundDate'] = $this->partner_model->get_partner_report_overview_in_percentage_format($partnerID,"STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')");
+            $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID,$to, $cc, $bcc, 
+                    $subject, $email_body,
+                    $csv,"partner_summary_report_percentage_format");
+//            $this->notify->sendEmail(NOREPLY_EMAIL_ID,"bsdflipkart@jeeves.co.in, radha.c@jeeves.co.in, naveen.n@jeeves.co.in, manish.agarwal@flipkart.com, vinesh.poojari@flipkart.com, sathis.s@mnw.co.in, dilipkumar.ms@flipkart.com", "anuj@247around.com,nits@247around.com", "", 
+//                    $subject, $email_body,
+//                    $csv,"partner_summary_report_percentage_format");
+            unlink($csv);
+        }
+        
     }
     /*
      * This Function is use to upload Partner Summary Report on Aws and saved that link in file_upload table

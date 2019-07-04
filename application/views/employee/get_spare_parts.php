@@ -455,7 +455,7 @@
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url() ?>employee/partner/get_partner_list',
-            data:{is_wh:0,is_all_partner:1},
+            data:{is_wh:0},
             success: function (response) {
                 $("#partner_id").html(response);                
             }

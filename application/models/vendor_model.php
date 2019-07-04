@@ -2110,4 +2110,11 @@ class vendor_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    function get_sf_call_load($sfArray){
+        $sfString = implode("','",$sfArray);
+        $sql = "SELECT assigned_vendor_id,COUNT(booking_id) as booking_count FROM booking_details WHERE assigned_vendor_id IN ('".$sfString."') AND current_status NOT IN ('Completed','Cancelled') "
+                . "GROUP BY assigned_vendor_id ORDER BY COUNT(booking_id) LIMIT 1";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 }
