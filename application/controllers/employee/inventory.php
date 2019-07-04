@@ -3469,28 +3469,6 @@ class Inventory extends CI_Controller {
 
 
 
-function check_msl_invoice_id($transfered_by, $invoice_id) {
-        if ($transfered_by == MSL_TRANSFERED_BY_PARTNER){
-            if (strpos($invoice_id, '/') === false) {
-                $is_invoice_exists = $this->check_invoice_id_exists($invoice_id);
-                if (!$is_invoice_exists['status']) {
-                    return $this->upload_spare_invoice_file($_FILES);
-                } else {
-                    $invoice_file['status'] = FALSE;
-                    $invoice_file['message'] = "Entered invoice number already exists in our record.";
-                }
-            } else {
-                $invoice_file['status'] = FALSE;
-                $invoice_file['message'] = "Invoice ID is invalid.Please make sure invoice number does not contain '/'. You can replace '/' with '-'";
-            }
-        } else {
-            $invoice_file['status'] = true;
-            $invoice_file['message'] = "";
-            
-            return $invoice_file;
-        }
-    }
-
 
 
     /**
@@ -5598,7 +5576,7 @@ function check_msl_invoice_id($transfered_by, $invoice_id) {
 
     function download_spare_consolidated_data($partner_id = NULL) {
         log_message('info', __METHOD__ . ' Processing...');
-
+       
         $partner_id = $this->input->post('partner_id');
         $select = "spare_parts_details.id as spare_id, i.part_number, spare_parts_details.model_number, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',GROUP_CONCAT(employee.full_name) as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
                 . "service_centres.district as 'SF City', "
@@ -5614,7 +5592,7 @@ function check_msl_invoice_id($transfered_by, $invoice_id) {
                 . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age'";
         $where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $group_by = "spare_parts_details.id";
-        if (!empty($partner_id)) {
+        if (!empty($partner_id) && is_numeric($partner_id)) {
             $where['booking_details.partner_id'] = $partner_id;
         }
 

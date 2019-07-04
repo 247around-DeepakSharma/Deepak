@@ -432,7 +432,7 @@ class Dealers extends CI_Controller {
     function getpartner_city_list(){
         log_message("info", __METHOD__);
         $data = $this->booking_model->get_city_source();
-        $data['state'] = $this->vendor_model->getall_state();
+        $data['state'] = $this->vendor_model->get_allstates();
         echo json_encode($data, TRUE);
     }
     /**
@@ -631,7 +631,7 @@ class Dealers extends CI_Controller {
         
         if(!empty($data['dealer_details'])){
             $data['dealer_city_source'] = $this->booking_model->get_city_source();
-            $data['state'] = $this->vendor_model->getall_state();
+            $data['state'] = $this->vendor_model->get_allstates();
             $data['dealer_partner_mapping'] = $this->dealer_model->get_dealer_brand_mapping_details($dealer_id);
             $data['dealer_partner_mapping_id']= array_unique(array_column($data['dealer_partner_mapping'], 'id'));
             $this->miscelleneous->load_nav_header();
