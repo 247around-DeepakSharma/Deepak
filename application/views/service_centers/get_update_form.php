@@ -8,7 +8,7 @@
         <div class="row">
             <div class="col-md-12">
                 <h2 class="page-header">
-                    Update Booking   
+                    Update Booking 
                     <?php if(isset($saas_module) && (!$saas_module)) { ?>
                        <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="float: right;height: 29px;width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
                     <?php } ?>
@@ -558,7 +558,7 @@ function alpha(e) {
     
     $(document).ready(function (){
        $(".spare_parts").attr("disabled", "true");
-       <?php if($consume_spare_status == true ){ ?>
+       <?php if($consume_spare_status == true && $spare_flag == SPARE_PARTS_REQUIRED){ ?>
             internal_status_check('spare_parts');
             $("#spare_parts").prop('checked', true);
        <?php } ?>
