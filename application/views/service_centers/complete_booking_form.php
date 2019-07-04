@@ -212,13 +212,6 @@
                                             
                                             
                                         </div>
-                                        <?php if (!stristr($booking_history[0]['request_type'], "Installation")) { ?>
-                                                <div class="col-md-12"> 
-                                                    <div class="form-group col-md-3" style="float:right; padding: 5px 0px 5px 0px;">
-                                                        <a class="btn btn-primary" style="padding: 5px 20px;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($booking_history[0]['booking_id'])); ?>/1">Consume spare part</a>
-                                                    </div> 
-                                                </div>
-                                            <?php } ?>
 
                                         <div class="col-md-12" style="padding-left:0px;">
                                             <table class="table priceList table-striped table-bordered" name="priceList" >
