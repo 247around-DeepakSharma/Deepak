@@ -2874,6 +2874,8 @@ class Service_centers extends CI_Controller {
 
 
      $sp_ids =  explode(',',$_POST['sp_ids']);
+     $count_spare=  count($sp_ids);
+     $count_spare=$count_spare-1;
         $service_center_id=0;
         if ($this->session->userdata('userType')=='service_center') {
             $service_center_id = $this->session->userdata('service_center_id');
@@ -2907,6 +2909,7 @@ class Service_centers extends CI_Controller {
         $_POST['partner_challan_number'][$value] = $spare_part[0]['partner_challan_number'];
         $_POST['challan_approx_value'][$value] = $spare_part[0]['challan_approx_value'];
         $_POST['parts_requested'][$value] = $spare_part[0]['parts_requested'];
+        $_POST['courier_boxes_weight_flag']=$count_spare;
 
         $this->process_update_defective_parts($value);
       }
