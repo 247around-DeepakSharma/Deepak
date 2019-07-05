@@ -111,7 +111,7 @@
                                         <div class="form-group">
                                             <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
                                             <div class="col-xs-4">
-                                                <select class="form-control" name="from_gst_number" id="from_gst_number" required="">
+                                                <select class="form-control" name="to_gst_number" id="from_gst_number" required="">
                                                     <option value="" disabled="">Select From GST Number</option>
                                                 </select>
                                             </div>
