@@ -38,9 +38,9 @@
                                     <tr id="<?php echo "table_tr_" . $sn_no; ?>">
                                         <td><?php echo $sn_no; ?></td>
                                         <td><?php echo $value['state']; ?></td>
-                                        <td contenteditable="true" id="<?php echo "district" . $sn_no; ?>" ><?php echo $value['district']; ?></td>
-                                        <td contenteditable="true" id="<?php echo "pincode" . $sn_no; ?>" class='allownumericwithdecimal'><?php echo $value['pincode']; ?></td>
-                                        <td contenteditable="true" id="<?php echo "upcountry_rate" . $sn_no; ?>" class='allownumericwithdecimal'><?php echo $value['upcountry_rate']; ?></td>
+                                        <td><input type="text" class="form-control" id="<?php echo "district" . $sn_no; ?>" name="<?php echo "district" . $sn_no; ?>" value="<?php echo $value['district']; ?>"></td>
+                                        <td><input id="<?php echo "pincode" . $sn_no; ?>" class='allownumericwithdecimal form-control' type="text" value="<?php echo $value['pincode']; ?>"></td>
+                                        <td><input id="<?php echo "upcountry_rate" . $sn_no; ?>" class='allownumericwithdecimal form-control' type="text" value="<?php echo $value['upcountry_rate']; ?>"></td>
                                         <td><button class="btn btn-primary" 
                                                     onclick="submit_button('<?php echo $value["id"]; ?>',
                                                                '<?php echo $sn_no; ?>', '<?php echo $value["service_center_id"];
@@ -87,15 +87,16 @@
 <script type="text/javascript">
     function submit_button(id, div_no, service_center_id) {
 
-        var district = $("#district" + div_no).text();
-        var pincode = $("#pincode" + div_no).text();
+        var district = $("#district" + div_no).val();
+        var pincode = $("#pincode" + div_no).val();
         if (pincode.length !== 6) {
             alert("Please Enter Valid 6 digit Pincode Number");
             return false;
         }
-        var upcountry_rate1 = $("#upcountry_rate" + div_no).text();
+        var upcountry_rate1 = $("#upcountry_rate" + div_no).val();
+        
         upcountry_rate = Number(upcountry_rate1);
-        if (upcountry_rate === 2 || upcountry_rate === 3) {
+        if (upcountry_rate >= 1 && upcountry_rate <= 10) {
             var event_taget = event.target;
             var event_element = event.srcElement;
             $.ajax({
@@ -103,7 +104,7 @@
                 url: '<?php echo base_url(); ?>employee/vendor/update_sub_service_center_details',
                 data: {district: district, pincode: pincode, upcountry_rate: upcountry_rate, id: id, service_center_id: service_center_id},
                 success: function (data) {
-                    if (data === 'success') {
+                    if ($.trim(data) === 'success') {
                         $('#show_success_msg').html('Details has been Updated successfully');
                         $('.success').show().delay(5000).fadeOut();
                         ;
@@ -116,7 +117,7 @@
             });
             $(event_taget || event_element).parents('tr').hide();
         } else {
-            alert("Please Enter Either 2 or 3 in upcountry rate");
+            alert("Please enter upcountry rate between 1 to 10.");
             return false;
         }
 
