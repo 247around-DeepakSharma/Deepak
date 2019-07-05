@@ -165,4 +165,13 @@ class booking_creation_lib {
         $this->My_CI->form_validation->set_rules('support_file', 'Suppoart File', 'callback_validate_upload_orderId_support_file');
         return $this->My_CI->form_validation->run();
     }
+    
+    function is_booking_able_to_reschedule($booking_id) {
+        $service_center_closed_date = $this->My_CI->reusable_model->get_search_result_data('booking_details', 'service_center_closed_date', ['booking_id' => $booking_id], NULL, NULL, NULL, NULL, NULL)[0]['service_center_closed_date'];
+        if(!empty($service_center_closed_date)) {
+            return FALSE;
+        } else {
+            return TRUE;
+        }
+    }
 }

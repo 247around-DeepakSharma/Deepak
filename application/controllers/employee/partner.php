@@ -35,6 +35,7 @@ class Partner extends CI_Controller {
         $this->load->library('user_agent');
         $this->load->library("initialized_variable");
         $this->load->model("push_notification_model");
+        $this->load->library("booking_creation_lib");
         $this->load->library('table');
         $this->load->library("invoice_lib");
         $this->load->library("paytm_cb");
@@ -1073,6 +1074,7 @@ class Partner extends CI_Controller {
                 array("entity_role"=>"contact_person.role = entity_role.id","agent_filters"=>"contact_person.id=agent_filters.contact_person_id","entity_login_table"=>"entity_login_table.contact_person_id = contact_person.id"), NULL, 
                 array("name"=>'ASC'), NULL,  array("agent_filters"=>"left","entity_role"=>"left","entity_login_table"=>"left"),array("contact_person.id"));
        $results['contact_name'] = $this->partner_model->select_contact_person($id);
+
        $is_wh = $this->reusable_model->get_search_result_data("partners","is_wh",array('id'=>$id),NULL,NULL,NULL,NULL,NULL,array());
        $results['bank_detail'] = $this->reusable_model->get_search_result_data("account_holders_bank_details", '*',array("entity_id"=>$id, "entity_type" => 'partner'),NULL, NULL, array('is_active'=>'DESC'), NULL, NULL, array()); 
        $results['variable_charges'] = $this->accounting_model->get_vendor_partner_variable_charges("fixed_charges, vendor_partner_variable_charges.validity_in_month, vendor_partner_variable_charges.id as partner_charge_id, vendor_partner_variable_charges.status, variable_charges_type.*", array('entity_type'=>'partner', 'entity_id'=>$id), true);
@@ -1340,8 +1342,12 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $this->checkUserSession();
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'trim|required');
-
-        if ($this->form_validation->run() == FALSE) {
+        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id);
+        
+        if ($this->form_validation->run() == FALSE || $is_booking_able_to_reschedule === FALSE) {
+            if($is_booking_able_to_reschedule === FALSE) {
+                $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
+            }
             $this->get_reschedule_booking_form($booking_id);
         } else {
             log_message('info', __FUNCTION__ . " Booking Id  " . $booking_id);
@@ -3385,6 +3391,9 @@ class Partner extends CI_Controller {
                     $sms['type_id'] = $data[0]['user_id'];
                     if($data[0]['partner_id'] == VIDEOCON_ID){
                         $sms['smsData']['cc_number'] = "0120-4500600";
+                    }
+                    else if($data[0]['partner_id'] == SHARP_ID){
+                        $sms['smsData']['cc_number'] = SHARP_CALLCENTER_NUMBER;
                     }
                     else{
                        $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
@@ -5962,8 +5971,9 @@ class Partner extends CI_Controller {
      * @return : JSON
      */
     function edit_warehouse_details() {
-        log_message('info', 'edit warehouse details updated data ' . print_r($_POST, true));
+        log_message('info', 'edit warehouse details updated data ' . print_r($_POST, true),true);
         $wh_id = $this->input->post('wh_id');
+        
         if (!empty($wh_id)) {
             $res = array();
             $wh_data = array(
@@ -5995,7 +6005,9 @@ class Partner extends CI_Controller {
             }
 
 
-            if (!empty(array_diff($this->input->post('wh_state_mapping'), explode(',', $this->input->post('old_mapped_state_data'))))) {
+
+ 
+            if (!empty(array_intersect($this->input->post('wh_state_mapping'), explode(',', $this->input->post('old_mapped_state_data'))))) {
                 $data['wh_id'] = $wh_id;
                 $data['new_wh_state_mapping'] = $this->input->post('wh_state_mapping');
                 $update_state_mapping = $this->inventory_model->update_wh_state_mapping_data($data);
@@ -6007,8 +6019,13 @@ class Partner extends CI_Controller {
                     $res['status'] = true;
                     $res['msg'] = 'State Mapping Not Updated . Please try again...';
                 }
+            }else{
+
+                $res['status'] = false;
+                $res['msg'] = 'Details not updated. problem in selecting states';
+
             }
-            
+
             if(!empty($res)){
                 $res = $res;
             }else if ($update_wh) {
@@ -6228,7 +6245,7 @@ class Partner extends CI_Controller {
                                                             style="background-color:#2C9D9C; border-color: #2C9D9C;color:#fff;padding: 5px 0px;
         margin: 0px;">Update</a></li>
                                                         <li style="color: #fff;margin-top:5px;">
-                                                            <a id="a_hover"'.$helperString.' href="'.base_url().'partner/get_reschedule_booking_form/'.$row->booking_id.'" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule">Reschedule</a>
+                                                            <a id="a_hover"'.$helperString.' href="'.base_url().'partner/get_reschedule_booking_form/'.$row->booking_id.'" id="reschedule" class="btn btn-sm btn-success '.(!empty($row->service_center_closed_date) ? 'disabled' : '').'" title ="Reschedule">Reschedule</a>
                                                         </li>
                                                          <li style="color: #fff;margin-top:5px;">
                                                              <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href='.base_url().'partner/get_cancel_form/'._247AROUND_PENDING.'/'.$row->booking_id.' class="btn btn-sm btn-danger" title="Cancel">Cancel</a>
