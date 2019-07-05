@@ -999,20 +999,26 @@ class Invoice_lib {
     
     function get_array_settle_data($b, $inventory_details, $restQty, $value){
         
-        $partner_gst = $this->ci->inventory_model->get_entity_gst_data("*", array('id' => $b['from_gst_number']));
-        $around_gst = $this->ci->inventory_model->get_entity_gst_data("*", array('id' => $b['to_gst_number']));
-        $around_gst_number = "";
-        $around_state_code = "";
+        $partner_gst = $this->ci->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $b['from_gst_number']));
+        $around_gst = $this->ci->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $b['to_gst_number']));
+        $around_gst_number = $partner_address = $partner_pincode = $partner_city = "";
+        $around_state_code = $around_address = $address_pincode = $around_city = "";
         $partner_gst_number = "";
         $partner_state_code = "";
         if(!empty($around_gst)){
             $around_gst_number = $around_gst[0]['gst_number'];
             $around_state_code = $around_gst[0]['state'];
+            $around_address = $around_gst[0]['address'];
+            $around_pincode = $around_gst[0]['pincode'];
+            $around_city = $around_gst[0]['city'];
         }
         
         if(!empty($partner_gst)){
             $partner_state_code = $partner_gst[0]['state'];
             $partner_gst_number = $partner_gst[0]['gst_number'];
+            $partner_address = $partner_gst[0]['address'];
+            $partner_pincode = $partner_gst[0]['pincode'];
+            $partner_city = $partner_gst[0]['city'];
         }
         return array(
             'incoming_invoice_id' => $b['invoice_id'], 
@@ -1028,8 +1034,15 @@ class Invoice_lib {
             "gst_rate" => $b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate'],
             "to_gst_number" => $partner_gst_number,
             "to_state_code" => $partner_state_code,
+            "to_address" => $partner_address,
+            "to_pincode" => $partner_pincode,
+            "to_city" => $partner_city,
+            
             "from_gst_number" => $around_gst_number,
-            "from_state_code" =>$around_state_code
+            "from_state_code" =>$around_state_code,
+            "from_address" => $around_address,
+            "from_pincode" => $around_pincode,
+            "from_city" => $around_city
             );
     }
     

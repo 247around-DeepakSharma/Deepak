@@ -3387,6 +3387,9 @@ class Partner extends CI_Controller {
                     if($data[0]['partner_id'] == VIDEOCON_ID){
                         $sms['smsData']['cc_number'] = "0120-4500600";
                     }
+                    else if($data[0]['partner_id'] == SHARP_ID){
+                        $sms['smsData']['cc_number'] = SHARP_CALLCENTER_NUMBER;
+                    }
                     else{
                        $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
                     }
@@ -4495,6 +4498,9 @@ class Partner extends CI_Controller {
         }
         $partner_list = $this->partner_model->get_all_partner($where);
         $option = '<option selected="" disabled="">Select Partner</option>';
+        if(!empty($this->input->post('is_all_partner'))){
+          $option .= '<option value="all">All</option>';  
+        }
 
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
@@ -5353,14 +5359,23 @@ class Partner extends CI_Controller {
      * @params: void
      * @return: string
      */
-    function get_partner_specific_appliance(){
+    function get_partner_specific_appliance() {
         $partner_id = $this->input->get('partner_id');
-        if($partner_id){
+
+        if (!empty($this->input->get('is_not_all_services'))) {
+            $is_all_option = false;
+        } else {
+            $is_all_option = true;
+        }
+
+        if ($partner_id) {
             $appliance_list = $this->partner_model->get_partner_specific_services($partner_id);
-            if($this->input->get('is_option_selected')){
+            if ($this->input->get('is_option_selected')) {
                 $option = '<option  selected="" disabled="">Select Appliance</option>';
-                $option = $option.'<option id="allappliance" value="all" >All</option>';
-            }else{
+                if ($is_all_option == true) {
+                    $option = $option . '<option id="allappliance" value="all" >All</option>';
+                }
+            } else {
                 $option = '';
             }
 
@@ -5370,11 +5385,11 @@ class Partner extends CI_Controller {
                 $option .= $value->services . "</option>";
             }
             echo $option;
-        }else{
+        } else {
             echo FALSE;
         }
     }
-    
+
     /**
      * @desc: This function is used to show the inventory details of the partner
      * @params: void

@@ -834,7 +834,7 @@
                                         <th >Remarks By Partner </th>
                                         <th>SF Challan Number</th>
                                         <th>SF Challan File</th>
-                                        <th>Update Spare Details</th>
+                                        <th>Update Courier Details</th>
                                     </tr>
                                 </thead>
                                 <tbody>
