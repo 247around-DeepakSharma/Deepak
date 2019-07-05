@@ -2251,6 +2251,7 @@ class engineerApi extends CI_Controller {
     function getBookingProductDetails(){
         log_message("info", __METHOD__. " Entering..");
         $response = array();
+        $bookng_unit_details = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //$requestData = array("booking_id" => "PV-16565919070335", "brand"=>"TSeries", "partner_id" => 247073, "service_id"=> 46, "service_center_id" => 1);
         if(!empty($requestData["booking_id"]) && !empty($requestData["brand"]) && !empty($requestData["partner_id"]) && !empty($requestData["service_id"])){
@@ -2263,8 +2264,8 @@ class engineerApi extends CI_Controller {
                 "NULLIF(model, '') IS NOT NULL" => NULL);
         
             $response['model_data'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
-            $bookng_unit_details = $this->booking_model->getunit_details($requestData["booking_id"])[0];
-           
+            $unit_details = $this->booking_model->getunit_details($requestData["booking_id"]);
+            array_push($bookng_unit_details, $unit_details[0]);
             $response['prices'] = array();
             $price_tags = array();
             foreach ($bookng_unit_details as $key1 => $b) {
@@ -2312,9 +2313,8 @@ class engineerApi extends CI_Controller {
                 $bookng_unit_details[$key1]['dop'] = $broken;
             }
             
-            $response['bookng_unit_details'] = $bookng_unit_details;
+            $response['booking_unit_details'] = $bookng_unit_details[0];
             log_message("info", __METHOD__ . "Product details found successfully");
-            
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
         }
