@@ -28,22 +28,6 @@
                             $this->session->unset_userdata('success');
                         }
                     ?>
-                    <div class="form-group row">
-                        <div class="col-md-3">
-                            <label for="partner">Partner</label>
-                        </div>
-                        <div class="col-md-9">
-                            <select type="text" class="form-control"  id="partner" name="partner_id">
-                                <option value=""></option>
-                                <?php foreach($partners as $partner) { ?>
-                                <option value="<?= $partner['id']; ?>"
-                                        <?= (!empty($penalty) && $penalty['partner_id'] == $partner['id'] ? 'selected' : ''); ?>
-                                ><?= $partner['public_name']; ?></option>
-
-                                <?php } ?>
-                            </select>
-                        </div>
-                    </div>
                     
                     <div class="form-group row">
                         <div class="col-md-3">
@@ -77,15 +61,6 @@
                         </div>
                         <div class="col-md-9">
                             <input type="text" class="form-control" name="penalty_amount" id="penalty_amount" value="<?= (!empty($penalty['penalty_amount']) ? $penalty['penalty_amount'] : NULL); ?>">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group row">
-                        <div class="col-md-3">
-                            <label for="unit_rate">Unit(%) Rate</label>
-                        </div>
-                        <div class="col-md-9">
-                            <input type="text" class="form-control" name="unit_rate" id="unit_rate" value="<?= (!empty($penalty['unit_%_rate']) ? $penalty['unit_%_rate'] : NULL); ?>">
                         </div>
                     </div>
                     
