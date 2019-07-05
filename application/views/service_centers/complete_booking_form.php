@@ -248,7 +248,7 @@
                                                                 <option value="" selected desa>Please Select Model Number</option>
                                                                 <?php foreach ($model_data as $m) { ?>
                                                                 <option value="<?php echo $m['model_number'];?>"
-                                                                        <?php if(!empty($booking_history['spare_parts']) && $booking_history['spare_parts'][0]['model_number'] == $m['model_number']){ echo 'selected';} elseif($unit_details['model_number'] == $m['model_number']) { echo 'selected'; } else { echo ''; }  ?>
+                                                                        <?php if(!empty($booking_history['spare_parts']) && $booking_history['spare_parts'][0]['serial_number_pic'] == $m['model_number']){ echo 'selected';} elseif($unit_details['model_number'] == $m['model_number']) { echo 'selected'; } else { echo ''; }  ?>
                                                                 ><?php echo $m['model_number'];?></option>
                                                                 <?php }?>
                                                             </select>
@@ -275,7 +275,7 @@
                                                             <div class="form-group">
                                                                 <div class="col-md-12">
                                                                     <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
-                                                                        value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} elseif(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>" placeholder=""   />
+                                                                        value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} elseif(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else { echo $price["serial_number_pic"];}  ?>" placeholder=""   />
 <!--                                                                    onblur="validateSerialNo('<?php //echo $count;?>')" -->
                                                                     <input type="text" style="text-transform: uppercase;" id="<?php echo "serial_number" . $count ?>" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  
                                                                         value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];}

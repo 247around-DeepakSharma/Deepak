@@ -6212,7 +6212,7 @@ class Partner extends CI_Controller {
                                                             style="background-color:#2C9D9C; border-color: #2C9D9C;color:#fff;padding: 5px 0px;
         margin: 0px;">Update</a></li>
                                                         <li style="color: #fff;margin-top:5px;">
-                                                            <a id="a_hover"'.$helperString.' href="'.base_url().'partner/get_reschedule_booking_form/'.$row->booking_id.'" id="reschedule" class="btn btn-sm btn-success '.(!empty($row->service_center_closed_date) ? 'disabled' : '').'" title ="Reschedule">Reschedule</a>
+                                                            <a id="a_hover"'.$helperString.' href="'.base_url().'partner/get_reschedule_booking_form/'.$row->booking_id.'" id="reschedule" class="btn btn-sm btn-success" title ="Reschedule">Reschedule</a>
                                                         </li>
                                                          <li style="color: #fff;margin-top:5px;">
                                                              <a id="a_hover" style="background-color: #d9534f;border-color:#d9534f;color:#fff;padding: 5px 0px;margin: 0px;"href='.base_url().'partner/get_cancel_form/'._247AROUND_PENDING.'/'.$row->booking_id.' class="btn btn-sm btn-danger" title="Cancel">Cancel</a>

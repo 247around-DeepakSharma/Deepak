@@ -320,7 +320,7 @@
                         </td>
                         <td>
                             <?php
-                                if (($row->current_status == 'Pending' || $row->current_status == 'Rescheduled') && empty($row->service_center_closed_date))
+                                if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
                                 {
                                     echo "<a id='edit' class='btn btn-sm btn-color' "
                                     . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$row->booking_id title='Reschedule'><i class='fa fa-calendar' aria-hidden='true' ></i></a>";
