@@ -216,3 +216,12 @@ ALTER TABLE `appliance_updated_by_sf` CHANGE `capacity` `capacity` VARCHAR(64) C
 ALTER TABLE `spare_parts_details` ADD `partner_warehouse_packaging_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `vendor_courier_invoice_id`;
 
 ALTER TABLE employee_relation ADD COLUMN individual_service_centres_id text NULL DEFAULT NULL AFTER service_centres_id;
+
+--Kalyani 04-July-2019
+ALTER TABLE `engineer_booking_action` ADD `model_number` VARCHAR(255) NULL DEFAULT NULL AFTER `cancellation_reason`;
+ALTER TABLE `engineer_booking_action` ADD `sf_purchase_date` DATETIME NULL DEFAULT NULL AFTER `model_number`;
+ALTER TABLE `engineer_booking_action` ADD `closing_remark` VARCHAR(500) NULL DEFAULT NULL COMMENT 'engineer remark on booking completion' AFTER `sf_purchase_date`;
+ALTER TABLE `engineer_booking_action` ADD `symptom` INT NULL DEFAULT NULL AFTER `closing_remark`, ADD `defect` INT NULL DEFAULT NULL AFTER `symptom`, ADD `solution` INT NULL DEFAULT NULL AFTER `defect`;
+ALTER TABLE `engineer_booking_action` ADD `service_charge` INT NOT NULL DEFAULT '0' AFTER `cancellation_reason`;
+ALTER TABLE `engineer_booking_action` ADD `additional_service_charge` INT NOT NULL DEFAULT '0' AFTER `service_charge`;
+ALTER TABLE `engineer_booking_action` ADD `parts_cost` INT NOT NULL DEFAULT '0' AFTER `additional_service_charge`;
