@@ -210,6 +210,13 @@
                                             
                                             
                                         </div>
+                                        <?php if (!stristr($booking_history[0]['request_type'], "Installation")) { ?>
+                                                <div class="col-md-12"> 
+                                                    <div class="form-group col-md-3" style="float:right; padding: 5px 0px 5px 0px;">
+                                                        <a class="btn btn-primary" style="padding: 5px 20px;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($booking_history[0]['booking_id'])); ?>/1">Consume spare part</a>
+                                                    </div> 
+                                                </div>
+                                            <?php } ?>
 
                                         <div class="col-md-12" style="padding-left:0px;">
                                             <table class="table priceList table-striped table-bordered" name="priceList" >
@@ -241,7 +248,7 @@
                                                                 <option value="" selected desa>Please Select Model Number</option>
                                                                 <?php foreach ($model_data as $m) { ?>
                                                                 <option value="<?php echo $m['model_number'];?>"
-                                                                        <?php if(!empty($booking_history['spare_parts']) && $booking_history['spare_parts'][0]['serial_number_pic'] == $m['model_number']){ echo 'selected';} elseif($unit_details['model_number'] == $m['model_number']) { echo 'selected'; } else { echo ''; }  ?>
+                                                                        <?php if(!empty($booking_history['spare_parts']) && $booking_history['spare_parts'][0]['model_number'] == $m['model_number']){ echo 'selected';} elseif($unit_details['model_number'] == $m['model_number']) { echo 'selected'; } else { echo ''; }  ?>
                                                                 ><?php echo $m['model_number'];?></option>
                                                                 <?php }?>
                                                             </select>
@@ -266,7 +273,7 @@
                                                             <div class="form-group">
                                                                 <div class="col-md-12">
                                                                     <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
-                                                                        value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} else {$price["serial_number_pic"];}  ?>" placeholder=""   />
+                                                                        value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} elseif(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>" placeholder=""   />
 <!--                                                                    onblur="validateSerialNo('<?php //echo $count;?>')" -->
                                                                     <input type="text" style="text-transform: uppercase;" id="<?php echo "serial_number" . $count ?>" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  
                                                                         value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];}

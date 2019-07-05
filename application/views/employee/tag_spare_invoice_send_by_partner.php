@@ -831,7 +831,7 @@
                     data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_number:part_number},
                     success: function (response) {
                         var obj = JSON.parse(response);
-    
+                           // console.log(response);
                         if(obj.inventory_id){
                             $('#submit_btn').attr('disabled',false);
                             var parts_total_price = Number($('#quantity_'+index).val()) * Number(obj.price);

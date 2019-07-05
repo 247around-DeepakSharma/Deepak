@@ -1594,10 +1594,26 @@ class Service_centers extends CI_Controller {
      * @desc: This is used to load update form for service center
      * @param String Base_encode form - $booking_id
      */
-    function update_booking_status($code) {
+    function update_booking_status($code, $flag = '') {
         log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode(urldecode($code)));
         $this->checkUserSession();
-        $booking_id = base64_decode(urldecode($code));        
+        $data = array();
+        if (!empty($flag)) {
+
+            if (is_numeric($flag)) {
+                if ($flag == 1) {
+                    $data['consume_spare_status'] = true;
+                } else {
+                    $data['consume_spare_status'] = false;
+                }
+            } else {
+                $data['consume_spare_status'] = false;
+            }
+        } else {
+            $data['consume_spare_status'] = false;
+        }
+
+        $booking_id = base64_decode(urldecode($code));
         if (!empty($booking_id) || $booking_id != 0) {
             $data['booking_id'] = $booking_id;
             $where_internal_status = array("page" => "update_sc", "active" => '1');
@@ -2930,7 +2946,8 @@ class Service_centers extends CI_Controller {
                     . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
 
         $spare_part = $this->partner_model->get_spare_parts_booking($where);
-
+        if (!empty($$spare_part)) {
+        	
         $_POST['sf_id'] = $spare_part[0]['service_center_id'];
         $_POST['booking_id'] = $spare_part[0]['booking_id'];
         $_POST['user_name'] = $spare_part[0]['name'];
@@ -2953,7 +2970,9 @@ class Service_centers extends CI_Controller {
              } 
        
 
-        $this->process_update_defective_parts($value);
+        $this->process_update_defective_parts($value); 
+        }
+
       }
 
       echo 'success';

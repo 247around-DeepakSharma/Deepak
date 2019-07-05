@@ -2896,16 +2896,11 @@ class Inventory extends CI_Controller {
         if ($part_number && $entity_id && $entity_type && $service_id) {
             $where = array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id, 'part_number' => $part_number);
             $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate', $where);
-
             if (!empty($inventory_details)) {
-
                 if($this->session->userdata('userType')=='service_center'){
-
                 $select_stock = "*";
                 $service_centres_id=$this->session->userdata('service_center_id');
                 $where_stock=array('entity_id' => $service_centres_id, 'entity_type' =>_247AROUND_SF_STRING, 'inventory_id' => $inventory_details[0]['inventory_id']);
-                $data['price'] = $inventory_details[0]['price'];
-                $data['inventory_id'] = $inventory_details[0]['inventory_id'];
                 $stock_details = $this->inventory_model->get_inventory_stock_count_details($select_stock,$where_stock);
 
                  if (!empty($stock_details)) {
@@ -2914,6 +2909,8 @@ class Inventory extends CI_Controller {
                  $data['total_stock'] = 0;
                  }
                 }
+                $data['price'] = $inventory_details[0]['price'];
+                $data['inventory_id'] = $inventory_details[0]['inventory_id'];
                 $data['gst_rate'] = $inventory_details[0]['gst_rate'];
                 $data['hsn_code'] = $inventory_details[0]['hsn_code'];
             } else {
@@ -2921,14 +2918,14 @@ class Inventory extends CI_Controller {
                 $data['inventory_id'] = '';
                 $data['gst_rate'] = '';
                 $data['hsn_code'] = '';
-                $data['total_stock'] = 00;
+                $data['total_stock'] = 0;
             }
         } else {
             $data['price'] = '';
             $data['inventory_id'] = '';
             $data['gst_rate'] = '';
             $data['hsn_code'] = '';
-            $data['total_stock'] = 00;
+            $data['total_stock'] = 0;
 
             //Getting template from Database
             $template = $this->booking_model->get_booking_email_template("inventory_details_mapping_not_found");
@@ -3173,8 +3170,9 @@ class Inventory extends CI_Controller {
 
     function process_spare_invoice_tagging() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
-//        $str = '{"is_wh_micro":"2","dated":"2018-11-20","invoice_id":"123456789","invoice_amount":"859","courier_name":"DTDC","awb_number":"123456","courier_shipment_date":"2018-11-20","wh_id":"1","part":[{"shippingStatus":"1","service_id":"46","part_name":"Back Cabinet  (TSA-2419)","part_number":"Back Cabinet  (TSA-2419)","booking_id":"","quantity":"1","part_total_price":"409.32","hsn_code":"8529","gst_rate":"18","inventory_id":"17"},{"shippingStatus":"1","service_id":"46","part_name":"Back Cover (Led Tsa 2276)","part_number":"Back Cover (Led Tsa 2276)","booking_id":"","quantity":"1","part_total_price":"318.64","hsn_code":"8529","gst_rate":"18","inventory_id":"179"}],"partner_id":"247073","partner_name":"T-Series","wh_name":" Delhi UNITED HOME CARE"}';
+//        $str = '{"is_wh_micro":"2","247around_gst_number":"09AAFCB1281J1ZM","partner_id":"247130","wh_id":"870","awb_number":"12587455","courier_name":"gati-kwe","courier_shipment_date":"2019-07-04","from_gst_number":"7","part":[{"shippingStatus":"1","service_id":"37","part_name":"TRAY,BOTTOM,ER180I,INSTA","part_number":"1100023151","booking_id":"","quantity":"1","part_total_price":"158.25","hsn_code":"39239090","gst_rate":"18","inventory_id":"6011"},{"shippingStatus":"1","service_id":"37","part_name":"LEG,ADJUSTABLE,27MM L,ER180I,INSTA","part_number":"1100028374","booking_id":"","quantity":"2","part_total_price":"15","hsn_code":"84189900","gst_rate":"18","inventory_id":"7463"}],"partner_name":" Videocon","wh_name":" Amritsar Baldev Electronics - (Micro Warehouse) ","dated":"2019-07-04","sender_entity_type":"vendor","sender_entity_id":"15","invoice_tag":"MSL","transfered_by":"2"}';
 //        $_POST = json_decode($str, true);  
+//        
         $invoice_file=true;
         if (!empty($this->input->post('invoice_file'))) {
            $invoice_file=false;     
@@ -3192,6 +3190,8 @@ class Inventory extends CI_Controller {
         $wh_name = trim($this->input->post('wh_name'));
         $transfered_by = $this->input->post('transfered_by');
         $is_defective_part_return_wh = trim($this->input->post('is_defective_part_return_wh'));
+        $from_gst_number = $this->input->post("from_gst_number");
+        $to_gst_number = $this->input->post("to_gst_number");
         $req = TRUE;
         if (!empty($partner_id) && !empty($invoice_dated) && !empty($wh_id) && !empty($awb_number) && !empty($courier_name)) {
             if ($transfered_by == MSL_TRANSFERED_BY_PARTNER && (empty($invoice_id) || empty($invoice_amount))) {
@@ -3312,32 +3312,36 @@ class Inventory extends CI_Controller {
                                                 $total_cgst_tax_amount += $invoice_annexure['cgst_tax_amount'];
                                                 $total_sgst_tax_amount += $invoice_annexure['sgst_tax_amount'];
                                                 $total_igst_tax_amount += $invoice_annexure['igst_tax_amount'];
+                                                
+                                                If ($is_wh_micro == 1) {
+                                                    $ledger_data = array();
 
-                                                $ledger_data = array();
+                                                    $ledger_data['receiver_entity_id'] = $wh_id;
+                                                    $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                                                    $ledger_data['sender_entity_id'] = $sender_enity_id;
+                                                    $ledger_data['sender_entity_type'] = $sender_entity_type;
+                                                    $ledger_data['inventory_id'] = $value['inventory_id'];
+                                                    $ledger_data['quantity'] = $value['quantity'];
+                                                    $ledger_data['agent_id'] = $agent_id;
+                                                    $ledger_data['agent_type'] = $agent_type;
+                                                    $ledger_data['booking_id'] = trim($value['booking_id']);
+                                                    $ledger_data['invoice_id'] = $invoice_id;
+                                                    $ledger_data['is_wh_ack'] = 0;
+                                                    $ledger_data['courier_id'] = $insert_courier_details;
+                                                    $ledger_data['is_wh_micro'] = $is_wh_micro;
+                                                    $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+                                                    $ledger_data['is_defective_part_return_wh'] = $is_defective_part_return_wh;
 
-                                                $ledger_data['receiver_entity_id'] = $wh_id;
-                                                $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                                                $ledger_data['sender_entity_id'] = $sender_enity_id;
-                                                $ledger_data['sender_entity_type'] = $sender_entity_type;
-                                                $ledger_data['inventory_id'] = $value['inventory_id'];
-                                                $ledger_data['quantity'] = $value['quantity'];
-                                                $ledger_data['agent_id'] = $agent_id;
-                                                $ledger_data['agent_type'] = $agent_type;
-                                                $ledger_data['booking_id'] = trim($value['booking_id']);
-                                                $ledger_data['invoice_id'] = $invoice_id;
-                                                $ledger_data['is_wh_ack'] = 0;
-                                                $ledger_data['courier_id'] = $insert_courier_details;
-                                                $ledger_data['is_wh_micro'] = $is_wh_micro;
-                                                $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
-                                                $ledger_data['is_defective_part_return_wh'] = $is_defective_part_return_wh;
-
-                                                if ($insert_id) {
-                                                    log_message("info", "Ledger details added successfully");
-                                                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, $is_wh_micro, $action_agent_id);
-                                                } else {
-                                                    array_push($not_updated_data, $value['part_number']);
-                                                    log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
+                                                    if ($insert_id) {
+                                                        log_message("info", "Ledger details added successfully");
+                                                        $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, $is_wh_micro, $action_agent_id);
+                                                    } else {
+                                                        array_push($not_updated_data, $value['part_number']);
+                                                        log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
+                                                    }
                                                 }
+
+                                                
                                             } else if ($value['shippingStatus'] == 0) {
                                                 if (isset($value['spare_id']) && !empty($value['spare_id']) && ($value['spare_id'] != "new_spare_id")) {
                                                     //Cancelled Spare line item
@@ -3356,13 +3360,14 @@ class Inventory extends CI_Controller {
 
                                             $this->invoices_model->insert_invoice_breakup($invoice);
                                         } else {
-                                            $this->remove_inventory_from_warehouse($invoice, $sender_enity_id, $wh_id, $action_agent_id);
+                                           // $this->remove_inventory_from_warehouse($invoice, $sender_enity_id, $wh_id, $action_agent_id);
                                         }
 
                                         
                                         // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
                                         If ($is_wh_micro == 2) {
-                                            $this->generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_dated, $tqty, $partner_id, $to_gst_number);
+                                            $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_dated, $tqty, $partner_id, $from_gst_number,
+                                                    $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $insert_courier_details, $action_agent_id);
                                         }
                                         
                                         //send email to 247around warehouse incharge
@@ -3630,32 +3635,37 @@ class Inventory extends CI_Controller {
      * @param int $tqty
      * @param int $partner_id
      */
-    function generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_date, $tqty, $partner_id, $to_gst_number) {
+    function generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_date, $tqty, $partner_id, $from_gst_number, 
+            $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_id, $action_agent_id) {
         log_message('info', __METHOD__);
         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
                 . "state,address as company_address,company_name,district, pincode", array("id" => $wh_id));
+        
+        $not_updated_data = array();
 
         if (empty($entity_details[0]['gst_number'])) {
 
             $entity_details[0]['gst_number'] = true;
         }
         
-        $around_gst = $this->ci->inventory_model->get_entity_gst_data("*", array('id' => $to_gst_number));
-        
-        $invoice_id = $this->invoice_lib->create_invoice_id("ARD-".$around_gst[0]['state_code']);
+        $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $from_gst_number));
+        $invoice_id = $this->invoice_lib->create_invoice_id("ARD-".$around_gst[0]['state']); 
         $a = array();
+        
         foreach ($invoice as $key => $value) {
 
             $select = "oow_vendor_margin, oow_around_margin";
             $post = array();
 
             $post['where'] = array('inventory_master_list.inventory_id' => $value['inventory_id']);
+            $post['length'] = -1;
 
             $list = $this->inventory_model->get_inventory_stock_list($post, $select);
+            
             $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
             if (!empty($list)) {
-                if ($list[0]['oow_around_margin'] > 0) {
-                    $repair_oow_around_percentage = $list[0]['oow_around_margin'] / 100;
+                if ($list[0]->oow_around_margin > 0) {
+                    $repair_oow_around_percentage = $list[0]->oow_around_margin / 100;
                 }
             }
 
@@ -3680,7 +3690,7 @@ class Inventory extends CI_Controller {
             $a[$key]['from_gst_number'] = $value['from_gst_number'];
         }
         $response = $this->invoices_model->_set_partner_excel_invoice_data($a, $invoice_date, $invoice_date, "Tax Invoice", $invoice_date);
-        $response['meta']['main_company_gst_number'] = $invoice[0]['247around_gst_number'];
+        $response['meta']['main_company_gst_number'] = $from_gst_number;
         $response['meta']['invoice_id'] = $invoice_id;
         $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         if ($status) {
@@ -3734,7 +3744,41 @@ class Inventory extends CI_Controller {
             $this->invoices_model->insert_new_invoice($invoice_details);
             log_message('info', __METHOD__ . ": Invoice ID inserted");
             $this->invoice_lib->insert_def_invoice_breakup($response, 0);
+            
+            foreach ($invoice as $key => $value) {
+                $ledger_data = array();
+
+                $ledger_data['receiver_entity_id'] = $wh_id;
+                $ledger_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                $ledger_data['sender_entity_id'] = $sender_enity_id;
+                $ledger_data['sender_entity_type'] = $sender_entity_type;
+                $ledger_data['inventory_id'] = $value['inventory_id'];
+                $ledger_data['quantity'] = $value['qty'];
+                $ledger_data['agent_id'] = $agent_id;
+                $ledger_data['agent_type'] = $agent_type;
+                $ledger_data['booking_id'] = "";
+                $ledger_data['invoice_id'] = $invoice_id;
+                $ledger_data['is_wh_ack'] = 0;
+                $ledger_data['courier_id'] = $courier_id;
+                $ledger_data['is_wh_micro'] = 1;
+                $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+                $ledger_data['is_defective_part_return_wh'] = trim($this->input->post('is_defective_part_return_wh'));
+                
+                if ($insert_id) {
+                    log_message("info", "Ledger details added successfully");
+                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 1, $action_agent_id);
+                    $stock = "stock - '" . $value['qty'] . "'";
+                    $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
+                    
+                } else {
+                    array_push($not_updated_data, $value['part_number']);
+                    log_message("info", "error in adding inventory ledger details data: " . print_r($ledger_data, TRUE));
+                }
+                
+            }
         }
+        
+        return $not_updated_data;
     }
 
     /**
@@ -6460,23 +6504,23 @@ class Inventory extends CI_Controller {
         }
     }
     
-    function remove_inventory_from_warehouse($invoice, $sender_enity_id, $wh_id, $agent_id){
-        foreach ($invoice as $value) {
-            $in['receiver_entity_id'] = $wh_id;
-            $in['receiver_entity_type'] = _247AROUND_SF_STRING;
-            $in['sender_entity_id'] = $sender_enity_id;
-            $in['sender_entity_type'] = _247AROUND_SF_STRING;
-            $in['stock'] = -$value['qty'];
-            if(isset($value['booking_id'])){
-                $in['booking_id'] = $value['booking_id'];
-            }
-            $in['agent_id'] = $agent_id;
-            $in['agent_type'] = _247AROUND_SF_STRING;
-            $in['is_wh'] = TRUE;
-            $in['inventory_id'] = $value['inventory_id'];
-            $this->miscelleneous->process_inventory_stocks($in);
-        }
-    }
+//    function remove_inventory_from_warehouse($invoice, $sender_enity_id, $wh_id, $agent_id){
+//        foreach ($invoice as $value) {
+//            $in['receiver_entity_id'] = $wh_id;
+//            $in['receiver_entity_type'] = _247AROUND_SF_STRING;
+//            $in['sender_entity_id'] = $sender_enity_id;
+//            $in['sender_entity_type'] = _247AROUND_SF_STRING;
+//            $in['stock'] = -$value['qty'];
+//            if(isset($value['booking_id'])){
+//                $in['booking_id'] = $value['booking_id'];
+//            }
+//            $in['agent_id'] = $agent_id;
+//            $in['agent_type'] = _247AROUND_SF_STRING;
+//            $in['is_wh'] = TRUE;
+//            $in['inventory_id'] = $value['inventory_id'];
+//            $this->miscelleneous->process_inventory_stocks($in);
+//        }
+//    }
     
     function get_partner_gst_number(){
         $html = "<option value='' selected disabled>Selet GST Number</option>";
