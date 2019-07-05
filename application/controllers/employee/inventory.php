@@ -3776,7 +3776,7 @@ class Inventory extends CI_Controller {
                     log_message("info", "Ledger details added successfully");
                     $ledger_data['sender_entity_id'] = $partner_id;
                     $ledger_data['sender_entity_type'] = _247AROUND_PARTNER_STRING;
-                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 1, $action_agent_id);
+                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id);
                     $stock = "stock - '" . $value['qty'] . "'";
                     $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
                     
