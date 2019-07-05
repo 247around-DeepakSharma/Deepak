@@ -1168,6 +1168,13 @@ class Booking extends CI_Controller {
      *  @return : reschedules the booking and load view
      */
     function process_reschedule_booking_form($booking_id) {
+        
+        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id);
+        if ($is_booking_able_to_reschedule === FALSE) {
+            $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
+            $this->get_reschedule_booking_form($booking_id);
+        }
+              
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
 
         $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
