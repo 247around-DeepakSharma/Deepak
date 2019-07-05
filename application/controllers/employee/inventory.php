@@ -3501,7 +3501,7 @@ class Inventory extends CI_Controller {
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
                 if ($update_spare_part) {
                     $actor = $next_action = NULL;
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $value['booking_id']);
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $ledger['booking_id']);
                         if (!empty($partner_status)) {
                             $booking['partner_current_status'] = $partner_status[0];
                             $booking['internal_status'] = SPARE_SHIPPED_TO_WAREHOUSE;
@@ -3509,7 +3509,7 @@ class Inventory extends CI_Controller {
                             $actor = $booking['actor'] = $partner_status[2];
                             $next_action = $booking['next_action'] = $partner_status[3];
                             
-                            $this->booking_model->update_booking($value['booking_id'], $booking);
+                            $this->booking_model->update_booking($ledger['booking_id'], $booking);
                         }
                     $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, $actor, $next_action, $s_partner_id, NULL);
                     log_message('info', ' Spare mapped to warehouse successfully for booking id ' . trim($fomData['booking_id']) . " Spare ID " . $fomData['spare_id']);
@@ -3778,6 +3778,8 @@ class Inventory extends CI_Controller {
                 
                 if ($insert_id) {
                     log_message("info", "Ledger details added successfully");
+                    $ledger_data['sender_entity_id'] = $partner_id;
+                    $ledger_data['sender_entity_type'] = _247AROUND_PARTNER_STRING;
                     $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 1, $action_agent_id);
                     $stock = "stock - '" . $value['qty'] . "'";
                     $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
