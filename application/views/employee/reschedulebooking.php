@@ -10,6 +10,18 @@
               <form class="form-horizontal" action="<?php echo base_url()?>employee/booking/process_reschedule_booking_form/<?php echo $data[0]['booking_id'] ?>" method="POST" >
 
                 <div class="col-md-12">
+                    <?php 
+                        if ($this->session->userdata('error')) {
+                            echo '<div class="col-md-12 alert alert-danger alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>' . $this->session->userdata('error') . '</strong>
+                                </div>';
+
+                            $this->session->unset_userdata('error');
+                        }
+                    ?>
                   <div class="col-md-6">
 
                     <div class="form-group <?php if( form_error('name') ) { echo 'has-error';} ?>">
@@ -111,7 +123,7 @@
                     <div class="form-group <?php if( form_error('booking_id') ) { echo 'has-error';} ?>">
                       <label for="booking_id" class="col-md-4">Booking ID</label>
                       <div class="col-md-6">
-                        <input type="text" class="form-control"  name="booking_id" value = "<?php if (isset($data[0]['booking_id'])) {echo $data[0]['booking_id']; }?>"  disabled>
+                        <input type="text" class="form-control"  name="booking_id" value = "<?php if (isset($data[0]['booking_id'])) {echo $data[0]['booking_id']; }?>"  readonly>
                         <?php echo form_error('booking_id'); ?>
                       </div>
                     </div>

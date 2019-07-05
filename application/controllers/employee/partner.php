@@ -35,6 +35,7 @@ class Partner extends CI_Controller {
         $this->load->library('user_agent');
         $this->load->library("initialized_variable");
         $this->load->model("push_notification_model");
+        $this->load->library("booking_creation_lib");
         $this->load->library('table');
         $this->load->library("invoice_lib");
         $this->load->library("paytm_cb");
@@ -1341,8 +1342,12 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $this->checkUserSession();
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'trim|required');
-
-        if ($this->form_validation->run() == FALSE) {
+        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id);
+        
+        if ($this->form_validation->run() == FALSE || $is_booking_able_to_reschedule === FALSE) {
+            if($is_booking_able_to_reschedule === FALSE) {
+                $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
+            }
             $this->get_reschedule_booking_form($booking_id);
         } else {
             log_message('info', __FUNCTION__ . " Booking Id  " . $booking_id);
