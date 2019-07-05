@@ -93,6 +93,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_pincode, "
                 . " bd.create_date, "
                 . " bd.order_id, "
+                . " bd.service_center_closed_date, "
                 . " bd.booking_address, "
                 . " bd.booking_alternate_contact_no, "
                 . " bd.request_type, "
