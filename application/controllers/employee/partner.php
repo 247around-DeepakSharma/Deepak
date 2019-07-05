@@ -3387,6 +3387,9 @@ class Partner extends CI_Controller {
                     if($data[0]['partner_id'] == VIDEOCON_ID){
                         $sms['smsData']['cc_number'] = "0120-4500600";
                     }
+                    else if($data[0]['partner_id'] == SHARP_ID){
+                        $sms['smsData']['cc_number'] = SHARP_CALLCENTER_NUMBER;
+                    }
                     else{
                        $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
                     }

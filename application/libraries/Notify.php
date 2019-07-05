@@ -586,6 +586,9 @@ class Notify {
                         if($query1[0]['partner_id'] == VIDEOCON_ID){
                             $cc_number = "0120-4500600";
                         }
+                        else if($query1[0]['partner_id'] == SHARP_ID){
+                            $cc_number = SHARP_CALLCENTER_NUMBER;
+                        }
                         else{
                             $cc_number = _247AROUND_CALLCENTER_NUMBER;
                         }
