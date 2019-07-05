@@ -4159,7 +4159,7 @@ class Booking extends CI_Controller {
                     . ' <span class="glyphicon glyphicon-user"></span></button>';
         }
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color' "
+        $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color ".(!empty($order_list->service_center_closed_date) ? 'disabled' : '')."' "
             . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$order_list->booking_id title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";
         $row[] = "<a target = '_blank' id = 'cancel' class = 'btn btn-sm btn-color' href = '".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title = 'Cancel'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
         $row[] = $complete;

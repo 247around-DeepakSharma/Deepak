@@ -283,7 +283,7 @@
 
                         <td>
                         <?php
-                        if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
+                        if (($row->current_status == 'Pending' || $row->current_status == 'Rescheduled') && empty($row->service_center_closed_date))
                         {
                             echo "<a target='_blank' id='edit' class='btn btn-sm btn-success' "
                             . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$row->booking_id title='Reschedule'><i class='fa fa-calendar' aria-hidden='true' ></i></a>";

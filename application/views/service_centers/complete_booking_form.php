@@ -248,7 +248,7 @@
                                                                 <option value="" selected desa>Please Select Model Number</option>
                                                                 <?php foreach ($model_data as $m) { ?>
                                                                 <option value="<?php echo $m['model_number'];?>"
-                                                                        <?php if(!empty($booking_history['spare_parts']) && $booking_history['spare_parts'][0]['serial_number_pic'] == $m['model_number']){ echo 'selected';} elseif($unit_details['model_number'] == $m['model_number']) { echo 'selected'; } else { echo ''; }  ?>
+                                                                        <?php if(!empty($booking_history['spare_parts']) && $booking_history['spare_parts'][0]['model_number'] == $m['model_number']){ echo 'selected';} elseif($unit_details['model_number'] == $m['model_number']) { echo 'selected'; } else { echo ''; }  ?>
                                                                 ><?php echo $m['model_number'];?></option>
                                                                 <?php }?>
                                                             </select>
