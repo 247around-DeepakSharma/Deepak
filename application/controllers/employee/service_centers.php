@@ -2107,7 +2107,7 @@ class Service_centers extends CI_Controller {
             }
           
             if (!empty($is_file['code'])) { 
-                $parts_requested = $this->input->post('part');
+                $parts_requested = $this->input->post('part');              
                 $booking_id = $this->input->post('booking_id');
                 $data_to_insert = array();
                 $approval_array = array();
@@ -2147,8 +2147,9 @@ class Service_centers extends CI_Controller {
                 $parts_stock_not_found = array();
                 $new_spare_id = array();
                 $requested_part_name = array();
+                
                 foreach ($parts_requested as $value) {
-
+                    $delivered_sp = array();
                     if (array_key_exists("spare_id", $data)) {
                         unset($data['spare_id']);
                     }
@@ -2254,7 +2255,7 @@ class Service_centers extends CI_Controller {
                     if (isset($data['requested_inventory_id']) && !empty($data['requested_inventory_id']) && $data['entity_type'] == _247AROUND_SF_STRING) {
                         $this->inventory_model->update_pending_inventory_stock_request($data['entity_type'], $data['partner_id'], $data['requested_inventory_id'], 1);
                     }
-                    
+                                        
                     array_push($data_to_insert, $data);
 
                     $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data);
@@ -2262,8 +2263,14 @@ class Service_centers extends CI_Controller {
                     
                     array_push($approval_array, array('spare_id' => $spare_id, "part_warranty_status" => $value['part_warranty_status']));
                     array_push($new_spare_id, $spare_id);
+                    
+                    if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 && $data['part_warranty_status']) {
+                        $data['spare_id'] = $spare_id;
+                        array_push($delivered_sp, $data);
+                        $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                    }
                 }
-
+                
                 if (!empty($new_spare_id)) {
 
                     //Send Push Notification 
@@ -2399,9 +2406,9 @@ class Service_centers extends CI_Controller {
      * @param Array $delivered_sp
      * @param int $partner_id
      */
-    function auto_delivered_for_micro_wh($delivered_sp, $partner_id) {
-        log_message('info', __METHOD__);
-        foreach ($delivered_sp as $value) {
+    function auto_delivered_for_micro_wh($delivered_sp, $partner_id){
+                log_message('info', __METHOD__);
+        foreach ($delivered_sp as $value) {            
             $data = array();
             $data['model_number_shipped'] = $value['model_number'];
             $data['parts_shipped'] = $value['parts_requested'];
@@ -2427,8 +2434,8 @@ class Service_centers extends CI_Controller {
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
             $this->miscelleneous->process_inventory_stocks($in);
-
-            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id, '', FALSE);
+                          
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id,true, FALSE);
         }
     }
 
