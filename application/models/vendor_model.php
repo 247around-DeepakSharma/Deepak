@@ -1633,21 +1633,9 @@ class vendor_model extends CI_Model {
      */
     function add_rm_to_sf_relation($agent_id, $sf_id){
         
-        // get state code of sf.
-        $sf = $this->getVendorContact($sf_id);
-        $state_code = $this->db->get_where('state_code', array('state' => $sf[0]['state']))->result_array()[0]['state_code'];
-        
-        // fetch rm by state code
-        $rm = $this->get_rm_sf_relation_by_state_code($state_code);        
-        if(empty($rm)) :
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, "247around_dev@247around.com", "", "", "RM is not mapped with state code", "RM is not mapped with state code {$state_code}. Please check.", "", NULL);
-            return true;
-        endif;            
-        
-        $agent_id = $rm[0]['id'];
-        
         $this->db->where('agent_id', $agent_id);
         $this->db->set('service_centres_id', "CONCAT( service_centres_id, ',".$sf_id."' )", FALSE);
+        $this->db->set('individual_service_centres_id', "TRIM(BOTH ',' FROM CONCAT( ifnull(individual_service_centres_id, ''), ',".$sf_id."' ))", FALSE);
         $this->db->update('employee_relation');
 
         if($this->db->affected_rows() > 0) {

@@ -277,3 +277,5 @@ ALTER TABLE `engineer_booking_action` ADD `additional_service_charge` INT NOT NU
 ALTER TABLE `engineer_booking_action` ADD `parts_cost` INT NOT NULL DEFAULT '0' AFTER `additional_service_charge`;
 
 
+ALTER TABLE employee_relation ADD COLUMN individual_service_centres_id text NULL DEFAULT NULL AFTER service_centres_id;
+
