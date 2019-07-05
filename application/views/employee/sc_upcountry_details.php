@@ -104,7 +104,7 @@
                 url: '<?php echo base_url(); ?>employee/vendor/update_sub_service_center_details',
                 data: {district: district, pincode: pincode, upcountry_rate: upcountry_rate, id: id, service_center_id: service_center_id},
                 success: function (data) {
-                    if (data === 'success') {
+                    if ($.trim(data) === 'success') {
                         $('#show_success_msg').html('Details has been Updated successfully');
                         $('.success').show().delay(5000).fadeOut();
                         ;
