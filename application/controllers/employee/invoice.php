@@ -1535,7 +1535,7 @@ class Invoice extends CI_Controller {
             $s = $this->generate_partner_invoices($details['vendor_partner_id'], $details['date_range'], $details['invoice_type'],$details['agent_id']);
         }
         
-        if($s && $details['vendor_partner_id'] = "All"){
+        if($s && $details['vendor_partner_id'] == "All"){
             $email_template = $this->booking_model->get_booking_email_template(ALL_INVOICE_SUCCESS_MESSAGE);
             $subject = vsprintf($email_template[4], array($details['vendor_invoice_type'],$details['date_range'] ));
             $message = vsprintf($email_template[0], array($details['vendor_invoice_type']));
