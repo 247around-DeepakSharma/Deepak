@@ -3494,6 +3494,7 @@ class Inventory extends CI_Controller {
 
                 $a = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                     'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
+                    'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL,
                     'requested_inventory_id' => $ledger['inventory_id'],
                     'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
@@ -3501,7 +3502,7 @@ class Inventory extends CI_Controller {
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
                 if ($update_spare_part) {
                     $actor = $next_action = NULL;
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $value['booking_id']);
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $ledger['booking_id']);
                         if (!empty($partner_status)) {
                             $booking['partner_current_status'] = $partner_status[0];
                             $booking['internal_status'] = SPARE_SHIPPED_TO_WAREHOUSE;
@@ -3509,7 +3510,7 @@ class Inventory extends CI_Controller {
                             $actor = $booking['actor'] = $partner_status[2];
                             $next_action = $booking['next_action'] = $partner_status[3];
                             
-                            $this->booking_model->update_booking($value['booking_id'], $booking);
+                            $this->booking_model->update_booking($ledger['booking_id'], $booking);
                         }
                     $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, $actor, $next_action, $s_partner_id, NULL);
                     log_message('info', ' Spare mapped to warehouse successfully for booking id ' . trim($fomData['booking_id']) . " Spare ID " . $fomData['spare_id']);
@@ -3537,7 +3538,7 @@ class Inventory extends CI_Controller {
                 foreach ($spare as $value) {
                     if ($ledger['quantity'] >= $qty) {
                         $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
-                            'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id']);
+                            'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'], 'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL);
                         if ($is_wh_micro == 2) {
                             if ($ledger['is_defective_part_return_wh'] == 1) {
                                 $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $wh_id));
@@ -3554,6 +3555,7 @@ class Inventory extends CI_Controller {
                         } else {
                             $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                                 'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
+                                'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL,
                                 'requested_inventory_id' => $ledger['inventory_id'],
                                 'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                                 'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => 2);
@@ -3768,7 +3770,13 @@ class Inventory extends CI_Controller {
                 $ledger_data['agent_id'] = $agent_id;
                 $ledger_data['agent_type'] = $agent_type;
                 $ledger_data['booking_id'] = "";
-                $ledger_data['invoice_id'] = $this->input->post('invoice_id');
+                $pin= $this->input->post('invoice_id');
+                if(!empty($pin)){
+                    $ledger_data['invoice_id'] = $this->input->post('invoice_id');
+                } else {
+                    $ledger_data['invoice_id'] = $invoice_id;
+                }
+                
                 $ledger_data['micro_invoice_id'] = $invoice_id;
                 $ledger_data['is_wh_ack'] = 0;
                 $ledger_data['courier_id'] = $courier_id;
@@ -3778,7 +3786,9 @@ class Inventory extends CI_Controller {
                 
                 if ($insert_id) {
                     log_message("info", "Ledger details added successfully");
-                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 1, $action_agent_id);
+                    $ledger_data['sender_entity_id'] = $partner_id;
+                    $ledger_data['sender_entity_type'] = _247AROUND_PARTNER_STRING;
+                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id);
                     $stock = "stock - '" . $value['qty'] . "'";
                     $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
                     
