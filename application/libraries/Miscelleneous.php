@@ -4189,6 +4189,9 @@ function generate_image($base64, $image_name,$directory){
                 if($booking_details[0]['partner_id'] == VIDEOCON_ID){
                     $sms['smsData']['cc_number'] = "Call 0120-4500600";
                 }
+                else if($booking_details[0]['partner_id'] == SHARP_ID){
+                    $sms['smsData']['cc_number'] = SHARP_CALLCENTER_NUMBER;
+                }
                 else{
                     $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;
                 }
@@ -4232,6 +4235,9 @@ function generate_image($base64, $image_name,$directory){
                 $sms['smsData']['booking_id'] = $booking_id;
                 if($booking_details[0]['partner_id'] == VIDEOCON_ID){
                     $sms['smsData']['cc_number'] = "Call 0120-4500600";
+                }
+                else if($booking_details[0]['partner_id'] == SHARP_ID){
+                    $sms['smsData']['cc_number'] = SHARP_CALLCENTER_NUMBER;
                 }
                 else{
                     $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER;

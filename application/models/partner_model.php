@@ -1767,7 +1767,10 @@ function get_data_for_partner_callback($booking_id) {
      * 
      */
     function select_contact_person($id) {
-        $query = $this->db->query("Select id, name from contact_person where entity_id= '".$id."' AND is_active='1' AND entity_type = 'partner' AND name IS NOT NULL order by name");
+        $query = $this->db->query("Select id, name from contact_person where entity_id= '".$id."' AND is_active='1' AND entity_type = 'partner' AND name IS NOT NULL 
+           UNION 
+           Select id, name from contact_person where   is_active='1' AND entity_type = 'vendor' AND name IS NOT NULL order by name
+          ");
         return $query->result();
     }
     
