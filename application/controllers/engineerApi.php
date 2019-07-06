@@ -2258,6 +2258,7 @@ class engineerApi extends CI_Controller {
     function getBookingProductDetails(){
         log_message("info", __METHOD__. " Entering..");
         $response = array();
+        $final_parices = array();
         $bookng_unit_details = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //$requestData = array("booking_id" => "PV-16565919070335", "brand"=>"TSeries", "partner_id" => 247073, "service_id"=> 46, "service_center_id" => 1);
@@ -2315,8 +2316,12 @@ class engineerApi extends CI_Controller {
                     unset($prices[$pid]);
 
                 }
-                //array_push($response['prices'], $prices);
-                $response['prices'] = $prices;
+                
+                foreach ($prices as $key3 => $value3){
+                    array_push($final_parices, $value3);
+                }
+                
+                $response['prices'] = $final_parices;
                 $bookng_unit_details[$key1]['is_broken'] = $broken;
                 $bookng_unit_details[$key1]['dop'] = $broken;
             }
