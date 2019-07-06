@@ -388,6 +388,13 @@
                                                         }
                                                     }
                                                     ?>>Private Ltd Company</option>
+                                                <option value="Public Ltd Company" <?php
+                                                    if (isset($query[0]['company_type'])) {
+                                                        if ($query[0]['company_type'] == "Public Ltd Company") {
+                                                            echo "Selected";
+                                                        }
+                                                    }
+                                                    ?>>Public Ltd Company</option>
                                             </select>
                                             <?php echo form_error('company_type'); ?>
                                         </div>

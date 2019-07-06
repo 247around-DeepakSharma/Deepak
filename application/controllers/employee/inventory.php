@@ -3366,7 +3366,7 @@ class Inventory extends CI_Controller {
                                         
                                         // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
                                         If ($is_wh_micro == 2) {
-                                            $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_dated, $tqty, $partner_id, $from_gst_number,
+                                            $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_dated, $tqty, $partner_id, $to_gst_number,
                                                     $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $insert_courier_details, $action_agent_id);
                                         }
                                         
@@ -3494,6 +3494,7 @@ class Inventory extends CI_Controller {
 
                 $a = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                     'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
+                    'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL,
                     'requested_inventory_id' => $ledger['inventory_id'],
                     'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
@@ -3501,7 +3502,7 @@ class Inventory extends CI_Controller {
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
                 if ($update_spare_part) {
                     $actor = $next_action = NULL;
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $value['booking_id']);
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $ledger['booking_id']);
                         if (!empty($partner_status)) {
                             $booking['partner_current_status'] = $partner_status[0];
                             $booking['internal_status'] = SPARE_SHIPPED_TO_WAREHOUSE;
@@ -3509,7 +3510,7 @@ class Inventory extends CI_Controller {
                             $actor = $booking['actor'] = $partner_status[2];
                             $next_action = $booking['next_action'] = $partner_status[3];
                             
-                            $this->booking_model->update_booking($value['booking_id'], $booking);
+                            $this->booking_model->update_booking($ledger['booking_id'], $booking);
                         }
                     $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE . " with invoice id " . $ledger['invoice_id'], $action_agent_id, $action_agent_id, $actor, $next_action, $s_partner_id, NULL);
                     log_message('info', ' Spare mapped to warehouse successfully for booking id ' . trim($fomData['booking_id']) . " Spare ID " . $fomData['spare_id']);
@@ -3537,7 +3538,7 @@ class Inventory extends CI_Controller {
                 foreach ($spare as $value) {
                     if ($ledger['quantity'] >= $qty) {
                         $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
-                            'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id']);
+                            'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'], 'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL);
                         if ($is_wh_micro == 2) {
                             if ($ledger['is_defective_part_return_wh'] == 1) {
                                 $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $wh_id));
@@ -3554,6 +3555,7 @@ class Inventory extends CI_Controller {
                         } else {
                             $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                                 'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
+                                'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL,
                                 'requested_inventory_id' => $ledger['inventory_id'],
                                 'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                                 'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => 2);
@@ -3671,7 +3673,6 @@ class Inventory extends CI_Controller {
 
             $a[$key]['invoice_id'] = $invoice_id;
             $a[$key]['description'] = $value['description'];
-            $a[$key]['main_gst_number'] = $around_gst[0]['gst_number'];
             $a[$key]['product_or_services'] = "Product";
             $a[$key]['hsn_code'] = $value['hsn_code'];
             $a[$key]['inventory_id'] = $value['inventory_id'];
@@ -3690,7 +3691,19 @@ class Inventory extends CI_Controller {
             $a[$key]['from_gst_number'] = $value['from_gst_number'];
         }
         $response = $this->invoices_model->_set_partner_excel_invoice_data($a, $invoice_date, $invoice_date, "Tax Invoice", $invoice_date);
-        $response['meta']['main_company_gst_number'] = $from_gst_number;
+        $response['meta']['main_company_gst_number'] = $around_gst[0]['gst_number'];
+        $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $around_gst[0]['state']))[0]['state'];
+        $response['meta']['main_company_address'] = $around_gst[0]['address'] . "," 
+                    . $around_gst[0]['city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
+                    . $around_gst[0]['pincode'];
+        
+        $response['meta']['main_company_pincode'] = $around_gst[0]['pincode'];
+        if(!empty($around_gst[0]['email_id'])){
+            $response['meta']['main_company_email'] = $around_gst[0]['email_id'];
+        }
+        if(!empty($around_gst[0]['email_id'])){
+            $response['meta']['main_company_phone'] = $around_gst[0]['contact_number'];
+        }  
         $response['meta']['invoice_id'] = $invoice_id;
         $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         if ($status) {
@@ -3757,7 +3770,14 @@ class Inventory extends CI_Controller {
                 $ledger_data['agent_id'] = $agent_id;
                 $ledger_data['agent_type'] = $agent_type;
                 $ledger_data['booking_id'] = "";
-                $ledger_data['invoice_id'] = $invoice_id;
+                $pin= $this->input->post('invoice_id');
+                if(!empty($pin)){
+                    $ledger_data['invoice_id'] = $this->input->post('invoice_id');
+                } else {
+                    $ledger_data['invoice_id'] = $invoice_id;
+                }
+                
+                $ledger_data['micro_invoice_id'] = $invoice_id;
                 $ledger_data['is_wh_ack'] = 0;
                 $ledger_data['courier_id'] = $courier_id;
                 $ledger_data['is_wh_micro'] = 1;
@@ -3766,7 +3786,9 @@ class Inventory extends CI_Controller {
                 
                 if ($insert_id) {
                     log_message("info", "Ledger details added successfully");
-                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 1, $action_agent_id);
+                    $ledger_data['sender_entity_id'] = $partner_id;
+                    $ledger_data['sender_entity_type'] = _247AROUND_PARTNER_STRING;
+                    $this->move_inventory_to_warehouse($ledger_data, $value, $wh_id, 2, $action_agent_id);
                     $stock = "stock - '" . $value['qty'] . "'";
                     $this->inventory_model->update_inventory_stock(array('entity_id' => $sender_enity_id, 'inventory_id' => $value['inventory_id']), $stock);
                     
@@ -4483,13 +4505,12 @@ class Inventory extends CI_Controller {
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['invoice_id'] = $invoice_id;
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['product_or_services'] = "Product";
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_number'] = $value['to_gst_number'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['main_gst_number'] = $value['from_gst_number'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_name'] = $entity_details[0]['company_name'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_address'] = $entity_details[0]['address'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['district'] = $entity_details[0]['district'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['pincode'] = $entity_details[0]['pincode'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state_code'] = $value['from_state_code'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state'] = $entity_details[0]['state'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_address'] = $value['to_address'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['district'] = $value['to_city'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['pincode'] = $value['to_pincode'];
+                        $state =  $this->invoices_model->get_state_code(array('state_code' => $value['to_state_code']))[0]['state'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state'] = $state;
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'] = $value['rate'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_rate'] = $value['gst_rate'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = 1;
@@ -4521,6 +4542,13 @@ class Inventory extends CI_Controller {
                 $response = $this->invoices_model->_set_partner_excel_invoice_data($invoices, $sd, $ed, "Tax Invoice", $invoice_date);
                 $response['meta']['invoice_id'] = $invoice_id;
                 $response['booking'][0]['invoice_id'] = $response['meta']['invoice_id'];
+                $response['meta']['main_company_gst_number'] = $invoiceValue['data'][0]['from_gst_number'];
+                $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $invoiceValue['data'][0]['from_state_code']))[0]['state'];
+                $response['meta']['main_company_address'] = $invoiceValue['data'][0]['from_address'] . "," 
+                            . $invoiceValue['data'][0]['from_city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
+                            . $invoiceValue['data'][0]['from_pincode'];
+
+                $response['meta']['main_company_pincode'] = $invoiceValue['data'][0]['from_pincode'];
 
                 $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
                 if ($status) {
@@ -6539,7 +6567,7 @@ class Inventory extends CI_Controller {
         $html = "<option value='' selected disabled>Selet GST Number</option>";
         $where = array(
             "entity_type" => _247AROUND_PARTNER_STRING,
-            "entity_id" => "247001",
+            "entity_id" => _247AROUND,
             );
         $gst_numbers = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $where);
         foreach($gst_numbers as $key => $value){

@@ -2219,7 +2219,7 @@ function get_data_for_partner_callback($booking_id) {
         return $query->result_array();
     }
     
-    function get_main_partner_invoice_detail($partner_on_saas = false, $gst_number = ""){
+    function get_main_partner_invoice_detail($partner_on_saas = false){
         $meta = array(); 
         if($partner_on_saas){
             $main_partner = $this->get_partner_invoice_details("company_name, public_name,  address, state, pincode, primary_contact_phone_1, primary_contact_email, gst_number,"
@@ -2241,12 +2241,7 @@ function get_data_for_partner_callback($booking_id) {
                 $meta['main_company_signature'] = $main_partner[0]['signature'];
                 $meta['main_company_logo'] = $main_partner[0]['partner_logo'];
                 $meta['main_company_description'] = "";
-                
-                if(!empty($gst_number)){
-                    $meta['main_company_gst_number'] = $gst_number;
-                } else {
-                    $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
-                }
+                $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
             }
         }
         else{

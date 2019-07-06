@@ -35,6 +35,7 @@ class Partner extends CI_Controller {
         $this->load->library('user_agent');
         $this->load->library("initialized_variable");
         $this->load->model("push_notification_model");
+        $this->load->library("booking_creation_lib");
         $this->load->library('table');
         $this->load->library("invoice_lib");
         $this->load->library("paytm_cb");
@@ -1341,8 +1342,12 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $this->checkUserSession();
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'trim|required');
-
-        if ($this->form_validation->run() == FALSE) {
+        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id);
+        
+        if ($this->form_validation->run() == FALSE || $is_booking_able_to_reschedule === FALSE) {
+            if($is_booking_able_to_reschedule === FALSE) {
+                $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
+            }
             $this->get_reschedule_booking_form($booking_id);
         } else {
             log_message('info', __FUNCTION__ . " Booking Id  " . $booking_id);
@@ -5383,14 +5388,23 @@ class Partner extends CI_Controller {
      * @params: void
      * @return: string
      */
-    function get_partner_specific_appliance(){
+    function get_partner_specific_appliance() {
         $partner_id = $this->input->get('partner_id');
-        if($partner_id){
+
+        if (!empty($this->input->get('is_not_all_services'))) {
+            $is_all_option = false;
+        } else {
+            $is_all_option = true;
+        }
+
+        if ($partner_id) {
             $appliance_list = $this->partner_model->get_partner_specific_services($partner_id);
-            if($this->input->get('is_option_selected')){
+            if ($this->input->get('is_option_selected')) {
                 $option = '<option  selected="" disabled="">Select Appliance</option>';
-                $option = $option.'<option id="allappliance" value="all" >All</option>';
-            }else{
+                if ($is_all_option == true) {
+                    $option = $option . '<option id="allappliance" value="all" >All</option>';
+                }
+            } else {
                 $option = '';
             }
 
@@ -5400,11 +5414,11 @@ class Partner extends CI_Controller {
                 $option .= $value->services . "</option>";
             }
             echo $option;
-        }else{
+        } else {
             echo FALSE;
         }
     }
-    
+
     /**
      * @desc: This function is used to show the inventory details of the partner
      * @params: void
