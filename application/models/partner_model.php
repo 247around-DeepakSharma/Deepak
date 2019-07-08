@@ -1745,7 +1745,10 @@ function get_data_for_partner_callback($booking_id) {
      * 
      */
     function select_contact_person($id) {
-        $query = $this->db->query("Select id, name from contact_person where entity_id= '".$id."' AND is_active='1' AND entity_type = 'partner' AND name IS NOT NULL order by name");
+        $query = $this->db->query("Select id, name from contact_person where entity_id= '".$id."' AND is_active='1' AND entity_type = 'partner' AND name IS NOT NULL 
+           UNION 
+           Select id, name from contact_person where   is_active='1' AND entity_type = 'vendor' AND name IS NOT NULL order by name
+          ");
         return $query->result();
     }
       /**
@@ -2191,16 +2194,16 @@ function get_data_for_partner_callback($booking_id) {
         return $query->result_array();
     }
     
-    function get_main_partner_invoice_detail($partner_on_saas = false, $gst_number = ""){
+    function get_main_partner_invoice_detail($partner_on_saas = false){
         $meta = array(); 
         if($partner_on_saas){
-            $main_partner = $this->get_partner_invoice_details("company_name, public_name,  address, state, pincode, primary_contact_phone_1, primary_contact_email, gst_number,"
+            $main_partner = $this->get_partner_invoice_details("company_name, public_name, district,  address, state, pincode, primary_contact_phone_1, primary_contact_email, gst_number,"
                         . "bank_name, bank_account, ifsc_code, seal, signature, partner_logo", _247AROUND);
 
             if(!empty($main_partner)){
                 $meta['main_company_name'] = $main_partner[0]['company_name'];
                 $meta['main_company_public_name'] = $main_partner[0]['public_name'];
-                $meta['main_company_address'] = $main_partner[0]['address'];
+                $meta['main_company_address'] = $main_partner[0]['address']. ", ". $main_partner[0]['district']. ", Pincode - ".$main_partner[0]['pincode'].", ".$main_partner[0]['state'];
                 $meta['main_company_state'] = $main_partner[0]['state'];
                 $meta['main_company_pincode'] = $main_partner[0]['pincode'];
                 $meta['main_company_email'] = $main_partner[0]['primary_contact_email'];
@@ -2213,18 +2216,13 @@ function get_data_for_partner_callback($booking_id) {
                 $meta['main_company_signature'] = $main_partner[0]['signature'];
                 $meta['main_company_logo'] = $main_partner[0]['partner_logo'];
                 $meta['main_company_description'] = "";
-                
-                if(!empty($gst_number)){
-                    $meta['main_company_gst_number'] = $gst_number;
-                } else {
-                    $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
-                }
+                $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
             }
         }
         else{
             $meta['main_company_name'] = "Blackmelon Advance Technology Co. Pvt. Ltd.";
             $meta['main_company_public_name'] = "247Around";
-            $meta['main_company_address'] = "A-1/7, F/F A BLOCK, KRISHNA NAGAR";
+            $meta['main_company_address'] = "A-1/7, F/F A BLOCK, KRISHNA NAGAR Pincode - 110051, DELHI";
             $meta['main_company_state'] = "DELHI";
             $meta['main_company_pincode'] = "110051";
             $meta['main_company_email'] = "seller@247around.com";
@@ -2399,12 +2397,10 @@ function get_data_for_partner_callback($booking_id) {
         $start_date = date("Y-m-d 00:00:00", strtotime($start_date));
         $end_date = date("Y-m-d 23:59:59", strtotime($end_date));
         $strQuery = "SELECT 
-                        booking_details.booking_id,
-                        bs.agent_id,
-                        date_format(booking_details.create_date, '%d-%m-%Y %H:%m') as create_date,
-                        date_format(booking_details.create_date, '%d') as date, 
-                        entity_login_table.agent_name,
-                        entity_login_table.user_id
+                        booking_details.booking_id as 'Booking ID',
+                        date_format(booking_details.create_date, '%d-%m-%Y %H:%m') as 'Registration Date', 
+                        entity_login_table.agent_name as 'Agent Name',
+                        entity_login_table.user_id as 'Agent Login ID'
                     FROM
                         booking_details
                         JOIN booking_state_change bs ON (booking_details.booking_id = bs.booking_id) 

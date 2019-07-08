@@ -619,7 +619,7 @@
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
                                         <td><?php if($sp['part_warranty_status']==2){echo 'Out Of Warranty';}else{echo 'In - Warranty';} ?></td> 
                                         <td><?php echo $sp['quantity']; ?></td> 
-                                        <td><?php echo $sp['shipped_quantity']; ?></td> 
+                                        
                                         <td><?php echo $sp['create_date']; ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
@@ -834,7 +834,7 @@
                                         <th >Remarks By Partner </th>
                                         <th>SF Challan Number</th>
                                         <th>SF Challan File</th>
-                                        <th>Update Spare Details</th>
+                                        <th>Update Courier Details</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -2217,11 +2217,12 @@ background-color: #f5f5f5;
    $(document).ready(function(){
     $(".warehouse_name").each(function(){
         var warehouse_id = $(this).attr("data-warehouse");
+        var namewarehouse  = $(this);
         if (warehouse_id>0) {
               $.ajax({url: "<?php echo base_url(); ?>employee/vendor/get_warehouse_data/"+warehouse_id, success: function(result){
               var obj =  JSON.parse(result);
               console.log(obj[0].district);
-              $(".warehouse_name").html('<span id="entity_type_id">'+obj[0].district + ' Warehouse</span>');
+              $(namewarehouse).html('<span id="entity_type_id">'+obj[0].district + ' Warehouse</span>');
            }});
         }
     });
