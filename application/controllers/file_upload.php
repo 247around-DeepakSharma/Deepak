@@ -561,7 +561,7 @@ class File_upload extends CI_Controller {
             curl_close($ch);
         }
 
-exit;
+ 
        $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $this->session->userdata('id'));
 
           //echo $err_msg;  exit;
