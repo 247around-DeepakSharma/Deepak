@@ -2300,7 +2300,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @return - empty
      */
     function send_email_to_trackon_couriers() {
-               
+                      
         $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_partner as courier_name, spare_parts_details.awb_by_partner as awb_no, spare_parts_details.shipped_date as spare_shipped_date, 'New Pickup' as shipment_type";
         $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
             "status IN('" . SPARE_SHIPPED_BY_PARTNER . "')" => NULL,
@@ -2319,11 +2319,18 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $output_file_excel = TMP_FOLDER . "shipment-pending-detailed.xlsx";
         
         if (!empty($spare_part_data)) {
+            $courier_name = 'trackon';
             $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager'));
-            $email_to = implode(', ', array_map(function ($entry) {
-            return $entry['official_email'];
-            }, $inventory_manager_list));
-            $this->generate_spare_pending_shipment_excel($template, $spare_part_data, $output_file_excel,$email_to);
+            if (!empty($inventory_manager_list)) {
+
+                $email_from = $inventory_manager_list[0]['official_email'];
+
+                $cc_email = implode(', ', array_map(function ($entry) {
+                            return $entry['official_email'];
+                        }, $inventory_manager_list));
+            }
+
+            $this->generate_spare_pending_shipment_excel($template, 'TRACKON_SPARE_PART_SHIPMENT_PENDING', $spare_part_data, $output_file_excel, $cc_email, $email_from, $courier_name);
         }
     }
     
@@ -2334,13 +2341,13 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @return - empty
      */
     function send_email_to_gati_couriers() {
-        
+
         $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_partner as courier_name, spare_parts_details.awb_by_partner as awb_no, spare_parts_details.shipped_date as spare_shipped_date, 'New Pickup' as shipment_type";
         $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
             "status IN('" . SPARE_SHIPPED_BY_PARTNER . "')" => NULL,
             'spare_parts_details.courier_name_by_partner LIKE "%trackon%"' => NULL);
         $spare_parts_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);
-
+        
         $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_sf as courier_name, spare_parts_details.awb_by_sf as awb_no,spare_parts_details.shipped_date as spare_shipped_date, 'Reverse Pickup' as shipment_type";
         $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
             "status IN('" . DEFECTIVE_PARTS_SHIPPED . "')" => NULL,
@@ -2351,17 +2358,23 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
 
         $template = 'shipment-pending.xlsx';
         $output_file_excel = TMP_FOLDER . "shipment-pending-detailed.xlsx";
-        
+
         if (!empty($spare_part_data)) {
+            
+            $courier_name = 'gati';
             $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager'));
-            $email_to = implode(', ', array_map(function ($entry) {
-            return $entry['official_email'];
-            }, $inventory_manager_list));
-            $this->generate_spare_pending_shipment_excel($template, $spare_part_data, $output_file_excel,$email_to);
+            if (!empty($inventory_manager_list)) {
+                $email_from = $inventory_manager_list[0]['official_email'];
+                $cc_email = implode(', ', array_map(function ($entry) {
+                            return $entry['official_email'];
+                        }, $inventory_manager_list));
+            }
+
+            $this->generate_spare_pending_shipment_excel($template, 'GATI_SPARE_PART_SHIPMENT_PENDING', $spare_part_data, $output_file_excel, $cc_email, $email_from, $courier_name);
         }
     }
 
-     /*
+    /*
      * @desc - This function is used to generate excel to attached with email
      * @param - $template
      * @param - $spare_part_data
@@ -2369,8 +2382,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @return - true or false
      */
     
-    function generate_spare_pending_shipment_excel($template, $spare_part_data, $output_file_excel,$email_to) {
-
+    function generate_spare_pending_shipment_excel($template, $template_tag, $spare_part_data, $output_file_excel, $cc_email, $email_from, $courier_name) {
+        
         // directory
         $templateDir = __DIR__ . "/excel-templates/";
         $config = array(
@@ -2401,15 +2414,14 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
 
         $R->render('excel', $output_file_excel);
 
-        $email_template = $this->booking_model->get_booking_email_template(SPARE_PART_SHIPMENT_PENDING);
+        $email_template = $this->booking_model->get_booking_email_template($template_tag);
         if (!empty($email_template)) {
-            $subject = $email_template[4];
-            $message = $email_template[0];
-            $email_from = $email_template[2];
-
-            $to = $email_to;
-            $cc = $email_template[3];
-            $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_excel, SPARE_PART_SHIPMENT_PENDING);
+            $subject = vsprintf($email_template[4], strtoupper($courier_name));
+            $message =  vsprintf($email_template[0], array(strtolower($courier_name)));
+            $to = $email_template[1];
+            $cc = $email_template[3].",".$cc_email;
+                        
+            $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_excel, $template_tag);
             unlink($output_file_excel);
         }
 
