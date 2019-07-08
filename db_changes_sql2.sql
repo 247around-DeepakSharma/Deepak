@@ -225,3 +225,8 @@ ALTER TABLE `engineer_booking_action` ADD `symptom` INT NULL DEFAULT NULL AFTER 
 ALTER TABLE `engineer_booking_action` ADD `service_charge` INT NOT NULL DEFAULT '0' AFTER `cancellation_reason`;
 ALTER TABLE `engineer_booking_action` ADD `additional_service_charge` INT NOT NULL DEFAULT '0' AFTER `service_charge`;
 ALTER TABLE `engineer_booking_action` ADD `parts_cost` INT NOT NULL DEFAULT '0' AFTER `additional_service_charge`;
+
+ALTER TABLE `engineer_booking_action` ADD `amount_paid` INT NULL AFTER `cancellation_reason`;
+
+ALTER TABLE employee_relation ADD COLUMN individual_service_centres_id text NULL DEFAULT NULL AFTER service_centres_id;
+
