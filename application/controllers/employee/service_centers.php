@@ -1897,6 +1897,11 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         // Check User Session
         $this->checkUserSession();
+        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($this->input->post('booking_id'));
+        if ($is_booking_able_to_reschedule === FALSE) {
+            $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
+            $this->update_booking_status(urlencode(base64_encode($booking_id)));
+        }        
 
         // Check form validation
         $f_status = $this->checkvalidation_for_update_by_service_center();
