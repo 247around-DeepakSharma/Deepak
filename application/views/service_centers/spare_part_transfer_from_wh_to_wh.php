@@ -186,7 +186,7 @@
     $(document).ready(function(){
        is_wh=1; 
        get_vendor(is_wh); 
-       $("#modalauto").click();
+      // $("#modalauto").click();
 
        $("#warehouseto").change(function(){
         var to = $(this).val();
