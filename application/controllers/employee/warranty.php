@@ -110,13 +110,15 @@ class Warranty extends CI_Controller {
         if(!empty($warranty_grace_period)){
             $warranty_end_period = strtotime(date("Y-m-d", strtotime($warranty_end_period)) . " +".$warranty_grace_period." days");
             $in_warranty_end_period = strtotime(date("Y-m-d", strtotime($in_warranty_end_period)) . " +".$InWarrantyGracePeriod." days");
-        }        
+        }
+        $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
+        $in_warranty_end_period = strtotime(date("Y-m-d", $in_warranty_end_period) . " -1 day");
         
         $row = array();
         $row[] = $no;
         $row[] = $warranty_list['plan_name'];
-        $row[] = date('d-m-Y', strtotime($warranty_list['period_start']));
-        $row[] = date('d-m-Y', strtotime($warranty_list['period_end']));
+        $row[] = date('d-M-Y', strtotime($warranty_list['period_start']));
+        $row[] = date('d-M-Y', strtotime($warranty_list['period_end']));
         $row[] = $warranty_list['states'];
         $row[] = $warranty_list['part_types'];
         $row[] = !empty($warranty_list['inclusive_svc_charge']) ? "No" : "Yes";
@@ -126,7 +128,7 @@ class Warranty extends CI_Controller {
         $row[] = $warranty_list['warranty_grace_period']. " Day(s)";
         if($warranty_end_period < strtotime(date("Y-m-d")))
         {
-            $row[] = date('d-m-Y', $warranty_end_period)."<p style='color: #f30;font-weight:bold;'>Expired</p>";
+            $row[] = date('d-M-Y', $warranty_end_period)."<p style='color: #f30;font-weight:bold;'>Expired</p>";
         }
         else
         {
@@ -137,14 +139,15 @@ class Warranty extends CI_Controller {
             else {
                 $activeExtendedWarrantyPlans++;
             }
-            $row[] = date('d-m-Y', $warranty_end_period)."<p style='color: green;font-weight:bold;'>Active</p>";
+            $row[] = date('d-M-Y', $warranty_end_period)."<p style='color: green;font-weight:bold;'>Active</p>";
         }        
         return $row;        
     }
     
     function in_warranty_data($no, $purchase_date, &$activeInWarrantyPlans){  
-        $warranty_start_period = date('d-m-Y', strtotime($purchase_date));
+        $warranty_start_period = date('d-M-Y', strtotime($purchase_date));
         $warranty_end_period = date('d-m-Y', strtotime(date("Y-m-d", strtotime($purchase_date)) . " +1 year"));
+        $warranty_end_period = date('d-M-Y', strtotime(date("Y-m-d", strtotime($warranty_end_period)) . " -1 day"));
         $row = array();
         $row[] = $no;
         $row[] = 'In Warranty';
@@ -159,12 +162,12 @@ class Warranty extends CI_Controller {
         $row[] = "0 Day(s)";
         if(strtotime($warranty_end_period) < strtotime(date("Y-m-d")))
         {
-            $row[] = date('d-m-Y', strtotime($warranty_end_period))."<p style='color: #f30;font-weight:bold;'>Expired</p>";
+            $row[] = date('d-M-Y', strtotime($warranty_end_period))."<p style='color: #f30;font-weight:bold;'>Expired</p>";
         }
         else
         {
             $activeInWarrantyPlans++;
-            $row[] = date('d-m-Y', strtotime($warranty_end_period))."<p style='color: green;font-weight:bold;'>Active</p>";
+            $row[] = date('d-M-Y', strtotime($warranty_end_period))."<p style='color: green;font-weight:bold;'>Active</p>";
         }        
         return $row;        
     }
