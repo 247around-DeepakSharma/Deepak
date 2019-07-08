@@ -3377,6 +3377,12 @@ function generate_image($base64, $image_name,$directory){
         $join['employee'] = "employee.id = employee_relation.agent_id";
         $where['booking_details.booking_id'] = $bookingID;
         $where['agent_filters.entity_type'] = "247around";
+        
+        $saas_module = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        if(isset($saas_module) && (!$saas_module)) { 
+            $where['e.groups'] = _247AROUND_RM;
+        }
+        
         if($state_check) {
             $limitArray = array();
             $where['agent_filters.state'] = $booking_state[0]['state'];

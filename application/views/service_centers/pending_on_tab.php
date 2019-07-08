@@ -942,6 +942,9 @@
             $('#relevant_content_table  th').css("background-color","#ECEFF1");
             $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
             $("#relevant_content_modal").modal("show");
+        } else {
+            $("#relevant_content_modal .modal-body").html('No contacts.');
+            $("#relevant_content_modal").modal("show");
         }
     }
     
