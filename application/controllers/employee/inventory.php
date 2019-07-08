@@ -3255,7 +3255,20 @@ class Inventory extends CI_Controller {
                                         $agent_type = _247AROUND_PARTNER_STRING;
                                     }
                                     $entity_details = $this->partner_model->getpartner_details("state", array('partners.id' => $partner_id));
-                                    $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
+                                    if(!empty($from_gst_number)){
+                                        $partner_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $from_gst_number));
+                                        $partner_state_code = $partner_gst[0]['state'];
+                                    } else {
+                                        $partner_state_code = $this->invoices_model->get_state_code(array('state' => $entity_details[0]['state']))[0]['state_code'];
+                                    }
+                                    
+                                    $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $to_gst_number));
+                                    if($around_gst[0]['state'] == $partner_state_code){
+                                        $c_s_gst = true;
+                                    } else {
+                                        $c_s_gst = false;
+                                    }
+                                    //$c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
                                     $booking_id_array = array_column($parts_details, 'booking_id');
                                     $tqty = 0;
                                     $total_basic_amount = 0;
@@ -3649,7 +3662,7 @@ class Inventory extends CI_Controller {
         $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $from_gst_number));
         $invoice_id = $this->invoice_lib->create_invoice_id("ARD-".$around_gst[0]['state']); 
         $a = array();
-        
+        $main_company_state = $this->invoices_model->get_state_code(array('state_code' => $around_gst[0]['state']))[0]['state'];
         foreach ($invoice as $key => $value) {
 
             $select = "oow_vendor_margin, oow_around_margin";
@@ -3679,6 +3692,12 @@ class Inventory extends CI_Controller {
             $a[$key]['district'] = $entity_details[0]['district'];
             $a[$key]['pincode'] = $entity_details[0]['pincode'];
             $a[$key]['state'] = $entity_details[0]['state'];
+            
+            if ((strcasecmp($main_company_state, $entity_details[0]['state']) == 0)){
+                $a[$key]['c_s_gst'] = TRUE;
+            } else {
+               $a[$key]['c_s_gst'] = FALSE; 
+            }
 
             $a[$key]['gst_number'] = $entity_details[0]['gst_number'];
             $a[$key]['gst_rate'] = $value['sgst_tax_rate'] + $value['igst_tax_rate'] + $value['cgst_tax_rate'];
@@ -3688,7 +3707,7 @@ class Inventory extends CI_Controller {
         }
         $response = $this->invoices_model->_set_partner_excel_invoice_data($a, $invoice_date, $invoice_date, "Tax Invoice", $invoice_date);
         $response['meta']['main_company_gst_number'] = $around_gst[0]['gst_number'];
-        $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $around_gst[0]['state']))[0]['state'];
+        $response['meta']['main_company_state'] = $main_company_state;
         $response['meta']['main_company_address'] = $around_gst[0]['address'] . "," 
                     . $around_gst[0]['city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
                     . $around_gst[0]['pincode'];
@@ -4501,6 +4520,11 @@ class Inventory extends CI_Controller {
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['invoice_id'] = $invoice_id;
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['product_or_services'] = "Product";
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_number'] = $value['to_gst_number'];
+                        if($value['from_state_code'] ==  $value['to_state_code']){
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['c_s_gst'] = true;
+                        } else {
+                            $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['c_s_gst'] = FALSE;
+                        }
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_name'] = $entity_details[0]['company_name'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_address'] = $value['to_address'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['district'] = $value['to_city'];
