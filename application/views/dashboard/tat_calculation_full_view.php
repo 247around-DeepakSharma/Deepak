@@ -172,7 +172,7 @@
                     <div class="tab-content" style="margin-top: 10px;">
                             <div class="tab-pane fade in active" id="tab1">
                                 <form action="<?php echo base_url()?>employee/dashboard/download_tat_report" method="post">
-                                    <input type="hidden" value='<?php echo json_encode($state);?>' name="data">
+                                    <input type="hidden" value='<?php if(isset($state['TAT'])) { echo json_encode($state['TAT']); } else { echo json_encode($state); } ?>' name="data">
                                     <input type="submit" value="Download CSV" class="btn btn-primary" style="background: #405467;border: none;">
                                     </form>
                                 <table class="table table-striped table-bordered jambo_table bulk_action" id="tat_state_table">
