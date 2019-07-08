@@ -3229,4 +3229,61 @@ class Spare_parts extends CI_Controller {
       
         echo "Success";
     }
+    
+     /**
+     *  @desc : This function is used to map GST number to Wareshouse and Partner
+
+     */
+
+     function add_gst_mapping(){
+
+        $this->miscelleneous->load_nav_header();  
+        $results['select_state'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state, state_code",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        $this->load->view('employee/add_gst_mapping',$results);
+
+     }
+     
+           /**
+    * @desc This is used to process and add gst_details
+    *  
+    */
+    function process_add_gst_details_for_partner(){
+        $gst_file = "";
+        //Making process for file upload
+        if(!empty($this->input->post('partner'))){
+            if(!empty($_FILES['gst_file']['name'])){
+                $tmpFile = $_FILES['gst_file']['tmp_name'];
+                $gst_file = str_replace(' ', '', $this->input->post('gst_number')) . '_gstfile_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $_FILES['gst_file']['name'])[1];
+                move_uploaded_file($tmpFile, TMP_FOLDER . $gst_file);
+
+                //Upload files to AWS
+                $bucket = BITBUCKET_DIRECTORY;
+                $directory_xls = "vendor-partner-docs/" . $gst_file;
+                $this->s3->putObjectFile(TMP_FOLDER . $gst_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                $_POST['gst_file'] = $gst_file;
+                unlink(TMP_FOLDER . $gst_file);
+                //$gst_file_path= "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $gst_file;
+            }
+
+            $data=array(
+                'entity_type'=>_247AROUND_PARTNER_STRING,
+                'entity_id'=>$this->input->post('partner'),
+                'state'=>$this->input->post('state'),
+                'gst_file'=>$gst_file,
+                'gst_number'=>$this->input->post('gst_number')
+            );
+
+            $last_id = $this->inventory_model->insert_entity_gst_data($data);
+
+            if ($last_id) {
+               $this->session->set_flashdata('success_msg','GST Deatils added successfully !');
+            }else{
+                $this->session->set_flashdata('error_msg','GST Deatils not  added  !');
+            }
+        }
+        else{
+            $this->session->set_flashdata('error_msg', 'Please Select Partner!');
+        }
+        redirect(base_url() . "employee/spare_parts/add_gst_mapping");
+    }
 }
