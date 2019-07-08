@@ -3153,10 +3153,11 @@ class Inventory extends CI_Controller {
     function  process_msl_upload_excel(){
             $input_d = file_get_contents('php://input');
             $_POST = json_decode($input_d, TRUE);
-           // print_r($_POST);
+             
             if (!(json_last_error() === JSON_ERROR_NONE)) {
-                log_message('info', __METHOD__ . ":: Invalid JSON");
+                log_message('info', __METHOD__ . ":: Invalid JSON",true);
             }else{
+               
                 $this->process_spare_invoice_tagging();  
             }           
         
@@ -3171,11 +3172,14 @@ class Inventory extends CI_Controller {
     function process_spare_invoice_tagging() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
 //        $str = '{"is_wh_micro":"2","247around_gst_number":"09AAFCB1281J1ZM","partner_id":"247130","wh_id":"870","awb_number":"12587455","courier_name":"gati-kwe","courier_shipment_date":"2019-07-04","from_gst_number":"7","part":[{"shippingStatus":"1","service_id":"37","part_name":"TRAY,BOTTOM,ER180I,INSTA","part_number":"1100023151","booking_id":"","quantity":"1","part_total_price":"158.25","hsn_code":"39239090","gst_rate":"18","inventory_id":"6011"},{"shippingStatus":"1","service_id":"37","part_name":"LEG,ADJUSTABLE,27MM L,ER180I,INSTA","part_number":"1100028374","booking_id":"","quantity":"2","part_total_price":"15","hsn_code":"84189900","gst_rate":"18","inventory_id":"7463"}],"partner_name":" Videocon","wh_name":" Amritsar Baldev Electronics - (Micro Warehouse) ","dated":"2019-07-04","sender_entity_type":"vendor","sender_entity_id":"15","invoice_tag":"MSL","transfered_by":"2"}';
-//        $_POST = json_decode($str, true);  
-//        
-        $invoice_file=true;
-        if (!empty($this->input->post('invoice_file'))) {
-           $invoice_file=false;     
+ //        $_POST = json_decode($str, true);  
+//  
+
+        $invoice_file_required =  $this->input->post('invoice_file');
+        if (!$invoice_file_required) {
+           $invoice_file_required=0;      
+        }else{
+            $invoice_file_required=1;
         }      
         $partner_id = $this->input->post('partner_id');
         $invoice_id = $this->input->post('invoice_id');
@@ -3200,7 +3204,8 @@ class Inventory extends CI_Controller {
             } else {
                 $req = TRUE;
                 
-            }
+            }  
+
             if ($transfered_by == MSL_TRANSFERED_BY_PARTNER){
                 $sender_enity_id = $partner_id;
                 $sender_entity_type = _247AROUND_PARTNER_STRING;
@@ -3210,16 +3215,22 @@ class Inventory extends CI_Controller {
                 $sender_enity_id = $this->input->post("sender_entity_id");
 
             }
-            if ($req) { 
+            if ($req) {
+
                 $parts_details = $this->input->post('part');
+
+               
                 if (!empty($parts_details)) {
-                    if($invoice_file){
+                    if($invoice_file_required){  
+                         
                          $invoice_file = $this->check_msl_invoice_id($transfered_by, $invoice_id);
                     }else{
+                         
                       $invoice_file['status']=true;  
                       $invoice_file['message']= 'Invoice By Excel';
                     }
                     if ($invoice_file['status']) { 
+
                          if($invoice_file){
                              $courier_file = $this->upload_spare_courier_file($_FILES);
                          }else{
@@ -3263,6 +3274,7 @@ class Inventory extends CI_Controller {
                                     }
                                     
                                     $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $to_gst_number));
+
                                     if($around_gst[0]['state'] == $partner_state_code){
                                         $c_s_gst = true;
                                     } else {
