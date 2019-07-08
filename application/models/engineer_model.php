@@ -294,7 +294,7 @@ class Engineer_model extends CI_Model {
     }  
     
     function get_engineer_rating($engineer_id, $sf_id){
-        $sql = "SELECT ROUND(AVG(rating_stars),1) as rating
+        $sql = "SELECT ROUND(AVG(rating_stars)) as rating
                 FROM booking_details WHERE assigned_vendor_id = '$sf_id'
                 AND assigned_engineer_id = '$engineer_id'
                 AND rating_stars IS NOT NULL AND current_status = '"._247AROUND_COMPLETED."'";    
