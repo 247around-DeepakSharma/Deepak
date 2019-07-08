@@ -3015,10 +3015,12 @@ class Spare_parts extends CI_Controller {
         $post['is_inventory']=true;
         $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
         $tcount = 0;
+        
         if (!empty($bookings_spare)) {
             $booking_error_array = array();
             foreach ($bookings_spare as $booking) {
                 $spareid = $booking['id'];
+                $state=$booking['state'];
                 $requested_inventory = $booking['requested_inventory_id'];
                 $requested_part_number = '';
                 if(!empty($booking['part_number'])){
@@ -3027,6 +3029,7 @@ class Spare_parts extends CI_Controller {
                  $requested_part_number = '-';  
                 }
                 $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
+                
                 if (!empty($data)) {
                     if($data['stock']){
                         $dataupdate = array(
