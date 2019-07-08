@@ -85,7 +85,7 @@
         var service = $("#service_id option:selected").val();
         var brand = $("#brand option:selected").val();
         var model = $("#model option:selected").val();
-
+        var purchase_date = $('#purchase_date').val();
         if (partner === 'option_holder')
         {
             alert("Please Select Partner ");
@@ -104,6 +104,11 @@
         else if (model === 'option_holder')
         {
             alert("Please Select Model ");
+            return false;
+        }
+        else if (purchase_date == '')
+        {
+            alert("Please Select Purchase Date ");
             return false;
         }
         else {
@@ -203,7 +208,7 @@
             "dataSrc" : function (json) {
                 if(json.activeInWarrantyPlans > 0)
                 {
-                    $("#warranty_status").html("<span style='color:green;'>In Warranty.</span>");
+                    $("#warranty_status").html("<span style='color:green;'>In Warranty</span>");
                 }
                 else if((json.activeExtendedWarrantyPlans > 0) && (json.activeInWarrantyPlans == 0))
                 {
@@ -211,7 +216,7 @@
                 }
                 else if((json.activeExtendedWarrantyPlans == 0) && (json.activeInWarrantyPlans == 0))
                 {
-                    $("#warranty_status").html("Out of Warranty.");
+                    $("#warranty_status").html("Out of Warranty");
                 }
                 else
                 {
