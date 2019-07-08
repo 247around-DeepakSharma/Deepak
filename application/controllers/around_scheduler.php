@@ -2298,13 +2298,13 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @return - empty
      */
     function send_email_to_trackon_couriers() {
-       
+               
         $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_partner as courier_name, spare_parts_details.awb_by_partner as awb_no, spare_parts_details.shipped_date as spare_shipped_date, 'New Pickup' as shipment_type";
         $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
             "status IN('" . SPARE_SHIPPED_BY_PARTNER . "')" => NULL,
             'spare_parts_details.courier_name_by_partner LIKE "%trackon%"' => NULL);
         $spare_parts_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);
-
+        
         $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_sf as courier_name, spare_parts_details.awb_by_sf as awb_no,spare_parts_details.shipped_date as spare_shipped_date, 'Reverse Pickup' as shipment_type";
         $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
             "status IN('" . DEFECTIVE_PARTS_SHIPPED . "')" => NULL,
@@ -2317,7 +2317,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $output_file_excel = TMP_FOLDER . "shipment-pending-detailed.xlsx";
         
         if (!empty($spare_part_data)) {
-            $email_to = 'gorakhn@247around.com';
+            $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager'));
+            $email_to = implode(', ', array_map(function ($entry) {
+            return $entry['official_email'];
+            }, $inventory_manager_list));
             $this->generate_spare_pending_shipment_excel($template, $spare_part_data, $output_file_excel,$email_to);
         }
     }
@@ -2348,7 +2351,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $output_file_excel = TMP_FOLDER . "shipment-pending-detailed.xlsx";
         
         if (!empty($spare_part_data)) {
-            $email_to = 'gorakhn@247around.com';
+            $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager'));
+            $email_to = implode(', ', array_map(function ($entry) {
+            return $entry['official_email'];
+            }, $inventory_manager_list));
             $this->generate_spare_pending_shipment_excel($template, $spare_part_data, $output_file_excel,$email_to);
         }
     }
