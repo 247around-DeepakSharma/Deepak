@@ -2163,6 +2163,27 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
+    
+    /**
+     * @Desc: This function is used to get data from the  spare_parts_details table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    
+    function get_pending_spare_part_details($post, $where=array()){
+        $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) AS shipped_date", FALSE);
+        $this->db->where($where);
+        $query = $this->db->get("spare_parts_details");
+        //echo $this->db->last_query();
+        return $query->result_array();
+    }
+    
+    
+    
+    
+    
       /**
      * @Desc: This function is used to get data from the appliance_model_details table
      * @params: $select string
@@ -2584,5 +2605,19 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+        /**
+     * @Desc: This function is used to inser gst data data  
+     * @params: $select string
+     * @return: $id  
+     * 
+     */
+    
+    function  insert_entity_gst_data($data){
+        $this->db->insert('entity_gst_details',$data);
+        return $this->db->insert_id();
+
+    }
+    
 
 }

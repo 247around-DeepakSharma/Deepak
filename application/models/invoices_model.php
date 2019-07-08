@@ -733,7 +733,7 @@ class invoices_model extends CI_Model {
             
         }
 
-        if (!empty($warehouse_courier)) {
+        if (!empty($packaging_charge)) {
             $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
                 "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG));
             if (!empty($packaging)) {
