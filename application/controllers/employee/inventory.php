@@ -3944,6 +3944,7 @@ class Inventory extends CI_Controller {
      *  @return : $res JSON
      */
     function get_spare_send_by_partner_to_wh() {
+        ob_end_clean();
         $post = $this->get_post_data();
         $post['is_courier_details_required'] = TRUE;
         $post['column_order'] = array();
