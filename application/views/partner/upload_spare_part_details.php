@@ -165,7 +165,7 @@
             $.ajax({
                 type: 'GET',
                 url: '<?php echo base_url() ?>employee/partner/get_partner_specific_appliance',
-                data:{is_option_selected:true,partner_id:partner_id},
+                data:{is_option_selected:true,partner_id:partner_id,is_not_all_services:true},
                 success: function (response) {
                     if(response){
                         $('#service_id').html(response);
