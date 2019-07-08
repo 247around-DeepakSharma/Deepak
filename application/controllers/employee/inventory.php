@@ -3947,12 +3947,22 @@ class Inventory extends CI_Controller {
         $post = $this->get_post_data();
         $post['is_courier_details_required'] = TRUE;
         $post['column_order'] = array();
+        $sender = trim($this->input->post('sender_entity_id'));
         $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id');
+
         $post['where'] = array('i.receiver_entity_id' => trim($this->input->post('receiver_entity_id')),
             'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
-            'i.sender_entity_id' => trim($this->input->post('sender_entity_id')),
-            'i.sender_entity_type' => trim($this->input->post('sender_entity_type')),
             'i.is_wh_ack' => $this->input->post('is_wh_ack'));
+
+        if (trim($this->input->post('is_wh_micro'))) {
+            $post['where']['vendor_partner_invoices.third_party_entity_id'] = trim($this->input->post('sender_entity_id'));
+
+            $post['is_micro_wh'] = true;
+        } else {
+            $post['where']['i.sender_entity_id'] = trim($this->input->post('sender_entity_id'));
+            $post['where']['i.sender_entity_type'];
+            trim($this->input->post('sender_entity_type'));
+        }
 
         $select = "services.services,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
                     WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
