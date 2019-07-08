@@ -560,7 +560,7 @@ function alpha(e) {
     
     $(document).ready(function (){
        $(".spare_parts").attr("disabled", "true");
-       <?php if($consume_spare_status == true && $spare_flag == SPARE_PARTS_REQUIRED){ ?>
+       <?php if(isset($consume_spare_status) && $consume_spare_status == true && $spare_flag == SPARE_PARTS_REQUIRED){ ?>
             internal_status_check('spare_parts');
             $("#spare_parts").prop('checked', true);
        <?php } ?>
