@@ -2222,13 +2222,13 @@ function get_data_for_partner_callback($booking_id) {
     function get_main_partner_invoice_detail($partner_on_saas = false){
         $meta = array(); 
         if($partner_on_saas){
-            $main_partner = $this->get_partner_invoice_details("company_name, public_name,  address, state, pincode, primary_contact_phone_1, primary_contact_email, gst_number,"
+            $main_partner = $this->get_partner_invoice_details("company_name, public_name, district,  address, state, pincode, primary_contact_phone_1, primary_contact_email, gst_number,"
                         . "bank_name, bank_account, ifsc_code, seal, signature, partner_logo", _247AROUND);
 
             if(!empty($main_partner)){
                 $meta['main_company_name'] = $main_partner[0]['company_name'];
                 $meta['main_company_public_name'] = $main_partner[0]['public_name'];
-                $meta['main_company_address'] = $main_partner[0]['address'];
+                $meta['main_company_address'] = $main_partner[0]['address']. ", ". $main_partner[0]['district']. ", Pincode - ".$main_partner[0]['pincode'].", ".$main_partner[0]['state'];
                 $meta['main_company_state'] = $main_partner[0]['state'];
                 $meta['main_company_pincode'] = $main_partner[0]['pincode'];
                 $meta['main_company_email'] = $main_partner[0]['primary_contact_email'];
@@ -2247,7 +2247,7 @@ function get_data_for_partner_callback($booking_id) {
         else{
             $meta['main_company_name'] = "Blackmelon Advance Technology Co. Pvt. Ltd.";
             $meta['main_company_public_name'] = "247Around";
-            $meta['main_company_address'] = "A-1/7, F/F A BLOCK, KRISHNA NAGAR";
+            $meta['main_company_address'] = "A-1/7, F/F A BLOCK, KRISHNA NAGAR Pincode - 110051, DELHI";
             $meta['main_company_state'] = "DELHI";
             $meta['main_company_pincode'] = "110051";
             $meta['main_company_email'] = "seller@247around.com";
