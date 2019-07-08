@@ -961,9 +961,13 @@ class invoices_model extends CI_Model {
     
     function _set_partner_excel_invoice_data($result, $sd, $ed, $invoice_type, 
             $invoice_date = false, $is_customer = false, $customer_state =false){
-            //get company detail who generated invoice
-            $c_s_gst =$this->check_gst_tax_type($result[0]['state'], $customer_state);
-            
+        
+            if(isset($result[0]['c_s_gst'])){
+                $c_s_gst = $result[0]['c_s_gst'];
+            } else {
+                //get company detail who generated invoice
+                $c_s_gst =$this->check_gst_tax_type($result[0]['state'], $customer_state);
+            }
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
                     $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
             $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
