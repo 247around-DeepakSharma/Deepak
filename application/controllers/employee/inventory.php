@@ -3954,6 +3954,7 @@ class Inventory extends CI_Controller {
             $post['where']['vendor_partner_invoices.third_party_entity_id'] = trim($this->input->post('sender_entity_id'));
 
             $post['is_micro_wh'] = true;
+            $post['saas'] =$this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         } else {
             $post['where']['i.sender_entity_id'] = trim($this->input->post('sender_entity_id'));
             $post['where']['i.sender_entity_type']=trim($this->input->post('sender_entity_type'));
