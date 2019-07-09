@@ -1098,7 +1098,7 @@ class Inventory_model extends CI_Model {
         }
 
         if ($post['is_micro_wh']) {
-           $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.invoice_id', 'left');
+           $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.micro_invoice_id', 'left');
          
             $this->db->join('partners as pi', "pi.id = vendor_partner_invoices.third_party_entity_id AND inventory_master_list.entity_id= pi.id",'left');
          
@@ -1144,7 +1144,7 @@ class Inventory_model extends CI_Model {
         }
         
         $query = $this->db->get();
-
+        
         if($is_array){
             return $query->result_array();
         }else{
