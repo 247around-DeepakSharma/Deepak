@@ -473,7 +473,15 @@ class File_upload extends CI_Controller {
                         if (!empty($part_details) && !empty($from_gst_data) && !empty($to_gst_data) && !empty($wh_details)  && !empty($part_details) ) {
                               
                             $reciver_entity_id = $wh_details[0]['id'];
-                            $is_wh_micro = $wh_details[0]['is_micro_wh'];    
+                            $is_wh_micro =0;
+                            if ($wh_details[0]['is_micro_wh']==1) {
+                               $is_wh_micro=2;
+                            }else if($wh_details[0]['is_wh']==1){
+                                $is_wh_micro=1;
+                            }else{
+                                $is_wh_micro=0;
+                            }
+
                             $invoice_price=0;
                             if (array_key_exists($rowData['invoice_id'], $post_data)) {
                                 
