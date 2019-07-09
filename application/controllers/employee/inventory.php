@@ -3951,10 +3951,10 @@ class Inventory extends CI_Controller {
             'i.is_wh_ack' => $this->input->post('is_wh_ack'));
 
         if (trim($this->input->post('is_wh_micro'))) {
-            $post['where']['vendor_partner_invoices.third_party_entity_id'] = trim($this->input->post('sender_entity_id'));
+           // $post['where']['vendor_partner_invoices.third_party_entity_id'] = trim($this->input->post('sender_entity_id'));
 
             $post['is_micro_wh'] = true;
-            
+
         } else {
             $post['where']['i.sender_entity_id'] = trim($this->input->post('sender_entity_id'));
             $post['where']['i.sender_entity_type']=trim($this->input->post('sender_entity_type'));

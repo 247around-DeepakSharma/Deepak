@@ -478,8 +478,6 @@ class File_upload extends CI_Controller {
                                $is_wh_micro=2;
                             }else if($wh_details[0]['is_wh']==1){
                                 $is_wh_micro=1;
-                            }else{
-                                $is_wh_micro=0;
                             }
 
                             $invoice_price=0;
