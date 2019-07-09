@@ -68,8 +68,9 @@
                                     <th>Parts Name</th>
                                     <th>Parts Number</th>
                                     <th>Quantity</th>
-                                    <th>Courier Name</th>
                                     <th> AWB </th>
+                                    <th>Courier Name</th>
+                                    
                                     <th>
                                         Acknowledge
                                         <input type="checkbox" id="ack_all">
@@ -162,7 +163,7 @@
             'sender_entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
             'receiver_entity_id': $('#wh_id').val(),
             'receiver_entity_type' : '<?php echo _247AROUND_SF_STRING; ?>',
-            'is_wh_ack':3
+            'is_wh_ack':0
         };
         
         return data;
