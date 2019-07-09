@@ -3870,8 +3870,8 @@ class Inventory extends CI_Controller {
             $post['is_micro_wh'] = true;
         } else {
             $post['where']['i.sender_entity_id'] = trim($this->input->post('sender_entity_id'));
-            $post['where']['i.sender_entity_type'];
-            trim($this->input->post('sender_entity_type'));
+            $post['where']['i.sender_entity_type']=trim($this->input->post('sender_entity_type'));
+            $post['is_micro_wh'] = false;
         }
 
         $select = "services.services,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
