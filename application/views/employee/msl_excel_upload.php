@@ -67,11 +67,11 @@
 
 
 
-
+<div class="col-md-6">
         <form method="POST"   enctype="multipart/form-data"  action="<?php echo base_url();  ?>file_upload/process_upload_file"  >
             <div class="row">
                 
-               <div class="col-md-2">
+               <div class="col-md-4">
                     <div class="form-group">
                         <input type="file" required id="msl_excel" name="file"  accept=".xls,.xlsx" />
                     </div>
@@ -88,7 +88,11 @@
                 </div>
             </div>
         </form>
-
+</div>
+<div class="col-md-6">
+  <p style="font-size: 18px;"><b>Download Sample File. Use this file to upload inventory details.</b></p>
+  <a href="<?php echo S3_WEBSITE_URL; ?>vendor-partner-docs/MSL-excel-sample.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
+</div>
  <div id="myModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
