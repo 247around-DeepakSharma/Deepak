@@ -116,7 +116,7 @@
 <div id="courier_update" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
-        <form id="idForm"  action="<?php echo base_url(); ?>employee/service_centers/test"  method="POST" enctype="multipart/form-data" onsubmit="return submitForm();">
+        <form id="idForm"  action="<?php echo base_url(); ?>employee/service_centers/do_multiple_spare_shipping"  method="POST" enctype="multipart/form-data" onsubmit="return submitForm();">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -562,5 +562,11 @@ $("#spareids").val(yourArray);
   .modal-lg {
     /* width: 1300px; */
     width: 95% !important;
+}
+.form-control{
+    margin-bottom: 10px;
+}
+.input-group{
+   margin-bottom: 10px; 
 }
 </style>
