@@ -525,7 +525,7 @@ class File_upload extends CI_Controller {
                                 $post_data[$rowData['invoice_id']]['from_gst_number'] = $from_gst_data[0]['id'];
                                 $post_data[$rowData['invoice_id']]['to_gst_number'] = $to_gst_data[0]['id'];
                                 $post_data[$rowData['invoice_id']]['wh_id'] = $wh_details[0]['id'];
-                                $post_data[$rowData['invoice_id']]['partner_id'] = _247AROUND;
+                                $post_data[$rowData['invoice_id']]['partner_id'] =$wh_details[0]['id'];
                                 $post_data[$rowData['invoice_id']]['partner_name'] = $is_wh_micro;
                                 $post_data[$rowData['invoice_id']]['wh_name'] = $wh_details[0]['company_name'];
                                 $post_data[$rowData['invoice_id']]['invoice_tag'] = 'MSL';
