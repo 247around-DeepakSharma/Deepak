@@ -169,6 +169,23 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="from_gst_number" class="col-md-4">From GST Number *</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="from_gst_number" required>
+                                            <option selected disabled value="">Select from GST number</option>
+                                            <?php
+                                            foreach ($from_gst_number as $gst_numbers => $gst_number) {
+                                            ?>
+                                            <option value="<?php echo $gst_number['id']  ?>"><?php echo $gst_number['state']." - ".$gst_number['gst_number'] ?></option>
+                                            <?php    
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
 <!--                            <div class="col-md-6">
                                 <div class='form-group'>
                                     <label for="shippped_courier_pic" class="col-md-4">Courier Address </label>

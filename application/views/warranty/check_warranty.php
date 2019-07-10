@@ -208,7 +208,7 @@
             "dataSrc" : function (json) {
                 if(json.activeInWarrantyPlans > 0)
                 {
-                    $("#warranty_status").html("<span style='color:green;'>In Warranty.</span>");
+                    $("#warranty_status").html("<span style='color:green;'>In Warranty</span>");
                 }
                 else if((json.activeExtendedWarrantyPlans > 0) && (json.activeInWarrantyPlans == 0))
                 {
@@ -216,7 +216,7 @@
                 }
                 else if((json.activeExtendedWarrantyPlans == 0) && (json.activeInWarrantyPlans == 0))
                 {
-                    $("#warranty_status").html("Out of Warranty.");
+                    $("#warranty_status").html("Out of Warranty");
                 }
                 else
                 {

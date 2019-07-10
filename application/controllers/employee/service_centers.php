@@ -3265,7 +3265,6 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $booking_address = $this->input->post('download_address');
         $booking_history['details'] = array();
-        $i=0;
         
         $main_company_public_name = "";
         $main_company_logo = "";
@@ -3275,31 +3274,29 @@ class Service_centers extends CI_Controller {
             $main_company_public_name = $main_partner['main_company_public_name'];
             $main_company_logo = $main_partner['main_company_logo'];
         }
-       
-        
-        if(!empty($booking_address)){
-            
-           foreach ($booking_address as $spare_id) {
-                      
-                    $v_select = "spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,service_centres.name, service_centres.id, company_name, "
+
+        if (!empty($booking_address)) {
+            $i = 0;
+            foreach ($booking_address as $spare_id) {
+
+                $v_select = "spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,service_centres.name, service_centres.id, company_name, "
                         . "service_centres.address,service_centres.pincode, service_centres.state, "
                         . "service_centres.district, service_centres.primary_contact_name,"
                         . "service_centres.primary_contact_phone_1,booking_details.partner_id as booking_partner_id, defective_return_to_entity_type,"
-                            . "defective_return_to_entity_id";
-                    $sp_details = $this->partner_model->get_spare_parts_by_any($v_select, array('spare_parts_details.id' =>$spare_id ), true, true);
-                    
-                    $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
+                        . "defective_return_to_entity_id";
+                $sp_details = $this->partner_model->get_spare_parts_by_any($v_select, array('spare_parts_details.id' => $spare_id), true, true);
+                
+                $select = "contact_person.name as  primary_contact_name,contact_person.official_contact_number as primary_contact_phone_1,contact_person.alternate_contact_number as primary_contact_phone_2,"
                         . "concat(warehouse_address_line1,',',warehouse_address_line2) as address,warehouse_details.warehouse_city as district,"
                         . "warehouse_details.warehouse_pincode as pincode,"
-                        . "warehouse_details.warehouse_state as state"; 
-                    
-                    
-                    $where = array('contact_person.entity_id' => $sp_details[0]['defective_return_to_entity_id'], 
-                        'contact_person.entity_type' => $sp_details[0]['defective_return_to_entity_type']);
-                    $wh_address_details = $this->inventory_model->get_warehouse_details($select,$where,false, true);
-                    
-                    $booking_details = '';
-                    switch ($sp_details[0]['defective_return_to_entity_type']) {
+                        . "warehouse_details.warehouse_state as state";
+
+
+                $where = array('contact_person.entity_id' => $sp_details[0]['defective_return_to_entity_id'],
+                    'contact_person.entity_type' => $sp_details[0]['defective_return_to_entity_type']);
+                $wh_address_details = $this->inventory_model->get_warehouse_details($select, $where, false, true);
+                $booking_details = array();
+                switch ($sp_details[0]['defective_return_to_entity_type']) {
                     case _247AROUND_PARTNER_STRING:
                         $booking_details = $this->partner_model->getpartner($sp_details[0]['defective_return_to_entity_id'])[0];                         
                         break;
@@ -3327,10 +3324,9 @@ class Service_centers extends CI_Controller {
            //Logging
             log_message('info',__FUNCTION__.' No Download Address from POST');
         }
-        
-        $this->load->view('service_centers/print_partner_address',$booking_history);
-       
-    }  
+                           
+        $this->load->view('service_centers/print_partner_address', $booking_history);
+    }
     /**
      * @desc: This is used to print Concern Details
      */
@@ -6097,7 +6093,11 @@ class Service_centers extends CI_Controller {
             $data['spare_parts'] = array();
         }
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
-        
+        $gst_where = array(
+            "entity_type" => _247AROUND_PARTNER_STRING,
+            "entity_id" => _247AROUND,
+            );
+        $data['from_gst_number'] = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $gst_where);
         if(empty($this->input->post('is_ajax'))){
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/warehouse_task_list_tab_send_to_partner', $data);
