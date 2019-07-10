@@ -5132,10 +5132,10 @@ class Partner extends CI_Controller {
         }
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Waiting_Upcountry_Bookings_".date("Y-m-d"));
     }
-    function download_spare_part_shipped_by_partner($isAdmin=0){
+    function download_spare_part_shipped_by_partner($isAdmin=0,$partner_post=0){
         ob_start();
-        $where == '1';
-        if($isAdmin == 0) {
+        $where = '1';
+        if($isAdmin == 0 && $partner_post==0) {
              log_message('info', __FUNCTION__ . ' Function Start For Partner '.$this->session->userdata('partner_id'));
              $this->checkUserSession();
              $partner_id = $this->session->userdata('partner_id');
@@ -5144,10 +5144,14 @@ class Partner extends CI_Controller {
          else
          {
              $this->checkEmployeeUserSession();
+             $partner_id = $partner_post;
+             $where = "booking_details.partner_id = '" . $partner_id . "' ";
+            
          }
         $CSVData = array();
         
         $where .= " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
+        
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Booking ID",
             "Booking Create Date",
@@ -5233,6 +5237,7 @@ class Partner extends CI_Controller {
              }
             $CSVData[]  = $tempArray;            
         }  
+
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Shipped_By_Partner_".date("Y-m-d"));
     }
     function download_spare_part_shipped_by_partner_not_acknowledged(){
