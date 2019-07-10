@@ -17,7 +17,7 @@
         <?php if(!empty($value['primary_contact_name']) ){ ?>
         <p style="max-width: 280px; word-wrap:break-word;margin-bottom: 1px;margin-top:1px;">C/o - <?php echo $value['primary_contact_name'];?></p>
         <?php } ?>
-        <p style="max-width: 280px; word-wrap:break-word;margin-bottom: 1px;margin-top:2px;">Address - <?php if(isset($value['address'])){ echo $value['address']; }  ?> " "<?php if(isset($value['district'])){ echo $value['district']; }  ?> " "<?php if (isset($value['state'])){ echo $value['state']; } ?>" " <?php echo  $value['pincode']; ?></p>
+        <p style="max-width: 280px; word-wrap:break-word;margin-bottom: 1px;margin-top:2px;">Address - <?php if(isset($value['address'])){ echo $value['address']; }  ?> " "<?php if(isset($value['district'])){ echo $value['district']; }  ?> " "<?php if (isset($value['state'])){ echo $value['state']; } ?>" " <?php if(isset($value['pincode'])){ echo  $value['pincode']; }  ?></p>
         <p style="max-width: 280px; word-wrap:break-word;margin-bottom: 1px;margin-top:1px;">Phone - <?php if(isset($value['primary_contact_phone_1'])){ echo $value['primary_contact_phone_1']; }?>" "<?php if(isset($value['primary_contact_phone_2'])){ echo $value['primary_contact_phone_2']; } ?></p>
         <p style="max-width: 280px; word-wrap:break-word;margin-bottom: 1px;margin-top:1px;">Job No- <?php echo $value['booking_id'];?></p>
     </div>
@@ -25,8 +25,8 @@
        <span>From: <?php echo $value['vendor']['company_name'];?></span><br/>
        <span>C/o - <?php echo $value['vendor']['primary_contact_name'];?></span><br/>
        <span><?php echo $value['vendor']['address'];?></span><br/>
-       <span><?php echo $value['vendor']['district']. " ". $value['vendor']['state']. " - ".$value['vendor']['pincode'];?> </span><br/>
-       <span>Ph:<?php echo $value['vendor']['primary_contact_phone_1'];?></span><br/>
+       <span><?php echo $value['vendor']['district']. " ". $value['vendor']['state']. " - ".$value['vendor']['pincode']; ?> </span><br/>
+       <span>Ph:<?php echo $value['vendor']['primary_contact_phone_1']; ?></span><br/>
         
     </div>
 </div>
