@@ -6096,7 +6096,11 @@ class Service_centers extends CI_Controller {
             $data['spare_parts'] = array();
         }
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
-        
+        $gst_where = array(
+            "entity_type" => _247AROUND_PARTNER_STRING,
+            "entity_id" => _247AROUND,
+            );
+        $data['from_gst_number'] = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $gst_where);
         if(empty($this->input->post('is_ajax'))){
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/warehouse_task_list_tab_send_to_partner', $data);
