@@ -60,7 +60,8 @@ class Service_centers extends CI_Controller {
         $select = "partner_logo,alt_text";
         $where = array('partner_logo IS NOT NULL' => NULL);
         $data['partner_logo'] = $this->booking_model->get_partner_logo($select, $where);
-        $this->load->view('service_centers/service_center_login', $data);
+        $data['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $this->load->view('service_centers/service_center_login' ,$data);
     }
 
     /**
