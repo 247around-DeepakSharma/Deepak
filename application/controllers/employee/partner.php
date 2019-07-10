@@ -5139,6 +5139,7 @@ class Partner extends CI_Controller {
         unlink($csv);
     }
     function download_waiting_upcountry_bookings(){
+        ob_start();
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $data = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($this->session->userdata('partner_id'));

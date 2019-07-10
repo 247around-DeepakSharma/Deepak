@@ -8,7 +8,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Spare need to acknowledge</h3>
+                    <h3>Spare need to acknowledge </h3>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
@@ -136,7 +136,8 @@
                     d.sender_entity_type = entity_details.sender_entity_type,
                     d.receiver_entity_id = entity_details.receiver_entity_id,
                     d.receiver_entity_type = entity_details.receiver_entity_type,
-                    d.is_wh_ack = entity_details.is_wh_ack
+                    d.is_wh_ack = entity_details.is_wh_ack,
+                    d.is_wh_micro = entity_details.is_wh_micro
                 }
             },
             "deferRender": true
@@ -147,9 +148,10 @@
         var data = {
             'sender_entity_id': $('#partner_id').val(),
             'sender_entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
-            'receiver_entity_id': '<?php echo $this->session->userdata('service_center_id')?>',
+            'receiver_entity_id': '<?php echo $this->session->userdata('service_center_id');?>',
             'receiver_entity_type' : '<?php echo _247AROUND_SF_STRING; ?>',
-            'is_wh_ack':0
+            'is_wh_ack':0,
+            'is_wh_micro':'<?php echo $this->session->userdata('is_micro_wh');?>'
         };
         
         return data;
@@ -210,6 +212,8 @@
                 url:'<?php echo base_url(); ?>employee/inventory/process_acknowledge_spare_send_by_partner_to_wh',
                 data:postData,
                 success:function(response){
+
+                //console.log(response);
                     $('#ack_spare').html("Acknowledge spare received").attr('disabled',false);
                     obj = JSON.parse(response);
                     if(obj.status){
