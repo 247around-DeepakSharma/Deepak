@@ -884,7 +884,7 @@ class Invoice_lib {
      * @param String $invoice_id
      * @return boolean
      */
-    function settle_inventory_invoice_annexure($postData) { 
+    function settle_inventory_invoice_annexure($postData, $from_gst_id = "") { 
         $processPostData = array();
         $not_updated = array();
         $booking_partner_id = "";
@@ -893,6 +893,9 @@ class Invoice_lib {
                 $booking_partner_id = $value['booking_partner_id'];
                 $where = array('inventory_id' => $value['inventory_id'],
                     'vendor_partner_id' => $value['booking_partner_id'], "invoice_details.is_settle" => 0);
+                if(!empty($from_gst_id)){
+                    $where['from_gst_number'] = $from_gst_id;
+                }
                 $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
                 
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
@@ -1037,7 +1040,6 @@ class Invoice_lib {
             "to_address" => $partner_address,
             "to_pincode" => $partner_pincode,
             "to_city" => $partner_city,
-            
             "from_gst_number" => $around_gst_number,
             "from_state_code" =>$around_state_code,
             "from_address" => $around_address,

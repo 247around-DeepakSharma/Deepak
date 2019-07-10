@@ -4500,7 +4500,9 @@ class Inventory extends CI_Controller {
      */
     function generate_inventory_invoice($postData, $sender_entity_id, $sender_entity_type, $courier_id) {
         log_message('info', __METHOD__ . " Data " . print_r($postData, TRUE) . " Entity id " . $sender_entity_id);
-        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData);
+        $from_gst_id = $this->input->post('from_gst_number');
+        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id);
+       
         
        
         $booking_id_array = array();
