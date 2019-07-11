@@ -26,14 +26,14 @@ class Warranty extends CI_Controller {
      *  @param: void
      *  @return : print warranty on warranty Page
      */
-    public function index() {
+    public function index($partner_id = null, $service_id = null, $brand = null) {
         $partners = $this->partner_model->getpartner();
         foreach ($partners as $partnersDetails) {
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
         }
 
         $this->miscelleneous->load_nav_header();
-        $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray]);
+        $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray, 'partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand]);
     }
 
     public function get_warranty_list_data() {
