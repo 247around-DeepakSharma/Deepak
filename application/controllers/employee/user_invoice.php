@@ -969,6 +969,7 @@ class User_invoice extends CI_Controller {
         $wh_id = $this->input->post('warehouse_id');
         $wh_name = $this->input->post('warehouse_name');
         $shipped_date = $this->input->post('shipped_date');
+        $from_gst_id = $this->input->post('from_gst_number');
         $return_data = $this->input->post();
         $file_exist = true;
         if (!empty($return_data['awb']) && !empty($return_data['shipped_date']) && !empty($return_data['warehouse_id'])) {
@@ -999,7 +1000,7 @@ class User_invoice extends CI_Controller {
                     $receiver_entity_id = $partner_id;
                     $receiver_entity_type = _247AROUND_PARTNER_STRING;
 
-                    $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData);
+                    $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id);
                     $entity_details = $this->partner_model->getpartner_details("gst_number, primary_contact_email,state, company_name, address, district, pincode,", array('partners.id' => $partner_id));
                     $gst_number = $entity_details[0]['gst_number'];
                     if (empty($gst_number)) {
