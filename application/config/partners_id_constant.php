@@ -45,3 +45,5 @@ define("BURLY_ID",247123);
 define("VIDEOCON_ID",247130);
 //Kenstar partner id
 define("KENSTAR_ID",2470001);
+//Sharp partner id
+define("SHARP_ID",247131);

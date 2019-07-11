@@ -1028,15 +1028,7 @@ class Booking extends CI_Controller {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
         
-       
         $data['upcountry_charges'] = $upcountry_price;
-        $data['is_sf_purchase_invoice_required'] = [];
-        if(!empty($data['booking_unit_details'][0]['quantity'])) {
-            $data['is_sf_purchase_invoice_required'] = array_filter($data['booking_unit_details'][0]['quantity'], function ($quantity) {
-                return ($quantity['invoice_pod'] == 1);
-            });
-        }
-        
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
     }
@@ -1173,6 +1165,12 @@ class Booking extends CI_Controller {
     function process_reschedule_booking_form($booking_id) {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
 
+        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id);
+        if ($is_booking_able_to_reschedule === FALSE) {
+            $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
+            $this->get_reschedule_booking_form($booking_id);
+        }
+        
         $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
         $data['booking_timeslot'] = $this->input->post('booking_timeslot');
         $data['service_center_closed_date'] = NULL;
@@ -4171,7 +4169,7 @@ class Booking extends CI_Controller {
                     . ' <span class="glyphicon glyphicon-user"></span></button>';
         }
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color' "
+        $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color ".(!empty($order_list->service_center_closed_date) ? 'disabled' : '')."' "
             . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$order_list->booking_id title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";
         $row[] = "<a target = '_blank' id = 'cancel' class = 'btn btn-sm btn-color' href = '".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title = 'Cancel'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
         $row[] = $complete;

@@ -831,7 +831,7 @@
                     data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,part_number:part_number},
                     success: function (response) {
                         var obj = JSON.parse(response);
-    
+                           // console.log(response);
                         if(obj.inventory_id){
                             $('#submit_btn').attr('disabled',false);
                             var parts_total_price = Number($('#quantity_'+index).val()) * Number(obj.price);
@@ -1272,7 +1272,7 @@
     
         //Declaring new Form Data Instance  
         var formData = new FormData();
-        var is_micro = $("on_wh_id").find(':selected').attr('data-warehose');
+        var is_micro = $("#on_wh_id").find(':selected').attr('data-warehose');
         formData.append("is_wh_micro", is_micro);
         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
         for (var i = 0; i < invoice_files.length; i++) {

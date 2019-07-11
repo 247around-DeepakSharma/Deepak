@@ -200,32 +200,6 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="col-md-6">
-                                    <div class="form-group <?php
-                                        if (form_error('rm')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label for="rm" class="col-md-3 vertical-align">RM*</label>
-                                        <div class="col-md-8">
-                                            <select id="rm" class="form-control" name ="rm">
-                                                <option selected disabled>Select Regional Manager</option>
-                                                <?php
-                                                    foreach ($results['employee_rm'] as $value) {
-                                                    ?>
-                                                <option value = "<?php echo $value['id'] ?>"
-                                                    <?php
-                                                        if (isset($rm[0]['agent_id']) && $rm[0]['agent_id'] == $value['id']) { echo "selected";}
-                                                        ?>
-                                                    >
-                                                    <?php echo $value['full_name']; ?>
-                                                </option>
-                                                <?php } ?>
-                                            </select>
-                                            <?php echo form_error('rm'); ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
                                     <div  class="form-group <?php
                                         if (form_error('address')) {
                                             echo 'has-error';
@@ -242,8 +216,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="col-md-12">
                                 <div class="col-md-6">
                                     <div  class="form-group">
                                         <label  for="address" class="col-md-3 vertical-align">Landmark</label>
@@ -253,6 +225,40 @@
                                                     echo $query[0]['landmark'];
                                                 }
                                                 ?>" name="landmark" >
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div class="col-md-12">
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('state')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="state" class="col-md-3 vertical-align">State*</label>
+                                        <div class="col-md-8">
+                                            <select class=" form-control" name ="state" id="state" onChange="getDistrict(); getRMs();" placeholder="Select State">
+                                                <option disabled="disabled" selected="selected"> Select State</option>
+                                                <?php
+                                                    foreach ($results['select_state'] as $state) {
+                                                    ?>
+                                                <option value = "<?php echo $state['state'] ?>"
+                                                    <?php
+                                                        if (isset($query[0]['state'])) {
+                                                            if (strtolower(trim($query[0]['state'])) == strtolower(trim($state['state']))) {
+                                                        echo "selected";
+                                                        }
+                                                        }
+                                                        ?>
+                                                    >
+                                                    <?php echo $state['state']; ?>
+                                                </option>
+                                                <?php } ?>
+                                            </select>
+                                            <?php echo form_error('state'); ?>
                                         </div>
                                     </div>
                                 </div>
@@ -283,36 +289,6 @@
                             </div>
                             <div class ="col-md-12">
                                 <div class="col-md-6">
-                                    <div class="form-group <?php
-                                        if (form_error('state')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label for="state" class="col-md-3 vertical-align">State*</label>
-                                        <div class="col-md-8">
-                                            <select class=" form-control" name ="state" id="state" onChange="getDistrict()" placeholder="Select State">
-                                                <option disabled="disabled" selected="selected"> Select State</option>
-                                                <?php
-                                                    foreach ($results['select_state'] as $state) {
-                                                    ?>
-                                                <option value = "<?php echo $state['state'] ?>"
-                                                    <?php
-                                                        if (isset($query[0]['state'])) {
-                                                            if (strtolower(trim($query[0]['state'])) == strtolower(trim($state['state']))) {
-                                                        echo "selected";
-                                                        }
-                                                        }
-                                                        ?>
-                                                    >
-                                                    <?php echo $state['state']; ?>
-                                                </option>
-                                                <?php } ?>
-                                            </select>
-                                            <?php echo form_error('state'); ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
                                     <div class="form-group ">
                                         <label for="state" class="col-md-3 vertical-align">Pincode</label>
                                         <div class="col-md-8">
@@ -331,6 +307,24 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('rm')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="rm" class="col-md-3 vertical-align">RM*</label>
+                                        <div class="col-md-8">
+                                            <select id="rm" class="form-control" name ="rm">
+                                                <option selected disabled>Select Regional Manager</option>
+                                                
+                                            </select>
+                                            <?php echo form_error('rm'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                
                             </div>
                             <div class="col-md-12">
                                 <div class="col-md-6">
@@ -1351,6 +1345,11 @@
 <?php if($this->session->userdata('checkbox')){$this->session->unset_userdata('checkbox');}?>
 <!--Validation for page1-->
 <script type="text/javascript">
+
+    $(document).ready(function(){
+        getRMs();
+    });
+
 function manageAccountNameField(value){
         document.getElementById("bank_account").disabled = false;
     }
@@ -1358,7 +1357,6 @@ function manageAccountNameField(value){
     $("#district_option").select2();
     $("#state").select2();
     $("#pincode").select2();
-    $("#rm").select2();
     $("#bank_name").select2();
 
     function getDistrict() {
@@ -1376,6 +1374,19 @@ function manageAccountNameField(value){
          }
        }
      });
+    }
+        function getRMs() {
+        var state = $("#state").val();
+        if(state != ''){
+        $.ajax({
+          type: 'POST',
+          url: '<?php echo base_url(); ?>employee/vendor/getRMs',
+          data: {state: state},
+          success: function (data) {
+            $("#rm").html(data);
+          }
+        });
+        }
     }
                 function getPincode() {
       var district = $(".district").val();

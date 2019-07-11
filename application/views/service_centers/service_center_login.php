@@ -69,7 +69,13 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">247Around</a>
+                     <?php if($is_saas){ ?>
+                    <a class="navbar-brand" href="#"><img src="<?php echo base_url()?>images/small_logo.png" style="display: inline;height: 100%;"></a>
+                    <?php } 
+                    else {
+                    ?>
+                     <a class="navbar-brand" href="#">247Around</a>
+                    <?php } ?>
                 </div>
 <!--                <div class="collapse navbar-collapse" id="myNavbar">
                     <ul class="nav navbar-nav navbar-right">

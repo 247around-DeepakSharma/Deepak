@@ -586,7 +586,8 @@
                                         <th> Original Requested Parts </th>
                                         <th> Final Requested Parts </th>
                                         <th> Requested Part Number </th>
-                                        <th> Parts Type </th>    
+                                        <th> Parts Type </th>  
+                                        <th> Parts Warranty Status </th>    
                                         <th>Requested Quantity </th>                                
                                         <th >Requested Date</th>
                                         <th >Invoice Image </th>
@@ -616,6 +617,7 @@
                                         <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; } ?></td>
                                         <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; } ?></td>
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
+                                        <td><?php if($sp['part_warranty_status']==2){echo 'Out Of Warranty';}else{echo 'In - Warranty';} ?></td> 
                                         <td><?php echo $sp['quantity']; ?></td> 
                                         <td><?php echo $sp['create_date']; ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
@@ -833,7 +835,7 @@
                                         <th >Remarks By Partner </th>
                                         <th>SF Challan Number</th>
                                         <th>SF Challan File</th>
-                                        <th>Update Spare Details</th>
+                                        <th>Update Courier Details</th>
                                     </tr>
                                 </thead>
                                 <tbody>

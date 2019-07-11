@@ -70,20 +70,22 @@
 
         <form method="POST"   enctype="multipart/form-data"  action="<?php echo base_url();  ?>file_upload/process_upload_file"  >
             <div class="row">
+
+              <label for="excel" class="col-md-2">Upload File</label>
                 
                <div class="col-md-2">
                     <div class="form-group">
-                        <input type="file" required id="msl_excel" name="file"  accept=".xls,.xlsx" />
+                        <input type="file" class="form-control" required id="msl_excel" name="file"  accept=".xls,.xlsx" />
                     </div>
                 </div>
                 
                 <input type="hidden" name="file_type" value="<?php echo MSL_TRANSFERED_BY_PARTNER_BY_EXCEL; ?>" />
-                
+
+                </div>
+                <div class="row"> 
                 <div class="col-md-2">
                     <div class="form-group">
-                        <button type="submit" class="btn btn-small btn-primary" id="search"  >Upload</button>
-
-                       
+                        <button type="submit" class="btn btn-small btn-success" id="search"  >Upload</button> 
                     </div>
                 </div>
             </div>
@@ -138,6 +140,23 @@
    </div>
 </div>
 <script>
+
+
+
+$('#msl_excel').change(function () {
+    var ext = this.value.match(/\.(.+)$/)[1];
+    switch (ext) {
+        case 'xlsx':
+            $('#search').attr('disabled', false);
+            break;
+        default:
+            alert('This is not an allowed file type.');
+             $('#search').attr('disabled', true);
+            this.value = '';
+    }
+});
+
+
  
     var table1;
  

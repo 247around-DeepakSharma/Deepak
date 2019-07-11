@@ -171,7 +171,7 @@
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id) && $is_engineer_app == '1') { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                            <a class="btn btn-sm btn-primary <?php if ((is_null($row->assigned_engineer_id) && $is_engineer_app == '1') || !empty($row->service_center_closed_date)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
                                         </td>
                                         <?php } ?>
                                         <?php if($this->session->userdata('is_update') == 0){ ?>
@@ -941,6 +941,9 @@
             $('#relevant_content_table').DataTable();
             $('#relevant_content_table  th').css("background-color","#ECEFF1");
             $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
+            $("#relevant_content_modal").modal("show");
+        } else {
+            $("#relevant_content_modal .modal-body").html('No contacts.');
             $("#relevant_content_modal").modal("show");
         }
     }

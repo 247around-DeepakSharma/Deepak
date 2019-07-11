@@ -508,6 +508,8 @@ define("_247AROUND_MOBILE_SERVICE_ID",'54');
 define('_247AROUND_CALLCENTER_NUMBER',9555000247);
 //jeeves call center number
 define('JEEVES_CALLCENTER_NUMBER',180042525252);
+//Sharp call center number
+define('SHARP_CALLCENTER_NUMBER',18004254322);
 //jeeves websitelink
 define('JEEVES_WEBSITE','www.jeeves.co.in');
 
