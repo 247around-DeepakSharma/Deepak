@@ -3638,6 +3638,8 @@ class Inventory extends CI_Controller {
             $newdata['wh_ack_received_part'] = 0;
             $newdata['requested_inventory_id'] = $ledger['inventory_id'];
             $newdata['inventory_invoice_on_booking'] = 1;
+            $newdata['is_micro_wh'] = 2;
+            $newdata['part_warranty_status'] = 1;
 
             $spare_id = $this->service_centers_model->insert_data_into_spare_parts($newdata);
             if ($spare_id) {
