@@ -162,7 +162,6 @@ class booking_creation_lib {
         $this->My_CI->form_validation->set_rules('booking_primary_contact_no', 'Mobile', 'required|trim|regex_match[/^[6-9]{1}[0-9]{9}$/]');
         $this->My_CI->form_validation->set_rules('dealer_phone_number', 'Dealer Mobile Number', 'trim|regex_match[/^[6-9]{1}[0-9]{9}$/]');
         $this->My_CI->form_validation->set_rules('booking_timeslot', 'Time Slot', 'required');
-        $this->My_CI->form_validation->set_rules('prices', 'Price Tag', 'required');
         $this->My_CI->form_validation->set_rules('support_file', 'Suppoart File', 'callback_validate_upload_orderId_support_file');
         return $this->My_CI->form_validation->run();
     }
