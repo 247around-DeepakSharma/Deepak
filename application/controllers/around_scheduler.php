@@ -2305,8 +2305,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             'spare_parts_details.courier_name_by_partner LIKE "%trackon%"' => NULL);
         $spare_parts_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);
         
-        $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_sf as courier_name, spare_parts_details.awb_by_sf as awb_no,spare_parts_details.shipped_date as spare_shipped_date, 'Reverse Pickup' as shipment_type";
-        $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
+        $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_sf as courier_name, spare_parts_details.awb_by_sf as awb_no,spare_parts_details.defective_part_shipped_date as spare_shipped_date, 'Reverse Pickup' as shipment_type";
+        $where = array('spare_parts_details.defective_part_shipped_date	 > 5 ' => NULL,
             "status IN('" . DEFECTIVE_PARTS_SHIPPED . "')" => NULL,
             'spare_parts_details.courier_name_by_sf LIKE "%trackon%"' => NULL);
         $defective_parts_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post, $where);
@@ -2346,8 +2346,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             'spare_parts_details.courier_name_by_partner LIKE "%gati%"' => NULL);
         $spare_parts_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);
         
-        $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_sf as courier_name, spare_parts_details.awb_by_sf as awb_no,spare_parts_details.shipped_date as spare_shipped_date, 'Reverse Pickup' as shipment_type";
-        $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
+        $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_sf as courier_name, spare_parts_details.awb_by_sf as awb_no,spare_parts_details.defective_part_shipped_date as spare_shipped_date, 'Reverse Pickup' as shipment_type";
+        $where = array('spare_parts_details.defective_part_shipped_date	 > 5 ' => NULL,
             "status IN('" . DEFECTIVE_PARTS_SHIPPED . "')" => NULL,
             'spare_parts_details.courier_name_by_sf LIKE "%gati%"' => NULL);
         $defective_parts_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post, $where);
