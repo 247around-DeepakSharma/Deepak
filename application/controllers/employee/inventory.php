@@ -3642,6 +3642,8 @@ class Inventory extends CI_Controller {
             $newdata['wh_ack_received_part'] = 0;
             $newdata['requested_inventory_id'] = $ledger['inventory_id'];
             $newdata['inventory_invoice_on_booking'] = 1;
+            $newdata['is_micro_wh'] = 2;
+            $newdata['part_warranty_status'] = 1;
 
             $spare_id = $this->service_centers_model->insert_data_into_spare_parts($newdata);
             if ($spare_id) {
@@ -4504,7 +4506,9 @@ class Inventory extends CI_Controller {
      */
     function generate_inventory_invoice($postData, $sender_entity_id, $sender_entity_type, $courier_id) {
         log_message('info', __METHOD__ . " Data " . print_r($postData, TRUE) . " Entity id " . $sender_entity_id);
-        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData);
+        $from_gst_id = $this->input->post('from_gst_number');
+        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id);
+       
         
        
         $booking_id_array = array();
@@ -5414,6 +5418,11 @@ class Inventory extends CI_Controller {
      */
     function get_wh_inventory_stock_list() {
         $this->checkUserSession();
+        $gst_where = array(
+            "entity_type" => _247AROUND_PARTNER_STRING,
+            "entity_id" => _247AROUND,
+        );
+        $data['from_gst_number'] = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $gst_where);
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/wh_inventory_stock_list', $data);

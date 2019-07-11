@@ -1130,8 +1130,8 @@ class vendor extends CI_Controller {
             
             foreach ($unit_details[0]['quantity'] as $value) {
                 
-                $data['current_status'] = $booking_action_details[0]['current_status'];
-                $data['internal_status'] = $booking_action_details[0]['internal_status'];
+                $data['current_status'] = (!empty($booking_action_details[0]['current_status'])?$booking_action_details[0]['current_status']:'Pending');
+                $data['internal_status'] = (!empty($booking_action_details[0]['internal_status'])?$booking_action_details[0]['internal_status']:'Pending');
                 $data['service_center_id'] = $service_center_id;
                 $data['booking_id'] = $booking_id;
                 $data['create_date'] = date('Y-m-d H:i:s');
