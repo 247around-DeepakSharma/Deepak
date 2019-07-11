@@ -1480,7 +1480,7 @@ function get_data_for_partner_callback($booking_id) {
         if(!empty($post['is_original_inventory'])){
             $this->db->join('inventory_master_list as original_im','original_im.inventory_id = spare_parts_details.original_inventory_id', "left");
         }
-        
+        $this->db->order_by('spare_parts_details.entity_type', 'asc');
         if($group_by){
             
             $this->db->group_by($group_by);
