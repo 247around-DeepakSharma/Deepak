@@ -3,7 +3,7 @@
         <div class="row" >
             <div class="col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-body" >
+                    <div class="panel-body" style="overflow-x: auto;">
                         <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
                             <!--                                <div class="pull-right">Red Bookings are Escalation, Call Customer Immediately !!!</div>-->
                             <table id="today_datatable" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
@@ -30,26 +30,27 @@
                                         if(isset($saas_module) && (!$saas_module)) { ?>
                                         <th class="text-center" data-orderable="false">Edit Request Type</th>
                                         <?php } ?>
-                                       <th class="text-center" data-orderable="false">Send Email</th> 
-                                       <th class="text-center" data-orderable="false">Contacts</th> 
-                                       <th class="text-center" data-orderable="false">Check Spare Part Price</th>
+                                        <th class="text-center" data-orderable="false">Helper <br> Document</th>
+                                        <th class="text-center" data-orderable="false">Warranty <br> Checker</th>
+                                        <th class="text-center" data-orderable="false">Check Spare Part Price</th>
+                                        <th class="text-center" data-orderable="false">Contacts</th> 
+                                       <th class="text-center" data-orderable="false">Send Email</th>                                                            
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <th class="text-center" data-orderable="false">Update</th>
                                         <?php } ?>
+                                        <th class="text-center" data-orderable="false">Complete</th>
+                                        <th class="text-center" data-orderable="false">Cancel</th>
                                         <?php if($this->session->userdata('is_update') == 0){ ?>
                                         <th class="text-center"  data-orderable="false">Reschedule</th>
                                         <?php }?>
-                                        <!--                                            <th class="text-center">View</th>-->
-                                        <th class="text-center" data-orderable="false">Cancel</th>
-                                        <th class="text-center" data-orderable="false">Complete</th>
-                                        <th class="text-center" data-orderable="false">JobCard</th>
-                                        <th class="text-center" data-orderable="false">Helper <br> Document</th>
+                                        <th class="text-center" data-orderable="false">JobCard</th>                                        
                                     </tr>
                                 </thead>
                                 <tbody>
                                     
                                     <?php $sn_no = 1; ?>
-                                    <?php foreach($bookings[1] as $key =>$row){ ?>
+                                    <?php foreach($bookings[1] as $key =>$row){
+                                        ?>
                                     <tr  style="text-align: center;"  >
                                         <td style="vertical-align: middle;">
                                             <?php echo $sn_no; if($row->is_upcountry == 1) { ?>
@@ -112,36 +113,7 @@
                                             <?php } else { ?>
                                             <div class="countdown blink" data-popover="true" style="white-space:nowrap;color:#F26722; font-size:13px; overflow:hidden;text-overflow:ellipsis;white-space: initial;" data-html=true data-content="Time Left To Update Booking & Get Incentive" ></div>
                                             <?php } ?>
-                                        </td>
-                                        <!--                                            <td>
-                                            <div  id= "<?php //echo 'assign_engineer_div' . $sn_no; ?>" class="form-group " <?php //if (!is_null($row->assigned_engineer_id)) { ?> style="display: none;" <?php //} ?>>
-                                                <select name="engineer[<?php //echo $row->booking_id; ?>]" id="<?php// echo "engineer" . $sn_no ?>" class="form-control engineers_id" <?php // if (!is_null($row->assigned_engineer_id)) { ?> disabled <?php //} ?> style="width:100px;">
-                                                    <option value="" >Select Engineer</option>
-                                                    <?php //foreach ($engineer_details as $value) { ?>
-                                                    <option <?php
-                                                // if (!is_null($row->assigned_engineer_id)) {
-                                                // if ($row->assigned_engineer_id == $value['id']) {
-                                                //   echo "SELECTED";
-                                                // }
-                                                // }
-                                                 ?> value="<?php// echo $value['id']; ?>" ><?php// echo $value['name']; ?></option>
-                                                    <?php //} ?>
-                                                </select>
-                                            </div>
-                                            <div id= "<?php// echo 'engineer_name_div' . $sn_no; ?>" 
-                                            <p style="font-weight: bold; text-align: center; color: #2C9D9C;">
-                                                <?php// foreach ($engineer_details as $value1) {
-                                                // if($value1['id'] == $row->assigned_engineer_id ){
-                                                //     echo $value1['name'];
-                                                // }
-                                                         
-                                                   //  } ?>
-                                            </p>
-                                            </div>
-                                            </td>-->
-                                        <!--                        <td>
-                                            <?php// if (!is_null($row->assigned_engineer_id)) { ?>  <button type="button"  class="btn btn-sm btn-success" onclick="edit_engineer(<?php //echo $sn_no; ?>)"><i class="fa fa-user" aria-hidden='true'></i></button> <?php// } ?>
-                                            </td>-->
+                                        </td>                                        
                                         <?php } ?>
                                             <td style="vertical-align: middle;"> <?=  strtoupper($row->appliance_brand); ?></td>
                                         <td style="vertical-align: middle;">
@@ -160,15 +132,17 @@
                                             <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id))?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
                                         </td>
                                         <?php } ?>
+                                        <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>
+                                        <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>employee/warranty/index/<?= $row->partner_id ?>/<?= $row->service_id ?>/<?= $row->appliance_brand ?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker'><i class='fa fa-certificate' aria-hidden='true'></i></a></td>
                                         <td style="vertical-align: middle;">
-                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
-                                        </td>
+                                            <a style="width: 36px;background: #5cb85c;border: #5cb85c;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Email"  onclick="create_email_form('<?php echo $row->booking_id?>',0)"><i class="fa fa-envelope" aria-hidden="true"></i></a>
+                                        </td>                                        
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
                                             <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id) && $is_engineer_app == '1') { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
@@ -179,28 +153,16 @@
                                             <button type="button"  class="btn btn-sm btn-success" onclick="setbooking_id('<?=$row->booking_id?>')" data-toggle="modal" data-target="#myModal" ><i class='fa fa-calendar' aria-hidden='true'></i></button>
                                         </td>
                                         <?php } ?>
-                                        <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
-                                        </td>
                                         <td style="vertical-align: middle;">
                                             <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if (is_null($row->assigned_engineer_id) && $is_engineer_app == '1') { ?>  disabled <?php } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                         </td>
+                                        <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                                        </td>                                        
                                         <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/jobcards-pdf/<?php echo $row->booking_jobcard_filename; ?> " class='btn btn-sm btn-warning btn-sm' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
-                                       
-                                     <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>
-                        <td>
-                                            <!--   <a target="_blank" id="edit" class='btn btn-sm btn-success' href="Javascript:void(0)"
-                                               title='Reschedule'><i><i class='fa fa-calendar' aria-hidden='true' ></i></i><span class='sup'><?php // echo $row->count_reschedule; ?></span></a>
-                                            
-                                            </td>-->
                                     </tr>
                                     <?php $sn_no++; } ?>
                                 </tbody>
                             </table>
-                            <?php if($this->session->userdata('is_update') == 1){ ?>
-                            <!--                        <div id="loading" class="loading" style="text-align: center;">
-                                <input type= "submit" id="submit_button"  class="btn btn-danger btn-md submit_button" style="background-color:#2C9D9C; border-color: #2C9D9C;" value ="Assigned Engineer" >
-                                </div>-->
-                            <?php } ?>
                         </form>
                     </div>
                 </div>
