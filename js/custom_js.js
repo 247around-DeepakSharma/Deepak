@@ -262,6 +262,10 @@ function check_prepaid_balance(type) {
 
 function addBookingDialog(chanel = '') {
     var delivered_price_tags = [];
+    if($(".price_checkbox:checked").length == 0){
+        alert("Please Select Price Tag");
+        return false;
+    }
     $(".price_checkbox:checked").each(function (i) {
              var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
              delivered_price_tags.push(price_tags);
@@ -295,7 +299,7 @@ function addBookingDialog(chanel = '') {
     var div_count = $('.purchase_date').length;
     var partner_id = $("#source_code").find(':selected').attr('data-id');
    if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
-         var service = $("#source_code").val();
+         var partner_id = $("#source_code").val();
     }
     var parant_id = $('#parent_id').val();
     var repeat_reason = $('#repeat_reason').val();
