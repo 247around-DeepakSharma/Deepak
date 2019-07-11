@@ -521,7 +521,7 @@ span.stars span {
                //console.log(obj);
                if(obj[0].is_micro_wh==1){   //SPARE_DELIVERED_TO_SF
 
-                   document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/inventory_in_stock.png";
+                   document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/msl_available.png";
                }  else if(obj[0].status=='Spare Parts Delivered to SF') {
                     document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/spare_parts_delivered.png";
                }else{
