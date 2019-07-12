@@ -721,8 +721,16 @@
             url: '<?php echo base_url() ?>employee/partner/get_partner_list',
             data:{is_wh:true},
             success: function (response) {
-                $("#partner_id").html(response).change();
-                $("#on_partner_id").html(response).change();
+                $("#partner_id").html(response);
+                var option_length = $('#partner_id').children('option').length;
+                if(option_length == 2){
+                 $("#partner_id").change();   
+                }
+                $("#on_partner_id").html(response);
+                var option_length = $('#on_partner_id').children('option').length;
+                if(option_length == 2){
+                 $("#on_partner_id").change();   
+                }
             }
         });
     }
