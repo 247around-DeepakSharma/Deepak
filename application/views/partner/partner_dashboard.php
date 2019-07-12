@@ -286,7 +286,8 @@
                     <tbody>
                         <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'">
                             <td>{{$index+1}}</td>
-                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" >{{x.entity}}</button></td>
+<!--                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" >{{x.entity}}</button></td>-->
+                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')">{{x.entity}}</button></td>
                             <td>{{x.TAT_0}} <br> ({{x.TAT_0_per}}%) </td>
                            <td>{{x.TAT_1}} <br> ({{x.TAT_1_per}}%) </td>
                            <td>{{x.TAT_2}} <br> ({{x.TAT_2_per}}%)</td>
