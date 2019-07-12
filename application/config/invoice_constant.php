@@ -53,4 +53,5 @@ define('ROYALTY', 'Royalty');
 define('SALE', 'Sale');
 define('BUYBACK_VERTICAL', 'Buyback');
 define('REIMBURSEMENT', 'Reimbursement');
+define('MSL_SECURITY_AMOUNT', 'MSL Security Amount');
 ?>
