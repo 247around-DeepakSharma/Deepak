@@ -2100,7 +2100,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $sfRawData = $this->reusable_model->get_search_result_data("booking_details",$sfSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         if(!empty($sfRawData)){
             $sfDataTemp= $this->get_tat_data_in_structured_format($sfRawData,$is_pending,$request_type);
-            $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp, 'TAT_2', SORT_ASC);
+            $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp, 'TAT_2', SORT_DESC);
         }
         return $sfData;
     }
@@ -2290,6 +2290,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tempArray[] = $values['TAT_8'];
            // $tempArray[] = $values['TAT_8_per'];
             $tempArray[] = $values['TAT_16'];
+            if(array_key_exists('Total_Pending',$values)){
+                 $tempArray[] = $values['Total_Pending'];
+            }
           //  $tempArray[] = $values['TAT_16_per'];
             $csv.=implode(",",$tempArray)."\n"; //Append data to csv
         }       
@@ -2311,8 +2314,11 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             //$headings[] = "TAT_5_percentage";
             $headings[] = "TAT_8";
            // $headings[] = "TAT_8_percentage";
-            $headings[] = "Total";
+            $headings[] = ">TAT_15";
             //$headings[] = "Total_percentage";
+             if(array_key_exists('Total_Pending',$values)){
+                 $headings[] = 'Total';
+            }
             $finalcsv = implode(",",$headings)." \n".$csv;//Column headers
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
