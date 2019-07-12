@@ -189,7 +189,7 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
                 $("#priceList_" + div_no[2]).html(data1.price_table);
                 $("#upcountry_data").val(data1.upcountry_data);
                 final_price();
-                if(postData['is_repeat'] !== 1) {
+                if(postData['is_repeat'] == 1) {
                     $('#submitform').attr('disabled', false);
                 }
             });
@@ -295,7 +295,7 @@ function addBookingDialog(chanel = '') {
     var div_count = $('.purchase_date').length;
     var partner_id = $("#source_code").find(':selected').attr('data-id');
    if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
-         var service = $("#source_code").val();
+         var partner_id = $("#source_code").val();
     }
     var parant_id = $('#parent_id').val();
     var repeat_reason = $('#repeat_reason').val();
