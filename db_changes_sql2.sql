@@ -230,3 +230,5 @@ ALTER TABLE `engineer_booking_action` ADD `amount_paid` INT NULL AFTER `cancella
 
 ALTER TABLE employee_relation ADD COLUMN individual_service_centres_id text NULL DEFAULT NULL AFTER service_centres_id;
 
+--Kajal 12/07/2019 --
+ALTER TABLE `spare_parts_details` ADD `cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `shipped_quantity`;
