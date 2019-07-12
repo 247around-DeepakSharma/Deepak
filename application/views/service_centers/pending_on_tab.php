@@ -776,7 +776,7 @@
             </div>
             <input type="hidden" id="url"></input>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" style="color: #fff;background-color: #2c9d9c;border-color: #2c9d9c;" onclick="reject_parts()" id="reject_btn">Cancel</button>
+                <button type="button" class="btn btn-success" style="color: #fff;background-color: #2c9d9c;border-color: #2c9d9c;" onclick="return reject_parts()" id="reject_btn">Cancel</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
             </div>
         </div>
@@ -990,6 +990,11 @@
       var remarks =  $('#textarea').val();
       var courier_charge = $('#charges').val();
       var reason = $('#spare_cancel_reason').val();
+      
+      if($.trim(reason) === "") {
+          alert("Please Enter Spare Cancellation Reason");
+          return false;
+      }
       
       if(remarks !== ""){
         $('#reject_btn').attr('disabled',true);
