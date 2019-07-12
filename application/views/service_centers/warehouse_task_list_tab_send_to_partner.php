@@ -464,7 +464,7 @@
                 if(response === 'Error'){
                     
                 } else {
-                    $('#partner_id_send_to_partner').html(response);
+                    $('#partner_id_send_to_partner').html(response).change();
                      <?php if(isset($filtered_partner)) { ?> 
                     $('#partner_id_send_to_partner').val('<?php echo $filtered_partner?>'); 
                     $('#partner_id_send_to_partner').trigger('change');

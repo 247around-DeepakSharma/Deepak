@@ -463,7 +463,7 @@ div.dataTables_wrapper div.dataTables_processing {
             url:'<?php echo base_url();?>employee/partner/get_partner_list',
             data: data,
             success:function(response){
-                $('#'+div_to_update).html(response);
+                $('#'+div_to_update).html(response).change();
                 $('#'+div_to_update).select2();
             }
         });

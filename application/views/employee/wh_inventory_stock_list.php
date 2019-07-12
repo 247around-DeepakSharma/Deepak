@@ -327,7 +327,7 @@
             url:'<?php echo base_url();?>employee/partner/get_partner_list',
             data:{is_wh:true},
             success:function(response){
-                $('#partner_id').html(response);
+                $('#partner_id').html(response).change();
                 $('#partner_id').select2();
             }
         });

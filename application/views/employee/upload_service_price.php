@@ -231,7 +231,7 @@
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/partner/get_partner_list',
             success: function (response) {
-                $('#partner_id').html(response);
+                $('#partner_id').html(response).change();
             }
         });
     }
