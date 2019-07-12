@@ -524,9 +524,9 @@
                  $("#partner_id").change();   
                 }
                 $("#on_partner_id").html(response);
-                var option_length = $('#partner_id').children('option').length;
+                var option_length = $('#on_partner_id').children('option').length;
                 if(option_length == 2){
-                 $("#partner_id").change();   
+                 $("#on_partner_id").change();   
                 }
             }
         });
