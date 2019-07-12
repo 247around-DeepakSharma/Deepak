@@ -1084,9 +1084,12 @@ class Inventory extends CI_Controller {
             $line_items = '';
             switch ($requestType) {
                 case 'CANCEL_PARTS':
+                    if (!empty($this->input->post("spare_cancel_reason"))) {
+                        $data['cancellation_reason'] = $this->input->post("spare_cancel_reason");
+                    }
                 case 'QUOTE_REQUEST_REJECTED';
                     $where = array('id' => $id);
-                    $data = array('status' => _247AROUND_CANCELLED);
+                    $data['status'] = _247AROUND_CANCELLED;
                     $data['spare_cancelled_date'] = date("Y-m-d h:i:s");
 
                     $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id';

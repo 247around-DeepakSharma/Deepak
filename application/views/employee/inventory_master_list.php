@@ -85,7 +85,7 @@
         <div class="title">
             <div class="row">
                 <div class="col-md-6">
-                    <h3>Spare Part List</h3>
+                    <h3>Inventory Master List</h3>
                 </div>
                 <div class="col-md-6">
                     <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_master_list" title="Add Item"><i class="fa fa-plus"></i></a>
@@ -453,7 +453,7 @@
             url:'<?php echo base_url();?>employee/partner/get_partner_list',
             data:{is_wh:true},
             success:function(response){
-                $('#'+div_to_update).html(response);
+                $('#'+div_to_update).html(response).change();
                 $('#'+div_to_update).select2();
             }
         });
