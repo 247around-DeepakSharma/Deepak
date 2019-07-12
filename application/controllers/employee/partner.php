@@ -4508,7 +4508,12 @@ class Partner extends CI_Controller {
 
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            $option .= " > ";
+            if(count($partner_list) == 1){
+                $option .= " selected> ";
+            }else{
+               $option .= "> "; 
+            }
+            
             $option .= $value['public_name'] . "</option>";
         }
         echo $option;
@@ -7810,7 +7815,11 @@ class Partner extends CI_Controller {
 
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            $option .= " > ";
+            if(count($partner_list) == 1){
+                $option .= " selected>";
+            }else{
+               $option .= "> "; 
+            }
             $option .= $value['public_name'] . "</option>";
         }
         echo $option;
