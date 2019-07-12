@@ -245,7 +245,7 @@
             url:'<?php echo base_url();?>employee/partner/get_partner_list',
             data:{is_wh:true},
             success:function(response){
-                $('#'+div_to_update).html(response);
+                $('#'+div_to_update).html(response).change();
                 $('#'+div_to_update).select2();
             }
         });

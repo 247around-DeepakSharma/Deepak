@@ -53,6 +53,7 @@ class Partner extends CI_Controller {
         $select = "partner_logo,alt_text";
         $where = array('partner_logo IS NOT NULL' => NULL);
         $data['partner_logo'] = $this->booking_model->get_partner_logo($select, $where);
+        $data['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view('partner/partner_login', $data);
     }
 
@@ -4509,7 +4510,12 @@ class Partner extends CI_Controller {
 
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            $option .= " > ";
+            if(count($partner_list) == 1){
+                $option .= " selected> ";
+            }else{
+               $option .= "> "; 
+            }
+            
             $option .= $value['public_name'] . "</option>";
         }
         echo $option;
@@ -7841,7 +7847,11 @@ class Partner extends CI_Controller {
 
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            $option .= " > ";
+            if(count($partner_list) == 1){
+                $option .= " selected>";
+            }else{
+               $option .= "> "; 
+            }
             $option .= $value['public_name'] . "</option>";
         }
         echo $option;
