@@ -463,7 +463,11 @@ div.dataTables_wrapper div.dataTables_processing {
             url:'<?php echo base_url();?>employee/partner/get_partner_list',
             data: data,
             success:function(response){
-                $('#'+div_to_update).html(response).change();
+                $('#'+div_to_update).html(response);
+                var option_length = $('#'+div_to_update).children('option').length;
+                if(option_length == 2){
+                 $('#'+div_to_update).change();   
+                }
                 $('#'+div_to_update).select2();
             }
         });

@@ -278,6 +278,11 @@
       var reason = $('#spare_cancel_reason').val();     
       var table_type = $("#reload_table_id").val();
       
+      if($.trim(reason) === "") {
+          alert("Please Enter Spare Cancellation Reason");
+          return false;
+      }
+      
       if(remarks !== ""){
         $('#reject_btn').attr('disabled',true);
         var url =  $('#url').val();

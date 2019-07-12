@@ -1084,10 +1084,10 @@ class Inventory extends CI_Controller {
             $line_items = '';
             switch ($requestType) {
                 case 'CANCEL_PARTS':
+                case 'QUOTE_REQUEST_REJECTED';
                     if (!empty($this->input->post("spare_cancel_reason"))) {
                         $data['cancellation_reason'] = $this->input->post("spare_cancel_reason");
                     }
-                case 'QUOTE_REQUEST_REJECTED';
                     $where = array('id' => $id);
                     $data['status'] = _247AROUND_CANCELLED;
                     $data['spare_cancelled_date'] = date("Y-m-d h:i:s");
@@ -3570,7 +3570,8 @@ class Inventory extends CI_Controller {
                     . "spare_parts_details.status, entity_type, spare_parts_details.partner_id, "
                     . "requested_inventory_id,spare_parts_details.courier_name_by_partner,spare_parts_details.model_number_shipped,spare_parts_details.parts_shipped,spare_parts_details.shipped_parts_type,spare_parts_details.shipped_date,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_quantity", $array, false,false,false,$post);
             
-            log_message('info', 'Spare Data'.print_r($spare),true);
+      
+            log_message('info', __METHOD__ . " Spare Data " . json_encode($spare, true));
             if (!empty($spare)) {
                 $qty = 1;
                 foreach ($spare as $value) {
@@ -3578,6 +3579,7 @@ class Inventory extends CI_Controller {
                         $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                             'wh_ack_received_part' => 0, 'inventory_invoice_on_booking' => 1, 'purchase_invoice_id' => $ledger['invoice_id'], 'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL);
                         if ($is_wh_micro == 2) {
+                            log_message('info', 'is_micro 2 come means sending msl to warehouse.',true);
                             if ($ledger['is_defective_part_return_wh'] == 1) {
                                 $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $wh_id));
                                 $wh_address_details = $this->miscelleneous->get_247aroud_warehouse_in_sf_state($sf_state[0]['state']);
@@ -3606,10 +3608,13 @@ class Inventory extends CI_Controller {
                                 'requested_inventory_id' => $ledger['inventory_id'],
                                  'defective_return_to_entity_id' => $wh_id,
                                 'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => 2);
-                            
                             $status = SPARE_SHIPPED_TO_WAREHOUSE;
+                            
+                            log_message('info', __METHOD__ ." ledger " . json_encode($data, true));
                         }
                         $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
+                        
+                         log_message('info', __METHOD__ ."Spare Updated " . json_encode($data, true));
 //                        if($transfered_by == MSL_TRANSFERED_BY_WAREHOUSE){
 //                            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $ledger['sender_entity_id'],$ledger['inventory_id'], -1);
 //                        }
