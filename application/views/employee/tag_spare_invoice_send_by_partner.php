@@ -721,8 +721,8 @@
             url: '<?php echo base_url() ?>employee/partner/get_partner_list',
             data:{is_wh:true},
             success: function (response) {
-                $("#partner_id").html(response);
-                $("#on_partner_id").html(response);
+                $("#partner_id").html(response).change();
+                $("#on_partner_id").html(response).change();
             }
         });
     }
