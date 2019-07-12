@@ -43,12 +43,12 @@ class File_upload extends CI_Controller {
         //get file extension and file tmp name
         $file_status = $this->get_upload_file_type();
         $redirect_to = $this->input->post('redirect_url'); 
-       
+
         if ($file_status['file_name_lenth']) {
             if ($file_status['status']) {
                 //get file header
                 $data = $this->read_upload_file_header($file_status);
-                $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);              
+                $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                 $data['post_data'] = $this->input->post();
                 if (!empty($data['post_data']['partner_id'])) {
                     $data['post_data']['entity_type'] = "partner";
@@ -94,7 +94,7 @@ class File_upload extends CI_Controller {
                             $response['status'] = FALSE;
                             $response['message'] = 'Something Went wrong!!!';
                     }
-                   
+
                     //save file into database send send response based on file upload status               
                     if (isset($response['status']) && ($response['status'])) {
 
@@ -230,24 +230,18 @@ class File_upload extends CI_Controller {
      * @param $data array  //consist file temporary name, file extension and status(file type is correct or not) and post data from upload form
      * @param $response array  response message and status
      */
-    function process_inventory_upload_file($data) {        
+    function process_inventory_upload_file($data) {
         log_message('info', __FUNCTION__ . " => process upload inventory file");
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $sheetUniqueRowData = array();
         $response = array();
-        if($data['saas_module'] == 1){
-            $around_margin = 'partner_margin';
-        }else{
-            $around_margin = 'around_margin';
-        }       
-                
         //$file_appliance_arr = array();
         //column which must be present in the  upload inventory file
-        $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate', $around_margin, 'vendor_margin');        
+        $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate', 'around_margin', 'vendor_margin');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
-                
+
         if ($check_header['status']) {
             $invalid_data = array();
             $flag = 1;
@@ -257,21 +251,16 @@ class File_upload extends CI_Controller {
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
-                
+
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                    if ($data['saas_module'] == 1) {
-                        $margin = $rowData['partner_margin'];
-                    } else {
-                        $margin = $rowData['around_margin'];
-                    }
-                    
+
                     if (!empty($rowData['appliance']) && !empty($rowData['part_name']) && !empty($rowData['part_number']) &&
                             !empty($rowData['part_type']) && !empty($rowData['basic_price']) && ($rowData['basic_price'] > 0) &&
-                            (!is_null($margin) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($margin >= 0) : ($margin > 0)) && $margin <= 30 ) &&
-                            (!is_null($rowData['vendor_margin']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['vendor_margin'] >= 0) : ($rowData['vendor_margin'] > 0)) && $rowData['vendor_margin'] <= 15 ) && 
-                            ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($margin >= $rowData['vendor_margin'] || ($margin <= $rowData['vendor_margin'])) : ($margin >= $rowData['vendor_margin']))) {
-                        
+                            (!is_null($rowData['around_margin']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['around_margin'] >= 0) : ($rowData['around_margin'] > 0)) && $rowData['around_margin'] <= 30 ) &&
+                            (!is_null($rowData['vendor_margin']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['vendor_margin'] >= 0) : ($rowData['vendor_margin'] > 0)) && $rowData['vendor_margin'] <= 15 ) &&
+                            ($rowData['around_margin'] >= $rowData['vendor_margin'])) {
+
                         $where['hsn_code'] = $rowData['hsn_code'];
 
                         $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
@@ -334,8 +323,8 @@ class File_upload extends CI_Controller {
                     }
                 }
             }
-            
-           
+
+
             if ($flag == 1) {
 
                 if ($valid_flage == 1) {
@@ -343,23 +332,21 @@ class File_upload extends CI_Controller {
 
                     if ($is_file_contains_unique_data['status']) {
                         if(!empty($this->dataToInsert)){
-                            foreach ($this->dataToInsert as $key=>$val){                            
+                            foreach ($this->dataToInsert as $key=>$val){
                                 $where = array('inventory_master_list.entity_id' => $partner_id, 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING , 'part_number' => $val['part_number']);//, 'service_id' => $val['service_id']
-                                $select = 'inventory_master_list.type, inventory_master_list.service_id, inventory_master_list.part_name, inventory_master_list.part_number';
+                                $select = 'inventory_master_list.type, inventory_master_list.service_id, inventory_master_list.part_name';
                                 $inventory_details = $this->inventory_model->get_inventory_master_list_data($select, $where);
-                                                                              
+                                
                                 if(empty($inventory_details)) {
                                     $insert_id = $this->inventory_model->insert_inventory_master_list_data($val);
                                     if ($insert_id) {
                                         log_message("info", __METHOD__ . " inventory file data inserted succcessfully");
                                     }
-                                } else {
+                                }
+                                else {
                                     $rows_affected = 0;
-                                    if(($inventory_details[0]['service_id'] === $val['service_id'])) {
-                                        
-                                        $inventory_data = array("type" => $val['type'], 'description' => $val['description'], 'hsn_code' => $val['hsn_code'],
-                                            'gst_rate' => $val['gst_rate'], 'oow_around_margin' => $val['oow_around_margin'], 'oow_vendor_margin' => $val['oow_vendor_margin']);
-                                        $rows_affected = $this->inventory_model->update_inventory_master_list_data($where, $inventory_data);
+                                    if(($inventory_details[0]['service_id'] === $val['service_id']) && ($inventory_details[0]['type'] !== $val['type'])) {
+                                        $rows_affected = $this->inventory_model->update_inventory_master_list_data($where,array("type" => $val['type']));
                                     }
                                     if($rows_affected > 0) {
                                         log_message("info", __METHOD__ . " Inventory Master List Type updated from ".$inventory_details[0]['type']." to ".$val['type']." of Part Number -> ".$val['part_number']." & Service ID -> ".$val['service_id']." .");
