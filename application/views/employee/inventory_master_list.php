@@ -453,7 +453,11 @@
             url:'<?php echo base_url();?>employee/partner/get_partner_list',
             data:{is_wh:true},
             success:function(response){
-                $('#'+div_to_update).html(response).change();
+                $('#'+div_to_update).html(response);
+                var option_length = $('#'+div_to_update).children('option').length;
+                if(option_length == 2){
+                 $('#'+div_to_update).change();   
+                }
                 $('#'+div_to_update).select2();
             }
         });
