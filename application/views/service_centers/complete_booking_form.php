@@ -143,6 +143,7 @@
                         <div class="panel-body">
                             <div class="row">
                                 <div class="col-md-12">
+                                   
                                     <div <?php if($this->session->userdata('is_engineer_app') == 1){?> class="col-md-12" <?php } else { ?> class="col-md-12" <?php } ?> >
                                         <div class="form-group col-md-3" style="<?php if($this->session->userdata('is_engineer_app') == 1){?>width:20.32%;
                                             <?php } else {?> width:20.32%;<?php }?>">
@@ -150,8 +151,8 @@
                                                 <label> Product Found Broken</label>
                                                 <select type="text" class="form-control appliance_broken" id="<?php echo "broken_".$key1?>" name="broken[]" onchange="check_broken('<?php echo $key1;?>')" >
                                                     <option selected disabled>Product Found Broken</option>
-                                                    <option  value="1">Yes</option>
-                                                    <option value="0">No</option>
+                                                    <option  value="1" <?php if($this->session->userdata('is_engineer_app') == 1){ if(isset($unit_details['quantity'][0]['en_is_broken']) && $unit_details['quantity'][0]['en_is_broken'] == 1){ echo "selected"; } } ?>>Yes</option>
+                                                    <option value="0" <?php if($this->session->userdata('is_engineer_app') == 1){ if(isset($unit_details['quantity'][0]['en_is_broken']) && $unit_details['quantity'][0]['en_is_broken'] == 0){ echo "selected"; } } ?>>No</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -187,7 +188,14 @@
                                         <div class="form-group col-md-3"style="width:16.95%" style=" padding-right: 0px;">
                                             <label> Purchase Date</label>
                                             <div class="input-group input-append date">
-                                                <input  autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>">
+                                                <input  autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php 
+                                                if($this->session->userdata('is_engineer_app') == 1){
+                                                    if(isset($unit_details['quantity'][0]['en_purchase_date'])){ echo $unit_details['quantity'][0]['en_purchase_date']; } 
+                                                }
+                                                else{
+                                                if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } 
+                                                }
+                                                ?>">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$key1?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                              </div>
                                         </div>
@@ -248,7 +256,7 @@
                                                                 <option value="" selected desa>Please Select Model Number</option>
                                                                 <?php foreach ($model_data as $m) { ?>
                                                                 <option value="<?php echo $m['model_number'];?>"
-                                                                        <?php if(!empty($booking_history['spare_parts']) && $booking_history['spare_parts'][0]['model_number'] == $m['model_number']){ echo 'selected';} elseif($unit_details['model_number'] == $m['model_number']) { echo 'selected'; } else { echo ''; }  ?>
+                                                                        <?php if($this->session->userdata('is_engineer_app') == 1){ if(isset($unit_details['en_model_number']) && $unit_details['en_model_number'] == $m['model_number']){ echo 'selected'; } }elseif(!empty($booking_history['spare_parts']) && $booking_history['spare_parts'][0]['model_number'] == $m['model_number']){ echo 'selected';} elseif($unit_details['model_number'] == $m['model_number']) { echo 'selected'; } else { echo ''; }  ?>
                                                                 ><?php echo $m['model_number'];?></option>
                                                                 <?php }?>
                                                             </select>
@@ -292,7 +300,36 @@
                                                                     <?php $src = base_url() . 'images/no_image.png';
                                                                     $image_src = $src;
                                                                     $pic_name = '';
-                                                                    if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['serial_number_pic'])) {
+                                                                    $customer_basic_charge = 0;
+                                                                    $addition_service_charge = 0;
+                                                                    $parts_cost = 0;
+                                                                    if($this->session->userdata('is_engineer_app') == 1){ 
+                                                                        if (($price['product_or_services'] != "Service" && $price['customer_net_payable'] > 0) ){ 
+                                                                            if(isset($price['en_service_charge'])){
+                                                                                $customer_basic_charge = $price['en_service_charge'];
+                                                                            }
+                                                                        }
+                                                                        
+                                                                        if($price['product_or_services'] != "Product") {
+                                                                            if(isset($price['en_additional_service_charge'])){
+                                                                                $addition_service_charge = $price['en_additional_service_charge'];
+                                                                            }
+                                                                        }
+                                                                        
+                                                                        if ($price['product_or_services'] == "Product" && $price['customer_net_payable'] == 0) { 
+                                                                           if(isset($price['en_parts_cost'])){
+                                                                            $parts_cost = $price['en_parts_cost'];
+                                                                           }
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    if($this->session->userdata('is_engineer_app') == 1){
+                                                                        if(isset($price['en_serial_number_pic'])){
+                                                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/engineer-uploads/".$price['en_serial_number_pic'];
+                                                                            $pic_name = $price['en_serial_number_pic'];
+                                                                        }
+                                                                    }
+                                                                    else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['serial_number_pic'])) {
                                                                         //Path to be changed
                                                                         $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history['spare_parts'][0]['serial_number_pic'];
                                                                         $pic_name = $booking_history['spare_parts'][0]['serial_number_pic'];
@@ -319,13 +356,13 @@
                                                             <?php if($price['product_or_services'] != "Product"){  ?>
                                                             <input  id="<?php echo "basic_charge".$count; ?>" type="<?php  if (($price['product_or_services'] == "Service" 
                                                                 && $price['customer_net_payable'] == 0) ){ echo "hidden";} ?>" 
-                                                                class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "0">
+                                                                class="form-control cost"  name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php echo $customer_basic_charge; ?>">
                                                             <?php } ?>
                                                         </td>
                                                         <td>  <input id="<?php echo "extra_charge".$count; ?>"  type="<?php  if ($price['product_or_services'] == "Product") { 
                                                             echo "hidden";} else { echo "text";} ?>" class="form-control cost"  
                                                             name="<?php echo "additional_charge[" . $price['unit_id'] . "]" ?>"  
-                                                            value = "0">
+                                                            value = "<?php echo $addition_service_charge; ?>">
                                                         </td>
                                                         <td>  
                                                             <?php if($price['product_or_services'] != "Service"){  ?>
@@ -338,7 +375,7 @@
                                                                 if ($price['product_or_services'] == "Product" && $price['customer_net_payable'] == 0) { 
                                                                     echo "text";} else { echo "hidden";} } else { echo "text";}?>" 
                                                                 class="form-control cost" 
-                                                                name="<?php echo "parts_cost[" . $price['unit_id'] . "]" ?>"  value = "0" >
+                                                                name="<?php echo "parts_cost[" . $price['unit_id'] . "]" ?>"  value = "<?php echo $parts_cost; ?>" >
                                                         </td>
                                                         <input type="hidden" name="<?php echo "appliance_broken[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "is_broken_".$count;?>" value="" />
@@ -493,23 +530,25 @@
                                     <?php  if($this->session->userdata('is_engineer_app') == 1){?>
                                     <div class="col-md-4">
                                         <?php if(!empty($serial_number)){ ?>
-                                        <div class="col-md-12">
+<!--                                        <div class="col-md-12">
                                             <div class="col-md-12 page-header" style="margin: 0px 0 0px;">
-                                                Serial Number:  <b><?php echo $serial_number;?></b>
+                                                //Serial Number1:  <b><?php //echo $serial_number;?></b>
                                             </div>
                                            
-                                        </div>
+                                        </div>-->
                                         <?php } ?>
-                                        <div class="col-md-6" style="padding-left:0px; margin-top: 10px; padding-left: 15px;">
+<!--                                        <div class="col-md-6" style="padding-left:0px; margin-top: 10px; padding-left: 15px;">
                                             <?php if(!empty($serial_number_pic)){ ?>
-                                            <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $serial_number_pic;?>">   
-                                            <img style="height:150px; width:150px; " src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $serial_number_pic;?>" />
+                                            <a target="_blank" href="https://s3.amazonaws.com/<?php //echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php //echo $serial_number_pic;?>">   
+                                            <img style="height:150px; width:150px; " src="https://s3.amazonaws.com/<?php //echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php //echo $serial_number_pic;?>" />
                                             </a>
                                             <?php } ?>
-                                        </div>
+                                        </div>-->
                                         <div class="col-md-6" style="padding-left:0px; margin-top: 10px; padding-left: 15px;">
-                                            <?php if(!empty($signature)){ ?><a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature;?>">   
-                                            <img style="height:150px;width:150px;  <?php if(!empty($signature)){ ?>border: 1px solid;<?php } ?>" src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature;?>" /></a>
+                                            <?php if(isset($en_signature_picture)){ ?>
+                                            <label>Engineer Signature</label>
+                                            <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $en_signature_picture;?>">   
+                                            <img style="height:150px;width:150px;  <?php if(!empty($en_signature_picture)){ ?>border: 1px solid;<?php } ?>" src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $en_signature_picture;?>" /></a>
                                             <?php } ?>
                                         </div>
                                     </div>
