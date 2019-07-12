@@ -3386,8 +3386,8 @@ class Invoice extends CI_Controller {
                         $data['vertical'] =SERVICE;
                         $data['third_party_entity'] = _247AROUND_PARTNER_STRING;
                         $data['third_party_entity_id'] = $this->input->post('third_party');
-                        $data['category'] = MICROWAREHOUSE;
-                        $data['sub_category'] = SECURITY;
+                        $data['category'] = SPARES;
+                        $data['sub_category'] = MSL_SECURITY_AMOUNT;
                         $data['accounting'] = 0;
                         break;
                     

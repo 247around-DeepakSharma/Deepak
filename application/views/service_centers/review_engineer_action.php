@@ -55,8 +55,10 @@
                                     <td class="text-center"><?php echo $row->status; ?></td>
                                     <td class="text-center">
                                         <?php if($row->status == _247AROUND_COMPLETED) {?>
-                                        <button onclick="openmodel('<?php echo $row->booking_id;?>')" class='btn btn-sm btn-success'><i class='fa fa-check' aria-hidden='true'></i>
-                                        </button>
+<!--                                        <button onclick="openmodel('<?php //echo $row->booking_id;?>')" class='btn btn-sm btn-success'><i class='fa fa-check' aria-hidden='true'></i></button>-->
+                                        <a href="<?php echo base_url(); ?>service_center/complete_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>" 
+                                           class='btn btn-sm btn-success'><i class='fa fa-check' aria-hidden='true'></i>
+                                        </a>
                                         <?php } else { ?>
                                         <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" 
                                            class='btn btn-sm btn-success'><i class='fa fa-check' aria-hidden='true'></i></a>
