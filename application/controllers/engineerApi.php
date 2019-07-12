@@ -1755,6 +1755,7 @@ class engineerApi extends CI_Controller {
                         "assigned_vendor_id" => $service_center_id,
                         "assigned_engineer_id" => $engineer_id,
                         "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
+                        "engineer_booking_action.internal_status != '"._247AROUND_COMPLETED."'" => NULL,
                         "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
                     );
             $missed_slots = $this->apis->getMissedBookingSlots();

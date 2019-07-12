@@ -195,7 +195,7 @@
     </thead>
     <tbody>
         <?php
-         if(!$is_pending || $this->session->userdata('partner_id')){
+         if(!$is_pending){
              $stateTemp = $state;
              $state = $state['TAT'];
              $sfTemp = $sf;
@@ -304,6 +304,7 @@
                         <div class="tab-pane fade in" id="tab2">
                              <form action="<?php echo base_url()?>employee/dashboard/download_tat_report" method="post">
                                     <input type="hidden" value='<?php echo json_encode($sf);?>' name="data">
+                                    <input type="hidden" value='<?php echo json_encode($sf_state);?>' name="data_state">
                                     <input type="submit" value="Download CSV" class="btn btn-primary" style="background: #405467;border: none;">
                                     </form>
                                <table class="table table-striped table-bordered jambo_table bulk_action" id="tat_sf_table">
@@ -335,17 +336,17 @@
             <td><?php echo $index;   ;?></td>
             <td>
                 <?php
-                if($this->session->userdata('partner_id')){
-                    if($values['id'] !="00"){
-                        echo "247Around_Service_Center_".$values['id'];
-                    }
-                    else{
-                        echo wordwrap($values['entity'], 30, "<br />\n");
-                    }
-                }
-                else{
+//                if($this->session->userdata('partner_id')){
+//                    if($values['id'] !="00"){
+//                        echo "247Around_Service_Center_".$values['id'];
+//                    }
+//                    else{
+//                        echo wordwrap($values['entity'], 30, "<br />\n");
+//                    }
+//                }
+//                else{
                     echo wordwrap($values['entity'], 30, "<br />\n");
-                }
+                //}
                 ?> </td>
             <td><?php 
             $onlyID = "00";
@@ -381,55 +382,55 @@
                 <td>
                     <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
                             <input type="hidden" name="booking_id_status" value="<?php echo $values['TAT_0_bookings']; ?>">
-                            <input type="submit" value="<?php echo $values['TAT_0'];?>" class="btn btn-success">
+                            <input type="submit" value="<?php echo $values['TAT_0'];?>" <?php if($values['TAT_0'] >0){ ?> class="btn btn-danger" <?php } else{ ?>  class="btn btn-success"<?php } ?>>
                         </form>
                     <?php echo "(". $values['TAT_0_per']."%)";?></td>
                 <td>
                     <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
                             <input type="hidden" name="booking_id_status" value="<?php echo  $values['TAT_1_bookings'];?>">
-                            <input type="submit" value="<?php echo $values['TAT_1'];?>" class="btn btn-success">
+                            <input type="submit" value="<?php echo $values['TAT_1'];?>" <?php if($values['TAT_1'] >0){ ?> class="btn btn-danger" <?php } else{ ?>  class="btn btn-success"<?php } ?>>
                         </form>
                     <?php echo "(". $values['TAT_1_per']."%)";?></td>
               <td>
                     <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
                             <input type="hidden" name="booking_id_status" value="<?php echo $values['TAT_2_bookings'];?>">
-                            <input type="submit" value="<?php echo $values['TAT_2'];?>" class="btn btn-success">
+                            <input type="submit" value="<?php echo $values['TAT_2'];?>" <?php if($values['TAT_2'] >0){ ?> class="btn btn-danger" <?php } else{ ?>  class="btn btn-success"<?php } ?>>
                         </form>
                     <?php echo "(". $values['TAT_2_per']."%)";?></td>
               <td>
                     <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
                             <input type="hidden" name="booking_id_status" value="<?php echo $values['TAT_3_bookings'];?>">
-                            <input type="submit" value="<?php echo $values['TAT_3'];?>" class="btn btn-success">
+                            <input type="submit" value="<?php echo $values['TAT_3'];?>" <?php if($values['TAT_3'] >0){ ?> class="btn btn-danger" <?php } else{ ?>  class="btn btn-success"<?php } ?>>
                         </form>
                     <?php echo "(". $values['TAT_3_per']."%)";?></td>
                 <td>
                     <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
                             <input type="hidden" name="booking_id_status" value="<?php echo  $values['TAT_4_bookings'];?>">
-                            <input type="submit" value="<?php echo $values['TAT_4'];?>" class="btn btn-success">
+                            <input type="submit" value="<?php echo $values['TAT_4'];?>" <?php if($values['TAT_4'] >0){ ?> class="btn btn-danger" <?php } else{ ?>  class="btn btn-success"<?php } ?>>
                         </form>
                     <?php echo "(". $values['TAT_4_per']."%)";?></td>
                 <td>
                     <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
                             <input type="hidden" name="booking_id_status" value="<?php echo  $values['TAT_5_bookings'];?>">
-                            <input type="submit" value="<?php echo $values['TAT_5'];?>" class="btn btn-success">
+                            <input type="submit" value="<?php echo $values['TAT_5'];?>" <?php if($values['TAT_5'] >0){ ?> class="btn btn-danger" <?php } else{ ?>  class="btn btn-success"<?php } ?>>
                         </form>
                     <?php echo "(". $values['TAT_5_per']."%)";?></td>
                 <td>
                     <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
                             <input type="hidden" name="booking_id_status" value="<?php echo  $values['TAT_8_bookings'];?>">
-                            <input type="submit" value="<?php echo $values['TAT_8'];?>" class="btn btn-success">
+                             <input type="submit" value="<?php echo $values['TAT_8'];?>" <?php if($values['TAT_8'] >0){ ?> class="btn btn-danger" <?php } else{ ?>  class="btn btn-success"<?php } ?>>
                         </form>
                     <?php echo "(". $values['TAT_8_per']."%)";?></td>
                 <td>
                     <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
                             <input type="hidden" name="booking_id_status" value="<?php echo  $values['TAT_16_bookings']; ?>">
-                            <input type="submit" value="<?php echo $values['TAT_16'];?>" class="btn btn-success">
+                            <input type="submit" value="<?php echo $values['TAT_16'];?>" <?php if($values['TAT_16'] >0){ ?> class="btn btn-danger" <?php } else{ ?>  class="btn btn-success"<?php } ?>>
                         </form>
                     <?php echo "(". $values['TAT_16_per']."%)";?></td>
             <?php
                 }
        else{ ?>
-                    <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
+           <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
             <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
             <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>
             <td><?php echo $values['TAT_3'] ."<br>(". $values['TAT_3_per']."%)";?></td>

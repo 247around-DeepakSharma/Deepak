@@ -465,6 +465,10 @@
                     
                 } else {
                     $('#partner_id_send_to_partner').html(response);
+                    var option_length = $('#partner_id_send_to_partner').children('option').length;
+                    if(option_length == 2){
+                        $("#partner_id_send_to_partner").change();   
+                    }
                      <?php if(isset($filtered_partner)) { ?> 
                     $('#partner_id_send_to_partner').val('<?php echo $filtered_partner?>'); 
                     $('#partner_id_send_to_partner').trigger('change');
