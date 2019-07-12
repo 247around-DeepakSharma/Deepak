@@ -1128,10 +1128,18 @@ class vendor extends CI_Controller {
             
             $vendor_data = $this->vendor_model->getVendorDetails("isEngineerApp", array("id" =>$service_center_id, "isEngineerApp" => 1));
             
+            $curr_status = (!empty($booking_action_details[0]['current_status'])?$booking_action_details[0]['current_status']:'Pending');
+            $internal_status = (!empty($booking_action_details[0]['internal_status'])?$booking_action_details[0]['internal_status']:'Pending');
+            
+            if(($curr_status === 'InProcess') && (($internal_status === 'Completed') || ($internal_status === 'Cancelled'))) {
+                $internal_status = 'Pending';
+                $curr_status = 'Pending';
+            }
+            
             foreach ($unit_details[0]['quantity'] as $value) {
                 
-                $data['current_status'] = (!empty($booking_action_details[0]['current_status'])?$booking_action_details[0]['current_status']:'Pending');
-                $data['internal_status'] = (!empty($booking_action_details[0]['internal_status'])?$booking_action_details[0]['internal_status']:'Pending');
+                $data['current_status'] = $curr_status;
+                $data['internal_status'] = $internal_status;
                 $data['service_center_id'] = $service_center_id;
                 $data['booking_id'] = $booking_id;
                 $data['create_date'] = date('Y-m-d H:i:s');
