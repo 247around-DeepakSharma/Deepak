@@ -894,7 +894,7 @@ class Invoice_lib {
                 $where = array('inventory_id' => $value['inventory_id'],
                     'vendor_partner_id' => $value['booking_partner_id'], "invoice_details.is_settle" => 0);
                 if (!empty($from_gst_id)) {
-                    $where['from_gst_number'] = $from_gst_id;
+                    $where['to_gst_number'] = $from_gst_id;
                 }
                 $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
 

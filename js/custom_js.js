@@ -189,7 +189,7 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
                 $("#priceList_" + div_no[2]).html(data1.price_table);
                 $("#upcountry_data").val(data1.upcountry_data);
                 final_price();
-                if(postData['is_repeat'] !== 1) {
+                if(postData['is_repeat'] == 1) {
                     $('#submitform').attr('disabled', false);
                 }
             });
@@ -262,10 +262,6 @@ function check_prepaid_balance(type) {
 
 function addBookingDialog(chanel = '') {
     var delivered_price_tags = [];
-    if($(".price_checkbox:checked").length == 0){
-        alert("Please Select Price Tag");
-        return false;
-    }
     $(".price_checkbox:checked").each(function (i) {
              var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
              delivered_price_tags.push(price_tags);

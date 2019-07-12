@@ -2246,57 +2246,79 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     
     function download_tat_report(){
         $data = json_decode($this->input->post('data'),true);
+        $data_state = array();
+        if(!empty($this->input->post('data_state'))){
+            $data_state = json_decode($this->input->post('data_state'),true);
+        }
         $csv ="";
         foreach($data as $values){
             $tempArray = array();
             $entity = $values['entity'];
-            if($this->session->userdata('partner_id')){
-                    if($values['id'] !="00"){
-                        $entity =  "247Around_Service_Center_".$values['id'];
-                    }
-                    else{
-                        $entity =  wordwrap($values['entity'], 30, "<br />\n");
-                    }
-                }
+//            if($this->session->userdata('partner_id')){
+//                    if($values['id'] !="00"){
+//                        $entity =  "247Around_Service_Center_".$values['id'];
+//                    }
+//                    else{
+//                        $entity =  wordwrap($values['entity'], 30, "<br />\n");
+//                    }
+//                }
+            $onlyID = "00";
+            $onlyIDArray = explode("_",$values['id']);
+            if(isset($onlyIDArray[1])){
+                $onlyID = $onlyIDArray[1];
+            }
             $tempArray[] = $entity;
+            if(!empty($data_state)){
+                $sfSate = "";
+                if(array_key_exists("sf_".$onlyID, $data_state)){
+                   $sfSate =  $data_state["sf_".$onlyID];
+                }
+                $tempArray[] = $sfSate;
+            }
             $tempArray[] = $values['TAT_0'];
-            $tempArray[] = $values['TAT_0_per'];
+            //$tempArray[] = $values['TAT_0_per'];
             $tempArray[] = $values['TAT_1'];
-            $tempArray[] = $values['TAT_1_per'];
+           // $tempArray[] = $values['TAT_1_per'];
             $tempArray[] = $values['TAT_2'];
-            $tempArray[] = $values['TAT_2_per'];
+            //$tempArray[] = $values['TAT_2_per'];
             $tempArray[] = $values['TAT_3'];
-            $tempArray[] = $values['TAT_3_per'];
+           // $tempArray[] = $values['TAT_3_per'];
             $tempArray[] = $values['TAT_4'];
-            $tempArray[] = $values['TAT_4_per'];
+            //$tempArray[] = $values['TAT_4_per'];
             $tempArray[] = $values['TAT_5'];
-            $tempArray[] = $values['TAT_5_per'];
+            //$tempArray[] = $values['TAT_5_per'];
             $tempArray[] = $values['TAT_8'];
-            $tempArray[] = $values['TAT_8_per'];
+           // $tempArray[] = $values['TAT_8_per'];
             $tempArray[] = $values['TAT_16'];
-            $tempArray[] = $values['TAT_16_per'];
+            if(array_key_exists('Total_Pending',$values)){
+                 $tempArray[] = $values['Total_Pending'];
+            }
+          //  $tempArray[] = $values['TAT_16_per'];
             $csv.=implode(",",$tempArray)."\n"; //Append data to csv
-        }
-        if(array_key_exists("SF", $values)){
+        }       
+            if(!empty($data_state)){
                 $headings[] = "SF";
             }
             $headings[] = "State";
-             $headings[] = "TAT_0";
-            $headings[] = "TAT_0_percentage";
+            $headings[] = "TAT_0";
+            //$headings[] = "TAT_0_percentage";
             $headings[] = "TAT_1";
-            $headings[] = "TAT_1_percentage";
+           // $headings[] = "TAT_1_percentage";
             $headings[] = "TAT_2";
-            $headings[] = "TAT_2_percentage";
+           // $headings[] = "TAT_2_percentage";
             $headings[] = "TAT_3";
-            $headings[] = "TAT_3_percentage";
+           // $headings[] = "TAT_3_percentage";
             $headings[] = "TAT_4";
-            $headings[] = "TAT_4_percentage";
+           // $headings[] = "TAT_4_percentage";
             $headings[] = "TAT_5";
-            $headings[] = "TAT_5_percentage";
+            //$headings[] = "TAT_5_percentage";
             $headings[] = "TAT_8";
-            $headings[] = "TAT_8_percentage";
-            $headings[] = "Total";
-            $headings[] = "Total_percentage";
+           // $headings[] = "TAT_8_percentage";
+            $headings[] = ">TAT_15";
+            //$headings[] = "Total_percentage";
+             if(array_key_exists('Total_Pending',$values)){
+                 $headings[] = 'Total';
+            }
             $finalcsv = implode(",",$headings)." \n".$csv;//Column headers
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');

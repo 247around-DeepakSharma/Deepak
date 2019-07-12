@@ -506,7 +506,7 @@ span.stars span {
                     
                     $("#spare_"+block + key).css("display", "none");
                }
-               console.log(response);
+               //console.log(response);
 
           }
        });
@@ -517,16 +517,17 @@ span.stars span {
            type: 'post',
            url: '<?php echo base_url()  ?>employee/inventory/get_spare_delivered_status/' + booking_id,
            success: function (response) {
-               
-               if(response === "success"){
-                   
-                   document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/spare_parts_delivered.png";
-               }  else {
-                    
-                    $("#spare_delivered_"+block + key).css("display", "none");
-               }
-               console.log(response);
+               var obj  = JSON.parse(response);
+               //console.log(obj);
+               if(obj[0].is_micro_wh==1){   //SPARE_DELIVERED_TO_SF
 
+                   document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/msl_available.png";
+               }  else if(obj[0].status=='Spare Parts Delivered to SF') {
+                    document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/spare_parts_delivered.png";
+               }else{
+                $("#spare_delivered_"+block + key).css("display", "none");
+               }
+               
           }
        });
    }
