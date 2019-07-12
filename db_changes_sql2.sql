@@ -232,3 +232,36 @@ ALTER TABLE employee_relation ADD COLUMN individual_service_centres_id text NULL
 
 --Kajal 12/07/2019 --
 ALTER TABLE `spare_parts_details` ADD `cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `shipped_quantity`;
+
+-- Prity 12-July-2019
+CREATE TABLE `category` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `private_key` varchar(200) NOT NULL COMMENT 'here we store trimed, uppercased, filtered (remove all special characters instead of hyphen(-) and dot(.)) value of name for unique constraints',
+  `name` varchar(200) NOT NULL COMMENT 'this is the name of the category, this value will be replaced each time user changes the appearance of name.(eg: double spaces))',
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `update_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `active` tinyint(4) NOT NULL DEFAULT 0,
+  `last_updated_by` varchar(25) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_private_key` (`private_key`)
+) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=latin1;
+
+CREATE TABLE `capacity` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `private_key` varchar(200) NOT NULL COMMENT 'here we store trimed, uppercased, filtered (remove all special characters instead of hyphen(-) and dot(.)) value of name for unique constraints',
+  `name` varchar(200) NOT NULL COMMENT 'this is the name of the category, this value will be replaced each time user changes the appearance of name.(eg: double spaces))',
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `update_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `active` tinyint(4) NOT NULL DEFAULT 0,
+  `last_updated_by` varchar(25) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_private_key` (`private_key`)
+) ENGINE=InnoDB AUTO_INCREMENT=198 DEFAULT CHARSET=latin1;
+
+-----------------------------    Script for Data Insertion     ------------------------------------------------------
+-------------------------------- CATEGORY --------------------------------------------------------------------------
+-- select distinct concat("('",(REPLACE(UPPER(category), " ", "")),"','",category,"',1,'247around'),") as category from service_centre_charges;
+-- INSERT INTO category (private_key,name,active,last_updated_by) values 
+-------------------------------- CAPACITY ---------------------------------------------------------------------------
+-- select distinct concat("('",capacity,"','",capacity,"',1,'247around'),") from service_centre_charges;
+-- INSERT INTO capacity (private_key, name, active, last_updated_by) values 
