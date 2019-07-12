@@ -3570,7 +3570,8 @@ class Inventory extends CI_Controller {
                     . "spare_parts_details.status, entity_type, spare_parts_details.partner_id, "
                     . "requested_inventory_id,spare_parts_details.courier_name_by_partner,spare_parts_details.model_number_shipped,spare_parts_details.parts_shipped,spare_parts_details.shipped_parts_type,spare_parts_details.shipped_date,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_quantity", $array, false,false,false,$post);
             
-            log_message('info', 'Spare Data'.print_r(json_encode($spare)),true);
+      
+            log_message('info', __METHOD__ . " Spare Data " . json_encode($spare, true));
             if (!empty($spare)) {
                 $qty = 1;
                 foreach ($spare as $value) {
