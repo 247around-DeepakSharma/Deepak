@@ -165,7 +165,11 @@
             type:'POST',
             url:'<?php echo base_url();?>employee/partner/get_booking_file_upload_partner',
             success:function(response){
-                $('#partner_id').html(response).change();
+                $('#partner_id').html(response);
+                var option_length = $('#partner_id').children('option').length;
+                if(option_length == 2){
+                 $("#partner_id").change();   
+                }                
                 $('#partner_id').select2();
             }
         });
