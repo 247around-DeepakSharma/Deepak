@@ -2890,7 +2890,7 @@ class vendor extends CI_Controller {
         if(!empty($sf_list)){
             $sf_list = $sf_list[0]['service_centres_id'];
         }
-        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list,'');
+        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list,'', '0');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_service_center_report',$data);
     }
