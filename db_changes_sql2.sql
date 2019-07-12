@@ -223,3 +223,5 @@ ALTER TABLE `inventory_ledger` ADD `micro_invoice_id` VARCHAR(128) NULL DEFAULT 
 INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
 ('spare_part_shipment_pending', 'OUT OF TAT - UNDELIVERED %s COURIER', 'Please find attached excel in which mentioned undelivered <b>%s</b> courier above 5 days.', NULL, 'noreply@247around.com', '', '', '', '1', '2019-06-28 05:52:56');
 
+--Kajal 12/07/2019 --
+ALTER TABLE `spare_parts_details` ADD `cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `shipped_quantity`;
