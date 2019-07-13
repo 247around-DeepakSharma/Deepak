@@ -265,3 +265,6 @@ CREATE TABLE `capacity` (
 -------------------------------- CAPACITY ---------------------------------------------------------------------------
 -- select distinct concat("('",capacity,"','",capacity,"',1,'247around'),") from service_centre_charges;
 -- INSERT INTO capacity (private_key, name, active, last_updated_by) values 
+
+--Kajal 13/07/2019 --
+ALTER TABLE `spare_parts_details` CHANGE `cancellation_reason` `spare_cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
