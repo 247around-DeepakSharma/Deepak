@@ -225,3 +225,6 @@ INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`
 
 --Kajal 12/07/2019 --
 ALTER TABLE `spare_parts_details` ADD `cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `shipped_quantity`;
+
+--Kajal 13/07/2019 --
+ALTER TABLE `spare_parts_details` CHANGE `cancellation_reason` `spare_cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
