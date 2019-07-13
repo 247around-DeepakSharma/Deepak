@@ -200,7 +200,7 @@
                     type: 'POST',
                     url: '<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons',
                     success: function (data) {
-                        $("#status_label").css({'display':'block'}).html("Spare Cancel Reason");
+                        $("#status_label").css({'display':'block'}).html("Spare Cancel Reason *");
                         $("#spare_cancel_reason").html(data); 
                     }
                 });
@@ -278,7 +278,7 @@
       var reason = $('#spare_cancel_reason').val();     
       var table_type = $("#reload_table_id").val();
       
-      if($.trim(reason) === "") {
+      if(($('#spare_cancel_reason').parent("div").css('display') !== 'none') && ($('#spare_cancel_reason').length === 1) && ($.trim(reason) === "")) {
           alert("Please Enter Spare Cancellation Reason");
           return false;
       }

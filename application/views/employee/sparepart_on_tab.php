@@ -285,7 +285,7 @@
             <div class="modal-body">
                 <h4 style="padding: 3px;font-size: 1em;" id="status_label" class="modal-title"></h4>
                 <div id="part_warranty_option"></div>
-                <h4 style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Remarks</h4>
+                <h4 style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Remarks *</h4>
                 <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
                 <input style="margin-top:20px; display: none" type="number" name="charge" class="form-control" id="charges" placeholder="Enter Courier Charge" />
             </div>
