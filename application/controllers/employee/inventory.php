@@ -2248,15 +2248,15 @@ class Inventory extends CI_Controller {
         $row[] = "<span style='word-break: break-all;'>" . $stock_list->part_number . "</span>";
         $row[] = $stock_list->description;
         $row[] = $stock_list->gst_rate;
-        $sf_price = number_format((float)$stock_list->price+($stock_list->price*($stock_list->oow_around_margin)/100), 2, '.', '');
-        $total = number_format((float) ($sf_price + ($sf_price * ($stock_list->gst_rate / 100))), 2, '.', '');
+        $sf_price = number_format((float)$stock_list->price+($stock_list->price*($stock_list->gst_rate)/100), 2, '.', '');
+        $total = number_format((float) ($sf_price + ($sf_price * ($stock_list->oow_vendor_margin / 100))), 2, '.', '');
         $row[] = "<i class ='fa fa-inr'></i> " . $total;
         $row[] = $stock_list->oow_vendor_margin . " %";
         $saas_partner = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if($saas_partner){
         $row[] = $stock_list->oow_around_margin . " %";
         }
-        $row[] = number_format((float)$total+($total*($stock_list->oow_vendor_margin)/100), 2, '.', '');
+        $row[] = number_format((float)$sf_price+($sf_price*($stock_list->oow_around_margin+$stock_list->oow_vendor_margin)/100), 2, '.', '');
         return $row;
     }
     
