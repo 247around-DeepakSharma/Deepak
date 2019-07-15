@@ -3728,6 +3728,7 @@ class vendor extends CI_Controller {
     
     function get_sc_upcountry_details($service_center_id){
         $data['data'] = $this->upcountry_model->get_sub_service_center_details(array('service_center_id' =>$service_center_id));
+        $data['saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/sc_upcountry_details',$data);      
     }

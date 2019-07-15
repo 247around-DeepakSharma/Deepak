@@ -2322,6 +2322,7 @@ class Service_centers extends CI_Controller {
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                         unset($data['spare_id']);
                     }
                 }
                 
@@ -5080,6 +5081,7 @@ class Service_centers extends CI_Controller {
                         $spare_data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $spare_data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                         unset($data['spare_id']);
                     }
 
                     if ($entity_type == _247AROUND_SF_STRING) {
@@ -7262,13 +7264,13 @@ class Service_centers extends CI_Controller {
      * @desc: this is used to check warranty data
      * @return: void
      */
-    function check_warranty($booking_id="") {
+    function check_warranty($partner_id = null, $service_id = null, $brand = null) {
         $partners = $this->partner_model->getpartner();
         foreach ($partners as $partnersDetails) {
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
         }
         $this->load->view('service_centers/header');
-        $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray]);
+        $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray, 'partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand]);
     }
 
 }
