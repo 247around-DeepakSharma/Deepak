@@ -2702,7 +2702,7 @@ class Partner extends CI_Controller {
         if($this->input->post('is_mapping')){
             $where = array("service_id" => $service_id);
                
-            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "category","category");
+            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "category.name as category","category.name");
         } else {
             $where_in = array();
             
@@ -2754,8 +2754,8 @@ class Partner extends CI_Controller {
         if($this->input->post("is_mapping")){
             
             $where = array("service_id" => $service_id);
-            $where_in = array("category" => $category);
-            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "capacity","capacity", $where_in);
+            $where_in = array("category.name" => $category);
+            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "capacity.name as capacity","capacity.name", $where_in);
         } else {
             
             $where_in = array("category" => $category);

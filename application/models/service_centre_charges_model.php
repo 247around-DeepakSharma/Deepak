@@ -356,6 +356,8 @@ class service_centre_charges_model extends CI_Model {
     function getServiceCategoryMapping($where, $select, $order_by, $where_in = array()){
         $this->db->distinct();
         $this->db->select($select);
+        $this->db->join('category', 'service_category_mapping.category_id = category.id');
+        $this->db->join('capacity', 'service_category_mapping.capacity_id = capacity.id', 'left');
         if(!empty($where_in)){
             foreach($where_in as $index => $value){
                 $this->db->where_in($index, $value);
@@ -364,7 +366,6 @@ class service_centre_charges_model extends CI_Model {
         $this->db->where($where);
         $this->db->order_by($order_by);
         $query = $this->db->get('service_category_mapping');
-        
     	return $query->result_array();
     }
     
@@ -419,13 +420,17 @@ class service_centre_charges_model extends CI_Model {
      * @return: string
      * 
      */
-     function get_appliance_data($where = array()){  
-             $this->db->select('service_category_mapping.*, services.services');
+    function get_appliance_data($where = array()){  
+             $this->db->select('service_category_mapping.*, services.services, category.name as category, capacity.name as capacity');
              $this->db->from('service_category_mapping');
              $this->db->join('services', 'services.id =  service_category_mapping.service_id');
+             $this->db->join('category', 'category.id =  service_category_mapping.category_id');
+             $this->db->join('capacity', 'capacity.id =  service_category_mapping.capacity_id', 'left');
+             
              if(!empty($where)){
                  $this->db->where($where);
              }
+             $this->db->order_by('services.services, category.name, capacity.name');
              $query = $this->db->get();
             return $query->result();  
         } 
@@ -440,7 +445,6 @@ class service_centre_charges_model extends CI_Model {
      function update_appliance_detail($id, $data) {
         $this->db->where('id', $id);
         $this->db->update('service_category_mapping', $data);
-     
         
         if ($this->db->affected_rows() > 0) {
                 return true;
