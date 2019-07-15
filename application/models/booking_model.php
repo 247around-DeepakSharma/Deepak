@@ -657,8 +657,11 @@ class Booking_model extends CI_Model {
      * @param : void
      * @return : all the cancellation reasons present
      */
-    function cancelreason($where) {
+    function cancelreason($where, $order_by = "") {
         $this->db->where($where);
+        if(!empty($order_by)){
+            $this->db->order_by($order_by,false);
+        }
         $query = $this->db->get('booking_cancellation_reasons');
         return $query->result();
     }
