@@ -49,7 +49,7 @@
                                             if (isset($bookinghistory[0]['partner_id'])) {$partner_id = '/'.$bookinghistory[0]['partner_id']; };
                                             if (!empty($partner_id) && isset($bookinghistory[0]['service_id'])) {$service_id = '/'.$bookinghistory[0]['service_id']; }
                                         ?>
-                                        Warranty Checker<a href="<?php echo base_url(); ?>employee/warranty/index<?=$partner_id?><?=$service_id?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker' style="float: right;height: 29px;width: 36px;"><i class='fa fa-certificate' aria-hidden='true'></i></a></th>
+                                        Warranty Checker<a href="<?php echo base_url(); ?>service_center/warranty<?=$partner_id?><?=$service_id?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker' style="float: right;height: 29px;width: 36px;"><i class='fa fa-certificate' aria-hidden='true'></i></a></th>
                                 </tr>
                             </table>
                         </div>
