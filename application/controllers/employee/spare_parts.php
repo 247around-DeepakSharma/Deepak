@@ -1170,6 +1170,7 @@ class Spare_parts extends CI_Controller {
             $post['vendor_partner'] = $this->input->post('vendor_partner');
         }else{
            $sf = $this->vendor_model->get_employee_relation($this->session->userdata("id")); 
+           $post['where']['status'] = $this->input->post("status"); 
         }
         $vendor_id = array();
         if(!empty($sf)){
