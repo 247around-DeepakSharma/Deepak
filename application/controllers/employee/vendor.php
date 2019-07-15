@@ -5216,6 +5216,7 @@ class vendor extends CI_Controller {
             } 
             $vendor_data['agent_id'] = $agentID;
             $this->vendor_model->edit_vendor($vendor_data, $this->input->post('id'));
+            $this->vendor_model->map_vendor_brands($this->input->post('id'), $this->input->post('brands'));
             $this->notify->insert_state_change('', NEW_SF_BRANDS, NEW_SF_BRANDS, 'Vendor ID : '.$this->input->post('id'), $this->session->userdata('id'), $this->session->userdata('employee_id'),
                         ACTOR_NOT_DEFINE,NEXT_ACTION_NOT_DEFINE,_247AROUND);
             $this->session->set_flashdata('vendor_added', "Vendor Brands Has been updated Successfully , Please Fill other details");
@@ -5709,4 +5710,22 @@ class vendor extends CI_Controller {
         $headings = array("Vendor Name", "Penalty Reason", "Total Bookings", "Total Penalties", "Total Penalty Amount");
         $this->miscelleneous->downloadCSV($list, $headings,"SF_penalty_summary");
     }
+    
+    function get_brands() {
+        $post_data = $this->input->post();
+        $data['appliances'] = $post_data['appliance'];
+        $service_center_id = $post_data['service_center_id'];
+        if(!empty($service_center_id)) {
+            $assigned_brands = $this->reusable_model->get_search_result_data('service_center_brand_mapping', '*', ['service_center_id' => $service_center_id], NULL, NULL, NULL, NULL, NULL);
+            $sf_brands = [];
+            foreach($assigned_brands as $assigned_brand) {
+                $sf_brands[$assigned_brand['service_id']][] = (!empty($assigned_brand['brand_id']) ? $assigned_brand['brand_id'] : $assigned_brand['brand_name']);
+            }
+        }
+        $data['sf_brands'] = $sf_brands;
+        
+        $brand_view =  $this->load->view('employee/appliance_brand', $data, true);
+        echo $brand_view;exit;
+    }
+
 }
