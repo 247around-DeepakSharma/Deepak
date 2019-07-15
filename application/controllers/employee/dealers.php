@@ -236,7 +236,7 @@ class Dealers extends CI_Controller {
             $p_where = array('id' => $result[0]['partner_id']);
             $partner_details = $this->partner_model->get_all_partner($p_where);
 
-            $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $partner_details, NULL);
+            $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode,$service_id, $partner_details, NULL, $brand);
             
             
             $html = "<table class='table priceList table-striped table-bordered'><thead><tr><th class='text-center'>Service Category</th>"
