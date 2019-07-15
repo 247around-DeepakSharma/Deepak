@@ -314,8 +314,31 @@ CREATE TABLE `capacity` (
 
 -----------------------------    Script for Data Insertion     ------------------------------------------------------
 -------------------------------- CATEGORY --------------------------------------------------------------------------
--- select distinct concat("('",(REPLACE(UPPER(category), " ", "")),"','",category,"',1,'247around'),") as category from service_centre_charges;
+-- select distinct concat("('",(REPLACE(UPPER(category), " ", "")),"','",category,"',1,'247around'),") as category from service_centre_charges where category <> "";
 -- INSERT INTO category (private_key,name,active,last_updated_by) values 
 -------------------------------- CAPACITY ---------------------------------------------------------------------------
--- select distinct concat("('",capacity,"','",capacity,"',1,'247around'),") from service_centre_charges;
+-- select distinct concat("('",capacity,"','",capacity,"',1,'247around'),") from service_centre_charges where capacity <> "";
 -- INSERT INTO capacity (private_key, name, active, last_updated_by) values 
+
+--Kajal 13/07/2019 --
+ALTER TABLE `spare_parts_details` CHANGE `cancellation_reason` `spare_cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+--Ankit 15/07/2019 --
+ALTER TABLE service_center_brand_mapping ADD COLUMN service_id int(11) NOT NULL AFTER service_center_id;
+
+-- Prity 15-July-2019
+UPDATE service_category_mapping INNER JOIN category 
+ON REPLACE(UPPER(service_category_mapping.category), " ", "") = category.private_key
+SET service_category_mapping.category = category.id;
+
+UPDATE service_category_mapping INNER JOIN capacity 
+ON REPLACE(UPPER(service_category_mapping.capacity), " ", "") = capacity.private_key
+SET service_category_mapping.capacity = capacity.id;
+-- ---------------------------------------------------------------------------------------------
+-- Add data in Category/Capacity Table if some mapping is missing from above queries.
+-- ---------------------------------------------------------------------------------------------
+ALTER TABLE service_category_mapping change column category category_id int(11) NOT NULL;
+ALTER TABLE service_category_mapping change column capacity capacity_id int(11) NULL DEFAULT NULL;
+ALTER TABLE service_category_mapping ADD CONSTRAINT `fk_scm_category` FOREIGN KEY(`category_id`) REFERENCES category(id);
+ALTER TABLE service_category_mapping ADD CONSTRAINT `fk_scm_capacity` FOREIGN KEY(`capacity_id`) REFERENCES capacity(id);
+ALTER TABLE service_category_mapping ADD CONSTRAINT `uk_scm_service_category_capacity` UNIQUE (service_id, category_id, capacity_id);

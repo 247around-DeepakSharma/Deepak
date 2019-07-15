@@ -765,12 +765,12 @@
                 <h4 class="modal-title" id="modal-title" style="color: white;text-align: center;"></h4>
             </div>
             <div class="modal-body">
-                <h4 style="padding: 3px;font-size: 1em;display: block;" id="status_label" class="modal-title">Spare Cancel Reason</h4>
+                <h4 style="padding: 3px;font-size: 1em;display: block;" id="status_label" class="modal-title">Spare Cancel Reason *</h4>
                 <div id="part_warranty_option" style="padding-bottom: 20px; display: block;">
                     <select class="form-control" id="spare_cancel_reason" name="spare_cancel_reason" value="">
                     </select>
                 </div>
-                <h4 style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Remarks</h4>
+                <h4 style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Remarks *</h4>
                 <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
                 <input style="margin-top:20px; display: none" type="number" name="charge" class="form-control" id="charges" placeholder="Enter Courier Charge" />
             </div>
@@ -972,7 +972,7 @@
         if(keys == 'spare_parts_cancel'){                      
             $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons',
+                url: '<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons/sf_spare_parts',
                 success: function (data) {
                     $("#spare_cancel_reason").html(data); 
                 }

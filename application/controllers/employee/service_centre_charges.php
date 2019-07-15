@@ -44,6 +44,8 @@ class service_centre_charges extends CI_Controller {
         $this->load->model('user_model');
         $this->load->model('booking_model');
         $this->load->model('partner_model');
+        $this->load->model('category_model');
+        $this->load->model('capacity_model');
         $this->load->model('reporting_utils');
         $this->load->model('service_centre_charges_model');
 
@@ -1705,8 +1707,10 @@ class service_centre_charges extends CI_Controller {
      */
     public function add_new_category() {
         $services = $this->booking_model->selectservice();
+        $categories = $this->category_model->select_category();
+        $capacities = $this->capacity_model->select_capacity();
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/add_new_category_capacity', array('services' => $services));
+        $this->load->view('employee/add_new_category_capacity', array('services' => $services, 'categories' => $categories, 'capacities' => $capacities));
     }
     
     /**
@@ -1718,14 +1722,14 @@ class service_centre_charges extends CI_Controller {
 
     public function process_add_new_category() {
 
-        $this->form_validation->set_rules('category', 'category', 'required');
-        $this->form_validation->set_rules('service', 'service', 'required');
+        $this->form_validation->set_rules('category_id', 'Category', 'required');
+        $this->form_validation->set_rules('service_id', 'Product', 'required');
 
         if ($this->form_validation->run() == TRUE) {
             $app_data = array(
-                'service_id' => $this->input->post('service'),
-                'category' => trim($this->input->post('category')),
-                'capacity' => trim($this->input->post('capacity'))
+                'service_id' => $this->input->post('service_id'),
+                'category_id' => trim($this->input->post('category_id')),
+                'capacity_id' => trim($this->input->post('capacity_id'))
             );
 
             $status = $this->service_centre_charges_model->insert_appliance_detail($app_data);
@@ -1756,6 +1760,8 @@ class service_centre_charges extends CI_Controller {
     public function appliance_data_view() {
         $this->miscelleneous->load_nav_header();
         $data['appliance_data'] = $this->service_centre_charges_model->get_appliance_data();
+        $data['categories'] = $this->category_model->select_category();
+        $data['capacities'] = $this->capacity_model->select_capacity();
         $this->load->view('employee/service_category_mapping_view', $data);
     }
     
@@ -1770,7 +1776,7 @@ class service_centre_charges extends CI_Controller {
 
 
         $this->form_validation->set_rules('service_id', 'service_id', 'required');
-        $this->form_validation->set_rules('category', 'category', 'required');
+        $this->form_validation->set_rules('category_id', 'category', 'required');
         $this->form_validation->set_rules('rowid', 'rowid', 'required');
 
 
@@ -1780,8 +1786,8 @@ class service_centre_charges extends CI_Controller {
 
             $data = array(
                 'service_id' => $this->input->post('service_id'),
-                'capacity' => ($this->input->post('capacity')),
-                'category' => trim($this->input->post('category')),
+                'capacity_id' => ($this->input->post('capacity_id')),
+                'category_id' => trim($this->input->post('category_id')),
                 'create_date' => date('Y-m-d H:i:s')
             );
 
