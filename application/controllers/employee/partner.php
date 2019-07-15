@@ -3174,7 +3174,7 @@ class Partner extends CI_Controller {
             $p_where = array('id' => $partner_id);
             $partner_details = $this->partner_model->get_all_partner($p_where);
             if (empty($assigned_vendor_id)) {
-                $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode, $service_id, $partner_details, NULL);
+                $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode, $service_id, $partner_details, NULL, $brand);
             } else {
 
                 $vendor_data = array();
