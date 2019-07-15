@@ -827,8 +827,8 @@
                                     }
                                     ?>">
                                     <?php foreach ($results['services'] as $key => $appliance) { ?>
-                                    <label for="Appliance" class="col-md-3">
-                                    <input type="checkbox" name="appliances[]" value ="<?php echo $appliance->services; ?>"
+                                    <span for="Appliance" class="col-md-3">
+                                    <input type="checkbox" class="appliance" onchange="get_brands()" name="appliances[]" value ="<?php echo $appliance->services; ?>"
                                         <?php
                                             if (isset($selected_appliance_list)) {
                                                 if (in_array($appliance->services, $selected_appliance_list))
@@ -836,7 +836,7 @@
                                             }
                                             ?> >
                                     <?php echo $appliance->services; ?> &nbsp;&nbsp;&nbsp;
-                                    </label>
+                                    </span>
                                     <?php } ?>
                                 </div>
                             </div>
@@ -845,23 +845,11 @@
                     <div  class = "panel panel-info">
                         <div class="panel-heading" style="background-color:#ECF0F1">
                             <b>Brands</b>
-                            <label class="pull-right">All <input type="checkbox" name="brands_all" id="brands_all" value="All" title="Select All"></label>
+                            <!--<label class="pull-right">All <input type="checkbox" name="brands_all" id="brands_all" value="All" title="Select All"></label>-->
                         </div>
-                        <div class="panel-body">
+                        <div class="panel-body brands">
                             <div class="col-md-12">
-                                <?php foreach ($results['brands'] as $key => $brands) {
-                                    ?>
-                                <label for="Brand" class="col-md-3">
-                                    <input type="checkbox" name="brands[]" value ="<?php echo $brands->brand_name; ?>"
-                                    <?php
-                                        if (isset($selected_brands_list)) {
-                                            if (in_array($brands->brand_name, $selected_brands_list))
-                                                echo "checked";
-                                        }
-                                        ?>>
-                                <?php echo $brands->brand_name; ?> &nbsp;&nbsp;&nbsp;
-                                </label>
-                                <?php } ?>
+                                
                             </div>
                         </div>
                     </div>
@@ -1348,6 +1336,7 @@
 
     $(document).ready(function(){
         getRMs();
+        get_brands();
     });
 
 function manageAccountNameField(value){
@@ -1407,7 +1396,28 @@ function manageAccountNameField(value){
         getDistrict();
     }
     });
-
+    
+    function get_brands() {
+        var appliance = [];
+        var service_center_id = $('#vendor_id').val();
+        
+        $. each($(".appliance:checked"), function(){
+            appliance.push($(this).val());
+        });
+ 
+        if(appliance.length > 0) {
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/get_brands',
+                data: {appliance: appliance, service_center_id: service_center_id},
+                success: function (data) {
+                    $('.brands').html(data);
+                }
+            });
+        } else {
+            $('.brands').html('Please select appliance.');
+        }
+    }
 </script>
 <!--page 1 validations begin here-->
     
@@ -1872,5 +1882,12 @@ function manageAccountNameField(value){
             $('input[name="brands[]"]').prop("checked", false);
         }
     });
+
 </script>
+
+<style>
+    .panel {
+        border-radius:0px !important;
+    }
+</style>
 
