@@ -2174,13 +2174,39 @@ class vendor_model extends CI_Model {
      * @date - 26-06-2019
      * @params - $Sf_id (Service Center Id) 
     */
-    function map_vendor_brands($sf_id, $arr_brands)
+    function map_vendor_brands($sf_id, $brands)
     {
-        $this->db->delete('service_center_brand_mapping', array('service_center_id' => $sf_id));
-        foreach ($arr_brands as $rec_brand) {
-            $data = array('service_center_id' => $sf_id, 'brand_name' => $rec_brand);
-            $this->db->insert('service_center_brand_mapping',$data);
+        $data = [];
+        if(!empty($brands)) {
+            foreach ($brands as $appliance_id => $brand) {
+                foreach($brand as $brand_data) {
+                    if($brand_data == 'all') {
+                        $data[] = [ 
+                            'service_center_id' => $sf_id, 
+                            'service_id' => $appliance_id, 
+                            'brand_id' => NULL, 
+                            'brand_name' => 'all'
+                        ];
+                    } elseif(!empty($brand_data)) {
+                        $data[] = [ 
+                            'service_center_id' => $sf_id, 
+                            'service_id' => $appliance_id, 
+                            'brand_id' => explode('-', $brand_data)[0], 
+                            'brand_name' => explode('-', $brand_data)[1]
+                        ];
+                    }
+                }
+            }
+        } else {
+            $this->db->delete('service_center_brand_mapping', array('service_center_id' => $sf_id));
         }
+        
+        if(!empty($data)) {
+            $this->db->delete('service_center_brand_mapping', array('service_center_id' => $sf_id));
+            $this->db->insert_batch('service_center_brand_mapping', $data); 
+        }
+        
+        return true;
     }
     
     /*

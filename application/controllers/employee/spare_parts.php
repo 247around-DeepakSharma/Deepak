@@ -2475,8 +2475,8 @@ class Spare_parts extends CI_Controller {
      *  @param : $file_details array()
      *  @return :$res array
      */
-    function get_spare_parts_cancellation_reasons() {
-        $spare_cancellation_reasons = $this->booking_model->cancelreason(array('reason_of' => 'spare_parts'));
+    function get_spare_parts_cancellation_reasons($tag = 'spare_parts') {
+        $spare_cancellation_reasons = $this->booking_model->cancelreason(array('reason_of' => $tag));
         $option = '<option selected disabled>Select Cancellation Reason</option>';
         foreach ($spare_cancellation_reasons as $value) {
             $option .= "<option value='" . $value->reason . "'>" . $value->reason . "</option>";
