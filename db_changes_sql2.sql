@@ -231,3 +231,7 @@ ALTER TABLE `spare_parts_details` CHANGE `cancellation_reason` `spare_cancellati
 
 -- Kajal 19-July-2019 --
 ALTER TABLE `inventory_model_mapping` ADD `bom_main_part` INT(1) NOT NULL DEFAULT '1' COMMENT '1 - Main Part, 0 - Alternate Part' AFTER `max_quantity`;
+
+--Ankit 15/07/2019 --
+ALTER TABLE service_center_brand_mapping ADD COLUMN service_id int(11) NOT NULL AFTER service_center_id;
+
