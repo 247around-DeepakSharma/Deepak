@@ -69,8 +69,9 @@
                                     <th>Parts Number</th>
                                     <th>Quantity</th>
                                     <th>Description</th>
-                                    <th> AWB </th>
+                                    
                                     <th>Courier Name</th>
+                                    <th> AWB </th>
                                     
                                     <th>
                                         Acknowledge
