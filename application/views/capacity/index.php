@@ -15,8 +15,8 @@
                         <th>S.No.</th>
                         <th>Capacity</th>
                         <th>Name</th>
-                        <th>Active</th> 
-                        <th>Action</th>
+                        <th class="no-sort">Active</th> 
+                        <th class="no-sort">Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -100,7 +100,13 @@
 </div>
 
 <script>
-    $('#capacity_list').dataTable();
+    $('#capacity_list').dataTable({
+        "order": [],
+        "columnDefs": [ {
+          "targets"  : 'no-sort',
+          "orderable": false,
+        }]
+    });
 
     $(document).on("click", "#add_capacity", function () {
         // Display the Bootstrap modal

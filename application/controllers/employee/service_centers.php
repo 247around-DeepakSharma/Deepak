@@ -4537,10 +4537,10 @@ class Service_centers extends CI_Controller {
                             <ul class='dropdown-menu' role='menu' aria-labelledby='menu1'>
                               <li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Received</a></li>";
         ;
-        if ($days < NO_OF_DAYS_NOT_SHOW_NOT_RECEIVED_BUTTON) {
+      //  if ($days < NO_OF_DAYS_NOT_SHOW_NOT_RECEIVED_BUTTON) {
           
             $a .= "<li role='presentation'><a role='menuitem' tabindex='-1' onclick=showConfirmDialougeBox('" . base_url() . "service_center/buyback/update_not_received_bb_order/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "')>Not Received</a></li>";
-        }
+      //  }
         $a .= "<li role='presentation'><a role='menuitem' tabindex='-1' target='_blank' href='" . base_url() . "service_center/buyback/update_order_details/" . rawurlencode($order_list->partner_order_id) . "/" . rawurlencode($order_list->service_id) . "/" . rawurlencode($order_list->city) . "/" . rawurlencode($order_list->assigned_cp_id) . "/".rawurlencode(_247AROUND_BB_DELIVERED)."'>Broken/Wrong Product</a></li>
                             </ul>
                           </div>";
