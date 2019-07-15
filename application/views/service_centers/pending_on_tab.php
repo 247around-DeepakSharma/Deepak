@@ -1007,7 +1007,7 @@
         if(keys == 'spare_parts_cancel'){                      
             $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons',
+                url: '<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons/sf_spare_parts',
                 success: function (data) {
                     $("#spare_cancel_reason").html(data); 
                 }
