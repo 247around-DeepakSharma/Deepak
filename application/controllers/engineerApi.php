@@ -2467,15 +2467,6 @@ class engineerApi extends CI_Controller {
                         if(!$is_est_approved){
                             $spare_flag = SPARE_OOW_EST_REQUESTED;
                         }
-                    } else if (stristr($value['price_tags'], "Repair") 
-                            || stristr($value['price_tags'], "Repeat")
-                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
-                            || stristr($value['price_tags'], PRESALE_REPAIR_TAG)
-                            || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY)
-                            || stristr($value['price_tags'], AMC_PRICE_TAGS)
-                            || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
-
-                        $spare_flag = SPARE_PARTS_REQUIRED;
                     }
 
                     if (stristr($value['price_tags'], "Service Center Visit")) {
