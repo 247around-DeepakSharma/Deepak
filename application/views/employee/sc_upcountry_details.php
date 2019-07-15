@@ -96,34 +96,44 @@
         var upcountry_rate1 = $("#upcountry_rate" + div_no).val();
         
         upcountry_rate = Number(upcountry_rate1);
-        if (upcountry_rate >= 1 && upcountry_rate <= 10) {
-            var event_taget = event.target;
-            var event_element = event.srcElement;
-            $.ajax({
-                type: 'POST',
-                url: '<?php echo base_url(); ?>employee/vendor/update_sub_service_center_details',
-                data: {district: district, pincode: pincode, upcountry_rate: upcountry_rate, id: id, service_center_id: service_center_id},
-                success: function (data) {
-                    if ($.trim(data) === 'success') {
-                        $('#show_success_msg').html('Details has been Updated successfully');
-                        $('.success').show().delay(5000).fadeOut();
-                        ;
-                    } else {
-                        $('#show_error_msg').html('Error in updating details');
-                        $('.error').show().delay(5000).fadeOut();
-                        ;
-                    }
-                }
-            });
-            $(event_taget || event_element).parents('tr').hide();
-        } else {
-            alert("Please enter upcountry rate between 1 to 10.");
-            return false;
-        }
-
-
-
+        <?php if($saas) { ?>
+            if (upcountry_rate === 2 || upcountry_rate === 3) {
+                update_upcountry_rate(district, pincode, id, service_center_id);
+            } else {
+                alert("Please Enter Either 2 or 3 in upcountry rate");
+                return false;
+            }
+        <?php } else { ?>
+            if (upcountry_rate >= 1 && upcountry_rate <= 10) {
+                update_upcountry_rate(district, pincode, id, service_center_id);
+            } else {
+                alert("Please enter upcountry rate between 1 to 10.");
+                return false;
+            }
+        <?php } ?>
     }
+    
+    function update_upcountry_rate(district, pincode, id, service_center_id) {
+        var event_taget = event.target;
+        var event_element = event.srcElement;
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/update_sub_service_center_details',
+            data: {district: district, pincode: pincode, upcountry_rate: upcountry_rate, id: id, service_center_id: service_center_id},
+            success: function (data) {
+                if ($.trim(data) === 'success') {
+                    $('#show_success_msg').html('Details has been Updated successfully');
+                    $('.success').show().delay(5000).fadeOut();
+                } else {
+                    $('#show_error_msg').html('Error in updating details');
+                    $('.error').show().delay(5000).fadeOut();
+                }
+            }
+        });
+        $(event_taget || event_element).parents('tr').hide();
+    }
+    
+    
     function delete_details(id, div_no, service_center_id, active_flag) {
 
         var event_taget = event.target;
@@ -134,7 +144,7 @@
             data: {id: id, service_center_id: service_center_id},
             success: function (data) {
                 
-                if (data === 'success') {
+                if ($.trim(data) === 'success') {
                     if(active_flag === 1){
                         $('#show_success_msg').html('HQ Activated successfully');
                         $('.success').show().delay(5000).fadeOut();
