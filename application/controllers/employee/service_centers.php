@@ -396,9 +396,19 @@ class Service_centers extends CI_Controller {
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_is_broken'] = $en[0]['is_broken'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_internal_status'] = $en[0]['internal_status'];
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_purchase_date'] = date('Y-m-d', strtotime($en[0]['sf_purchase_date']));
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_service_charge'] = $en[0]['service_charge'];
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_additional_service_charge'] = $en[0]['additional_service_charge'];
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_parts_cost'] = $en[0]['parts_cost'];
+                        $bookng_unit_details[$key1]['en_model_number'] = $en[0]['model_number'];
                         if ($en[0]['is_broken'] == 1) {
                             $broken = 1;
                         }
+                    }
+                    
+                    $en_sign = $this->engineer_model->get_engineer_sign("id, signature", array("service_center_id" => $data['booking_history'][0]['assigned_vendor_id'], "booking_id" => $booking_id));
+                    if(!empty($en_sign)){
+                        $data['en_signature_picture'] = $en_sign[0]['signature'];
                     }
                 }
                 $pid = $this->miscelleneous->search_for_pice_tag_key($u['price_tags'], $prices);
@@ -2273,6 +2283,7 @@ class Service_centers extends CI_Controller {
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                         unset($data['spare_id']);
                     }
                 }
                 
@@ -4990,6 +5001,7 @@ class Service_centers extends CI_Controller {
                         $spare_data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $spare_data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                         unset($data['spare_id']);
                     }
 
                     if ($entity_type == _247AROUND_SF_STRING) {
@@ -7078,13 +7090,13 @@ class Service_centers extends CI_Controller {
      * @desc: this is used to check warranty data
      * @return: void
      */
-    function check_warranty($booking_id="") {
+    function check_warranty($partner_id = null, $service_id = null, $brand = null) {
         $partners = $this->partner_model->getpartner();
         foreach ($partners as $partnersDetails) {
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
         }
         $this->load->view('service_centers/header');
-        $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray]);
+        $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray, 'partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand]);
     }
 
     /**

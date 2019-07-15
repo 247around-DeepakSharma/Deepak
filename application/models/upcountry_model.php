@@ -576,7 +576,7 @@ class Upcountry_model extends CI_Model {
      * @param String $pincode
      * @return Array
      */
-    function get_vendor_upcountry($pincode, $service_id, $sf_id = false){
+    function get_vendor_upcountry($pincode, $service_id, $sf_id = false, $brand_name = null){
         $this->db->distinct();
         $this->db->select('Vendor_ID,City,service_centres.is_upcountry, service_centres.min_upcountry_distance');
         $this->db->from('vendor_pincode_mapping');
@@ -589,9 +589,40 @@ class Upcountry_model extends CI_Model {
         $this->db->join('service_centres', 'service_centres.id = vendor_pincode_mapping.Vendor_ID');
         $this->db->where('service_centres.active', "1");
         $this->db->where('service_centres.on_off', "1");
-        $query = $this->db->get();
-       
-        return $query->result_array();
+        $data = $this->db->get()->result_array();
+    
+        $vendor = [];
+        if(!empty($data) && !empty($brand_name)) {
+            foreach($data as $d) {
+                $service_center_id = $d['Vendor_ID'];
+                // check service center's preffered brand.
+                $preffered_vendor =  $this->db->select('*')
+                            ->from('service_center_brand_mapping')
+                            ->where('service_center_id', $service_center_id)
+                            ->where('service_id', $service_id)
+                            ->where('brand_name', $brand_name)
+                            ->get()->result_array();
+                
+                if(empty($preffered_vendor)) { 
+                    // check service center's preffered all brands.
+                    $preffered_vendor =  $this->db->select('*')
+                            ->from('service_center_brand_mapping')
+                            ->where('service_center_id', $service_center_id)
+                            ->where('service_id', $service_id)
+                            ->where('brand_name = "all"')
+                            ->get()->result_array();
+                    
+                }
+                
+                if(!empty($preffered_vendor)) {
+                    $vendor[] = $d;
+                }
+            }
+        } else {
+            $vendor = $data;
+        }
+        //echo"<pre>";print_r($vendor);exit;
+        return $vendor;
     }
     /**
      * @desc: Return service center details who work upcountry

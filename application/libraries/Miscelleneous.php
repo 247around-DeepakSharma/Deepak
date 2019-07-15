@@ -54,11 +54,11 @@ class Miscelleneous {
      * @param String $service_id
      * @return Array
      */
-    function check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, $assigned_vendor_id = false) {
+    function check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, $assigned_vendor_id = false, $brand_name = null) {
         log_message('info', __FUNCTION__ . ' => booking city' . $booking_city . " booking pincode " . $booking_pincode
                 . " service id " . $service_id);
         //Get Available Vendor in this pincode who work this service
-        $check_vendor = $this->My_CI->upcountry_model->get_vendor_upcountry($booking_pincode, $service_id, $assigned_vendor_id);
+        $check_vendor = $this->My_CI->upcountry_model->get_vendor_upcountry($booking_pincode, $service_id, $assigned_vendor_id, $brand_name);
         $sf_city = $this->My_CI->vendor_model->get_distict_details_from_india_pincode($booking_pincode)['district'];
         $data1 = array();
         $is_return = 0;
@@ -835,7 +835,7 @@ class Miscelleneous {
         else{
             $smsPartner =  $partner_data[0]['public_name'];
         }
-        $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false);
+        $data = $this->check_upcountry_vendor_availability($booking['city'], $booking['booking_pincode'], $booking['service_id'], $partner_data, false, $appliance_brand);
         if (isset($data['vendor_not_found'])) {
             if ($data['vendor_not_found'] == 1) {
                 $this->sf_not_exist_for_pincode($booking);

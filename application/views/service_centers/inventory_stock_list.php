@@ -206,6 +206,10 @@
             data:{'is_wh' : 1},
             success: function (response) {
                 $('#partner_id').html(response);
+                var option_length = $('#partner_id').children('option').length;
+                if(option_length == 2){
+                 $("#partner_id").change();   
+                }
                 $('#partner_id').select2();
             }
         });

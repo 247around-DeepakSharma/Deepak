@@ -133,9 +133,9 @@
                                         </td>
                                         <?php } ?>
                                         <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>
-                                        <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>employee/warranty/index/<?= $row->partner_id ?>/<?= $row->service_id ?>/<?= $row->appliance_brand ?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker'><i class='fa fa-certificate' aria-hidden='true'></i></a></td>
+                                        <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/warranty/<?= $row->partner_id ?>/<?= $row->service_id ?>/<?= $row->appliance_brand ?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker'><i class='fa fa-certificate' aria-hidden='true'></i></a></td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
@@ -324,7 +324,7 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -509,7 +509,7 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
-                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-eye" aria-hidden="true"></i></a>
+                                            <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
@@ -765,12 +765,12 @@
                 <h4 class="modal-title" id="modal-title" style="color: white;text-align: center;"></h4>
             </div>
             <div class="modal-body">
-                <h4 style="padding: 3px;font-size: 1em;display: block;" id="status_label" class="modal-title">Spare Cancel Reason</h4>
+                <h4 style="padding: 3px;font-size: 1em;display: block;" id="status_label" class="modal-title">Spare Cancel Reason *</h4>
                 <div id="part_warranty_option" style="padding-bottom: 20px; display: block;">
                     <select class="form-control" id="spare_cancel_reason" name="spare_cancel_reason" value="">
                     </select>
                 </div>
-                <h4 style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Remarks</h4>
+                <h4 style="padding: 3px;font-size: 1em;" id="remarks_label" class="modal-title">Remarks *</h4>
                 <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
                 <input style="margin-top:20px; display: none" type="number" name="charge" class="form-control" id="charges" placeholder="Enter Courier Charge" />
             </div>
@@ -972,7 +972,7 @@
         if(keys == 'spare_parts_cancel'){                      
             $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons',
+                url: '<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons/sf_spare_parts',
                 success: function (data) {
                     $("#spare_cancel_reason").html(data); 
                 }

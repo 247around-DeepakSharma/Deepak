@@ -1701,10 +1701,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tTempArray['id'] =  $values['entity_id'];
             $totalArray[] = $tTempArray;
         }
-        $total_0 = $total_1 = $total_2 = $total_3 = $total_4 = $total_5 = $total_8 = $total_16 = $total_pending = 0;
+        $total_0 = $total_1 = $total_2 = $total_3 = $total_4 = $total_5 = $total_8 = $total_16 = $total_pending = $total_greater_than_3 = 0;
         foreach($totalArray as $pendingDetails){
             $tArray = array();
-            $tArray['TAT_0'] = $tArray['TAT_1'] = $tArray['TAT_2'] = $tArray['TAT_3'] = $tArray['TAT_4'] = $tArray['TAT_5'] =$tArray['TAT_8'] = $tArray['TAT_16'] = 0;
+            $tArray['TAT_0'] = $tArray['TAT_1'] = $tArray['TAT_2'] = $tArray['TAT_3'] = $tArray['TAT_4'] = $tArray['TAT_5'] =$tArray['TAT_8'] = $tArray['TAT_16'] = $tArray['TAT_GREATER_THAN_3'] = 0;
             $tArray['entity'] = $pendingDetails['entity'];
             $tArray['id'] = $pendingDetails['id'];
             if(strlen($pendingDetails['TAT_0_bookings']) != 0){
@@ -1731,6 +1731,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if(strlen($pendingDetails['TAT_16_bookings']) != 0){
                 $tArray['TAT_16'] = count(explode(",",$pendingDetails['TAT_16_bookings']));
             }
+            
+            $tArray['TAT_GREATER_THAN_3'] = $tArray['TAT_4'] + $tArray['TAT_5'] + $tArray['TAT_8'] + $tArray['TAT_16'];
             $tArray['TAT_0_bookings'] = $pendingDetails['TAT_0_bookings'];
             $tArray['TAT_1_bookings'] = $pendingDetails['TAT_1_bookings'];
             $tArray['TAT_2_bookings'] = $pendingDetails['TAT_2_bookings'];
@@ -1749,6 +1751,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $total_5 = $total_5+$tArray['TAT_5'];
             $total_8 = $total_8+$tArray['TAT_8'];
             $total_16 = $total_16+$tArray['TAT_16'];
+            $total_greater_than_3 = $total_greater_than_3 + $tArray['TAT_GREATER_THAN_3'];
             $total_pending = $total_pending+$tArray['Total_Pending'];
             $tArray['TAT_0_per'] = sprintf("%01.0f",(($tArray['TAT_0']*100)/$tArray['Total_Pending']));
             $tArray['TAT_1_per'] = sprintf("%01.0f",(($tArray['TAT_1']*100)/$tArray['Total_Pending']));
@@ -1766,6 +1769,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         
         $totalTempArray['entity'] = "Total";
         $totalTempArray['id'] = "00";
+        $totalTempArray['TAT_GREATER_THAN_3'] = $total_greater_than_3;
         $totalTempArray['TAT_0'] = $total_0;
         $totalTempArray['TAT_1'] = $total_1;
         $totalTempArray['TAT_2'] =  $total_2;
@@ -2332,6 +2336,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
              if(array_key_exists('Total_Pending',$values)){
                 $headings[] = ">TAT_3";
              }
+
             $headings[] = "TAT_0";
              if(!array_key_exists('Total_Pending',$values)){
                  $headings[] = "TAT_0_percentage";

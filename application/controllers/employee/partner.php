@@ -2702,7 +2702,7 @@ class Partner extends CI_Controller {
         if($this->input->post('is_mapping')){
             $where = array("service_id" => $service_id);
                
-            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "category","category");
+            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "category.name as category","category.name");
         } else {
             $where_in = array();
             
@@ -2754,8 +2754,8 @@ class Partner extends CI_Controller {
         if($this->input->post("is_mapping")){
             
             $where = array("service_id" => $service_id);
-            $where_in = array("category" => $category);
-            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "capacity","capacity", $where_in);
+            $where_in = array("category.name" => $category);
+            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "capacity.name as capacity","capacity.name", $where_in);
         } else {
             
             $where_in = array("category" => $category);
@@ -3173,7 +3173,7 @@ class Partner extends CI_Controller {
             $p_where = array('id' => $partner_id);
             $partner_details = $this->partner_model->get_all_partner($p_where);
             if (empty($assigned_vendor_id)) {
-                $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode, $service_id, $partner_details, NULL);
+                $data = $this->miscelleneous->check_upcountry_vendor_availability($city, $pincode, $service_id, $partner_details, NULL, $brand);
             } else {
 
                 $vendor_data = array();
