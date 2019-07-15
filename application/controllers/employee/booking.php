@@ -1494,7 +1494,7 @@ class Booking extends CI_Controller {
             }
             $data['price_table'] = $html;
             if (empty($assigned_vendor_id)) {
-                $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, $assigned_vendor_id);
+                $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($booking_city, $booking_pincode, $service_id, $partner_data, $assigned_vendor_id, $brand);
             } else {
 
                 $vendor_data = array();
