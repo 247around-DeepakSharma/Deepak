@@ -1761,6 +1761,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tArray['TAT_total_per'] = sprintf("%01.0f",(($tArray['Total_Pending']*100)/$tArray['Total_Pending']));
             $outputArray[] = $tArray;
         }
+        // sort array by TAT_GREATER_THAN_3 desc.
+        //array_multisort(array_column($outputArray, 'TAT_GREATER_THAN_3'), SORT_DESC, $outputArray);
+        
         $totalTempArray['entity'] = "Total";
         $totalTempArray['id'] = "00";
         $totalTempArray['TAT_0'] = $total_0;
@@ -2100,7 +2103,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $sfRawData = $this->reusable_model->get_search_result_data("booking_details",$sfSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         if(!empty($sfRawData)){
             $sfDataTemp= $this->get_tat_data_in_structured_format($sfRawData,$is_pending,$request_type);
-            $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp, 'TAT_2', SORT_ASC);
+            if($is_pending){
+                $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp, 'TAT_GREATER_THAN_3', SORT_DESC);
+            }
+            else{
+                $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp, 'TAT_2', SORT_ASC);
+            }
         }
         return $sfData;
     }
@@ -2132,7 +2140,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $stateRawData = $this->reusable_model->get_search_result_data("booking_details",$stateSelect,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         if(!empty($stateRawData)){
             $stateDataTemp = $this->get_tat_data_in_structured_format($stateRawData,$is_pending,$request_type);
-            $stateData = $this->miscelleneous->multi_array_sort_by_key($stateDataTemp, 'TAT_2', SORT_ASC);
+            if($is_pending){
+                $stateData = $this->miscelleneous->multi_array_sort_by_key($stateDataTemp, 'TAT_GREATER_THAN_3', SORT_DESC);
+            }
+            else{
+                $stateData = $this->miscelleneous->multi_array_sort_by_key($stateDataTemp, 'TAT_2', SORT_ASC);
+            }
         }
         return $stateData;
     }
@@ -2275,44 +2288,82 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 }
                 $tempArray[] = $sfSate;
             }
+            if(array_key_exists('Total_Pending',$values)){
+                $tempArray[] = $values['TAT_GREATER_THAN_3'];
+            }
             $tempArray[] = $values['TAT_0'];
-            //$tempArray[] = $values['TAT_0_per'];
+            if(!array_key_exists('Total_Pending',$values)){
+                  $tempArray[] = $values['TAT_0_per'];
+            }
             $tempArray[] = $values['TAT_1'];
-           // $tempArray[] = $values['TAT_1_per'];
+            if(!array_key_exists('Total_Pending',$values)){
+                  $tempArray[] = $values['TAT_1_per'];
+            }
             $tempArray[] = $values['TAT_2'];
-            //$tempArray[] = $values['TAT_2_per'];
+            if(!array_key_exists('Total_Pending',$values)){
+                  $tempArray[] = $values['TAT_2_per'];
+            }
             $tempArray[] = $values['TAT_3'];
-           // $tempArray[] = $values['TAT_3_per'];
+            if(!array_key_exists('Total_Pending',$values)){
+                  $tempArray[] = $values['TAT_3_per'];
+            }
             $tempArray[] = $values['TAT_4'];
-            //$tempArray[] = $values['TAT_4_per'];
+            if(!array_key_exists('Total_Pending',$values)){
+                  $tempArray[] = $values['TAT_4_per'];
+            }
             $tempArray[] = $values['TAT_5'];
-            //$tempArray[] = $values['TAT_5_per'];
+            if(!array_key_exists('Total_Pending',$values)){
+                  $tempArray[] = $values['TAT_5_per'];
+            }
             $tempArray[] = $values['TAT_8'];
-           // $tempArray[] = $values['TAT_8_per'];
+            if(!array_key_exists('Total_Pending',$values)){
+                  $tempArray[] = $values['TAT_8_per'];
+            }
             $tempArray[] = $values['TAT_16'];
-          //  $tempArray[] = $values['TAT_16_per'];
+            if(array_key_exists('Total_Pending',$values)){
+                 $tempArray[] = $values['Total_Pending'];
+            }
             $csv.=implode(",",$tempArray)."\n"; //Append data to csv
         }       
             if(!empty($data_state)){
                 $headings[] = "SF";
             }
             $headings[] = "State";
+             if(array_key_exists('Total_Pending',$values)){
+                $headings[] = ">TAT_3";
+             }
             $headings[] = "TAT_0";
-            //$headings[] = "TAT_0_percentage";
+             if(!array_key_exists('Total_Pending',$values)){
+                 $headings[] = "TAT_0_percentage";
+            }
             $headings[] = "TAT_1";
-           // $headings[] = "TAT_1_percentage";
+            if(!array_key_exists('Total_Pending',$values)){
+                 $headings[] = "TAT_1_percentage";
+            }
             $headings[] = "TAT_2";
-           // $headings[] = "TAT_2_percentage";
+            if(!array_key_exists('Total_Pending',$values)){
+                 $headings[] = "TAT_2_percentage";
+            }
             $headings[] = "TAT_3";
-           // $headings[] = "TAT_3_percentage";
+            if(!array_key_exists('Total_Pending',$values)){
+                 $headings[] = "TAT_3_percentage";
+            }
             $headings[] = "TAT_4";
-           // $headings[] = "TAT_4_percentage";
+            if(!array_key_exists('Total_Pending',$values)){
+                 $headings[] = "TAT_4_percentage";
+            }
             $headings[] = "TAT_5";
-            //$headings[] = "TAT_5_percentage";
+            if(!array_key_exists('Total_Pending',$values)){
+                 $headings[] = "TAT_5_percentage";
+            }
             $headings[] = "TAT_8";
-           // $headings[] = "TAT_8_percentage";
-            $headings[] = "Total";
-            //$headings[] = "Total_percentage";
+            if(!array_key_exists('Total_Pending',$values)){
+                 $headings[] = "TAT_8_percentage";
+            }
+            $headings[] = ">TAT_15";
+             if(array_key_exists('Total_Pending',$values)){
+                 $headings[] = 'Total';
+            }
             $finalcsv = implode(",",$headings)." \n".$csv;//Column headers
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
