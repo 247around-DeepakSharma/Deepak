@@ -2143,6 +2143,63 @@ class vendor_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+
+   
+    /*
+     * @Desc - This function is used to map brands to a SF
+     * @author - Prity Sharma
+     * @date - 26-06-2019
+     * @params - $Sf_id (Service Center Id) 
+    */
+    function map_vendor_brands($sf_id, $brands)
+    {
+        $data = [];
+        foreach ($brands as $appliance_id => $brand) {
+            foreach($brand as $brand_data) {
+                if($brand_data == 'all') {
+                    $data[] = [ 
+                        'service_center_id' => $sf_id, 
+                        'service_id' => $appliance_id, 
+                        'brand_id' => NULL, 
+                        'brand_name' => 'all'
+                    ];
+                } elseif(!empty($brand_data)) {
+                    $data[] = [ 
+                        'service_center_id' => $sf_id, 
+                        'service_id' => $appliance_id, 
+                        'brand_id' => explode('-', $brand_data)[0], 
+                        'brand_name' => explode('-', $brand_data)[1]
+                    ];
+                }
+            }
+        }
+        
+        if(empty($brands)) {
+            $this->db->delete('service_center_brand_mapping', array('service_center_id' => $sf_id));
+        }
+        
+        if(!empty($data)) {
+            $this->db->delete('service_center_brand_mapping', array('service_center_id' => $sf_id));
+            $this->db->insert_batch('service_center_brand_mapping', $data); 
+        }
+        
+        return true;
+    }
+    
+    /*
+     * @Desc - This function is used to get brands mappad to a SF
+     * @author - Prity Sharma
+     * @date - 26-06-2019
+     * @params - $Sf_id (Service Center Id) 
+    */
+    function get_mapped_brands($sf_id)
+    {
+        $this->db->select('GROUP_CONCAT(service_center_brand_mapping.brand_name) as map_brands');
+        $this->db->where(['service_center_id' => $sf_id, 'isActive' => 1]);
+        $query = $this->db->get('service_center_brand_mapping');
+        return $query->result_array()[0]['map_brands']; 
+    }
+
     function get_sf_call_load($sfArray){
         $sfString = implode("','",$sfArray);
         $sql = "SELECT assigned_vendor_id,COUNT(booking_id) as booking_count FROM booking_details WHERE assigned_vendor_id IN ('".$sfString."') AND current_status NOT IN ('Completed','Cancelled') "
