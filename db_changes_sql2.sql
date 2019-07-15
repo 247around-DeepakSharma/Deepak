@@ -268,3 +268,6 @@ CREATE TABLE `capacity` (
 
 --Kajal 13/07/2019 --
 ALTER TABLE `spare_parts_details` CHANGE `cancellation_reason` `spare_cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+--Ankit 15/07/2019 --
+ALTER TABLE service_center_brand_mapping ADD COLUMN service_id int(11) NOT NULL AFTER service_center_id;
