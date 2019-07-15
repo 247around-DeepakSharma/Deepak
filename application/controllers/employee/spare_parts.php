@@ -1495,6 +1495,7 @@ class Spare_parts extends CI_Controller {
                     $data['spare_id'] = $spare_parts_id;
                     array_push($delivered_sp, $data);
                     $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                    unset($data['spare_id']);
                 }
 
                 if (!empty($spare_parts_id)) {
@@ -2208,6 +2209,8 @@ class Spare_parts extends CI_Controller {
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                        unset($data['spare_id']);
+
                     }
                 }
 

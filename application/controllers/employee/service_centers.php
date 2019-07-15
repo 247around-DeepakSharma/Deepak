@@ -2283,6 +2283,7 @@ class Service_centers extends CI_Controller {
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                         unset($data['spare_id']);
                     }
                 }
                 
@@ -5000,6 +5001,7 @@ class Service_centers extends CI_Controller {
                         $spare_data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $spare_data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                         unset($data['spare_id']);
                     }
 
                     if ($entity_type == _247AROUND_SF_STRING) {
