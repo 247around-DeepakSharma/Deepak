@@ -1946,84 +1946,84 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         // Check User Session
         $this->checkUserSession();
-        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($this->input->post('booking_id'));
-        if ($is_booking_able_to_reschedule === FALSE) {
-            $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
-            $this->update_booking_status(urlencode(base64_encode($booking_id)));
-        }        
+        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($this->input->post('booking_id'), $this->input->post('service_center_closed_date'));
+        if ($is_booking_able_to_reschedule !== FALSE) {
+            // Check form validation
+            $f_status = $this->checkvalidation_for_update_by_service_center();
+            if ($f_status) {
+                $reason = $this->input->post('reason');
 
-        // Check form validation
-        $f_status = $this->checkvalidation_for_update_by_service_center();
-        if ($f_status) {
-            $reason = $this->input->post('reason');
-            
-                               
-            switch ($reason) {
-                
-                 CASE PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
-                 CASE RESCHEDULE_FOR_UPCOUNTRY: 
-                 CASE SPARE_PARTS_NOT_DELIVERED_TO_SF: 
-                     log_message('info', __FUNCTION__ ." ". $this->input->post('reason') . " Request: " . $this->session->userdata('service_center_id'));
-                     $this->save_reschedule_request();
-                     break;
-               
-                CASE CUSTOMER_ASK_TO_RESCHEDULE:
-                    log_message('info', __FUNCTION__ ." ". $this->input->post('reason') . " Request: " . $this->session->userdata('service_center_id'));
-                    $this->save_reschedule_request();
-                    $booking_id = $this->input->post('booking_id');
-                    $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
-                    
-                    break;
-                CASE ESTIMATE_APPROVED_BY_CUSTOMER:
-                    log_message('info', __FUNCTION__ . ESTIMATE_APPROVED_BY_CUSTOMER . " Request: " . $this->session->userdata('service_center_id'));
-                    $booking_id = $this->input->post('booking_id');
-                    $this->approve_oow($booking_id);
-                    break;
+                switch ($reason) {
 
-                CASE SPARE_PARTS_REQUIRED:
-                CASE SPARE_OOW_EST_REQUESTED:
-                    log_message('info', __FUNCTION__ . " " . $reason . " :" . $this->session->userdata('service_center_id'));
-                    $this->update_spare_parts();
-                    break;
+                     CASE PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
+                     CASE RESCHEDULE_FOR_UPCOUNTRY: 
+                     CASE SPARE_PARTS_NOT_DELIVERED_TO_SF: 
+                         log_message('info', __FUNCTION__ ." ". $this->input->post('reason') . " Request: " . $this->session->userdata('service_center_id'));
+                         $this->save_reschedule_request();
+                         break;
 
-                CASE CUSTOMER_NOT_REACHABLE:
-                    log_message('info', __FUNCTION__ . CUSTOMER_NOT_REACHABLE . $this->session->userdata('service_center_id'));
-                    $day = $this->input->post('days');
-                    $sc_remarks = $this->input->post('sc_remarks');
-                    $spare_shipped = $this->input->post("spare_shipped");
-                    if (!$spare_shipped) {
-                        if ($day == 2) {
-                            $booking_id = $this->input->post('booking_id');
-                            $_POST['cancellation_reason'] = CUSTOMER_NOT_REACHABLE;
-                            $_POST['cancellation_reason_text'] = $sc_remarks;
-                            $this->process_cancel_booking($booking_id);
+                    CASE CUSTOMER_ASK_TO_RESCHEDULE:
+                        log_message('info', __FUNCTION__ ." ". $this->input->post('reason') . " Request: " . $this->session->userdata('service_center_id'));
+                        $this->save_reschedule_request();
+                        $booking_id = $this->input->post('booking_id');
+                        $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
 
-                            $to = NITS_ANUJ_EMAIL_ID;
-                            $cc = "";
-                            $bcc = "";
-                            $subject = "Auto Cancelled Booking - 3rd Day Customer Not Reachable.";
-                            $message = "Auto Cancelled Booking " . $booking_id;
-                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",AUTO_CANCELLED_BOOKING, "", $booking_id);
+                        break;
+                    CASE ESTIMATE_APPROVED_BY_CUSTOMER:
+                        log_message('info', __FUNCTION__ . ESTIMATE_APPROVED_BY_CUSTOMER . " Request: " . $this->session->userdata('service_center_id'));
+                        $booking_id = $this->input->post('booking_id');
+                        $this->approve_oow($booking_id);
+                        break;
+
+                    CASE SPARE_PARTS_REQUIRED:
+                    CASE SPARE_OOW_EST_REQUESTED:
+                        log_message('info', __FUNCTION__ . " " . $reason . " :" . $this->session->userdata('service_center_id'));
+                        $this->update_spare_parts();
+                        break;
+
+                    CASE CUSTOMER_NOT_REACHABLE:
+                        log_message('info', __FUNCTION__ . CUSTOMER_NOT_REACHABLE . $this->session->userdata('service_center_id'));
+                        $day = $this->input->post('days');
+                        $sc_remarks = $this->input->post('sc_remarks');
+                        $spare_shipped = $this->input->post("spare_shipped");
+                        if (!$spare_shipped) {
+                            if ($day == 2) {
+                                $booking_id = $this->input->post('booking_id');
+                                $_POST['cancellation_reason'] = CUSTOMER_NOT_REACHABLE;
+                                $_POST['cancellation_reason_text'] = $sc_remarks;
+                                $this->process_cancel_booking($booking_id);
+
+                                $to = NITS_ANUJ_EMAIL_ID;
+                                $cc = "";
+                                $bcc = "";
+                                $subject = "Auto Cancelled Booking - 3rd Day Customer Not Reachable.";
+                                $message = "Auto Cancelled Booking " . $booking_id;
+                                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",AUTO_CANCELLED_BOOKING, "", $booking_id);
+                            } else {
+                                $this->default_update(true, true);
+                            }
                         } else {
                             $this->default_update(true, true);
                         }
-                    } else {
+
+                        break;
+
+                    case ENGINEER_ON_ROUTE:
+                    case CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER:
+                        log_message('info', __FUNCTION__ . " " . $reason . " " . $this->session->userdata('service_center_id'));
                         $this->default_update(true, true);
-                    }
-                    
-                    break;
-
-                case ENGINEER_ON_ROUTE:
-                case CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER:
-                    log_message('info', __FUNCTION__ . " " . $reason . " " . $this->session->userdata('service_center_id'));
-                    $this->default_update(true, true);
-                    break;
+                        break;
+                }
+            } else {
+                echo "Update Failed Please Retry Again";
             }
-        } else {
-            echo "Update Failed Please Retry Again";
-        }
 
-        log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $this->session->userdata('service_center_id'));
+            log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $this->session->userdata('service_center_id'));            
+            
+        } else {
+            $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
+            $this->update_booking_status(urlencode(base64_encode($this->input->post('booking_id'))));
+        }       
     }
     
     function update_booking_internal_status($booking_id, $internal_status, $partner_id){
