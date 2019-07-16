@@ -2587,7 +2587,7 @@ class engineerApi extends CI_Controller {
                 $response['amount'] = 0;
                 log_message("info", "Paytm transaction amount not found");
                 $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array('0048', 'Paytm transaction not found'));
+                $this->sendJsonResponse(array('0000', 'success'));
             }
         }
         else{
