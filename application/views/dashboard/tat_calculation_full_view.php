@@ -192,6 +192,7 @@
                              <th>D8 - D15</th>
                              <th>> D15</th>
                               <?php if ($is_pending) {?>
+                            <th>Total</th>
                              <?php  } ?>
                         </tr>
     </thead>
