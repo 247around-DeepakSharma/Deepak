@@ -2421,21 +2421,20 @@ function get_data_for_partner_callback($booking_id) {
     {
         $start_date = date("Y-m-d 00:00:00", strtotime($start_date));
         $end_date = date("Y-m-d 23:59:59", strtotime($end_date));
-        $strQuery = "SELECT 
-                        booking_details.booking_id as 'Booking ID',
-                        date_format(booking_details.create_date, '%d-%m-%Y %H:%m') as 'Registration Date', 
-                        entity_login_table.agent_name as 'Agent Name',
-                        entity_login_table.user_id as 'Agent Login ID'
-                    FROM
-                        booking_details
-                        JOIN booking_state_change bs ON (booking_details.booking_id = bs.booking_id) 
-                        JOIN entity_login_table ON (bs.agent_id = entity_login_table.agent_id)
-                    WHERE 
-                        (booking_details.create_date BETWEEN '".$start_date."' AND '".$end_date."')
-                        AND (booking_details.partner_id = $partner_id OR booking_details.origin_partner_id = '$partner_id' ) 
-                        AND bs.old_state IN ('New_Booking', 'New_Query')
-                    GROUP BY bs.booking_id";
-        return $query = $this->db->query($strQuery);
+        $select = 'booking_details.booking_id as "Booking ID", entity_login_table.agent_name as "Agent Name", entity_login_table.user_id as "Agent Login ID"';
+        
+        $this->db->select($select);
+        $this->db->select('date_format(booking_details.create_date, "%d-%m-%Y %H:%m") as "Registration Date"', FALSE);
+        $this->db->join('booking_state_change', 'booking_details.booking_id = booking_state_change.booking_id');
+        $this->db->join('entity_login_table', 'booking_state_change.agent_id = entity_login_table.agent_id');        
+        $this->db->where('booking_details.create_date BETWEEN "'.$start_date.'" AND "'.$end_date.'"');
+        $this->db->where('(booking_details.partner_id = '.$partner_id.' OR booking_details.origin_partner_id = '.$partner_id.')');
+        $this->db->where('booking_state_change.old_state IN ("'._247AROUND_NEW_BOOKING.'", "'._247AROUND_NEW_QUERY.'")');
+        $this->db->group_by('booking_state_change.booking_id');
+        $this->db->order_by('booking_details.create_date');        
+        $query = $this->db->get('booking_details');
+        return $query;        
+    }
     }
 }
 
