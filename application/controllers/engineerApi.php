@@ -2513,6 +2513,7 @@ class engineerApi extends CI_Controller {
     
     function processUpdateBookingByEngineer(){
         log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if(!empty($requestData['booking_id'])){
             if(!empty($requestData['reason'])){
                 if(!empty($requestData['remark'])){
