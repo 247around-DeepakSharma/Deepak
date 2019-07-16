@@ -1178,6 +1178,7 @@ class Spare_parts extends CI_Controller {
             $post['vendor_partner'] = $this->input->post('vendor_partner');
         }else{
            $sf = $this->vendor_model->get_employee_relation($this->session->userdata("id")); 
+           $post['where']['status'] = $this->input->post("status"); 
         }
         $vendor_id = array();
         if(!empty($sf)){
@@ -1405,6 +1406,7 @@ class Spare_parts extends CI_Controller {
                     $data['spare_id'] = $spare_parts_id;
                     array_push($delivered_sp, $data);
                     $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                    unset($data['spare_id']);
                 }
 
                 if (!empty($spare_parts_id)) {
@@ -2124,6 +2126,8 @@ class Spare_parts extends CI_Controller {
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                        unset($data['spare_id']);
+
                     }
                 }
                
@@ -2473,7 +2477,7 @@ class Spare_parts extends CI_Controller {
      *  @return :$res array
      */
     function get_spare_parts_cancellation_reasons($tag = 'spare_parts') {
-        $spare_cancellation_reasons = $this->booking_model->cancelreason(array('reason_of' => $tag));
+        $spare_cancellation_reasons = $this->booking_model->cancelreason(array('reason_of' => $tag),"booking_cancellation_reasons.reason");
         $option = '<option selected disabled>Select Cancellation Reason</option>';
         foreach ($spare_cancellation_reasons as $value) {
             $option .= "<option value='" . $value->reason . "'>" . $value->reason . "</option>";

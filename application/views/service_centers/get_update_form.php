@@ -26,9 +26,10 @@
                     }
                     ?>
                 <form class="form-horizontal" id="requested_parts" name="myForm" action="<?php echo base_url() ?>employee/service_centers/process_update_booking" method="POST" onSubmit="document.getElementById('submitform').disabled=true;" enctype="multipart/form-data">
+                    <input type="hidden" name="service_center_closed_date" value="<?php if(!empty($bookinghistory[0]['service_center_closed_date'])) { echo $bookinghistory[0]['service_center_closed_date'];} else {echo "";} ?>">
                     <div class="col-md-12" style="margin-left:-31px;">
                         <div class="col-md-2">
-                            <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_id'])) {echo $bookinghistory[0]['booking_id']; }?>"  disabled>
+                            <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_id'])) {echo $bookinghistory[0]['booking_id']; }?>"  readonly>
                         </div>
                         <div class="col-md-2">
                             <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['name'])) {echo $bookinghistory[0]['name']; }?>"  disabled>
@@ -49,7 +50,7 @@
                                             if (isset($bookinghistory[0]['partner_id'])) {$partner_id = '/'.$bookinghistory[0]['partner_id']; };
                                             if (!empty($partner_id) && isset($bookinghistory[0]['service_id'])) {$service_id = '/'.$bookinghistory[0]['service_id']; }
                                         ?>
-                                        Warranty Checker<a href="<?php echo base_url(); ?>employee/warranty/index<?=$partner_id?><?=$service_id?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker' style="float: right;height: 29px;width: 36px;"><i class='fa fa-certificate' aria-hidden='true'></i></a></th>
+                                        Warranty Checker<a href="<?php echo base_url(); ?>service_center/warranty<?=$partner_id?><?=$service_id?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker' style="float: right;height: 29px;width: 36px;"><i class='fa fa-certificate' aria-hidden='true'></i></a></th>
                                 </tr>
                             </table>
                         </div>
