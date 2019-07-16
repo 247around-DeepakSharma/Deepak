@@ -58,7 +58,8 @@
             var id = this.id;
             var flag_value = this.value;
             $.post("<?php echo base_url(); ?>employee/booking/change_booking_cancellation_flag", {id : id, flag_value:flag_value}).done(function(data){
-                if(data == 1)
+                data = $.trim(data);
+                if(data == 'success')
                 {
                     $("#"+id).css('border-color', 'green');
                 }
