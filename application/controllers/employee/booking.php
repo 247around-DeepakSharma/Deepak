@@ -5620,9 +5620,9 @@ class Booking extends CI_Controller {
             $this->db->set($data); 
             $this->db->where('id', $id);
             $this->db->update('booking_cancellation_reasons', $data);
-            exit("1");
+            echo("success");
         endif;
-        exit("2");
+        exit;
     }
     
     function get_summary_report() {
