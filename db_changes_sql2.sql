@@ -263,7 +263,7 @@ CREATE TABLE `capacity` (
 -- select distinct concat("('",(REPLACE(UPPER(category), " ", "")),"','",category,"',1,'247around'),") as category from service_centre_charges where category <> "";
 -- INSERT INTO category (private_key,name,active,last_updated_by) values 
 -------------------------------- CAPACITY ---------------------------------------------------------------------------
--- select distinct concat("('",capacity,"','",capacity,"',1,'247around'),") from service_centre_charges where capacity <> "";
+-- select distinct concat("('",(REPLACE(UPPER(capacity), " ", "")),"','",capacity,"',1,'247around'),") from service_centre_charges where capacity <> "";
 -- INSERT INTO capacity (private_key, name, active, last_updated_by) values 
 
 --Kajal 13/07/2019 --
@@ -273,6 +273,30 @@ ALTER TABLE `spare_parts_details` CHANGE `cancellation_reason` `spare_cancellati
 ALTER TABLE service_center_brand_mapping ADD COLUMN service_id int(11) NOT NULL AFTER service_center_id;
 
 -- Prity 15-July-2019
+-- USE EITHER PART 1 OR PART 2 QUERIES
+-- PART 1 START HERE -----------------------------------------------
+ALTER TABLE service_category_mapping add column category_id int(11) NOT NULL after category;
+ALTER TABLE service_category_mapping add column capacity_id int(11) NULL DEFAULT NULL after capacity;
+
+UPDATE service_category_mapping INNER JOIN category 
+ON REPLACE(UPPER(service_category_mapping.category), " ", "") = category.private_key
+SET service_category_mapping.category_id = category.id;
+
+UPDATE service_category_mapping INNER JOIN capacity 
+ON REPLACE(UPPER(service_category_mapping.capacity), " ", "") = capacity.private_key
+SET service_category_mapping.capacity_id = capacity.id;
+
+-- ---------------------------------------------------------------------------------------------
+-- Add data in Category/Capacity Table if some mapping is missing from above queries.
+-- ---------------------------------------------------------------------------------------------
+ALTER TABLE service_category_mapping drop key uniq;
+ALTER TABLE service_category_mapping change drop column category;
+ALTER TABLE service_category_mapping change drop column capacity;
+-- PART 1 ENDS HERE -----------------------------------------------
+-- PART 2 STARTS HERE -------------------------------------------------
+ALTER TABLE service_category_mapping change column category category_id int(11) NOT NULL;
+ALTER TABLE service_category_mapping change column capacity capacity_id int(11) NULL DEFAULT NULL;
+
 UPDATE service_category_mapping INNER JOIN category 
 ON REPLACE(UPPER(service_category_mapping.category), " ", "") = category.private_key
 SET service_category_mapping.category = category.id;
@@ -280,11 +304,16 @@ SET service_category_mapping.category = category.id;
 UPDATE service_category_mapping INNER JOIN capacity 
 ON REPLACE(UPPER(service_category_mapping.capacity), " ", "") = capacity.private_key
 SET service_category_mapping.capacity = capacity.id;
+
 -- ---------------------------------------------------------------------------------------------
 -- Add data in Category/Capacity Table if some mapping is missing from above queries.
 -- ---------------------------------------------------------------------------------------------
+
 ALTER TABLE service_category_mapping change column category category_id int(11) NOT NULL;
 ALTER TABLE service_category_mapping change column capacity capacity_id int(11) NULL DEFAULT NULL;
+UPDATE service_category_mapping set capacity_id = NULL WHERE capacity_id = 0;
+ALTER TABLE service_category_mapping drop key uniq;
+-- PART 2 ENDS HERE -------------------------------------------------
 ALTER TABLE service_category_mapping ADD CONSTRAINT `fk_scm_category` FOREIGN KEY(`category_id`) REFERENCES category(id);
 ALTER TABLE service_category_mapping ADD CONSTRAINT `fk_scm_capacity` FOREIGN KEY(`capacity_id`) REFERENCES capacity(id);
 ALTER TABLE service_category_mapping ADD CONSTRAINT `uk_scm_service_category_capacity` UNIQUE (service_id, category_id, capacity_id);
