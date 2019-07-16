@@ -2513,7 +2513,6 @@ class engineerApi extends CI_Controller {
     
     function processUpdateBookingByEngineer(){
         log_message("info", __METHOD__. " Entering..");
-        $requestData = array("booking_id"=>"SY-16565919051030", "reason"=>CUSTOMER_NOT_REACHABLE, "remark"=>"test kal", "booking_date"=>"2019-07-18", "partner_id"=>"247010", "service_center_id"=>"1", "days"=>0, "spare_shipped"=>true);
         if(!empty($requestData['booking_id'])){
             if(!empty($requestData['reason'])){
                 if(!empty($requestData['remark'])){
