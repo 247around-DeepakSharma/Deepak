@@ -364,6 +364,10 @@ class engineerApi extends CI_Controller {
                 $this->processUpdateBookingByEngineer();
                 break;
             
+            case 'paytmAmountByEngineer':
+                $this->getPaytmAmountByEngineer();
+                break;
+            
             default:
                 break;
             
@@ -2558,6 +2562,33 @@ class engineerApi extends CI_Controller {
         else{
             log_message("info", __METHOD__ . "Booking Id not found");
             $this->sendJsonResponse(array('0047', 'Booking Id not found'));
+        }
+    }
+    
+    function getPaytmAmountByEngineer(){
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if(!empty($requestData['booking_id'])){
+            $paytm_data = $this->paytm_payment_model->get_paytm_transactions($requestData['booking_id']);
+            if(!empty($paytm_data)){
+                $response['amount_flag'] = 1;
+                $response['amount'] = $paytm_data[0]['paid_amount'];
+                log_message("info", "Paytm transaction amount found successfully");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            else{
+                $response['amount_flag'] = 0;
+                $response['amount'] = 0;
+                log_message("info", "Paytm transaction amount not found");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0048', 'Paytm transaction not found'));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . "Booking Id not found");
+            $this->sendJsonResponse(array('0049', 'Booking Id not found'));
         }
     }
 }
