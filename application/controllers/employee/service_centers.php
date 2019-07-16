@@ -1428,44 +1428,59 @@ class Service_centers extends CI_Controller {
      * @param: void
      * @return : void
      */
-    function save_reschedule_request() {
-        $this->checkUserSession();
-        log_message('info', __FUNCTION__ . '=> Booking Id: ' . $this->input->post('booking_id'));
-        $this->form_validation->set_rules('booking_id', 'Booking ID', 'trim|required');
-        $this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
-        $this->form_validation->set_rules('reason_text', 'Reascheduled Reason', 'trim');
-        $this->form_validation->set_rules('sc_remarks', 'Reascheduled Remarks', 'trim');
+    function save_reschedule_request(){
+        if(!$this->input->post("call_from_api")){ 
+            $this->checkUserSession();
+            log_message('info', __FUNCTION__ . '=> Booking Id: '. $this->input->post('booking_id'));
+            $this->form_validation->set_rules('booking_id', 'Booking ID', 'trim|required');
+            $this->form_validation->set_rules('booking_date', 'Booking Date', 'required');
+            $this->form_validation->set_rules('reason_text', 'Reascheduled Reason', 'trim');
+            $this->form_validation->set_rules('sc_remarks', 'Reascheduled Remarks', 'trim');
+            $check_validation = $this->form_validation->run();
+        }
+        else{
+            $check_validation = TRUE;
+            $service_center_id = $this->input->post('service_center_id');
+        }
+       
 
-        if ($this->form_validation->run() == FALSE) {
+        if ($check_validation == FALSE ) {
             log_message('info', __FUNCTION__ . '=> Rescheduled Booking Validation failed ');
             echo "Please Select Rescheduled Date";
         } else {
             log_message('info', __FUNCTION__ . '=> Reascheduled Booking: ');
             $booking_id = $this->input->post('booking_id');
-            $data['booking_date'] = date('Y-m-d', strtotime($this->input->post('booking_date')));
+            $data['booking_date'] = date('Y-m-d',strtotime($this->input->post('booking_date')));
             $data['current_status'] = "InProcess";
             $data['internal_status'] = 'Reschedule';
             $reason = $this->input->post('reason');
             $sc_remarks = $this->input->post('sc_remarks');
-            if (!empty($reason)) {
-
+            if(!empty($reason)){
+                
                 $data['reschedule_reason'] = $this->input->post('reason');
             } else {
-
+                
                 $data['reschedule_reason'] = $this->input->post('reason_text');
             }
-            $data['reschedule_reason'] = $data['reschedule_reason'] . " - " . $sc_remarks;
+            $data['reschedule_reason'] = $data['reschedule_reason']. " - ". $sc_remarks;
             $data['update_date'] = date("Y-m-d H:i:s");
-            date_default_timezone_set('Asia/Calcutta');
+            date_default_timezone_set('Asia/Calcutta'); 
             $data['reschedule_request_date'] = date("Y-m-d H:i:s");
             $this->vendor_model->update_service_center_action($booking_id, $data);
             $this->send_reschedule_confirmation_sms($booking_id);
-            $this->insert_details_in_state_change($booking_id, "InProcess_Rescheduled", $data['reschedule_reason'], "not_define", "not_define");
+            if(!$this->input->post("call_from_api")){
+                $this->insert_details_in_state_change($booking_id, "InProcess_Rescheduled", $data['reschedule_reason'],"not_define","not_define");
+            }
+            else{
+                $this->notify->insert_state_change($booking_id, "InProcess_Rescheduled", "", $data['reschedule_reason'], $service_center_id, "Engineer","not_define","not_define", NULL, $service_center_id); 
+            }
             $partner_id = $this->input->post("partner_id");
-            $this->update_booking_internal_status($booking_id, $reason, $partner_id);
-            $userSession = array('success' => 'Booking Updated');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "service_center/pending_booking");
+            $this->update_booking_internal_status($booking_id, $reason,  $partner_id);
+            if(!$this->input->post("call_from_api")){
+                $userSession = array('success' => 'Booking Updated');
+                $this->session->set_userdata($userSession);
+                redirect(base_url() . "service_center/pending_booking");
+            }
         }
     }
 

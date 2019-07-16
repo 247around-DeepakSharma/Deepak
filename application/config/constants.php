@@ -667,6 +667,9 @@ define('SF_UPDATE_FORM_VALIDATION_TEXT', 'sf_update');
 
 define('_247AROUND_TRANSFERED_TO_VENDOR', 'Spare transfer from  partner to vendor');
 define('_247AROUND_TRANSFERED_TO_PARTNER', 'Spare transfer from  warehouse to partner');
-define('SYMPTOM_DEFECT_SOLUTION_MAPPING_FILE', 'Symptom-Defect_Solution_Mapping_File');
+define('SYMPTOM_DEFECT_SOLUTION_MAPPING_FILE', 'Symptom_Defect_Solution_Mapping_File');
+
+// CRM Training menu Link
+define('_247AROUND_CRM_TRAINING', 'https://drive.google.com/drive/folders/1Ri7PZJCuCaSSWt-Bv1InrHiQgtb79Hlp');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
