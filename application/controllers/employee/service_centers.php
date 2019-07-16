@@ -1929,8 +1929,6 @@ class Service_centers extends CI_Controller {
             $response = array();
         }
         $booking_id = $this->input->post('booking_id');
-        // Check User Session
-        $this->checkUserSession();
         $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($this->input->post('booking_id'), $this->input->post('service_center_closed_date'));
         if ($is_booking_able_to_reschedule !== FALSE) {
             if(!$this->input->post("call_from_api")){
@@ -2027,6 +2025,7 @@ class Service_centers extends CI_Controller {
             }else{
                $response['status'] = false;
                $response['message'] = 'Booking can not be rescheduled because booking is already closed by service center.';
+               echo json_encode($response);
             }
         }  
 
