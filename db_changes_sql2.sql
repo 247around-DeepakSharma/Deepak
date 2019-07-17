@@ -323,6 +323,7 @@ ALTER TABLE `engineer_booking_action` ADD `booking_status` INT NOT NULL AFTER `s
 ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT uk_state_plan UNIQUE (plan_id, state_code);
 -- Ankit 17-July-2019
 ALTER TABLE service_center_brand_mapping ADD COLUMN created_by varchar(150) NOT NULL AFTER create_date;
+
 -- Prity 18-July-2019
 CREATE TABLE `partner_appliance_mapping` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
