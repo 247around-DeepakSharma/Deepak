@@ -610,7 +610,7 @@ class Upcountry_model extends CI_Model {
                    AND service_id = {$service_id}
                    GROUP BY service_center_id,decision_flag"; 
         $preffered_vendor =  $this->db->query($sql)->result_array();
-        
+        $service_center_ids = 0;
         if(!empty($preffered_vendor)) {
             // check for 1
             if(in_array('1', array_column($preffered_vendor, 'decision_flag'))) {
@@ -627,6 +627,8 @@ class Upcountry_model extends CI_Model {
                 $brand_mapping_vendor = array_column($preffered_vendor, 'service_center_id');
                 $service_center_ids = array_diff($pincode_mapping_vendor, $brand_mapping_vendor);
             }
+        } else {
+            return $data;
         }
         
         $response = [];
