@@ -180,6 +180,9 @@
         <tr style="background: #405467;color: #fff;margin-top: 5px;">
                             <th>S.no</th>
                             <th>States</th>
+                            <?php if ($is_pending) {?>
+                             <th> >D3</th>
+                             <?php  } ?>
                             <th>D0</th>
                             <th>D1</th>
                             <th>D2</th>
@@ -189,7 +192,7 @@
                              <th>D8 - D15</th>
                              <th>> D15</th>
                               <?php if ($is_pending) {?>
-                             <th> Total</th>
+                            <th>Total</th>
                              <?php  } ?>
                         </tr>
     </thead>
@@ -209,7 +212,13 @@
             <td><?php echo $index;?></td>
             <td><?php echo $values['entity']?></td>
             <?php
-            if(!$is_pending || $this->session->userdata('partner_id')){ ?>
+            if(!$is_pending || $this->session->userdata('partner_id')){ 
+                 if($is_pending){
+                    ?>
+                    <td><?php echo $values['TAT_GREATER_THAN_3'];?></td>
+                    <?php
+                }
+                ?>
                 <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
                 <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
                 <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>
@@ -226,6 +235,7 @@
                 }
             }
             else{
+                ?>  <td><?php echo $values['TAT_GREATER_THAN_3'];?></td> <?php
                 if($values['entity'] != 'Total') {?>
                 <td>
                     <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
@@ -278,7 +288,7 @@
                  <?php
             }
             else{ ?>
-                 <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
+                <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
                 <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
                 <td><?php echo $values['TAT_2'] ."<br>(". $values['TAT_2_per']."%)";?></td>
                 <td><?php echo $values['TAT_3'] ."<br>(". $values['TAT_3_per']."%)";?></td>
@@ -313,6 +323,9 @@
                             <th>S.no</th>
                             <th>Service Centers</th>
                             <th>State</th>
+                            <?php if ($is_pending) {?>
+                             <th> >D3</th>
+                             <?php  } ?>
                             <th>D0</th>
                             <th>D1</th>
                             <th>D2</th>
@@ -360,6 +373,11 @@
             ?></td>
             <?php
             if(!$is_pending || $this->session->userdata('partner_id')){
+                  if($is_pending){
+                    ?>
+                    <td><?php echo $values['TAT_GREATER_THAN_3'];?></td>
+                    <?php
+                }
                 ?>
                 <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
                 <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
@@ -372,11 +390,12 @@
             <?php
                 if($is_pending){
                     ?>
-                    <td><?php echo $values['Total_Pending'] ."<br>(".$values['TAT_total_per']."%)";?></td>
+                    <td><?php echo $values['TAT_GREATER_THAN_3'];?></td>
                     <?php
                 }
             }
             else {
+               ?>  <td><?php echo $values['Total_Pending'] ."<br>(".$values['TAT_total_per']."%)";?></td> <?php
                 if($values['entity'] != 'Total'){
                 ?>
                 <td>

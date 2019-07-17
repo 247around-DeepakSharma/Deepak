@@ -14,27 +14,32 @@
                             <div class="row">
                                 <div class="col-md-3">
                                     <select class="form-control" name="partner" id="partner" required onchange='get_appliance()'>
-                                        <option selected disabled value="option_holder">Select Partner</option>
+                                        <option selected disabled value="">Select Partner</option>
                                         <?php
                                         foreach ($partnerArray as $partnerID => $partnerName) {
-                                            echo ' <option value="' . $partnerID . '">' . $partnerName . '</option>';
+                                            $selected = "";
+                                            if($partner_id == $partnerID)
+                                            {
+                                                $selected = "selected";
+                                            }
+                                            echo ' <option value="' . $partnerID . '" '.$selected.'>' . $partnerName . '</option>';
                                         }
                                         ?>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
                                     <select class="form-control" id="service_id" required name="service_id" onchange='get_brand_model()'>
-                                        <option selected disabled value="option_holder">Select Product</option>
+                                        <option selected disabled value="">Select Product</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
                                     <select class="form-control" id="brand" required name="brand">
-                                        <option selected disabled value="option_holder">Select Brand</option>
+                                        <option selected disabled value="">Select Brand</option>
                                     </select> 
                                 </div>
                                 <div class="col-md-3">
                                     <select class="form-control" id="model" required="required" name="model">
-                                        <option selected disabled value="option_holder">Select Model</option>
+                                        <option selected disabled value="">Select Model</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -78,7 +83,13 @@
     </body>
 </html>
 <script>
-
+    $(document).ready(function(){
+        var partner_id = $("#partner").val();
+        if(partner_id !== null)
+        {
+            get_appliance();
+        }
+    });
 
     function validateform() {
         var partner = $("#partner option:selected").val();
@@ -86,22 +97,22 @@
         var brand = $("#brand option:selected").val();
         var model = $("#model option:selected").val();
         var purchase_date = $('#purchase_date').val();
-        if (partner === 'option_holder')
+        if ((partner == "") || (partner === 'option_holder'))
         {
             alert("Please Select Partner ");
             return false;
         }
-        else if (service === 'option_holder')
+        else if ((service == "") || (service === 'option_holder'))
         {
             alert("Please Select Product ");
             return false;
         }
-        else if (brand === 'option_holder')
+        else if ((brand == "") || (brand === 'option_holder'))
         {
             alert("Please Select Brand ");
             return false;
         }
-        else if (model === 'option_holder')
+        else if ((model == "") || (model === 'option_holder'))
         {
             alert("Please Select Model ");
             return false;
@@ -126,10 +137,12 @@
             data: {'partner_id': partner_id},
             success: function (response) {
                 response = JSON.parse(response);
+                $('#service_id').html("");
                 if (response.services) {
                     $('#service_id').html(response.services);
-                    $('#service_id').trigger("change");
+                    $('#service_id').val('<?php echo $service_id; ?>');                    
                 }
+                $('#service_id').trigger("change");
             }
         });
 
@@ -139,8 +152,8 @@
         var partner_id = $("#partner").val();
         var service_id = $("#service_id").val();
 
-        $('#model').html("<option disabled selected value='option_holder'>Select Model</option>");
-        $('#brand').html("<option disabled selected value='option_holder'>Select Brand</option>");
+        $('#model').html("<option disabled selected value=''>Select Model</option>");
+        $('#brand').html("<option disabled selected value=''>Select Brand</option>");
 
         $.ajax({
             type: 'POST',
@@ -149,6 +162,7 @@
             success: function (data) {
                 //First Resetting Options values present if any                
                 $('#brand').append(data);
+                $('#brand').val('<?php echo $brand; ?>');
                 $('#brand').trigger("change");
             }
         });
