@@ -3234,7 +3234,7 @@ class Spare_parts extends CI_Controller {
             }
         }
       
-        echo "Success";
+        echo "success";
     }
     
      /**
