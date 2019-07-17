@@ -2180,19 +2180,13 @@ class vendor_model extends CI_Model {
         if(!empty($brands)) {
             foreach ($brands as $appliance_id => $brand) {
                 foreach($brand as $brand_data) {
-                    if($brand_data == 'all') {
-                        $data[] = [ 
-                            'service_center_id' => $sf_id, 
-                            'service_id' => $appliance_id, 
-                            'brand_id' => NULL, 
-                            'brand_name' => 'all'
-                        ];
-                    } elseif(!empty($brand_data)) {
+                    if(!empty($brand_data)) {
                         $data[] = [ 
                             'service_center_id' => $sf_id, 
                             'service_id' => $appliance_id, 
                             'brand_id' => explode('-', $brand_data)[0], 
-                            'brand_name' => explode('-', $brand_data)[1]
+                            'brand_name' => explode('-', $brand_data)[1],
+                            'created_by' => $this->session->userdata('employee_id')
                         ];
                     }
                 }
