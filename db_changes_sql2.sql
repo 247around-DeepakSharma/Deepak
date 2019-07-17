@@ -375,3 +375,4 @@ ALTER TABLE service_category_mapping ADD CONSTRAINT `uk_scm_service_category_cap
 ALTER TABLE `engineer_booking_action` ADD `booking_status` INT NOT NULL AFTER `solution`;
 -- Prity 16-July-2019
 ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT uk_state_plan UNIQUE (plan_id, state_code);
+
