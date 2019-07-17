@@ -2435,6 +2435,6 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get('booking_details');
         return $query;        
     }
-    }
+    
 }
 
