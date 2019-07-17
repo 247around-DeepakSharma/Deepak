@@ -317,3 +317,4 @@ ALTER TABLE service_category_mapping drop key uniq;
 ALTER TABLE service_category_mapping ADD CONSTRAINT `fk_scm_category` FOREIGN KEY(`category_id`) REFERENCES category(id);
 ALTER TABLE service_category_mapping ADD CONSTRAINT `fk_scm_capacity` FOREIGN KEY(`capacity_id`) REFERENCES capacity(id);
 ALTER TABLE service_category_mapping ADD CONSTRAINT `uk_scm_service_category_capacity` UNIQUE (service_id, category_id, capacity_id);
+ALTER TABLE `engineer_booking_action` ADD `booking_status` INT NOT NULL AFTER `solution`;

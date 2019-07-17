@@ -1166,9 +1166,12 @@ class engineerApi extends CI_Controller {
                
                 if($unit_id){
                     $data["current_status"] = "InProcess";
-
-                    $data["internal_status"] = _247AROUND_COMPLETED;
-
+                    if($value['complete'] == false){
+                        $data["internal_status"] = _247AROUND_CANCELLED;
+                    } else {
+                        $data["internal_status"] = _247AROUND_COMPLETED;
+                    }
+                    
                     if($requestData["appliance_broken"] == false){
                         $data["is_broken"] = 0;
                     } else {
@@ -1197,10 +1200,11 @@ class engineerApi extends CI_Controller {
                     if(isset( $unitDetails[0]['model_number'])){
                          $data["model_number"] = $unitDetails[0]['model_number'];
                     }
-                    $data["closing_remark"] = "engineer termark";
+                    $data["closing_remark"] = $requestData['closing_remark'];
                     $data["symptom"] = $requestData['symptom'];
                     $data["defect"] = $requestData['defect'];
                     $data["solution"] = $requestData['solution'];
+                    $data["booking_status"] = $value['complete'];
                     $service_charge = 0;
                     $additional_service_charge = 0;
                     $parts_cost = 0;
@@ -1219,7 +1223,7 @@ class engineerApi extends CI_Controller {
                     $data["service_charge"] = $service_charge;
                     $data["additional_service_charge"] = $additional_service_charge;
                     $data["parts_cost"] = $parts_cost;
-                    $data["amount_paid"] = $value['amount_paid'];
+                    $data["amount_paid"] = $requestData['amount_paid'];
                     $this->engineer_model->update_engineer_table($data, array("unit_details_id" => $unit_id, "booking_id" =>$requestData["booking_id"] ));
                 }
             }
