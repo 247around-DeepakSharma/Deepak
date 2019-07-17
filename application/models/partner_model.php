@@ -1547,11 +1547,11 @@ function get_data_for_partner_callback($booking_id) {
      */
     function update_partner_appliance_details($where, $data){
         if(!empty($where)){
-            $appliance_model_id = $this->reusable_model->get_search_result_data('partner_appliance_details', '*', $where, NULL, NULL, NULL, NULL, NULL);
-            if(!empty($appliance_model_id)) {
-                $appliance_model_id = $appliance_model_id[0]['model'];
-                $this->reusable_model->update_table('appliance_model_details',$data,['id' => $appliance_model_id]);
-            }
+//            $appliance_model_id = $this->reusable_model->get_search_result_data('partner_appliance_details', '*', $where, NULL, NULL, NULL, NULL, NULL);
+//            if(!empty($appliance_model_id)) {
+//                $appliance_model_id = $appliance_model_id[0]['model'];
+//                $this->reusable_model->update_table('appliance_model_details',$data,['id' => $appliance_model_id]);
+//            }
             $this->db->where($where);
             return $this->db->update("partner_appliance_details",$data);
         }
