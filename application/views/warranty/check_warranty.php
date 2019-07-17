@@ -56,7 +56,7 @@
                         </form>
                     </div>
                 </div>
-                <div class="x_panel" style="height: auto;">
+                <div class="x_panel" style="height: auto;overflow: auto;">
                     <table id="warranty_details" class="table table-striped table-bordered">
                         <thead>
                             <tr>
