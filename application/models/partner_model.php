@@ -2421,6 +2421,7 @@ function get_data_for_partner_callback($booking_id) {
     {
         $start_date = date("Y-m-d 00:00:00", strtotime($start_date));
         $end_date = date("Y-m-d 23:59:59", strtotime($end_date));
+
         $select = 'booking_details.booking_id as "Booking ID", entity_login_table.agent_name as "Agent Name", entity_login_table.user_id as "Agent Login ID"';
         
         $this->db->select($select);
@@ -2436,5 +2437,6 @@ function get_data_for_partner_callback($booking_id) {
         return $query;        
     }
     
+
 }
 

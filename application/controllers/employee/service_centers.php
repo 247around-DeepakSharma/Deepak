@@ -418,6 +418,7 @@ class Service_centers extends CI_Controller {
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_service_charge'] = $en[0]['service_charge'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_additional_service_charge'] = $en[0]['additional_service_charge'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_parts_cost'] = $en[0]['parts_cost'];
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_booking_status'] = $en[0]['booking_status'];
                         $bookng_unit_details[$key1]['en_model_number'] = $en[0]['model_number'];
                         if ($en[0]['is_broken'] == 1) {
                             $broken = 1;

@@ -258,14 +258,15 @@ class Buyback {
                     //get auto acknowledge date
                     $auto_acknowledge_date = NULL;
                     if(!empty($this->POST_DATA['delivery_date'])){
-                        $datetime1 = date_create(date("Y-m-d"));
-                        $datetime2 = date_create(date('Y-m-d', strtotime($this->POST_DATA['delivery_date'])));
-                        $interval = date_diff($datetime1, $datetime2);
-                        $days = $interval->days;
-                        $auto_acknowledge_date = date('Y-m-d', strtotime($this->POST_DATA['delivery_date']. ' + 10 days'));
-                        if ($days < NO_OF_DAYS_NOT_SHOW_NOT_RECEIVED_BUTTON) {
-                            $auto_acknowledge_date = date('Y-m-d', strtotime(date("Y-m-d"). ' + 7 days'));
-                        }
+//                        $datetime1 = date_create(date("Y-m-d"));
+//                        $datetime2 = date_create(date('Y-m-d', strtotime($this->POST_DATA['delivery_date'])));
+//                        $interval = date_diff($datetime1, $datetime2);
+//                        $days = $interval->days;
+                          $auto_acknowledge_date = date('Y-m-d', strtotime(date("Y-m-d"). ' + 3 days'));
+//                        $auto_acknowledge_date = date('Y-m-d', strtotime($this->POST_DATA['delivery_date']. ' + 10 days'));
+//                        if ($days < NO_OF_DAYS_NOT_SHOW_NOT_RECEIVED_BUTTON) {
+//                            $auto_acknowledge_date = date('Y-m-d', strtotime(date("Y-m-d"). ' + 7 days'));
+//                        }
                     }
                     $bb_order_details = array(
                         'current_status' => $this->POST_DATA['current_status'],
