@@ -2321,7 +2321,7 @@ class Service_centers extends CI_Controller {
                         $is_warehouse = TRUE;
                     }
 
-                    if (!empty($is_warehouse)) {
+                    if (!empty($is_warehouse) && $value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
 
                         $warehouse_details = $this->get_warehouse_details(array('state' => $sf_state[0]['state'], 'inventory_id' => $value['requested_inventory_id']), $partner_id);                        
                         if (!empty($warehouse_details) && $warehouse_details['is_micro_wh'] == 1) {
