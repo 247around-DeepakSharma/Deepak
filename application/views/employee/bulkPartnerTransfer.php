@@ -10,7 +10,7 @@
     <div class="row"  >
         <div class="col-md-12 col-sm-12 col-xs-12" >
             <div class="container"  style="border: 1px solid #e6e6e6; padding: 20px;" >
-            <h2 style="padding-bottom: 32px;">Bulk Spare Transfer From Partner To Warehouse</h2><hr>
+            <h2 style="padding-bottom: 32px;">Bulk Spare Transfer To Partner</h2><hr>
            <button id="modalauto" style="padding:0px !important;" class="btn  btn-danger hide"  data-toggle="modal" data-target="#myModal" >Details</button>
                 <form method="POST" id="idForm" action="<?php echo base_url();?>employee/spare_parts/bulkPartnerConversion_process">
                     <div class="form-group">
