@@ -245,6 +245,9 @@
                                                         $paid_parts_cost = 0;
                                                         $serial_number = "";
                                                         $serial_number_pic = "";
+                                                        $customer_basic_charge = 0;
+                                                        $addition_service_charge = 0;
+                                                        $parts_cost = 0;
                                                         foreach ($unit_details['quantity'] as $key => $price) {
                                                             if($price['booking_status'] != _247AROUND_CANCELLED){ 
                                                             ?>
@@ -300,9 +303,6 @@
                                                                     <?php $src = base_url() . 'images/no_image.png';
                                                                     $image_src = $src;
                                                                     $pic_name = '';
-                                                                    $customer_basic_charge = 0;
-                                                                    $addition_service_charge = 0;
-                                                                    $parts_cost = 0;
                                                                     if($this->session->userdata('is_engineer_app') == 1){ 
                                                                         if (($price['product_or_services'] != "Service" && $price['customer_net_payable'] > 0) ){ 
                                                                             if(isset($price['en_service_charge'])){
@@ -389,6 +389,11 @@
                                                                                     if ($price['booking_status'] == "Completed") {
                                                                                     echo "checked";
                                                                                     }
+                                                                                    else if($this->session->userdata('is_engineer_app') == 1 && isset($price['en_booking_status'])){
+                                                                                        if($price['en_booking_status'] == 1){
+                                                                                             echo "checked";
+                                                                                        }
+                                                                                    }
                                                                                     ?> id="<?php echo "completed_" . $price['pod'] . "_" . $count; ?>" required ><?php
                                                                                     if ($price['product_or_services'] == "Product") {
                                                                                     echo " Delivered";
@@ -399,6 +404,11 @@
                                                                                 <input onclick="check_broken('<?php echo $key1;?>');return change_status('<?php echo $key;?>');" class="<?php echo "cancelled_".$key."_".$key1;?>" type="radio" id="<?php echo "cancelled_" . $price['pod'] . "_" . $count; ?>" name="<?php echo "booking_status[" . $price['unit_id'] . "]" ?>"  value="Cancelled" <?php
                                                                                     if ($price['booking_status'] == "Cancelled") {
                                                                                     echo "checked";
+                                                                                    }
+                                                                                    else if($this->session->userdata('is_engineer_app') == 1 && isset($price['en_booking_status'])){
+                                                                                        if($price['en_booking_status'] == 0){
+                                                                                             echo "checked";
+                                                                                        }
                                                                                     }
                                                                                     ?>  required><?php
                                                                                     if ($price['product_or_services'] == "Product") {
