@@ -21,8 +21,8 @@ class Warranty_model extends CI_Model {
         endif;
 
         $strSelect = 'warranty_plans.*,
-                        group_concat(state_code.state) as states,
-                        group_concat(inventory_parts_type.part_type) as part_types';
+                        group_concat(distinct(state_code.state)) as states,
+                        group_concat(distinct(inventory_parts_type.part_type)) as part_types';
 
         $arrWhere = [
             'warranty_plans.partner_id' => $data['partner'],
