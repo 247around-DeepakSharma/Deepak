@@ -290,17 +290,16 @@ class invoices_model extends CI_Model {
     }
     
     function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
-            $sql = "SELECT CASE WHEN (amount_collected_paid > 0) THEN COALESCE(SUM(`amount_collected_paid` - amount_paid ),0) ELSE COALESCE(SUM(`amount_collected_paid` + amount_paid ),0) END "
-                    . " as amount_collected_paid "
+            $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid "
                     . " FROM  `vendor_partner_invoices` "
-                    . " WHERE vendor_partner_id = '$vendor_partner_id' AND vendor_partner = '$vendor_partner' AND settle_amount = 0 "
-                    . " AND sub_category NOT IN ('".DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_SECURITY_AMOUNT."', '".NEW_PART_RETURN."' ) $otherWhere";
+                    . " WHERE vendor_partner_id = '$vendor_partner_id' AND vendor_partner = '$vendor_partner' $otherWhere";
 
 
             $data = $this->db->query($sql);
             $result = $data->result_array();
-            //$bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
-            $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid']));
+            
+            $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
+            $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
             return $result;
     }
     /**
