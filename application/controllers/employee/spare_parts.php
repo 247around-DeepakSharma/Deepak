@@ -3268,7 +3268,7 @@ class Spare_parts extends CI_Controller {
             $bookigs[] = str_replace("\r", "", $bbok);
         }
         $where = array(
-            'spare_parts_details.status' => SPARE_PARTS_REQUESTED,
+            'spare_parts_details.status IN ("'.SPARE_PARTS_REQUESTED.'", "'.SPARE_OOW_EST_GIVEN.'", "'.SPARE_OOW_EST_REQUESTED.'") ' => NULL,
             'spare_parts_details.entity_type' => _247AROUND_SF_STRING,
             'spare_parts_details.requested_inventory_id IS NOT NULL ' => NULL
         );
@@ -3311,21 +3311,31 @@ class Spare_parts extends CI_Controller {
                     $new_state = 'Spare Part Transferred to ' . $spare_pending_on;
                     $old_state = 'Spare Part Transferred from ' . $booking['partner_id'];
                     
-                if (empty($data['stock'])) {
-                     $this->inventory_model->update_spare_courier_details($booking['id'], $dataupdate);
-                      $remarks = _247AROUND_TRANSFERED_TO_VENDOR;
-                        $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], 1);
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -1);
-                } else if($data['inventory_id'] != $booking['requested_inventory_id']){
+                if($data['entity_type'] == _247AROUND_SF_STRING){
+                    if($data['inventory_id'] != $booking['requested_inventory_id']){
+                         $this->inventory_model->update_spare_courier_details($booking['id'], $dataupdate);
+                         $remarks = $new_state;
+                         $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
+                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], 1);
+                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -1);
+                    } else if($data['entity_id'] != $booking['partner_id']){
+                         $this->inventory_model->update_spare_courier_details($booking['id'], $dataupdate);
+                         $remarks = $new_state;
+                         $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
+                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], 1);
+                         $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -1);
+                    }
+                } else if($data['entity_type'] == _247AROUND_PARTNER_STRING){
+                    
                     $this->inventory_model->update_spare_courier_details($booking['id'], $dataupdate);
-                    $remarks = _247AROUND_TRANSFERED_TO_PARTNER;
+                    $remarks = $new_state;
                     $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -1);
                 }
+                    
             } else {
                 $this->inventory_model->update_spare_courier_details($booking['id'], $dataupdate);
-                $remarks = _247AROUND_TRANSFERED_TO_PARTNER;
+                $remarks = $new_state;
                 $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
                 $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -1);
             }
