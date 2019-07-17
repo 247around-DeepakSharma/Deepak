@@ -2320,7 +2320,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         
         if (!empty($spare_part_data)) {
             $courier_name = 'trackon';
-            $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager'));
+            $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager','employee.active' => 1));
             if (!empty($inventory_manager_list)) {
 
                 $email_from = $inventory_manager_list[0]['official_email'];
@@ -2362,7 +2362,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         if (!empty($spare_part_data)) {
             
             $courier_name = 'gati';
-            $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager'));
+            $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager','employee.active' => 1));
             if (!empty($inventory_manager_list)) {
                 $email_from = $inventory_manager_list[0]['official_email'];
                 $cc_email = implode(', ', array_map(function ($entry) {
