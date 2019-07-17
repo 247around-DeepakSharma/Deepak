@@ -85,7 +85,7 @@
                }else{
                    swal("Warnings!", "Your all spares has not been transferred !.", "error");
                    $("#errors").html(data);
-                   $("#modalauto").click();
+                   //$("#modalauto").click();
                    $(".loader").fadeOut("slow");
                    $(".loader").addClass('hide');
                     
