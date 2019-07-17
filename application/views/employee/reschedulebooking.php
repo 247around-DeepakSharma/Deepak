@@ -8,7 +8,7 @@
               </h1>
 
               <form class="form-horizontal" action="<?php echo base_url()?>employee/booking/process_reschedule_booking_form/<?php echo $data[0]['booking_id'] ?>" method="POST" >
-
+                  <input type="hidden" name="service_center_closed_date" value="<?php if(!empty($data[0]['service_center_closed_date'])) { echo $data[0]['service_center_closed_date'];} else {echo "";} ?>">
                 <div class="col-md-12">
                     <?php 
                         if ($this->session->userdata('error')) {

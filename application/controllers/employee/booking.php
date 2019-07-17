@@ -1164,82 +1164,81 @@ class Booking extends CI_Controller {
      */
     function process_reschedule_booking_form($booking_id) {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
+        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id, $this->input->post('service_center_closed_date'));
+        if ($is_booking_able_to_reschedule !== FALSE) {
+            $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
+            $data['booking_timeslot'] = $this->input->post('booking_timeslot');
+            $data['service_center_closed_date'] = NULL;
+            //$data['cancellation_reason'] = NULL;
+            //$data['booking_remarks'] = $this->input->post('reason');
+            $data['current_status'] = 'Rescheduled';
+    //        $data['internal_status'] = 'Rescheduled';
+            $data['update_date'] = date("Y-m-d H:i:s");
+            $reason=!empty($this->input->post('reason'))?$this->input->post('reason'):'';
+            $reason_remark=!empty($this->input->post('remark'))?$this->input->post('remark'):'';
+            $data['reschedule_reason']=$reason.' - '.$reason_remark;
+            //check partner status
+            //$partner_id = $this->input->post('partner_id');
+            $actor = $next_action = NULL;
+    //        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
+    //        if (!empty($partner_status)) {
+    //            $data['partner_current_status'] = $partner_status[0];
+    //            $data['partner_internal_status'] = $partner_status[1];
+    //            $actor = $data['actor'] = $partner_status[2];
+    //            $next_action =$data['next_action'] = $partner_status[3];
+    //        }
 
-        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id);
-        if ($is_booking_able_to_reschedule === FALSE) {
+            if ($data['booking_timeslot'] == "Select") {
+                echo "Please Select Booking Timeslot.";
+            } else {
+                log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
+                $this->booking_model->update_booking($booking_id, $data);
+                $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
+                $reschedule_reason=$reason.' - '.$reason_remark;
+                //Log this state change as well for this booking
+                //param:-- booking id, new state, old state, employee id, employee name
+                $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING,$reschedule_reason, $this->session->userdata('id'), 
+                        $this->session->userdata('employee_id'),$actor,$next_action, _247AROUND);
+
+    //            $service_center_data['internal_status'] = _247AROUND_PENDING;
+    //            $service_center_data['current_status'] = _247AROUND_PENDING;
+                //$service_center_data['update_date'] = date("Y-m-d H:i:s");
+
+
+    //            log_message('info', __FUNCTION__ . " Booking Id " . $booking_id . " Update Service center action table  " . print_r($service_center_data, true));
+
+                //$this->vendor_model->update_service_center_action($booking_id, $service_center_data);
+
+                $send_data['booking_id'] = $booking_id;
+                $send_data['state'] = "Rescheduled";
+                $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
+                $this->asynchronous_lib->do_background_process($url, $send_data);
+
+                log_message('info', __FUNCTION__ . " Request to prepare Job Card  " . print_r($booking_id, true));
+
+                $job_card = array();
+                $job_card_url = base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/" . $booking_id;
+                $this->asynchronous_lib->do_background_process($job_card_url, $job_card);
+
+                $email = array();
+                $email_url = base_url() . "employee/bookingjobcard/send_mail_to_vendor/" . $booking_id;
+                $this->asynchronous_lib->do_background_process($email_url, $email);
+
+                log_message('info', __FUNCTION__ . " Partner Callback  " . print_r($booking_id, true));
+
+                // Partner Call back
+                $this->partner_cb->partner_callback($booking_id);
+                log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
+                 if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
+                    redirect(base_url() . 'partner/dashboard');
+                }
+                else{
+                   redirect(base_url() . DEFAULT_SEARCH_PAGE);
+                }
+            }
+        } else {
             $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
             $this->get_reschedule_booking_form($booking_id);
-        }
-        
-        $data['booking_date'] = date('d-m-Y', strtotime($this->input->post('booking_date')));
-        $data['booking_timeslot'] = $this->input->post('booking_timeslot');
-        $data['service_center_closed_date'] = NULL;
-        //$data['cancellation_reason'] = NULL;
-        //$data['booking_remarks'] = $this->input->post('reason');
-        $data['current_status'] = 'Rescheduled';
-//        $data['internal_status'] = 'Rescheduled';
-        $data['update_date'] = date("Y-m-d H:i:s");
-        $reason=!empty($this->input->post('reason'))?$this->input->post('reason'):'';
-        $reason_remark=!empty($this->input->post('remark'))?$this->input->post('remark'):'';
-        $data['reschedule_reason']=$reason.' - '.$reason_remark;
-        //check partner status
-        //$partner_id = $this->input->post('partner_id');
-        $actor = $next_action = NULL;
-//        $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data['current_status'], $data['internal_status'], $partner_id, $booking_id);
-//        if (!empty($partner_status)) {
-//            $data['partner_current_status'] = $partner_status[0];
-//            $data['partner_internal_status'] = $partner_status[1];
-//            $actor = $data['actor'] = $partner_status[2];
-//            $next_action =$data['next_action'] = $partner_status[3];
-//        }
-
-        if ($data['booking_timeslot'] == "Select") {
-            echo "Please Select Booking Timeslot.";
-        } else {
-            log_message('info', __FUNCTION__ . " Update booking  " . print_r($data, true));
-            $this->booking_model->update_booking($booking_id, $data);
-            $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
-            $reschedule_reason=$reason.' - '.$reason_remark;
-            //Log this state change as well for this booking
-            //param:-- booking id, new state, old state, employee id, employee name
-            $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING,$reschedule_reason, $this->session->userdata('id'), 
-                    $this->session->userdata('employee_id'),$actor,$next_action, _247AROUND);
-
-//            $service_center_data['internal_status'] = _247AROUND_PENDING;
-//            $service_center_data['current_status'] = _247AROUND_PENDING;
-            //$service_center_data['update_date'] = date("Y-m-d H:i:s");
-
-
-//            log_message('info', __FUNCTION__ . " Booking Id " . $booking_id . " Update Service center action table  " . print_r($service_center_data, true));
-
-            //$this->vendor_model->update_service_center_action($booking_id, $service_center_data);
-
-            $send_data['booking_id'] = $booking_id;
-            $send_data['state'] = "Rescheduled";
-            $url = base_url() . "employee/do_background_process/send_sms_email_for_booking";
-            $this->asynchronous_lib->do_background_process($url, $send_data);
-
-            log_message('info', __FUNCTION__ . " Request to prepare Job Card  " . print_r($booking_id, true));
-
-            $job_card = array();
-            $job_card_url = base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/" . $booking_id;
-            $this->asynchronous_lib->do_background_process($job_card_url, $job_card);
-            
-            $email = array();
-            $email_url = base_url() . "employee/bookingjobcard/send_mail_to_vendor/" . $booking_id;
-            $this->asynchronous_lib->do_background_process($email_url, $email);
-
-            log_message('info', __FUNCTION__ . " Partner Callback  " . print_r($booking_id, true));
-
-            // Partner Call back
-            $this->partner_cb->partner_callback($booking_id);
-            log_message('info', 'Rescheduled- Booking id: ' . $booking_id . " Rescheduled By " . $this->session->userdata('employee_id') . " data " . print_r($data, true));
-             if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
-                redirect(base_url() . 'partner/dashboard');
-            }
-            else{
-               redirect(base_url() . DEFAULT_SEARCH_PAGE);
-            }
         }
     }
 
@@ -5262,7 +5261,7 @@ class Booking extends CI_Controller {
         }
         $this->load->view('employee/rescheduled_review', $data);
     }
-    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason = NULL){
+    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL){
         
         $this->checkUserSession();
         $whereIN = $where = $join = $having = array();
@@ -5684,9 +5683,9 @@ class Booking extends CI_Controller {
             $this->db->set($data); 
             $this->db->where('id', $id);
             $this->db->update('booking_cancellation_reasons', $data);
-            exit("1");
+            echo("success");
         endif;
-        exit("2");
+        exit;
     }
 
 }

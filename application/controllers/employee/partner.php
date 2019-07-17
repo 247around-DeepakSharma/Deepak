@@ -1343,8 +1343,7 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $this->checkUserSession();
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'trim|required');
-        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id);
-        
+        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id, $this->input->post('service_center_closed_date'));
         if ($this->form_validation->run() == FALSE || $is_booking_able_to_reschedule === FALSE) {
             if($is_booking_able_to_reschedule === FALSE) {
                 $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
