@@ -2937,7 +2937,7 @@ class Invoice extends CI_Controller {
 
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
                 $sc_details['amount_type'] = ($amount > 0)? "CR":"DR";
-                $sc_details['amount_type'] = ($msl_amount > 0)? "CR":"DR";
+                $sc_details['msl_amount_type'] = ($msl_amount > 0)? "CR":"DR";
                 $sc_details['sf_id'] = $service_center_id;
                 $sc_details['is_sf'] = ($sc['is_sf'] ==0) ? "No" : "Yes";
                 $sc_details['is_cp'] = ($sc['is_cp'] ==0) ? "No" : "Yes";
