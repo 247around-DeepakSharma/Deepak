@@ -1121,6 +1121,8 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $booking_id = base64_decode(urldecode($code));
         $data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
+        $data['brand'] = $this->reusable_model->get_search_result_data('booking_unit_details', 'DISTINCT appliance_brand', ['booking_id' => $booking_id], NULL, NULL, NULL, NULL, NULL);
+       
         $where = array('reason_of' => 'vendor');
         $data['reason'] = $this->booking_model->cancelreason($where);
 
@@ -1150,7 +1152,7 @@ class Service_centers extends CI_Controller {
             $partner_id = $this->input->post('partner_id');
             $city = $this->input->post('city');
             $booking_pincode = $this->input->post('booking_pincode');
-            
+            $brand = $this->input->post('brand');
             
             if(!empty($cancellation_text)){
                 $can_state_change = $cancellation_reason." - ".$cancellation_text;
@@ -1177,7 +1179,7 @@ class Service_centers extends CI_Controller {
                          $this->initialized_variable->fetch_partner_data($partner_id);
                          $partner_data = $this->initialized_variable->get_partner_data();
                          $booking['service_id']=$this->input->post('service_id');
-                         $response = $this->miscelleneous->check_upcountry_vendor_availability($city,$correctpin, $booking['service_id'], $partner_data, false);
+                         $response = $this->miscelleneous->check_upcountry_vendor_availability($city,$correctpin, $booking['service_id'], $partner_data, false, $brand);
                          if (!empty($response)  && !isset($response['vendor_not_found'])) {
                          $url = base_url() . "employee/vendor/process_reassign_vendor_form/0";
                          $async_data['service'] = $response['vendor_id'];
