@@ -2327,17 +2327,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
 
         if (!empty($spare_part_data)) {
             $courier_name = 'trackon';
-            $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager', 'employee.active' => 1));
-            if (!empty($inventory_manager_list)) {
-
-                $email_from = $inventory_manager_list[0]['official_email'];
-
-                $cc_email = implode(', ', array_map(function ($entry) {
-                            return $entry['official_email'];
-                        }, $inventory_manager_list));
-            }
-
-            $this->generate_spare_pending_shipment_excel($template, 'TRACKON_SPARE_PART_SHIPMENT_PENDING', $spare_part_data, $output_file_excel, $cc_email, $email_from, $courier_name, $awb_template, $awb_output_file_excel);
+            $this->generate_spare_pending_shipment_excel($template, 'TRACKON_SPARE_PART_SHIPMENT_PENDING', $spare_part_data, $output_file_excel, $email_from, $courier_name, $awb_template, $awb_output_file_excel);
         }
     }
 
@@ -2374,15 +2364,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         if (!empty($spare_part_data)) {
 
             $courier_name = 'gati';
-            $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager', 'employee.active' => 1));
-            if (!empty($inventory_manager_list)) {
-                $email_from = $inventory_manager_list[0]['official_email'];
-                $cc_email = implode(', ', array_map(function ($entry) {
-                            return $entry['official_email'];
-                        }, $inventory_manager_list));
-            }
-
-            $this->generate_spare_pending_shipment_excel($template, 'GATI_SPARE_PART_SHIPMENT_PENDING', $spare_part_data, $output_file_excel, $cc_email, $email_from, $courier_name, $awb_template, $awb_output_file_excel);
+            
+            $this->generate_spare_pending_shipment_excel($template, 'GATI_SPARE_PART_SHIPMENT_PENDING', $spare_part_data, $output_file_excel, $email_from, $courier_name, $awb_template, $awb_output_file_excel);
         }
     }
 
@@ -2465,9 +2448,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $subject = vsprintf($email_template[4], strtoupper($courier_name));
             $message = vsprintf($email_template[0], array(strtolower($courier_name)));
             $to = $email_template[1];
-            $cc = $email_template[3] . "," . $cc_email;
+            $cc = $email_template[3];
 
-            $this->notify->sendEmail($email_from, 'gorakhn@247around.com', $cc, '', $subject, $message, $output_file_excel, $template_tag, $awb_output_file_excel);
+            $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_excel, $template_tag, $awb_output_file_excel);
         }
 
         log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
