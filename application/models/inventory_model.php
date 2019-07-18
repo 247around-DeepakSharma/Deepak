@@ -2182,10 +2182,11 @@ class Inventory_model extends CI_Model {
      */
     
     function get_pending_spare_part_details($post, $where=array()){
-        $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) AS shipped_date", FALSE);
+        $this->db->select($post['select'], FALSE);
+        $this->db->from('spare_parts_details');   
+        $this->db->join('service_centres', 'spare_parts_details.service_center_id = service_centres.id');
         $this->db->where($where);
-        $query = $this->db->get("spare_parts_details");
-        //echo $this->db->last_query();
+        $query = $this->db->get();
         return $query->result_array();
     }
     
