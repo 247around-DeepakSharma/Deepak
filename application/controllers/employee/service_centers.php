@@ -7127,6 +7127,7 @@ class Service_centers extends CI_Controller {
         $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray, 'partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand]);
     }
 
+ 
     /**
      * @desc function change password of service center entity.
      * @author Ankit Rajvanshi
@@ -7160,6 +7161,51 @@ class Service_centers extends CI_Controller {
 
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/change_password');
+ 
+
+    /**
+     * @desc: get defective parts shipped by sf
+     * Created by -Abhishek Awasthi on July 18 ,2019
+     * @return: void
+     */
+    function defective_parts_sent($offset=0){
+       $this->checkUserSession();
+        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
+        $service_center_id = $this->session->userdata('service_center_id');
+
+        $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status" => DEFECTIVE_PARTS_SHIPPED
+        );
+         
+        $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, parts_shipped, "
+                . " spare_parts_details.booking_id,booking_details.partner_id as booking_partner_id, users.name, "
+                . " sf_challan_file as challan_file, "
+                . " remarks_defective_part_by_partner, "
+                . " remarks_by_partner,spare_parts_details.remarks_defective_part_by_sf,spare_parts_details.awb_by_sf,spare_parts_details.courier_charges_by_sf,spare_parts_details.courier_name_by_sf,spare_parts_details.defective_part_shipped, spare_parts_details.defective_part_shipped_date,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
+                . " spare_parts_details.id,spare_parts_details.challan_approx_value ,i.part_number ";
+        
+        $group_by = "spare_parts_details.id";
+        $order_by = "status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.booking_id ASC";
+       
+          
+        $config['base_url'] = base_url() . 'service_center/defective_parts_sent';
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
+         
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/defective_parts_sent', $data);
+
+ 
     }
 
 }
