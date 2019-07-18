@@ -41,6 +41,7 @@ class engineerApi extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->library('asynchronous_lib');
         $this->load->library('paytm_payment_lib');
+        $this->load->library('validate_serial_no');
     }
 
     /**
@@ -368,8 +369,12 @@ class engineerApi extends CI_Controller {
                 $this->getPaytmAmountByEngineer();
                 break;
             
-             case 'getCustomerQrCode':
+            case 'getCustomerQrCode':
                 $this->getCustomerQrCode();
+                break;
+            
+            case 'validateSerialNumber':
+                $this->getValidateSerialNumber();
                 break;
             
             default:
@@ -1746,6 +1751,13 @@ class engineerApi extends CI_Controller {
             $noon_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_1PM_TO_4PM, $requestData["service_center_id"], $requestData["engineer_id"]);
             $evening_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_4PM_TO_7PM, $requestData["service_center_id"], $requestData["engineer_id"]);
             $en_rating = $this->engineer_model->get_engineer_rating($requestData["engineer_id"], $requestData["service_center_id"])[0];
+            $en_D0_data = $this->engineer_model->get_engineer_D0_closure($requestData["engineer_id"], $requestData["service_center_id"]);
+            if(!empty($en_D0_data)){
+                $D0 = ($en_D0_data[0]['same_day_closure']*100)/$en_D0_data[0]['total_closure'];
+            }
+            else{
+                $D0 = 0;
+            }
             if(!$en_rating['rating']){
                 $rating = 0;
             }
@@ -1759,6 +1771,7 @@ class engineerApi extends CI_Controller {
             $response['todayAfternoonBooking'] = $noon_slot_bookings;
             $response['todayEveningBooking'] = $evening_slot_bookings;
             $response['rating'] = $rating;
+            $response['same_day_closure'] = $D0;
             
             log_message("info", __METHOD__ . "Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
@@ -2591,7 +2604,7 @@ class engineerApi extends CI_Controller {
                 $response['amount'] = 0;
                 log_message("info", "Paytm transaction amount not found");
                 $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array('0000', 'success'));
+                $this->sendJsonResponse(array('0000', 'Amount not recieved'));
             }
         }
         else{
@@ -2616,11 +2629,61 @@ class engineerApi extends CI_Controller {
                 $this->sendJsonResponse(array('0000', 'success'));
             } else {
                 log_message("info", __METHOD__ . " QR Failed " . print_r($result, true));
-                $this->sendJsonResponse(array('0020', 'QR Not Generated'));
+                $this->sendJsonResponse(array('0050', 'QR Not Generated'));
             }
         } else {
             log_message("info", __METHOD__ . " Booking ID Not Found " . print_r($result, true));
-            $this->sendJsonResponse(array('0020', 'Booking ID Not Found'));
+            $this->sendJsonResponse(array('0051', 'Booking ID Not Found'));
+        }
+    }
+    
+    function getValidateSerialNumber(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if (!empty($requestData["booking_id"])) {
+            if(!empty($requestData['serial_number'])){
+                if(!empty($requestData['price_tags'])){
+                    $booking_id = $requestData["booking_id"];
+                    $booking_history = $this->booking_model->getbooking_history($booking_id);
+
+                    $serial_number = $requestData['serial_number'];
+                    $partner_id = $booking_history[0]['partner_id'];
+                    $user_id = $booking_history[0]['user_id'];
+                    $price_tags = $requestData['price_tags'];
+                    $appliance_id = $booking_history[0]['appliance_id'];
+                    $model_number = $requestData['model_number'];
+                    
+                    if (!ctype_alnum($serial_number)) {
+                        log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
+                        $this->sendJsonResponse(array('0052', 'Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.'));
+                    }
+                    else {
+                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id,$model_number);
+                        if (!empty($status)) {
+                            if($status['code'] == SUCCESS_CODE){
+                                $this->sendJsonResponse(array('0000', 'Serial Number Successfully Validated'));
+                            }
+                            else{
+                                $this->sendJsonResponse(array('0053', $status['message']));
+                            }
+                        } else {
+                            log_message('info',__METHOD__. 'Partner serial no validation is not define');
+                            $this->sendJsonResponse(array('0000', 'Serial no validation not required'));
+                        }
+                    }
+                }
+                else{
+                    log_message("info", __METHOD__ . " Price Tag Not Found ");
+                    $this->sendJsonResponse(array('0054', ' Price Tag Not Found'));
+                }
+            }
+            else{
+                log_message("info", __METHOD__ . " Serial Number Not Found ");
+                $this->sendJsonResponse(array('0055', ' Serial Number Not Found'));
+            }
+        } else {
+            log_message("info", __METHOD__ . " Booking ID Not Found ");
+            $this->sendJsonResponse(array('0056', 'Booking ID Not Found'));
         }
     }
 }
