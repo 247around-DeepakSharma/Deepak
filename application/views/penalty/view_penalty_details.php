@@ -15,40 +15,36 @@
     <table id="book-table" class="table table-bordered table-condensed">
         <thead>
             <tr>
-                <th>Criteria</th>
-                <th>Escalation</th>
+                <th>S.No.</th>
+                <th>Escalation Reason</th>
                 <th>Penalty Amount</th>
                 <th>CAP Amount</th>
                 <th>Update</th>
-                <th>Action</th>
+                <th>Active/Deactive</th>
+                <th hidden>Active</th>
             </tr>
         </thead>
         <tbody>
             <?php
             if (!empty($penalty_details)) {
-                foreach ($penalty_details as $penalty_detail) {
+                foreach ($penalty_details as $key => $penalty_detail) {
                     ?>
                     <tr>
-                        <td><?= $penalty_detail['criteria']; ?></td>
-                        <td>
-                            <?php 
-                            if(!empty($penalty_detail['escalation_id'])) {
-                               echo $this->reusable_model->get_search_result_data('vendor_escalation_policy', '*', ['id' => $penalty_detail['escalation_id']], NULL, NULL, NULL, NULL, NULL)[0]['escalation_reason'];
-                            }
-                            
-                             ?></td>
-                        <td><?= $penalty_detail['penalty_amount']; ?></td>
-                        <td><?= $penalty_detail['cap_amount']; ?></td>
-                        <td>
+
+                        <td width="5%"><?php echo ++$key; ?></td>
+                        <td width="45%"><?php echo $penalty_detail['escalation_reason']; ?></td>
+                        <td width="15%"><?php if(!empty($penalty_detail['penalty_amount'])) { echo $penalty_detail['penalty_amount'];} else { echo '-'; } ?></td>
+                        <td width="15%"><?php if(!empty($penalty_detail['cap_amount'])) { echo $penalty_detail['cap_amount'];} else { echo '-'; } ?></td>
+                        <td width="10%">
                             <a class="btn btn-sm btn-primary " style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url() ?>penalty/get_penalty_detail_form/<?php echo $penalty_detail['id']; ?>"><i class="fa fa-edit" aria-hidden="true"></i></a>
                         </td>
-                         <td><?php if ($penalty_detail['active'] == 1) { ?>
-                                <a class="btn btn-sm btn-danger" href="<?php echo base_url() ?>penalty/edit_penalty_detail/<?php echo $penalty_detail['id']; ?>?action=deactivate" title="Deactivate" onclick="return confirm('Are you sure you want to deactivate this penalty detail?')"><i class="fa fa-times" aria-hidden="true"></i></a>       
+                         <td width="10%"><?php if ($penalty_detail['escalation_policy_active'] == 1) { ?>
+                                <a class="btn btn-sm btn-danger" href="<?php echo base_url() ?>penalty/edit_penalty_detail/<?php echo $penalty_detail['id']; ?>?action=deactivate&escalation_id=<?php echo $penalty_detail['escalation_id']; ?>" title="Deactivate" onclick="return confirm('Are you sure you want to deactivate this penalty detail?')"><i class="fa fa-times" aria-hidden="true"></i></a>       
                             <?php } else { ?>
-                                <a class="btn btn-sm btn-success" href="<?php echo base_url() ?>penalty/edit_penalty_detail/<?php echo $penalty_detail['id']; ?>?action=activate" title="Activate" onclick="return confirm('Are you sure you want to activate this penalty detail?')"><i class="fa fa-check" aria-hidden="true"></i></a>                
+                                <a class="btn btn-sm btn-success" href="<?php echo base_url() ?>penalty/edit_penalty_detail/<?php echo $penalty_detail['id']; ?>?action=activate&escalation_id=<?php echo $penalty_detail['escalation_id']; ?>" title="Activate" onclick="return confirm('Are you sure you want to activate this penalty detail?')"><i class="fa fa-check" aria-hidden="true"></i></a>                
                             <?php } ?>
                         </td>
-                        
+                        <td hidden><?php if ($penalty_detail['escalation_policy_active'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
                     </tr>
                     <?php
                 }
@@ -76,12 +72,19 @@
     $(document).ready(function () {
         $('#book-table').DataTable({
         dom: 'Bfrtip',
-        "pageLength": 50,
+        "pageLength": 20,
+        'columnDefs': [ {
+            'targets': [4,5], /* column index */
+            'orderable': false, /* true or false */
+         }],
         buttons: [
             { 
                 extend: 'csv',
-                text: 'Download List'
-             }
+                text: 'Download List',
+                exportOptions: {
+                    columns: [1,2,3,6]
+                }
+            }
         ]
     } );
     });
