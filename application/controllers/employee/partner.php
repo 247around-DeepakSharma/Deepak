@@ -2699,10 +2699,9 @@ class Partner extends CI_Controller {
         $brand = $this->input->post('brand');
         $partner_type = $this->input->post('partner_type');
         $is_repeat = $this->input->post('is_repeat');
-        if($this->input->post('is_mapping')){
-            $where = array("service_id" => $service_id);
-               
-            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "category.name as category","category.name");
+        if($this->input->post('is_mapping')){            
+                $where = array('partner_appliance_mapping.partner_id' => $partner_id, 'service_category_mapping.service_id' => $service_id);
+                $data = $this->service_centre_charges_model->getPartnerServiceCategoryMapping($where, "category.name as category","category.name");           
         } else {
             $where_in = array();
             
@@ -2753,9 +2752,9 @@ class Partner extends CI_Controller {
         
         if($this->input->post("is_mapping")){
             
-            $where = array("service_id" => $service_id);
+            $where = array('partner_appliance_mapping.partner_id' => $partner_id, 'service_category_mapping.service_id' => $service_id);
             $where_in = array("category.name" => $category);
-            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "capacity.name as capacity","capacity.name", $where_in);
+            $data = $this->service_centre_charges_model->getPartnerServiceCategoryMapping($where, "capacity.name as capacity","capacity.name", $where_in);
         } else {
             
             $where_in = array("category" => $category);

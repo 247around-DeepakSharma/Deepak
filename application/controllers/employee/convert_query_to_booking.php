@@ -41,6 +41,12 @@ class Convert_query_to_booking extends CI_Controller {
                         $booking['internal_status'] = 'Scheduled';
                         $booking['current_status'] = _247AROUND_PENDING;
                         $booking['type'] = "Booking";
+                        $brand = $this->reusable_model->get_search_result_data('booking_unit_details', 'DISTINCT appliance_brand', ['booking_id' => $booking['booking_id']], NULL, NULL, NULL, NULL, NULL);
+                        if(!empty($brand)) {
+                            $brand = $brand[0]['appliance_brand'];
+                        } else {
+                            $brand = null;
+                        }
                         $actor = $next_action = NULL;
                         
                         $partner_status = $this->booking_utilities->get_partner_status_mapping_data($booking['current_status'], $booking['internal_status'], $value['partner_id'], $value['booking_id']);
@@ -75,7 +81,7 @@ class Convert_query_to_booking extends CI_Controller {
                             if($unit_num){
                                 log_message('info', __METHOD__. " Unit Bookings Converted Booking ID ". $value['booking_id']);
                                 echo 'Unit Bookings Converted';
-                                $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($value['city'], $value['booking_pincode'], $value['service_id'], $partner_data, "");
+                                $upcountry_data = $this->miscelleneous->check_upcountry_vendor_availability($value['city'], $value['booking_pincode'], $value['service_id'], $partner_data, "", $brand);
                                 if (!empty($upcountry_data)) {
                                     if(isset($upcountry_data['vendor_id'])){
                                         switch ($upcountry_data['message']) {
