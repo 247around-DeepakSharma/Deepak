@@ -50,7 +50,6 @@ class Penalty extends CI_Controller {
         }
 
         $penalty_details = $this->penalty_model->get_panelty_details_data();
-        //echo"<pre>";print_r($penalty_details);exit;
         
         $this->miscelleneous->load_nav_header();
         $this->load->view('penalty/view_penalty_details', array('penalty_details' => $penalty_details));
@@ -61,38 +60,61 @@ class Penalty extends CI_Controller {
         if($this->input->post()) {
             $penalty_detail = [];
             $penalty_detail = $this->input->post();
-            $penalty_detail['unit_%_rate'] = $penalty_detail['unit_rate'];
-            unset($penalty_detail['unit_rate']);
             unset($penalty_detail['save']);
            
             if(is_null($id)) { 
-                $id = $this->reusable_model->insert_into_table('penalty_details', $penalty_detail);
+                // insert into vendor_escalation_policy
+                $vendor_escalation_policy_data = [
+                    'escalation_reason' => $penalty_detail['escalation'],
+                    'entity' => _247AROUND_EMPLOYEE_STRING,
+                    'process_type' => 'escalation',
+                    'active' => 1
+                ];
+                
+                $escalation_id = $this->reusable_model->insert_into_table('vendor_escalation_policy', $vendor_escalation_policy_data);
+                if(!empty($penalty_detail['apply_penalty'])) {
+                    unset($penalty_detail['apply_penalty']);
+                    unset($penalty_detail['escalation']);
+                    $penalty_detail['escalation_id'] = $escalation_id;
+                    $this->reusable_model->insert_into_table('penalty_details', $penalty_detail);
+                }
                 $this->session->set_userdata(['success' => 'Data has been saved successfully.']);
             } else {
-                $this->reusable_model->update_table('penalty_details', $penalty_detail, ['id' => $id]);
+                // updation of vendor escalation policy.
+                $escalation_id = $id;
+                $this->reusable_model->update_table('vendor_escalation_policy', ['escalation_reason' => $penalty_detail['escalation']], ['id' => $escalation_id]);
+                // updation of penalty detail.
+                $this->reusable_model->delete_from_table('penalty_details', ['escalation_id' => $escalation_id]);
+                if(!empty($penalty_detail['apply_penalty'])) {
+                    unset($penalty_detail['apply_penalty']);
+                    unset($penalty_detail['escalation']);
+                    $penalty_detail['escalation_id'] = $escalation_id;
+                    $this->reusable_model->insert_into_table('penalty_details', $penalty_detail);
+                }              
                 $this->session->set_userdata(['success' => 'Data has been updated successfully.']);
             }
-            redirect(base_url() . "penalty/get_penalty_detail_form/".(!empty($id) ? $id : NULL));
+            redirect(base_url() . "penalty/get_penalty_detail_form/".(!empty($escalation_id) ? $escalation_id : NULL));
         }
         
         // load existing penalty detail record of $id.
         $penalty = [];
         if(!empty($id)) {
-            $penalty = $this->reusable_model->get_search_result_data('penalty_details', '*', ['id' => $id], NULL, NULL, NULL, NULL, NULL)[0];
+            $penalty = $this->penalty_model->get_panelty_details_data($id)[0];
         }
         
-        // load dropdown data.
-        $partners = $this->reusable_model->get_search_result_data('partners', '*', NULL, NULL, NULL, NULL, NULL, NULL);
-        $escalations = $this->reusable_model->get_search_result_data('vendor_escalation_policy', '*', NULL, NULL, NULL, NULL, NULL, NULL);
         // load view.
         $this->miscelleneous->load_nav_header();
-        $this->load->view('penalty/add_detail', array('partners' => $partners, 'escalations' => $escalations, 'penalty' => $penalty));
+        $this->load->view('penalty/add_detail', array('penalty' => $penalty));
     }
     
     function edit_penalty_detail($id) {
         if(!empty($this->input->get('action'))) {
-           $data['active'] = ($this->input->get('action') == 'activate' ? 1 : 0); 
-           $this->reusable_model->update_table('penalty_details',$data,['id' => $id]);
+            $data['active'] = ($this->input->get('action') == 'activate' ? 1 : 0); 
+            
+            $this->reusable_model->update_table('vendor_escalation_policy',$data,['id' => $id]);
+            if(!empty($this->input->get('escalation_id'))) {
+                $this->reusable_model->update_table('penalty_details',$data,['escalation_id' => $this->input->get('escalation_id')]);
+            }
         }
         
         redirect(base_url() . "penalty/view_penalty_details");
