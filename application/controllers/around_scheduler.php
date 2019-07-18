@@ -2298,27 +2298,34 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @return - empty
      */
     function send_email_to_trackon_couriers() {
-                      
-        $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_partner as courier_name, spare_parts_details.awb_by_partner as awb_no, spare_parts_details.shipped_date as spare_shipped_date, 'New Pickup' as shipment_type";
-        $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
-            "status IN('" . SPARE_SHIPPED_BY_PARTNER . "')" => NULL,
-            'spare_parts_details.courier_name_by_partner LIKE "%trackon%"' => NULL);
+
+        $post['select'] = " DISTINCT(spare_parts_details.awb_by_partner), UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
+                . " UPPER(spare_parts_details.courier_name_by_partner) as courier_name, "
+                . "spare_parts_details.awb_by_partner as awb_no, spare_parts_details.shipped_date as spare_shipped_date, "
+                . "'New Pickup' as shipment_type" . ", DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) AS age_of_date";
+
+        $where = array("spare_parts_details.status" => SPARE_SHIPPED_BY_PARTNER,
+            'spare_parts_details.courier_name_by_partner LIKE "%trackon%" GROUP BY(spare_parts_details.awb_by_partner) HAVING(age_of_date > 5 )' => NULL);
         $spare_parts_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);
-        
-        $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_sf as courier_name, spare_parts_details.awb_by_sf as awb_no,spare_parts_details.defective_part_shipped_date as spare_shipped_date, 'Reverse Pickup' as shipment_type";
-        $where = array('spare_parts_details.defective_part_shipped_date	 > 5 ' => NULL,
-            "status IN('" . DEFECTIVE_PARTS_SHIPPED . "')" => NULL,
-            'spare_parts_details.courier_name_by_sf LIKE "%trackon%"' => NULL);
+
+        $post['select'] = "DISTINCT(spare_parts_details.awb_by_sf), UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
+                . "UPPER(spare_parts_details.courier_name_by_sf) as courier_name,"
+                . " spare_parts_details.awb_by_sf as awb_no,spare_parts_details.defective_part_shipped_date as spare_shipped_date,"
+                . " 'Reverse Pickup' as shipment_type" . ", DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) AS age_of_date";
+        $where = array("spare_parts_details.status" => DEFECTIVE_PARTS_SHIPPED,
+            'spare_parts_details.courier_name_by_sf LIKE "%trackon%" GROUP BY(spare_parts_details.awb_by_sf) HAVING(age_of_date > 5 )' => NULL);
         $defective_parts_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post, $where);
 
         $spare_part_data = array_merge($spare_parts_shipped_by_partner, $defective_parts_shipped_by_sf);
 
         $template = 'shipment-pending.xlsx';
-        $output_file_excel = TMP_FOLDER . "shipment-pending-detailed.xlsx";
-        
+        $awb_template = 'awb-shipment-pending.xlsx';
+        $output_file_excel = TMP_FOLDER . "trackon-booking-shipment-pending.xlsx";
+        $awb_output_file_excel = TMP_FOLDER . "trackon-awb-shipment-pending.xlsx";
+
         if (!empty($spare_part_data)) {
             $courier_name = 'trackon';
-            $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager','employee.active' => 1));
+            $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager', 'employee.active' => 1));
             if (!empty($inventory_manager_list)) {
 
                 $email_from = $inventory_manager_list[0]['official_email'];
@@ -2328,11 +2335,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                         }, $inventory_manager_list));
             }
 
-            $this->generate_spare_pending_shipment_excel($template, 'TRACKON_SPARE_PART_SHIPMENT_PENDING', $spare_part_data, $output_file_excel, $cc_email, $email_from, $courier_name);
+            $this->generate_spare_pending_shipment_excel($template, 'TRACKON_SPARE_PART_SHIPMENT_PENDING', $spare_part_data, $output_file_excel, $cc_email, $email_from, $courier_name, $awb_template, $awb_output_file_excel);
         }
     }
-    
-    
+
     /*
      * @desc - This function is used to send email to Gati couriers
      * @param - empty
@@ -2340,27 +2346,33 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      */
     function send_email_to_gati_couriers() {
 
-        $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_partner as courier_name, spare_parts_details.awb_by_partner as awb_no, spare_parts_details.shipped_date as spare_shipped_date, 'New Pickup' as shipment_type";
-        $where = array('spare_parts_details.shipped_date > 5 ' => NULL,
-            "status IN('" . SPARE_SHIPPED_BY_PARTNER . "')" => NULL,
-            'spare_parts_details.courier_name_by_partner LIKE "%gati%"' => NULL);
+        $post['select'] = "DISTINCT(spare_parts_details.awb_by_partner), UPPER(service_centres.company_name) as sf_name, "
+                . "service_centres.district as city_name, service_centres.state as state_name,"
+                . " spare_parts_details.booking_id, UPPER(spare_parts_details.courier_name_by_partner) as courier_name,"
+                . " spare_parts_details.awb_by_partner as awb_no, spare_parts_details.shipped_date as spare_shipped_date, "
+                . "'New Pickup' as shipment_type" . ", DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) AS age_of_date";
+        $where = array("status" => SPARE_SHIPPED_BY_PARTNER,
+            'spare_parts_details.courier_name_by_partner LIKE "%gati%" GROUP BY(spare_parts_details.awb_by_partner) HAVING(age_of_date > 5 )' => NULL);
         $spare_parts_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);
-        
-        $post['select'] = "spare_parts_details.booking_id, spare_parts_details.courier_name_by_sf as courier_name, spare_parts_details.awb_by_sf as awb_no,spare_parts_details.defective_part_shipped_date as spare_shipped_date, 'Reverse Pickup' as shipment_type";
-        $where = array('spare_parts_details.defective_part_shipped_date	 > 5 ' => NULL,
-            "status IN('" . DEFECTIVE_PARTS_SHIPPED . "')" => NULL,
-            'spare_parts_details.courier_name_by_sf LIKE "%gati%"' => NULL);
+
+        $post['select'] = "DISTINCT(spare_parts_details.awb_by_sf), UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id, UPPER(spare_parts_details.courier_name_by_sf) as courier_name, "
+                . "spare_parts_details.awb_by_sf as awb_no,spare_parts_details.defective_part_shipped_date as spare_shipped_date,"
+                . " 'Reverse Pickup' as shipment_type " . ", DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) AS age_of_date";
+        $where = array("status" => DEFECTIVE_PARTS_SHIPPED,
+            'spare_parts_details.courier_name_by_sf LIKE "%gati%" GROUP BY(spare_parts_details.awb_by_partner) HAVING(age_of_date > 5 )' => NULL);
         $defective_parts_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post, $where);
 
         $spare_part_data = array_merge($spare_parts_shipped_by_partner, $defective_parts_shipped_by_sf);
 
         $template = 'shipment-pending.xlsx';
-        $output_file_excel = TMP_FOLDER . "shipment-pending-detailed.xlsx";
+        $awb_template = 'awb-shipment-pending.xlsx';
+        $output_file_excel = TMP_FOLDER . "gati-booking-shipment-pending.xlsx";
+        $awb_output_file_excel = TMP_FOLDER . "giti-awb-shipment-pending.xlsx";
 
         if (!empty($spare_part_data)) {
-            
+
             $courier_name = 'gati';
-            $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager','employee.active' => 1));
+            $inventory_manager_list = $this->employee_model->get_employee_by_group(array('employee.groups' => 'inventory_manager', 'employee.active' => 1));
             if (!empty($inventory_manager_list)) {
                 $email_from = $inventory_manager_list[0]['official_email'];
                 $cc_email = implode(', ', array_map(function ($entry) {
@@ -2368,7 +2380,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                         }, $inventory_manager_list));
             }
 
-            $this->generate_spare_pending_shipment_excel($template, 'GATI_SPARE_PART_SHIPMENT_PENDING', $spare_part_data, $output_file_excel, $cc_email, $email_from, $courier_name);
+            $this->generate_spare_pending_shipment_excel($template, 'GATI_SPARE_PART_SHIPMENT_PENDING', $spare_part_data, $output_file_excel, $cc_email, $email_from, $courier_name, $awb_template, $awb_output_file_excel);
         }
     }
 
@@ -2380,47 +2392,80 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * @return - true or false
      */
     
-    function generate_spare_pending_shipment_excel($template, $template_tag, $spare_part_data, $output_file_excel, $cc_email, $email_from, $courier_name) {
+    function generate_spare_pending_shipment_excel($template, $template_tag, $spare_part_data, $output_file_excel, $cc_email, $email_from, $courier_name, $awb_template, $awb_output_file_excel) {
         
         // directory
         $templateDir = __DIR__ . "/excel-templates/";
-        $config = array(
-            'template' => $template,
-            'templateDir' => $templateDir
-        );
+        if (!empty($template)) {
+            $config = array(
+                'template' => $template,
+                'templateDir' => $templateDir
+            );
 
-        //load template
-        if (ob_get_length() > 0) {
-            ob_end_clean();
+            //load template
+            if (ob_get_length() > 0) {
+                ob_end_clean();
+            }
+
+            $R = new PHPReport($config);
+            $R->load(array(
+                array(
+                    'id' => 'spare',
+                    'data' => $spare_part_data,
+                    'repeat' => true
+                ),
+                    )
+            );
+            $res1 = 0;
+            if (file_exists($output_file_excel)) {
+
+                system(" chmod 777 " . $output_file_excel, $res1);
+                unlink($output_file_excel);
+            }
+
+            $R->render('excel', $output_file_excel);
         }
-        $R = new PHPReport($config);
-        $R->load(array(
-            array(
-                'id' => 'spare',
-                'data' => $spare_part_data,
-                'repeat' => true
-            ),
-                )
-        );
 
-        $res1 = 0;
-        if (file_exists($output_file_excel)) {
+        if (!empty($awb_template)) {
+            $config1 = array(
+                'template' => $awb_template,
+                'templateDir' => $templateDir
+            );
 
-            system(" chmod 777 " . $output_file_excel, $res1);
-            unlink($output_file_excel);
+
+            //load template
+            if (ob_get_length() > 0) {
+                ob_end_clean();
+            }
+
+            $R1 = new PHPReport($config1);
+            $R1->load(array(
+                array(
+                    'id' => 'spare',
+                    'data' => $spare_part_data,
+                    'repeat' => true
+                ),
+                    )
+            );
+
+            $res = 0;
+            if (file_exists($awb_output_file_excel)) {
+
+                system(" chmod 777 " . $awb_output_file_excel, $res);
+                unlink($awb_output_file_excel);
+            }
+
+            $R1->render('excel', $awb_output_file_excel);
         }
-
-        $R->render('excel', $output_file_excel);
 
         $email_template = $this->booking_model->get_booking_email_template($template_tag);
         if (!empty($email_template)) {
             $subject = vsprintf($email_template[4], strtoupper($courier_name));
-            $message =  vsprintf($email_template[0], array(strtolower($courier_name)));
+            $message = vsprintf($email_template[0], array(strtolower($courier_name)));
             $to = $email_template[1];
-            $cc = $email_template[3].",".$cc_email;
-                        
-            $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_excel, $template_tag);
-            unlink($output_file_excel);
+            $cc = $email_template[3] . "," . $cc_email;
+
+            $this->notify->sendEmail($email_from, 'gorakhn@247around.com', $cc, '', $subject, $message, $output_file_excel, $template_tag, $awb_output_file_excel);
         }
 
         log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
