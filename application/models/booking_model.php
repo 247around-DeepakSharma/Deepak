@@ -733,7 +733,7 @@ class Booking_model extends CI_Model {
         $result = $query->result_array();
         $post['is_inventory']=1;
         $post['is_original_inventory'] = 1;
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_number as original_part_number', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
