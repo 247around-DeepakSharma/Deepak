@@ -321,3 +321,19 @@ ALTER TABLE service_category_mapping ADD CONSTRAINT `uk_scm_service_category_cap
 ALTER TABLE `engineer_booking_action` ADD `booking_status` INT NOT NULL AFTER `solution`;
 -- Prity 16-July-2019
 ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT uk_state_plan UNIQUE (plan_id, state_code);
+-- Ankit 17-July-2019
+ALTER TABLE service_center_brand_mapping ADD COLUMN created_by varchar(150) NOT NULL AFTER create_date;
+-- Prity 18-July-2019
+CREATE TABLE `partner_appliance_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `partner_id` int(11) NOT NULL,
+  `appliance_configuration_id` int(11) NULL DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `isActive` int(1) DEFAULT 1,
+  PRIMARY KEY (`id`),  
+  KEY fk_pam_partner_id_partners_id (partner_id),
+  KEY fk_pam_aci_service_category_mapping_id (appliance_configuration_id),
+  CONSTRAINT fk_pam_partner_id_partners_id FOREIGN KEY (partner_id) REFERENCES partners (id),
+  CONSTRAINT fk_pam_aci_service_category_mapping_id FOREIGN KEY (appliance_configuration_id) REFERENCES service_category_mapping (id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
