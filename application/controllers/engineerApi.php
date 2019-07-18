@@ -1746,6 +1746,13 @@ class engineerApi extends CI_Controller {
             $noon_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_1PM_TO_4PM, $requestData["service_center_id"], $requestData["engineer_id"]);
             $evening_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_4PM_TO_7PM, $requestData["service_center_id"], $requestData["engineer_id"]);
             $en_rating = $this->engineer_model->get_engineer_rating($requestData["engineer_id"], $requestData["service_center_id"])[0];
+            $en_D0_data = $this->engineer_model->get_engineer_D0_closure($requestData["engineer_id"], $requestData["service_center_id"]);
+            if(!empty($en_D0_data)){
+                $D0 = ($en_D0_data[0]['same_day_closure']*100)/$en_D0_data[0]['total_closure'];
+            }
+            else{
+                $D0 = 0;
+            }
             if(!$en_rating['rating']){
                 $rating = 0;
             }
@@ -1759,6 +1766,7 @@ class engineerApi extends CI_Controller {
             $response['todayAfternoonBooking'] = $noon_slot_bookings;
             $response['todayEveningBooking'] = $evening_slot_bookings;
             $response['rating'] = $rating;
+            $response['same_day_closure'] = $D0;
             
             log_message("info", __METHOD__ . "Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
