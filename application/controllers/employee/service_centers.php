@@ -2146,7 +2146,7 @@ class Service_centers extends CI_Controller {
                 $new_spare_id = array();
                 $requested_part_name = array();
                 foreach ($parts_requested as $value) {
-
+                    $delivered_sp = array();
                     if (array_key_exists("spare_id", $data)) {
                         unset($data['spare_id']);
                     }
