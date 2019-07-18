@@ -2882,6 +2882,7 @@ class Invoice extends CI_Controller {
                 $d = json_decode($jdata, true);
                 $amount = $d['amount'];
                 
+                
                 $parts_name = $d['parts_name'];
                 $challan_value = $d['challan_value'];
                 $explode = explode("_", $key);
@@ -2892,8 +2893,9 @@ class Invoice extends CI_Controller {
                 $sc_details['debit_acc_no'] = '102405500277';
                 $sc_details['bank_account'] = trim($sc['bank_account']);
                 $sc_details['beneficiary_name'] = trim($sc['beneficiary_name']);
-
+                $msl_amount = $this->get_msl_summary_amount($service_center_id, $due_date);
                 $sc_details['final_amount'] = abs(sprintf("%.2f",$amount));
+                $sc_details['msl_amount'] = abs(sprintf("%.2f",$msl_amount ));
                 if (trim($sc['bank_name']) === ICICI_BANK_NAME) {
                     $sc_details['payment_mode'] = "I";
                 } else {
@@ -2935,9 +2937,11 @@ class Invoice extends CI_Controller {
 
                 $sc_details['is_verified'] = ($sc['is_verified'] ==0) ? "Not Verified" : "Verified";
                 $sc_details['amount_type'] = ($amount > 0)? "CR":"DR";
+                $sc_details['msl_amount_type'] = ($msl_amount > 0)? "CR":"DR";
                 $sc_details['sf_id'] = $service_center_id;
-                $sc_details['is_sf'] = $sc['is_sf'];
-                $sc_details['is_cp'] = $sc['is_cp'];
+                $sc_details['is_sf'] = ($sc['is_sf'] ==0) ? "No" : "Yes";
+                $sc_details['is_cp'] = ($sc['is_cp'] ==0) ? "No" : "Yes";
+                $sc_details['is_micro_wh'] = ($sc['is_micro_wh'] ==0) ? "No" : "Yes";
                 $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? S3_WEBSITE_URL."vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
                 array_push($payment_data, $sc_details);
                 
@@ -3038,8 +3042,36 @@ class Invoice extends CI_Controller {
             "vendor_partner" => "vendor", "due_date <= CURRENT_DATE() " => NULL,
             "settle_amount" => 0); 
         }
+        
+        $where_invoice['where']['sub_category NOT IN ("'.DEFECTIVE_RETURN.'", "'.IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.NEW_PART_RETURN.'") '] = NULL;
         $where_invoice['length'] = -1;
         return $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
+    }
+    
+    function get_msl_summary_amount($service_center_id, $due_date=false){
+        $select_invoice = " CASE WHEN (amount_collected_paid > 0) THEN COALESCE(SUM(`amount_collected_paid` - amount_paid ),0) ELSE COALESCE(SUM(`amount_collected_paid` + amount_paid ),0) END"
+                . " as msl_amount";
+       
+        if($due_date){
+            $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
+            "vendor_partner" => "vendor", "due_date <= '".$due_date."' " => NULL,
+            "settle_amount" => 0);
+        }
+        else{
+            $where_invoice['where'] = array('vendor_partner_id' => $service_center_id,
+            "vendor_partner" => "vendor", "due_date <= CURRENT_DATE() " => NULL,
+            "settle_amount" => 0); 
+        }
+        
+        $where_invoice['where_in']['sub_category'] = array(DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, NEW_PART_RETURN);
+        $where_invoice['length'] = -1;
+        $data = $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
+        
+        if(!empty($data)){
+            return $data[0]->msl_amount;
+        } else {
+            return 0;
+        }
     }
     /**
      * @desc Used to get header of payment csv file
@@ -3051,6 +3083,7 @@ class Invoice extends CI_Controller {
         $sc_details['bank_account'] = "Beneficiary Ac No";
         $sc_details['beneficiary_name'] = "Beneficiary Name";
         $sc_details['final_amount'] = "Amt";
+        $sc_details['msl_amount'] = "MSL Amt";
         $sc_details['payment_mode'] = "Pay Mod";
         $sc_details['payment_date'] = "Date";
         $sc_details['ifsc_code'] = "IFSC";
@@ -3089,9 +3122,11 @@ class Invoice extends CI_Controller {
 
         $sc_details['is_verified'] = "Bank Account Verified";
         $sc_details['amount_type'] = "Type";
+        $sc_details['msl_amount_type'] = "MSL Type";
         $sc_details['sf_id'] = "SF/CP Id";
         $sc_details['is_sf'] = "SF";
         $sc_details['is_cp'] = "CP";
+        $sc_details['is_micro_wh'] = "Micro Warehouse";
         $sc_details['check_file'] = "Check File";
 
         return $sc_details;

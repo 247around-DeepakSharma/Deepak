@@ -1568,11 +1568,11 @@ function get_data_for_partner_callback($booking_id) {
      */
     function update_partner_appliance_details($where, $data){
         if(!empty($where)){
-            $appliance_model_id = $this->reusable_model->get_search_result_data('partner_appliance_details', '*', $where, NULL, NULL, NULL, NULL, NULL);
-            if(!empty($appliance_model_id)) {
-                $appliance_model_id = $appliance_model_id[0]['model'];
-                $this->reusable_model->update_table('appliance_model_details',$data,['id' => $appliance_model_id]);
-            }
+//            $appliance_model_id = $this->reusable_model->get_search_result_data('partner_appliance_details', '*', $where, NULL, NULL, NULL, NULL, NULL);
+//            if(!empty($appliance_model_id)) {
+//                $appliance_model_id = $appliance_model_id[0]['model'];
+//                $this->reusable_model->update_table('appliance_model_details',$data,['id' => $appliance_model_id]);
+//            }
             $this->db->where($where);
             return $this->db->update("partner_appliance_details",$data);
         }
@@ -2421,6 +2421,7 @@ function get_data_for_partner_callback($booking_id) {
     {
         $start_date = date("Y-m-d 00:00:00", strtotime($start_date));
         $end_date = date("Y-m-d 23:59:59", strtotime($end_date));
+
         $select = 'booking_details.booking_id as "Booking ID", entity_login_table.agent_name as "Agent Name", entity_login_table.user_id as "Agent Login ID"';
         
         $this->db->select($select);
@@ -2435,6 +2436,72 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get('booking_details');
         return $query;        
     }
+    
+    /**
+     This function returns partner wise mapped appliance data
+     * @author Prity Sharma
+     * @date 24-06-2019
+     * @param type $partner_id
+     * @param type $start_date, $end_date
+     * @return array 
+     */
+    function get_partner_appliances($post, $strSelect)
+    {
+
+        $this->db->select($strSelect);
+        $this->db->from('service_category_mapping');
+        $this->db->join('category', 'service_category_mapping.category_id = category.id');
+        $this->db->join('capacity', 'service_category_mapping.capacity_id = capacity.id');
+        $this->db->join('partner_appliance_mapping', 'service_category_mapping.id = partner_appliance_mapping.appliance_configuration_id and partner_appliance_mapping.isActive = 1 and '.$post['where_partner'], 'Left');
+        $this->db->where($post['where']);
+
+        $column_search = array('category.name', 'capacity.name');
+        if (!empty($data['search']['value'])) {
+            $like = "";
+            foreach ($column_search as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $data['search']['value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $data['search']['value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        $this->db->order_by('category.name, capacity.name');
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    /**
+     This function maps a specific appliance configuration to partner
+     * @author Prity Sharma
+     * @date 18-07-2019
+     * @param type $data
+     * @return string 
+     */
+    function insert_partner_appliances($data){
+        $this->db->insert_ignore('partner_appliance_mapping', $data);     
+        if(!empty($this->db->affected_rows())){
+            return $this->db->insert_id();  
+        }        
+    }
+    
+    /**
+     This function un-map a specific appliance configuration to partner
+     * @author Prity Sharma
+     * @date 18-07-2019
+     * @param type $data
+     * @return string 
+     */
+    function delete_partner_appliances($data){
+        $this->db->delete('partner_appliance_mapping', array('id' => $data['mappingId'])); 
+        if(!empty($this->db->affected_rows())){
+            return 'success';  
+        }        
     }
 }
 

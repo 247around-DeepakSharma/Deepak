@@ -41,6 +41,7 @@ class engineerApi extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->library('asynchronous_lib');
         $this->load->library('paytm_payment_lib');
+        $this->load->library('validate_serial_no');
     }
 
     /**
@@ -362,6 +363,18 @@ class engineerApi extends CI_Controller {
             
             case 'updateBookingByEngineer':
                 $this->processUpdateBookingByEngineer();
+                break;
+            
+            case 'paytmAmountByEngineer':
+                $this->getPaytmAmountByEngineer();
+                break;
+            
+            case 'getCustomerQrCode':
+                $this->getCustomerQrCode();
+                break;
+            
+            case 'validateSerialNumber':
+                $this->getValidateSerialNumber();
                 break;
             
             default:
@@ -1158,9 +1171,12 @@ class engineerApi extends CI_Controller {
                
                 if($unit_id){
                     $data["current_status"] = "InProcess";
-
-                    $data["internal_status"] = _247AROUND_COMPLETED;
-
+                    if($value['complete'] == false){
+                        $data["internal_status"] = _247AROUND_CANCELLED;
+                    } else {
+                        $data["internal_status"] = _247AROUND_COMPLETED;
+                    }
+                    
                     if($requestData["appliance_broken"] == false){
                         $data["is_broken"] = 0;
                     } else {
@@ -1189,10 +1205,11 @@ class engineerApi extends CI_Controller {
                     if(isset( $unitDetails[0]['model_number'])){
                          $data["model_number"] = $unitDetails[0]['model_number'];
                     }
-                    $data["closing_remark"] = "engineer termark";
+                    $data["closing_remark"] = $requestData['closing_remark'];
                     $data["symptom"] = $requestData['symptom'];
                     $data["defect"] = $requestData['defect'];
                     $data["solution"] = $requestData['solution'];
+                    $data["booking_status"] = $value['complete'];
                     $service_charge = 0;
                     $additional_service_charge = 0;
                     $parts_cost = 0;
@@ -1211,7 +1228,7 @@ class engineerApi extends CI_Controller {
                     $data["service_charge"] = $service_charge;
                     $data["additional_service_charge"] = $additional_service_charge;
                     $data["parts_cost"] = $parts_cost;
-                    $data["amount_paid"] = $value['amount_paid'];
+                    $data["amount_paid"] = $requestData['amount_paid'];
                     $this->engineer_model->update_engineer_table($data, array("unit_details_id" => $unit_id, "booking_id" =>$requestData["booking_id"] ));
                 }
             }
@@ -1734,6 +1751,13 @@ class engineerApi extends CI_Controller {
             $noon_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_1PM_TO_4PM, $requestData["service_center_id"], $requestData["engineer_id"]);
             $evening_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_4PM_TO_7PM, $requestData["service_center_id"], $requestData["engineer_id"]);
             $en_rating = $this->engineer_model->get_engineer_rating($requestData["engineer_id"], $requestData["service_center_id"])[0];
+            $en_D0_data = $this->engineer_model->get_engineer_D0_closure($requestData["engineer_id"], $requestData["service_center_id"]);
+            if(!empty($en_D0_data)){
+                $D0 = ($en_D0_data[0]['same_day_closure']*100)/$en_D0_data[0]['total_closure'];
+            }
+            else{
+                $D0 = 0;
+            }
             if(!$en_rating['rating']){
                 $rating = 0;
             }
@@ -1747,6 +1771,7 @@ class engineerApi extends CI_Controller {
             $response['todayAfternoonBooking'] = $noon_slot_bookings;
             $response['todayEveningBooking'] = $evening_slot_bookings;
             $response['rating'] = $rating;
+            $response['same_day_closure'] = $D0;
             
             log_message("info", __METHOD__ . "Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
@@ -2513,6 +2538,7 @@ class engineerApi extends CI_Controller {
     
     function processUpdateBookingByEngineer(){
         log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if(!empty($requestData['booking_id'])){
             if(!empty($requestData['reason'])){
                 if(!empty($requestData['remark'])){
@@ -2557,6 +2583,107 @@ class engineerApi extends CI_Controller {
         else{
             log_message("info", __METHOD__ . "Booking Id not found");
             $this->sendJsonResponse(array('0047', 'Booking Id not found'));
+        }
+    }
+    
+    function getPaytmAmountByEngineer(){
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if(!empty($requestData['booking_id'])){
+            $paytm_data = $this->paytm_payment_model->get_paytm_transactions($requestData['booking_id']);
+            if(!empty($paytm_data)){
+                $response['amount_flag'] = 1;
+                $response['amount'] = $paytm_data[0]['paid_amount'];
+                log_message("info", "Paytm transaction amount found successfully");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            else{
+                $response['amount_flag'] = 0;
+                $response['amount'] = 0;
+                log_message("info", "Paytm transaction amount not found");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'Amount not recieved'));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . "Booking Id not found");
+            $this->sendJsonResponse(array('0049', 'Booking Id not found'));
+        }
+    }
+    
+    /**
+     * @desc This is used to get qr url link from App
+     */
+    function getCustomerQrCode() {
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if (!empty($requestData["bookingID"])) {
+
+            $response = $this->paytm_payment_lib->generate_qr_code($requestData["bookingID"], QR_CHANNEL_APP, 
+                    $requestData["amountPaid"], $requestData["engineerNo"]);
+            $result = json_decode($response, TRUE);
+            if ($result['status'] == SUCCESS_STATUS) {
+                $this->jsonResponseString['QrImageUrl'] = S3_WEBSITE_URL . $result['qr_url'];
+                $this->sendJsonResponse(array('0000', 'success'));
+            } else {
+                log_message("info", __METHOD__ . " QR Failed " . print_r($result, true));
+                $this->sendJsonResponse(array('0050', 'QR Not Generated'));
+            }
+        } else {
+            log_message("info", __METHOD__ . " Booking ID Not Found " . print_r($result, true));
+            $this->sendJsonResponse(array('0051', 'Booking ID Not Found'));
+        }
+    }
+    
+    function getValidateSerialNumber(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if (!empty($requestData["booking_id"])) {
+            if(!empty($requestData['serial_number'])){
+                if(!empty($requestData['price_tags'])){
+                    $booking_id = $requestData["booking_id"];
+                    $booking_history = $this->booking_model->getbooking_history($booking_id);
+
+                    $serial_number = $requestData['serial_number'];
+                    $partner_id = $booking_history[0]['partner_id'];
+                    $user_id = $booking_history[0]['user_id'];
+                    $price_tags = $requestData['price_tags'];
+                    $appliance_id = $booking_history[0]['appliance_id'];
+                    $model_number = $requestData['model_number'];
+                    
+                    if (!ctype_alnum($serial_number)) {
+                        log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
+                        $this->sendJsonResponse(array('0052', 'Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.'));
+                    }
+                    else {
+                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id,$model_number);
+                        if (!empty($status)) {
+                            if($status['code'] == SUCCESS_CODE){
+                                $this->sendJsonResponse(array('0000', 'Serial Number Successfully Validated'));
+                            }
+                            else{
+                                $this->sendJsonResponse(array('0053', $status['message']));
+                            }
+                        } else {
+                            log_message('info',__METHOD__. 'Partner serial no validation is not define');
+                            $this->sendJsonResponse(array('0000', 'Serial no validation not required'));
+                        }
+                    }
+                }
+                else{
+                    log_message("info", __METHOD__ . " Price Tag Not Found ");
+                    $this->sendJsonResponse(array('0054', ' Price Tag Not Found'));
+                }
+            }
+            else{
+                log_message("info", __METHOD__ . " Serial Number Not Found ");
+                $this->sendJsonResponse(array('0055', ' Serial Number Not Found'));
+            }
+        } else {
+            log_message("info", __METHOD__ . " Booking ID Not Found ");
+            $this->sendJsonResponse(array('0056', 'Booking ID Not Found'));
         }
     }
 }

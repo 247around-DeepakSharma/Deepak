@@ -1099,7 +1099,7 @@ class Inventory_model extends CI_Model {
         }
 
         if ($post['is_micro_wh']) {
-           $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.invoice_id', 'left');
+           $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.micro_invoice_id', 'left');
            $this->db->join('partners as pi', "pi.id = vendor_partner_invoices.third_party_entity_id AND inventory_master_list.entity_id= pi.id",'left');
         }
 
@@ -1158,6 +1158,7 @@ class Inventory_model extends CI_Model {
     public function count_spare_need_to_acknowledge($post) {
         $this->_get_spare_need_to_acknowledge($post, 'count(distinct(i.id)) as numrows');
         $query = $this->db->get();
+
         return $query->result_array()[0]['numrows'];
     }
     
@@ -2183,10 +2184,11 @@ class Inventory_model extends CI_Model {
      */
     
     function get_pending_spare_part_details($post, $where=array()){
-        $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) AS shipped_date", FALSE);
+        $this->db->select($post['select'], FALSE);
+        $this->db->from('spare_parts_details');   
+        $this->db->join('service_centres', 'spare_parts_details.service_center_id = service_centres.id');
         $this->db->where($where);
-        $query = $this->db->get("spare_parts_details");
-        //echo $this->db->last_query();
+        $query = $this->db->get();
         return $query->result_array();
     }
     

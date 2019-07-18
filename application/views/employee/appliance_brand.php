@@ -3,7 +3,7 @@
     <tbody>
         <?php foreach ($appliances as $key => $appliance) {
             $appliance_id = $this->reusable_model->get_search_result_data('services', 'id', ['trim(lower(services))' => trim(strtolower($appliance))], NULL, NULL, NULL, NULL, NULL)[0]['id'];
-            $appliance_brands = $this->reusable_model->get_search_result_data('appliance_brands', 'id, brand_name', ['service_id' => $appliance_id], NULL, NULL, NULL, NULL, NULL);
+            $appliance_brands = $this->reusable_model->get_search_result_data('appliance_brands', 'id, brand_name', ['service_id' => $appliance_id], NULL, NULL, ['brand_name' => SORT_ASC], NULL, NULL);
         ?>
             <tr>
                 <td width="5%"><?php echo ++$key; ?>.</td>
@@ -14,10 +14,9 @@
                 <td width="60%">
                     <select name="brands[<?php echo $appliance_id; ?>][]" class="brand" id="brand_<?php echo $key; ?>" multiple>
                         <option value=""></option>
-                        <?php if(!empty($appliance_brands)) { ?>
-                        <option <?php echo (!empty($sf_brands[$appliance_id]) && in_array('all', $sf_brands[$appliance_id]) ? 'selected' : '');?> value="all">All</option>
-                        <?php foreach ($appliance_brands as $brand) { ?>
-                        <option <?php echo (!empty($sf_brands[$appliance_id]) && in_array($brand['id'], $sf_brands[$appliance_id]) ? 'selected' : ''); ?> value="<?php echo $brand['id'].'-'.$brand['brand_name']; ?>"><?php echo $brand['brand_name']; ?></option>
+                        <?php if(!empty($appliance_brands)) { 
+                            foreach ($appliance_brands as $brand) { ?>
+                            <option <?php echo (!empty($sf_brands[$appliance_id]) && in_array($brand['id'], $sf_brands[$appliance_id]) ? 'selected' : ''); ?> value="<?php echo $brand['id'].'-'.$brand['brand_name']; ?>"><?php echo $brand['brand_name']; ?></option>
                         <?php } } ?>
                     </select>
                 </td>

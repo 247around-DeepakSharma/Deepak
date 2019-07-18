@@ -302,4 +302,11 @@ class Engineer_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    
+    function get_engineer_D0_closure($engineer_id, $sf_id){
+        $sql = "SELECT (select count(id) FROM booking_details WHERE DATEDIFF(STR_TO_DATE(initial_booking_date,'%d-%m-%Y'), CAST(service_center_closed_date AS date)) = 0 AND assigned_vendor_id=$sf_id AND assigned_engineer_id=$engineer_id AND current_status='Completed') as same_day_closure,"
+                . " (Select Count(id) From booking_details WHERE assigned_vendor_id=$sf_id AND assigned_engineer_id=$engineer_id AND current_status='Completed') as total_closure from booking_details limit 1";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 }
