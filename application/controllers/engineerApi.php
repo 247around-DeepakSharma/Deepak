@@ -1836,8 +1836,9 @@ class engineerApi extends CI_Controller {
             foreach ($bookings as $key => $value) {
                 if($engineer_pincode){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
-                    $distance = explode(" ",$distance_details['distance']['text']);
-                    $bookings[$key]['booking_distance'] = $distance[0];
+                    $distance_array = explode(" ",$distance_details['distance']['text']);
+                    $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $bookings[$key]['booking_distance'] = $distance;
                 }
             }
         }
@@ -1856,8 +1857,9 @@ class engineerApi extends CI_Controller {
             foreach ($missed_bookings as $key => $value) {
                 if($requestData['engineer_pincode']){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
-                    $distance = explode(" ",$distance_details['distance']['text']);
-                    $missed_bookings[$key]['booking_distance'] = $distance[0];
+                    $distance_array = explode(" ",$distance_details['distance']['text']);
+                    $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $missed_bookings[$key]['booking_distance'] = $distance;
                 }
             }
             $response['missedBooking'] = $missed_bookings;
@@ -1883,8 +1885,9 @@ class engineerApi extends CI_Controller {
             foreach ($tomorrowBooking as $key => $value) {
                 if($requestData['engineer_pincode']){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
-                    $distance = explode(" ",$distance_details['distance']['text']);
-                    $tomorrowBooking[$key]['booking_distance'] = $distance[0];
+                    $distance_array = explode(" ",$distance_details['distance']['text']);
+                    $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $tomorrowBooking[$key]['booking_distance'] = $distance;
                 }
             }
             $response['tomorrowBooking'] = $tomorrowBooking; 
