@@ -824,8 +824,15 @@ class Service_centers extends CI_Controller {
                             'unit_details_id' => $k);
 
                         $this->service_centers_model->insert_update_applaince_by_sf($array1);
-                        $this->send_mail_for_insert_applaince_by_sf($model_details[0]['category'], $model_details[0]['capacity'], $v['appliance_brand'], $v['price_tags'], $booking_id);
+ 
                     } else {
+                        $price_tag='';
+                        if(!empty($v['price_tags'])){
+                            $price_tag= $v['price_tags'];
+                        }else{
+                             $price_tag='-';
+                        }
+                        $this->send_mail_for_insert_applaince_by_sf($model_details[0]['category'], $model_details[0]['capacity'], $v['appliance_brand'], $price_tag, $booking_id);
                         return FALSE;
                     }
                 }
