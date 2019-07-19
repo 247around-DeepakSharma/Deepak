@@ -338,3 +338,5 @@ CREATE TABLE `partner_appliance_mapping` (
   CONSTRAINT fk_pam_aci_service_category_mapping_id FOREIGN KEY (appliance_configuration_id) REFERENCES service_category_mapping (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+-- Kajal 19-July-2019 --
+ALTER TABLE `inventory_model_mapping` ADD `bom_main_part` INT(1) NOT NULL DEFAULT '1' COMMENT '1 - Main Part, 0 - Alternate Part' AFTER `max_quantity`;
