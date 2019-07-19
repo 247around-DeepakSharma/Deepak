@@ -306,7 +306,7 @@
                                                     }
                                                     ?>
                                                 <li><a href="<?php echo $childLink; ?>"><?php echo $main_nav['navData']["id_".$childID]['title']; ?></a></li>
-                                                }
+                                                <?php }
                                                 ?>
 
                                      </ul>
