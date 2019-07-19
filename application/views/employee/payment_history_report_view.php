@@ -1,4 +1,5 @@
 <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jszip/3.2.2/jszip.js'></script>
 <style type="text/css">
     div.pager {
         text-align: center;
@@ -100,6 +101,7 @@
             <hr>
             <div class="permission-error text-danger text-center" style="display:none;"><strong>Operation not permitted</strong> </div>
             <div class="data-error text-danger text-center" style="display:none;"><strong>No Data Found</strong> </div>
+            <button type="button" class='btn btn-primary' id='btn_download' style='display:none;float:right;'><i class="fa fa-file" aria-hidden="true"></i>&nbsp;Download Files</button>
             <section class="payment_preview">
 
             </section>
@@ -168,6 +170,7 @@
                 $('.permission-error').show();
                 $('.download_report').hide();
                 $('.payment_preview').hide();
+                $('#btn_download').hide();
                 $('.data-error').hide();
             } else {
                 $('#loader').show();
@@ -181,6 +184,7 @@
                             $('#loader').hide();
                             $('.permission-error').hide();
                             $('.payment_preview').hide();
+                            $('#btn_download').hide();
                             $('.data-error').show();
                         } else {
                             $('#loader').hide();
@@ -188,18 +192,12 @@
                             $('.permission-error').hide();
                             $('.payment_preview').show();
                             $('.payment_preview').html(response);
+                            $('#btn_download').show();
                             //table_pagination();
                             $('#payment_history_table').DataTable({
                                 dom: 'Bfrtip',
                                 pageLength: 50,
-                                ordering: false,
-                                buttons: [
-                                    {
-                                        extend: 'excel',
-                                        text: 'Export',
-                                        title: $('#partner_vendor option:selected').text().trim() +'_' + $('#type option:selected').text().trim()+'_report_'+time
-                                    }
-                                ]
+                                "lengthMenu": [[10, 25, 50,100, 500, -1], [10, 25, 50, 100, 500, "All"]],
                             });
                             
                         }
@@ -209,6 +207,45 @@
                 });
             }
         });
+
+        $('#btn_download').click(function () {
+            create_zip("payment_history_table", "payment_history_details_table");
+        });
     });
 
+    function create_zip(summ_tableID, detail_tableID) {
+        var zip = new JSZip();
+
+        var tableSelect = tableHTML = '';
+        var dataType = 'application/vnd.ms-excel';
+
+        // Add Summary Report
+        tableSelect = document.getElementById(summ_tableID);
+        tableHTML = tableSelect.outerHTML;//.replace(/ /g, '%20');
+
+        zip.file($('#partner_vendor option:selected').text().trim() + '_' + $('#type option:selected').text().trim() + '_report_' + time + '.xls', tableHTML);
+
+        // Add Details Report
+        tableSelect = document.getElementById(detail_tableID);
+        tableHTML = tableSelect.outerHTML;//.replace(/ /g, '%20');
+
+        zip.file($('#partner_vendor option:selected').text().trim() + '_' + $('#type option:selected').text().trim() + '_details_report_' + time + '.xls', tableHTML);
+
+        // Generate the zip file asynchronously
+        zip.generateAsync({type: "blob"})
+            .then(function (content) {
+                // Force down of the Zip file
+                saveAs(content, "report" + time + ".zip");
+            });
+    }
+
+    function saveAs(blob, filename) {
+        var elem = window.document.createElement('a');
+        elem.href = window.URL.createObjectURL(blob);
+        elem.download = filename;
+        elem.style = 'display:none;opacity:0;color:transparent;';
+        (document.body || document.documentElement).appendChild(elem);
+        elem.click();
+        URL.revokeObjectURL(elem.href);
+    }
 </script>

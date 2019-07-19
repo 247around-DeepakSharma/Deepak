@@ -70,7 +70,9 @@ $route['service_center/acknowledge_delivered_spare_parts/(:any)/(:any)/(:any)/(:
 $route['service_center/get_search_form'] = 'employee/service_centers/get_search_form';
 $route['service_center/search'] = 'employee/service_centers/search';
 $route['service_center/get_defective_parts_booking'] = 'employee/service_centers/get_defective_parts_booking';
+$route['service_center/defective_parts_sent'] = 'employee/service_centers/defective_parts_sent';
 $route['service_center/get_defective_parts_booking/(:any)'] = 'employee/service_centers/get_defective_parts_booking/$1';
+$route['service_center/defective_parts_sent/(:any)'] = 'employee/service_centers/defective_parts_sent/$1';
 $route['service_center/update_defective_parts/(:any)'] = 'employee/service_centers/update_defective_parts/$1';
 $route['service_center/process_update_defective_parts/(:any)'] = 'employee/service_centers/process_update_defective_parts/$1';
 $route['service_center/get_approved_defective_parts_booking'] = 'employee/service_centers/get_approved_defective_parts_booking';
