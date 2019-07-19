@@ -2608,6 +2608,31 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    
+    
+    
+    /**
+     * @Desc: This function is used to get Details of serviceable BOM
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_serviceable_bom_data($select, $where = array()) {
+        $this->db->select($select,false);
+        $this->db->from('inventory_master_list');
+        $this->db->join('inventory_model_mapping','inventory_model_mapping.inventory_id = inventory_master_list.inventory_id');
+        $this->db->join('appliance_model_details','appliance_model_details.id = inventory_model_mapping.model_number_id');
+        $this->db->join('services','services.id = appliance_model_details.service_id');
+        if (!empty($where)) {
+            $this->db->where($where,false);
+        }        
+        $query = $this->db->get();
+        return $query;        
+       
+    }
+
 
         function get_entity_gst_data($select="*", $where){
         $this->db->select($select);

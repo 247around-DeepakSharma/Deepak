@@ -226,7 +226,8 @@ $route['partner/search_docket_number'] = 'employee/partner/search_docket_number'
 $route['partner/review_bookings/(:any)/(:any)'] = 'employee/partner/partner_review_bookings/$1/$2';
 $route['partner/contacts'] = 'partner/manage_partner_contacts';
 $route['partner/brand_collateral']='employee/partner/brandCollateral';
-
+$route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
+$route['partner/inventory/download_serviceable_bom'] = 'employee/partner/show_download_serviceable_bom';
 $route['partner/inventory/model_mapping'] = 'employee/partner/show_appliance_model_mapping';
 $route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
 
