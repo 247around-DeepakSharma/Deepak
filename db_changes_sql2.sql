@@ -228,3 +228,6 @@ ALTER TABLE `spare_parts_details` ADD `cancellation_reason` VARCHAR(100) CHARACT
 
 --Kajal 13/07/2019 --
 ALTER TABLE `spare_parts_details` CHANGE `cancellation_reason` `spare_cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+-- Kajal 19-July-2019 --
+ALTER TABLE `inventory_model_mapping` ADD `bom_main_part` INT(1) NOT NULL DEFAULT '1' COMMENT '1 - Main Part, 0 - Alternate Part' AFTER `max_quantity`;
