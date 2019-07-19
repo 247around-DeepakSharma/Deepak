@@ -7169,7 +7169,7 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/change_password');
  
-
+   }
     /**
      * @desc: get defective parts shipped by sf
      * Created by -Abhishek Awasthi on July 18 ,2019
