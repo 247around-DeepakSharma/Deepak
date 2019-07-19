@@ -116,7 +116,7 @@
                         <ul>
                             <li><a href="#" id="1" class="btn nav nav-pills panel-title" style="background-color:#fff">Basic Details</a></li>
                             <li><a href="#tab-2"  id="2" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title" style="background-color:#d9edf7">Documents</a</li>
-                            <li><a href="#tab-3"  id="3" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title"  style="background-color:#d9edf7">Brand Mapping</a></li>
+                            <li><a href="#tab-3"  id="3" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title"  style="background-color:#d9edf7">Products and Brands</a></li>
                             <li><a href="#tab-4"  id="4" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title"  style="background-color:#d9edf7">Contact Person</a></li>
                              <li><a href="#tab-5"  id="4" onclick="alert('Please Add Basic Details FIrst')" class="btn nav nav-pills panel-title"  style="background-color:#d9edf7">Bank Details</a></li>
                         </ul>
@@ -133,7 +133,7 @@
                         <ul>
                             <li><a href="#" id="1" onclick="load_form(this.id)"  class="nav nav-pills panel-title">Basic Details</a></li>
                             <li><a href="#tab-2"  id="2" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Documents</a></li>
-                            <li><a href="#tab-3"  id="3" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Brand Mapping</a></li>
+                            <li><a href="#tab-3"  id="3" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Products and Brands</a></li>
                             <li><a href="#tab-4"  id="4" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Contact Person</a></li>
                             <li><a href="#tab-4"  id="5" onclick="load_form(this.id)"  class="nav nav-pills panel-title" style="background-color:#d9edf7">Bank Details</a></li>
                         </ul>
@@ -851,7 +851,7 @@
                     <div  class = "panel panel-info">
 
                         <div class="panel-heading" style="background-color:#ECF0F1">
-                            <b>Brands</b>
+                            <b>Exclusive Brands</b>
                             <!--<label class="pull-right">All <input type="checkbox" name="brands_all" id="brands_all" value="All" title="Select All"></label>-->
                         </div>
                         <div class="panel-body brands">
@@ -861,6 +861,12 @@
                             </div>
                         </div>
                     </div>
+                    <hr>
+                    <p>
+                        Note -<br/> 
+                        1) Bookings for selected product and brand combination will always be allocated to this SF in his serviceable pincodes, no other brand's booking will be allocated to this SF.<br/>
+                        2) If no brand is selected for any particular product, bookings for all brands will be allocated to this SF in his serviceable pincodes.
+                    </p>
                     <div class="clear clear_bottom">
                                 <br>
                                 <input style="width:200px;" type="hidden" class="form-control"  name="id" value = "<?php
@@ -870,9 +876,9 @@
                                     ?>">
                                 <center><input type="Submit" value="<?php
                                     if (isset($selected_brands_list)) {
-                                        echo "Update Brand Mapping";
+                                        echo "Update";
                                     } else {
-                                        echo "Save Brand Mapping";
+                                        echo "Save";
                                     }
                                     ?>" class="btn btn-primary" id="submit_btn">
                                                                 <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
