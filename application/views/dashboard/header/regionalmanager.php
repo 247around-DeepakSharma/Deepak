@@ -162,7 +162,13 @@
         <div class="col-md-3 left_col">
             <div class="left_col scroll-view">
                 <div class="navbar nav_title" style="border: 0;">
-                    <a href="<?php echo base_url(); ?>employee/dashboard" class="site_title"><span>247around</span></a>
+                   <?php if($saas_flag){ ?>
+                    <a class="navbar-brand" href="#"><img src="<?php echo base_url()?>images/small_logo.png" style="display: inline;"></a>
+                    <?php } 
+                    else {
+                    ?>
+                     <a class="navbar-brand" href="#">247Around</a>
+                    <?php } ?>
                 </div>
                 <div class="clearfix"></div>
                 <!-- menu profile quick info -->
