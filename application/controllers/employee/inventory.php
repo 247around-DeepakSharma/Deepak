@@ -6682,10 +6682,13 @@ class Inventory extends CI_Controller {
     }
     
     function get_247around_wh_gst_number(){
+        $state_vendor = $this->vendor_model->viewvendor($this->session->userdata('service_center_id'));
         $html = "<option value='' selected disabled>Selet GST Number</option>";
         $where = array(
             "entity_type" => _247AROUND_PARTNER_STRING,
-            "entity_id" => "247001",
+            "entity_id" => _247AROUND,
+            "state_code.state"=>ucwords(strtolower($state_vendor[0]['state']))
+ 
             );
         $gst_numbers = $this->inventory_model->get_entity_gst_data("id, gst_number, state", $where);
         foreach($gst_numbers as $key => $value){
