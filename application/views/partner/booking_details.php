@@ -326,7 +326,7 @@
                                                             <tr>
                                                                 <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
                                                                 <td><?php echo $sp['model_number']; ?></td>
-                                                                <td style=" word-break: break-all;"><?php if(isset($sp['original_part_number'])){ echo $sp['original_part_number']; } else { echo $sp['parts_requested']; } ?></td>
+                                                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']; } else { echo $sp['parts_requested']; } ?></td>
                                                                 <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; }  ?></td>
                                                                 <td><?php echo $sp['parts_requested_type']; ?></td>       
                                                                 <td><?php echo $sp['quantity']; ?></td>

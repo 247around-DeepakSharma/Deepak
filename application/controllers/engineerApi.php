@@ -1740,16 +1740,16 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
+        //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "engineer_pincode"=>"201301");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "count(booking_details.booking_id) as bookings";
             $slot_select = 'booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id';
             $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $tommorow_bookings_count = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
-            $morning_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_10AM_TO_1PM, $requestData["service_center_id"], $requestData["engineer_id"]);
-            $noon_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_1PM_TO_4PM, $requestData["service_center_id"], $requestData["engineer_id"]);
-            $evening_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_4PM_TO_7PM, $requestData["service_center_id"], $requestData["engineer_id"]);
+            $morning_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_10AM_TO_1PM, $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
+            $noon_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_1PM_TO_4PM, $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
+            $evening_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_4PM_TO_7PM, $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
             $en_rating = $this->engineer_model->get_engineer_rating($requestData["engineer_id"], $requestData["service_center_id"])[0];
             $en_D0_data = $this->engineer_model->get_engineer_D0_closure($requestData["engineer_id"], $requestData["service_center_id"]);
             if(!empty($en_D0_data)){
@@ -1821,7 +1821,7 @@ class engineerApi extends CI_Controller {
         return $tommorow_bookings;
     }
     
-    function getTodaysSlotBookingList($select, $slot, $service_center_id, $engineer_id){
+    function getTodaysSlotBookingList($select, $slot, $service_center_id, $engineer_id, $engineer_pincode=""){
         log_message("info", __METHOD__. " Entering..");
         $where = array(
                     "assigned_vendor_id" => $service_center_id,
@@ -1832,6 +1832,16 @@ class engineerApi extends CI_Controller {
                     "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
                 );
         $bookings = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false);
+        if($engineer_pincode){
+            foreach ($bookings as $key => $value) {
+                if($engineer_pincode){
+                    $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
+                    $distance_array = explode(" ",$distance_details['distance']['text']);
+                    $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $bookings[$key]['booking_distance'] = $distance;
+                }
+            }
+        }
         return $bookings;
     }
     
@@ -1839,11 +1849,20 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
+        //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "engineer_pincode"=>"201301");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
-            $response['missedBooking'] = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
+            $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
+            foreach ($missed_bookings as $key => $value) {
+                if($requestData['engineer_pincode']){
+                    $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
+                    $distance_array = explode(" ",$distance_details['distance']['text']);
+                    $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $missed_bookings[$key]['booking_distance'] = $distance;
+                }
+            }
+            $response['missedBooking'] = $missed_bookings;
             log_message("info", __METHOD__ . "Missed Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
@@ -1858,11 +1877,20 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
+        //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "engineer_pincode"=>"201301");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
                     . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
-            $response['tomorrowBooking'] = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
+            $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
+            foreach ($tomorrowBooking as $key => $value) {
+                if($requestData['engineer_pincode']){
+                    $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
+                    $distance_array = explode(" ",$distance_details['distance']['text']);
+                    $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $tomorrowBooking[$key]['booking_distance'] = $distance;
+                }
+            }
+            $response['tomorrowBooking'] = $tomorrowBooking; 
             log_message("info", __METHOD__ . "Tommorow Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));

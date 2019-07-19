@@ -195,7 +195,9 @@
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><span style="font-weight: bold; left: 93px;" class="badge nt-badge defectivecount" >0</span>Spare Parts <span class="caret"></span></a>
                             <ul class="dropdown-menu">
-                                <li><a href="<?php echo base_url();?>service_center/get_defective_parts_booking">Defective Parts (<span class="defectivecount"></span>)</a></li>
+                                <li><a href="<?php echo base_url();?>service_center/get_defective_parts_booking">Defective Parts To Be Shipped (<span class="defectivecount"></span>)</a></li>
+                                 <li role="separator" class="divider"></li>
+                                 <li><a href="<?php echo base_url();?>service_center/defective_parts_sent">Defective Parts Shipped</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/get_approved_defective_parts_booking">Approved Defective Parts</a></li>
                                 <li role="separator" class="divider"></li>
