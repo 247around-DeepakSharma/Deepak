@@ -590,6 +590,9 @@ class Upcountry_model extends CI_Model {
         $this->db->where('service_centres.active', "1");
         $this->db->where('service_centres.on_off', "1");
         $data = $this->db->get()->result_array();
+        if(empty($data)) {
+            return [];
+        }
         if(empty($brand_name)) {
             return $data;
         }
