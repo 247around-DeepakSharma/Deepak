@@ -661,5 +661,8 @@ define('SYMPTOM_DEFECT_SOLUTION_MAPPING_FILE', 'Symptom_Defect_Solution_Mapping_
 
 // CRM Training menu Link
 define('_247AROUND_CRM_TRAINING', 'https://drive.google.com/drive/folders/1Ri7PZJCuCaSSWt-Bv1InrHiQgtb79Hlp');
+
+//send broadcast sms to all vendors
+define('ENGINEER_LOGIN_SMS_TEMPLATE', 'engineer_login_sms_template');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
