@@ -1948,7 +1948,20 @@ class vendor extends CI_Controller {
                     $login["active"] = 1;
                     $login["clear_password"] = $data['phone'];
 
-                    $this->dealer_model->insert_entity_login($login);
+                    $eng_login = $this->dealer_model->insert_entity_login($login);
+                    if($eng_login){
+                        $sms = array();
+                        $sms['phone_no'] = $data['phone'];
+                        $sms['smsData']['eng_name'] = $data['name'];
+                        $sms['smsData']['eng_user_id'] = $data['phone'];
+                        $sms['smsData']['eng_password'] = $data['phone'];
+                        $sms['tag'] = ENGINEER_LOGIN_SMS_TEMPLATE;
+                        $sms['status'] = "";
+                        $sms['booking_id'] = "";
+                        $sms['type'] = "engineer";
+                        $sms['type_id'] = $engineer_id;
+                        $this->notify->send_sms_msg91($sms);
+                    }
 
                     $output = "Engineer Details Added.";
                     $userSession = array('success' => $output);
