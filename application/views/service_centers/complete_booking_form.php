@@ -289,14 +289,40 @@
                                                                     <?php $src = base_url() . 'images/no_image.png';
                                                                     $image_src = $src;
                                                                     $pic_name = '';
-                                                                    if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['serial_number_pic'])) {
+                                                                    if($this->session->userdata('is_engineer_app') == 1){ 
+                                                                        if (($price['product_or_services'] != "Service" && $price['customer_net_payable'] > 0) ){ 
+                                                                            if(isset($price['en_service_charge'])){
+                                                                                $customer_basic_charge = $price['en_service_charge'];
+                                                                            }
+                                                                        }
+                                                                        
+                                                                        if($price['product_or_services'] != "Product") {
+                                                                            if(isset($price['en_additional_service_charge'])){
+                                                                                $addition_service_charge = $price['en_additional_service_charge'];
+                                                                            }
+                                                                        }
+                                                                        
+                                                                        if ($price['product_or_services'] == "Product" && $price['customer_net_payable'] == 0) { 
+                                                                           if(isset($price['en_parts_cost'])){
+                                                                            $parts_cost = $price['en_parts_cost'];
+                                                                           }
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    
+                                                                    if(!empty($price["serial_number_pic"])) {
+                                                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$price["serial_number_pic"];
+                                                                        $pic_name = $price["serial_number_pic"];
+                                                                    } elseif(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['serial_number_pic'])) {
                                                                         //Path to be changed
                                                                         $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history['spare_parts'][0]['serial_number_pic'];
                                                                         $pic_name = $booking_history['spare_parts'][0]['serial_number_pic'];
                                                                         
-                                                                    } elseif(!empty($price["serial_number_pic"])) {
-                                                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$price["serial_number_pic"];
-                                                                        $pic_name = $price["serial_number_pic"];
+                                                                    } elseif($this->session->userdata('is_engineer_app') == 1){
+                                                                        if(isset($price['en_serial_number_pic'])){
+                                                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/engineer-uploads/".$price['en_serial_number_pic'];
+                                                                            $pic_name = $price['en_serial_number_pic'];
+                                                                        }
                                                                     }
                                                                     
                                                                     if(!empty($src)) {
