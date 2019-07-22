@@ -1744,7 +1744,7 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "count(booking_details.booking_id) as bookings";
             $slot_select = 'booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
-                    . 'booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id';
+                    . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id';
             $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $tommorow_bookings_count = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $morning_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_10AM_TO_1PM, $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
@@ -1783,25 +1783,26 @@ class engineerApi extends CI_Controller {
         }
     }
     
-    function getMissedBookingList($select, $service_center_id, $engineer_id){
+    function getMissedBookingList($select, $service_center_id, $engineer_id){ 
             $missed_where = array(
                         "assigned_vendor_id" => $service_center_id,
                         "assigned_engineer_id" => $engineer_id,
                         "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
                         "engineer_booking_action.internal_status != '"._247AROUND_COMPLETED."'" => NULL,
+                        "service_center_booking_action.current_status = '"._247AROUND_PENDING."'" => NULL,
                         "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
                     );
             $missed_slots = $this->apis->getMissedBookingSlots();
             if($missed_slots){
                 if(count($missed_slots) == "1"){
-                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = 0) AND booking_timeslot = '".$missed_slots[0]."')"] = NULL;
+                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND booking_details.booking_timeslot = '".$missed_slots[0]."')"] = NULL;
                 }
                 if(count($missed_slots) == "2"){
-                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = 0) AND (booking_timeslot = '".$missed_slots[0]."' OR booking_timeslot = '".$missed_slots[1]."'))"] = NULL;
+                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND (booking_details.booking_timeslot = '".$missed_slots[0]."' OR booking_details.booking_timeslot = '".$missed_slots[1]."'))"] = NULL;
                 }
             }
             else{
-                $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) > 0)"] = NULL;
+                $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0)"] = NULL;
             }
             
             $missed_bookings = $this->engineer_model->get_engineer_booking_details($select, $missed_where, true, true, true, false, false);
@@ -1814,7 +1815,8 @@ class engineerApi extends CI_Controller {
                     "assigned_vendor_id" => $service_center_id,
                     "assigned_engineer_id" => $engineer_id,
                     "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
-                    "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = -1)" => NULL,
+                    "service_center_booking_action.current_status = '"._247AROUND_PENDING."'" => NULL,
+                    "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = -1)" => NULL,
                     "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
                 );
         $tommorow_bookings = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false);
@@ -1826,9 +1828,10 @@ class engineerApi extends CI_Controller {
         $where = array(
                     "assigned_vendor_id" => $service_center_id,
                     "assigned_engineer_id" => $engineer_id,
-                    "booking_timeslot" => $slot,
+                    "booking_details.booking_timeslot" => $slot,
                     "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
-                    "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = 0)" => NULL,
+                    "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0)" => NULL,
+                    "service_center_booking_action.current_status = '"._247AROUND_PENDING."'" => NULL,
                     "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
                 );
         $bookings = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false);
@@ -1836,8 +1839,9 @@ class engineerApi extends CI_Controller {
             foreach ($bookings as $key => $value) {
                 if($engineer_pincode){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
-                    $distance = explode(" ",$distance_details['distance']['text']);
-                    $bookings[$key]['booking_distance'] = $distance[0];
+                    $distance_array = explode(" ",$distance_details['distance']['text']);
+                    $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $bookings[$key]['booking_distance'] = $distance;
                 }
             }
         }
@@ -1851,13 +1855,14 @@ class engineerApi extends CI_Controller {
         //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "engineer_pincode"=>"201301");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
-                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
             $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($missed_bookings as $key => $value) {
                 if($requestData['engineer_pincode']){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
-                    $distance = explode(" ",$distance_details['distance']['text']);
-                    $missed_bookings[$key]['booking_distance'] = $distance[0];
+                    $distance_array = explode(" ",$distance_details['distance']['text']);
+                    $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $missed_bookings[$key]['booking_distance'] = $distance;
                 }
             }
             $response['missedBooking'] = $missed_bookings;
@@ -1878,13 +1883,14 @@ class engineerApi extends CI_Controller {
         //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "engineer_pincode"=>"201301");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
-                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
             $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($tomorrowBooking as $key => $value) {
                 if($requestData['engineer_pincode']){
                     $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
-                    $distance = explode(" ",$distance_details['distance']['text']);
-                    $tomorrowBooking[$key]['booking_distance'] = $distance[0];
+                    $distance_array = explode(" ",$distance_details['distance']['text']);
+                    $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $tomorrowBooking[$key]['booking_distance'] = $distance;
                 }
             }
             $response['tomorrowBooking'] = $tomorrowBooking; 
@@ -1906,7 +1912,7 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"]) && !empty($requestData["booking_status"])) {
             if($requestData["booking_status"] == _247AROUND_CANCELLED || $requestData["booking_status"] == _247AROUND_COMPLETED){
                 $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
-                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
             
                 $where = array(
                     "assigned_vendor_id" => $requestData["service_center_id"],

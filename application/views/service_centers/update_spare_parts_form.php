@@ -81,7 +81,7 @@
                                     </div>
                                     <div class="col-md-2">
                                         <?php if(!is_null($spare_parts[0]->serial_number_pic)){ ?>
-                                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $spare_parts[0]->serial_number_pic;?>" target="_blank"><img src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $spare_parts[0]->serial_number_pic;?>" width="35px" height="35px" style="border:1px solid black;margin-left:-5px;" /></a>
+                                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $spare_parts[0]->serial_number_pic;?>" target="_blank"><img src="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $spare_parts[0]->serial_number_pic;?>" width="35px" height="35px" style="border:1px solid black;margin-left:-5px;" /></a>
                                         <?php } ?>
                                     </div>
                                 </div>

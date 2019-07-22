@@ -323,20 +323,20 @@
                                                                         }
                                                                     }
                                                                     
-                                                                    if($this->session->userdata('is_engineer_app') == 1){
-                                                                        if(isset($price['en_serial_number_pic'])){
-                                                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/engineer-uploads/".$price['en_serial_number_pic'];
-                                                                            $pic_name = $price['en_serial_number_pic'];
-                                                                        }
-                                                                    }
-                                                                    else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['serial_number_pic'])) {
+                                                                    
+                                                                    if(!empty($price["serial_number_pic"])) {
+                                                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/".SERIAL_NUMBER_PIC_DIR."/".$price["serial_number_pic"];
+                                                                        $pic_name = $price["serial_number_pic"];
+                                                                    } elseif(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['serial_number_pic'])) {
                                                                         //Path to be changed
-                                                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history['spare_parts'][0]['serial_number_pic'];
+                                                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/".SERIAL_NUMBER_PIC_DIR."/".$booking_history['spare_parts'][0]['serial_number_pic'];
                                                                         $pic_name = $booking_history['spare_parts'][0]['serial_number_pic'];
                                                                         
-                                                                    } elseif(!empty($price["serial_number_pic"])) {
-                                                                        $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$price["serial_number_pic"];
-                                                                        $pic_name = $price["serial_number_pic"];
+                                                                    } elseif($this->session->userdata('is_engineer_app') == 1){
+                                                                        if(isset($price['en_serial_number_pic'])){
+                                                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/".SERIAL_NUMBER_PIC_DIR."/".$price['en_serial_number_pic'];
+                                                                            $pic_name = $price['en_serial_number_pic'];
+                                                                        }
                                                                     }
                                                                     
                                                                     if(!empty($src)) {
