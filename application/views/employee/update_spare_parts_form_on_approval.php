@@ -65,7 +65,7 @@
                                             <input type="hidden" class="form-control spare_parts" id="old_serial_number_pic" name="old_serial_number_pic" value="<?php echo $spare_parts_details['serial_number_pic']; ?>">
                                         </div>
                                         <?php if(!empty($spare_parts_details['serial_number_pic'])){ ?>
-                                        <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['serial_number_pic']; ?>" id="display_serial_number_pic" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
+                                        <img src="<?php echo S3_WEBSITE_URL; ?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $spare_parts_details['serial_number_pic']; ?>" id="display_serial_number_pic" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
                                         <?php } ?>
                                     </div>
                                 </div>
