@@ -321,10 +321,12 @@
                                                             <th >Current Status</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
+                                                    <tbody> 
                                                                 <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                                             <tr>
-                                                                <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
+                                                                <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else if(in_array($sp['partner_id'],array(15,804))){
+                                                                       echo "Warehouse (Central)";     
+                                                                  }else { echo $booking_history[0]['city']. " Warehouse (Micro)";} ?></span></td>
                                                                 <td><?php echo $sp['model_number']; ?></td>
                                                                 <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br>".$sp['original_parts_number']; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br>".$sp['part_number']) : ''); } ?></td>
                                                                 <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br>".$sp['part_number']; }  ?></td>
