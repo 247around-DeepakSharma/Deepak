@@ -342,7 +342,7 @@
                                                                 <td><?php
                                                             if (!is_null($sp['serial_number_pic'])) {
                                                                 if ($sp['serial_number_pic'] !== '0') {
-                                                                    ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php
+                                                                    ?> <a href="https://s3.amazonaws.com/bookings-collateral/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php
                                                                 }
                                                             }
                                                             ?>
