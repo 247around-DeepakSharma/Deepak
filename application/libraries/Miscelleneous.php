@@ -3255,7 +3255,7 @@ function generate_image($base64, $image_name,$directory){
                 $from = $email_template[2];
                 $cc = $email_template[3].$rm_email;
             }
-            $attachment = S3_WEBSITE_URL . "engineer-uploads/" . $pic_name;
+            $attachment = S3_WEBSITE_URL . SERIAL_NUMBER_PIC_DIR."/" . $pic_name;
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment, INFORM_PARTNER_FOR_NEW_SERIAL_NUMBER);
         }
     }
