@@ -80,6 +80,7 @@
         buttons: [
             { 
                 extend: 'csv',
+                title: 'Penalty_details',
                 text: 'Download List',
                 exportOptions: {
                     columns: [1,2,3,6]
