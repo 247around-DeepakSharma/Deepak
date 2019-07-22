@@ -300,9 +300,21 @@ class Employee_model extends CI_Model{
         return $result;
    }
    
+   /**
+    * 
+    * @param type $state
+    * @return type
+    */
    function get_state_wise_rm($state) {
-       $state_code = $this->reusable_model->get_search_result_data('state_code', 'state_code', ['state' => trim($state)], NULL, NULL, NULL, NULL, NULL)[0]['state_code'];
-       $sql = "SELECT agent_id FROM `employee_relation` WHERE find_in_set('{$state_code}', state_code)";
+        $sql = "SELECT
+                    employee.id,
+                    employee.full_name
+                FROM
+                    employee_relation
+                    LEFT JOIN employee ON (employee_relation.agent_id = employee.id)
+                    LEFT JOIN state_code ON FIND_IN_SET(state_code.state_code , employee_relation.state_code)
+                WHERE 
+                    state_code.state = '".trim($state)."'";
        return $this->db->query($sql)->result_array();
    }
 }

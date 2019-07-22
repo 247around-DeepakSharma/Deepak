@@ -730,7 +730,7 @@ class vendor extends CI_Controller {
         $this->checkUserSession();
         $results['services'] = $this->vendor_model->selectservice();
         $results['brands'] = $this->vendor_model->selectbrand();
-        $results['select_state'] = $this->vendor_model->getall_state();
+        $results['select_state'] = $this->vendor_model->get_allstates();
         $results['employee_rm'] = $this->employee_model->get_rm_details();
         $results['bank_name'] = $this->vendor_model->get_bank_details();
    
@@ -5790,9 +5790,7 @@ class vendor extends CI_Controller {
     }
     
     function getRMs() {
-        $state = $this->input->post('state');
-        $rm = array_column($this->employee_model->get_state_wise_rm($state), 'agent_id');
-        $data = $this->reusable_model->get_search_result_data('employee', 'id, full_name', [], NULL, NULL, NULL, ['id' => implode(',', $rm)], NULL);
+        $data = $this->employee_model->get_state_wise_rm($this->input->post('state'));
         $option = '<option value="" disabled '.(count($data) > 1 ? 'selected' : '').'>Select Regional Manager</option>';
         foreach ($data as $employee) {
             $option .= "<option value='{$employee['id']}'>{$employee['full_name']}</option>";
