@@ -217,7 +217,7 @@
                                                     <td><?php echo $unit_detail['sf_model_number'] ?></td>
                                                     <td><?php echo $unit_detail['model_number'] ?></td>
                                                     <td><?php if(!empty($unit_detail['serial_number_pic'])){?>
-                                        <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
+                                        <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
                                              <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?></td>
                                                     <td><?php echo $unit_detail['appliance_description'] ?></td>
                                                     <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?></td>
@@ -342,7 +342,7 @@
                                                                 <td><?php
                                                             if (!is_null($sp['serial_number_pic'])) {
                                                                 if ($sp['serial_number_pic'] !== '0') {
-                                                                    ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php
+                                                                    ?> <a href="https://s3.amazonaws.com/bookings-collateral/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php
                                                                 }
                                                             }
                                                             ?>
