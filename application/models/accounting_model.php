@@ -246,11 +246,11 @@ class accounting_model extends CI_Model {
             $where .= " AND vpi.`from_date`>='$from_date'  AND vpi.`to_date` <'$to_date'";
         }
         
-        $sql ="SELECT vpi.invoice_id as advance_voucher, p.public_name as partner_name,p.address,p.state, total_service_charge, total_additional_service_charge,
+        $sql ="SELECT vpi.invoice_id as invoice_id, p.public_name as partner_name,p.address,p.state, total_service_charge, total_additional_service_charge,
                 cgst_tax_amount, cgst_tax_rate, sgst_tax_amount, sgst_tax_rate, igst_tax_amount, igst_tax_rate, total_amount_collected, invoice_date,gst_number, from_date,
-                to_date, vpi.type, vpi.type_code, vertical, category, sub_category, credit_debit, bt.invoice_id, abs(amount_collected_paid) as amount_collected_paid, vpi.tds_rate, vpi.tds_amount, reference_invoice_id, vpi.parts_count, `num_bookings`
+                to_date, vpi.type, vpi.type_code, vertical, category, sub_category, credit_debit, abs(amount_collected_paid) as amount_collected_paid, vpi.tds_rate, vpi.tds_amount, reference_invoice_id, vpi.parts_count, `num_bookings`
                 FROM vendor_partner_invoices as vpi, bank_transactions as bt, partners as p
-                WHERE vpi.vendor_partner = 'partner' AND vpi.type = 'Partner_Voucher' AND type_code = 'B' AND bt.is_advance = '1' AND p.id = vpi.vendor_partner_id AND vendor_partner ='partner' $where";
+                WHERE vpi.vendor_partner = 'partner' AND vpi.type = 'Partner_Voucher' AND type_code = 'B' AND bt.is_advance = '1' AND bt.invoice_id = vpi.invoice_id AND p.id = vpi.vendor_partner_id AND vendor_partner ='partner' $where";
 
         $query1 = $this->db->query($sql);
         $data = $query1->result_array();
