@@ -628,12 +628,11 @@
             <thead>
                 <tr>
                     <th>S.No.</th>
-                    <th>Advance Voucher Invoice</th>
+                    <th>Invoice Id</th>
                     <th>Partner Name</th>
                     <th>Address</th>
                     <th>State</th>
                     <th>Credit/Debit</th>
-                    <th>Invoice Id</th>
                     <th>Invoice Date</th>
                     <th>Reference Invoices</th>
                     <th>GST Number</th>
@@ -663,12 +662,11 @@
                         ?>
                         <tr>
                             <td><?php echo $sn; ?></td>
-                            <td><?php echo $value['advance_voucher']; ?></td>
+                            <td><?php echo $value['invoice_id']; ?></td>
                             <td><?php echo $value['partner_name']; ?></td>
                             <td><?php echo $value['address']; ?></td>
                             <td><?php echo $value['state']; ?></td>
                             <td><?php echo $value['credit_debit']; ?></td>
-                            <td><?php echo $value['invoice_id']; ?></td>
                             <td><?php echo $value['invoice_date']; ?></td>
                             <td><?php echo $value['reference_invoice_id']; ?></td>
                             <td><?php echo $value['gst_number']; ?></td>
@@ -694,7 +692,6 @@
                     ?>
                     <tr>
                         <td><b>Total</b></td>
-                        <td></td>
                         <td></td>
                         <td></td>
                         <td></td>
