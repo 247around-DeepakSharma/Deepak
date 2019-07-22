@@ -25,6 +25,7 @@
          
          <th>Invoice Id</th>
          <th>Type</th>
+         <th>Category</th>         
          <th>Bookings/ Parts</th>
          <th>Invoice Period</th>
          <th>Due Date</th>
@@ -84,6 +85,7 @@
          </td>
         
          <td style="max-width: 56px; word-wrap:break-word;"><?php echo $invoice['type']; ?></td>
+         <td style="max-width: 56px; word-wrap:break-word;"><?php echo $invoice['sub_category']; ?></td>
          <td ><?php echo $invoice['num_bookings']."/".$invoice['parts_count']; ?></td>
          <td><?php echo date("jS M, Y", strtotime($invoice['invoice_date'])). " <br/><br/> ".date("jS M, Y", strtotime($invoice['from_date'])). " to ". date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
           <td><?php echo $invoice['due_date'];?></td>
@@ -186,6 +188,7 @@
 
         <tr style="font-weight: bold;">
          <td><b>Total</b></td>
+         <td></td>
          <td></td>
          <td></td>
          <td></td>
