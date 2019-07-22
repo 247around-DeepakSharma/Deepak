@@ -1189,6 +1189,7 @@ class Accounting extends CI_Controller {
         $row[] = $order_list->invoice_id;
         $row[] = date("jS M, Y", strtotime($order_list->from_date)). " to ". date("jS M, Y", strtotime($order_list->to_date));
         $row[] = $order_list->type;
+        $row[] = $order_list->sub_category;
         $row[] = '<a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$order_list->invoice_file_main.'">'.$order_list->invoice_file_main.'</a>';
         $row[] = '<a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$order_list->invoice_detailed_excel.'">'.$order_list->invoice_detailed_excel.'</a>';
        
@@ -1235,6 +1236,7 @@ class Accounting extends CI_Controller {
         }
         $row[] = date("jS M, Y", strtotime($order_list->invoice_date));
         $row[] = date("jS M, Y", strtotime($order_list->from_date)) . " to " . date("jS M, Y", strtotime($order_list->to_date));
+        $row[] = $order_list->sub_category;
         $row[] = $order_list->num_bookings . "/" . $order_list->parts_count;
         $row[] = $order_list->tds_amount;
         $row[] = $order_list->total_amount_collected;
