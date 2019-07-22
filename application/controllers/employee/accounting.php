@@ -339,6 +339,10 @@ class Accounting extends CI_Controller {
             $data['partner_vendor'] = $partner_vendor;
             $data['payment_type'] = $payment_type;
             $data['report_type'] = $report_type;
+            foreach($data['invoice_data'] as $key => $value) {
+                $invoice_id = (($payment_type !== 'advance_voucher')?$value['invoice_id']:$value['advance_voucher']);
+                $data['invoice_details_data'][$key] = $this->invoices_model->get_breakup_invoice_details("invoice_id, product_or_services, rate, qty, taxable_value, cgst_tax_amount, sgst_tax_amount, igst_tax_amount, total_amount", array("invoice_id" => $invoice_id));
+            }
             echo $this->load->view('employee/paymnet_history_table_view', $data);
         } else {
             echo "error";
@@ -1185,6 +1189,7 @@ class Accounting extends CI_Controller {
         $row[] = $order_list->invoice_id;
         $row[] = date("jS M, Y", strtotime($order_list->from_date)). " to ". date("jS M, Y", strtotime($order_list->to_date));
         $row[] = $order_list->type;
+        $row[] = $order_list->sub_category;
         $row[] = '<a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$order_list->invoice_file_main.'">'.$order_list->invoice_file_main.'</a>';
         $row[] = '<a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$order_list->invoice_detailed_excel.'">'.$order_list->invoice_detailed_excel.'</a>';
        
@@ -1231,6 +1236,7 @@ class Accounting extends CI_Controller {
         }
         $row[] = date("jS M, Y", strtotime($order_list->invoice_date));
         $row[] = date("jS M, Y", strtotime($order_list->from_date)) . " to " . date("jS M, Y", strtotime($order_list->to_date));
+        $row[] = $order_list->sub_category;
         $row[] = $order_list->num_bookings . "/" . $order_list->parts_count;
         $row[] = $order_list->tds_amount;
         $row[] = $order_list->total_amount_collected;

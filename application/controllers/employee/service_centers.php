@@ -1022,7 +1022,7 @@ class Service_centers extends CI_Controller {
         if (!empty($upload_serial_number_pic['tmp_name'][$unit])) {
            
             $pic_name = $this->upload_serial_no_image_to_s3($upload_serial_number_pic, 
-                    "serial_number_pic_".$this->input->post('booking_id')."_", $unit, "engineer-uploads", "serial_number_pic");
+                    "serial_number_pic_".$this->input->post('booking_id')."_", $unit, SERIAL_NUMBER_PIC_DIR, "serial_number_pic");
             if($pic_name){
                 
                 return true;
@@ -1121,6 +1121,8 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         $booking_id = base64_decode(urldecode($code));
         $data['user_and_booking_details'] = $this->booking_model->getbooking_history($booking_id);
+        $data['brand'] = $this->reusable_model->get_search_result_data('booking_unit_details', 'DISTINCT appliance_brand', ['booking_id' => $booking_id], NULL, NULL, NULL, NULL, NULL);
+       
         $where = array('reason_of' => 'vendor');
         $data['reason'] = $this->booking_model->cancelreason($where);
 
@@ -1150,7 +1152,7 @@ class Service_centers extends CI_Controller {
             $partner_id = $this->input->post('partner_id');
             $city = $this->input->post('city');
             $booking_pincode = $this->input->post('booking_pincode');
-            
+            $brand = $this->input->post('brand');
             
             if(!empty($cancellation_text)){
                 $can_state_change = $cancellation_reason." - ".$cancellation_text;
@@ -1177,7 +1179,7 @@ class Service_centers extends CI_Controller {
                          $this->initialized_variable->fetch_partner_data($partner_id);
                          $partner_data = $this->initialized_variable->get_partner_data();
                          $booking['service_id']=$this->input->post('service_id');
-                         $response = $this->miscelleneous->check_upcountry_vendor_availability($city,$correctpin, $booking['service_id'], $partner_data, false);
+                         $response = $this->miscelleneous->check_upcountry_vendor_availability($city,$correctpin, $booking['service_id'], $partner_data, false, $brand);
                          if (!empty($response)  && !isset($response['vendor_not_found'])) {
                          $url = base_url() . "employee/vendor/process_reassign_vendor_form/0";
                          $async_data['service'] = $response['vendor_id'];
@@ -6233,7 +6235,7 @@ class Service_centers extends CI_Controller {
             $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
             $booking_id = $this->input->post("booking_id");
             $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["serial_number_pic"], 
-                    "serial_number_pic", $allowedExts, $booking_id, "misc-images", "serial_number_pic");
+                    "serial_number_pic", $allowedExts, $booking_id, SERIAL_NUMBER_PIC_DIR, "serial_number_pic");
             if($defective_courier_receipt){
                 
                return true;
@@ -7296,6 +7298,51 @@ class Service_centers extends CI_Controller {
         }
         $this->load->view('service_centers/header');
         $this->load->view('warranty/check_warranty', ['partnerArray' => $partnerArray, 'partner_id' => $partner_id, 'service_id' => $service_id, 'brand' => $brand]);
+    }
+
+
+    /**
+     * @desc: get defective parts shipped by sf
+     * Created by -Abhishek Awasthi on July 18 ,2019
+     * @return: void
+     */
+    function defective_parts_sent($offset=0){
+       $this->checkUserSession();
+        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
+        $service_center_id = $this->session->userdata('service_center_id');
+
+        $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status" => DEFECTIVE_PARTS_SHIPPED
+        );
+         
+        $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, parts_shipped, "
+                . " spare_parts_details.booking_id,booking_details.partner_id as booking_partner_id, users.name, "
+                . " sf_challan_file as challan_file, "
+                . " remarks_defective_part_by_partner, "
+                . " remarks_by_partner,spare_parts_details.remarks_defective_part_by_sf,spare_parts_details.awb_by_sf,spare_parts_details.courier_charges_by_sf,spare_parts_details.courier_name_by_sf,spare_parts_details.defective_part_shipped, spare_parts_details.defective_part_shipped_date,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
+                . " spare_parts_details.id,spare_parts_details.challan_approx_value ,i.part_number ";
+        
+        $group_by = "spare_parts_details.id";
+        $order_by = "status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.booking_id ASC";
+       
+          
+        $config['base_url'] = base_url() . 'service_center/defective_parts_sent';
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select);
+         
+        $config['per_page'] = 50;
+        $config['uri_segment'] = 3;
+        $config['first_link'] = 'First';
+        $config['last_link'] = 'Last';
+        $this->pagination->initialize($config);
+        $data['links'] = $this->pagination->create_links();
+        $data['count'] = $config['total_rows'];
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $config['per_page']);
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/defective_parts_sent', $data);
+
     }
 
 }

@@ -95,7 +95,7 @@
                                            <td>
                                               <?php if(!empty($value1['serial_number_pic'])) {?>
                                                <input type="hidden" style="display:none;" value="<?php echo $value1['is_sn_correct'] ?>" class=<?php echo "sn_".$value['booking_id']; ?>>
-                                              <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $value1['serial_number_pic'];?>"> 
+                                              <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $value1['serial_number_pic'];?>"> 
                                                   <span class="<?php if($value1['is_sn_correct']==IS_SN_CORRECT){ echo "text-danger ";}else{ echo "text-info ";}?><?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span></a>
                                               <?php } else {
                                                   if($value1['serial_number']){ ?>
@@ -118,7 +118,7 @@
                                              <span id="<?php echo "parts_cost".$count;?>"><?php echo $value1['parts_cost']; ?></span>
                                           </td>
                                           <td>
-                                             <span id="<?php echo "upcountry".$count;?>"><?php if($key1 ==0){ echo $value1['upcountry_charges'];} ?></span>
+                                             <span id="<?php echo "upcountry".$count;?>"><?php  echo $value1['upcountry_charges']; ?></span>
                                           </td>
                                           <td>
                                              <span id="<?php echo "broken".$count;?>"><?php if($value1['is_broken'] == 1){ echo "Yes";} else{ echo "No";} ?></span>

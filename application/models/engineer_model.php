@@ -221,10 +221,12 @@ class Engineer_model extends CI_Model {
     }
     
     function get_engineer_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false, $is_partner = false, $is_vendor = false){
+        $this->db->distinct();
         $this->db->select($select, false);
         $this->db->from('engineer_booking_action');
         $this->db->where($where);
         $this->db->join("booking_details", "booking_details.booking_id = engineer_booking_action.booking_id");
+        $this->db->join("service_center_booking_action", "service_center_booking_action.booking_id = engineer_booking_action.booking_id");
         if($is_service){
             $this->db->join("services", "services.id = booking_details.service_id");
         }
@@ -299,6 +301,13 @@ class Engineer_model extends CI_Model {
                 FROM booking_details WHERE assigned_vendor_id = '$sf_id'
                 AND assigned_engineer_id = '$engineer_id'
                 AND rating_stars IS NOT NULL AND current_status = '"._247AROUND_COMPLETED."'";    
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+    function get_engineer_D0_closure($engineer_id, $sf_id){
+        $sql = "SELECT (select count(id) FROM booking_details WHERE DATEDIFF(STR_TO_DATE(initial_booking_date,'%d-%m-%Y'), CAST(service_center_closed_date AS date)) = 0 AND assigned_vendor_id=$sf_id AND assigned_engineer_id=$engineer_id AND current_status='Completed') as same_day_closure,"
+                . " (Select Count(id) From booking_details WHERE assigned_vendor_id=$sf_id AND assigned_engineer_id=$engineer_id AND current_status='Completed') as total_closure from booking_details limit 1";
         $query = $this->db->query($sql);
         return $query->result_array();
     }

@@ -217,7 +217,7 @@
                                                     <td><?php echo $unit_detail['sf_model_number'] ?></td>
                                                     <td><?php echo $unit_detail['model_number'] ?></td>
                                                     <td><?php if(!empty($unit_detail['serial_number_pic'])){?>
-                                        <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
+                                        <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
                                              <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?></td>
                                                     <td><?php echo $unit_detail['appliance_description'] ?></td>
                                                     <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?></td>
@@ -321,13 +321,15 @@
                                                             <th >Current Status</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
+                                                    <tbody> 
                                                                 <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                                             <tr>
-                                                                <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
+                                                                <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else if(in_array($sp['partner_id'],array(15,804))){
+                                                                       echo "Warehouse (Central)";     
+                                                                  }else { echo $booking_history[0]['city']. " Warehouse (Micro)";} ?></span></td>
                                                                 <td><?php echo $sp['model_number']; ?></td>
-                                                                <td style=" word-break: break-all;"><?php if(isset($sp['original_part_number'])){ echo $sp['original_part_number']; } else { echo $sp['parts_requested']; } ?></td>
-                                                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; }  ?></td>
+                                                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br>".$sp['original_parts_number']; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br>".$sp['part_number']) : ''); } ?></td>
+                                                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br>".$sp['part_number']; }  ?></td>
                                                                 <td><?php echo $sp['parts_requested_type']; ?></td>       
                                                                 <td><?php echo $sp['quantity']; ?></td>
                                                                 <td><?php echo $sp['create_date']; ?></td>
@@ -342,7 +344,7 @@
                                                                 <td><?php
                                                             if (!is_null($sp['serial_number_pic'])) {
                                                                 if ($sp['serial_number_pic'] !== '0') {
-                                                                    ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php
+                                                                    ?> <a href="https://s3.amazonaws.com/bookings-collateral/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php
                                                                 }
                                                             }
                                                             ?>

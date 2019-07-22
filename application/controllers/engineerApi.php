@@ -41,6 +41,7 @@ class engineerApi extends CI_Controller {
         $this->load->helper(array('form', 'url'));
         $this->load->library('asynchronous_lib');
         $this->load->library('paytm_payment_lib');
+        $this->load->library('validate_serial_no');
     }
 
     /**
@@ -368,8 +369,12 @@ class engineerApi extends CI_Controller {
                 $this->getPaytmAmountByEngineer();
                 break;
             
-             case 'getCustomerQrCode':
+            case 'getCustomerQrCode':
                 $this->getCustomerQrCode();
+                break;
+            
+            case 'validateSerialNumber':
+                $this->getValidateSerialNumber();
                 break;
             
             default:
@@ -1162,7 +1167,7 @@ class engineerApi extends CI_Controller {
             foreach($unitDetails as $value){
                 $data = array();
                 
-                $unit_id = $this->check_unit_exist_action_table($booking_id, $value["unit_id"]);
+                $unit_id = $this->check_unit_exist_action_table($booking_id, $value["unit_id"], $requestData['service_center_id']);
                
                 if($unit_id){
                     $data["current_status"] = "InProcess";
@@ -1735,17 +1740,24 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
+        //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "engineer_pincode"=>"201301");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "count(booking_details.booking_id) as bookings";
             $slot_select = 'booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
-                    . 'booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id';
+                    . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id';
             $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $tommorow_bookings_count = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
-            $morning_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_10AM_TO_1PM, $requestData["service_center_id"], $requestData["engineer_id"]);
-            $noon_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_1PM_TO_4PM, $requestData["service_center_id"], $requestData["engineer_id"]);
-            $evening_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_4PM_TO_7PM, $requestData["service_center_id"], $requestData["engineer_id"]);
+            $morning_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_10AM_TO_1PM, $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
+            $noon_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_1PM_TO_4PM, $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
+            $evening_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_4PM_TO_7PM, $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
             $en_rating = $this->engineer_model->get_engineer_rating($requestData["engineer_id"], $requestData["service_center_id"])[0];
+            $en_D0_data = $this->engineer_model->get_engineer_D0_closure($requestData["engineer_id"], $requestData["service_center_id"]);
+            if(!empty($en_D0_data)){
+                $D0 = ($en_D0_data[0]['same_day_closure']*100)/$en_D0_data[0]['total_closure'];
+            }
+            else{
+                $D0 = 0;
+            }
             if(!$en_rating['rating']){
                 $rating = 0;
             }
@@ -1759,6 +1771,7 @@ class engineerApi extends CI_Controller {
             $response['todayAfternoonBooking'] = $noon_slot_bookings;
             $response['todayEveningBooking'] = $evening_slot_bookings;
             $response['rating'] = $rating;
+            $response['same_day_closure'] = $D0;
             
             log_message("info", __METHOD__ . "Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
@@ -1770,25 +1783,26 @@ class engineerApi extends CI_Controller {
         }
     }
     
-    function getMissedBookingList($select, $service_center_id, $engineer_id){
+    function getMissedBookingList($select, $service_center_id, $engineer_id){ 
             $missed_where = array(
                         "assigned_vendor_id" => $service_center_id,
                         "assigned_engineer_id" => $engineer_id,
                         "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
                         "engineer_booking_action.internal_status != '"._247AROUND_COMPLETED."'" => NULL,
+                        "service_center_booking_action.current_status = '"._247AROUND_PENDING."'" => NULL,
                         "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
                     );
             $missed_slots = $this->apis->getMissedBookingSlots();
             if($missed_slots){
                 if(count($missed_slots) == "1"){
-                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = 0) AND booking_timeslot = '".$missed_slots[0]."')"] = NULL;
+                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND booking_details.booking_timeslot = '".$missed_slots[0]."')"] = NULL;
                 }
                 if(count($missed_slots) == "2"){
-                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = 0) AND (booking_timeslot = '".$missed_slots[0]."' OR booking_timeslot = '".$missed_slots[1]."'))"] = NULL;
+                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND (booking_details.booking_timeslot = '".$missed_slots[0]."' OR booking_details.booking_timeslot = '".$missed_slots[1]."'))"] = NULL;
                 }
             }
             else{
-                $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) > 0)"] = NULL;
+                $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0)"] = NULL;
             }
             
             $missed_bookings = $this->engineer_model->get_engineer_booking_details($select, $missed_where, true, true, true, false, false);
@@ -1801,24 +1815,36 @@ class engineerApi extends CI_Controller {
                     "assigned_vendor_id" => $service_center_id,
                     "assigned_engineer_id" => $engineer_id,
                     "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
-                    "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = -1)" => NULL,
+                    "service_center_booking_action.current_status = '"._247AROUND_PENDING."'" => NULL,
+                    "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = -1)" => NULL,
                     "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
                 );
         $tommorow_bookings = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false);
         return $tommorow_bookings;
     }
     
-    function getTodaysSlotBookingList($select, $slot, $service_center_id, $engineer_id){
+    function getTodaysSlotBookingList($select, $slot, $service_center_id, $engineer_id, $engineer_pincode=""){
         log_message("info", __METHOD__. " Entering..");
         $where = array(
                     "assigned_vendor_id" => $service_center_id,
                     "assigned_engineer_id" => $engineer_id,
-                    "booking_timeslot" => $slot,
+                    "booking_details.booking_timeslot" => $slot,
                     "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
-                    "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_date, '%d-%m-%Y')) = 0)" => NULL,
+                    "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0)" => NULL,
+                    "service_center_booking_action.current_status = '"._247AROUND_PENDING."'" => NULL,
                     "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
                 );
         $bookings = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false);
+        if($engineer_pincode){
+            foreach ($bookings as $key => $value) {
+                if($engineer_pincode){
+                    $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value['booking_pincode'], "");
+                    $distance_array = explode(" ",$distance_details['distance']['text']);
+                    $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $bookings[$key]['booking_distance'] = $distance;
+                }
+            }
+        }
         return $bookings;
     }
     
@@ -1826,11 +1852,20 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
+        //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "engineer_pincode"=>"201301");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
-                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
-            $response['missedBooking'] = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
+            $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
+            foreach ($missed_bookings as $key => $value) {
+                if($requestData['engineer_pincode']){
+                    $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
+                    $distance_array = explode(" ",$distance_details['distance']['text']);
+                    $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $missed_bookings[$key]['booking_distance'] = $distance;
+                }
+            }
+            $response['missedBooking'] = $missed_bookings;
             log_message("info", __METHOD__ . "Missed Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
@@ -1845,11 +1880,20 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("engineer_id" => 1, "service_center_id" => 1);
+        //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "engineer_pincode"=>"201301");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
-                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
-            $response['tomorrowBooking'] = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
+            $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
+            foreach ($tomorrowBooking as $key => $value) {
+                if($requestData['engineer_pincode']){
+                    $distance_details = $this->upcountry_model->calculate_distance_between_pincode($requestData['engineer_pincode'], "", $value['booking_pincode'], "");
+                    $distance_array = explode(" ",$distance_details['distance']['text']);
+                    $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                    $tomorrowBooking[$key]['booking_distance'] = $distance;
+                }
+            }
+            $response['tomorrowBooking'] = $tomorrowBooking; 
             log_message("info", __METHOD__ . "Tommorow Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
@@ -1868,7 +1912,7 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"]) && !empty($requestData["booking_status"])) {
             if($requestData["booking_status"] == _247AROUND_CANCELLED || $requestData["booking_status"] == _247AROUND_COMPLETED){
                 $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
-                    . "booking_pincode, booking_primary_contact_no, booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
             
                 $where = array(
                     "assigned_vendor_id" => $requestData["service_center_id"],
@@ -2157,9 +2201,12 @@ class engineerApi extends CI_Controller {
         else if(!isset($requestData['days'])){
             $response['message'] = "Days not found";
         }
+        /*
         else if(!isset($requestData['model_number_id'])){
             $response['message'] = "Model Number Id not found";
         }
+         * 
+         */
         else if(!isset($requestData['model_number'])){
             $response['message'] = "Model Number not found";
         }
@@ -2179,7 +2226,7 @@ class engineerApi extends CI_Controller {
            
             $check = true;
             $missing_key = "";
-            $keys = array("part_warranty_status", "parts_type", "parts_name", "requested_inventory_id", "quantity");
+            $keys = array("part_warranty_status", "parts_type", "parts_name", "quantity"); //we removed - requested_inventory_id check beacuse it it optional
             foreach($requestData['part'] as $parts){
                 foreach ($keys as $key){
                     if (!array_key_exists($key, $parts)){ 
@@ -2386,7 +2433,7 @@ class engineerApi extends CI_Controller {
         }
     }
     
-    function check_unit_exist_action_table($booking_id, $unit_id) {
+    function check_unit_exist_action_table($booking_id, $unit_id, $service_center_id) {
         log_message("info", __METHOD__ . " Booking ID " . $booking_id . " Unit ID " . $unit_id);
         if (strpos($unit_id, 'new') !== false) {
             $remove_string_new = explode('new', $unit_id);
@@ -2403,6 +2450,16 @@ class engineerApi extends CI_Controller {
                     . print_r($service_charges_id, true)
                     . " Data: " . print_r($data, true));
             $unit_id = $this->booking_model->insert_new_unit_item($unit_tmp_id, $service_charges_id, $data, "");
+            if(!empty($unit_id)){
+                $engineer_action['unit_details_id'] = $unit_id;
+                $engineer_action['service_center_id'] = $service_center_id;
+                $engineer_action['booking_id'] = $booking_id;
+                $engineer_action['current_status'] = _247AROUND_PENDING;
+                $engineer_action['internal_status'] = _247AROUND_PENDING;
+                $engineer_action["create_date"] = date("Y-m-d H:i:s");
+
+                $this->engineer_model->insert_engineer_action($engineer_action);
+            }
         }
            
         $data = $this->service_centers_model->get_service_center_action_details("*", array('unit_details_id' => $unit_id, "booking_id" => $booking_id));
@@ -2591,7 +2648,7 @@ class engineerApi extends CI_Controller {
                 $response['amount'] = 0;
                 log_message("info", "Paytm transaction amount not found");
                 $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array('0000', 'success'));
+                $this->sendJsonResponse(array('0000', 'Amount not recieved'));
             }
         }
         else{
@@ -2616,11 +2673,61 @@ class engineerApi extends CI_Controller {
                 $this->sendJsonResponse(array('0000', 'success'));
             } else {
                 log_message("info", __METHOD__ . " QR Failed " . print_r($result, true));
-                $this->sendJsonResponse(array('0020', 'QR Not Generated'));
+                $this->sendJsonResponse(array('0050', 'QR Not Generated'));
             }
         } else {
             log_message("info", __METHOD__ . " Booking ID Not Found " . print_r($result, true));
-            $this->sendJsonResponse(array('0020', 'Booking ID Not Found'));
+            $this->sendJsonResponse(array('0051', 'Booking ID Not Found'));
+        }
+    }
+    
+    function getValidateSerialNumber(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if (!empty($requestData["booking_id"])) {
+            if(!empty($requestData['serial_number'])){
+                if(!empty($requestData['price_tags'])){
+                    $booking_id = $requestData["booking_id"];
+                    $booking_history = $this->booking_model->getbooking_history($booking_id);
+
+                    $serial_number = $requestData['serial_number'];
+                    $partner_id = $booking_history[0]['partner_id'];
+                    $user_id = $booking_history[0]['user_id'];
+                    $price_tags = $requestData['price_tags'];
+                    $appliance_id = $booking_history[0]['appliance_id'];
+                    $model_number = $requestData['model_number'];
+                    
+                    if (!ctype_alnum($serial_number)) {
+                        log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
+                        $this->sendJsonResponse(array('0052', 'Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.'));
+                    }
+                    else {
+                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id,$model_number);
+                        if (!empty($status)) {
+                            if($status['code'] == SUCCESS_CODE){
+                                $this->sendJsonResponse(array('0000', 'Serial Number Successfully Validated'));
+                            }
+                            else{
+                                $this->sendJsonResponse(array('0053', $status['message']));
+                            }
+                        } else {
+                            log_message('info',__METHOD__. 'Partner serial no validation is not define');
+                            $this->sendJsonResponse(array('0000', 'Serial no validation not required'));
+                        }
+                    }
+                }
+                else{
+                    log_message("info", __METHOD__ . " Price Tag Not Found ");
+                    $this->sendJsonResponse(array('0054', ' Price Tag Not Found'));
+                }
+            }
+            else{
+                log_message("info", __METHOD__ . " Serial Number Not Found ");
+                $this->sendJsonResponse(array('0055', ' Serial Number Not Found'));
+            }
+        } else {
+            log_message("info", __METHOD__ . " Booking ID Not Found ");
+            $this->sendJsonResponse(array('0056', 'Booking ID Not Found'));
         }
     }
 }

@@ -2184,10 +2184,11 @@ class Inventory_model extends CI_Model {
      */
     
     function get_pending_spare_part_details($post, $where=array()){
-        $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) AS shipped_date", FALSE);
+        $this->db->select($post['select'], FALSE);
+        $this->db->from('spare_parts_details');   
+        $this->db->join('service_centres', 'spare_parts_details.service_center_id = service_centres.id');
         $this->db->where($where);
-        $query = $this->db->get("spare_parts_details");
-        //echo $this->db->last_query();
+        $query = $this->db->get();
         return $query->result_array();
     }
     
@@ -2635,5 +2636,30 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    
+    
+    
+    /**
+     * @Desc: This function is used to get Details of serviceable BOM
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_serviceable_bom_data($select, $where = array()) {
+        $this->db->select($select,false);
+        $this->db->from('inventory_master_list');
+        $this->db->join('inventory_model_mapping','inventory_model_mapping.inventory_id = inventory_master_list.inventory_id');
+        $this->db->join('appliance_model_details','appliance_model_details.id = inventory_model_mapping.model_number_id');
+        $this->db->join('services','services.id = appliance_model_details.service_id');
+        if (!empty($where)) {
+            $this->db->where($where,false);
+        }        
+        $query = $this->db->get();
+        return $query;        
+       
+    }
+
 
 }

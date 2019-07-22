@@ -377,3 +377,23 @@ ALTER TABLE `engineer_booking_action` ADD `booking_status` INT NOT NULL AFTER `s
 ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT uk_state_plan UNIQUE (plan_id, state_code);
 -- Ankit 17-July-2019
 ALTER TABLE service_center_brand_mapping ADD COLUMN created_by varchar(150) NOT NULL AFTER create_date;
+-- Prity 18-July-2019
+CREATE TABLE `partner_appliance_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `partner_id` int(11) NOT NULL,
+  `appliance_configuration_id` int(11) NULL DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT current_timestamp(),
+  `isActive` int(1) DEFAULT 1,
+  PRIMARY KEY (`id`),  
+  KEY fk_pam_partner_id_partners_id (partner_id),
+  KEY fk_pam_aci_service_category_mapping_id (appliance_configuration_id),
+  CONSTRAINT fk_pam_partner_id_partners_id FOREIGN KEY (partner_id) REFERENCES partners (id),
+  CONSTRAINT fk_pam_aci_service_category_mapping_id FOREIGN KEY (appliance_configuration_id) REFERENCES service_category_mapping (id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- Kajal 19-July-2019 --
+ALTER TABLE `inventory_model_mapping` ADD `bom_main_part` INT(1) NOT NULL DEFAULT '1' COMMENT '1 - Main Part, 0 - Alternate Part' AFTER `max_quantity`;
+
+--Kalyani 19-July-2019
+INSERT INTO `sms_template` (`tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'engineer_login_sms_template', 'Hi %S\r\n\r\nYour Engineer Login is created.\r\nUser Id - %s\r\nPassword - %s\r\n\r\n247around', NULL, '1', '0', CURRENT_TIMESTAMP);
+

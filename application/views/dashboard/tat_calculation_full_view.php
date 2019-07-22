@@ -372,12 +372,12 @@
             }
             ?></td>
             <?php
-            if(!$is_pending || $this->session->userdata('partner_id')){
-                  if($is_pending){
+               if($is_pending){
                     ?>
                     <td><?php echo $values['TAT_GREATER_THAN_3'];?></td>
                     <?php
                 }
+            if(!$is_pending || $this->session->userdata('partner_id')){
                 ?>
                 <td><?php echo $values['TAT_0'] ."<br>(". $values['TAT_0_per']."%)";?></td>
                 <td><?php echo $values['TAT_1'] ."<br>(". $values['TAT_1_per']."%)";?></td>
@@ -388,26 +388,20 @@
                 <td><?php echo $values['TAT_8'] ."<br>(". $values['TAT_8_per']."%)";?></td>
                 <td><?php echo $values['TAT_16'] ."<br>(".$values['TAT_16_per']."%)";?></td>
             <?php
-                if($is_pending){
-                    ?>
-                    <td><?php echo $values['TAT_GREATER_THAN_3'];?></td>
-                    <?php
-                }
             }
             else {
-               ?>  <td><?php echo $values['Total_Pending'] ."<br>(".$values['TAT_total_per']."%)";?></td> <?php
                 if($values['entity'] != 'Total'){
                 ?>
                 <td>
                     <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
                             <input type="hidden" name="booking_id_status" value="<?php echo $values['TAT_0_bookings']; ?>">
-                            <input type="submit" value="<?php echo $values['TAT_0'];?>" <?php if($values['TAT_0'] >0){ ?> class="btn btn-danger" <?php } else{ ?>  class="btn btn-success"<?php } ?>>
+                            <input type="submit" value="<?php echo $values['TAT_0'];?>" class="btn btn-success" >
                         </form>
                     <?php echo "(". $values['TAT_0_per']."%)";?></td>
                 <td>
                     <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
                             <input type="hidden" name="booking_id_status" value="<?php echo  $values['TAT_1_bookings'];?>">
-                            <input type="submit" value="<?php echo $values['TAT_1'];?>" <?php if($values['TAT_1'] >0){ ?> class="btn btn-danger" <?php } else{ ?>  class="btn btn-success"<?php } ?>>
+                            <input type="submit" value="<?php echo $values['TAT_1'];?>" class="btn btn-success">
                         </form>
                     <?php echo "(". $values['TAT_1_per']."%)";?></td>
               <td>
