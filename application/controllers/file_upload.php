@@ -673,8 +673,20 @@ class File_upload extends CI_Controller {
         $tmp_data['price'] = (isset($data['basic_price']) && !empty($data['basic_price'])) ? trim($data['basic_price']):null;
         $tmp_data['hsn_code'] = (isset($data['hsn_code']) && !empty($data['hsn_code'])) ? trim($data['hsn_code']):null;
         $tmp_data['gst_rate'] = (isset($data['gst_rate']) && !empty($data['gst_rate'])) ? trim($data['gst_rate']):null;
-        $tmp_data['oow_vendor_margin'] = (isset($data['vendor_margin']) && !is_null($data['vendor_margin'])) ? trim($data['vendor_margin']):REPAIR_OOW_VENDOR_PERCENTAGE;
-        $tmp_data['oow_around_margin'] = (isset($data['around_margin']) && !is_null($data['around_margin'])) ? trim($data['around_margin']):(REPAIR_OOW_AROUND_PERCENTAGE * 100);
+
+        if ($this->session->userdata('userType') == _247AROUND_PARTNER_STRING && $this->session->userdata('partner_id')) {
+            if($this->session->userdata('partner_id')==VIDEOCON_ID){
+            $tmp_data['oow_vendor_margin'] = 10;
+            $tmp_data['oow_around_margin'] = 15; 
+            }else{
+            $tmp_data['oow_vendor_margin'] = 15;
+            $tmp_data['oow_around_margin'] = 15;  
+            }
+        } else {
+            $tmp_data['oow_vendor_margin'] = (isset($data['vendor_margin']) && !is_null($data['vendor_margin'])) ? trim($data['vendor_margin']) : REPAIR_OOW_VENDOR_PERCENTAGE;
+            $tmp_data['oow_around_margin'] = (isset($data['around_margin']) && !is_null($data['around_margin'])) ? trim($data['around_margin']) : (REPAIR_OOW_AROUND_PERCENTAGE * 100);
+        }
+
         $tmp_data['entity_id'] = $this->input->post('partner_id');
         $tmp_data['entity_type'] = _247AROUND_PARTNER_STRING;
         
