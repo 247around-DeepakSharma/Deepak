@@ -6137,10 +6137,11 @@ class Service_centers extends CI_Controller {
         if (!empty($_FILES['serial_number_pic']['tmp_name'])) {
             $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
             $booking_id = $this->input->post("booking_id");
-            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["serial_number_pic"], "serial_number_pic", $allowedExts, $booking_id, "misc-images", "serial_number_pic");
-            if ($defective_courier_receipt) {
-
-                return true;
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["serial_number_pic"], 
+                    "serial_number_pic", $allowedExts, $booking_id, SERIAL_NUMBER_PIC_DIR, "serial_number_pic");
+            if($defective_courier_receipt){
+                
+               return true;
             } else {
                 $this->form_validation->set_message('validate_serial_number_pic_upload_file', 'Serial Number, File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
                         . 'Maximum file size is 5 MB.');

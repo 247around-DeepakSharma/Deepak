@@ -170,7 +170,7 @@
                                             <input type="hidden" value="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo $unit_serial_number_pic;}  ?>"  name="serial_number_pic_exist" >
                                         </div>
                                         <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ ?>
-                                            <a target="_blank" class="<?php if(!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)){echo 'hide';}  ?>" href="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo S3_WEBSITE_URL."/misc-images/".$unit_serial_number_pic;}  ?>">View</a>
+                                            <a target="_blank" class="<?php if(!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)){echo 'hide';}  ?>" href="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo S3_WEBSITE_URL."/".SERIAL_NUMBER_PIC_DIR."/".$unit_serial_number_pic;}  ?>">View</a>
                                      <?php    } ?>
 
                                     </div>
