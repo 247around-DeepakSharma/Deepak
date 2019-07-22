@@ -1633,13 +1633,40 @@ class vendor_model extends CI_Model {
      */
     function add_rm_to_sf_relation($agent_id, $sf_id){
         
-        $this->db->where('agent_id', $agent_id);
-        $this->db->set('service_centres_id', "CONCAT( service_centres_id, ',".$sf_id."' )", FALSE);
-        $this->db->set('individual_service_centres_id', "TRIM(BOTH ',' FROM CONCAT( ifnull(individual_service_centres_id, ''), ',".$sf_id."' ))", FALSE);
-        $this->db->update('employee_relation');
-        if($this->db->affected_rows() > 0){
+
+        // check relation exists.
+        $rm_to_sf_relation = $this->db->where("agent_id = {$agent_id} AND FIND_IN_SET({$sf_id}, individual_service_centres_id)")
+                                    ->get('employee_relation')->result_array();
+        if (empty($rm_to_sf_relation)) {
+            $this->db->where('agent_id', $agent_id);
+            $this->db->set('service_centres_id', "CONCAT(service_centres_id, ',".$sf_id."' )", FALSE);
+            $this->db->set('individual_service_centres_id', "TRIM(BOTH ',' FROM CONCAT(ifnull(individual_service_centres_id, ''), ',".$sf_id."' ))", FALSE);
+            $this->db->update('employee_relation');
+        } 
+        
+        if($this->db->affected_rows() > 0) {
+            // get manager of rm and check manager is also rm.
+            $sql = "SELECT 
+                        employee.id, employee.full_name
+                    FROM 
+                        employee_hierarchy_mapping 
+                        LEFT JOIN employee ON (employee_hierarchy_mapping.manager_id = employee.id)
+                    WHERE 
+                        employee_hierarchy_mapping.employee_id = {$agent_id} 
+                        AND employee.groups = '"._247AROUND_RM."'";
+                        
+            $rm_manager = $this->db->query($sql)->result_array();
+            if(!empty($rm_manager)) {
+                $rm_manager_to_sf_relation = $this->db->where("agent_id = {$rm_manager[0]['id']} AND FIND_IN_SET({$sf_id}, service_centres_id)")->get('employee_relation')->result_array();
+                if (empty($rm_manager_to_sf_relation)) {
+                    $this->db->where('agent_id', $rm_manager[0]['id']);
+                    $this->db->set('service_centres_id', "TRIM(BOTH ',' FROM CONCAT(ifnull(service_centres_id, ''), ',".$sf_id."' ))", FALSE);
+                    $this->db->update('employee_relation');
+                } 
+            }
+
             return true;
-        }else{
+        } else {
             return false;
         }
     }
@@ -1673,16 +1700,11 @@ class vendor_model extends CI_Model {
      */
     function update_rm_to_sf_relation($agent_id,$sf_id){
         //Getting values of SF RM relation if present
-        $query_result = $this->get_rm_sf_relation_by_sf_id($sf_id);
-        if(!empty($query_result)){
-            //Delete values from this currently assigned RM String
-            $arr = explode(",",$query_result[0]['service_centres_id']);
-            unset($arr[array_search($sf_id, $arr)]);
-            $sf_details_list = implode(",",$arr);
-            
-            $this->db->where('agent_id',$query_result[0]['agent_id']);
-            $this->db->set('service_centres_id',$sf_details_list);
-            $this->db->update('employee_relation');
+
+        $query_result = $this->get_rm_sf_relation_by_state_code($state_code);        
+        if(!empty($query_result)){ 
+            $agent_id = $query_result[0]['id'];
+
             //Now adding SF to New RM
             return $this->add_rm_to_sf_relation($agent_id, $sf_id);
             
