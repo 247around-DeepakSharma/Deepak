@@ -586,7 +586,15 @@
                                     <select  class="form-control" name="closing_symptom" id="technical_problem" onchange="update_defect()" <?php if(!empty($technical_problem)){ echo "required";} ?>>
                                         <option value="" selected="" disabled="">Please Select Symptom</option>
                                         <?php foreach ($technical_problem as $value) { 
-                                            $selected=(($value['id'] == 0) ? 'selected' :''); //$booking_symptom[0]['symptom_id_booking_creation_time'] ?>
+                                            $selected=(($value['id'] == 0) ? 'selected' :'');
+                                            if($this->session->userdata('is_engineer_app') == 1){ 
+                                                if(isset($bookng_unit_details[0]['en_symptom_id'])){
+                                                   if($value['id'] == $bookng_unit_details[0]['en_symptom_id']){
+                                                       $selected = 'selected';
+                                                   } 
+                                                }
+                                            }
+                                        ?>
                                         <option value="<?php echo $value['id']?>" <?=$selected?> ><?php echo $value['symptom']; ?></option>
                                          
                                     <?php }?>
@@ -603,7 +611,15 @@
                                     <select  class="form-control" name="closing_defect" id="technical_defect" onchange="update_solution()" required >
                                         <option value="" selected="" disabled="">Please Select Defect</option>
                                         <?php foreach ($technical_defect as $value) { 
-                                            $selected=(($value['defect_id'] == 0) ? 'selected' :''); ?>
+                                            $selected=(($value['defect_id'] == 0) ? 'selected' :''); 
+                                            if($this->session->userdata('is_engineer_app') == 1){ 
+                                                if(isset($bookng_unit_details[0]['en_defect_id'])){
+                                                   if($value['id'] == $bookng_unit_details[0]['en_defect_id']){
+                                                       $selected = 'selected';
+                                                   } 
+                                                }
+                                            }
+                                        ?>
                                         <option value="<?php echo $value['defect_id']?>" <?=$selected?> ><?php echo $value['defect']; ?></option>
                                          
                                     <?php }?>
@@ -657,7 +673,15 @@
                             <div class="form-group col-md-6">
                                 <label for="remark" class="col-md-12">Closing Remarks</label>
                                 <div class="col-md-12" >
-                                    <textarea class="form-control"  rows="2" name="closing_remarks" id="closing_remarks" required></textarea>
+                                    <textarea class="form-control"  rows="2" name="closing_remarks" id="closing_remarks" required>
+                                        <?php 
+                                            if($this->session->userdata('is_engineer_app') == 1){ 
+                                                if(isset($bookng_unit_details[0]['en_closing_remark'])){
+                                                   echo $bookng_unit_details[0]['en_closing_remark'];
+                                                }
+                                            }
+                                        ?>
+                                    </textarea>
                                 </div>
                             </div>
                         </div>
