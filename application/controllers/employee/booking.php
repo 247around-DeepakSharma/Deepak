@@ -1623,7 +1623,7 @@ class Booking extends CI_Controller {
         if(!empty($data['booking_history'])){
             if(empty($data['booking_history'][0]['assigned_vendor_id']) && ($data['booking_history'][0]['type'] == 'Booking') && ($data['booking_history'][0]['is_upcountry'] == '1')) {
                 $arr = array('is_inventory' => 1, 'is_original_inventory' => 1);
-                $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts', array('booking_id' => $booking_id),false,false,false,$arr);
+                $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number', array('booking_id' => $booking_id),false,false,false,$arr);
                 if(!empty($query1)) {
                     $data['booking_history']['spare_parts'] = $query1;
                 }
