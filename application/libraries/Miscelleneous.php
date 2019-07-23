@@ -3159,7 +3159,7 @@ function generate_image($base64, $image_name,$directory){
             $partnerJoin["employee"] = "employee.id=agent_filters.agent_id";
             $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
             
-            $where['agent_filters.entity_type'] = "247around";
+            $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
             $where['agent_filters.state'] = $booking_state[0]['state'];
             
             $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","group_concat(distinct employee.official_email) as official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
@@ -3378,7 +3378,7 @@ function generate_image($base64, $image_name,$directory){
         $join['employee e'] = "e.id = agent_filters.agent_id";
         $join['employee'] = "employee.id = employee_relation.agent_id";
         $where['booking_details.booking_id'] = $bookingID;
-        $where['agent_filters.entity_type'] = "247around";
+        $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
         
         $saas_module = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if(isset($saas_module) && (!$saas_module)) { 
@@ -3526,6 +3526,11 @@ function generate_image($base64, $image_name,$directory){
         
         if(!empty($inventory_stock_details)){
             if(!empty($service_center_id)){
+                if($inventory_part_number[0]['inventory_id'] != $inventory_stock_details[0]['inventory_id'] ){
+                    $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.part_name, '
+                    . 'inventory_master_list.inventory_id, price, gst_rate,oow_around_margin, inventory_master_list.entity_id', array('inventory_id' => $inventory_stock_details[0]['inventory_id']));
+
+                }
                 $response = array();
                 $response['stock'] = TRUE;
                 $response['entity_id'] = $service_center_id;

@@ -1878,110 +1878,108 @@ class vendor extends CI_Controller {
         if ($engineer_form_validation) {
             $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "name, phone");
             if (empty($is_phone)) {
-                $data['name'] = $this->input->post('name');
-                $data['phone'] = $this->input->post('phone');
-                $data['alternate_phone'] = $this->input->post('alternate_phone');
-                if($this->input->post('identity_proof')){
-                    $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
-                }
-                $data_identity['identity_proof_number'] = $this->input->post('identity_id_number');
-                
-                if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
-                    //Making process for file upload
-                    $tmpFile = $_FILES['file']['tmp_name'];
-                    $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_engidentityfile_' . date("Y-m-d-H-i-s") . "." . explode(".", $_FILES['file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
+                $is_entity = $this->dealer_model->entity_login(array("user_id"=>$this->input->post('phone')));
+                if($is_entity == false){
+                    $data['name'] = $this->input->post('name');
+                    $data['phone'] = $this->input->post('phone');
+                    $data['alternate_phone'] = $this->input->post('alternate_phone');
+                    if($this->input->post('identity_proof')){
+                        $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
+                    }
+                    $data_identity['identity_proof_number'] = $this->input->post('identity_id_number');
 
-                    //Upload files to AWS   
-                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "engineer-id-proofs/" . $pan_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $data_identity['identity_proof_pic'] = $pan_file;
-                }
-                
-                 //$data['address'] = $this->input->post('address');
-                //$data['phone_type'] = $this->input->post('phone_type');
-//	    $data['bank_name'] = $this->input->post('bank_name');
-//	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
-//	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
-//	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
-//	    $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
-                //
-	    //Get vendor ID from session if form sent thru vendor CRM
-                //Else from POST variable.
-                if ($this->session->userdata('userType') == 'service_center') {
-                    $data['service_center_id'] = $this->session->userdata('service_center_id');
-                } else {
-                    $data['service_center_id'] = $this->input->post('service_center_id');
-                }
+                    if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
+                        //Making process for file upload
+                        $tmpFile = $_FILES['file']['tmp_name'];
+                        $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_engidentityfile_' . date("Y-m-d-H-i-s") . "." . explode(".", $_FILES['file']['name'])[1];
+                        move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
 
-                //applicable services for an engineer come as array in service_id field.
-                $service_id = $this->input->post('service_id');
-                
-                $data['active'] = "1";
-                $data['create_date'] = date("Y-m-d H:i:s");
-
-                $engineer_id = $this->vendor_model->insert_engineer($data);
-
-                if ($engineer_id) {
-                    //insert engineer appliance detail in engineer_appliance_mapping table
-                    $eng_services_data = array();
-                    foreach ($service_id as $id) {
-                        $eng_services['engineer_id'] = $engineer_id;
-                        $eng_services['service_id'] = $id;
-                        $eng_services['is_active'] = 1;
-                        array_push($eng_services_data, $eng_services);
+                        //Upload files to AWS   
+                         $bucket = BITBUCKET_DIRECTORY;
+                        $directory_xls = "engineer-id-proofs/" . $pan_file;
+                        $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                        $data_identity['identity_proof_pic'] = $pan_file;
                     }
 
-                    $this->engineer_model->insert_engineer_appliance_mapping($eng_services_data);
-                    //insert engineer identity proof data
-                    $data_identity['entity_type'] = _247AROUND_ENGINEER_STRING;
-                    $data_identity['entity_id'] = $engineer_id;
-                    $this->vendor_model->add_entity_identity_proof($data_identity);
-                    
-                    log_message('info', __METHOD__ . "=> Engineer Details Added. " . $engineer_id);
-                    $login["entity"] = "engineer";
-                    $login["entity_name"] = $data['name'];
-                    $login["entity_id"] = $engineer_id;
-                    $login["user_id"] = $data['phone'];
-                    $login["password"] = md5($data['phone']);
-                    $login["create_date"] = date("Y-m-d H:i:s");
-                    $login["active"] = 1;
-                    $login["clear_password"] = $data['phone'];
-
-                    $eng_login = $this->dealer_model->insert_entity_login($login);
-                    if($eng_login){
-                        $sms = array();
-                        $sms['phone_no'] = $data['phone'];
-                        $sms['smsData']['eng_name'] = $data['name'];
-                        $sms['smsData']['eng_user_id'] = $data['phone'];
-                        $sms['smsData']['eng_password'] = $data['phone'];
-                        $sms['tag'] = ENGINEER_LOGIN_SMS_TEMPLATE;
-                        $sms['status'] = "";
-                        $sms['booking_id'] = "";
-                        $sms['type'] = "engineer";
-                        $sms['type_id'] = $engineer_id;
-                        $this->notify->send_sms_msg91($sms);
+                    if ($this->session->userdata('userType') == 'service_center') {
+                        $data['service_center_id'] = $this->session->userdata('service_center_id');
+                    } else {
+                        $data['service_center_id'] = $this->input->post('service_center_id');
                     }
 
-                    $output = "Engineer Details Added.";
-                    $userSession = array('success' => $output);
-                } else {
-                    log_message('info', __METHOD__ . "=> Engineer Details Not Added. Engineer data  " . print_r($data, true));
+                    //applicable services for an engineer come as array in service_id field.
+                    $service_id = $this->input->post('service_id');
 
-                    $output = "Engineer Details Not Added.";
+                    $data['active'] = "1";
+                    $data['create_date'] = date("Y-m-d H:i:s");
+
+                    $engineer_id = $this->vendor_model->insert_engineer($data);
+
+                    if ($engineer_id) {
+                        //insert engineer appliance detail in engineer_appliance_mapping table
+                        $eng_services_data = array();
+                        foreach ($service_id as $id) {
+                            $eng_services['engineer_id'] = $engineer_id;
+                            $eng_services['service_id'] = $id;
+                            $eng_services['is_active'] = 1;
+                            array_push($eng_services_data, $eng_services);
+                        }
+
+                        $this->engineer_model->insert_engineer_appliance_mapping($eng_services_data);
+                        //insert engineer identity proof data
+                        $data_identity['entity_type'] = _247AROUND_ENGINEER_STRING;
+                        $data_identity['entity_id'] = $engineer_id;
+                        $this->vendor_model->add_entity_identity_proof($data_identity);
+
+                        log_message('info', __METHOD__ . "=> Engineer Details Added. " . $engineer_id);
+                        $login["entity"] = "engineer";
+                        $login["entity_name"] = $data['name'];
+                        $login["entity_id"] = $engineer_id;
+                        $login["user_id"] = $data['phone'];
+                        $login["password"] = md5($data['phone']);
+                        $login["create_date"] = date("Y-m-d H:i:s");
+                        $login["active"] = 1;
+                        $login["clear_password"] = $data['phone'];
+
+                        $eng_login = $this->dealer_model->insert_entity_login($login);
+                        if($eng_login){
+                            $sms = array();
+                            $sms['phone_no'] = $data['phone'];
+                            $sms['smsData']['eng_name'] = $data['name'];
+                            $sms['smsData']['eng_user_id'] = $data['phone'];
+                            $sms['smsData']['eng_password'] = $data['phone'];
+                            $sms['tag'] = ENGINEER_LOGIN_SMS_TEMPLATE;
+                            $sms['status'] = "";
+                            $sms['booking_id'] = "";
+                            $sms['type'] = "engineer";
+                            $sms['type_id'] = $engineer_id;
+                            $this->notify->send_sms_msg91($sms);
+                        }
+
+                        $output = "Engineer Details Added.";
+                        $userSession = array('success' => $output);
+                    } else {
+                        log_message('info', __METHOD__ . "=> Engineer Details Not Added. Engineer data  " . print_r($data, true));
+
+                        $output = "Engineer Details Not Added.";
+                        $userSession = array('error' => $output);
+                    }
+
+                    $this->session->set_userdata($userSession);
+
+                    if ($this->session->userdata('userType') == 'service_center') {
+                        log_message('info', __FUNCTION__ . " Engineer addition initiated By Service Center");
+
+                        redirect(base_url() . "service_center/add_engineer");
+                    } else {
+                        log_message('info', __FUNCTION__ . " Engineer addition initiated By 247around");
+
+                        redirect(base_url() . "employee/vendor/add_engineer");
+                    }
+                } else {
+                    $output = "User Id Already Exist for this phone number";
                     $userSession = array('error' => $output);
-                }
-
-                $this->session->set_userdata($userSession);
-
-                if ($this->session->userdata('userType') == 'service_center') {
-                    log_message('info', __FUNCTION__ . " Engineer addition initiated By Service Center");
-
-                    redirect(base_url() . "service_center/add_engineer");
-                } else {
-                    log_message('info', __FUNCTION__ . " Engineer addition initiated By 247around");
-
+                    $this->session->set_userdata($userSession);
                     redirect(base_url() . "employee/vendor/add_engineer");
                 }
             } else {

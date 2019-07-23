@@ -1878,6 +1878,163 @@ class File_upload extends CI_Controller {
         
         return $insert_id;
     }
+    
+    /** @desc: This function is used to upload the partner mapping with service configuration
+     * @param: void
+     * @return void
+     */
+    function import_partner_appliance_configuration() {    
+        
+            log_message('info', __FUNCTION__ . ' Function Start For Mapping Partner Appliance Configuration By '.$this->session->userdata('id'));
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/import_partner_appliance_configuration');        
+    }
+    
+    function upload_partner_appliance_list()
+    {
+        
+        $file_status = $this->get_upload_file_type();
+        $post_data = $this->input->post();
+        $redirect_to = $this->input->post('redirect_url');
+        $partner_id = $this->input->post('partner_id');
+        $returnMsg = [];
+
+        if ($file_status['file_name_lenth']) {
+            if ($file_status['status']) {
+
+                //get file header
+                $data = $this->read_upload_file_header($file_status);
+                $data['post_data'] = $this->input->post();
+                $is_data_validated = true;                
+                
+                //column which must be present in the  upload inventory file
+                $header_column_need_to_be_present = array('product', 'category', 'capacity');        
+                //check if required column is present in upload file header
+                $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
+
+                if ($check_header['status']) {
+                    
+                    // apply loop for validation.
+                    for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);                        
+                        $sanitizes_row_data = $rowData_array[0];
+                        
+                        if (!empty(array_filter($sanitizes_row_data))) {
+//                            $returnMsg[$row][0] = $sanitizes_row_data[0]; // Partner
+                            $returnMsg[$row][0] = $sanitizes_row_data[0]; // Product
+                            $returnMsg[$row][1] = $sanitizes_row_data[1]; // Category
+                            $returnMsg[$row][2] = $sanitizes_row_data[2]; // Capacity  
+                            
+                            $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                            $sanitizes_row_data = array_map('strtoupper', $rowData_array[0]);
+                            
+                            $data['header_data'] = array_map('trim', $data['header_data']);
+                            $data['header_data'] = array_map('strtoupper', $data['header_data']);
+                            $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                            $returnMsg[$row][3] = "";
+                            
+                            // check empty data.
+                            if (empty($rowData['PRODUCT']) || empty($rowData['CATEGORY']) || empty($rowData['CAPACITY'])) {
+                                // Insert Status of Record
+                                $returnMsg[$row][3] .= 'Insufficient Data<br/>';
+                                $is_data_validated = false;
+                            }
+                            
+                            // Check For Partner
+//                            $arr_partner = $this->reusable_model->get_search_result_data('partners', 'id', ['UPPER(TRIM(public_name))' => $rowData['PARTNER']], NULL, NULL, NULL, NULL, NULL);                            
+//                            if (empty($arr_partner)) {
+//                                $returnMsg[$row][3] .= 'Partner Not Found<br/>';
+//                                $is_data_validated = false;
+//                            }
+//                            else
+//                            {
+//                                $partner_id = $arr_partner[0]['id'];
+//                            }
+                            
+                            // Check For Product
+                            $arr_service = $this->reusable_model->get_search_result_data('services', 'id', ['UPPER(TRIM(services))' => $rowData['PRODUCT']], NULL, NULL, NULL, NULL, NULL);                            
+                            if (empty($arr_service)) {
+                                $returnMsg[$row][3] .= 'Product Not Found<br/>`';
+                                $is_data_validated = false;
+                            }
+                            else
+                            {
+                                $service_id = $arr_service[0]['id'];
+                            }
+                            
+                            if(!$is_data_validated)
+                            {
+                                continue; // Continue to next record.
+                            }
+                            
+                            // Check For Category
+                            $category = strtoupper(preg_replace("/[^a-zA-Z0-9.-]/", "", $rowData['CATEGORY']));                            
+                            $arr_category = $this->reusable_model->get_search_result_data('category', 'id', ['private_key' => $category], NULL, NULL, NULL, NULL, NULL);                            
+                            if (empty($arr_category) && $is_data_validated) {
+                                // insert category.
+                                $category_data['private_key'] = $category;
+                                $category_data['name'] = $rowData['CATEGORY'];
+                                $category_id = $this->reusable_model->insert_into_table('category', $category_data);
+                                $returnMsg[$row][3] .= 'Inserted Category Data<br/>';
+                            }
+                            else
+                            {
+                                $category_id = $arr_category[0]['id'];
+                            }
+                            
+                            // Check For Capacity
+                            $capacity = strtoupper(preg_replace("/[^a-zA-Z0-9.-]/", "", $rowData['CAPACITY']));                            
+                            $arr_capacity = $this->reusable_model->get_search_result_data('capacity', 'id', ['private_key' => $capacity], NULL, NULL, NULL, NULL, NULL);                            
+                            if (empty($arr_capacity) && $is_data_validated) {
+                                // insert capacity.
+                                $capacity_data['private_key'] = $capacity;
+                                $capacity_data['name'] = $rowData['CAPACITY'];
+                                $capacity_id = $this->reusable_model->insert_into_table('capacity', $capacity_data);
+                                $returnMsg[$row][3] .= 'Inserted Capacity Data<br/>';
+                            }
+                            else
+                            {
+                                $capacity_id = $arr_capacity[0]['id'];
+                            }
+                            
+                            // check for service-category-capacity mapping
+                            $service_category_mapping_data = $this->reusable_model->get_search_result_data('service_category_mapping', 'id', ['service_id' => $service_id, 'category_id' => $category_id, 'capacity_id' => $capacity_id], NULL, NULL, NULL, NULL, NULL);                            
+                            if (empty($service_category_mapping_data) && $is_data_validated) {
+                                // insert service-category-capacity mapping data.
+                                $service_category_mapping_data['service_id'] = $service_id;
+                                $service_category_mapping_data['category_id'] = $category_id;
+                                $service_category_mapping_data['capacity_id'] = $capacity_id;
+                                $appliance_configuration_id = $this->reusable_model->insert_into_table('service_category_mapping', $service_category_mapping_data);
+                                $returnMsg[$row][3] .= 'Inserted Record for Service-Category-Mapping';
+                            }
+                            else
+                            {
+                                $appliance_configuration_id = $service_category_mapping_data[0]['id'];
+                            }                            
+                            
+                            // check for partner-appliance mapping
+                            $partner_appliance_mapping_data = $this->reusable_model->get_search_result_data('partner_appliance_mapping', 'id', ['partner_id' => $partner_id, 'appliance_configuration_id' => $appliance_configuration_id], NULL, NULL, NULL, NULL, NULL);                            
+                            if (empty($partner_appliance_mapping_data) && $is_data_validated) {
+                                // insert partner-appliance mapping data.
+                                $partner_appliance_mapping_data['partner_id'] = $partner_id;
+                                $partner_appliance_mapping_data['appliance_configuration_id'] = $appliance_configuration_id;
+                                $partner_appliance_mapping_id = $this->reusable_model->insert_into_table('partner_appliance_mapping', $partner_appliance_mapping_data);
+                                $returnMsg[$row][3] .= 'Success';
+                            }
+                            else
+                            {
+                                $returnMsg[$row][3] .= 'Mapping already exists';
+                                $partner_appliance_mapping_id = $partner_appliance_mapping_data[0]['id'];
+                            }                            
+                        }                                
+                    }
+                }                
+            }
+        }
+//        echo '<pre>';print_R($returnMsg);exit;
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/import_partner_appliance_configuration', ['partner_id' => $partner_id, 'data' => $returnMsg]);        
+    }
 
 }
 
