@@ -275,7 +275,8 @@
       var remarks =  $('#textarea').val();
       //var booking_id = $('#modal-title').text();
       var courier_charge = $('#charges').val();
-      var reason = $('#spare_cancel_reason').val();     
+      var reason = $.trim($('#spare_cancel_reason option:selected').text());
+      var cancel_id = $('#spare_cancel_reason option:selected').val();
       var table_type = $("#reload_table_id").val();
       
       if(($('#spare_cancel_reason').parent("div").css('display') !== 'none') && ($('#spare_cancel_reason').length === 1) && ($.trim(reason) === "")) {
@@ -289,7 +290,7 @@
         $.ajax({
             type:'POST',
             url:url,
-            data:{ remarks:remarks,courier_charge:courier_charge, spare_cancel_reason:reason },
+            data:{ remarks:remarks,courier_charge:courier_charge, spare_cancel_reason:reason, spare_cancel_id:cancel_id },
             success: function(data){
                 $('#reject_btn').attr('disabled',false);
                 if(data === "Success"){
