@@ -3518,6 +3518,11 @@ function generate_image($base64, $image_name,$directory){
         
         if(!empty($inventory_stock_details)){
             if(!empty($service_center_id)){
+                if($inventory_part_number[0]['inventory_id'] != $inventory_stock_details[0]['inventory_id'] ){
+                    $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.part_name, '
+                    . 'inventory_master_list.inventory_id, price, gst_rate,oow_around_margin, inventory_master_list.entity_id', array('inventory_id' => $inventory_stock_details[0]['inventory_id']));
+
+                }
                 $response = array();
                 $response['stock'] = TRUE;
                 $response['entity_id'] = $service_center_id;
