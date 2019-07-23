@@ -44,8 +44,7 @@
             <tr><td colspan="2">Invoice Date: <?php echo $meta['invoice_date']; ?></td>	
                 <td colspan="4" style="border-right: 2px solid;">Reverse Charge (Y/N): N</td>
             </tr>
-
-
+            <tr><td colspan="2">Reference No: <?php echo $meta['reference_invoice_id']; ?></td></tr>
             <tr style="text-align: center;background-color: rgb(211,211,211);">
                 <td colspan="6" style="border-right: 2px solid;" align="center"><b>Bill to Party</b></tr>
 
