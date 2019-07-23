@@ -7,7 +7,7 @@
          <th>Invoice ID</th>
          <th>Period</th>
          <th>Type</th>
-         <th>Category</th>
+         <th>Sub-Category</th>
          <th>Invoice Excel File</th>
          <th>Invoice Detailed File</th>
          <th>Number of Bookings</th>
