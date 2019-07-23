@@ -675,5 +675,7 @@ define('_247AROUND_CRM_TRAINING', 'https://drive.google.com/drive/folders/1Ri7PZ
 //send broadcast sms to all vendors
 define('ENGINEER_LOGIN_SMS_TEMPLATE', 'engineer_login_sms_template');
 define('SERIAL_NUMBER_PIC_DIR', 'serial_number_pic');
+
+define('PARTNER_APPLIANCE_MAPPING', 'Partner_Appliance_Mapping_File');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
