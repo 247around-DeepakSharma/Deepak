@@ -4023,7 +4023,7 @@ class Invoice extends CI_Controller {
                         $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
                         $spare[0]['spare_id'] = $spare_id;
                         $spare[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
-                        $spare[0]['booking_partner_id'] = $spare[0]['booking_partner_id'];
+                        $spare[0]['booking_partner_id'] = $spare[0]['service_center_id'];
                         $unsettle = $this->invoice_lib->settle_inventory_invoice_annexure($spare);
                         if (!empty($unsettle['processData'])) {
                             foreach ($unsettle['processData'] as $invoiceValue) {
@@ -4050,7 +4050,7 @@ class Invoice extends CI_Controller {
                                     $data[0]['state'] = $spare[0]['state'];
                                     $data[0]['rate'] = $value['rate'];
                                     $data[0]['qty'] = 1;
-                                    $data[0]['hsn_code'] = $value['rate'];
+                                    $data[0]['hsn_code'] = $value['hsn_code'];
                                     $sd = $ed = $invoice_date = date("Y-m-d");
                                     $data[0]['gst_rate'] = $value['gst_rate'];
 

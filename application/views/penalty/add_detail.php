@@ -67,7 +67,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <input type="submit" name="save" value="<?= (!empty($penalty['id']) ? 'Update' : 'Save'); ?>" class="btn btn-success" style="margin-left: 1%;">
+                        <input type="submit" name="save" value="<?= (!empty($penalty['id']) ? 'Update' : 'Save'); ?>" class="btn btn-success" style="margin-left: 1%;" onclick="return validate_form();">
                         &nbsp;
                         <a class="btn btn-md btn-primary" href="<?php echo base_url() ?>penalty/view_penalty_details" title="Close">Close</a>                
                     </div>
@@ -100,5 +100,26 @@
         } else {
             $('.amount-section').hide();
         }
+    }
+    
+    function validate_form() {
+        var penalty_amount = $('#penalty_amount').val();
+        var cap_amount = $('#cap_amount').val();
+        var reason = $('#escalation').val();
+        
+        if(reason == '') {
+            alert('Escalation reason cannot be blank.');
+            return false;
+        }
+        
+        if((penalty_amount != '' && !$.isNumeric(penalty_amount)) || (cap_amount != 0 && !$.isNumeric(cap_amount))) {
+            alert('Amount must be number.');
+            return false;
+        }
+        
+        if(penalty_amount != '' && cap_amount != '' && parseInt(cap_amount) < parseInt(penalty_amount)) {
+            alert('CAP amount must be greater than or equal to penalty amount.');
+            return false;
+        } 
     }
 </script>

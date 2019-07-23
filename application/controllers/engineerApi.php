@@ -1167,7 +1167,7 @@ class engineerApi extends CI_Controller {
             foreach($unitDetails as $value){
                 $data = array();
                 
-                $unit_id = $this->check_unit_exist_action_table($booking_id, $value["unit_id"]);
+                $unit_id = $this->check_unit_exist_action_table($booking_id, $value["unit_id"], $requestData['service_center_id']);
                
                 if($unit_id){
                     $data["current_status"] = "InProcess";
@@ -2201,9 +2201,12 @@ class engineerApi extends CI_Controller {
         else if(!isset($requestData['days'])){
             $response['message'] = "Days not found";
         }
+        /*
         else if(!isset($requestData['model_number_id'])){
             $response['message'] = "Model Number Id not found";
         }
+         * 
+         */
         else if(!isset($requestData['model_number'])){
             $response['message'] = "Model Number not found";
         }
@@ -2223,7 +2226,7 @@ class engineerApi extends CI_Controller {
            
             $check = true;
             $missing_key = "";
-            $keys = array("part_warranty_status", "parts_type", "parts_name", "requested_inventory_id", "quantity");
+            $keys = array("part_warranty_status", "parts_type", "parts_name", "quantity"); //we removed - requested_inventory_id check beacuse it it optional
             foreach($requestData['part'] as $parts){
                 foreach ($keys as $key){
                     if (!array_key_exists($key, $parts)){ 
@@ -2430,7 +2433,7 @@ class engineerApi extends CI_Controller {
         }
     }
     
-    function check_unit_exist_action_table($booking_id, $unit_id) {
+    function check_unit_exist_action_table($booking_id, $unit_id, $service_center_id) {
         log_message("info", __METHOD__ . " Booking ID " . $booking_id . " Unit ID " . $unit_id);
         if (strpos($unit_id, 'new') !== false) {
             $remove_string_new = explode('new', $unit_id);
@@ -2447,6 +2450,16 @@ class engineerApi extends CI_Controller {
                     . print_r($service_charges_id, true)
                     . " Data: " . print_r($data, true));
             $unit_id = $this->booking_model->insert_new_unit_item($unit_tmp_id, $service_charges_id, $data, "");
+            if(!empty($unit_id)){
+                $engineer_action['unit_details_id'] = $unit_id;
+                $engineer_action['service_center_id'] = $service_center_id;
+                $engineer_action['booking_id'] = $booking_id;
+                $engineer_action['current_status'] = _247AROUND_PENDING;
+                $engineer_action['internal_status'] = _247AROUND_PENDING;
+                $engineer_action["create_date"] = date("Y-m-d H:i:s");
+
+                $this->engineer_model->insert_engineer_action($engineer_action);
+            }
         }
            
         $data = $this->service_centers_model->get_service_center_action_details("*", array('unit_details_id' => $unit_id, "booking_id" => $booking_id));
