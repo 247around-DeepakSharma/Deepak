@@ -25,7 +25,7 @@
          
          <th>Invoice Id</th>
          <th>Type</th>
-         <th>Category</th>         
+         <th>Sub-Category</th>         
          <th>Bookings/ Parts</th>
          <th>Invoice Period</th>
          <th>Due Date</th>
