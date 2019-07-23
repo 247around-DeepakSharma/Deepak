@@ -217,6 +217,7 @@ class Booking_utilities {
                 $array['model_number'] = $value['model_number'];
                 $array['price_tags'] = $value['price_tags'];
                 $array['customer_net_payable'] = $value['customer_net_payable'];
+                $array['purchase_date'] = $value['purchase_date'];
                 array_push($booking_unit_details, $array);
             }
             if($qr){
