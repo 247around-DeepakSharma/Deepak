@@ -1056,9 +1056,14 @@ class Upload_buyback_process extends CI_Controller {
         $appService = array();
         $invoice_orders = array();
         $invalid_orders = array();
+        $PO_Number = "";
         for ($row = 2, $i = 0; $row <= $highestRow; $row++, $i++) {
             $rowData_array = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row, NULL, TRUE, FALSE);
             $rowData = array_combine($headings_new[0], $rowData_array[0]);
+            if(!$PO_Number){
+                $PO_Number = $rowData['ponumber'];
+            }
+            
             $app_array = $this->bb_model->get_bb_order_appliance_details(array("partner_order_id"=> $rowData['orderid']), "services, CASE WHEN (bb_unit.service_id = '"._247AROUND_TV_SERVICE_ID."') THEN (8528) 
                 WHEN (bb_unit.service_id = '"._247AROUND_AC_SERVICE_ID."') THEN (8415)
                 WHEN (bb_unit.service_id = '"._247AROUND_WASHING_MACHINE_SERVICE_ID."') THEN (8450)
@@ -1094,7 +1099,7 @@ class Upload_buyback_process extends CI_Controller {
                 $data[$key]['district'] = $vendor_data['district'];
                 $data[$key]['pincode'] = $vendor_data['pincode'];
                 $data[$key]['state'] = $vendor_data['state'];
-                $data[$key]['rate'] = sprintf("%.2f", $amount);
+                $data[$key]['rate'] = sprintf("%.2f", ($amount/count($value)));
                 $data[$key]['qty'] = count($value);
                 $data[$key]['hsn_code'] = $appService[$row];
                 $data[$key]['gst_rate'] = $gst_rate;
@@ -1106,6 +1111,7 @@ class Upload_buyback_process extends CI_Controller {
             $is_customer = true;
             $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type, $invoice_date, $is_customer, $vendor_data['state']);
             $response['meta']['invoice_id'] = $invoice_id;
+            $response['meta']['reference_invoice_id'] = $PO_Number;
             $response['meta']['booking_id'] = "";
             $response['meta']['customer_name'] = $vendor_data['company_name'];
             $response['meta']['customer_address'] = $vendor_data['company_address'];
@@ -1133,6 +1139,7 @@ class Upload_buyback_process extends CI_Controller {
             
             $this->invoice_lib->insert_invoice_breackup($response);
             $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_PARTNER_STRING, AMAZON_SELLER_ID, $convert, $this->session->userdata('id'), HSN_CODE);
+            $invoice_details['reference_invoice_id'] = $PO_Number."sd";
             $vendor_partner_invoice_id = $this->invoices_model->insert_new_invoice($invoice_details);
             if($vendor_partner_invoice_id){
                 foreach ($invoice_orders as $key => $value) {

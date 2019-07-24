@@ -260,6 +260,7 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="false">Age Of Rejection</th>
+                                    <th class="text-center" data-orderable="false">Spare Cancellation Reason</th>
                                     <th class="text-center" data-orderable="false">Open</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
                                 </tr>

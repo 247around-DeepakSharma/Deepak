@@ -344,7 +344,7 @@
                             <div class="form-group">
                                 <label  for="booking_address" class="col-md-4">Booking Address *</label>
                                 <div class="col-md-6">
-                                    <textarea class="form-control" rows="4" id="booking_address" name="home_address"   ><?php if(!empty($user)){ echo $user[0]['home_address']; } ?></textarea>
+                                    <textarea required class="form-control" rows="4" id="booking_address" name="home_address"   ><?php if(!empty($user)){ echo $user[0]['home_address']; } ?></textarea>
                                 </div>
                             </div>
                              <div class="form-group ">
