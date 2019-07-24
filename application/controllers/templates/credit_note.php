@@ -1,6 +1,6 @@
 <?php
 $image=" ";
-$email="seller@247around.com";
+$email="billing@247around.com";
 $gstin=4578346547856	;
 $invoice_no=55765879;
 $date="17th May, 2018";

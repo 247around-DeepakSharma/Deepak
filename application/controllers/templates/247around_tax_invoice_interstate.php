@@ -32,7 +32,7 @@ include("247around_tax_invoice_variables_interstate.php");
 		<td colspan="6" width="75%" align="center0" style="border:hidden; padding-left: 5%">A-1/7, F/F A BLOCK, KRISHNA NAGAR, DELHI, 110051</td>
 		<td rowspan="3" colspan="1" style="text-align: right; width: 20%; border-left: hidden;"><b>(<?php echo "$recipient_type";?>)</td>
 	</tr>
-	<tr style="border: hidden;"><td colspan="6" align="center" style="padding-right: 15%; border-right: hidden;">Email: seller@247around.com</td></tr>
+	<tr style="border: hidden;"><td colspan="6" align="center" style="padding-right: 15%; border-right: hidden;">Email: billing@247around.com</td></tr>
 <!-- 	<tr><td style="border-bottom: hidden;border-top: hidden;border-right: hidden;padding: 1%">shmskjdhlskdjls</td>	
  -->	
  	<tr style="text-align: center;" ><td colspan="8"><b>GSTIN: 07AAFCB1281J1ZQ</td></tr>

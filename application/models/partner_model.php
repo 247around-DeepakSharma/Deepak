@@ -2254,7 +2254,7 @@ function get_data_for_partner_callback($booking_id) {
             $meta['main_company_address'] = "A-1/7, F/F A BLOCK, KRISHNA NAGAR Pincode - 110051, DELHI";
             $meta['main_company_state'] = "DELHI";
             $meta['main_company_pincode'] = "110051";
-            $meta['main_company_email'] = "seller@247around.com";
+            $meta['main_company_email'] = "billing@247around.com";
             $meta['main_company_phone'] = "";
             $meta['main_company_bank_name'] = "ICICI Bank";
             $meta['main_company_bank_account'] = "102405500277";
