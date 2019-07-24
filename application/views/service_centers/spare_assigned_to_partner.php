@@ -65,12 +65,10 @@ if ($this->uri->segment(3)) {
                                     <th class="text-center">Age of Request(Days)</th>
                                     <th class="text-center">Parts Required</th>
                                     <th class="text-center">Requested Quantity</th>
-                                    <th class="text-center">Shipped Quantity</th>
                                     <th class="text-center">Parts Code</th>
                                     <th class="text-center">Model Number</th>
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">Problem Description</th>
-                                    <th class="text-center">Inventory Stock</th>
                                     
                                 </tr>
                             </thead>
@@ -101,9 +99,6 @@ if ($this->uri->segment(3)) {
                                         <td>
                                             <?php echo $row['quantity']; ?>
                                         </td>
-                                         <td>
-                                            <?php echo $row['shipped_quantity']; ?>
-                                        </td>
                                          <td style="word-break: break-all;">
                                             <?php echo $row['part_number']; ?>
                                         </td>
@@ -117,9 +112,6 @@ if ($this->uri->segment(3)) {
 
                                         <td>
                                             <?php echo $row['remarks_by_sc']; ?>
-                                        </td>
-                                        <td>
-                                            <?php echo $row['stock']; ?>
                                         </td>
 
                                         
