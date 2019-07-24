@@ -70,7 +70,9 @@ $route['service_center/acknowledge_delivered_spare_parts/(:any)/(:any)/(:any)/(:
 $route['service_center/get_search_form'] = 'employee/service_centers/get_search_form';
 $route['service_center/search'] = 'employee/service_centers/search';
 $route['service_center/get_defective_parts_booking'] = 'employee/service_centers/get_defective_parts_booking';
+$route['service_center/defective_parts_sent'] = 'employee/service_centers/defective_parts_sent';
 $route['service_center/get_defective_parts_booking/(:any)'] = 'employee/service_centers/get_defective_parts_booking/$1';
+$route['service_center/defective_parts_sent/(:any)'] = 'employee/service_centers/defective_parts_sent/$1';
 $route['service_center/update_defective_parts/(:any)'] = 'employee/service_centers/update_defective_parts/$1';
 $route['service_center/process_update_defective_parts/(:any)'] = 'employee/service_centers/process_update_defective_parts/$1';
 $route['service_center/get_approved_defective_parts_booking'] = 'employee/service_centers/get_approved_defective_parts_booking';
@@ -101,6 +103,7 @@ $route['service_center/buyback/get_bb_order_appliance_details/(:any)'] = 'employ
 $route['service_center/inventory'] = 'employee/service_centers/warehouse_default_page';
 $route['service_center/dispatch_msl_to_warehouse'] = 'employee/spare_parts/get_dispatch_msl_form';
 $route['service_center/bulkConversion'] = 'employee/spare_parts/bulkConversion';
+$route['service_center/bulkPartnerConversion'] = 'employee/spare_parts/bulkPartnerConversion';
 $route['service_center/bulkConversion_process'] = 'employee/service_centers/bulkConversion_process';
 
 $route['service_center/spare_transfer_from_wh_to_wh'] = 'employee/spare_parts/spare_transfer_from_wh_to_wh';
@@ -223,7 +226,8 @@ $route['partner/search_docket_number'] = 'employee/partner/search_docket_number'
 $route['partner/review_bookings/(:any)/(:any)'] = 'employee/partner/partner_review_bookings/$1/$2';
 $route['partner/contacts'] = 'partner/manage_partner_contacts';
 $route['partner/brand_collateral']='employee/partner/brandCollateral';
-
+$route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
+$route['partner/inventory/download_serviceable_bom'] = 'employee/partner/show_download_serviceable_bom';
 $route['partner/inventory/model_mapping'] = 'employee/partner/show_appliance_model_mapping';
 $route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
 

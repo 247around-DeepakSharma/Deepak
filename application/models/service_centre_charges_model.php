@@ -713,4 +713,22 @@ class service_centre_charges_model extends CI_Model {
         }
     }
     
+    /**
+     This function return Categories mapped with a partner for a given service
+     * @author Prity Sharma
+     * @date 18-07-2019
+     * @return array 
+     */
+    function getPartnerServiceCategoryMapping($where, $select, $order_by, $where_in = array()){
+        $this->db->distinct();
+        $this->db->select($select);
+        $this->db->join('service_category_mapping', 'partner_appliance_mapping.appliance_configuration_id = service_category_mapping.id');
+        $this->db->join('category', 'service_category_mapping.category_id = category.id');
+        $this->db->join('capacity', 'service_category_mapping.capacity_id = capacity.id', 'left');
+        $this->db->where($where);
+        $this->db->order_by('category.name, capacity.name');
+        $query = $this->db->get('partner_appliance_mapping');
+    	return $query->result_array();
+    }
+    
 }

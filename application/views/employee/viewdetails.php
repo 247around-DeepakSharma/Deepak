@@ -478,7 +478,7 @@
                                     <td><?php echo $unit_detail['model_number']?></td>
                                     <td><?php echo $unit_detail['sf_model_number']?></td>
                                     <td><?php if(!empty($unit_detail['serial_number_pic'])){?>
-                                        <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>engineer-uploads/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
+                                        <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit_detail['serial_number_pic'];?>"><?php echo $unit_detail['serial_number'];?></a>
                                              <?php } else { echo $unit_detail['serial_number'];} ?> / <?php echo $unit_detail['partner_serial_number']?>
                                     </td>
                                     <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?> / <?php if(!empty($unit_detail['sf_purchase_date'])) {echo $unit_detail['sf_purchase_date'];}?></td>
@@ -585,7 +585,7 @@
                                         <th >Model Number </th>
                                         <th> Original Requested Parts </th>
                                         <th> Final Requested Parts </th>
-                                        <th> Requested Part Number </th>
+<!--                                        <th> Requested Part Number </th>-->
                                         <th> Parts Type </th>  
                                         <th> Parts Warranty Status </th>    
                                         <th>Requested Quantity </th>                                
@@ -598,6 +598,7 @@
                                         <th >Acknowledge Date BY SF </th>
                                         <th >Remarks By SC </th>
                                         <th >Current Status</th>
+                                        <th >Spare Cancellation Reason</th>
                                         <th>Move To Vendor</th>
                                         <th>Move To Partner</th>
                                         <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
@@ -613,9 +614,9 @@
                                           } 
                                          ?></span></td>
                                         <td><?php echo $sp['model_number']; ?></td>
-                                        <td style=" word-break: break-all;"><?php if(isset($sp['original_part_number'])){ echo $sp['original_part_number']; } else { echo $sp['parts_requested']; } ?></td>
-                                        <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; } ?></td>
-                                        <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; } ?></td>
+                                        <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><b>".$sp['original_parts_number']."</b>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
+                                        <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><b>".$sp['part_number']."</b>"; } ?></td>
+<!--                                        <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; } ?></td>-->
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
                                         <td><?php if($sp['part_warranty_status']==2){echo 'Out Of Warranty';}else{echo 'In - Warranty';} ?></td> 
                                         <td><?php echo $sp['quantity']; ?></td> 
@@ -627,7 +628,7 @@
                                         </td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressserial_number_pic".$sp['id'] ?>"  role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['serial_number_pic'])) {
                                             if ($sp['serial_number_pic'] !== '0') {
-                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['serial_number_pic']; ?> " target="_blank" id="<?php echo "a_serial_number_pic_".$sp['id']; ?>">Click Here</a> &nbsp;&nbsp;<i id="<?php echo "serial_number_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','serial_number_pic');"></i><?php }
+                                                ?> <a href="<?php echo S3_WEBSITE_URL; ?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $sp['serial_number_pic']; ?> " target="_blank" id="<?php echo "a_serial_number_pic_".$sp['id']; ?>">Click Here</a> &nbsp;&nbsp;<i id="<?php echo "serial_number_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','serial_number_pic');"></i><?php }
                                             }
                                             ?>
                                         </td>
@@ -647,7 +648,7 @@
                                         <td><?php echo $sp['acknowledge_date']; ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
-
+                                        <td><?php echo $sp['part_cancel_reason'];?></td>
 
                                      <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <?php  if($sp['entity_type']==_247AROUND_PARTNER_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
@@ -1041,7 +1042,7 @@
                     <tr>
                         <td><?php echo $unit["price_tags"];?></td>
                         <td><?php if($unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
-                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
+                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
                         
                         <td><?php  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
                     </tr>

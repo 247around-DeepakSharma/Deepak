@@ -3362,6 +3362,8 @@ class Invoice extends CI_Controller {
                     . "district, invoice_email_to,invoice_email_cc", array('partners.id' => $vendor_partner_id));
         }
         
+        $tax_charge = $data['cgst_tax_amount'] = $data['sgst_tax_amount'] = $data['igst_tax_amount'] = $data['cgst_tax_rate'] = $data['sgst_tax_rate'] = $data['igst_tax_rate'] = 0;
+        
         if (!empty($entity)) {
             if ($vendor_partner == "vendor") {
                 $advance_type = $this->input->post('advance_type');
@@ -3442,6 +3444,8 @@ class Invoice extends CI_Controller {
                 $data['type_code'] = "B";
                 $data['amount_collected_paid'] = -$amount_collected_paid;
                 
+                $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, DEFAULT_TAX_RATE);
+                
                 if($flag && $flag == PAYTM_GATEWAY){
                     $data['vertical'] =SERVICE;
                     $data['category'] = ADVANCE;
@@ -3470,8 +3474,27 @@ class Invoice extends CI_Controller {
             $data['agent_id'] = $agent_id;
             $data['create_date'] = date("Y-m-d H:i:s");
             $data['hsn_code'] = HSN_CODE;
-
+            
+            $invoice_details = array(0 => array(
+                    "invoice_id" => $data['invoice_id'],
+                    "description" => $data['sub_category'],
+                    "qty" => 1,
+                    "product_or_services" => "Service",
+                    "rate" => ($data['total_amount_collected']  - $tax_charge),
+                    "taxable_value" => ($data['total_amount_collected']  - $tax_charge),
+                    "cgst_tax_rate" => $data['cgst_tax_rate'],
+                    "sgst_tax_rate" => $data['sgst_tax_rate'],
+                    "igst_tax_rate" => $data['igst_tax_rate'],
+                    "cgst_tax_amount" => $data['cgst_tax_amount'],
+                    "sgst_tax_amount" => $data['sgst_tax_amount'],
+                    "igst_tax_amount" => $data['igst_tax_amount'],
+                    "hsn_code" => $data['hsn_code'],
+                    "total_amount" => $data['total_amount_collected'],
+                    "create_date" => date('Y-m-d H:i:s')
+                )
+            );
             $this->invoices_model->action_partner_invoice($data);
+            $this->invoices_model->insert_invoice_breakup($invoice_details);
             return $data['invoice_id'];
         } else {
             return false;

@@ -384,7 +384,7 @@
                                 <th >Model Number </th>
                                 <th >Original Requested Parts </th>
                                 <th >Final Requested Parts </th>
-                                <th > Requested Part Number </th>
+<!--                                <th > Requested Part Number </th>-->
                                 <th >Requested Parts Type</th>
                                 <th >Requested Quantity</th>
                                 <th >Shipped Quantity</th>
@@ -397,15 +397,16 @@
                                 <th >Acknowledge Date BY SF </th>
                                 <th >Remarks By SC </th>
                                 <th>Current Status</th>
+                                <th>Spare Cancellation Reason</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                             <tr>
                                 <td><?php echo $sp['model_number']; ?></td>
-                                <td style=" word-break: break-all;"><?php if(isset($sp['original_part_number'])){ echo $sp['original_part_number']; } else { echo $sp['parts_requested']; } ?></td>
-                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; }  ?></td>
-                                <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; }  ?></td>
+                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><b>".$sp['original_parts_number']."</b>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
+                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><b>".$sp['part_number']."</b>"; }  ?></td>
+<!--                                <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; }  ?></td>-->
                                 <td><?php echo $sp['parts_requested_type']; ?></td>
                                 <td><?php echo $sp['quantity']; ?></td>
                                  <td><?php echo $sp['shipped_quantity']; ?></td>
@@ -415,7 +416,7 @@
                                     } ?>
                                 </td>
                                 <td><?php if (!is_null($sp['serial_number_pic'])) {
-                                    if ($sp['serial_number_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php }
+                                    if ($sp['serial_number_pic'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $sp['serial_number_pic']; ?> " target="_blank">Click Here</a><?php }
                                     } ?>
                                 </td>
                                 <td><?php if (!is_null($sp['defective_parts_pic'])) {
@@ -430,6 +431,7 @@
                                 <td><?php echo $sp['acknowledge_date']; ?></td>
                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                 <td><?php echo $sp['status'];?></td>
+                                <td><?php echo $sp['part_cancel_reason'];?></td>
                             </tr>
                             <?php if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
                                 $defective_parts_shipped = TRUE;
@@ -684,7 +686,7 @@
                     <tr>
                         <td><?php echo $unit["price_tags"];?></td>
                         <td><?php if($unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
-                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
+                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
                         
                         <td><?php  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
                     </tr>

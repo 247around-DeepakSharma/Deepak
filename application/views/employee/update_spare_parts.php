@@ -111,7 +111,7 @@
                                                     
                                                             if (isset($bookinghistory[0]['serial_number_pic']) && !empty($bookinghistory[0]['serial_number_pic'])) {
                                                                 //Path to be changed
-                                                                $src = "https://s3.amazonaws.com/bookings-collateral/misc-images/" . $bookinghistory[0]['serial_number_pic'];
+                                                                $src = "https://s3.amazonaws.com/bookings-collateral/".SERIAL_NUMBER_PIC_DIR."/" . $bookinghistory[0]['serial_number_pic'];
                                                             }
                                                         }
                                                     }

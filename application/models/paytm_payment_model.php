@@ -76,4 +76,12 @@ class paytm_payment_model extends CI_Model {
         $query = $this->db->get("paytm_transaction_callback");
         return $query->result_array();
     }
+    
+    function get_paytm_transactions($booking_id){
+        $this->db->select("*");
+        $this->db->where("booking_id", $booking_id);
+        $this->db->order_by("id", "DESC");
+        $query = $this->db->get("paytm_transaction_callback");
+        return $query->result_array();
+    }
 }

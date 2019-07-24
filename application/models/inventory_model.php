@@ -355,6 +355,10 @@ class Inventory_model extends CI_Model {
             $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
             $this->db->join('inventory_master_list as im','im.inventory_id = spare_parts_details.shipped_inventory_id', "left");
         }
+        
+        if(isset($post['spare_cancel_reason'])){
+            $this->db->join('booking_cancellation_reasons','booking_cancellation_reasons.id = spare_parts_details.spare_cancellation_reason', "left");
+        }
         $this->db->join('services', 'booking_details.service_id = services.id','left');
         
         if (!empty($post['where'])) {
@@ -1098,7 +1102,7 @@ class Inventory_model extends CI_Model {
         }
 
         if ($post['is_micro_wh']) {
-           $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.invoice_id', 'left');
+           $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.micro_invoice_id', 'left');
            $this->db->join('partners as pi', "pi.id = vendor_partner_invoices.third_party_entity_id AND inventory_master_list.entity_id= pi.id",'left');
         }
 
@@ -1157,6 +1161,7 @@ class Inventory_model extends CI_Model {
     public function count_spare_need_to_acknowledge($post) {
         $this->_get_spare_need_to_acknowledge($post, 'count(distinct(i.id)) as numrows');
         $query = $this->db->get();
+
         return $query->result_array()[0]['numrows'];
     }
     
@@ -1596,7 +1601,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('spare_parts_details','booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->join('partners','booking_details.partner_id = partners.id');
         $this->db->join('service_centres','booking_details.assigned_vendor_id = service_centres.id');
-        $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='247around' ", "left"); // new query for AM
+        $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='"._247AROUND_EMPLOYEE_STRING."' ", "left"); // new query for AM
         $this->db->join('employee',"employee.id = agent_filters.agent_id", "left"); // new query for AM
         //$this->db->join('employee','partners.account_manager_id = employee.id'); // old query for AM
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
@@ -2181,10 +2186,11 @@ class Inventory_model extends CI_Model {
      */
     
     function get_pending_spare_part_details($post, $where=array()){
-        $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) AS shipped_date", FALSE);
+        $this->db->select($post['select'], FALSE);
+        $this->db->from('spare_parts_details');   
+        $this->db->join('service_centres', 'spare_parts_details.service_center_id = service_centres.id');
         $this->db->where($where);
-        $query = $this->db->get("spare_parts_details");
-        //echo $this->db->last_query();
+        $query = $this->db->get();
         return $query->result_array();
     }
     
@@ -2606,6 +2612,31 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    
+    
+    
+    /**
+     * @Desc: This function is used to get Details of serviceable BOM
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_serviceable_bom_data($select, $where = array()) {
+        $this->db->select($select,false);
+        $this->db->from('inventory_master_list');
+        $this->db->join('inventory_model_mapping','inventory_model_mapping.inventory_id = inventory_master_list.inventory_id');
+        $this->db->join('appliance_model_details','appliance_model_details.id = inventory_model_mapping.model_number_id');
+        $this->db->join('services','services.id = appliance_model_details.service_id');
+        if (!empty($where)) {
+            $this->db->where($where,false);
+        }        
+        $query = $this->db->get();
+        return $query;        
+       
+    }
+
 
         function get_entity_gst_data($select="*", $where){
         $this->db->select($select);

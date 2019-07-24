@@ -62,11 +62,15 @@ class Dashboard extends CI_Controller {
             if($this->session->userdata('user_group') == _247AROUND_ACCOUNTANT){
                 redirect(base_url().'employee/invoice/invoice_partner_view');
             }else{
+                $is_am = 0;
                 if($this->session->userdata('user_group') == _247AROUND_AM){
-                    $partnerWhere['account_manager_id'] = $this->session->userdata('id');
+//                    $partnerWhere['account_manager_id'] = $this->session->userdata('id');
+                    $is_am = 1;
+                    $partnerWhere["agent_filters.agent_id"] = $this->session->userdata('id');
                 }
-                $partnerWhere['is_active'] = 1;
-                $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
+                $partnerWhere['partners.is_active'] = 1;
+//                $data['partners'] = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
+                $data['partners'] = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,$is_am);
                 $serviceWhere['isBookingActive'] =1;
                 $data['services'] = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,array("services"=>"ASC"),NULL,NULL,array());
                 $am_where=array('active'=>'1','groups'=>'accountmanager');
@@ -2018,7 +2022,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                                 . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                 }
 
-            $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '247around'";
+            $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
             $conditionsArray['join']['employee'] = "agent_filters.agent_id = employee.id";
 
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
@@ -2095,7 +2099,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
              $conditionsArray['where']["agent_filters.agent_id"] = $rmID;
             }
             $conditionsArray['join']['service_centres'] = "service_centres.id = booking_details.assigned_vendor_id";
-            $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '247around'";
+            $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
             $conditionsArray['join']['employee'] = "agent_filters.agent_id = employee.id";
         }
         if($this->session->userdata('userType') == 'service_center'){
@@ -2137,7 +2141,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if($rmID != "00"){
                  $conditionsArray['where']["agent_filters.agent_id"] = $rmID;
             }
-            $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '247around'";
+            $conditionsArray['join']['agent_filters'] = "booking_details.partner_id = agent_filters.entity_id AND agent_filters.state = booking_details.state AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'";
             $conditionsArray['join']['employee'] = "agent_filters.agent_id = employee.id";
         }
         //Get Data Group by State
@@ -2209,12 +2213,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $sfData = $this->get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type);
         if($is_am){
             if($rmID != "00"){
-                $partnerWhere['account_manager_id'] = $rmID;
+//                $partnerWhere['account_manager_id'] = $rmID;
+                $partnerWhere["agent_filters.agent_id"] = $rmID;
             }
         }
-        $partnerWhere['is_active'] = 1;
+        $partnerWhere['partners.is_active'] = 1;
         $serviceWhere['isBookingActive'] =1;
-        $partners = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
+//        $partners = $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
+        $partners = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,$is_am);
         $services = $this->reusable_model->get_search_result_data("services","*",$serviceWhere,NULL,NULL,NULL,NULL,NULL,array());
          $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if(!$is_ajax){
@@ -3081,8 +3087,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
     {
         $am_id=$this->input->post('am_id');
         $am_partner_array=$this->partner_model->get_am_partner($am_id);
-        $partnerWhere['is_active'] = 1;
-        $partner_arr= $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
+        $partnerWhere['partners.is_active'] = 1;
+        $partnerWhere["agent_filters.agent_id"] = $am_id;
+//        $partner_arr= $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
+        $partner_arr = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,1);
        
         $data=array(
             'am_compare'=>$am_partner_array,

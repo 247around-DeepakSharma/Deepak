@@ -26,6 +26,7 @@
           	<th>Mobile</th>
           	<th>Alternate Mobile</th>
           	<th>ID Proof</th>
+                <th>Verified</th>
           	<th>Status</th>
                 <th>Edit</th>
 <!--                <th>Delete</th>-->

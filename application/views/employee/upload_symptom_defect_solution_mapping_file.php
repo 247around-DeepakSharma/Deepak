@@ -23,6 +23,7 @@
                 ?>
                 <h3 class="page-header">
                     <b> Upload Symptom Defect Solution File</b>
+                    <a style="float:right;" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/inventory_master_list_sample_file.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
                 </h3>
 
                 <section>
@@ -75,8 +76,26 @@
                         </form>
                     </div>
                     <div class="col-md-6">
-                        <p style="font-size: 18px;"><b>Download Sample File. Use this file to upload inventory details.</b></p>
-                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/vendor-partner-docs/inventory_master_list_sample_file.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
+                        <p style="font-size: 18px;"><b>Please write appliance name only from below list</b></p>
+                                    <table class='table table-condensed table-bordered'>
+                                        <thead>
+                                            <?php
+                                            foreach($services as $index=>$serviceName){
+                                                if($index%5== 0){
+                                                    echo "<tr>";
+                                                }
+                                            ?>
+                                           <td><?php echo$serviceName['services']; ?></td>
+                                            <?php
+                                           if(($index+1)%5== 0){
+                                                    echo "</tr>";
+                                                }
+                                            }
+                                            ?>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
                     </div>
                 </section>
                 <div class="col-md-12" style="margin-top:20px;">
@@ -100,6 +119,11 @@
 </div>
 
 
+<style>
+    #datatable1_filter, .pagination{
+        float:right;
+    }
+</style>
 
 <script>
 
@@ -121,9 +145,13 @@
                     processData: false,
                     contentType: false
                 }).done(function (data) {
-                    alert(data);
+                    if($.trim(data) == '1') {
+                        alert('Data has been saved successfully.');
+                    } else {
+                        alert('Data validation failed. Please check data.');
+                    }
                 });
-                alert('File validation is in progress, please wait....');
+               // alert('File validation is in progress, please wait....');
             } else {
                 alert("Please Select Partner ");
                 return false;

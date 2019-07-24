@@ -1342,8 +1342,7 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking Id  " . print_r($booking_id, true));
         $this->checkUserSession();
         $this->form_validation->set_rules('booking_date', 'Booking Date', 'trim|required');
-        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id);
-        
+        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($booking_id, $this->input->post('service_center_closed_date'));
         if ($this->form_validation->run() == FALSE || $is_booking_able_to_reschedule === FALSE) {
             if($is_booking_able_to_reschedule === FALSE) {
                 $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
@@ -2699,10 +2698,9 @@ class Partner extends CI_Controller {
         $brand = $this->input->post('brand');
         $partner_type = $this->input->post('partner_type');
         $is_repeat = $this->input->post('is_repeat');
-        if($this->input->post('is_mapping')){
-            $where = array("service_id" => $service_id);
-               
-            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "category.name as category","category.name");
+        if($this->input->post('is_mapping')){            
+                $where = array('partner_appliance_mapping.partner_id' => $partner_id, 'service_category_mapping.service_id' => $service_id);
+                $data = $this->service_centre_charges_model->getPartnerServiceCategoryMapping($where, "category.name as category","category.name");           
         } else {
             $where_in = array();
             
@@ -2753,9 +2751,9 @@ class Partner extends CI_Controller {
         
         if($this->input->post("is_mapping")){
             
-            $where = array("service_id" => $service_id);
+            $where = array('partner_appliance_mapping.partner_id' => $partner_id, 'service_category_mapping.service_id' => $service_id);
             $where_in = array("category.name" => $category);
-            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "capacity.name as capacity","capacity.name", $where_in);
+            $data = $this->service_centre_charges_model->getPartnerServiceCategoryMapping($where, "capacity.name as capacity","capacity.name", $where_in);
         } else {
             
             $where_in = array("category" => $category);
@@ -4509,7 +4507,12 @@ class Partner extends CI_Controller {
 
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            $option .= " > ";
+            if(count($partner_list) == 1){
+                $option .= " selected> ";
+            }else{
+               $option .= "> "; 
+            }
+            
             $option .= $value['public_name'] . "</option>";
         }
         echo $option;
@@ -5555,7 +5558,7 @@ class Partner extends CI_Controller {
                     }
                 }
                 foreach($arr_states as $key=>$state){
-                    $data=array("entity_type" => "247around", "entity_id" => $partnerID, "state" => $state);//, "agent_id" => $am
+                    $data=array("entity_type" => _247AROUND_EMPLOYEE_STRING, "entity_id" => $partnerID, "state" => $state);//, "agent_id" => $am
                     $am_data = $this->partner_model->get_am_data("*", $data);
                     if(empty($am_data)) {
                         $data["agent_id"] = $am;
@@ -5628,7 +5631,7 @@ class Partner extends CI_Controller {
             
             $data['state'] = $this->input->post('state1');
             $data['agent_id'] = $this->input->post('am1');
-            $where = array("entity_type" => "247around", "entity_id" => $partnerID, 'state' => $data['state']);//, 'agent_id' => $data['agent_id']
+            $where = array("entity_type" => _247AROUND_EMPLOYEE_STRING, "entity_id" => $partnerID, 'state' => $data['state']);//, 'agent_id' => $data['agent_id']
                 
             $am_data = $this->partner_model->get_am_data("*", $where);
             if(empty($am_data) || ($am_data[0]['agent_id'] !== $data['agent_id'])) {
@@ -5643,7 +5646,7 @@ class Partner extends CI_Controller {
                     }
                     $count = 0;
                     foreach($states as $key=>$state){
-                        $insert_data=array("entity_type" => "247around", "entity_id" => $partnerID, "state" => $state);
+                        $insert_data=array("entity_type" => _247AROUND_EMPLOYEE_STRING, "entity_id" => $partnerID, "state" => $state);
                         $am_data = $this->partner_model->get_am_data("*", $insert_data);
                         if(empty($am_data)) {
                             $insert_data["agent_id"]=$data['agent_id'];
@@ -5723,16 +5726,18 @@ class Partner extends CI_Controller {
     function delete_partner_am() {
         if($this->input->post('partner_id')){
             $partnerID = $this->input->post('partner_id');
-            $am_data = $this->partner_model->get_am_data("*", array("entity_type" => "247around", "entity_id" => $partnerID),"","",0,array('id' => $this->input->post('id')));
-            if(!empty($am_data)) {
-                $sql = "DELETE FROM agent_filters WHERE entity_type='247around' AND entity_id='".$partnerID."' AND id in ('".implode("','",$this->input->post('id'))."') ";
-                $affected_rows =  $this->reusable_model->execute_custom_insert_update_delete_query($sql);
-                
-                if($affected_rows){
-                    echo "Account Managers has been deleted successfully ";
-                }
-                else{
-                    echo "No deletion done";
+            if(!empty($this->input->post('id'))) {
+                $am_data = $this->partner_model->get_am_data("*", array("entity_type" => _247AROUND_EMPLOYEE_STRING, "entity_id" => $partnerID),"","",0,array('id' => $this->input->post('id')));
+                if(!empty($am_data)) {
+                    $sql = "DELETE FROM agent_filters WHERE entity_type='"._247AROUND_EMPLOYEE_STRING."' AND entity_id='".$partnerID."' AND id in ('".implode("','",$this->input->post('id'))."') ";
+                    $affected_rows =  $this->reusable_model->execute_custom_insert_update_delete_query($sql);
+
+                    if($affected_rows){
+                        echo "Account Managers has been deleted successfully ";
+                    }
+                    else{
+                        echo "No deletion done";
+                    }
                 }
             }
         }
@@ -7811,7 +7816,11 @@ class Partner extends CI_Controller {
 
         foreach ($partner_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            $option .= " > ";
+            if(count($partner_list) == 1){
+                $option .= " selected>";
+            }else{
+               $option .= "> "; 
+            }
             $option .= $value['public_name'] . "</option>";
         }
         echo $option;
@@ -7904,5 +7913,18 @@ class Partner extends CI_Controller {
         $this->load->view('partner/partner_summary_report_list', $data);
         $this->load->view('partner/partner_footer');
     }
+    
+    /**
+     * @desc: This function is used to download serviceable BOM
+     * @params: void
+     * @return: void
+     */
+    function show_download_serviceable_bom(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/get_download_serviceable_bom');
+        $this->load->view('partner/partner_footer');
+    }
+    
    
 }

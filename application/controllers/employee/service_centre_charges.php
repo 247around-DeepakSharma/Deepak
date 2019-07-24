@@ -1176,6 +1176,7 @@ class service_centre_charges extends CI_Controller {
         $data['product_or_services'] = $service;
         $data['tax_code'] = $tax_code;
         $data['pod'] = $pod;
+        $data['invoice_pod'] = 0;
         $data['is_upcountry'] = -1;
         $data['flat_upcountry'] = 0;
         $data['upcountry_customer_price'] = 0;
@@ -2213,4 +2214,115 @@ class service_centre_charges extends CI_Controller {
         echo $response;
     }
     
+    /*
+     * This function is used to get Appliances (service-captegory-capacity) for a partner
+     * @author Prity Sharma
+     * @date 24-06-2019
+    */
+    function show_partner_appliances() {
+        $this->miscelleneous->load_nav_header();
+        $data['partners'] = $this->partner_model->get_all_partner_source();
+        $data['services'] = $this->booking_model->selectservice();
+        $this->load->view('employee/partner_wise_appliances', $data);
+    }
+
+    /**
+     * This function returns the list of appliance configurations in which a partner is dealing for given service
+     * @author Prity Sharma
+     * @date 24-06-2019
+     * @return json
+     */
+    function map_partner_appiances() {
+        $arr_post = $this->input->post();
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => 0,
+            "recordsFiltered" => 0,
+            'stock' => 0,
+            "data" => array(),
+        );
+        
+        if (!empty($arr_post['partner_id']) && !empty($arr_post['service_id'])) {
+            $data = $this->get_partner_wise_appliance_data($arr_post);
+            $post = $data['post'];
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "data" => $data['data'],
+                "recordsTotal" => count($data['data']),
+                "recordsFiltered" => count($data['data'])
+            );
+}
+
+        echo json_encode($output);
+    }
+
+    /**
+     * This function returns the list of appliance configurations in which a partner is dealing for given service
+     * @author Prity Sharma
+     * @date 24-06-2019
+     * @param array $Post
+     * @return array
+     */
+    function get_partner_wise_appliance_data($post) {
+        $post['column_order'] = array();
+        $post['column_search'] = array('category.name', 'capacity.name');
+        $post['where'] = array('service_category_mapping.service_id' => trim($post['service_id']));
+        $post['where_partner'] = 'partner_appliance_mapping.partner_id = "'.trim($post['partner_id']).'"';
+        $select = 'service_category_mapping.id as configuration_id, category.name as category, capacity.name as capacity, partner_appliance_mapping.id as mapping_id';
+        $list = $this->partner_model->get_partner_appliances($post, $select);
+
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $model_list) {
+            $no++;
+
+            $row = array();
+            $json_data = json_encode($model_list);
+            $row[] = $no;
+            $row[] = $model_list->category;
+            $row[] = $model_list->capacity;
+            if (!empty($model_list->mapping_id)) {
+                $row[] = '<div id="row'.$model_list->configuration_id.'"><i class="fa fa-check-circle fa-2x text-success" onClick="deleteMapping(' . $model_list->mapping_id . ',' . $model_list->configuration_id . ', '. trim($post['partner_id']) .')"></i></div>';
+            } else {
+                $row[] = '<div id="row'.$model_list->configuration_id.'"><i class="fa fa-times-circle  fa-2x text-danger" onClick="addMapping(' . $model_list->configuration_id . ', '. trim($post['partner_id']) .')"></i></div>';
+            }
+
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+    /**
+     * This function maps an appliance configuration to a partner
+     * @author Prity Sharma
+     * @date 24-06-2019
+     * @return integer
+     */
+    public function map_appliance_configuration()
+    {
+        $post_data = $this->input->post();
+        $data = array( 
+            'partner_id' =>  $post_data['partnerId'] , 
+            'appliance_configuration_id' => $post_data['configId'] , 
+        );
+        $result = $this->partner_model->insert_partner_appliances($data);    
+        echo $result;
+    }
+
+    /**
+     * This function unmaps an appliance configuration from partner
+     * @author Prity Sharma
+     * @date 24-06-2019
+     * @return string
+     */
+    public function unmap_appliance_configuration()
+    {
+        $post_data = $this->input->post();
+        $result = $this->partner_model->delete_partner_appliances($post_data);    
+        echo $result;
+    }
 }

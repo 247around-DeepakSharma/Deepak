@@ -3157,7 +3157,7 @@ function generate_image($base64, $image_name,$directory){
             $partnerJoin["employee"] = "employee.id=agent_filters.agent_id";
             $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
             
-            $where['agent_filters.entity_type'] = "247around";
+            $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
             $where['agent_filters.state'] = $booking_state[0]['state'];
             
             $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","group_concat(distinct employee.official_email) as official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
@@ -3255,7 +3255,7 @@ function generate_image($base64, $image_name,$directory){
                 $from = $email_template[2];
                 $cc = $email_template[3].$rm_email;
             }
-            $attachment = S3_WEBSITE_URL . "engineer-uploads/" . $pic_name;
+            $attachment = S3_WEBSITE_URL . SERIAL_NUMBER_PIC_DIR."/" . $pic_name;
             $this->My_CI->notify->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment, INFORM_PARTNER_FOR_NEW_SERIAL_NUMBER);
         }
     }
@@ -3376,7 +3376,7 @@ function generate_image($base64, $image_name,$directory){
         $join['employee e'] = "e.id = agent_filters.agent_id";
         $join['employee'] = "employee.id = employee_relation.agent_id";
         $where['booking_details.booking_id'] = $bookingID;
-        $where['agent_filters.entity_type'] = "247around";
+        $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
         
         $saas_module = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if(isset($saas_module) && (!$saas_module)) { 
@@ -3528,6 +3528,11 @@ function generate_image($base64, $image_name,$directory){
         
         if(!empty($inventory_stock_details)){
             if(!empty($service_center_id)){
+                if($inventory_part_number[0]['inventory_id'] != $inventory_stock_details[0]['inventory_id'] ){
+                    $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.part_name, '
+                    . 'inventory_master_list.inventory_id, price, gst_rate,oow_around_margin, inventory_master_list.entity_id', array('inventory_id' => $inventory_stock_details[0]['inventory_id']));
+
+                }
                 $response = array();
                 $response['stock'] = TRUE;
                 $response['entity_id'] = $service_center_id;
@@ -4047,7 +4052,7 @@ function generate_image($base64, $image_name,$directory){
                                             'defective_return_to_entity_type' => $stock['defective_return_to_entity_type'],
                                             'defective_return_to_entity_id' => $stock['defective_return_to_entity_id'],
                                             'partner_id' => $stock['entity_id']));
-                                if($stock['entity_type'] == _247AROUND_SF_STRING){
+                                if($stock['is_micro_wh'] == 2 || $stock['is_micro_wh'] == 1){
                                     $this->My_CI->inventory_model->update_pending_inventory_stock_request($stock['entity_type'], $stock['entity_id'], $sp['requested_inventory_id'], 1);
 
                                 }
@@ -4055,12 +4060,25 @@ function generate_image($base64, $image_name,$directory){
                                 
                             } else {
                                 //Update Spare parts details table
-                               $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status'],
-                                   "entity_type" => _247AROUND_PARTNER_STRING, "partner_id" => $partner_id));
+                               $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array(
+                                   'status' => $sp['old_status'],
+                                   'is_micro_wh' => 0, 
+                                   'defective_return_to_entity_type' => _247AROUND_PARTNER_STRING, 
+                                   "entity_type" => _247AROUND_PARTNER_STRING, 
+                                   "partner_id" => $partner_id,
+                                   "defective_return_to_entity_id" => $partner_id
+                                ));
                             }
                         } else {
                            //Update Spare parts details table
-                          $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array('status' => $sp['old_status'])); 
+                          $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), array(
+                                   'status' => $sp['old_status'],
+                                   'is_micro_wh' => 0, 
+                                   'defective_return_to_entity_type' => _247AROUND_PARTNER_STRING, 
+                                   "entity_type" => _247AROUND_PARTNER_STRING, 
+                                   "partner_id" => $partner_id,
+                                   "defective_return_to_entity_id" => $partner_id
+                                ));
                         }
                         
                         $this->My_CI->vendor_model->update_service_center_action($booking_id, array('current_status' => 'InProcess', 'internal_status' => SPARE_PARTS_REQUIRED));

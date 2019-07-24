@@ -590,39 +590,58 @@ class Upcountry_model extends CI_Model {
         $this->db->where('service_centres.active', "1");
         $this->db->where('service_centres.on_off', "1");
         $data = $this->db->get()->result_array();
+        if(empty($brand_name)) {
+            return $data;
+        }
+        return $this->get_preffered_brand_service_center($data, $service_id, $brand_name);
+    }
     
-        $vendor = [];
-        if(!empty($data) && !empty($brand_name)) {
-            foreach($data as $d) {
-                $service_center_id = $d['Vendor_ID'];
-                // check service center's preffered brand.
-                $preffered_vendor =  $this->db->select('*')
-                            ->from('service_center_brand_mapping')
-                            ->where('service_center_id', $service_center_id)
-                            ->where('service_id', $service_id)
-                            ->where('brand_name', $brand_name)
-                            ->get()->result_array();
+    /**
+     * Function check for service center of preffered brand.
+     * @param type $data
+     * @param type $service_id
+     * @param type $brand_name
+     * @return type
+     */
+    function get_preffered_brand_service_center($data, $service_id, $brand_name) {
+        $sql = "SELECT 
+                    service_center_id,IF(brand_name = '{$brand_name}', 1, 0) as decision_flag
+                FROM 
+                   service_center_brand_mapping
+                WHERE
+                   service_center_id IN (".implode(',', array_column($data, 'Vendor_ID')).")
+                   AND service_id = {$service_id}
+                   GROUP BY service_center_id,decision_flag"; 
+        $preffered_vendor =  $this->db->query($sql)->result_array();
+        $service_center_ids = 0;
+        if(!empty($preffered_vendor)) {
+            // check for 1
+            if(in_array('1', array_column($preffered_vendor, 'decision_flag'))) {
+                $d = array_filter($preffered_vendor, function ($vendor) {
+                    if ($vendor['decision_flag'] == 1) {
+                        return true;
+                    }
+                    return false;
+                });
                 
-                if(empty($preffered_vendor)) { 
-                    // check service center's preffered all brands.
-                    $preffered_vendor =  $this->db->select('*')
-                            ->from('service_center_brand_mapping')
-                            ->where('service_center_id', $service_center_id)
-                            ->where('service_id', $service_id)
-                            ->where('brand_name = "all"')
-                            ->get()->result_array();
-                    
-                }
-                
-                if(!empty($preffered_vendor)) {
-                    $vendor[] = $d;
-                }
+                $service_center_ids =  array_column($d, 'service_center_id');
+            } else {
+                $pincode_mapping_vendor = array_column($data, 'Vendor_ID');
+                $brand_mapping_vendor = array_column($preffered_vendor, 'service_center_id');
+                $service_center_ids = array_diff($pincode_mapping_vendor, $brand_mapping_vendor);
             }
         } else {
-            $vendor = $data;
+            return $data;
         }
-        //echo"<pre>";print_r($vendor);exit;
-        return $vendor;
+        
+        $response = [];
+        foreach($data as $rec) {
+            if(in_array($rec['Vendor_ID'], $service_center_ids)) {
+                $response[] = $rec;
+            }
+        }
+
+        return $response;
     }
     /**
      * @desc: Return service center details who work upcountry

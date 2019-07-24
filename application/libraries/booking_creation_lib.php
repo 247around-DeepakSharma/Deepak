@@ -166,9 +166,12 @@ class booking_creation_lib {
         return $this->My_CI->form_validation->run();
     }
     
-    function is_booking_able_to_reschedule($booking_id) {
-        $service_center_closed_date = $this->My_CI->reusable_model->get_search_result_data('booking_details', 'service_center_closed_date', ['booking_id' => $booking_id], NULL, NULL, NULL, NULL, NULL)[0]['service_center_closed_date'];
-        if(!empty($service_center_closed_date)) {
+    function is_booking_able_to_reschedule($booking_id, $sf_closed_date = NULL) {
+        if(empty($sf_closed_date)) {
+            $sf_closed_date = $this->My_CI->reusable_model->get_search_result_data('booking_details', 'service_center_closed_date', ['booking_id' => $booking_id], NULL, NULL, NULL, NULL, NULL)[0]['service_center_closed_date'];
+        }
+        
+        if(!empty($sf_closed_date)) {
             return FALSE;
         } else {
             return TRUE;

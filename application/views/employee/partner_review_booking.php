@@ -94,7 +94,7 @@
                                            <td><span class="<?php echo "model_number".$count; ?>"><?php echo $value1['model_number']; ?></span></td>
                                            <td>
                                               <?php if(!empty($value1['serial_number_pic'])) {?>
-                                              <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $value1['serial_number_pic'];?>"> 
+                                              <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $value1['serial_number_pic'];?>"> 
                                                   <span class="<?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span></a>
                                               <?php } else {?>
                                                <span class="<?php echo "serial_number".$count; ?>"><?php echo $value1['serial_number']; ?></span>

@@ -1427,7 +1427,7 @@ function get_data_for_partner_callback($booking_id) {
             }
             if($ac != 'All'){
                 //$where['partners.account_manager_id']  = $ac;
-                $this->db->join('agent_filters','partners.id=agent_filters.entity_id AND agent_filters.entity_type="247around" ', "left");
+                $this->db->join('agent_filters','partners.id=agent_filters.entity_id AND agent_filters.entity_type="'._247AROUND_EMPLOYEE_STRING.'" ', "left");
                 $where['agent_filters.agent_id']  = $ac;
                 $this->db->group_by("partners.id");
             }
@@ -1478,6 +1478,10 @@ function get_data_for_partner_callback($booking_id) {
         
         if(!empty($post['is_original_inventory'])){
             $this->db->join('inventory_master_list as original_im','original_im.inventory_id = spare_parts_details.original_inventory_id', "left");
+        }
+        
+        if(!empty($post['spare_cancel_reason'])){
+            $this->db->join('booking_cancellation_reasons','booking_cancellation_reasons.id = spare_parts_details.spare_cancellation_reason', "left");
         }
         $this->db->order_by('spare_parts_details.entity_type', 'asc');
         if($group_by){
@@ -1760,7 +1764,7 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->select('p.primary_contact_email, e.official_email');
         $this->db->from('partners p');
         //$this->db->join('employee e', 'e.id = p.account_manager_id');
-        $this->db->join('agent_filters', 'agent_filters.entity_id = p.id AND agent_filters.entity_type="247around" ', "left");
+        $this->db->join('agent_filters', 'agent_filters.entity_id = p.id AND agent_filters.entity_type="'._247AROUND_EMPLOYEE_STRING.'" ', "left");
         $this->db->join('employee e', 'agent_filters.agent_id = e.id', "left");
         $this->db->where('p.id', $id);
         $this->db->group_by("e.id");
@@ -2004,7 +2008,7 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->select($select, FALSE);
         
         //$this->db->join('employee', 'employee.id = partners.account_manager_id');
-        $this->db->join('agent_filters', 'agent_filters.entity_id = partners.id AND agent_filters.entity_type="247around" ', "left");
+        $this->db->join('agent_filters', 'agent_filters.entity_id = partners.id AND agent_filters.entity_type="'._247AROUND_EMPLOYEE_STRING.'" ', "left");
         $this->db->join('employee', 'agent_filters.agent_id = employee.id', "left");
         
         if (!empty($post['where'])) {
@@ -2062,7 +2066,7 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->from('partners');
        
         //$this->db->join('employee', 'employee.id = partners.account_manager_id', "LEFT");
-        $this->db->join('agent_filters', 'agent_filters.entity_id = partners.id AND agent_filters.entity_type="247around" ', "left");
+        $this->db->join('agent_filters', 'agent_filters.entity_id = partners.id AND agent_filters.entity_type="'._247AROUND_EMPLOYEE_STRING.'" ', "left");
         $this->db->join('employee', 'agent_filters.agent_id = employee.id', "left");
         $this->db->group_by("partners.id");
         if(isset($post['where'])){
@@ -2115,7 +2119,7 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->select('group_concat(distinct partners.id) as partnerId,employee.id as account_manager_id,employee.full_name');
         $this->db->from('partners');
         //$this->db->join('employee','partners.account_manager_id=employee.id','left');
-        $this->db->join('agent_filters', 'agent_filters.entity_id = partners.id AND agent_filters.entity_type="247around" ', "left");
+        $this->db->join('agent_filters', 'agent_filters.entity_id = partners.id AND agent_filters.entity_type="'._247AROUND_EMPLOYEE_STRING.'" ', "left");
         $this->db->join('employee', 'agent_filters.agent_id = employee.id', "left");
         $this->db->where('groups','accountmanager');
         $this->db->where('partners.is_active','1');
@@ -2356,7 +2360,7 @@ function get_data_for_partner_callback($booking_id) {
             $this->db->where_in('is_reporting_mail', $is_reporting_mail);
         }
         if ($is_am) {
-            $this->db->join('agent_filters','agent_filters.entity_id = partners.id AND agent_filters.entity_type = "247around"', "left");
+            $this->db->join('agent_filters','agent_filters.entity_id = partners.id AND agent_filters.entity_type = "'._247AROUND_EMPLOYEE_STRING.'"', "left");
         }
         if ($is_booking_source) {
             $this->db->join('bookings_sources','bookings_sources.partner_id = partners.id','right');
@@ -2400,23 +2404,85 @@ function get_data_for_partner_callback($booking_id) {
     {
         $start_date = date("Y-m-d 00:00:00", strtotime($start_date));
         $end_date = date("Y-m-d 23:59:59", strtotime($end_date));
-        $strQuery = "SELECT 
-                        booking_details.booking_id,
-                        bs.agent_id,
-                        date_format(booking_details.create_date, '%d-%m-%Y %H:%m') as create_date,
-                        date_format(booking_details.create_date, '%d') as date, 
-                        entity_login_table.agent_name,
-                        entity_login_table.user_id
-                    FROM
-                        booking_details
-                        JOIN booking_state_change bs ON (booking_details.booking_id = bs.booking_id) 
-                        JOIN entity_login_table ON (bs.agent_id = entity_login_table.agent_id)
-                    WHERE 
-                        (booking_details.create_date BETWEEN '".$start_date."' AND '".$end_date."')
-                        AND (booking_details.partner_id = $partner_id OR booking_details.origin_partner_id = '$partner_id' ) 
-                        AND bs.old_state IN ('New_Booking', 'New_Query')
-                    GROUP BY bs.booking_id";
-        return $query = $this->db->query($strQuery);
+        $select = 'booking_details.booking_id as "Booking ID", entity_login_table.agent_name as "Agent Name", entity_login_table.user_id as "Agent Login ID"';
+        
+        $this->db->select($select);
+        $this->db->select('date_format(booking_details.create_date, "%d-%m-%Y %H:%m") as "Registration Date"', FALSE);
+        $this->db->join('booking_state_change', 'booking_details.booking_id = booking_state_change.booking_id');
+        $this->db->join('entity_login_table', 'booking_state_change.agent_id = entity_login_table.agent_id');        
+        $this->db->where('booking_details.create_date BETWEEN "'.$start_date.'" AND "'.$end_date.'"');
+        $this->db->where('(booking_details.partner_id = '.$partner_id.' OR booking_details.origin_partner_id = '.$partner_id.')');
+        $this->db->where('booking_state_change.old_state IN ("'._247AROUND_NEW_BOOKING.'", "'._247AROUND_NEW_QUERY.'")');
+        $this->db->group_by('booking_state_change.booking_id');
+        $this->db->order_by('booking_details.create_date');        
+        $query = $this->db->get('booking_details');
+        return $query;        
+    }
+    
+    /**
+     This function returns partner wise mapped appliance data
+     * @author Prity Sharma
+     * @date 24-06-2019
+     * @param type $partner_id
+     * @param type $start_date, $end_date
+     * @return array 
+     */
+    function get_partner_appliances($post, $strSelect)
+    {
+
+        $this->db->select($strSelect);
+        $this->db->from('service_category_mapping');
+        $this->db->join('category', 'service_category_mapping.category_id = category.id');
+        $this->db->join('capacity', 'service_category_mapping.capacity_id = capacity.id');
+        $this->db->join('partner_appliance_mapping', 'service_category_mapping.id = partner_appliance_mapping.appliance_configuration_id and partner_appliance_mapping.isActive = 1 and '.$post['where_partner'], 'Left');
+        $this->db->where($post['where']);
+
+        $column_search = array('category.name', 'capacity.name');
+        if (!empty($data['search']['value'])) {
+            $like = "";
+            foreach ($column_search as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $data['search']['value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $data['search']['value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+            $this->db->where($like, null, false);
+        }
+
+        $this->db->order_by('category.name, capacity.name');
+        $query = $this->db->get();
+        return $query->result();
+    }
+    
+    /**
+     This function maps a specific appliance configuration to partner
+     * @author Prity Sharma
+     * @date 18-07-2019
+     * @param type $data
+     * @return string 
+     */
+    function insert_partner_appliances($data){
+        $this->db->insert_ignore('partner_appliance_mapping', $data);     
+        if(!empty($this->db->affected_rows())){
+            return $this->db->insert_id();  
+        }        
+    }
+    
+    /**
+     This function un-map a specific appliance configuration to partner
+     * @author Prity Sharma
+     * @date 18-07-2019
+     * @param type $data
+     * @return string 
+     */
+    function delete_partner_appliances($data){
+        $this->db->delete('partner_appliance_mapping', array('id' => $data['mappingId'])); 
+        if(!empty($this->db->affected_rows())){
+            return 'success';  
+        }        
     }
 }
 
