@@ -2202,13 +2202,14 @@ class Spare_parts extends CI_Controller {
                     //End Push Notification
                     $sc_data['current_status'] = "InProcess";
                     $sc_data['internal_status'] = SPARE_PARTS_REQUIRED;
+                    if ($is_micro_wh==1) {
+                        $sc_data['current_status'] = _247AROUND_PENDING;
+                        $sc_data['internal_status'] = _247AROUND_PENDING;
+                    }
                     $sc_data['service_center_remarks'] = date("F j") . ":- " . $reason;
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
-                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
- 
-                                        
+                    $this->vendor_model->update_service_center_action($booking_id, $sc_data); 
                     if (isset($is_micro_wh) && $is_micro_wh == 1) {
- 
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);

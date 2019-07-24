@@ -2363,6 +2363,9 @@ class Service_centers extends CI_Controller {
                     $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc'], "not_define", "not_define");
 
                     $sc_data['current_status'] = "InProcess";
+                    if ($data['is_micro_wh'] == 1 ) {
+                        $sc_data['current_status'] =_247AROUND_PENDING;
+                    }
 
                     if (!empty($booking_date)) {
                         $sc_data['current_status'] = _247AROUND_PENDING;
@@ -2377,7 +2380,9 @@ class Service_centers extends CI_Controller {
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
 
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-
+                    if ($data['is_micro_wh'] == 1 ) {
+                        $status =_247AROUND_PENDING;
+                    }
                     $this->update_booking_internal_status($booking_id, $status, $this->input->post('partner_id'));
                     
                     if(!empty($approval_array)){
