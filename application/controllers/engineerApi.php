@@ -1742,7 +1742,7 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "engineer_pincode"=>"201301");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-            $select = "count(booking_details.booking_id) as bookings";
+            $select = "count(distinct(booking_details.booking_id)) as bookings";
             $slot_select = 'booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id';
             $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
@@ -2494,7 +2494,7 @@ class engineerApi extends CI_Controller {
                 if (isset($booking_history['spare_parts'])) {
                     foreach ($booking_history['spare_parts'] as $sp) {
                         if ($sp['status'] == SPARE_OOW_EST_GIVEN) {
-                            array_push($response['internal_status'], ESTIMATE_APPROVED_BY_CUSTOMER);
+                            array_push($response['internal_status'], array("reason" => ESTIMATE_APPROVED_BY_CUSTOMER, "calender_flag"=> 0));
                             $is_est_approved = true; 
                         }
 
