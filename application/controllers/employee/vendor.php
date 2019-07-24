@@ -5811,4 +5811,11 @@ class vendor extends CI_Controller {
         $brand_view =  $this->load->view('employee/appliance_brand', $data, true);
         echo $brand_view;exit;
     }
+    
+    function varify_engineer(){
+        $where = array("id"=>$this->input->post("engineer_id"));
+        $data = array("varified"=>$this->input->post("varified_status"));
+        $this->vendor_model->update_engineer($where, $data);
+        echo true;
+    }
 }

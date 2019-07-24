@@ -344,3 +344,6 @@ ALTER TABLE `inventory_model_mapping` ADD `bom_main_part` INT(1) NOT NULL DEFAUL
 --Kalyani 19-July-2019
 INSERT INTO `sms_template` (`tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'engineer_login_sms_template', 'Hi %S\r\n\r\nYour Engineer Login is created.\r\nUser Id - %s\r\nPassword - %s\r\n\r\n247around', NULL, '1', '0', CURRENT_TIMESTAMP);
 
+--Kalyani 24-July-2019
+ALTER TABLE `engineer_details` ADD `varified` BOOLEAN NOT NULL DEFAULT FALSE AFTER `alternate_phone`;
+
