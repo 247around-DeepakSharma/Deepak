@@ -3157,7 +3157,7 @@ function generate_image($base64, $image_name,$directory){
             $partnerJoin["employee"] = "employee.id=agent_filters.agent_id";
             $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details",$select,$where,$join,NULL,NULL,NULL,NULL,array());
             
-            $where['agent_filters.entity_type'] = "247around";
+            $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
             $where['agent_filters.state'] = $booking_state[0]['state'];
             
             $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","group_concat(distinct employee.official_email) as official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
@@ -3376,7 +3376,7 @@ function generate_image($base64, $image_name,$directory){
         $join['employee e'] = "e.id = agent_filters.agent_id";
         $join['employee'] = "employee.id = employee_relation.agent_id";
         $where['booking_details.booking_id'] = $bookingID;
-        $where['agent_filters.entity_type'] = "247around";
+        $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
         
         $saas_module = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if(isset($saas_module) && (!$saas_module)) { 

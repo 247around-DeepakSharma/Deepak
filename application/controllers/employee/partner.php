@@ -5558,7 +5558,7 @@ class Partner extends CI_Controller {
                     }
                 }
                 foreach($arr_states as $key=>$state){
-                    $data=array("entity_type" => "247around", "entity_id" => $partnerID, "state" => $state);//, "agent_id" => $am
+                    $data=array("entity_type" => _247AROUND_EMPLOYEE_STRING, "entity_id" => $partnerID, "state" => $state);//, "agent_id" => $am
                     $am_data = $this->partner_model->get_am_data("*", $data);
                     if(empty($am_data)) {
                         $data["agent_id"] = $am;
@@ -5631,7 +5631,7 @@ class Partner extends CI_Controller {
             
             $data['state'] = $this->input->post('state1');
             $data['agent_id'] = $this->input->post('am1');
-            $where = array("entity_type" => "247around", "entity_id" => $partnerID, 'state' => $data['state']);//, 'agent_id' => $data['agent_id']
+            $where = array("entity_type" => _247AROUND_EMPLOYEE_STRING, "entity_id" => $partnerID, 'state' => $data['state']);//, 'agent_id' => $data['agent_id']
                 
             $am_data = $this->partner_model->get_am_data("*", $where);
             if(empty($am_data) || ($am_data[0]['agent_id'] !== $data['agent_id'])) {
@@ -5646,7 +5646,7 @@ class Partner extends CI_Controller {
                     }
                     $count = 0;
                     foreach($states as $key=>$state){
-                        $insert_data=array("entity_type" => "247around", "entity_id" => $partnerID, "state" => $state);
+                        $insert_data=array("entity_type" => _247AROUND_EMPLOYEE_STRING, "entity_id" => $partnerID, "state" => $state);
                         $am_data = $this->partner_model->get_am_data("*", $insert_data);
                         if(empty($am_data)) {
                             $insert_data["agent_id"]=$data['agent_id'];
@@ -5726,16 +5726,18 @@ class Partner extends CI_Controller {
     function delete_partner_am() {
         if($this->input->post('partner_id')){
             $partnerID = $this->input->post('partner_id');
-            $am_data = $this->partner_model->get_am_data("*", array("entity_type" => "247around", "entity_id" => $partnerID),"","",0,array('id' => $this->input->post('id')));
-            if(!empty($am_data)) {
-                $sql = "DELETE FROM agent_filters WHERE entity_type='247around' AND entity_id='".$partnerID."' AND id in ('".implode("','",$this->input->post('id'))."') ";
-                $affected_rows =  $this->reusable_model->execute_custom_insert_update_delete_query($sql);
-                
-                if($affected_rows){
-                    echo "Account Managers has been deleted successfully ";
-                }
-                else{
-                    echo "No deletion done";
+            if(!empty($this->input->post('id'))) {
+                $am_data = $this->partner_model->get_am_data("*", array("entity_type" => _247AROUND_EMPLOYEE_STRING, "entity_id" => $partnerID),"","",0,array('id' => $this->input->post('id')));
+                if(!empty($am_data)) {
+                    $sql = "DELETE FROM agent_filters WHERE entity_type='"._247AROUND_EMPLOYEE_STRING."' AND entity_id='".$partnerID."' AND id in ('".implode("','",$this->input->post('id'))."') ";
+                    $affected_rows =  $this->reusable_model->execute_custom_insert_update_delete_query($sql);
+
+                    if($affected_rows){
+                        echo "Account Managers has been deleted successfully ";
+                    }
+                    else{
+                        echo "No deletion done";
+                    }
                 }
             }
         }

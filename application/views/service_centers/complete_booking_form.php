@@ -174,7 +174,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-3"style="width:16.95%" style=" padding-right: 0px;">
+                                        <div class="form-group col-md-3"style="width:14.95%" style=" padding-right: 0px;">
                                             <div class="col-md-12">
                                                 <label> Capacity</label>
                                                 <select type="text" disabled="" class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity[]" >
@@ -185,7 +185,7 @@
                                                 
                                             </div>
                                         </div>
-                                        <div class="form-group col-md-3"style="width:16.95%" style=" padding-right: 0px;">
+                                        <div class="form-group col-md-3"style="width:14.95%" style=" padding-right: 0px;">
                                             <label> Purchase Date</label>
                                             <div class="input-group input-append date">
                                                 <input  autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php 
@@ -199,7 +199,7 @@
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$key1?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                              </div>
                                         </div>
-                                        <div class="form-group col-md-3"style="width:16.95%;margin-left:15px !important;">
+                                        <div class="form-group col-md-3"style="width:14.95%;margin-left:15px !important;">
                                             <label> Purchase Invoice</label>
                                            
                                             <input type="file" name="sf_purchase_invoice" 
@@ -217,6 +217,16 @@
                                             <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic']) ? "View Purchase Invoice Pic" : ""); ?></small></a>
                                             
                                             
+                                        </div>
+                                        <div class="form-group col-md-3"style="width:10%;margin-left:15px !important;padding:0px;">
+                                            <label> Warranty Checker</label>
+                                             <?php 
+                                                $partner_id = "";
+                                                $service_id = "";
+                                                if (isset($booking_history[0]['partner_id'])) {$partner_id = '/'.$booking_history[0]['partner_id']; };
+                                                if (!empty($partner_id) && isset($booking_history[0]['service_id'])) {$service_id = '/'.$booking_history[0]['service_id']; }
+                                            ?>
+                                            <a href="<?php echo base_url(); ?>service_center/warranty<?=$partner_id?><?=$service_id?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker' style="height: 29px;width: 36px;"><i class='fa fa-certificate' aria-hidden='true'></i></a>
                                         </div>
                                         <?php if (!stristr($booking_history[0]['request_type'], "Installation")) { ?>
                                                 <div class="col-md-12"> 
