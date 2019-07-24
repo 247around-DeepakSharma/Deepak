@@ -6987,7 +6987,7 @@ class Service_centers extends CI_Controller {
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number ";
 
-        $data['spare_parts'] = $this->service_centers_model->spare_assigned_to_partner($where, $select, "spare_parts_details.booking_id", $sf_id);
+        $data['spare_parts'] = $this->service_centers_model->spare_assigned_to_partner($where, $select, "spare_parts_details.booking_id", $sf_id, -1, -1, 0, ['column' => 'age_of_request', 'sorting' => 'desc']);
 
         $data['is_ajax'] = $this->input->post('is_ajax');
         if (empty($this->input->post('is_ajax'))) {
