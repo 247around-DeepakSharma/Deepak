@@ -12,12 +12,15 @@ class Validate_serial_no {
         log_message('info', __METHOD__. " Enterring... Partner ID ". $partnerID. " Srial No ". $serialNo);
         $flag = true;
         //Check For Duplicate In Non Repeat Booking Case
-        if(!empty($price_tags) && $price_tags != REPEAT_BOOKING_TAG){
-            $v =$this->check_duplicate_serial_number($serialNo, $price_tags, $user_id, $booking_id);
-            if(!empty($v)){
-                $flag = false;
-                return $v;
-            }
+        $access = $this->MY_CI->partner_model->get_partner_permission(array('partner_id' => $partnerID,'permission_type' => DO_NOT_CHECK_DUPLICATE_SERIAL_NUMBER, 'is_on' => 1));
+        if(empty($access)){
+             if(!empty($price_tags) && $price_tags != REPEAT_BOOKING_TAG){
+                 $v =$this->check_duplicate_serial_number($serialNo, $price_tags, $user_id, $booking_id);
+                 if(!empty($v)){
+                     $flag = false;
+                     return $v;
+                 }
+             }
         }
         //If booking is repeat then validate serial number with parent booking 
         if($price_tags == REPEAT_BOOKING_TAG){
