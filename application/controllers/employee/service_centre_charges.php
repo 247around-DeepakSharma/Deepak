@@ -1176,6 +1176,7 @@ class service_centre_charges extends CI_Controller {
         $data['product_or_services'] = $service;
         $data['tax_code'] = $tax_code;
         $data['pod'] = $pod;
+        $data['invoice_pod'] = 0;
         $data['is_upcountry'] = -1;
         $data['flat_upcountry'] = 0;
         $data['upcountry_customer_price'] = 0;

@@ -1000,7 +1000,8 @@
     function reject_parts(){
       var remarks =  $('#textarea').val();
       var courier_charge = $('#charges').val();
-      var reason = $('#spare_cancel_reason').val();
+      var reason = $.trim($('#spare_cancel_reason option:selected').text());
+      var cancel_id = $('#spare_cancel_reason option:selected').val();
       
       if($.trim(reason) === "") {
           alert("Please Enter Spare Cancellation Reason");
@@ -1013,7 +1014,7 @@
         $.ajax({
             type:'POST',
             url:url,
-            data:{ remarks:remarks,courier_charge:courier_charge, spare_cancel_reason:reason },
+            data:{ remarks:remarks,courier_charge:courier_charge, spare_cancel_reason:reason, spare_cancel_id:cancel_id },
             success: function(data){
                 $('#reject_btn').attr('disabled',false);
                 if(data === "Success"){

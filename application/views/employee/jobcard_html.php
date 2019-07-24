@@ -114,8 +114,9 @@ foreach($booking_unit_details as $data){
         <td><p><?php echo round($meta['upcountry_charges'])?></p></td>
   </tr>
   <tr>
-    <td colspan="3"></td>
-    <td colspan="2"><p><b>Total</b></p></td>
+    <td><p style="font-size:12px;"><b>Purchase Date</b></p></td>
+    <td><p><?php if(!empty($data['purchase_date'])) { echo date("d/M/Y", strtotime($data['purchase_date'])); } else { echo '-';};?></p></td>
+    <td colspan="3"><p><b>Total</b></p></td>
     <td><p><?php echo "Rs. ". round($booking_details[0]['amount_due'])?></p></td>
   </tr>
   <tr>

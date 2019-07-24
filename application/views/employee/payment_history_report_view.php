@@ -140,7 +140,7 @@
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script type="text/javascript">
-    var time = moment().format('D-MMM-YYYY');
+    var time = moment().format('D-MMM-YYYY HH:mm:ss');
     $(function () {
         $('input[name="daterange"], #buyback_daterange').daterangepicker({
             locale: {
@@ -223,13 +223,13 @@
         tableSelect = document.getElementById(summ_tableID);
         tableHTML = tableSelect.outerHTML;//.replace(/ /g, '%20');
 
-        zip.file($('#partner_vendor option:selected').text().trim() + '_' + $('#type option:selected').text().trim() + '_report_' + time + '.xls', tableHTML);
+        zip.file('Summarized_'+$('#partner_vendor option:selected').text().trim() + '_' + $('#type option:selected').text().trim() + '_Report_' + time + '.xls', tableHTML);
 
         // Add Details Report
         tableSelect = document.getElementById(detail_tableID);
         tableHTML = tableSelect.outerHTML;//.replace(/ /g, '%20');
 
-        zip.file($('#partner_vendor option:selected').text().trim() + '_' + $('#type option:selected').text().trim() + '_details_report_' + time + '.xls', tableHTML);
+        zip.file('Detailed_'+$('#partner_vendor option:selected').text().trim() + '_' + $('#type option:selected').text().trim() + '_Report_' + time + '.xls', tableHTML);
 
         // Generate the zip file asynchronously
         zip.generateAsync({type: "blob"})
