@@ -1137,7 +1137,7 @@ class Upload_buyback_process extends CI_Controller {
             
             $this->invoice_lib->insert_invoice_breackup($response);
             $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_PARTNER_STRING, AMAZON_SELLER_ID, $convert, $this->session->userdata('id'), HSN_CODE);
-            $invoice_details['reference_invoice_id'] = $PO_Number."sd";
+            $invoice_details['reference_invoice_id'] = $PO_Number;
             $vendor_partner_invoice_id = $this->invoices_model->insert_new_invoice($invoice_details);
             if($vendor_partner_invoice_id){
                 foreach ($invoice_orders as $key => $value) {
