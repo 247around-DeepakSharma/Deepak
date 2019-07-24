@@ -36,13 +36,11 @@
                                     Send To Partner
                                 </a>
                             </li>
-                            <?php if(!empty($is_warehouse)) {?>
                             <li role="presentation">
                                 <a href="#tabs-7" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_centers/spare_assigned_to_partner">
                                     Spare Assigned To Partner
                                 </a>
                             </li>
-                            <?php } ?>
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane" id="tabs-2"></div>

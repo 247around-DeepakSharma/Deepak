@@ -319,15 +319,18 @@
                                                             <th >Acknowledge Date BY SF </th>
                                                             <th >Remarks By SC </th>
                                                             <th >Current Status</th>
+                                                            <th >Spare Cancellation Reason</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
+                                                    <tbody> 
                                                                 <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                                                             <tr>
-                                                                <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></span></td>
+                                                                <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else if(in_array($sp['partner_id'],array(15,804))){
+                                                                       echo "Warehouse (Central)";     
+                                                                  }else { echo $booking_history[0]['city']. " Warehouse (Micro)";} ?></span></td>
                                                                 <td><?php echo $sp['model_number']; ?></td>
-                                                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']; } else { echo $sp['parts_requested']; } ?></td>
-                                                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; }  ?></td>
+                                                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><b>".$sp['original_parts_number']."</b>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
+                                                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><b>".$sp['part_number']."</b>"; }  ?></td>
                                                                 <td><?php echo $sp['parts_requested_type']; ?></td>       
                                                                 <td><?php echo $sp['quantity']; ?></td>
                                                                 <td><?php echo $sp['create_date']; ?></td>
@@ -368,6 +371,7 @@
                                                                 <td><?php echo $sp['acknowledge_date']; ?></td>
                                                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                                                 <td><?php echo $sp['status']; ?></td>
+                                                                <td><?php echo $sp['part_cancel_reason'];?></td>
                                                             </tr>
                                                             <?php
                                                             if (!is_null($sp['parts_shipped'])) {

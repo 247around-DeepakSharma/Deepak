@@ -384,7 +384,7 @@
                                 <th >Model Number </th>
                                 <th >Original Requested Parts </th>
                                 <th >Final Requested Parts </th>
-                                <th > Requested Part Number </th>
+<!--                                <th > Requested Part Number </th>-->
                                 <th >Requested Parts Type</th>
                                 <th >Requested Quantity</th>
                                 <th >Shipped Quantity</th>
@@ -397,15 +397,16 @@
                                 <th >Acknowledge Date BY SF </th>
                                 <th >Remarks By SC </th>
                                 <th>Current Status</th>
+                                <th>Spare Cancellation Reason</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                             <tr>
                                 <td><?php echo $sp['model_number']; ?></td>
-                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']; } else { echo $sp['parts_requested']; } ?></td>
-                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']; }  ?></td>
-                                <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; }  ?></td>
+                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><b>".$sp['original_parts_number']."</b>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
+                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><b>".$sp['part_number']."</b>"; }  ?></td>
+<!--                                <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; }  ?></td>-->
                                 <td><?php echo $sp['parts_requested_type']; ?></td>
                                 <td><?php echo $sp['quantity']; ?></td>
                                  <td><?php echo $sp['shipped_quantity']; ?></td>
@@ -430,6 +431,7 @@
                                 <td><?php echo $sp['acknowledge_date']; ?></td>
                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                 <td><?php echo $sp['status'];?></td>
+                                <td><?php echo $sp['part_cancel_reason'];?></td>
                             </tr>
                             <?php if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
                                 $defective_parts_shipped = TRUE;

@@ -28,32 +28,40 @@
                 <form class="form-horizontal" id="requested_parts" name="myForm" action="<?php echo base_url() ?>employee/service_centers/process_update_booking" method="POST" onSubmit="document.getElementById('submitform').disabled=true;" enctype="multipart/form-data">
                     <input type="hidden" name="service_center_closed_date" value="<?php if(!empty($bookinghistory[0]['service_center_closed_date'])) { echo $bookinghistory[0]['service_center_closed_date'];} else {echo "";} ?>">
                     <div class="col-md-12" style="margin-left:-31px;">
-                        <div class="col-md-2">
-                            <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_id'])) {echo $bookinghistory[0]['booking_id']; }?>"  readonly>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['name'])) {echo $bookinghistory[0]['name']; }?>"  disabled>
-                        </div>
-                        <div class="col-md-2">
-                            <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_primary_contact_no'])) {echo $bookinghistory[0]['booking_primary_contact_no']; }?>"  disabled>
-                        </div>
-                        <div class="col-md-4">
-                            <table class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
-                                <tr> 
-                                    <?php if(isset($saas_module) && (!$saas_module)) { ?>
-                                       <th>Edit Request Type<a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="float: right;height: 29px;width: 36px;" class="btn btn-sm btn-success"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a></th>
-                                    <?php } ?>                                    
-                                    <th>
+                        <table class="table table-striped table-bordered table-hover" cellspacing="0" width="100%">
+                            <tr>
+                                <th>Booking Id</th>
+                                <th>Customer Name</th>
+                                <th>Phone Number</th>
+                                <?php if(isset($saas_module) && (!$saas_module)) { ?>
+                                <th style="text-align: center;">Edit Request Type</th>
+                                <?php } ?>
+                                <th style="text-align: center;">Warranty Checker</th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_id'])) {echo $bookinghistory[0]['booking_id']; }?>"  readonly>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['name'])) {echo $bookinghistory[0]['name']; }?>"  disabled>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_primary_contact_no'])) {echo $bookinghistory[0]['booking_primary_contact_no']; }?>"  disabled>
+                                </td>
+                                <?php if(isset($saas_module) && (!$saas_module)) { ?>
+                                       <td><center><a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="height: 29px;width: 36px;" class="btn btn-sm btn-success"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a></center></td>
+                                <?php } ?>                                    
+                                <td>
                                         <?php 
                                             $partner_id = "";
                                             $service_id = "";
                                             if (isset($bookinghistory[0]['partner_id'])) {$partner_id = '/'.$bookinghistory[0]['partner_id']; };
                                             if (!empty($partner_id) && isset($bookinghistory[0]['service_id'])) {$service_id = '/'.$bookinghistory[0]['service_id']; }
                                         ?>
-                                        Warranty Checker<a href="<?php echo base_url(); ?>service_center/warranty<?=$partner_id?><?=$service_id?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker' style="float: right;height: 29px;width: 36px;"><i class='fa fa-certificate' aria-hidden='true'></i></a></th>
-                                </tr>
-                            </table>
-                        </div>
+                                        <center><a href="<?php echo base_url(); ?>service_center/warranty<?=$partner_id?><?=$service_id?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker' style="height: 29px;width: 36px;"><i class='fa fa-certificate' aria-hidden='true'></i></a></center>
+                                </td>
+                            </tr>                            
+                        </table>
                     </div>
                     <input type="hidden" class="form-control"  name="booking_id" value = "<?php echo $booking_id; ?>">
                     <input type="hidden" class="form-control"  name="amount_due" value = "<?php if (isset($bookinghistory[0]['amount_due'])) {echo $bookinghistory[0]['amount_due']; }?>">
@@ -430,7 +438,6 @@
             </div>
         </div>
     </div>
-</div>
 </div>
 <script type="text/javascript">
     

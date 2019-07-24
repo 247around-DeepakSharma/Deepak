@@ -7,6 +7,7 @@
          <th>Invoice ID</th>
          <th>Period</th>
          <th>Type</th>
+         <th>Sub-Category</th>
          <th>Invoice Excel File</th>
          <th>Invoice Detailed File</th>
          <th>Number of Bookings</th>
@@ -139,7 +140,7 @@
                     pageSize: 'LEGAL',
                     title: 'Invoice',
                     exportOptions: {
-                       columns: [1,2,3,6,7,8,9],
+                       columns: [1,2,3,4,7,8,9,10],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -167,7 +168,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    targets: [0,1,2,3,4,5,6,7,8,9], //first column / numbering column
+                    targets: [0,1,2,3,4,5,6,7,8,9,10], //first column / numbering column
                     orderable: false //set not orderable
                 }
             ],

@@ -48,6 +48,7 @@
           	<th>Mobile</th>
           	<th>Alternate Mobile Number</th>
           	<th>ID Proof</th>
+                <th>Verified</th>
                 <th>Status</th>
                 <th>Edit</th>
                 <!--<th>Delete</th>-->
@@ -105,5 +106,22 @@
         ]
     });
     
- 
+    function verify_engineer(engineer_id, varified_status){
+        var confirm_varification = confirm("Are you sure to varify this engineer");
+        if(confirm_varification){
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url();?>employee/vendor/varify_engineer',
+                data: {engineer_id: engineer_id,varified_status: varified_status},
+                success: function (response) {
+                    if(response){
+                        location.reload();
+                    }
+                    else{
+                        alert("Error in varifying engineer, Please contact tech team");
+                    }
+                }
+            });
+        }
+    }
 </script>

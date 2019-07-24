@@ -403,7 +403,7 @@ class invoices_model extends CI_Model {
                 . " `services`.services, users.name, "
                 . " partner_net_payable, round((partner_net_payable * ".DEFAULT_TAX_RATE .")/100,2) as gst_amount,
                     CASE WHEN (booking_details.is_upcountry = 1) THEN ('Yes') ELSE 'NO' END As upcountry,
-                    CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (CONCAT('".S3_WEBSITE_URL."misc-images/', file_name)) END as support_file,
+                    CASE WHEN (file_name = '' OR file_name IS NULL) THEN ('') ELSE (GROUP_CONCAT(CONCAT('".S3_WEBSITE_URL."misc-images/', file_name))) END as support_file,
               
                     CASE WHEN(serial_number IS NULL OR serial_number = '') THEN '' ELSE (CONCAT('''', booking_unit_details.serial_number))  END AS serial_number,
                     CASE WHEN(model_number IS NULL OR model_number = '') THEN (sf_model_number) ELSE (model_number) END AS model_number
@@ -422,7 +422,7 @@ class invoices_model extends CI_Model {
                             AND booking_unit_details.ud_closed_date >= '$from_date'
                             AND booking_unit_details.ud_closed_date < '$to_date'
                         ) $s
-                    )
+                    ) GROUP BY `booking_details`.booking_id
                ";
 
 
@@ -745,7 +745,7 @@ class invoices_model extends CI_Model {
 
         if (!empty($packaging_charge)) {
             $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG));
+                "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG, 'fixed_charges > 0' => NULL));
             if (!empty($packaging)) {
                 $c_data = array();
                 $c_data[0]['description'] = $packaging[0]['description'];

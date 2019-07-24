@@ -420,6 +420,9 @@ class Service_centers extends CI_Controller {
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_parts_cost'] = $en[0]['parts_cost'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_booking_status'] = $en[0]['booking_status'];
                         $bookng_unit_details[$key1]['en_model_number'] = $en[0]['model_number'];
+                        $bookng_unit_details[$key1]['en_symptom_id'] = $en[0]['symptom'];
+                        $bookng_unit_details[$key1]['en_defect_id'] = $en[0]['defect'];
+                        $bookng_unit_details[$key1]['en_closing_remark'] = $en[0]['closing_remark'];
                         if ($en[0]['is_broken'] == 1) {
                             $broken = 1;
                         }
@@ -5299,7 +5302,6 @@ class Service_centers extends CI_Controller {
     function warehouse_default_page(){
         $this->check_WH_UserSession();
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
-        $data['is_warehouse'] = $this->reusable_model->get_search_result_data('service_centres', '*', ['id' => $this->session->userdata('service_center_id'), 'is_wh' => 1], NULL, NULL, NULL, NULL, NULL);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/warehouse_default_page',$data);
     }
@@ -7142,7 +7144,7 @@ class Service_centers extends CI_Controller {
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number ";
 
-        $data['spare_parts'] = $this->service_centers_model->spare_assigned_to_partner($where, $select, "spare_parts_details.booking_id", $sf_id);
+        $data['spare_parts'] = $this->service_centers_model->spare_assigned_to_partner($where, $select, "spare_parts_details.booking_id", $sf_id, -1, -1, 0, ['column' => 'age_of_request', 'sorting' => 'desc']);
 
         $data['is_ajax'] = $this->input->post('is_ajax');
         if(empty($this->input->post('is_ajax'))){
