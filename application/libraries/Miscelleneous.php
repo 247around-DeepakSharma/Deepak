@@ -4352,7 +4352,7 @@ function generate_image($base64, $image_name,$directory){
 
             $url = base_url() . "employee/do_background_process/complete_booking";
             if (!empty($approved_booking)) {
-                $this->My_CI->booking_model->mark_booking_in_process($approved_booking);
+                //$this->My_CI->booking_model->mark_booking_in_process($approved_booking);
                 $data['booking_id'] = $approved_booking;
                 $data['agent_id'] = $agent_id;
                 $data['agent_name'] = $agent_name;

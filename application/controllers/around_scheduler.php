@@ -1894,7 +1894,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
         $url = base_url() . "employee/do_background_process/complete_booking";
         if (!empty($approved_booking)) {
-                $this->booking_model->mark_booking_in_process($approved_booking);
+            //$this->booking_model->mark_booking_in_process($approved_booking);
             $data['booking_id'] = $approved_booking;
             $data['agent_id'] = _247AROUND_DEFAULT_AGENT;
             $data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
@@ -2231,7 +2231,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 }
                 $url = base_url() . "employee/do_background_process/complete_booking";
                 if (!empty($approved_booking)) {
-                    $this->booking_model->mark_booking_in_process($approved_booking);
+                    //$this->booking_model->mark_booking_in_process($approved_booking);
                     $data['booking_id'] = $approved_booking;
                     $data['agent_id'] = _247AROUND_DEFAULT_AGENT;
                     $data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
