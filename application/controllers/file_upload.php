@@ -585,7 +585,6 @@ class File_upload extends CI_Controller {
         }
 
         if (empty($error_array)) {
-        	
         foreach ($post_data as $post) {
             
             $post_json = json_encode($post, true);
