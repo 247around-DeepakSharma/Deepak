@@ -2490,7 +2490,8 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             }
 
             $R->render('excel', $output_file_excel);
-            array_push($files, $awb_output_file_excel);
+
+            array_push($files, $output_file_excel);
         }
         
         $this->combined_spare_pending_shipment_sheet($awb_output_file_excel, $files);
