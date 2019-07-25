@@ -76,6 +76,7 @@ class File_process extends CI_Controller {
     function downloadFile($filename){
         $output_file_excel = TMP_FOLDER.$filename;
         if (file_exists($output_file_excel)) {
+            ob_end_clean();
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header('Content-Disposition: attachment; filename="' . basename($output_file_excel) . '"');
