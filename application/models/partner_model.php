@@ -2263,11 +2263,7 @@ function get_data_for_partner_callback($booking_id) {
             $meta['main_company_signature'] = "anujsign.jpg";
             $meta['main_company_logo'] = "logo.jpg";
             $meta['main_company_description'] = _247AROUND_INVOICE_TEMPLATE_DESCRIPTION;
-            if(!empty($gst_number)){
-                    $meta['main_company_gst_number'] = $gst_number;
-                } else {
-                    $meta['main_company_gst_number'] = "07AAFCB1281J1ZQ";
-                }
+            $meta['main_company_gst_number'] = "07AAFCB1281J1ZQ";
         }
         return $meta;
     }
