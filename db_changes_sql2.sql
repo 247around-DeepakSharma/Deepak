@@ -347,3 +347,6 @@ INSERT INTO `sms_template` (`tag`, `template`, `comments`, `active`, `is_excepti
 --Kalyani 24-July-2019
 ALTER TABLE `engineer_details` ADD `varified` BOOLEAN NOT NULL DEFAULT FALSE AFTER `alternate_phone`;
 
+--Gorakh - 24 -july - 2019
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Inventory Model Details', NULL, 'employee/inventory/appliance_model_list', 2, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-06-05 05:27:42');
