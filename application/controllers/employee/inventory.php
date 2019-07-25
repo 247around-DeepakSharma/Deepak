@@ -1077,7 +1077,7 @@ class Inventory extends CI_Controller {
         if (!empty($id)) {
             $remarks = $this->input->post("remarks");
             if (!empty($this->input->post("spare_cancel_reason"))) {
-                $remarks = $remarks . " " . $this->input->post("spare_cancel_reason");
+                $remarks = $this->input->post("spare_cancel_reason") . " , " . $remarks;
             }
             $flag = true;
             $b = array();
