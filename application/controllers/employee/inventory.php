@@ -6776,7 +6776,7 @@ class Inventory extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
 
-        $select = "services.services as appliance_name, appliance_model_details.model_number, inventory_master_list.part_number, inventory_master_list.part_name";
+        $select = "services.services AS APPLIANCE, appliance_model_details.model_number AS MODEL_NUMBER, inventory_master_list.part_number AS PART_NUMBER, inventory_master_list.part_name AS PART_NAME";
         $where = array("inventory_master_list.entity_id" => $partner_id, "appliance_model_details.service_id" => $service_id);
 
         if (!empty($partner_id) && !empty($service_id)) {
