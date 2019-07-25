@@ -2182,23 +2182,18 @@ class Inventory_model extends CI_Model {
      * @params: $select string
      * @params: $where array
      * @return: $query array
-     * 
-     */
-    
-    function get_pending_spare_part_details($post, $where=array()){
+     */    
+    function get_pending_spare_part_details($post, $where = array()) {
+
         $this->db->select($post['select'], FALSE);
-        $this->db->from('spare_parts_details');   
+        $this->db->from('spare_parts_details');
         $this->db->join('service_centres', 'spare_parts_details.service_center_id = service_centres.id');
         $this->db->where($where);
         $query = $this->db->get();
         return $query->result_array();
     }
-    
-    
-    
-    
-    
-      /**
+
+    /**
      * @Desc: This function is used to get data from the appliance_model_details table
      * @params: $select string
      * @params: $where array
