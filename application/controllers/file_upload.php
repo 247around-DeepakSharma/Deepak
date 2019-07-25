@@ -475,22 +475,21 @@ class File_upload extends CI_Controller {
                         $where_in_parts = array();
                         $part_details = $this->inventory_model->get_inventory_master_list_data($select, $where_part, $where_in_parts);
 
-
-
                         $from_gst_data = $this->inventory_model->get_entity_gst_data('*', $where = array('gst_number' => $rowData['from_gst']));
 
                         $to_gst_data = $this->inventory_model->get_entity_gst_data('*', $where = array('gst_number' => $rowData['to_gst']));
                         $wh_details = $this->vendor_model->getVendorContact(trim($rowData['sap_vendor_id']));
 
-                         
                         if (!empty($part_details) && !empty($from_gst_data) && !empty($to_gst_data) && !empty($wh_details)  && !empty($part_details) ) {
                               
                             $reciver_entity_id = $wh_details[0]['id'];
                             $is_wh_micro = $wh_details[0]['is_micro_wh'];    
                             $invoice_price=0;
-                            if (array_key_exists($rowData['invoice_id'], $post_data)) {
+                            // echo "<pre>";
+
+                            if (isset($post_data[$rowData['invoice_id']])) {
                                 
-                                $invoice_price = $invoice_price+$part_details[0]['price'];
+                                $invoice_price = round($invoice_price+$part_details[0]['price'],2);
                                 $part = array(
                                     'shippingStatus' => 1,
                                     'service_id' => $part_details[0]['service_id'],
@@ -498,14 +497,14 @@ class File_upload extends CI_Controller {
                                     'part_number' => $part_details[0]['part_number'],
                                     'booking_id' => '',
                                     'quantity' => $rowData['quantity'],
-                                    'part_total_price' => $part_details[0]['price'],
+                                    'part_total_price' => round($part_details[0]['price'],2),
                                     'hsn_code' => $rowData['hsn_code'],
                                     'gst_rate' => $rowData['gst_rate'],
                                     'inventory_id' => $part_details[0]['inventory_id'],
                                 );
                                 array_push($post_data[$rowData['invoice_id']]['part'], $part);
                             } else {
-
+                                 
                                 $part = array(
                                     'shippingStatus' => 1,
                                     'service_id' => $part_details[0]['service_id'],
@@ -557,8 +556,6 @@ class File_upload extends CI_Controller {
              redirect(base_url() . "inventory/msl_excel_upload");
         }
 
-
-
         foreach ($post_data as $post) {
             
             $post_json = json_encode($post, true);
@@ -569,12 +566,11 @@ class File_upload extends CI_Controller {
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
             // execute!
             $response = curl_exec($ch);
-             print_r($response);
             // close the connection, release resources used
             curl_close($ch);
         }
 
- 
+
        $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $this->session->userdata('id'));
 
           //echo $err_msg;  exit;

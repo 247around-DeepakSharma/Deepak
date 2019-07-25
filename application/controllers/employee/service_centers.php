@@ -2263,7 +2263,7 @@ class Service_centers extends CI_Controller {
                 $parts_stock_not_found = array();
                 $new_spare_id = array();
                 $requested_part_name = array();
-                
+                $delivered_sp_all=array();
                 foreach ($parts_requested as $value) {
                     $delivered_sp = array();
                     if (array_key_exists("spare_id", $data)) {
@@ -2359,9 +2359,6 @@ class Service_centers extends CI_Controller {
                         $data['defective_return_to_entity_id'] = $this->input->post('partner_id');
                     }
 
-                    if (isset($data['requested_inventory_id']) && !empty($data['requested_inventory_id']) && $data['is_micro_wh'] == 1) {
-                        $this->inventory_model->update_pending_inventory_stock_request($data['entity_type'], $data['partner_id'], $data['requested_inventory_id'], 1);
-                    }
                                         
                     array_push($data_to_insert, $data);
 
@@ -2374,9 +2371,8 @@ class Service_centers extends CI_Controller {
                     if ($data['is_micro_wh'] == 1 ) {
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
-                        $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
-                        $this->inventory_model->update_pending_inventory_stock_request($data['entity_type'], $data['partner_id'], $data['requested_inventory_id'], -1);
-                         unset($data['spare_id']);
+                        array_push($delivered_sp_all, $delivered_sp);
+                        unset($data['spare_id']);
                     }
                 }
                 
@@ -2407,14 +2403,21 @@ class Service_centers extends CI_Controller {
 
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-                    $this->update_booking_internal_status($booking_id, $status, $this->input->post('partner_id'));
+                    $this->
+                    ($booking_id, $status, $this->input->post('partner_id'));
                     
                     if(!empty($approval_array)){
                         foreach($approval_array as $ap){
                             $this->auto_approve_requested_spare($ap['spare_id'], $booking_id, $partner_id, $ap['part_warranty_status'] );
                         }
                     }
-                    
+					
+					/*	Abhishek Auto deliver //				*/
+					foreach($delivered_sp_all  as $deliver_data){
+						$this->auto_delivered_for_micro_wh($deliver_data, $partner_id);
+					}
+
+					/* End auto deliver  */
                     if(!$this->input->post("call_from_api")){
                         $userSession = array('success' => 'Booking Updated');
                         $this->session->set_userdata($userSession);

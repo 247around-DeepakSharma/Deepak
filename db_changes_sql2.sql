@@ -402,4 +402,4 @@ ALTER TABLE `engineer_details` ADD `varified` BOOLEAN NOT NULL DEFAULT FALSE AFT
 
 --Gorakh - 24 -july - 2019
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
-('247Around', 'Inventory Model Details', NULL, 'employee/inventory/appliance_model_list', 2, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-06-05 05:27:42');
+('247Around', 'Download serviceable BOM', NULL, 'employee/inventory/download_serviceable_bom', 2, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-06-05 05:27:42');
