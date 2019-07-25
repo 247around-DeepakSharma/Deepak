@@ -519,7 +519,7 @@ class File_upload extends CI_Controller {
                                 $post_data[$rowData['invoice_id']]['invoice_amount'] = $invoice_price+(($invoice_price*$rowData['gst_rate'])/100);
                                 $post_data[$rowData['invoice_id']]['courier_name'] = $rowData['courier_name'];
                                 $post_data[$rowData['invoice_id']]['awb_number'] = $rowData['awb_number'];
-                                $post_data[$rowData['invoice_id']]['courier_shipment_date'] = $rowData['courier_shipment_date'];
+                                $post_data[$rowData['invoice_id']]['courier_shipment_date'] = date_format(date_create($rowData['courier_shipment_date']),'d-m-Y');
                                 $post_data[$rowData['invoice_id']]['from_gst_number'] = $from_gst_data[0]['id'];
                                 $post_data[$rowData['invoice_id']]['to_gst_number'] = $to_gst_data[0]['id'];
                                 $post_data[$rowData['invoice_id']]['wh_id'] =$wh_details[0]['id'];
