@@ -2294,7 +2294,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
     }
         
-    /*
+   /*
      * @desc - This function is used to send email to Trackon couriers
      * @param - empty
      * @return - empty
@@ -2490,7 +2490,6 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             }
 
             $R->render('excel', $output_file_excel);
-
             array_push($files, $output_file_excel);
         }
         
@@ -2546,5 +2545,4 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         system(" chmod 777 " . $details_excel, $res1);
         return $details_excel;
     }
-
 }
