@@ -16,7 +16,7 @@
             </tr>
             <tr style="">
                 <td colspan="1" align="left" style="padding-top: 0px !important;"><img style="width:30%" src="<?php echo base_url(); ?>images/logo.jpg"></td>
-                <td colspan="4" align="center" style="border:hidden; padding-top: 0px !important;">A-1/7, F/F A BLOCK, KRISHNA NAGAR, DELHI, 110051<br>Email: seller@247around.com<br><br><b>GSTIN :  07AAFCB1281J1ZQ</td>
+                <td colspan="4" align="center" style="border:hidden; padding-top: 0px !important;">A-1/7, F/F A BLOCK, KRISHNA NAGAR, DELHI, 110051<br>Email: billing@247around.com<br><br><b>GSTIN :  07AAFCB1281J1ZQ</td>
                 <td  colspan="1" style="text-align: center; width: 20%; border-left: hidden; padding-top: 0px !important; border-right: 2px solid;"><b>(<?php echo $meta['recipient_type']; ?>)</td>
             </tr>
             <tr style="height: 50px; background-color: rgb(211,211,211);">	
