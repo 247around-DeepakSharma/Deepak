@@ -1409,8 +1409,6 @@ class Spare_parts extends CI_Controller {
                     if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 ) {
                         $data['spare_id'] = $spare_parts_id;
                         array_push($delivered_sp, $data);
-                        $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
-                        unset($data['spare_id']);
                     }
 
                     $actor = _247AROUND_PARTNER_STRING;
@@ -1426,6 +1424,11 @@ class Spare_parts extends CI_Controller {
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_list[0]['parts_requested'], $this->input->post('new_booking_id'), SPARE_REQUESTED_CUSTOMER_SMS_TAG);
 
                     $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUESTED, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, $partner_id, NULL);
+
+					if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 ) {
+                        $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                        unset($data['spare_id']);
+                    }
 
                     if ($affected_id) {
                         echo 'success';
@@ -2126,13 +2129,9 @@ class Spare_parts extends CI_Controller {
                      
                         $data['spare_id'] = $spare_id;
                         array_push($delivered_sp, $data);
-                        $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
-                        unset($data['spare_id']);
-
                     }
                 }
-               
-               
+
                 if ($affected_id) {
                     $actor = _247AROUND_PARTNER_STRING;
                     $next_action = PARTNER_WILL_SEND_NEW_PARTS;
@@ -2148,6 +2147,11 @@ class Spare_parts extends CI_Controller {
                     $this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, $reason_text, $reason, $agent_id, $agent_name, $actor, $next_action, _247AROUND, NULL);
                     if (!empty($booking_id)) {
                         $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
+						if (isset($is_micro_wh) && $is_micro_wh == 1) {
+                        $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                        unset($data['spare_id']);
+
+                    }
                         if ($affctd_id) {
                             echo json_encode(array('status' => TRUE));
                         } else {
@@ -3280,6 +3284,52 @@ class Spare_parts extends CI_Controller {
         }
       
         echo "success";
+    }
+    
+    /**
+     *  @desc : This function is used to download alternate parts list
+     *  @param : void
+     *  @return : void
+     */
+    function download_alternet_part_list() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/download_alternet_part_list");
+    }
+    
+     /**
+     *  @desc : This function is used to download alternate parts
+     *  @param : void
+     *  @return : void
+     */
+    function process_download_alternate_parts(){
+        $data = array();
+        $partner_id = $this->input->post("partner_id"); 
+        $service_id = $this->input->post("service_id"); 
+        $select = "inventory_master_list.inventory_id, inventory_master_list.service_id, group_concat(inventory_master_list.part_number) as part_number";
+        $where = array("entity_type" => _247AROUND_PARTNER_STRING, "entity_id" => $partner_id, "service_id" => $service_id);
+        $alternate_parts = $this->inventory_model->get_alternet_parts($select, $where);
+        foreach ($alternate_parts as $alternates) {
+            $parts_array = explode(",", $alternates['part_number']);
+            foreach ($parts_array as $key => $value){
+                $main_part = $value;
+                for($i=$key; $i<count($parts_array); $i++){
+                    $parts = $parts_array[$i];
+                    if($main_part != $parts){ 
+                       array_push($data, array("main_part_code"=>$main_part, "alternate_part_code"=>$parts));   
+                    }
+                }
+                /*
+                foreach($parts_array as $parts){
+                    if($main_part != $parts){
+                        array_push($data, array("main_part_code"=>$main_part, "alternate_part_code"=>$parts)); 
+                    }
+                }
+                */
+            }
+        }
+        $headings = array("Main Part Code", "Alternate Part Code");
+        $this->miscelleneous->downloadCSV($data, $headings, "alternet_spare_parts");
     }
 
 }
