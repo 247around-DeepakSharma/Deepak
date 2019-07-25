@@ -241,6 +241,7 @@ class vendor extends CI_Controller {
         $vendor_data['is_sf'] = $this->input->post('is_sf');
         $vendor_data['is_cp'] = $this->input->post('is_cp');
         $vendor_data['is_wh'] = $this->input->post('is_wh');
+        $vendor_data['isEngineerApp'] = $this->input->post('is_engineer');
         $vendor_data['is_buyback_gst_invoice'] = $this->input->post('is_buyback_gst_invoice');
         $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
         $vendor_data['minimum_guarantee_charge'] = $this->input->post('minimum_guarantee_charge');

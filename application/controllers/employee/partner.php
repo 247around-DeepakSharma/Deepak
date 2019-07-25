@@ -7926,5 +7926,17 @@ class Partner extends CI_Controller {
         $this->load->view('partner/partner_footer');
     }
     
+     /**
+     * @desc: This function is used to download alternate parts for partner
+     * @params: void
+     * @return: void
+     */
+    function show_download_alternate_parts(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/download_alternate_parts.php');
+        $this->load->view('partner/partner_footer');
+    }
+    
    
 }

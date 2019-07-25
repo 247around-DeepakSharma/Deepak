@@ -969,7 +969,7 @@ class invoices_model extends CI_Model {
             $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
             $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-            $meta += $this->partner_model->get_main_partner_invoice_detail($partner_on_saas, $result[0]['main_gst_number'] );
+            $meta += $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
             
             $parts_count = 0;
             $service_count = 0;

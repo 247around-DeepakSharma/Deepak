@@ -2185,20 +2185,16 @@ class Inventory_model extends CI_Model {
      * 
      */
     
-    function get_pending_spare_part_details($post, $where=array()){
+    function get_pending_spare_part_details($post, $where = array()) {
         $this->db->select($post['select'], FALSE);
-        $this->db->from('spare_parts_details');   
+        $this->db->from('spare_parts_details');
         $this->db->join('service_centres', 'spare_parts_details.service_center_id = service_centres.id');
         $this->db->where($where);
         $query = $this->db->get();
         return $query->result_array();
     }
-    
-    
-    
-    
-    
-      /**
+
+    /**
      * @Desc: This function is used to get data from the appliance_model_details table
      * @params: $select string
      * @params: $where array
@@ -2638,11 +2634,32 @@ class Inventory_model extends CI_Model {
     }
 
 
-        function get_entity_gst_data($select="*", $where){
+    function get_entity_gst_data($select="*", $where){
         $this->db->select($select);
         $this->db->where($where);
         $query = $this->db->get("entity_gst_details");
         return $query->result_array();
+    }
+
+
+    /**
+     * @Desc: This function is used to get alternate parts
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_alternet_parts($select, $where = array()) {
+        $this->db->select($select,false);
+        $this->db->from('inventory_master_list');
+        $this->db->join('alternate_inventory_set','alternate_inventory_set.inventory_id = inventory_master_list.inventory_id');
+        $this->db->group_by("group_id");
+        if (!empty($where)) {
+            $this->db->where($where,false);
+        }        
+        $query = $this->db->get();
+        return $query->result_array();        
+       
     }
 
 }

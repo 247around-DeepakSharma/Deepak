@@ -125,7 +125,9 @@
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
                                         <?php if($is_engineer_app){ ?>
-                                        <td style="vertical-align: middle;"><select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select></td>
+                                        <td style="vertical-align: middle;"><select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select>
+                                            <a href='<?php echo base_url(); ?>service_center/add_engineer' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user' aria-hidden='true'></i></a>
+                                        </td>
                                         <?php }
                                         if(isset($saas_module) && (!$saas_module)) { ?>
                                         <td style="vertical-align: middle;">
@@ -315,6 +317,7 @@
                                          <?php if($is_engineer_app){ ?>
                                         <td style="vertical-align: middle;">
                                             <select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select>
+                                            <a href='<?php echo base_url(); ?>service_center/add_engineer' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user' aria-hidden='true'></i></a>
                                         </td>
                                          <?php } ?>
                                         <td style="vertical-align: middle;">
