@@ -3281,5 +3281,51 @@ class Spare_parts extends CI_Controller {
       
         echo "success";
     }
+    
+    /**
+     *  @desc : This function is used to download alternate parts list
+     *  @param : void
+     *  @return : void
+     */
+    function download_alternet_part_list() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/download_alternet_part_list");
+    }
+    
+     /**
+     *  @desc : This function is used to download alternate parts
+     *  @param : void
+     *  @return : void
+     */
+    function process_download_alternate_parts(){
+        $data = array();
+        $partner_id = $this->input->post("partner_id"); 
+        $service_id = $this->input->post("service_id"); 
+        $select = "inventory_master_list.inventory_id, inventory_master_list.service_id, group_concat(inventory_master_list.part_number) as part_number";
+        $where = array("entity_type" => _247AROUND_PARTNER_STRING, "entity_id" => $partner_id, "service_id" => $service_id);
+        $alternate_parts = $this->inventory_model->get_alternet_parts($select, $where);
+        foreach ($alternate_parts as $alternates) {
+            $parts_array = explode(",", $alternates['part_number']);
+            foreach ($parts_array as $key => $value){
+                $main_part = $value;
+                for($i=$key; $i<count($parts_array); $i++){
+                    $parts = $parts_array[$i];
+                    if($main_part != $parts){ 
+                       array_push($data, array("main_part_code"=>$main_part, "alternate_part_code"=>$parts));   
+                    }
+                }
+                /*
+                foreach($parts_array as $parts){
+                    if($main_part != $parts){
+                        array_push($data, array("main_part_code"=>$main_part, "alternate_part_code"=>$parts)); 
+                    }
+                }
+                */
+            }
+        }
+        $headings = array("Main Part Code", "Alternate Part Code");
+        $this->miscelleneous->downloadCSV($data, $headings, "alternet_spare_parts");
+    }
 
 }
