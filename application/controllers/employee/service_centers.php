@@ -7226,7 +7226,7 @@ class Service_centers extends CI_Controller {
      */
     function download_service_center_completed_bookings() {
         $list = $this->service_centers_model->download_service_center_completed_bookings();
-        $headings = array("Booking ID", "Customer Name", "Mobile", "Product", "Request Type", "Closing Date", "Closing Remarks", "SF Earned", "Rating", "Shipped Part", "Engineer", "TAT");
+        $headings = array("Booking ID", "Customer Name", "Mobile", "Product", "Request Type", "Closing Date", "Closing Remarks", "SF Earned", "Rating", "Consumed Parts", "Engineer", "TAT");
         $this->miscelleneous->downloadCSV($list, $headings,"SF_completed_bookings");
     }
 

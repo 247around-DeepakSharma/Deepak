@@ -1302,7 +1302,7 @@ class Miscelleneous {
      * @return It will download the CSV
      */
     function downloadCSV($CSVData, $headings = NULL, $file) {
-        ob_clean();
+        ob_start();
         $filename = $file . '.csv';
         date_default_timezone_set('Asia/Kolkata');
         if (!empty($headings)) {
