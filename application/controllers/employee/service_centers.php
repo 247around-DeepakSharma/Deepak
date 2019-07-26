@@ -2402,9 +2402,7 @@ class Service_centers extends CI_Controller {
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
 
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-
-                    $this->
-                    ($booking_id, $status, $this->input->post('partner_id'));
+                    $this->update_booking_internal_status($booking_id, $status, $this->input->post('partner_id'));
                     
                     if(!empty($approval_array)){
                         foreach($approval_array as $ap){
@@ -2412,10 +2410,10 @@ class Service_centers extends CI_Controller {
                         }
                     }
 					
-					/*	Abhishek Auto deliver //				*/
-					foreach($delivered_sp_all  as $deliver_data){
-						$this->auto_delivered_for_micro_wh($deliver_data, $partner_id);
-					}
+		/*	Abhishek Auto deliver //				*/
+		foreach($delivered_sp_all  as $deliver_data){
+		$this->auto_delivered_for_micro_wh($deliver_data, $partner_id);
+		}
 
 					/* End auto deliver  */
                     if(!$this->input->post("call_from_api")){
