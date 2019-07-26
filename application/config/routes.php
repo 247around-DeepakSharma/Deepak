@@ -230,7 +230,8 @@ $route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
 $route['partner/inventory/download_serviceable_bom'] = 'employee/partner/show_download_serviceable_bom';
 $route['partner/inventory/model_mapping'] = 'employee/partner/show_appliance_model_mapping';
 $route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
-
+$route['partner/inventory/download_part_master'] = 'employee/partner/show_download_part_master';
+$route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
 
 //$route['service_center/inventory/appliance_model_list'] = 'employee/inventory/appliance_model_list';
 

@@ -7925,6 +7925,18 @@ class Partner extends CI_Controller {
         $this->load->view('partner/get_download_serviceable_bom');
         $this->load->view('partner/partner_footer');
     }
+     
+    /**
+     * @desc: This function is used to download Part Master
+     * @params: void
+     * @return: void
+     */
+    function show_download_part_master(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/get_download_part_number');
+        $this->load->view('partner/partner_footer');
+    }
     
      /**
      * @desc: This function is used to download alternate parts for partner

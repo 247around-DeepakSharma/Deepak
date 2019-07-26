@@ -6726,7 +6726,7 @@ class Inventory extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/download_serviceable_bom");
     }
-    
+       
      /**
      *  @desc : This function is used to Download the Serviceable BOM.
      *  @param : void
@@ -6750,6 +6750,64 @@ class Inventory extends CI_Controller {
             $this->load->helper('file');
 
             $file_name = 'serviceable_bom_data_' . date('j-M-Y-H-i-s') . ".csv";
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($bom_details, $delimiter, $newline);
+
+            write_file(TMP_FOLDER . $file_name, $new_report);
+
+            if (file_exists(TMP_FOLDER . $file_name)) {
+                log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                $res1 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                $res['status'] = true;
+                $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+            } else {
+                log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                $res['status'] = FALSE;
+                $res['msg'] = 'error in generating file';
+            }
+        }
+        echo json_encode($res);
+    }
+        
+    /**
+     *  @desc : This function is used to appliance wise Part details
+     *  @param : void
+     *  @return : void
+     */
+    function download_part_master() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/download_inventory_part_master");
+    }
+    
+    
+     /**
+     *  @desc : This function is used to Download the Serviceable BOM.
+     *  @param : void
+     *  @return : void
+     */
+    
+     function download_inventory_part_master_data() {
+        log_message('info', __METHOD__ . ' Processing...');
+
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+
+        $select = "services.services AS APPLIANCE, appliance_model_details.model_number AS MODEL_NUMBER, inventory_master_list.part_number AS PART_NUMBER, "
+                . "inventory_master_list.part_name AS PART_NAME, inventory_master_list.price AS PRICE, inventory_master_list.type AS TYPE, inventory_master_list.hsn_code AS HSN_CODE,"
+                . " inventory_master_list.gst_rate AS GST_RATE";
+        $where = array("inventory_master_list.entity_id" => $partner_id, "appliance_model_details.service_id" => $service_id);
+
+        if (!empty($partner_id) && !empty($service_id)) {
+            $bom_details = $this->inventory_model->get_serviceable_bom_data($select, $where);
+
+
+            $this->load->dbutil();
+            $this->load->helper('file');
+
+            $file_name = 'inventory_part_master_' . date('j-M-Y-H-i-s') . ".csv";
             $delimiter = ",";
             $newline = "\r\n";
             $new_report = $this->dbutil->csv_from_result($bom_details, $delimiter, $newline);

@@ -27,7 +27,7 @@
                             </div>
                         </div>
                         <div class="col-md-2">
-                            <a href="#" class="btn btn-info" disabled="disabled" id="serviceable_bom">Download</a>
+                            <a href="#" class="btn btn-info" disabled="disabled" id="part_master">Download BOM</a>
                         </div>
                     </section>
                 </div>
@@ -61,7 +61,7 @@
     $('#service_id').on('change',function(){
          var service_id = $("#service_id").val();
          if(service_id != ''){
-           $("#serviceable_bom").removeAttr("disabled");  
+           $("#part_master").removeAttr("disabled");  
          }
        
     });
@@ -87,18 +87,19 @@
     }
     
     
-     $('#serviceable_bom').click(function(){
+
+     $('#part_master').click(function(){
         var partner_id = $("#partner_id").val();
         var service_id = $("#service_id").val();
         
         if((partner_id!=null && partner_id!='') && (service_id!=null && service_id!='')){
-            $('#serviceable_bom').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+            $('#part_master').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/inventory/download_inventory_part_master_data',
                 data: {partner_id : partner_id, service_id : service_id},
                 success: function (data) {
-                    $('#serviceable_bom').html("Download").attr('disabled',false);
+                    $('#part_master').html("Download").attr('disabled',false);
                     var obj = JSON.parse(data); 
                     if(obj['status']){
                         window.location.href = obj['msg'];
