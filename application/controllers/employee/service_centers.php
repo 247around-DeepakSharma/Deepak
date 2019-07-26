@@ -2353,9 +2353,7 @@ class Service_centers extends CI_Controller {
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
 
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-
-                    $this->
-                    ($booking_id, $status, $this->input->post('partner_id'));
+                    $this->update_booking_internal_status($booking_id, $status, $this->input->post('partner_id'));
                     
                     if(!empty($approval_array)){
                         foreach($approval_array as $ap){
@@ -2363,10 +2361,10 @@ class Service_centers extends CI_Controller {
                         }
                     }
 					
-					/*	Abhishek Auto deliver //				*/
-					foreach($delivered_sp_all  as $deliver_data){
-						$this->auto_delivered_for_micro_wh($deliver_data, $partner_id);
-					}
+		/*	Abhishek Auto deliver //				*/
+		foreach($delivered_sp_all  as $deliver_data){
+		$this->auto_delivered_for_micro_wh($deliver_data, $partner_id);
+		}
 
 					/* End auto deliver  */
                     if(!$this->input->post("call_from_api")){
@@ -6077,10 +6075,8 @@ class Service_centers extends CI_Controller {
             $partner_id = $this->input->post('partner_id');
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
-            $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '"._247AROUND_SF_STRING."'"
-                . " AND defective_part_required = '1' AND sell_invoice_id IS NULL AND status IN ('"._247AROUND_COMPLETED."') ";
-            
-           
+            $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "') ";
             $where .= " AND booking_details.partner_id = " . $partner_id;
             
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
@@ -7299,6 +7295,15 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/defective_parts_sent', $data);
 
+    }
+
+    /*
+     @Desc - This function is used to download SF completed bookings csv
+     */
+    function download_service_center_completed_bookings() {
+        $list = $this->service_centers_model->download_service_center_completed_bookings();
+        $headings = array("Booking ID", "Customer Name", "Mobile", "Product", "Request Type", "Closing Date", "Closing Remarks", "SF Earned", "Rating", "Consumed Parts", "Engineer", "TAT");
+        $this->miscelleneous->downloadCSV($list, $headings,"SF_completed_bookings");
     }
 
 }

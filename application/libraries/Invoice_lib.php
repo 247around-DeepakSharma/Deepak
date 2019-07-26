@@ -1049,6 +1049,7 @@ class Invoice_lib {
             "hsn_code" => $inventory_details[0]['hsn_code'],
             "gst_rate" => $b['cgst_tax_rate'] + $b['sgst_tax_rate'] +$b['igst_tax_rate'],
             "to_gst_number" => $partner_gst_number,
+            "to_gst_number_id" => $b['from_gst_number'],
             "to_state_code" => $partner_state_code,
             "to_address" => $partner_address,
             "to_pincode" => $partner_pincode,
@@ -1057,7 +1058,8 @@ class Invoice_lib {
             "from_state_code" =>$around_state_code,
             "from_address" => $around_address,
             "from_pincode" => $around_pincode,
-            "from_city" => $around_city
+            "from_city" => $around_city,
+            "from_gst_number_id" => $b['to_gst_number'],
             );
         } else {
             return false;
@@ -1136,8 +1138,11 @@ class Invoice_lib {
             if(isset($value['spare_id'])){
                 $invoice['spare_id'] = $value['spare_id'];
             }
-            if(isset($value['from_gst_number'])){
-                $invoice['from_gst_number'] = $value['from_gst_number'];
+            if(isset($value['from_gst_number_id'])){
+                $invoice['from_gst_number'] = $value['from_gst_number_id'];
+            }
+            if(isset($value['to_gst_number_id'])){
+                $invoice['to_gst_number'] = $value['to_gst_number_id'];
             }
             $invoice['total_amount'] = $value['total_amount'];
             $invoice['create_date'] = date('Y-m-d H:i:s');

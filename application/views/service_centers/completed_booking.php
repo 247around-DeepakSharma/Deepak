@@ -3,7 +3,7 @@
         <div class="col-md-12">
             <div class="panel panel-default">
                 <div class="panel-heading">
-                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> <?php echo $status." Bookings" ?></h2>
+                    <h2 class="panel-title"><i class="fa fa-money fa-fw"></i> <?php echo $status." Bookings"; if($status == 'Completed') { echo '<a class="btn btn-primary btn-sm" href="'. base_url().'employee/service_centers/download_service_center_completed_bookings" id="download" style="float:right;font-size:12px;color:white;margin-top:-6px;">Download List</a>';} ?></h2>
                 </div>
 
                 <div class="panel-body">
@@ -22,6 +22,7 @@
                                     <?php if ($status == "Completed") { ?> 
                                     <th>SF&nbsp;Earned</th> 
                                     <th>Rating</th>
+                                    <th>Engineer</th>
                                     <?php } ?>
                                     <th>View</th>
                                    
@@ -84,6 +85,7 @@
                                                     <td><?php if(!empty($row['rating_stars'])) 
                                                         { echo $row['rating_stars']."/<b>5</b>"; } 
                                                         else { echo "Ratings Not Taken Yet";}?></td>
+                                                    <td><?php echo $row['Engineer'];?></td>
                                             <?php } ?>
                                             
                                             <td><a class='btn btn-sm btn-primary' href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>" target='_blank' title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>

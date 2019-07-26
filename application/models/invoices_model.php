@@ -1058,6 +1058,14 @@ class invoices_model extends CI_Model {
                     $meta['total_parts_charge'] += $value['taxable_value'];
                     $parts_count += $value['qty'];
                 }
+                
+                if(isset($value['to_gst_number_id'])){
+                    $result[$key]['to_gst_number_id'] = $value['to_gst_number_id'];
+                }
+                
+                if(isset($value['from_gst_number_id'])){
+                    $result[$key]['from_gst_number_id'] = $value['from_gst_number_id'];
+                }
             }
             $meta['parts_count'] = $parts_count;
             $meta['service_count'] = $service_count;
