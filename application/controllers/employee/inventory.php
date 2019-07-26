@@ -3680,15 +3680,18 @@ class Inventory extends CI_Controller {
             } else {
                 $newdata['parts_requested_type'] = $fomData['part_name'];
             }
-
             $newdata['create_date'] = date('Y-m-d H:i:s');
             $newdata['status'] = SPARE_PARTS_REQUESTED;
             $newdata['wh_ack_received_part'] = 0;
             $newdata['requested_inventory_id'] = $ledger['inventory_id'];
             $newdata['inventory_invoice_on_booking'] = 1;
-            $newdata['is_micro_wh'] = 2;
+            if($ledger['is_micro_wh']==1){
+            $newdata['is_micro_wh'] = 2;   
+            }
+            if($ledger['is_micro_wh']==2){
+            $newdata['is_micro_wh'] = 1;   
+            }
             $newdata['part_warranty_status'] = 1;
-
             $spare_id = $this->service_centers_model->insert_data_into_spare_parts($newdata);
             if ($spare_id) {
                 $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
