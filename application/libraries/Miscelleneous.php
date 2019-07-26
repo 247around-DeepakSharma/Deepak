@@ -4441,5 +4441,36 @@ function generate_image($base64, $image_name,$directory){
         
         return array($tcount, $booking_error_array, $add_row);
     }
-    
+ 
+    function pull_service_centre_close_date($booking_id,$partner_id){
+       $access = $this->My_CI->partner_model->get_partner_permission(array('partner_id' => $partner_id,'permission_type' => DO_NOT_PULL_SERVICE_CENTRE_CLOSED_DATE, 'is_on' => 1));
+       if(empty($access)){
+            //Update Service Center Closed Date in booking Details Table, 
+            //if current date time is before 12PM then take completion date before a day, 
+            //if day is monday and  time is before 12PM then take completion date as saturday
+            //Check if new completion date is equal to or greater then booking_date
+            date_default_timezone_set('Asia/Kolkata');
+            // get booking_date
+            $booking_date = $this->My_CI->reusable_model->get_search_result_data("booking_details", 'STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL, array())[0]['booking_date'];
+            $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
+            // If time is before 12 PM then completion date will be yesturday's date
+            //if (date('H') < 13) {
+            $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s', (strtotime('-1 day', strtotime(date('Y-m-d H:i:s')))));
+            $dayofweek = date('w', strtotime(date('Y-m-d H:i:s')));
+            // If day is monday then completion date will be saturday's date
+            if ($dayofweek == '1') {
+                $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s', (strtotime('-2 day', strtotime(date('Y-m-d H:i:s')))));
+            }
+            //  }
+            $booking_timeStamp = strtotime($booking_date);
+            $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
+            $datediff = $close_timeStamp - $booking_timeStamp;
+            $booking_date_days = round($datediff / (60 * 60 * 24)) - 1;
+            if ($booking_date_days <= 0) {
+                $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
+            }
+            $this->My_CI->reusable_model->update_table("booking_details", $bookingData, array('booking_id' => $booking_id));
+            //End Update Service Center Closed Date
+       }
+    }
 }
