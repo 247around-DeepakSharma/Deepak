@@ -14,6 +14,7 @@
                                         <th class="text-center" data-orderable="false">User/Phone</th>
                                         <th class="text-center" style="min-width:85px;" data-orderable="false">Address</th>
                                         <th class="text-center" data-orderable="false">Appliance</th>
+                                        <th class="text-center" data-orderable="false">Status</th>
                                         <th class="text-center" style="min-width:86px;">Booking Date</th>
                                         <th class="text-center">Age</th>
                                         <th class="text-center" data-orderable="false">Call Center Remarks</th>
@@ -77,7 +78,7 @@
                                                 <a target='_blank' href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $row->booking_files_purchase_invoice; ?>"  title = 'Purchase Invoice Verified' aria-hidden = 'true'><img src="<?php echo base_url(); ?>images/varified.png" style="width:20%"/></a>
                                                <?php } ?>
                                                 <br/>
-                                                <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
+                                                <a href="javascript:void(0)" data-popover="true" style="border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html="true" data-content="<?php if(isset($row->part_cancel_reason)){ echo implode('<br>',explode(',',$row->part_cancel_reason));}?>" > <img style="width: 83%;" id="<?php echo 'spare_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_delivered_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');
                                                          load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');
@@ -93,6 +94,9 @@
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?php if($row->amount_due > 0){ ?> <span style="font-weight:bold">Paid </span> <?php } else { ?> <span style="font-weight:bold">Free </span><?php  }  echo $row->request_type." ". $row->services; ?>
+                                        </td>
+                                        <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
+                                            <?=$row->partner_internal_status;?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <?= $row->booking_date."<br/>"; ?> 
@@ -187,7 +191,8 @@
                                         <th class="text-center" data-orderable="false">Booking Id</th>
                                         <th class="text-center" data-orderable="false">User/Phone</th>
                                         <th class="text-center" style="min-width:85px;" data-orderable="false">Address</th>
-                                        <th class="text-center" data-orderable="false" data-orderable="false">Appliance</th>
+                                        <th class="text-center" data-orderable="false">Appliance</th>
+                                        <th class="text-center" data-orderable="false">Status</th>
                                         <th class="text-center" style="min-width:86px;">Booking Date</th>
                                         <th class="text-center">Age</th>
                                         <th class="text-center" data-orderable="false">Call Center Remarks</th>
@@ -240,7 +245,7 @@
                                                 <?php }?>
                                                 
                                                 
-                                                <a href="javascript:void(0)" > <img id="<?php echo 'spare_tomorrow'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:84%"/></a>
+                                                <a href="javascript:void(0)" data-popover="true" style="border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html="true" data-content="<?php if(isset($row->part_cancel_reason)){ echo implode('<br>',explode(',',$row->part_cancel_reason));}?>"  > <img id="<?php echo 'spare_tomorrow'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:84%"/></a>
                                                 <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_delivered_tomorrow'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'tomorrow');
                                                          load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'tomorrow');
@@ -261,6 +266,9 @@
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ ?> <span style="font-weight:bold">Paid </span> <?php } else { ?> <span style="font-weight:bold">Free </span><?php  } } echo $row->request_type." ". $row->services; ?>
+                                        </td>
+                                        <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
+                                            <?=$row->partner_internal_status;?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <?= $row->booking_date."<br/>"; ?> 
@@ -383,6 +391,7 @@
                                         <th class="text-center" data-orderable="false">User/Phone</th>
                                         <th class="text-center" style="min-width:85px;"data-orderable="false">Address</th>
                                         <th class="text-center" data-orderable="false">Appliance</th>
+                                        <th class="text-center" data-orderable="false">Status</th>
                                         <th class="text-center" style="min-width:86px;" data-orderable="false">Booking Date</th>
                                         <th class="text-center" data-orderable="false">Age</th>
                                         <th class="text-center" data-orderable="false">Call Center Remarks</th>
@@ -435,7 +444,7 @@
                                                  <br/>
                                                 <?php }?>
                                                
-                                                <a href="javascript:void(0)" style="width:10px;"> <img id="<?php echo 'spare_rescheduled'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:84%"/></a>
+                                                <a href="javascript:void(0)" data-popover="true" style="width:10px;border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html="true" data-content="<?php if(isset($row->part_cancel_reason)){ echo implode('<br>',explode(',',$row->part_cancel_reason));}?>" > <img id="<?php echo 'spare_rescheduled'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:84%"/></a>
                                                 <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_delivered_rescheduled'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'rescheduled');
                                                          load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'rescheduled');
@@ -455,6 +464,9 @@
                                         </td>
                                         <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
                                             <?php if (stristr($row->request_type, "Installation")) { if($row->amount_due > 0){ ?> <span style="font-weight:bold">Paid </span> <?php } else { ?> <span style="font-weight:bold">Free </span><?php  } } echo $row->request_type." ". $row->services; ?>
+                                        </td>
+                                        <td style="max-width: 100px; word-wrap:break-word;vertical-align: middle;">
+                                            <?=$row->partner_internal_status;?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <?= $row->booking_date."<br/>"; ?> 

@@ -1077,7 +1077,7 @@ class Inventory extends CI_Controller {
         if (!empty($id)) {
             $remarks = $this->input->post("remarks");
             if (!empty($this->input->post("spare_cancel_reason"))) {
-                $remarks = $remarks . " " . $this->input->post("spare_cancel_reason");
+                $remarks = $this->input->post("spare_cancel_reason") . " , " . $remarks;
             }
             $flag = true;
             $b = array();
@@ -3180,8 +3180,7 @@ class Inventory extends CI_Controller {
  //        $_POST = json_decode($str, true);  
 //  
 
-        $invoice_file_required =  $this->input->post('invoice_file');
-        if (!$invoice_file_required) {
+        if (!isset($_FILES['invoice_file'])) {
            $invoice_file_required=0;      
         }else{
             $invoice_file_required=1;
@@ -3680,15 +3679,18 @@ class Inventory extends CI_Controller {
             } else {
                 $newdata['parts_requested_type'] = $fomData['part_name'];
             }
-
             $newdata['create_date'] = date('Y-m-d H:i:s');
             $newdata['status'] = SPARE_PARTS_REQUESTED;
             $newdata['wh_ack_received_part'] = 0;
             $newdata['requested_inventory_id'] = $ledger['inventory_id'];
             $newdata['inventory_invoice_on_booking'] = 1;
-            $newdata['is_micro_wh'] = 2;
+            if($ledger['is_micro_wh']==1){
+            $newdata['is_micro_wh'] = 2;   
+            }
+            if($ledger['is_micro_wh']==2){
+            $newdata['is_micro_wh'] = 1;   
+            }
             $newdata['part_warranty_status'] = 1;
-
             $spare_id = $this->service_centers_model->insert_data_into_spare_parts($newdata);
             if ($spare_id) {
                 $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
