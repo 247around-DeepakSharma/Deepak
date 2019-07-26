@@ -760,6 +760,7 @@
                 response = "<option disabled selected>Select Brand</option>"+response;
                 $('#mapping_brandnew').html(response);
                 $('#mapping_brandnew').select2();
+                get_partner_mapping_category();
                //  $("#service_id").select2();
             }
         });
