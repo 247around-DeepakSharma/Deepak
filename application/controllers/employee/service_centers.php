@@ -654,35 +654,11 @@ class Service_centers extends CI_Controller {
                     $textArray['title'] = array($this->session->userdata('service_center_name'), $booking_id);
                     $this->push_notification_lib->create_and_send_push_notiifcation(CUSTOMER_UPDATE_BOOKING_PUSH_NOTIFICATION_EMPLOYEE_TAG, $clouserAccountArray, $textArray);
                     //End Push Notification
-                    //Update Service Center Closed Date in booking Details Table, 
-                    //if current date time is before 12PM then take completion date before a day, 
-                    //if day is monday and  time is before 12PM then take completion date as saturday
-                    //Check if new completion date is equal to or greater then booking_date
-                    date_default_timezone_set('Asia/Kolkata');
-                    // get booking_date
-                    $booking_date = $this->reusable_model->get_search_result_data("booking_details", 'STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL, array())[0]['booking_date'];
-                    $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
-                    // If time is before 12 PM then completion date will be yesturday's date
-                    //if (date('H') < 13) {
-                    $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s', (strtotime('-1 day', strtotime(date('Y-m-d H:i:s')))));
-                    $dayofweek = date('w', strtotime(date('Y-m-d H:i:s')));
-                    // If day is monday then completion date will be saturday's date
-                    if ($dayofweek == '1') {
-                        $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s', (strtotime('-2 day', strtotime(date('Y-m-d H:i:s')))));
-                    }
-                    //  }
-                    $booking_timeStamp = strtotime($booking_date);
-                    $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
-                    $datediff = $close_timeStamp - $booking_timeStamp;
-                    $booking_date_days = round($datediff / (60 * 60 * 24)) - 1;
-                    if ($booking_date_days <= 0) {
-                        $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
-                    }
-                    $this->reusable_model->update_table("booking_details", $bookingData, array('booking_id' => $booking_id));
+                    $partner_id = $this->input->post("partner_id");
+                    $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
                     //End Update Service Center Closed Date
                     // Insert data into booking state change
                     $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, $closing_remarks, "247Around", "Review the Booking");
-                    $partner_id = $this->input->post("partner_id");
 
                     //This is used to cancel those spare parts who has not shipped by partner.        
                     $this->cancel_spare_parts($partner_id, $booking_id);
@@ -1204,32 +1180,7 @@ class Service_centers extends CI_Controller {
                     $data['closed_date'] = date('Y-m-d H:i:s');
                     $data['update_date'] = date('Y-m-d H:i:s');
                     $this->vendor_model->update_service_center_action($booking_id, $data);
-                   //Update Service Center Closed Date in booking Details Table, 
-                  //if current date time is before 12PM then take completion date before a day, 
-                 //if day is monday and  time is before 12PM then take completion date as saturday
-                //Check if new completion date is equal to or greater then booking_date
-                    date_default_timezone_set('Asia/Kolkata');
-                    // get booking_date
-                    $booking_date = $this->reusable_model->get_search_result_data("booking_details",'STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date',array('booking_id'=>$booking_id),
-                            NULL,NULL,NULL,NULL,NULL,array())[0]['booking_date'];
-                    $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
-                    // If time is before 12 PM then completion date will be yesturday's date
-                  //  if (date('H') < 12) {
-                        $bookingData['service_center_closed_date'] =  date('Y-m-d H:i:s',(strtotime ( '-1 day' , strtotime (date('Y-m-d H:i:s')) ) ));
-                        $dayofweek = date('w', strtotime(date('Y-m-d H:i:s')));
-                        // If day is monday then completion date will be saturday's date
-                        if($dayofweek == '1'){
-                          $bookingData['service_center_closed_date'] =  date('Y-m-d H:i:s',(strtotime ( '-2 day' , strtotime (date('Y-m-d H:i:s')) ) ));  
-                      //  }
-                    }
-                    $booking_timeStamp = strtotime($booking_date);
-                    $close_timeStamp = strtotime($bookingData['service_center_closed_date']);
-                    $datediff = $close_timeStamp - $booking_timeStamp;
-                    $booking_date_days = round($datediff / (60 * 60 * 24))-1;
-                    if($booking_date_days <= 0){
-                        $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s');
-                    }
-                    $this->reusable_model->update_table("booking_details",$bookingData,array('booking_id'=>$booking_id));
+                    $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
                     //$this->miscelleneous->process_booking_tat_on_completion($booking_id);
                    //End Update Service Center Closed Date
                     $this->update_booking_internal_status($booking_id, "InProcess_Cancelled",  $partner_id);
@@ -6124,10 +6075,8 @@ class Service_centers extends CI_Controller {
             $partner_id = $this->input->post('partner_id');
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
-            $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '"._247AROUND_SF_STRING."'"
-                . " AND defective_part_required = '1' AND sell_invoice_id IS NULL AND status IN ('"._247AROUND_COMPLETED."') ";
-            
-           
+            $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "') ";
             $where .= " AND booking_details.partner_id = " . $partner_id;
             
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
@@ -7353,7 +7302,7 @@ class Service_centers extends CI_Controller {
      */
     function download_service_center_completed_bookings() {
         $list = $this->service_centers_model->download_service_center_completed_bookings();
-        $headings = array("Booking ID", "Customer Name", "Mobile", "Product", "Request Type", "Closing Date", "Closing Remarks", "SF Earned", "Rating", "Shipped Part", "Engineer", "TAT");
+        $headings = array("Booking ID", "Customer Name", "Mobile", "Product", "Request Type", "Closing Date", "Closing Remarks", "SF Earned", "Rating", "Consumed Parts", "Engineer", "TAT");
         $this->miscelleneous->downloadCSV($list, $headings,"SF_completed_bookings");
     }
 

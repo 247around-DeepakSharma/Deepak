@@ -1105,6 +1105,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
                       CASE WHEN booking_details.assigned_engineer_id IS NOT NULL AND booking_details.assigned_engineer_id = 24700001 THEN 'Default Engineer' WHEN booking_details.assigned_engineer_id IS NOT NULL THEN engineer_details.name ELSE '-'
                     END
                   ) AS Engineer,
+                    if(
                     DATEDIFF(
                       DATE(
                         booking_details.service_center_closed_date
@@ -1116,7 +1117,18 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
                         ),
                         '%Y-%c-%d'
                       )
-                    ) AS tat
+                    ) > 0, DATEDIFF(
+                      DATE(
+                        booking_details.service_center_closed_date
+                      ),
+                      DATE_FORMAT(
+                        STR_TO_DATE(
+                          booking_details.initial_booking_date,
+                          '%d-%m-%Y'
+                        ),
+                        '%Y-%c-%d'
+                      )
+                    )  , '0') AS tat
                     FROM
                       (`booking_details`)
                     LEFT JOIN
