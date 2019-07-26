@@ -982,15 +982,27 @@ class Upload_buyback_process extends CI_Controller {
             
             //Processing File
             $response = $this->process_reimbursement_file_data($inputFileName, $inputFileExtn);
-             log_message('info', __FUNCTION__."response".$response);
             if(!empty($response)){
-                log_message('info', __FUNCTION__ . ' Mail has been send successfully');
-                $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_REIMBURSMENT_FILE, FILE_UPLOAD_SUCCESS_STATUS, "", "partner", AMAZON_SELLER_ID);
-                $msg = "File Created Successfully And Mailed To Registed Email";
-                $response = array("code" => '247', "msg" => $msg);
-                
-                //return response
-                echo json_encode($response);
+                if($response['status']== true){
+                    log_message('info', __FUNCTION__ . ' Mail has been send successfully');
+                    $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_REIMBURSMENT_FILE, FILE_UPLOAD_SUCCESS_STATUS, "", "partner", AMAZON_SELLER_ID);
+                    $msg = "File Created Successfully And Mailed To Registed Email";
+                    if(!empty($response['invalid_orders'])){
+                        $msg .= " And File Contains Following Invalid Orders - ". implode(", ", $response['invalid_orders']);
+                    }
+                    $response = array("code" => '247', "msg" => $msg);
+                    //return response
+                    echo json_encode($response);
+                }
+                else{
+                    $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_REIMBURSMENT_FILE, FILE_UPLOAD_FAILED_STATUS, "", "partner", AMAZON_SELLER_ID);
+                    $msg = $response['message'];
+                    if(!empty($response['invalid_orders'])){
+                        $msg .= " And File Contains Following Invalid Orders - ". implode(", ", $response['invalid_orders']);
+                    }
+                    $response = array("code" => '-247', "msg" => $msg);
+                    echo json_encode($response);
+                }
             } else {
                 log_message('info', __FUNCTION__ . 'Something went wrong!!! Please Try Again...');
                 $this->miscelleneous->update_file_uploads($_FILES["file"]["name"], $_FILES['file']['tmp_name'],_247AROUND_BB_REIMBURSMENT_FILE, FILE_UPLOAD_FAILED_STATUS, "", "partner", AMAZON_SELLER_ID);
@@ -1052,7 +1064,10 @@ class Upload_buyback_process extends CI_Controller {
      */
     function do_action_reimbursement_file_data($sheet, $highestRow, $highestColumn, $headings_new){
         log_message('info', __FUNCTION__);
+        $return_data = array();
+        $data = array();
         $appData = array();
+        $appService = array();
         $invoice_orders = array();
         $invalid_orders = array();
         $PO_Number = "";
@@ -1071,104 +1086,124 @@ class Upload_buyback_process extends CI_Controller {
                 $service_name = $app_array[0]['services'];
                 array_push($invoice_orders, array($rowData['orderid'] => $rowData['reimbursementvalue']));
                 $appData[$service_name][] = $rowData['reimbursementvalue'];
+                $appService[$service_name] = $app_array[0]['hsn_code'];
             }
             else{
-                array_push($invalid_orders, $rowData['orderid']);
-            }
-        }
-        $sd = $ed = $invoice_date = date("Y-m-d");
-        $invoice_id = $this->invoice_lib->create_invoice_id("Around");
-        $vendor_data = $this->partner_model->getpartner_details("gst_number, "
-                            . "state,address as company_address, owner_phone_1,"
-                            . "company_name, pincode, "
-                            . "district, invoice_email_to, invoice_email_cc", array('partners.id'=> AMAZON_SELLER_ID))[0];
-        $key = 0;
-        foreach ($appData as $row => $value) {
-                $amount = array_sum($value);
-                $gst_rate = DEFAULT_TAX_RATE;
-                $data[$key]['description'] =  $row;
-                $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
-                $data[$key]['taxable_value'] = sprintf("%.2f", ($amount  - $tax_charge));
-                $data[$key]['product_or_services'] = "Product";
-                $data[$key]['gst_number'] = "";
-                $data[$key]['company_name'] = $vendor_data['company_name'];
-                $data[$key]['company_address'] = $vendor_data['company_address']; 
-                $data[$key]['booking_id'] = "";
-                $data[$key]['district'] = $vendor_data['district'];
-                $data[$key]['pincode'] = $vendor_data['pincode'];
-                $data[$key]['state'] = $vendor_data['state'];
-                $data[$key]['rate'] = sprintf("%.2f", ($amount/count($value)));
-                $data[$key]['qty'] = count($value);
-                $data[$key]['hsn_code'] = HSN_CODE;
-                $data[$key]['gst_rate'] = $gst_rate;
-                $data[$key]['owner_phone_1'] = $vendor_data['owner_phone_1'];
-                $key++;
-        }
-        if(!empty($data)){
-            $invoice_type = "Tax Invoice";
-            $is_customer = true;
-            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type, $invoice_date, $is_customer, $vendor_data['state']);
-            $response['meta']['invoice_id'] = $invoice_id;
-            $response['meta']['reference_invoice_id'] = $PO_Number;
-            $response['meta']['booking_id'] = "";
-            $response['meta']['customer_name'] = $vendor_data['company_name'];
-            $response['meta']['customer_address'] = $vendor_data['company_address'];
-            $response['meta']['customer_phone_number'] = $vendor_data['owner_phone_1'];
-            $response['meta']['owner_phone_1'] = $vendor_data['owner_phone_1'];
-            $response['meta']['invoice_template'] = "Buyback-v1.xlsx";
-            
-            $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final", true);
-            if($status){
-
-                $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final", true, true);
-                $output_pdf_file_name = $convert['main_pdf_file_name'];
-                $response['meta']['invoice_file_main'] = $output_pdf_file_name;
-                $response['meta']['copy_file'] = $convert['copy_file'];
-                $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
-
-                $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
-            }
-            
-            $response['meta']['invoice_id'] = $invoice_id;
-            $response['meta']['vertical'] = BUYBACK_VERTICAL;
-            $response['meta']['category'] = EXCHANGE;
-            $response['meta']['sub_category'] = REIMBURSEMENT;
-            $response['meta']['accounting'] = 1;
-            
-            $this->invoice_lib->insert_invoice_breackup($response);
-            $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_PARTNER_STRING, AMAZON_SELLER_ID, $convert, $this->session->userdata('id'), HSN_CODE);
-            $invoice_details['reference_invoice_id'] = $PO_Number;
-            $vendor_partner_invoice_id = $this->invoices_model->insert_new_invoice($invoice_details);
-            if($vendor_partner_invoice_id){
-                foreach ($invoice_orders as $key => $value) {
-                   $this->bb_model->update_bb_unit_details(array("partner_order_id" => array_keys($value)[0]), array("partner_discount" => array_values($value)[0], "partner_reimbursement_invoice" => $invoice_id));
+                if($rowData['orderid']){
+                    array_push($invalid_orders, $rowData['orderid']);
                 }
-                
-                //send mail 
-                $template = $this->booking_model->get_booking_email_template(BUYBACK_REIMBURESE_PO_UPLOADED);
-                $body = $template[0];
-                $to = $template[1].",".$this->session->userdata('official_email');
-                $from = $template[2];
-                $cc = $template[3];
-                $subject = $template[4];
-                $attachment = TMP_FOLDER.$output_pdf_file_name;
-                
-                $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
-                exec($cmd); 
-
-                $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment, BUYBACK_REIMBURESE_PO_UPLOADED, "", "");
-
-                unlink(TMP_FOLDER.$output_pdf_file_name);
-
-
-                unlink(TMP_FOLDER.$invoice_id.".xlsx");
-                unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
-                
-                return true;
-            }
-            else{
-                return false;
             }
         }
+        
+        if(!empty($appData)){
+            $sd = $ed = $invoice_date = date("Y-m-d");
+            $invoice_id = $this->invoice_lib->create_invoice_id("Around");
+            $vendor_data = $this->partner_model->getpartner_details("gst_number, "
+                                . "state,address as company_address, owner_phone_1,"
+                                . "company_name, pincode, "
+                                . "district, invoice_email_to, invoice_email_cc", array('partners.id'=> AMAZON_SELLER_ID))[0];
+            $key = 0;
+            foreach ($appData as $row => $value) {
+                    $amount = array_sum($value);
+                    $gst_rate = 0;
+                    $data[$key]['description'] =  $row;
+                    //$tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
+                    $data[$key]['taxable_value'] = sprintf("%.2f", $amount);
+                    $data[$key]['product_or_services'] = "Product";
+                    $data[$key]['gst_number'] = "";
+                    $data[$key]['company_name'] = $vendor_data['company_name'];
+                    $data[$key]['company_address'] = $vendor_data['company_address']; 
+                    $data[$key]['booking_id'] = "";
+                    $data[$key]['district'] = $vendor_data['district'];
+                    $data[$key]['pincode'] = $vendor_data['pincode'];
+                    $data[$key]['state'] = $vendor_data['state'];
+                    $data[$key]['rate'] = sprintf("%.2f", ($amount/count($value)));
+                    $data[$key]['qty'] = count($value);
+                    $data[$key]['hsn_code'] = $appService[$row];
+                    $data[$key]['gst_rate'] = $gst_rate;
+                    $data[$key]['owner_phone_1'] = $vendor_data['owner_phone_1'];
+                    $key++;
+            }
+            if(!empty($data)){
+                $invoice_type = "Tax Invoice";
+                $is_customer = true;
+                $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, $invoice_type, $invoice_date, $is_customer, $vendor_data['state']);
+                $response['meta']['invoice_id'] = $invoice_id;
+                $response['meta']['reference_invoice_id'] = $PO_Number;
+                $response['meta']['booking_id'] = "";
+                $response['meta']['customer_name'] = $vendor_data['company_name'];
+                $response['meta']['customer_address'] = $vendor_data['company_address'];
+                $response['meta']['customer_phone_number'] = $vendor_data['owner_phone_1'];
+                $response['meta']['owner_phone_1'] = $vendor_data['owner_phone_1'];
+                $response['meta']['invoice_template'] = "Buyback-v1.xlsx";
+
+                $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final", true);
+                if($status){
+
+                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final", true, true);
+                    $output_pdf_file_name = $convert['main_pdf_file_name'];
+                    $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+                    $response['meta']['copy_file'] = $convert['copy_file'];
+                    $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
+
+                    $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
+                }
+
+                $response['meta']['invoice_id'] = $invoice_id;
+                $response['meta']['vertical'] = BUYBACK_VERTICAL;
+                $response['meta']['category'] = EXCHANGE;
+                $response['meta']['sub_category'] = REIMBURSEMENT;
+                $response['meta']['accounting'] = 1;
+
+                $this->invoice_lib->insert_invoice_breackup($response);
+                $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_PARTNER_STRING, AMAZON_SELLER_ID, $convert, $this->session->userdata('id'), HSN_CODE);
+                $invoice_details['reference_invoice_id'] = $PO_Number;
+                $vendor_partner_invoice_id = $this->invoices_model->insert_new_invoice($invoice_details);
+                if($vendor_partner_invoice_id){
+                    foreach ($invoice_orders as $key => $value) {
+                       $this->bb_model->update_bb_unit_details(array("partner_order_id" => array_keys($value)[0]), array("partner_discount" => array_values($value)[0], "partner_reimbursement_invoice" => $invoice_id));
+                    }
+
+                    //send mail 
+                    $template = $this->booking_model->get_booking_email_template(BUYBACK_REIMBURESE_PO_UPLOADED);
+                    $body = $template[0];
+                    $to = $template[1].",".$this->session->userdata('official_email');
+                    $from = $template[2];
+                    $cc = $template[3];
+                    $subject = $template[4];
+                    $attachment = TMP_FOLDER.$output_pdf_file_name;
+
+                    $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
+                    exec($cmd); 
+
+                    $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment, BUYBACK_REIMBURESE_PO_UPLOADED, "", "");
+
+                    unlink(TMP_FOLDER.$output_pdf_file_name);
+
+
+                    unlink(TMP_FOLDER.$invoice_id.".xlsx");
+                    unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
+
+                    $return_data['status'] = true;
+                    $return_data['message'] = "Invoice created successfully";
+
+                }
+                else{
+                    $return_data['status'] = false;
+                    $return_data['message'] = "Error in creating invoice";
+                }
+            }
+            else{
+                $return_data['status'] = false;
+                $return_data['message'] = "Invoice data not created";
+            }
+        }
+        else{
+            $return_data['status'] = false;
+            $return_data['message'] = "Order Id Not found";
+        }
+        
+        $return_data['invalid_orders'] = $invalid_orders;
+        return $return_data;
     }
 }
