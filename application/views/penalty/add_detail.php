@@ -106,6 +106,7 @@
         var penalty_amount = $('#penalty_amount').val();
         var cap_amount = $('#cap_amount').val();
         var reason = $('#escalation').val();
+        var is_penalty = $('#apply_penalty').prop("checked");
         
         if(reason == '') {
             alert('Escalation reason cannot be blank.');
@@ -121,5 +122,11 @@
             alert('CAP amount must be greater than or equal to penalty amount.');
             return false;
         } 
+        
+        if(is_penalty === true && (penalty_amount == '' || cap_amount == '')) {
+            alert('If apply penalty is checked then amount fields cannot be blank.');
+            return false;
+        }
+        
     }
 </script>
