@@ -2665,5 +2665,23 @@ class Inventory_model extends CI_Model {
        
     }
 
-
+    /**
+     * @Desc: This function is used to get alternate parts
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_alternet_parts($select, $where = array()) {
+        $this->db->select($select,false);
+        $this->db->from('inventory_master_list');
+        $this->db->join('alternate_inventory_set','alternate_inventory_set.inventory_id = inventory_master_list.inventory_id');
+        $this->db->group_by("group_id");
+        if (!empty($where)) {
+            $this->db->where($where,false);
+        }        
+        $query = $this->db->get();
+        return $query->result_array();        
+       
+    }
 }

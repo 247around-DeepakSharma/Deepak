@@ -122,7 +122,12 @@ class Service_centers_model extends CI_Model {
                         FROM booking_unit_details AS u
                         WHERE u.booking_id = bd.booking_id AND pay_to_sf = '1') AS earn_sc,
 "
-                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking "
+                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(bd.initial_booking_date, '%d-%m-%Y')) as age_of_booking, "
+                . " CASE WHEN (SELECT count(*) FROM spare_parts_details WHERE spare_parts_details.booking_id=bd.booking_id "
+                . " AND bd.internal_status='Spare Parts Cancelled') THEN (SELECT GROUP_CONCAT(reason) FROM spare_parts_details "
+                . " JOIN booking_cancellation_reasons ON booking_cancellation_reasons.id=spare_parts_details.spare_cancellation_reason "
+                . " WHERE spare_parts_details.booking_id=bd.booking_id AND bd.internal_status='Spare Parts Cancelled') END as part_cancel_reason, "
+                . " bd.partner_internal_status "   
                 . " FROM service_center_booking_action as sc "
                 . " JOIN booking_details as bd ON bd.booking_id =  sc.booking_id "
                 . " JOIN users ON bd.user_id = users.user_id "
