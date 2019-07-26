@@ -1232,8 +1232,11 @@ class Invoice_lib {
             if(isset($value['spare_id'])){
                 $invoice['spare_id'] = $value['spare_id'];
             }
-            if(isset($value['from_gst_number'])){
-                $invoice['from_gst_number'] = $value['from_gst_number'];
+            if(isset($value['from_gst_number_id'])){
+                $invoice['from_gst_number'] = $value['from_gst_number_id'];
+            }
+            if(isset($value['to_gst_number_id'])){
+                $invoice['to_gst_number'] = $value['to_gst_number_id'];
             }
             $invoice['total_amount'] = $value['total_amount'];
             $invoice['create_date'] = date('Y-m-d H:i:s');
