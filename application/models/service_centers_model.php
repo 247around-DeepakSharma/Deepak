@@ -183,10 +183,13 @@ class Service_centers_model extends CI_Model {
 
         $this->db->select('booking_details.booking_id, booking_details.flat_upcountry, users.name as customername, booking_details.booking_primary_contact_no, '
                 . 'services.services, booking_details.booking_date, booking_details.closed_date, booking_details.closing_remarks, '
-                . 'booking_details.cancellation_reason, booking_details.booking_timeslot, is_upcountry, amount_due,booking_details.rating_stars, booking_details.request_type');
+                . 'booking_details.cancellation_reason, booking_details.booking_timeslot, is_upcountry, amount_due,booking_details.rating_stars, booking_details.request_type,'
+                . '(CASE WHEN booking_details.assigned_engineer_id is not NULL AND booking_details.assigned_engineer_id = 24700001
+                    THEN "Default Engineer" WHEN booking_details.assigned_engineer_id is not null THEN engineer_details.name ELSE "-" END) as Engineer');
         $this->db->from('booking_details');
         $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->join('users', 'users.user_id = booking_details.user_id');
+        $this->db->join('engineer_details', 'booking_details.assigned_engineer_id = engineer_details.id', 'left');
         $this->db->where('booking_details.current_status', $status);
         $this->db->where('assigned_vendor_id', $service_center_id);
         if($booking_id !=""){
@@ -1036,4 +1039,101 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
 
         return $result;
     }
+    
+    function spare_assigned_to_partner($where, $select, $group_by, $sf_id = false, $start = -1, $end = -1,$count = 0,$orderBY=array()){
+        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+        $this->db->_protect_identifiers = FALSE;
+        $this->db->select($select, false);
+        $this->db->from("spare_parts_details");
+        $this->db->join('booking_details', " booking_details.booking_id = spare_parts_details.booking_id");
+        $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
+        $this->db->join('services', " services.id = booking_details.service_id");
+        if($sf_id){
+            $this->db->join("inventory_stocks", "inventory_stocks.inventory_id = requested_inventory_id AND inventory_stocks.entity_id = '".$sf_id."' and inventory_stocks.entity_type = '"._247AROUND_SF_STRING."'", "left");
+        }
+        $this->db->join("users", "users.user_id = booking_details.user_id");
+        $this->db->join("service_centres", "service_centres.id = booking_details.assigned_vendor_id");
+        $this->db->where($where);
+        if($start > -1){
+            $this->db->limit($start, $end);
+        }
+        if(!$count){
+        $this->db->group_by($group_by);
+        }
+        if(!empty($orderBY)){
+            $this->db->order_by($orderBY['column'], $orderBY['sorting']);
+        }
+        $query = $this->db->get();
+        //echo $this->db->last_query();exit;
+        log_message('info', __METHOD__. "  ".$this->db->last_query());
+        return $query->result_array();
+    }
+    
+    /**
+     * 
+     * @param type $warehouse_id
+     */
+    function get_warehouse_state($warehouse_id) {
+        $sql = "SELECT 
+                    warehouse_state_relationship.state
+                FROM 
+                    contact_person 
+                    join warehouse_person_relationship on (contact_person.id = warehouse_person_relationship.contact_person_id)
+                    join warehouse_state_relationship on (warehouse_person_relationship.warehouse_id = warehouse_state_relationship.warehouse_id)
+                WHERE 
+                    entity_id = {$warehouse_id} and entity_type = '"._247AROUND_SF_STRING."';";
+        
+        return array_column($this->db->query($sql)->result_array(), 'state');            
+    }
+    
+    function download_service_center_completed_bookings() {
+        $sql = "SELECT
+                    `booking_details`.`booking_id`,
+                    `users`.`name` AS customername,
+                    `booking_details`.`booking_primary_contact_no`,
+                    `services`.`services`,
+                    `booking_details`.`request_type`,
+                    date(booking_details.closed_date),
+                    `booking_details`.`closing_remarks`,
+                    `amount_due`,
+                    `booking_details`.`rating_stars`,
+                    spare_parts_details.parts_shipped,
+                    (
+                      CASE WHEN booking_details.assigned_engineer_id IS NOT NULL AND booking_details.assigned_engineer_id = 24700001 THEN 'Default Engineer' WHEN booking_details.assigned_engineer_id IS NOT NULL THEN engineer_details.name ELSE '-'
+                    END
+                  ) AS Engineer,
+                    DATEDIFF(
+                      DATE(
+                        booking_details.service_center_closed_date
+                      ),
+                      DATE_FORMAT(
+                        STR_TO_DATE(
+                          booking_details.initial_booking_date,
+                          '%d-%m-%Y'
+                        ),
+                        '%Y-%c-%d'
+                      )
+                    ) AS tat
+                    FROM
+                      (`booking_details`)
+                    LEFT JOIN
+                      spare_parts_details ON(
+                        booking_details.booking_id = spare_parts_details.booking_id AND spare_parts_details.status = 'Completed'
+                      )
+                    LEFT JOIN
+                      engineer_details ON(
+                        booking_details.assigned_engineer_id = engineer_details.id
+                      )
+                    JOIN
+                      `services` ON `services`.`id` = `booking_details`.`service_id`
+                    JOIN
+                      `users` ON `users`.`user_id` = `booking_details`.`user_id`
+                    WHERE
+                      `booking_details`.`current_status` = 'Completed' AND `assigned_vendor_id` = '{$this->session->userdata('service_center_id')}'
+                    ORDER BY
+                      `closed_date` DESC";
+        
+        return $this->db->query($sql)->result_array();     
+    }
+
 }
