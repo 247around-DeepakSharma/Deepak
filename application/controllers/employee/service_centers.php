@@ -6038,7 +6038,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND sell_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "') ";
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "') ";
 
 
             $where .= " AND booking_details.partner_id = " . $partner_id;
