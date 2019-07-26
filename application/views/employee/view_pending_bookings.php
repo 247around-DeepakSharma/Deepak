@@ -235,6 +235,7 @@
                     <h4 class="modal-title"style="color: white;background-color: #2c9d9c;border-color: #2c9d9c;border: 0px; text-align: center;">Contacts</h4>
                 </div>
                 <div class="modal-body">
+                <div class="modal-body" id="relevant_content_model_data">
                 </div>
                 <center><img id="loader_gif_contact" src="<?php echo base_url(); ?>images/loadring.gif"></center>
             </div>
@@ -530,6 +531,10 @@ datatable1.ajax.reload();
             $('#relevant_content_table  th').css("background-color","#ECEFF1");
             $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
             $("#relevant_content_modal").modal("show");
+        }
+        else{
+            $("#relevant_content_model_data").html("Booking contacts not found");
+            $("#loader_gif_contact").hide();
         }
     }
     
