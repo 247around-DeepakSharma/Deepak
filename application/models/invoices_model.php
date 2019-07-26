@@ -2528,6 +2528,11 @@ class invoices_model extends CI_Model {
                 $this->db->where_in($index, $value);
             }
         }
+        if (isset($post['where_not_in'])) {
+            foreach($post['where_not_in'] as $index => $value){
+                $this->db->where_not_in($index, $value);
+            }
+        }
 
         if (!empty($post['search_value'])) {
             $like = "";
