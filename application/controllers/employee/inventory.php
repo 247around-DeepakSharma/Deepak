@@ -3180,8 +3180,7 @@ class Inventory extends CI_Controller {
  //        $_POST = json_decode($str, true);  
 //  
 
-        $invoice_file_required =  $this->input->post('invoice_file');
-        if (!$invoice_file_required) {
+        if (!isset($_FILES['invoice_file'])) {
            $invoice_file_required=0;      
         }else{
             $invoice_file_required=1;
