@@ -1485,12 +1485,15 @@ class Service_centers extends CI_Controller {
      * @desc: get invoice details to display in view
      * Get Service center Id from session.
      */
-    function invoices_details() {
+    function invoices_details($is_msl=0) {
         //$this->checkUserSession();
         if(!empty($this->session->userdata('service_center_id'))){
             $data2['partner_vendor'] = "vendor";
             $data2['partner_vendor_id'] = $this->session->userdata('service_center_id');
-            $invoice['final_settlement'] = $this->invoices_model->get_summary_invoice_amount($data2['partner_vendor'], $data2['partner_vendor_id'])[0]['final_amount'];
+            if(!$is_msl) {
+                $invoice['final_settlement'] = $this->invoices_model->get_summary_invoice_amount($data2['partner_vendor'], $data2['partner_vendor_id'])[0]['final_amount'];
+            }
+            $invoice['is_msl'] = $is_msl;
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/invoice_summary', $invoice);
         }else{
