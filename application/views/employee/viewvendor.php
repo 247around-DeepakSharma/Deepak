@@ -195,7 +195,7 @@
                 <td>
                         <?php
                         if ($row['on_off'] == 1) { ?>
-                    <a id='edit' class='btn btn-small btn-danger' onclick="pendingBookings(<?php echo $row['id']?>,'T')"  <?php if($row['active'] == 0){echo 'disabled';}?>>Off</a>
+                    <a id='edit' class='btn btn-small btn-danger' onclick="pendingBookings(<?php echo $row['id']?>,'T', <?php echo $row['is_micro_wh']; ?>)"  <?php if($row['active'] == 0){echo 'disabled';}?>>Off</a>
                         <?php } else { ?>
                             <a id='edit' class='btn btn-small btn-success' href="<?php base_url() ?>temporary_on_off_vendor/<?php echo $row['id']?>/1" <?php if($row['active'] == 0){echo 'disabled';}?>>On</a>
                         <?php }
@@ -204,7 +204,7 @@
                     
           	<td><?php if($row['active']==1)
                 {
-                  echo "<a id='edit' class='btn btn-small btn-danger' onclick =pendingBookings(".$row['id'].",'P')>Deactivate</a>";                
+                  echo "<a id='edit' class='btn btn-small btn-danger' onclick =pendingBookings(".$row['id'].",'P', ".$row['is_micro_wh'].")>Deactivate</a>";                
                 }
                 else
                 {
@@ -396,17 +396,21 @@
                 }
             });
      }
-      function pendingBookings(vendorID,tempPermanent){
+      function pendingBookings(vendorID,tempPermanent, isMicroHouse){
       var tempString = "off TEMPORARILY to";
+      var microHouseMsg = "";
       if(tempPermanent == 'P'){
           var tempString = "off PERMANENTLY to";
       }
+        if(isMicroHouse == '1'){
+            microHouseMsg = "and a Micro WareHouse";
+        }
          $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/vendor/pending_bookings_on_vendor/' + vendorID,
                 success: function(response) {
                     if(response>0){
-                        if(confirm("This Service Center have "+response+" Pending Bookings, are you sure you want to "+tempString+" this vendor")){
+                        if(confirm("This Service Center have "+response+" Pending Bookings, "+microHouseMsg+" are you sure you want to "+tempString+" this vendor")){
                             if(tempPermanent == 'P'){
                               permanentVendorOff(vendorID);
                            }
@@ -416,11 +420,23 @@
                         }
                     }
                     else{
-                        if(tempPermanent == 'P'){
-                            permanentVendorOff(vendorID);
+                        if(isMicroHouse == '1'){
+                            if(confirm("This Service Center is a Micro WareHouse are you sure you want to "+tempString+" this vendor")){ 
+                                 if(tempPermanent == 'P'){
+                                    permanentVendorOff(vendorID);
+                                }
+                                else{
+                                    tempVendorOff(vendorID);
+                                }
+                            }
                         }
                         else{
-                            tempVendorOff(vendorID);
+                            if(tempPermanent == 'P'){
+                                permanentVendorOff(vendorID);
+                            }
+                            else{
+                                tempVendorOff(vendorID);
+                            }
                         }
                     }
                 }
