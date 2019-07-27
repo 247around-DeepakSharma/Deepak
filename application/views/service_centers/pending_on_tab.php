@@ -80,8 +80,9 @@
                                                 <br/>
                                                 <a href="javascript:void(0)" data-popover="true" style="border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html="true" data-content="<?php if(isset($row->part_cancel_reason)){ echo implode('<br>',explode(',',$row->part_cancel_reason));}?>" > <img style="width: 83%;" id="<?php echo 'spare_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_delivered_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
+                                                <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_cost_given_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');
-                                                         load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');
+                                                         load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');load_spare_cost_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');
                                                 });
                                                 
                                                 </script>
@@ -247,8 +248,9 @@
                                                 
                                                 <a href="javascript:void(0)" data-popover="true" style="border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html="true" data-content="<?php if(isset($row->part_cancel_reason)){ echo implode('<br>',explode(',',$row->part_cancel_reason));}?>"  > <img id="<?php echo 'spare_tomorrow'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:84%"/></a>
                                                 <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_delivered_tomorrow'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
+                                                <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_cost_given_tomorrow'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'tomorrow');
-                                                         load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'tomorrow');
+                                                         load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'tomorrow');load_spare_cost_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'tomorrow');
                                                 });
                                                 
                                                 
@@ -446,8 +448,9 @@
                                                
                                                 <a href="javascript:void(0)" data-popover="true" style="width:10px;border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html="true" data-content="<?php if(isset($row->part_cancel_reason)){ echo implode('<br>',explode(',',$row->part_cancel_reason));}?>" > <img id="<?php echo 'spare_rescheduled'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif"  style="width:84%"/></a>
                                                 <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_delivered_rescheduled'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
+                                                <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_cost_given_rescheduled'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'rescheduled');
-                                                         load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'rescheduled');
+                                                         load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'rescheduled');load_spare_cost_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'rescheduled');
                                                 });
                                                 
                                                 </script>

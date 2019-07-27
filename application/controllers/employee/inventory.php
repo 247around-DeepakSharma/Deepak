@@ -6653,6 +6653,21 @@ class Inventory extends CI_Controller {
             echo json_encode(array("Not Exist"));
         }
     }
+    
+    /**
+     *  @desc : This function is used to get spare parts status
+     *  @param : $booking_id
+     *  @return : json
+     */
+    function get_spare_status($booking_id){
+        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, spare_parts_details.status', array('spare_parts_details.booking_id' => $booking_id));
+        if(!empty($spare)){
+            echo json_encode($spare);
+        } else {
+            echo json_encode(array("Not Exist"));
+        }
+    }
+    
    function remove_inventory_from_warehouse($invoice, $sender_enity_id, $wh_id, $agent_id){
         foreach ($invoice as $value) {
             $in['receiver_entity_id'] = $wh_id;
