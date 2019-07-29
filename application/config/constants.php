@@ -677,5 +677,9 @@ define('ENGINEER_LOGIN_SMS_TEMPLATE', 'engineer_login_sms_template');
 define('SERIAL_NUMBER_PIC_DIR', 'serial_number_pic');
 
 define('PARTNER_APPLIANCE_MAPPING', 'Partner_Appliance_Mapping_File');
+
+//warranty related constants
+define('IN_WARRANTY_STATUS', 1);
+define('EXTENDED_WARRANTY_STATUS', 2);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

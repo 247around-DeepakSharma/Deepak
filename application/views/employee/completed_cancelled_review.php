@@ -155,7 +155,7 @@
                               <?php if($review_status == "Completed"){ ?>
                               <td>
                                   <?php
-                                    $strWarrantyStatus = '--';
+                                    $strWarrantyStatus = 'OW';
                                     if(!empty($warranty_data[$value['booking_id']]))
                                     {
                                         $strWarrantyStatus = $warranty_data[$value['booking_id']];
