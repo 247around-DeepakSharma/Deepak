@@ -62,6 +62,7 @@ $route['service_center/add_engineer'] = 'employee/vendor/add_engineer';
 $route['service_center/get_engineers'] = 'employee/vendor/get_engineers';
 $route['service_center/engineer_wise_calls'] = 'employee/vendor/engineer_wise_calls';
 $route['service_center/invoices_details'] = 'employee/service_centers/invoices_details';
+$route['service_center/invoices_details/(:any)'] = 'employee/service_centers/invoices_details/$1';
 $route['service_center/bank_transactions'] = 'employee/service_centers/bank_transactions';
 $route['service_center/update_booking_status/(:any)'] = 'employee/service_centers/update_booking_status/$1';
 $route['service_center/update_booking_spare_parts_required/(:any)'] = 'employee/service_centers/update_booking_spare_parts_required/$1';

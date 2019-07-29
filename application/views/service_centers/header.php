@@ -237,7 +237,11 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li>
-                                    <a href="<?php echo base_url() ?>service_center/invoices_details" > <strong> Invoice Summary</strong></a>
+                                    <a href="<?php echo base_url() ?>service_center/invoices_details" > <strong> Service Invoice Summary</strong></a>
+                                </li>
+                                <li role="separator" class="divider"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>service_center/invoices_details/1" > <strong> MSL Invoice Summary</strong></a>
                                 </li>
                                 <li role="separator" class="divider"></li>
                                 <li>

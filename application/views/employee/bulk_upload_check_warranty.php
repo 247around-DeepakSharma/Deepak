@@ -36,7 +36,7 @@
                 <section>
                     <div class="col-md-6">
                         <form class="form-horizontal" id="fileinfo" name="fileinfo"  method="POST" enctype="multipart/form-data" onsubmit="return validateForm()" action="<?php echo base_url(); ?>employee/bulkupload/check_warranty_by_ids">                            
-                            <input type="hidden" name="redirect_url" id="redirect_url" value="warranty">
+                            <input type="hidden" name="redirect_url" id="redirect_url" value="check_warranty">
                             
                             <div class="form-group  <?php
                             if (form_error('excel')) {

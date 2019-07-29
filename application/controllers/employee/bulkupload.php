@@ -22,12 +22,12 @@ class Bulkupload extends CI_Controller {
      * @param: void
      * @return void
      */
-    function warranty() {
+    function check_warranty() {
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/bulk_upload');
+        $this->load->view('employee/bulk_upload_check_warranty');
     }
 
-    function check_warranty() {
+    function check_warranty_data() {
         ini_set('display_errors', '1');
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', 36000);
@@ -137,7 +137,7 @@ class Bulkupload extends CI_Controller {
                             $arr_data['model'] = $model_id;
                             $arr_data['purchase_date'] = $dop;
                             $arr_data['booking_date'] = $bd;
-                            $arr_warranty_data = $this->warranty_model->check_warranty($arr_data);
+                            $arr_warranty_data = $this->warranty_model->check_warranty_for_bulk_data($arr_data);
                             $returnMsg[$row][4] = 'OW';
 
                             if (empty($arr_warranty_data)):
@@ -149,11 +149,17 @@ class Bulkupload extends CI_Controller {
                                 endif;
                             else:
                                 $warranty_months = $arr_warranty_data[0]['warranty_period'] + 12;
+                                $strWarrantyType = "extended";
+                                if($arr_warranty_data[0]['warranty_type'] == 1)
+                                {
+                                    $strWarrantyType = "";
+                                    $warranty_months = $arr_warranty_data[0]['warranty_period'];
+                                } 
                                 $warranty_end_period = strtotime(date("Y-m-d", strtotime($arr_data['purchase_date'])) . " +" . $warranty_months . " months");
                                 $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
                                 if (strtotime($arr_data['booking_date']) <= $warranty_end_period) :
                                     $returnMsg[$row][4] = 'EW';
-                                    $returnMsg[$row][5] = 'Product lies in extended warranty of ' . $arr_warranty_data[0]['warranty_period'] . ' months. Warranty will end on ' . date("d-m-Y", $warranty_end_period);
+                                    $returnMsg[$row][5] = 'Product lies in '.$strWarrantyType.' warranty of ' . $arr_warranty_data[0]['warranty_period'] . ' months. Warranty will end on ' . date("d-m-Y", $warranty_end_period);
                                 endif;
                             endif;
                         }
@@ -161,9 +167,8 @@ class Bulkupload extends CI_Controller {
                 }
             }
         }
-//        echo '<pre>';print_r($returnMsg);exit;
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/bulk_upload', ['data' => $returnMsg]);
+        $this->load->view('employee/bulk_upload_check_warranty', ['data' => $returnMsg]);
     }
 
     /* --------------- Query for fetching data -------------------------------------------------------------------
@@ -208,12 +213,9 @@ class Bulkupload extends CI_Controller {
                 //get file header
                 $data = $this->read_upload_file_header($file_status);
                 $data['post_data'] = $this->input->post();
-//                echo '<pre>';
-//                print_R($data);
-//                exit;
 
                 //column which must be present in the  upload inventory file
-                $header_column_need_to_be_present = array('booking_id', 'booking_create_date', 'product', 'booking_request_type','part_warranty_status','product_id','model_id','dop');
+                $header_column_need_to_be_present = array('booking_id', 'booking_create_date', 'product', 'booking_request_type', 'part_warranty_status', 'product_id', 'model_id', 'dop');
                 //check if required column is present in upload file header
                 $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
 
@@ -244,7 +246,7 @@ class Bulkupload extends CI_Controller {
                             $data['header_data'] = array_map('trim', $data['header_data']);
                             $data['header_data'] = array_map('strtoupper', $data['header_data']);
                             $rowData = array_combine($data['header_data'], $rowData_array[0]);
-//echo '<pre>';print_r($rowData);exit;
+
                             // check empty data.
                             if (empty($rowData['PRODUCT_ID']) || empty($rowData['MODEL_ID']) || empty($rowData['DOP']) || empty($rowData['BOOKING_CREATE_DATE'])) {
                                 // Insert Status of Record
@@ -288,8 +290,8 @@ class Bulkupload extends CI_Controller {
                             $arr_data['purchase_date'] = $dop;
                             $arr_data['booking_date'] = $bd;
 
-                            $arr_warranty_data = $this->warranty_model->check_warranty($arr_data);
-//                                                        echo '<pre>';print_r($this->db->last_query());exit;  
+                            $arr_warranty_data = $this->warranty_model->check_warranty_for_bulk_data($arr_data);
+                            
                             $returnMsg[$row][8] = 'OW';
                             if (empty($arr_warranty_data)):
                                 $in_warranty_end_period = strtotime(date("Y-m-d", strtotime($arr_data['purchase_date'])) . " +1 year");
@@ -300,11 +302,17 @@ class Bulkupload extends CI_Controller {
                                 endif;
                             else:
                                 $warranty_months = $arr_warranty_data[0]['warranty_period'] + 12;
+                                $strWarrantyType = "extended";
+                                if($arr_warranty_data[0]['warranty_type'] == 1)
+                                {
+                                    $strWarrantyType = "";
+                                    $warranty_months = $arr_warranty_data[0]['warranty_period'];
+                                }                                
                                 $warranty_end_period = strtotime(date("Y-m-d", strtotime($arr_data['purchase_date'])) . " +" . $warranty_months . " months");
                                 $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
                                 if (strtotime($arr_data['booking_date']) <= $warranty_end_period) :
                                     $returnMsg[$row][8] = 'EW';
-                                    $returnMsg[$row][9] = 'Product lies in extended warranty of ' . $arr_warranty_data[0]['warranty_period'] . ' months. Warranty will end on ' . date("d-m-Y", $warranty_end_period);
+                                    $returnMsg[$row][9] = 'Product lies in '.$strWarrantyType.' warranty of ' . $arr_warranty_data[0]['warranty_period'] . ' months. Warranty will end on ' . date("d-m-Y", $warranty_end_period);
                                 endif;
                             endif;
                         }
@@ -312,9 +320,8 @@ class Bulkupload extends CI_Controller {
                 }
             }
         }
-//        echo '<pre>';print_r($returnMsg);exit;  
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/bulk_upload', ['data' => $returnMsg]);
+        $this->load->view('employee/bulk_upload_check_warranty', ['data' => $returnMsg]);
     }
 
     /**
@@ -360,7 +367,7 @@ class Bulkupload extends CI_Controller {
      * @param $file array  //consist file temporary name, file extension and status(file type is correct or not)
      * @param $response array  //consist file name,sheet name(in case of excel),header details,sheet highest row and highest column
      */
-    private function read_upload_file_header($file) {
+    private function read_upload_file_header($file, $sheet_no = 0) {
         log_message('info', __FUNCTION__ . "=> getting upload file header");
         try {
             $objReader = PHPExcel_IOFactory::createReader($file['file_ext']);
@@ -373,7 +380,7 @@ class Bulkupload extends CI_Controller {
         move_uploaded_file($file['file_tmp_name'], TMP_FOLDER . $file_name);
         chmod(TMP_FOLDER . $file_name, 0777);
         //  Get worksheet dimensions
-        $sheet = $objPHPExcel->getSheet(0);
+        $sheet = $objPHPExcel->getSheet($sheet_no);
         $highestRow = $sheet->getHighestDataRow();
         $highestColumn = $sheet->getHighestDataColumn();
         $response['status'] = TRUE;
