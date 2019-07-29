@@ -1053,6 +1053,7 @@ class Upload_buyback_process extends CI_Controller {
     function do_action_reimbursement_file_data($sheet, $highestRow, $highestColumn, $headings_new){
         log_message('info', __FUNCTION__);
         $appData = array();
+        $appService = array();
         $invoice_orders = array();
         $invalid_orders = array();
         $PO_Number = "";
@@ -1071,6 +1072,7 @@ class Upload_buyback_process extends CI_Controller {
                 $service_name = $app_array[0]['services'];
                 array_push($invoice_orders, array($rowData['orderid'] => $rowData['reimbursementvalue']));
                 $appData[$service_name][] = $rowData['reimbursementvalue'];
+                $appService[$service_name] = $app_array[0]['hsn_code'];
             }
             else{
                 array_push($invalid_orders, $rowData['orderid']);
@@ -1085,10 +1087,10 @@ class Upload_buyback_process extends CI_Controller {
         $key = 0;
         foreach ($appData as $row => $value) {
                 $amount = array_sum($value);
-                $gst_rate = DEFAULT_TAX_RATE;
+                $gst_rate = 0;
                 $data[$key]['description'] =  $row;
-                $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
-                $data[$key]['taxable_value'] = sprintf("%.2f", ($amount  - $tax_charge));
+                //$tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
+                $data[$key]['taxable_value'] = sprintf("%.2f", $amount);
                 $data[$key]['product_or_services'] = "Product";
                 $data[$key]['gst_number'] = "";
                 $data[$key]['company_name'] = $vendor_data['company_name'];
@@ -1099,7 +1101,7 @@ class Upload_buyback_process extends CI_Controller {
                 $data[$key]['state'] = $vendor_data['state'];
                 $data[$key]['rate'] = sprintf("%.2f", ($amount/count($value)));
                 $data[$key]['qty'] = count($value);
-                $data[$key]['hsn_code'] = HSN_CODE;
+                $data[$key]['hsn_code'] = $appService[$row];
                 $data[$key]['gst_rate'] = $gst_rate;
                 $data[$key]['owner_phone_1'] = $vendor_data['owner_phone_1'];
                 $key++;

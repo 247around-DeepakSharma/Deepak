@@ -1894,7 +1894,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
         $url = base_url() . "employee/do_background_process/complete_booking";
         if (!empty($approved_booking)) {
-                $this->booking_model->mark_booking_in_process($approved_booking);
+            //$this->booking_model->mark_booking_in_process($approved_booking);
             $data['booking_id'] = $approved_booking;
             $data['agent_id'] = _247AROUND_DEFAULT_AGENT;
             $data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
@@ -2231,7 +2231,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 }
                 $url = base_url() . "employee/do_background_process/complete_booking";
                 if (!empty($approved_booking)) {
-                    $this->booking_model->mark_booking_in_process($approved_booking);
+                    //$this->booking_model->mark_booking_in_process($approved_booking);
                     $data['booking_id'] = $approved_booking;
                     $data['agent_id'] = _247AROUND_DEFAULT_AGENT;
                     $data['agent_name'] = _247AROUND_DEFAULT_AGENT_NAME;
@@ -2307,7 +2307,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 . " spare_parts_details.shipped_date as spare_shipped_date, "
                 . "'New Pickup' as shipment_type";
 
-        $where = array("spare_parts_details.status" => SPARE_SHIPPED_BY_PARTNER, "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) > 4" => NULL, "( spare_parts_details.awb_by_partner <> '' OR spare_parts_details.awb_by_partner IS NOT NULL )" => NULL, "spare_parts_details.is_micro_wh" => 2,
+        $where = array("spare_parts_details.status" => SPARE_SHIPPED_BY_PARTNER, "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) > 5" => NULL, "( spare_parts_details.awb_by_partner <> '' OR spare_parts_details.awb_by_partner IS NOT NULL )" => NULL, "spare_parts_details.is_micro_wh" => 2,
             'spare_parts_details.courier_name_by_partner LIKE "%trackon%" GROUP BY spare_parts_details.awb_by_partner ' => NULL);
 
 
@@ -2315,7 +2315,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 . "UPPER(spare_parts_details.courier_name_by_sf) as courier_name,"
                 . "spare_parts_details.defective_part_shipped_date as spare_shipped_date,"
                 . " 'Reverse Pickup' as shipment_type";
-        $where1 = array("spare_parts_details.status" => DEFECTIVE_PARTS_SHIPPED, "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) > 4" => NULL, "( spare_parts_details.awb_by_sf <> '' OR spare_parts_details.awb_by_sf IS NOT NULL )" => NULL,
+        $where1 = array("spare_parts_details.status" => DEFECTIVE_PARTS_SHIPPED, "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) > 5" => NULL, "( spare_parts_details.awb_by_sf <> '' OR spare_parts_details.awb_by_sf IS NOT NULL )" => NULL,
             'spare_parts_details.courier_name_by_sf LIKE "%trackon%" GROUP BY spare_parts_details.awb_by_sf' => NULL);
         
                 
@@ -2368,14 +2368,14 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 . " spare_parts_details.shipped_date as spare_shipped_date, "
                 . "'New Pickup' as shipment_type";
        
-        $where = array("status" => SPARE_SHIPPED_BY_PARTNER, "(DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) > 7 )" => NULL,
+        $where = array("status" => SPARE_SHIPPED_BY_PARTNER, "(DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) > 5 )" => NULL,
             "( spare_parts_details.awb_by_partner <> '' OR spare_parts_details.awb_by_partner IS NOT NULL )" => NULL,
             "spare_parts_details.is_micro_wh" => 2, 'spare_parts_details.courier_name_by_partner LIKE "%gati%" GROUP BY spare_parts_details.awb_by_partner ' => NULL);
 
         $post1['select'] = "DISTINCT(spare_parts_details.awb_by_sf) as awb_no, UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id, UPPER(spare_parts_details.courier_name_by_sf) as courier_name,"
                 . "spare_parts_details.defective_part_shipped_date as spare_shipped_date,"
                 . " 'Reverse Pickup' as shipment_type ";
-        $where1 = array("status" => DEFECTIVE_PARTS_SHIPPED, "(DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) > 7 )" => NULL , "( spare_parts_details.awb_by_sf <> '' OR spare_parts_details.awb_by_sf IS NOT NULL )" => NULL,
+        $where1 = array("status" => DEFECTIVE_PARTS_SHIPPED, "(DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) > 5 )" => NULL , "( spare_parts_details.awb_by_sf <> '' OR spare_parts_details.awb_by_sf IS NOT NULL )" => NULL,
             'spare_parts_details.courier_name_by_sf LIKE "%gati%" GROUP BY spare_parts_details.awb_by_sf' => NULL);
         
         $post2['select'] = "DISTINCT(spare_parts_details.awb_by_sf) as awb_no, UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
@@ -2428,41 +2428,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         // directory
         $templateDir = __DIR__ . "/excel-templates/";
         $files = array();
-       
-        if (!empty($awb_template)) {
-            $config1 = array(
-                'template' => $awb_template,
-                'templateDir' => $templateDir
-            );
-
-            //load template
-            if (ob_get_length() > 0) {
-                ob_end_clean();
-            }
-
-            $R1 = new PHPReport($config1);
-            $R1->load(array(
-                array(
-                    'id' => 'spare',
-                    'data' => $spare_part_data['awb_list'],
-                    'repeat' => true
-                ),
-                    )
-            );
-
-            $res = 0;
-            if (file_exists($awb_output_file_excel)) {
-
-                system(" chmod 777 " . $awb_output_file_excel, $res);
-                unlink($awb_output_file_excel);
-            }
-
-            $R1->render('excel', $awb_output_file_excel);
-            
-            
-        }
-        
-         if (!empty($template)) {
+        if (!empty($template)) {
             $config = array(
                 'template' => $template,
                 'templateDir' => $templateDir
@@ -2490,10 +2456,43 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             }
 
             $R->render('excel', $output_file_excel);
+        }
+
+        if (!empty($awb_template)) {
+            $config1 = array(
+                'template' => $awb_template,
+                'templateDir' => $templateDir
+            );
+
+
+            //load template
+            if (ob_get_length() > 0) {
+                ob_end_clean();
+            }
+
+            $R1 = new PHPReport($config1);
+            $R1->load(array(
+                array(
+                    'id' => 'spare',
+                    'data' => $spare_part_data['awb_list'],
+                    'repeat' => true
+                ),
+                    )
+            );
+
+            $res = 0;
+            if (file_exists($awb_output_file_excel)) {
+
+                system(" chmod 777 " . $awb_output_file_excel, $res);
+                unlink($awb_output_file_excel);
+            }
+
+            $R1->render('excel', $awb_output_file_excel);
+            
             array_push($files, $awb_output_file_excel);
         }
         
-        $this->combined_spare_pending_shipment_sheet($awb_output_file_excel, $files);
+        $this->combined_spare_pending_shipment_sheet($output_file_excel, $files);
 
         $email_template = $this->booking_model->get_booking_email_template($template_tag);
         if (!empty($email_template)) {
@@ -2503,10 +2502,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $email_from = $email_template[2];
             $cc = $email_template[3];
             
-            $email_flag = $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $awb_output_file_excel, $template_tag);
+            $email_flag = $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_excel, $template_tag);
         }
 
-        log_message('info', __FUNCTION__ . ' File created ' . $awb_output_file_excel);
+        log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
 
         if (!empty($email_flag)) {
             return true;

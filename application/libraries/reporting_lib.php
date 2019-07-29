@@ -44,7 +44,6 @@ class reporting_lib {
                     . " partners.summary_email_bcc, partners.public_name";
             $where_get_partner = array('partners.id' => $partner_id, 'partners.is_active' => '1');
             $partners = $this->My_CI->partner_model->getpartner_details($select, $where_get_partner, '1');
-//            echo '<pre>';print_r($partners);exit;
             $report = $this->My_CI->partner_model->get_agent_wise_call_center_booking_summary($partner_id, $date_report_start, $date_report_end);
             $delimiter = ",";
             $newline = "\r\n";

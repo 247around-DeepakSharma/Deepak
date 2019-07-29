@@ -413,6 +413,7 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN inventory_master_list as i ON i.inventory_id = spare_parts_details.requested_inventory_id
             LEFT JOIN inventory_master_list as im ON im.inventory_id = spare_parts_details.shipped_inventory_id
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
+            LEFT JOIN service_centres ON service_center_booking_action.service_center_id = service_centres.id
             WHERE product_or_services != 'Product' AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' ) AND $where GROUP BY ud.booking_id");
     } 
     
@@ -851,7 +852,7 @@ function get_data_for_partner_callback($booking_id) {
         if($flag_select){
             $select = "SELECT spare_parts_details.*, services.services, i.part_number, i.part_name, i.type, shipped_inventory.part_number as shipped_part_number, shipped_inventory.part_name as shipped_part_name, shipped_inventory.type as shipped_part_type, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
                 . " booking_details.booking_address,booking_details.create_date,booking_details.booking_date,booking_details.closed_date,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
-                    . "booking_details.amount_due,booking_details.state, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
+                    . "booking_details.amount_due,booking_details.state, booking_details.service_center_closed_date, booking_details.request_type, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state as sf_state, service_centres.gst_no, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
                 . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name ";
@@ -1550,11 +1551,11 @@ function get_data_for_partner_callback($booking_id) {
      */
     function update_partner_appliance_details($where, $data){
         if(!empty($where)){
-            $appliance_model_id = $this->reusable_model->get_search_result_data('partner_appliance_details', '*', $where, NULL, NULL, NULL, NULL, NULL);
-            if(!empty($appliance_model_id)) {
-                $appliance_model_id = $appliance_model_id[0]['model'];
-                $this->reusable_model->update_table('appliance_model_details',$data,['id' => $appliance_model_id]);
-            }
+//            $appliance_model_id = $this->reusable_model->get_search_result_data('partner_appliance_details', '*', $where, NULL, NULL, NULL, NULL, NULL);
+//            if(!empty($appliance_model_id)) {
+//                $appliance_model_id = $appliance_model_id[0]['model'];
+//                $this->reusable_model->update_table('appliance_model_details',$data,['id' => $appliance_model_id]);
+//            }
             $this->db->where($where);
             return $this->db->update("partner_appliance_details",$data);
         }
@@ -2197,16 +2198,16 @@ function get_data_for_partner_callback($booking_id) {
         return $query->result_array();
     }
     
-    function get_main_partner_invoice_detail($partner_on_saas = false, $gst_number = ""){
+    function get_main_partner_invoice_detail($partner_on_saas = false){
         $meta = array(); 
         if($partner_on_saas){
-            $main_partner = $this->get_partner_invoice_details("company_name, public_name,  address, state, pincode, primary_contact_phone_1, primary_contact_email, gst_number,"
+            $main_partner = $this->get_partner_invoice_details("company_name, public_name, district,  address, state, pincode, primary_contact_phone_1, primary_contact_email, gst_number,"
                         . "bank_name, bank_account, ifsc_code, seal, signature, partner_logo", _247AROUND);
 
             if(!empty($main_partner)){
                 $meta['main_company_name'] = $main_partner[0]['company_name'];
                 $meta['main_company_public_name'] = $main_partner[0]['public_name'];
-                $meta['main_company_address'] = $main_partner[0]['address'];
+                $meta['main_company_address'] = $main_partner[0]['address']. ", ". $main_partner[0]['district']. ", Pincode - ".$main_partner[0]['pincode'].", ".$main_partner[0]['state'];
                 $meta['main_company_state'] = $main_partner[0]['state'];
                 $meta['main_company_pincode'] = $main_partner[0]['pincode'];
                 $meta['main_company_email'] = $main_partner[0]['primary_contact_email'];
@@ -2219,21 +2220,16 @@ function get_data_for_partner_callback($booking_id) {
                 $meta['main_company_signature'] = $main_partner[0]['signature'];
                 $meta['main_company_logo'] = $main_partner[0]['partner_logo'];
                 $meta['main_company_description'] = "";
-                
-                if(!empty($gst_number)){
-                    $meta['main_company_gst_number'] = $gst_number;
-                } else {
-                    $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
-                }
+                $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
             }
         }
         else{
             $meta['main_company_name'] = "Blackmelon Advance Technology Co. Pvt. Ltd.";
             $meta['main_company_public_name'] = "247Around";
-            $meta['main_company_address'] = "A-1/7, F/F A BLOCK, KRISHNA NAGAR";
+            $meta['main_company_address'] = "A-1/7, F/F A BLOCK, KRISHNA NAGAR Pincode - 110051, DELHI";
             $meta['main_company_state'] = "DELHI";
             $meta['main_company_pincode'] = "110051";
-            $meta['main_company_email'] = "seller@247around.com";
+            $meta['main_company_email'] = "billing@247around.com";
             $meta['main_company_phone'] = "";
             $meta['main_company_bank_name'] = "ICICI Bank";
             $meta['main_company_bank_account'] = "102405500277";
@@ -2400,6 +2396,7 @@ function get_data_for_partner_callback($booking_id) {
     {
         $start_date = date("Y-m-d 00:00:00", strtotime($start_date));
         $end_date = date("Y-m-d 23:59:59", strtotime($end_date));
+
         $select = 'booking_details.booking_id as "Booking ID", entity_login_table.agent_name as "Agent Name", entity_login_table.user_id as "Agent Login ID"';
         
         $this->db->select($select);

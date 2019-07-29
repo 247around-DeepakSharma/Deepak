@@ -1146,6 +1146,7 @@ class Inventory_model extends CI_Model {
         }
         
         $query = $this->db->get();
+        
         if($is_array){
             return $query->result_array();
         }else{
@@ -2588,7 +2589,14 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-    
+ 
+    function get_entity_gst_data($select="entity_gst_details.*", $where){
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->join("state_code", "state_code.state_code = entity_gst_details.state");
+        $query = $this->db->get("entity_gst_details");
+        return $query->result_array();
+    }
     /**
      * @Desc: This function is used to get data from the inventory_model_mapping
      * @params: $select string
@@ -2612,9 +2620,6 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-    
-    
-    
     
     /**
      * @Desc: This function is used to get Details of serviceable BOM
@@ -2644,5 +2649,18 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get("entity_gst_details");
         return $query->result_array();
     }
+        /**
+     * @Desc: This function is used to inser gst data data  
+     * @params: $select string
+     * @return: $id  
+     * 
+     */
+    
+    function  insert_entity_gst_data($data){
+        $this->db->insert('entity_gst_details',$data);
+        return $this->db->insert_id();
+
+    }
+   
 
 }

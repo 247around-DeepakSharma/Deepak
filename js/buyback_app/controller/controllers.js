@@ -585,7 +585,7 @@ buyback_dashboard.controller('bb_balance', function ($scope, $http) {
 rm_escalation.controller('rm_escalationController', function ($scope, $http) {
      $scope.loadView = function(escalation_url){
      $http.get(escalation_url).then(function (response) {
-         $("#loader_gif_escalation").css("display", "none");
+         $("#loader_gif_escalation_n").css("display", "none");
          $scope.totalItems = 5;
           $scope.escalationData = response.data;
           $("#sf_json_data").val(JSON.stringify(response.data));

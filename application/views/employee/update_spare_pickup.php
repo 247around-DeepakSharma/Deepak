@@ -37,7 +37,7 @@
         bulk_input = document.getElementById("bulk_input").value;
         bulkInputArray = bulk_input.replace( /\n/g, " " ).split( " " );
         if(bulkInputArray.length>500){
-            alert("Search Input Should be less then 50");
+            alert("Search Input Should be less then 500");
         } else if(select_type && bulk_input){
             var fd = new FormData(document.getElementById("fileinfo"));
             fd.append("label", "WEBUPLOAD");

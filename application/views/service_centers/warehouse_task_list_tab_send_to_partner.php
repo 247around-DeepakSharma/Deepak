@@ -194,7 +194,24 @@
                                         <input type="file" class="form-control"  id="defective_parts_shippped_courier_pic_by_wh" name="defective_parts_shippped_courier_pic_by_wh" required>
                                     </div>
                                 </div>
-                            </div>                            
+                            </div>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="from_gst_number" class="col-md-4">From GST Number *</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="from_gst_number" required>
+                                            <option selected disabled value="">Select from GST number</option>
+                                            <?php
+                                            foreach ($from_gst_number as $gst_numbers => $gst_number) {
+                                            ?>
+                                            <option value="<?php echo $gst_number['id']  ?>"><?php echo $gst_number['state']." - ".$gst_number['gst_number'] ?></option>
+                                            <?php    
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <br>
 <!--                        <h4 class="modal-title">E-Way Bill Details</h4>
@@ -374,13 +391,14 @@
         }
     }
     
-    $('#submit_courier_form').on('click',function(){
+    $('#submit_courier_form').on('click',function(){ 
         $('#submit_courier_form').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
         postData['awb_by_wh'] = $('#awb_by_wh').val();
         postData['courier_name_by_wh'] = $('#courier_name_by_wh').val();
         postData['courier_price_by_wh'] = $('#courier_price_by_wh').val();
         postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_by_wh').val();
         postData['exist_courier_image'] = $('#exist_courier_image').val();
+        postData['from_gst_number'] = $('#from_gst_number').val();
 //        postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
 //        postData['defective_parts_ewaybill_date_by_wh'] = $('#defective_parts_ewaybill_date_by_wh').val();
         var exist_courier_image = $("#exist_courier_image").val();       
@@ -408,7 +426,7 @@
             formData.append(index, element);
         });
         
-        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file){
+        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['from_gst_number']){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/send_defective_parts_to_partner_from_wh',

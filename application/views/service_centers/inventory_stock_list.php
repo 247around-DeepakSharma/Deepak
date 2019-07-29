@@ -65,6 +65,7 @@
                                     <th>  Part Number</th>
                                     <th>Description</th>
                                     <th>  Stock</th>
+                                    <th>  Requested Parts</th>
                                     <th> SF Basic Price</th>
                                     <th>  GST Rate</th>
                                     <th>  Total Price</th>
