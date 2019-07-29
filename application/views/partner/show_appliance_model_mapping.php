@@ -50,8 +50,9 @@
                             <thead>
                                 <tr>
                                     <th>S.No</th>
-                                    <th>Model Number</th>
+                                    
                                     <th>Appliance</th>
+                                    <th>Model Number</th>
                                     <th>Brand</th>
                                     <th>Category</th>
                                     <th>Capacity</th>
