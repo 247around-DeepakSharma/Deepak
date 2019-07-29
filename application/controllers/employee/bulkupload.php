@@ -149,17 +149,19 @@ class Bulkupload extends CI_Controller {
                                 endif;
                             else:
                                 $warranty_months = $arr_warranty_data[0]['warranty_period'] + 12;
-                                $strWarrantyType = "extended";
+                                $strWarrantyType = "EW";
+                                $strWarranty = "Extended";
                                 if($arr_warranty_data[0]['warranty_type'] == 1)
                                 {
-                                    $strWarrantyType = "";
+                                    $strWarrantyType = "IW";
+                                    $strWarranty = "";
                                     $warranty_months = $arr_warranty_data[0]['warranty_period'];
                                 } 
                                 $warranty_end_period = strtotime(date("Y-m-d", strtotime($arr_data['purchase_date'])) . " +" . $warranty_months . " months");
                                 $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
                                 if (strtotime($arr_data['booking_date']) <= $warranty_end_period) :
-                                    $returnMsg[$row][4] = 'EW';
-                                    $returnMsg[$row][5] = 'Product lies in '.$strWarrantyType.' warranty of ' . $arr_warranty_data[0]['warranty_period'] . ' months. Warranty will end on ' . date("d-m-Y", $warranty_end_period);
+                                    $returnMsg[$row][4] = $strWarrantyType;
+                                    $returnMsg[$row][5] = 'Product lies in '.$strWarranty.' warranty of ' . $arr_warranty_data[0]['warranty_period'] . ' months. Warranty will end on ' . date("d-m-Y", $warranty_end_period);
                                 endif;
                             endif;
                         }
@@ -179,7 +181,7 @@ class Bulkupload extends CI_Controller {
       appliance_model_details.id,
       booking_unit_details.sf_model_number,
       spare_parts_details.date_of_purchase,
-      booking_details.booking_date,
+      booking_details.create_date,
       booking_details.request_type
       FROM
       booking_details
@@ -302,17 +304,19 @@ class Bulkupload extends CI_Controller {
                                 endif;
                             else:
                                 $warranty_months = $arr_warranty_data[0]['warranty_period'] + 12;
-                                $strWarrantyType = "extended";
+                                $strWarrantyType = "EW";
+                                $strWarranty = "Extended";
                                 if($arr_warranty_data[0]['warranty_type'] == 1)
                                 {
-                                    $strWarrantyType = "";
+                                    $strWarrantyType = "IW";
+                                    $strWarranty = "";
                                     $warranty_months = $arr_warranty_data[0]['warranty_period'];
                                 }                                
                                 $warranty_end_period = strtotime(date("Y-m-d", strtotime($arr_data['purchase_date'])) . " +" . $warranty_months . " months");
                                 $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
                                 if (strtotime($arr_data['booking_date']) <= $warranty_end_period) :
-                                    $returnMsg[$row][8] = 'EW';
-                                    $returnMsg[$row][9] = 'Product lies in '.$strWarrantyType.' warranty of ' . $arr_warranty_data[0]['warranty_period'] . ' months. Warranty will end on ' . date("d-m-Y", $warranty_end_period);
+                                    $returnMsg[$row][8] = $strWarrantyType;
+                                    $returnMsg[$row][9] = 'Product lies in '.$strWarranty.' warranty of ' . $arr_warranty_data[0]['warranty_period'] . ' months. Warranty will end on ' . date("d-m-Y", $warranty_end_period);
                                 endif;
                             endif;
                         }

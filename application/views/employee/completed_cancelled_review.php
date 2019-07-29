@@ -38,6 +38,13 @@
                               <th class="jumbotron" >Amount Due</th>
                               <th class="jumbotron" >Amount Paid</th>
                               <th class="jumbotron" >Age</th>
+                              <?php
+                              if($review_status == "Completed"){
+                              ?>
+                                <th class="jumbotron" >Warranty Status</th>
+                              <?php
+                              }
+                              ?>                              
                               <th class="jumbotron" >Admin Remarks</th>
                               <th class="jumbotron" >Vendor Remarks</th>
                               <th class="jumbotron" >Vendor Cancellation Reason</th>
@@ -145,6 +152,18 @@
                               ?>
                               
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_age ?></strong></td>
+                              <?php if($review_status == "Completed"){ ?>
+                              <td>
+                                  <?php
+                                    $strWarrantyStatus = '--';
+                                    if(!empty($warranty_data[$value['booking_id']]))
+                                    {
+                                        $strWarrantyStatus = $warranty_data[$value['booking_id']];
+                                    }
+                                    echo '<b>'.$strWarrantyStatus.'</b>';
+                                  ?>
+                              </td>
+                              <?php } ?>
                               <td style="text-align: left;white-space: inherit;">
                                  <p id="<?php echo "admin_remarks_".$count; ?>"><?php echo $value['admin_remarks']; ?></p>
                               </td>

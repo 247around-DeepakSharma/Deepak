@@ -499,7 +499,7 @@ span.stars span {
            url: '<?php echo base_url()  ?>employee/inventory/get_spare_cancelled_status/' + booking_id,
            success: function (response) {
                
-               if(response === "success"){
+               if($.trim(response) === "success"){
                    
                    document.getElementById("spare_"+ block+ key).src="<?php echo base_url();?>images/spare_cancelled.png";
                }  else {
@@ -538,9 +538,9 @@ span.stars span {
            url: '<?php echo base_url()  ?>employee/inventory/get_spare_status/' + booking_id,
            success: function (response) {
                var obj  = JSON.parse(response);
-               if(obj[0].status == '<?php echo SPARE_OOW_EST_GIVEN; ?>'){
+               if($.trim(obj[0].status) == '<?php echo SPARE_OOW_EST_GIVEN; ?>'){
                    
-                   document.getElementById("spare_cost_given_"+ block+ key).src="<?php echo base_url();?>images/spare_cost_given.png";
+                   document.getElementById("spare_cost_given_"+ block+ key).src="<?php echo base_url();?>images/spare_estimate_arrived.png";
                }  else {
                     
                     $("#spare_cost_given_"+block + key).css("display", "none");
