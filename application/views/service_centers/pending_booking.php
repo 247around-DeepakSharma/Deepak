@@ -540,7 +540,7 @@ span.stars span {
                var obj  = JSON.parse(response);
                if(obj[0].status == '<?php echo SPARE_OOW_EST_GIVEN; ?>'){
                    
-                   document.getElementById("spare_cost_given_"+ block+ key).src="<?php echo base_url();?>images/spare_cost_given.png";
+                   document.getElementById("spare_cost_given_"+ block+ key).src="<?php echo base_url();?>images/spare_estimate_arrived.png";
                }  else {
                     
                     $("#spare_cost_given_"+block + key).css("display", "none");
