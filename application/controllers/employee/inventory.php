@@ -6906,7 +6906,7 @@ class Inventory extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
-        $select = "SELECT DISTINCT services, `appliance_model_details`.`model_number`";
+        $select = "SELECT DISTINCT services AS APPLIANCE, `appliance_model_details`.`model_number` AS MODEL_NUMBER";
         $where = array("appliance_model_details.entity_id" => $partner_id, "appliance_model_details.service_id" => $service_id);
         $bom_details = $this->inventory_model->get_missing_serviceable_bom_data($select, $partner_id, $service_id);
 
