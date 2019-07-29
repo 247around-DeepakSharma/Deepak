@@ -32,6 +32,7 @@ class Booking extends CI_Controller {
         $this->load->model('penalty_model');
         $this->load->model("dealer_model");
         $this->load->model('booking_request_model');
+        $this->load->model('warranty_model');        
         $this->load->library('partner_sd_cb');
         $this->load->library('partner_cb');
         $this->load->library('notify');
@@ -5306,6 +5307,38 @@ class Booking extends CI_Controller {
             $data['total_rows'] = count($total_rows);
             $data['total_pages'] = $data['total_rows']/$data['per_page'];
             $data['is_partner'] = $is_partner;
+            
+            // Function to get Warranty Period of Bookings
+            $arrBookingsWarrantyData = [];
+            $arrBookingWiseWarrantyStatus = [];
+            if(!empty($data['charges']))
+            {
+                $arrBookings = array_column($data['charges'], 'booking_id');
+                $arrBookingWiseWarrantyData = $this->warranty_model->check_warranty_by_booking_ids($arrBookings); 
+                
+                if(!empty($arrBookingWiseWarrantyData)){
+                    foreach ($arrBookingWiseWarrantyData as $key => $recBookingWiseWarrantyData) {
+                        $arrBookingsWarrantyData[$recBookingWiseWarrantyData['booking_id']] = $recBookingWiseWarrantyData;
+                    }
+                    
+                    $arrBookingWiseWarrantyStatus = array_map(function($recWarrantyData) {
+                        $warrantyStatus = 'OW';
+                        $warranty_months = $recWarrantyData['warranty_period'];
+                        if($recWarrantyData['warranty_type'] == 'OW')
+                        {
+                            $warranty_months = $recWarrantyData['warranty_period'] + 12;
+                        }                        
+                        $warranty_end_period = strtotime(date("Y-m-d", strtotime($recWarrantyData['date_of_purchase'])) . " +" . $warranty_months . " months");
+                        $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
+                        if (strtotime($recWarrantyData['create_date']) <= $warranty_end_period) :
+                            $warrantyStatus = $recWarrantyData['warranty_type'];      
+                        endif;        
+                        return $warrantyStatus;
+                    }, $arrBookingsWarrantyData);
+                }               
+            }                                
+            $data['warranty_data'] = $arrBookingWiseWarrantyStatus;
+            // Function ends here
             $this->load->view('employee/completed_cancelled_review', $data);
         }
         else{
