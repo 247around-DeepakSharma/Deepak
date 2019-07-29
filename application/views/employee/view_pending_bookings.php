@@ -234,7 +234,7 @@
                     <button type="button" class="close btn-primary well"  data-dismiss="modal"style="color: white;">&times;</button>
                     <h4 class="modal-title"style="color: white;background-color: #2c9d9c;border-color: #2c9d9c;border: 0px; text-align: center;">Contacts</h4>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" id="relevant_content_model_data">
                 </div>
                 <center><img id="loader_gif_contact" src="<?php echo base_url(); ?>images/loadring.gif"></center>
             </div>
@@ -487,7 +487,7 @@ datatable1.ajax.reload();
     }
     
         
-        function show_contacts(bookingID,create_booking_contacts_flag){
+        function show_contacts(bookingID,create_booking_contacts_flag){ 
             $("#relevant_content_modal .modal-body").html("");
             $("#loader_gif_contact").show();
                     $.ajax({
@@ -495,15 +495,16 @@ datatable1.ajax.reload();
                         url: '<?php echo base_url()  ?>employee/service_centers/get_booking_contacts/'+bookingID,
                         data: {},
                         success: function (response) {
-                            if(create_booking_contacts_flag){
+                            if(create_booking_contacts_flag){ 
                               create_booking_contacts(response);
                             }
                        }
                     });
                 }
-                 function create_booking_contacts(response){
+                 function create_booking_contacts(response){ 
         var data="";
         var result = JSON.parse(response);
+       
         if(result.length > 0) {
             var j;
             for(var i=0;i<result.length;i++) {j=i+1;
@@ -530,6 +531,10 @@ datatable1.ajax.reload();
             $('#relevant_content_table  th').css("background-color","#ECEFF1");
             $('#relevant_content_table  tr:nth-child(even)').css("background-color","#FAFAFA");
             $("#relevant_content_modal").modal("show");
+        }
+        else{
+            $("#relevant_content_model_data").html("Booking contacts not found");
+            $("#loader_gif_contact").hide();
         }
     }
     

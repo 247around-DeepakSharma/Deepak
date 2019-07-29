@@ -2186,20 +2186,16 @@ class Inventory_model extends CI_Model {
      * 
      */
     
-    function get_pending_spare_part_details($post, $where=array()){
+    function get_pending_spare_part_details($post, $where = array()) {
         $this->db->select($post['select'], FALSE);
-        $this->db->from('spare_parts_details');   
+        $this->db->from('spare_parts_details');
         $this->db->join('service_centres', 'spare_parts_details.service_center_id = service_centres.id');
         $this->db->where($where);
         $query = $this->db->get();
         return $query->result_array();
     }
-    
-    
-    
-    
-    
-      /**
+
+    /**
      * @Desc: This function is used to get data from the appliance_model_details table
      * @params: $select string
      * @params: $where array
@@ -2638,12 +2634,13 @@ class Inventory_model extends CI_Model {
             $this->db->where($where,false);
         }        
         $query = $this->db->get();
+        echo $this->db->last_query();
         return $query;        
        
     }
 
 
-        function get_entity_gst_data($select="*", $where){
+    function get_entity_gst_data($select="*", $where){
         $this->db->select($select);
         $this->db->where($where);
         $query = $this->db->get("entity_gst_details");
@@ -2662,5 +2659,45 @@ class Inventory_model extends CI_Model {
 
     }
    
+
+
+    /**
+     * @Desc: This function is used to get alternate parts
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_alternet_parts($select, $where = array()) {
+        $this->db->select($select,false);
+        $this->db->from('inventory_master_list');
+        $this->db->join('alternate_inventory_set','alternate_inventory_set.inventory_id = inventory_master_list.inventory_id');
+        $this->db->group_by("group_id");
+        if (!empty($where)) {
+            $this->db->where($where,false);
+        }        
+        $query = $this->db->get();
+        return $query->result_array();        
+       
+    }
+    
+    /**
+     * @Desc: This function is used to get Details of Missing serviceable BOM
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_missing_serviceable_bom_data($select, $partner_id, $service_id) {
+
+        $where = "";
+        if (!empty($partner_id)) {
+            $where = " WHERE NOT EXISTS (SELECT DISTINCT inventory_model_mapping.model_number_id FROM inventory_model_mapping WHERE inventory_model_mapping.model_number_id = appliance_model_details.id) AND services.id = service_id AND appliance_model_details.entity_id =" . $partner_id . " AND services.id=" . $service_id;
+        }
+        $sql = $select . " FROM appliance_model_details, services " . $where;
+
+        $query = $this->db->query($sql);
+        return $query;
+    }
 
 }

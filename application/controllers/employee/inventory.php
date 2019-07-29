@@ -1077,7 +1077,7 @@ class Inventory extends CI_Controller {
         if (!empty($id)) {
             $remarks = $this->input->post("remarks");
             if (!empty($this->input->post("spare_cancel_reason"))) {
-                $remarks = $remarks . " " . $this->input->post("spare_cancel_reason");
+                $remarks = $this->input->post("spare_cancel_reason") . " , " . $remarks;
             }
             $flag = true;
             $b = array();
@@ -2663,9 +2663,6 @@ class Inventory extends CI_Controller {
             if ($this->input->post('service_id')) {
                 $post['where']['service_id'] = trim($this->input->post('service_id'));
             }
-
-
-
             $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks.pending_request_count,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
 
             //RM Specific stocks
@@ -3182,12 +3179,9 @@ class Inventory extends CI_Controller {
 //        $str = '{"is_wh_micro":"2","247around_gst_number":"09AAFCB1281J1ZM","partner_id":"247130","wh_id":"870","awb_number":"12587455","courier_name":"gati-kwe","courier_shipment_date":"2019-07-04","from_gst_number":"7","part":[{"shippingStatus":"1","service_id":"37","part_name":"TRAY,BOTTOM,ER180I,INSTA","part_number":"1100023151","booking_id":"","quantity":"1","part_total_price":"158.25","hsn_code":"39239090","gst_rate":"18","inventory_id":"6011"},{"shippingStatus":"1","service_id":"37","part_name":"LEG,ADJUSTABLE,27MM L,ER180I,INSTA","part_number":"1100028374","booking_id":"","quantity":"2","part_total_price":"15","hsn_code":"84189900","gst_rate":"18","inventory_id":"7463"}],"partner_name":" Videocon","wh_name":" Amritsar Baldev Electronics - (Micro Warehouse) ","dated":"2019-07-04","sender_entity_type":"vendor","sender_entity_id":"15","invoice_tag":"MSL","transfered_by":"2"}';
  //        $_POST = json_decode($str, true);  
 //  
-
-        $invoice_file_required =  $this->input->post('invoice_file');
-        if (!$invoice_file_required) {
-           $invoice_file_required=0;      
-        }else{
-            $invoice_file_required=1;
+        $invoice_file_required=0;
+        if (!isset($_POST['invoice_file_flag']) || $invoice_file_required) {
+           $invoice_file_required=1;      
         }      
         $partner_id = $this->input->post('partner_id');
         $invoice_id = $this->input->post('invoice_id');
@@ -3657,7 +3651,6 @@ class Inventory extends CI_Controller {
         }
     }
 
-
     function insert_new_spare_item($ledger, $fomData, $wh_id, $s_partner_id, $action_agent_id) {
         log_message('info', __METHOD__ . " ledger " . print_r($ledger, true) . " Form data " . json_encode($fomData, true) . " wh id " . $wh_id);
         $spare = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $ledger['booking_id']), false);
@@ -3684,15 +3677,18 @@ class Inventory extends CI_Controller {
             } else {
                 $newdata['parts_requested_type'] = $fomData['part_name'];
             }
-
             $newdata['create_date'] = date('Y-m-d H:i:s');
             $newdata['status'] = SPARE_PARTS_REQUESTED;
             $newdata['wh_ack_received_part'] = 0;
             $newdata['requested_inventory_id'] = $ledger['inventory_id'];
             $newdata['inventory_invoice_on_booking'] = 1;
-            $newdata['is_micro_wh'] = 2;
+            if($ledger['is_micro_wh']==1){
+            $newdata['is_micro_wh'] = 2;   
+            }
+            if($ledger['is_micro_wh']==2){
+            $newdata['is_micro_wh'] = 1;   
+            }
             $newdata['part_warranty_status'] = 1;
-
             $spare_id = $this->service_centers_model->insert_data_into_spare_parts($newdata);
             if ($spare_id) {
                 $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
@@ -3711,7 +3707,7 @@ class Inventory extends CI_Controller {
      * @param int $tqty
      * @param int $partner_id
      */
-     function generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_date, $tqty, $partner_id, $from_gst_number, 
+    function generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_date, $tqty, $partner_id, $from_gst_number, 
             $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_id, $action_agent_id) {
         log_message('info', __METHOD__);
         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
@@ -4652,7 +4648,7 @@ class Inventory extends CI_Controller {
                     if (!array_key_exists($value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0), $invoice)) {
 
 
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $value['part_number']." ".$value['part_name'] . "Reference Invoice ID " . $value['incoming_invoice_id'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $value['part_number']." ".$value['part_name'] . "  Reference Invoice ID " . $value['incoming_invoice_id'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $value['rate'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['invoice_id'] = $invoice_id;
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['product_or_services'] = "Product";
@@ -4665,6 +4661,8 @@ class Inventory extends CI_Controller {
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_name'] = $entity_details[0]['company_name'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_address'] = $value['to_address'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['district'] = $value['to_city'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['to_gst_number_id'] = $value['to_gst_number_id'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['from_gst_number_id'] = $value['from_gst_number_id'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['pincode'] = $value['to_pincode'];
                         $state =  $this->invoices_model->get_state_code(array('state_code' => $value['to_state_code']))[0]['state'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state'] = $state;
@@ -4677,7 +4675,7 @@ class Inventory extends CI_Controller {
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['part_number'] = $value['part_number'];
                     } else {
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] + 1;
-                        if (strpos($invoice[$value['inventory_id']]['description'], $value['incoming_invoice_id']) == false) {
+                        if (strpos($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'], $value['incoming_invoice_id']) == false) {
                             $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] . " - " . $value['incoming_invoice_id'];
                         } else {
                             $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'];
@@ -4768,7 +4766,7 @@ class Inventory extends CI_Controller {
 
                     if (!empty($sp_id)) {
                         foreach ($sp_id as $id) {
-                            $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, 'sell_invoice_id' => $invoice_id));
+                            $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, 'reverse_purchase_invoice_id' => $invoice_id));
                         }
                     }
 
@@ -5525,6 +5523,11 @@ class Inventory extends CI_Controller {
      */
     function get_wh_inventory_stock_list() {
         $this->checkUserSession();
+        $gst_where = array(
+            "entity_type" => _247AROUND_PARTNER_STRING,
+            "entity_id" => _247AROUND,
+        );
+        $data['from_gst_number'] = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $gst_where);
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/wh_inventory_stock_list', $data);
@@ -6689,6 +6692,20 @@ class Inventory extends CI_Controller {
         }
     }
     
+    /**
+     *  @desc : This function is used to get spare parts status
+     *  @param : $booking_id
+     *  @return : json
+     */
+    function get_spare_status($booking_id){
+        $spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.booking_id, spare_parts_details.status', array('spare_parts_details.booking_id' => $booking_id));
+        if(!empty($spare)){
+            echo json_encode($spare);
+        } else {
+            echo json_encode(array("Not Exist"));
+        }
+    }
+    
 //    function remove_inventory_from_warehouse($invoice, $sender_enity_id, $wh_id, $agent_id){
 //        foreach ($invoice as $value) {
 //            $in['receiver_entity_id'] = $wh_id;
@@ -6762,7 +6779,7 @@ class Inventory extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/download_serviceable_bom");
     }
-    
+       
      /**
      *  @desc : This function is used to Download the Serviceable BOM.
      *  @param : void
@@ -6806,4 +6823,120 @@ class Inventory extends CI_Controller {
         }
         echo json_encode($res);
     }
+        
+    /**
+     *  @desc : This function is used to appliance wise Part details
+     *  @param : void
+     *  @return : void
+     */
+    function download_part_master() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/download_inventory_part_master");
+    }
+    
+    
+     /**
+     *  @desc : This function is used to Download the Serviceable BOM.
+     *  @param : void
+     *  @return : void
+     */
+    
+     function download_inventory_part_master_data() {
+        log_message('info', __METHOD__ . ' Processing...');
+
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+
+        $select = "services.services AS APPLIANCE, appliance_model_details.model_number AS MODEL_NUMBER, inventory_master_list.part_number AS PART_NUMBER, "
+                . "inventory_master_list.part_name AS PART_NAME, inventory_master_list.price AS PRICE, inventory_master_list.type AS TYPE, inventory_master_list.hsn_code AS HSN_CODE,"
+                . " inventory_master_list.gst_rate AS GST_RATE";
+        $where = array("inventory_master_list.entity_id" => $partner_id, "appliance_model_details.service_id" => $service_id);
+
+        if (!empty($partner_id) && !empty($service_id)) {
+            $bom_details = $this->inventory_model->get_serviceable_bom_data($select, $where);
+
+
+            $this->load->dbutil();
+            $this->load->helper('file');
+
+            $file_name = 'inventory_part_master_' . date('j-M-Y-H-i-s') . ".csv";
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($bom_details, $delimiter, $newline);
+
+            write_file(TMP_FOLDER . $file_name, $new_report);
+
+            if (file_exists(TMP_FOLDER . $file_name)) {
+                log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                $res1 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                $res['status'] = true;
+                $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+            } else {
+                log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                $res['status'] = FALSE;
+                $res['msg'] = 'error in generating file';
+            }
+        }
+        echo json_encode($res);
+    }
+    
+     /**
+     *  @desc : This function is used download the missing BOM
+     *  @param : void
+     *  @return : void
+     */
+    function download_missing_serviceable_bom() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/download_missing_serviceable_bom");
+    }
+    
+    
+    
+     /**
+     *  @desc : This function is used to Download the Missing Serviceable BOM.
+     *  @param : void
+     *  @return : void
+     */
+    
+     function download_missing_serviceable_bom_data() {
+        log_message('info', __METHOD__ . ' Processing...');
+
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $select = "SELECT DISTINCT services, `appliance_model_details`.`model_number`";
+        $where = array("appliance_model_details.entity_id" => $partner_id, "appliance_model_details.service_id" => $service_id);
+        $bom_details = $this->inventory_model->get_missing_serviceable_bom_data($select, $partner_id, $service_id);
+
+        if (!empty($partner_id) && !empty($service_id)) {
+            $bom_details = $this->inventory_model->get_missing_serviceable_bom_data($select, $partner_id, $service_id);
+
+
+            $this->load->dbutil();
+            $this->load->helper('file');
+
+            $file_name = 'missing_serviceable_bom_data_' . date('j-M-Y-H-i-s') . ".csv";
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($bom_details, $delimiter, $newline);
+
+            write_file(TMP_FOLDER . $file_name, $new_report);
+
+            if (file_exists(TMP_FOLDER . $file_name)) {
+                log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                $res1 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                $res['status'] = true;
+                $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+            } else {
+                log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                $res['status'] = FALSE;
+                $res['msg'] = 'error in generating file';
+            }
+        }
+        echo json_encode($res);
+    }
+
 }

@@ -2294,7 +2294,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
     }
         
-    /*
+   /*
      * @desc - This function is used to send email to Trackon couriers
      * @param - empty
      * @return - empty
@@ -2302,48 +2302,54 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
     function send_email_to_trackon_couriers() {
         
   
-        $post['select'] = " DISTINCT(spare_parts_details.awb_by_partner) as awb_no, UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
+        $post['select'] = "UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
                 . " UPPER(spare_parts_details.courier_name_by_partner) as courier_name, "
                 . " spare_parts_details.shipped_date as spare_shipped_date, "
                 . "'New Pickup' as shipment_type";
 
-        $where = array("spare_parts_details.status" => SPARE_SHIPPED_BY_PARTNER, "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) > 5" => NULL, "( spare_parts_details.awb_by_partner <> '' OR spare_parts_details.awb_by_partner IS NOT NULL )" => NULL, "spare_parts_details.is_micro_wh" => 2,
-            'spare_parts_details.courier_name_by_partner LIKE "%trackon%" GROUP BY spare_parts_details.awb_by_partner ' => NULL);
+        $where = array("spare_parts_details.status" => SPARE_SHIPPED_BY_PARTNER, "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) > 4" => NULL, "( spare_parts_details.awb_by_partner <> '' OR spare_parts_details.awb_by_partner IS NOT NULL )" => NULL, "spare_parts_details.is_micro_wh" => 2);
 
 
-        $post1['select'] = "DISTINCT(spare_parts_details.awb_by_sf) as awb_no, UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
+        $post1['select'] = "UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
                 . "UPPER(spare_parts_details.courier_name_by_sf) as courier_name,"
                 . "spare_parts_details.defective_part_shipped_date as spare_shipped_date,"
                 . " 'Reverse Pickup' as shipment_type";
-        $where1 = array("spare_parts_details.status" => DEFECTIVE_PARTS_SHIPPED, "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) > 5" => NULL, "( spare_parts_details.awb_by_sf <> '' OR spare_parts_details.awb_by_sf IS NOT NULL )" => NULL,
-            'spare_parts_details.courier_name_by_sf LIKE "%trackon%" GROUP BY spare_parts_details.awb_by_sf' => NULL);
+        $where1 = array("spare_parts_details.status" => DEFECTIVE_PARTS_SHIPPED, "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) > 4" => NULL, "( spare_parts_details.awb_by_sf <> '' OR spare_parts_details.awb_by_sf IS NOT NULL )" => NULL);
         
                 
-        $post2['select'] = "DISTINCT(spare_parts_details.awb_by_sf) as awb_no, UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
+        $post2['select'] = "UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
                 . "UPPER(spare_parts_details.courier_name_by_sf) as courier_name,"
                 . "spare_parts_details.defective_part_shipped_date as spare_shipped_date,"
                 . " 'Reverse Pickup' as shipment_type";
         $where2 = array("spare_parts_details.status" => DEFECTIVE_PARTS_PENDING, "spare_parts_details.around_pickup_from_service_center" => 2 ,"( spare_parts_details.awb_by_sf = '' OR spare_parts_details.awb_by_sf IS  NULL )" => NULL);
         
         
-
+        $post['select'] .=", spare_parts_details.awb_by_partner as awb_no,";  
+        $where['spare_parts_details.courier_name_by_partner LIKE "%trackon%"'] =NULL;
         $spare_parts_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);
+                
+        $post1['select'] .= ", spare_parts_details.awb_by_sf as awb_no, ";
+        $where1['spare_parts_details.courier_name_by_sf LIKE "%trackon%"'] = NULL; 
         $defective_parts_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post1, $where1);
+        
+        $post2['select'] .=", spare_parts_details.awb_by_sf as awb_no, "; 
         $requested_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post2, $where2);
        
         $spare_part_data['booking_list'] = array_merge($spare_parts_shipped_by_partner, $defective_parts_shipped_by_sf,$requested_shipped_by_sf);
         
         
-        $post['select'] .= ", COUNT(spare_parts_details.id) AS total_spare";
+        $post['select'] = " DISTINCT(spare_parts_details.awb_by_partner) as awb_no, COUNT(spare_parts_details.id) AS total_spare, ".$post['select'];
+        $where['spare_parts_details.courier_name_by_partner LIKE "%trackon%" GROUP BY spare_parts_details.awb_by_partner '] =NULL;
         
         $spare_parts_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);
-
-        $post1['select'] .= ", COUNT(spare_parts_details.id) AS total_spare";
+            
+        $post1['select'] = " DISTINCT(spare_parts_details.awb_by_sf) as awb_no, COUNT(spare_parts_details.id) AS total_spare ,".$post1['select']; 
+        $where1['spare_parts_details.courier_name_by_sf LIKE "%trackon%" GROUP BY spare_parts_details.awb_by_sf'] = NULL; 
 
         $defective_parts_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post1, $where1);
 
         $spare_part_data['awb_list'] = array_merge($spare_parts_shipped_by_partner, $defective_parts_shipped_by_sf);
-          
+         
         $template = 'shipment-pending.xlsx';
         $awb_template = 'awb-shipment-pending.xlsx';
         $output_file_excel = TMP_FOLDER . "trackon-booking-shipment-pending.xlsx";
@@ -2362,46 +2368,54 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      */
     function send_email_to_gati_couriers() {
 
-        $post['select'] = "DISTINCT(spare_parts_details.awb_by_partner) as awb_no, UPPER(service_centres.company_name) as sf_name, "
-                . "service_centres.district as city_name, service_centres.state as state_name,"
+        $post['select'] = "UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name,"
                 . " spare_parts_details.booking_id, UPPER(spare_parts_details.courier_name_by_partner) as courier_name,"
                 . " spare_parts_details.shipped_date as spare_shipped_date, "
                 . "'New Pickup' as shipment_type";
        
-        $where = array("status" => SPARE_SHIPPED_BY_PARTNER, "(DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) > 5 )" => NULL,
+        $where = array("status" => SPARE_SHIPPED_BY_PARTNER, "(DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(shipped_date, '%Y-%m-%d')) > 7 )" => NULL,
             "( spare_parts_details.awb_by_partner <> '' OR spare_parts_details.awb_by_partner IS NOT NULL )" => NULL,
-            "spare_parts_details.is_micro_wh" => 2, 'spare_parts_details.courier_name_by_partner LIKE "%gati%" GROUP BY spare_parts_details.awb_by_partner ' => NULL);
+            "spare_parts_details.is_micro_wh" => 2);
 
-        $post1['select'] = "DISTINCT(spare_parts_details.awb_by_sf) as awb_no, UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id, UPPER(spare_parts_details.courier_name_by_sf) as courier_name,"
+        $post1['select'] = "UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id, UPPER(spare_parts_details.courier_name_by_sf) as courier_name,"
                 . "spare_parts_details.defective_part_shipped_date as spare_shipped_date,"
                 . " 'Reverse Pickup' as shipment_type ";
-        $where1 = array("status" => DEFECTIVE_PARTS_SHIPPED, "(DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) > 5 )" => NULL , "( spare_parts_details.awb_by_sf <> '' OR spare_parts_details.awb_by_sf IS NOT NULL )" => NULL,
-            'spare_parts_details.courier_name_by_sf LIKE "%gati%" GROUP BY spare_parts_details.awb_by_sf' => NULL);
+        $where1 = array("status" => DEFECTIVE_PARTS_SHIPPED, "(DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) > 7 )" => NULL , "( spare_parts_details.awb_by_sf <> '' OR spare_parts_details.awb_by_sf IS NOT NULL )" => NULL,);
         
-        $post2['select'] = "DISTINCT(spare_parts_details.awb_by_sf) as awb_no, UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
+        $post2['select'] = "UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
                 . "UPPER(spare_parts_details.courier_name_by_sf) as courier_name,"
                 . "spare_parts_details.defective_part_shipped_date as spare_shipped_date,"
                 . " 'Reverse Pickup' as shipment_type";
         $where2 = array("spare_parts_details.status" => DEFECTIVE_PARTS_PENDING, "spare_parts_details.around_pickup_from_service_center" => 2 ,"( spare_parts_details.awb_by_sf = '' OR spare_parts_details.awb_by_sf IS  NULL )" => NULL);
         
-     
-        $spare_parts_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);        
+        
+        $post['select'] .=", spare_parts_details.awb_by_partner as awb_no,";
+        $where['spare_parts_details.courier_name_by_partner LIKE "%gati%"'] =NULL;
+        $spare_parts_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);  
+        
+        $post1['select'] .= ", spare_parts_details.awb_by_sf as awb_no, ";
+        $where1['spare_parts_details.courier_name_by_partner LIKE "%gati%"'] =NULL;
         $defective_parts_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post1, $where1);
         
+        $post2['select'] .=", spare_parts_details.awb_by_sf as awb_no, ";       
         $requested_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post2, $where2);
                 
         $spare_part_data['booking_list'] = array_merge($spare_parts_shipped_by_partner, $defective_parts_shipped_by_sf, $requested_shipped_by_sf);
-                 
-        $post['select'] .= ", COUNT(spare_parts_details.id) AS total_spare"; 
-                             
+        
+        
+        
+        $post['select'] = " DISTINCT(spare_parts_details.awb_by_partner) as awb_no, COUNT(spare_parts_details.id) AS total_spare, ".$post['select'];
+        $where['spare_parts_details.courier_name_by_partner LIKE "%gati%" GROUP BY spare_parts_details.awb_by_partner '] = NULL;
+        
         $awb_shipped_by_partner = $this->inventory_model->get_pending_spare_part_details($post, $where);
-               
-        $post1['select'] .= ", COUNT(spare_parts_details.id) AS total_spare";  
-       
+        
+        $post1['select'] = " DISTINCT(spare_parts_details.awb_by_sf) as awb_no, COUNT(spare_parts_details.id) AS total_spare ,".$post1['select']; 
+        $where1['spare_parts_details.courier_name_by_sf LIKE "%gati%" GROUP BY spare_parts_details.awb_by_sf'] = NULL; 
+        
         $awb_defective_parts_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post1, $where1);
                 
         $spare_part_data['awb_list'] = array_merge($awb_shipped_by_partner, $awb_defective_parts_shipped_by_sf);
-              
+           
         $template = 'shipment-pending.xlsx';
         $awb_template = 'awb-shipment-pending.xlsx';
         $output_file_excel = TMP_FOLDER . "gati-booking-shipment-pending.xlsx";
@@ -2490,6 +2504,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $R1->render('excel', $awb_output_file_excel);
             
             array_push($files, $awb_output_file_excel);
+
         }
         
         $this->combined_spare_pending_shipment_sheet($output_file_excel, $files);
@@ -2544,5 +2559,4 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         system(" chmod 777 " . $details_excel, $res1);
         return $details_excel;
     }
-
 }

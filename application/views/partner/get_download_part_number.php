@@ -90,7 +90,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Download Serviceable BOM</h2>
+                    <h2>Download Part Master</h2>
                     <input type="hidden" id="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>">
                     <div class="clearfix"></div>
                 </div>
@@ -103,7 +103,7 @@
                                         <option value="" disabled="">Select Appliance</option>
                                     </select>
                                 </div>
-                                <button class="btn btn-success col-md-2" id="serviceable_bom">Download BOM</button>
+                                <button class="btn btn-success col-md-2" id="part_master">Download</button>
                             </div>
                         </div>
                     </div>
@@ -141,18 +141,18 @@
         });
     }
 
-    $('#serviceable_bom').click(function(){
+    $('#part_master').click(function(){
             var partner_id = $("#partner_id").val();
             var service_id = $("#model_service_id").val();
 
             if((partner_id!=null && partner_id!='') && (service_id!=null && service_id!='')){
-                $('#serviceable_bom').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+                $('#part_master').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
                 $.ajax({
                     type: 'POST',
-                    url: '<?php echo base_url(); ?>employee/inventory/download_serviceable_bom_data',
+                    url: '<?php echo base_url(); ?>employee/inventory/download_inventory_part_master_data',
                     data: {partner_id : partner_id, service_id : service_id},
                     success: function (data) {
-                        $('#serviceable_bom').html("Download").attr('disabled',false);
+                        $('#part_master').html("Download").attr('disabled',false);
                         var obj = JSON.parse(data); 
                         if(obj['status']){
                             window.location.href = obj['msg'];

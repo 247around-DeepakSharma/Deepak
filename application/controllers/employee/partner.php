@@ -1940,7 +1940,7 @@ class Partner extends CI_Controller {
         }
     }
 
- /**
+    /**
      * @desc: This method is used to load update form(spare parts).
      * @param String $booking_id
      */
@@ -4518,6 +4518,26 @@ class Partner extends CI_Controller {
         }
         echo $option;
     }
+
+
+
+        function get_partner_list_warehouse(){
+
+        $where = array('warehouse_details.entity_type'=>_247AROUND_PARTNER_STRING);
+ 
+        $partner_list = $this->partner_model->get_all_partner_warehouse($where);
+        $option = '<option selected="" disabled="">Select Partner Warehouse Hub</option>';
+
+        foreach ($partner_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            $option .= " > ";
+            $option .= $value['name']. ' ( '. $value['city'] . ' ) ' . "</option>";  //address
+        }
+        echo $option;
+    }
+
+
+
     
      /**
      * @desc: This function is used to upload the challan file when partner shipped spare parts
@@ -5137,7 +5157,6 @@ class Partner extends CI_Controller {
         }
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Waiting_Upcountry_Bookings_".date("Y-m-d"));
     }
-
     function download_spare_part_shipped_by_partner($isAdmin=0,$partner_post=0){
         ob_start();
         $where = '1';
@@ -7305,7 +7324,8 @@ class Partner extends CI_Controller {
             }
         }
     }
-      /*
+    
+     /*
      * @desc - This function is used to deactivate brand collateral
      */ 
     function deactivate_brand_collateral(){
@@ -7389,7 +7409,6 @@ class Partner extends CI_Controller {
     function get_posible_parent_id(){
         $this->miscelleneous->get_posible_parent_booking();
     }
-
     function process_partner_sample_no_pic()
     {
         $partner_id=$this->input->post('partner_id');
@@ -7399,7 +7418,7 @@ class Partner extends CI_Controller {
         'image/gif',
         'image/png');
         $allowed_size=2097152;
-        if(isset($_FILES))
+         if(isset($_FILES))
         {
             $sample_no_pic=$_FILES['SamplePicfile'];
             $cpt = count($_FILES['SamplePicfile']['name']);
@@ -7441,6 +7460,7 @@ class Partner extends CI_Controller {
 
                                     $attachment_sample_no_pic = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sample_file;
                                     unlink(TMP_FOLDER . $sample_file);
+
                                     //Logging success for file uppload
                                     log_message('info', __FUNCTION__ . ' SampleNoPicture is being uploaded sucessfully.');
                           }
@@ -7449,7 +7469,7 @@ class Partner extends CI_Controller {
                               $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 2 MB.  ';
                           }
                       }
-                      else
+                       else
                       {
                           $errormsg=$errormsg.$name.'  The uploaded file exceeds the upload_max_filesize.  ';
                       }
@@ -7873,6 +7893,7 @@ class Partner extends CI_Controller {
         echo json_encode($res);
     }
 
+
     /**
      * @desc: This function is used to show  history for parts send by partner to Sfs
 
@@ -7883,6 +7904,7 @@ class Partner extends CI_Controller {
         $this->load->view('partner/partner_footer');
 
     }
+
     
     /**
      * @Desc: This function is used to get  Model for Partner for particular service_id  
@@ -7897,6 +7919,7 @@ class Partner extends CI_Controller {
         $service_id = $this->input->post('service_id');
         $where = array('entity_type' => 'partner', 'entity_id' => $partner_id, 'service_id' => $service_id, "active" => 1);
         $data = $this->partner_model->get_model_number_partner_service_wise($where);
+
         $option = "";
         foreach ($data as $value) {
             $option .= "<option ";
@@ -7936,5 +7959,43 @@ class Partner extends CI_Controller {
         $this->load->view('partner/get_download_serviceable_bom');
         $this->load->view('partner/partner_footer');
     }
+    
+    
+     /**
+     * @desc: This function is used to download serviceable BOM
+     * @params: void
+     * @return: void
+     */
+    function show_download_missing_serviceable_bom(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/get_download_missing_serviceable_bom');
+        $this->load->view('partner/partner_footer');
+    }
+     
+    /**
+     * @desc: This function is used to download Part Master
+     * @params: void
+     * @return: void
+     */
+    function show_download_part_master(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/get_download_part_number');
+        $this->load->view('partner/partner_footer');
+    }
+    
+     /**
+     * @desc: This function is used to download alternate parts for partner
+     * @params: void
+     * @return: void
+     */
+    function show_download_alternate_parts(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_partner_nav_header();
+        $this->load->view('partner/download_alternate_parts.php');
+        $this->load->view('partner/partner_footer');
+    }
+    
    
 }

@@ -532,7 +532,7 @@ class File_upload extends CI_Controller {
                                 $post_data[$rowData['invoice_id']]['partner_name'] = $is_wh_micro;
                                 $post_data[$rowData['invoice_id']]['wh_name'] = $wh_details[0]['company_name'];
                                 $post_data[$rowData['invoice_id']]['invoice_tag'] = 'MSL';
-                                $post_data[$rowData['invoice_id']]['invoice_file'] =false;
+                                $post_data[$rowData['invoice_id']]['invoice_file_flag'] =false;
                                 $post_data[$rowData['invoice_id']]['transfered_by'] = MSL_TRANSFERED_BY_PARTNER;
                                 $post_data[$rowData['invoice_id']]['is_defective_part_return_wh'] = 1;
                                 $post_data[$rowData['invoice_id']]['part'] = array();

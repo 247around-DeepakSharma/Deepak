@@ -974,6 +974,15 @@ class Accounting extends CI_Controller {
         if(!empty($this->input->post("sub_category"))){
             $post['where']['vendor_partner_invoices.sub_category'] = $this->input->post("sub_category");
         }
+        
+        if($this->input->post("is_msl") != NULL) {
+            if($this->input->post("is_msl")) {
+                $post['where_in']['vendor_partner_invoices.sub_category'] = array(DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, NEW_PART_RETURN );
+            }
+            else {
+                $post['where_not_in']['vendor_partner_invoices.sub_category'] = array(DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, NEW_PART_RETURN );
+            }
+        }
         if(!empty($this->input->post("group_by"))){
             $post['group_by'] = $this->input->post("group_by");
         }

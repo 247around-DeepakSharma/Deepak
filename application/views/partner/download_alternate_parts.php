@@ -87,11 +87,12 @@
 </style>
 <div class="right_col" role="main">
     <div class="row">
+        <form method="post" action="<?php echo base_url(); ?>employee/spare_parts/process_download_alternate_parts">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Download Serviceable BOM</h2>
-                    <input type="hidden" id="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>">
+                    <h2><i class="fa fa-download" aria-hidden="true"></i> Download Alternate Part List</h2>
+                    <input type="hidden" id="partner_id" name="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>">
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -99,11 +100,11 @@
                         <div class="row">
                             <div class="form-inline">
                                 <div class="form-group col-md-3">
-                                    <select class="form-control" id="model_service_id">
+                                    <select class="form-control" id="service_id" name="service_id">
                                         <option value="" disabled="">Select Appliance</option>
                                     </select>
                                 </div>
-                                <button class="btn btn-success col-md-2" id="serviceable_bom">Download BOM</button>
+                                <button class="btn btn-success col-md-2" type="submit" onclick="return download_alternate_data()">Submit</button>
                             </div>
                         </div>
                     </div>
@@ -111,58 +112,39 @@
                 </div>
             </div>
         </div>
+        </form>
     </div>
 </div>
 <script>
     
-    $('#model_service_id').select2({
+    $('#service_id').select2({
         allowClear: true,
         placeholder: 'Select Appliance'
     });
     $(document).ready(function(){
-        get_services('model_service_id');
+        get_services();
     });
     
-     
-    
-    
-    function get_services(div_to_update){
+    function get_services(){
         $.ajax({
             type:'GET',
             url:'<?php echo base_url();?>employee/partner/get_partner_specific_appliance',
             data:{is_option_selected:true,partner_id: '<?php echo $this->session->userdata('partner_id')?>'},
             success:function(response){
-                $('#'+div_to_update).html(response).find("#allappliance").remove();  
-                $('#'+div_to_update).select2({
-                    allowClear: true,
-                    placeholder: 'Select Appliance'
-                });
+                $('#service_id').html(response).find("#allappliance").remove();  
             }
         });
     }
 
-    $('#serviceable_bom').click(function(){
-            var partner_id = $("#partner_id").val();
-            var service_id = $("#model_service_id").val();
-
-            if((partner_id!=null && partner_id!='') && (service_id!=null && service_id!='')){
-                $('#serviceable_bom').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
-                $.ajax({
-                    type: 'POST',
-                    url: '<?php echo base_url(); ?>employee/inventory/download_serviceable_bom_data',
-                    data: {partner_id : partner_id, service_id : service_id},
-                    success: function (data) {
-                        $('#serviceable_bom').html("Download").attr('disabled',false);
-                        var obj = JSON.parse(data); 
-                        if(obj['status']){
-                            window.location.href = obj['msg'];
-                        }else{
-                            alert('File Download Failed. Please Refresh Page And Try Again...')
-                        }
-                    }
-                });
-            }
-    });
+    function download_alternate_data(){
+        if(!$("#service_id").val()){
+            alert("Please select appliance");
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
     
 
 </script>

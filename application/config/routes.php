@@ -62,6 +62,7 @@ $route['service_center/add_engineer'] = 'employee/vendor/add_engineer';
 $route['service_center/get_engineers'] = 'employee/vendor/get_engineers';
 $route['service_center/engineer_wise_calls'] = 'employee/vendor/engineer_wise_calls';
 $route['service_center/invoices_details'] = 'employee/service_centers/invoices_details';
+$route['service_center/invoices_details/(:any)'] = 'employee/service_centers/invoices_details/$1';
 $route['service_center/bank_transactions'] = 'employee/service_centers/bank_transactions';
 $route['service_center/update_booking_status/(:any)'] = 'employee/service_centers/update_booking_status/$1';
 $route['service_center/update_booking_spare_parts_required/(:any)'] = 'employee/service_centers/update_booking_spare_parts_required/$1';
@@ -229,6 +230,10 @@ $route['partner/brand_collateral']='employee/partner/brandCollateral';
 $route['partner/inventory/download_serviceable_bom'] = 'employee/partner/show_download_serviceable_bom';
 $route['partner/inventory/model_mapping'] = 'employee/partner/show_appliance_model_mapping';
 $route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
+$route['partner/inventory/download_missing_serviceable_bom'] = 'employee/partner/show_download_missing_serviceable_bom';
+$route['partner/inventory/download_part_master'] = 'employee/partner/show_download_part_master';
+$route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
+
 //$route['service_center/inventory/appliance_model_list'] = 'employee/inventory/appliance_model_list';
 
 
@@ -276,5 +281,6 @@ $route['service_center/warranty/(:any)/(:any)/(:any)'] = 'employee/service_cente
 $route['partner/inventory/upload_inventory_details_file'] = 'employee/inventory/upload_inventory_details_file/0';
 $route['partner/inventory/upload_bom_file'] = 'employee/inventory/upload_bom_file/0';
 $route['partner/inventory/upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alternate_spare_parts_file/0';
+$route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

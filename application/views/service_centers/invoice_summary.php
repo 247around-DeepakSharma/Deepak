@@ -1,5 +1,5 @@
 <div id="page-wrapper">
-<p><h2>Invoices Generated</h2></p>
+<p><h2><?php echo (($is_msl)?'MSL ':'Service '); ?>Invoices Generated</h2></p>
   <table class="table table-bordered  table-hover table-striped data"  id="datatable">
    <thead>
       <tr >
@@ -108,12 +108,14 @@
        </tbody>
       </table>
     
-<?php } ?>
+<?php }
+if(!$is_msl) { ?>
  <br>
  
 
     <p><h4>Vendor has to pay to 247around = Rs. <?php if($final_settlement >= 0){ echo sprintf("%.2f",$final_settlement);} else { echo 0;} ?></h4></p>
     <p><h4>247around has to pay to vendor = Rs. <?php if($final_settlement < 0){ echo abs(sprintf("%.2f",$final_settlement));} else {echo 0;} ?></h4></p>
+<?php } ?>
 </div>
 
 <script>
@@ -138,7 +140,7 @@
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> Excel Export',
                     pageSize: 'LEGAL',
-                    title: 'Invoice',
+                    title: "<?php echo (($is_msl)?'MSL ':'Service '); ?>Invoice",
                     exportOptions: {
                        columns: [1,2,3,4,7,8,9,10],
                         modifier : {
@@ -161,6 +163,7 @@
                          d.vendor_partner = 'vendor';
                          d.vendor_partner_id = '<?php echo $this->session->userdata('service_center_id'); ?>';
                          d.settle = '2';
+                         d.is_msl = '<?php echo $is_msl; ?>';
                  }
 
             },

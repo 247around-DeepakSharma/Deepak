@@ -892,6 +892,9 @@ class vendor extends CI_Controller {
                 //Getting template from Database
                 $template = $this->booking_model->get_booking_email_template("sf_permanent_on_off");
                 if (!empty($template)) {
+                    if($sf_details[0]['is_micro_wh'] == 1){
+                        $to .= ",".$template[1];
+                    }
                     $email['rm_name'] = $employee_relation[0]['full_name'];
                     $email['sf_name'] = ucfirst($sf_name);
                     if($is_active == 1){
@@ -3195,10 +3198,12 @@ class vendor extends CI_Controller {
         $employee_relation = $this->vendor_model->get_rm_sf_relation_by_sf_id($id);
         if (!empty($employee_relation)) {
             $to = $employee_relation[0]['official_email'];
-
             //Getting template from Database
             $template = $this->booking_model->get_booking_email_template("sf_temporary_on_off");
             if (!empty($template)) {
+                if($sf_details[0]['is_micro_wh'] == 1){
+                    $to .= ",".$template[1];
+                }
                 $email['rm_name'] = $employee_relation[0]['full_name'];
                 $email['sf_name'] = ucfirst($sf_name);
                 $email['on_off'] = $on_off_value;
@@ -3909,28 +3914,27 @@ class vendor extends CI_Controller {
      */
     function update_sub_service_center_details(){
         log_message('info',__FUNCTION__);
-       if($this->input->post()){
-           $data = array('district'=>$this->input->post('district'),
-                         'pincode'=>$this->input->post('pincode'),
-                         'upcountry_rate'=>$this->input->post('upcountry_rate'));
-           $id = $this->input->post('id');
-           $sc_id = $this->input->post('service_center_id');
-           $update_id = $this->upcountry_model->update_sub_service_center_upcountry_details($data,$id);
-           if($update_id){
-                $log = array(
-                    "entity" => "vendor",
-                    "entity_id" => $sc_id,
-                    "agent_id" => $this->session->userdata('id'),
-                    "action" =>  "SC HQ Updated",
-                    "remarks" => "Update SC HQ ID ".$id
-                );
-                $this->vendor_model->insert_log_action_on_entity($log);
-               echo "success";
-           }
-           else{
-               echo "failed";
-           }
-       }
+        if($this->input->post()){
+            $id = $this->input->post('id');
+            $sc_id = $this->input->post('service_center_id');
+            $update_array = [];
+            $update_array['upcountry_rate'] = $this->input->post('upcountry_rate');
+            $update_id = $this->upcountry_model->update_sub_service_center_upcountry_details($update_array,$id);
+            
+            if($update_id) {
+                 $log = array(
+                     "entity" => "vendor",
+                     "entity_id" => $sc_id,
+                     "agent_id" => $this->session->userdata('id'),
+                     "action" =>  "SC HQ Updated",
+                     "remarks" => "Update SC HQ ID ".$id
+                 );
+                 $this->vendor_model->insert_log_action_on_entity($log);
+                echo "success";
+            } else {
+                echo "failed";
+            }
+        }
     }
 
     /**
