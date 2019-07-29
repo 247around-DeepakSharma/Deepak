@@ -2642,13 +2642,7 @@ class Inventory extends CI_Controller {
             $post['column_search'] = array('part_name', 'part_number', 'type','services.services');
             $post['where'] = array('inventory_stocks.stock <> 0' => NULL);
 
-            if(!empty($this->input->post('sf_id')) && empty($this->input->post('is_show_all'))) {
-                $post['where']['inventory_stocks.entity_id'] = trim($this->input->post('sf_id'));
-                $post['where']['inventory_stocks.entity_type'] = 'vendor';
-            } elseif(!empty($this->input->post('wh_id')) && empty($this->input->post('is_show_all'))) {
-                $post['where']['inventory_stocks.entity_id'] = trim($this->input->post('wh_id'));
-                $post['where']['inventory_stocks.entity_type'] = 'vendor';
-            } elseif ($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type')) {
+            if ($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type')) {
                 $post['where']['inventory_stocks.entity_id'] = trim($this->input->post('receiver_entity_id'));
                 $post['where']['inventory_stocks.entity_type'] = trim($this->input->post('receiver_entity_type'));
             }
