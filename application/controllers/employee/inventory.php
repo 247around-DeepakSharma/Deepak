@@ -6843,5 +6843,62 @@ class Inventory extends CI_Controller {
         }
         echo json_encode($res);
     }
+    
+     /**
+     *  @desc : This function is used download the missing BOM
+     *  @param : void
+     *  @return : void
+     */
+    function download_missing_serviceable_bom() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/download_missing_serviceable_bom");
+    }
+    
+    
+    
+     /**
+     *  @desc : This function is used to Download the Missing Serviceable BOM.
+     *  @param : void
+     *  @return : void
+     */
+    
+     function download_missing_serviceable_bom_data() {
+        log_message('info', __METHOD__ . ' Processing...');
+
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $select = "SELECT DISTINCT services, `appliance_model_details`.`model_number`";
+        $where = array("appliance_model_details.entity_id" => $partner_id, "appliance_model_details.service_id" => $service_id);
+        $bom_details = $this->inventory_model->get_missing_serviceable_bom_data($select, $partner_id, $service_id);
+
+        if (!empty($partner_id) && !empty($service_id)) {
+            $bom_details = $this->inventory_model->get_missing_serviceable_bom_data($select, $partner_id, $service_id);
+
+
+            $this->load->dbutil();
+            $this->load->helper('file');
+
+            $file_name = 'missing_serviceable_bom_data_' . date('j-M-Y-H-i-s') . ".csv";
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($bom_details, $delimiter, $newline);
+
+            write_file(TMP_FOLDER . $file_name, $new_report);
+
+            if (file_exists(TMP_FOLDER . $file_name)) {
+                log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                $res1 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                $res['status'] = true;
+                $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+            } else {
+                log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                $res['status'] = FALSE;
+                $res['msg'] = 'error in generating file';
+            }
+        }
+        echo json_encode($res);
+    }
 
 }

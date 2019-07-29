@@ -2629,6 +2629,7 @@ class Inventory_model extends CI_Model {
             $this->db->where($where,false);
         }        
         $query = $this->db->get();
+        echo $this->db->last_query();
         return $query;        
        
     }
@@ -2660,6 +2661,25 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();        
        
+    }
+    
+    /**
+     * @Desc: This function is used to get Details of Missing serviceable BOM
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_missing_serviceable_bom_data($select, $partner_id, $service_id) {
+
+        $where = "";
+        if (!empty($partner_id)) {
+            $where = " WHERE NOT EXISTS (SELECT DISTINCT inventory_model_mapping.model_number_id FROM inventory_model_mapping WHERE inventory_model_mapping.model_number_id = appliance_model_details.id) AND services.id = service_id AND appliance_model_details.entity_id =" . $partner_id . " AND services.id=" . $service_id;
+        }
+        $sql = $select . " FROM appliance_model_details, services " . $where;
+
+        $query = $this->db->query($sql);
+        return $query;
     }
 
 }
