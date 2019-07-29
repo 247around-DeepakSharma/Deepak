@@ -37,10 +37,18 @@
                                 foreach ($data as $value) { ?>
                                     <tr id="<?php echo "table_tr_" . $sn_no; ?>">
                                         <td><?php echo $sn_no; ?></td>
-                                        <td><?php echo $value['state']; ?></td>
-                                        <td><input type="text" class="form-control" id="<?php echo "district" . $sn_no; ?>" name="<?php echo "district" . $sn_no; ?>" value="<?php echo $value['district']; ?>"></td>
-                                        <td><input id="<?php echo "pincode" . $sn_no; ?>" class='allownumericwithdecimal form-control' type="text" value="<?php echo $value['pincode']; ?>"></td>
-                                        <td><input id="<?php echo "upcountry_rate" . $sn_no; ?>" class='allownumericwithdecimal form-control' type="text" value="<?php echo $value['upcountry_rate']; ?>"></td>
+                                        <td><span id="<?php echo "state" . $sn_no; ?>"><?php echo $value['state']; ?></span></td>
+                                        <td><span id="<?php echo "district" . $sn_no; ?>" name="<?php echo "district" . $sn_no; ?>" ><?php echo $value['district']; ?></span></td>
+                                        <td><span id="<?php echo "pincode" . $sn_no; ?>" ><?php echo $value['pincode']; ?></span></td>
+                                        <td>
+                                            <select id="<?php echo "upcountry_rate" . $sn_no; ?>" name="" class='form-control'>
+                                                <?php if(!$saas) { for($i=2;$i<=3;$i++) { ?>
+                                                    <option value="<?php echo $i;?>" <?php if($i == $value['upcountry_rate']) {echo 'selected';}?>><?php echo $i;?></option>
+                                                <?php }} else { for($i=1;$i<=10;$i++) { ?>
+                                                     <option value="<?php echo $i;?>" <?php if($i == $value['upcountry_rate']) {echo 'selected';}?>><?php echo $i;?></option>
+                                                <?php }} ?>
+                                            </select>
+                                        </td>
                                         <td><button class="btn btn-primary" 
                                                     onclick="submit_button('<?php echo $value["id"]; ?>',
                                                                '<?php echo $sn_no; ?>', '<?php echo $value["service_center_id"];
@@ -87,25 +95,19 @@
 <script type="text/javascript">
     function submit_button(id, div_no, service_center_id) {
 
-        var district = $("#district" + div_no).val();
-        var pincode = $("#pincode" + div_no).val();
-        if (pincode.length !== 6) {
-            alert("Please Enter Valid 6 digit Pincode Number");
-            return false;
-        }
         var upcountry_rate1 = $("#upcountry_rate" + div_no).val();
         
         upcountry_rate = Number(upcountry_rate1);
         <?php if($saas) { ?>
             if (upcountry_rate === 2 || upcountry_rate === 3) {
-                update_upcountry_rate(district, pincode, id, service_center_id);
+                update_upcountry_rate(id, service_center_id);
             } else {
                 alert("Please Enter Either 2 or 3 in upcountry rate");
                 return false;
             }
         <?php } else { ?>
             if (upcountry_rate >= 1 && upcountry_rate <= 10) {
-                update_upcountry_rate(district, pincode, id, service_center_id);
+                update_upcountry_rate(id, service_center_id);
             } else {
                 alert("Please enter upcountry rate between 1 to 10.");
                 return false;
@@ -113,13 +115,13 @@
         <?php } ?>
     }
     
-    function update_upcountry_rate(district, pincode, id, service_center_id) {
+    function update_upcountry_rate(id, service_center_id) {
         var event_taget = event.target;
         var event_element = event.srcElement;
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/vendor/update_sub_service_center_details',
-            data: {district: district, pincode: pincode, upcountry_rate: upcountry_rate, id: id, service_center_id: service_center_id},
+            data: {upcountry_rate: upcountry_rate, id: id, service_center_id: service_center_id},
             success: function (data) {
                 if ($.trim(data) === 'success') {
                     $('#show_success_msg').html('Details has been Updated successfully');
@@ -128,9 +130,10 @@
                     $('#show_error_msg').html('Error in updating details');
                     $('.error').show().delay(5000).fadeOut();
                 }
+                location.reload();
             }
         });
-        $(event_taget || event_element).parents('tr').hide();
+        //$(event_taget || event_element).parents('tr').hide();
     }
     
     
@@ -158,12 +161,10 @@
                     $('.error').show().delay(5000).fadeOut();
                     ;
                 }
+                location.reload();
             }
         });
-        $(event_taget || event_element).parents('tr').hide();
-
-
-
+        //$(event_taget || event_element).parents('tr').hide();
     }
 
     $(".allownumericwithdecimal").on("keypress keyup blur", function (event) {
