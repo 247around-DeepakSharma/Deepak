@@ -252,6 +252,7 @@
                                     <th class="text-center" data-orderable="false">Mobile</th>
                                     <th class="text-center" data-orderable="false">Service Center</th>
                                     <th class="text-center" data-orderable="false">Partner</th>
+                                    <th class="text-center" data-orderable="false">State</th>
                                     <th class="text-center" data-orderable="false">Model Number</th>
                                     <th class="text-center" data-orderable="false">Requested Part</th>
                                     <th class="text-center" data-orderable="false">Parts Number</th>

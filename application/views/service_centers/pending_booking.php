@@ -531,6 +531,25 @@ span.stars span {
           }
        });
    }
+   
+   function load_spare_cost_status(booking_id, key, block){
+       $.ajax({
+           type: 'post',
+           url: '<?php echo base_url()  ?>employee/inventory/get_spare_status/' + booking_id,
+           success: function (response) {
+               var obj  = JSON.parse(response);
+               if(obj[0].status == '<?php echo SPARE_OOW_EST_GIVEN; ?>'){
+                   
+                   document.getElementById("spare_cost_given_"+ block+ key).src="<?php echo base_url();?>images/spare_cost_given.png";
+               }  else {
+                    
+                    $("#spare_cost_given_"+block + key).css("display", "none");
+               }
+               //console.log(response);
+
+          }
+       });
+   }
 </script>
 <!-- end alert message -->
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
