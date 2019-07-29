@@ -134,15 +134,15 @@ class Warranty_model extends CI_Model {
     }
     
     function check_warranty_by_booking_ids($arrBookings) {
-//        $arrBookings = ['SY-1656581811052', 'SC-72521605251'];
-        $strSelect = "booking_details.booking_id,booking_details.service_id,booking_details.partner_id,booking_details.create_date,appliance_model_details.id as model_id,spare_parts_details.model_number,spare_parts_details.date_of_purchase,warranty_plan_model_mapping.plan_id,ifnull(MAX(warranty_plans.warranty_period), 12) as warranty_period,  CASE WHEN warranty_plans.warranty_type = 2 THEN 'OW' else 'IW' end as warranty_type";
+        $strSelect = "booking_details.booking_id,booking_details.service_id,booking_details.partner_id,booking_details.create_date,appliance_model_details.id as model_id,ifnull(spare_parts_details.model_number, booking_unit_details.sf_model_number) as model_number,ifnull(spare_parts_details.date_of_purchase, booking_unit_details.sf_purchase_date) as date_of_purchase,warranty_plan_model_mapping.plan_id,ifnull(MAX(warranty_plans.warranty_period), 12) as warranty_period,  CASE WHEN warranty_plans.warranty_type = 2 THEN 'OW' else 'IW' end as warranty_type";
                 
         $this->db->select($strSelect);
         $this->db->from('booking_details');
         $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id');
-        $this->db->join('appliance_model_details', 'spare_parts_details.model_number = appliance_model_details.model_number');
+        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
+        $this->db->join('appliance_model_details', 'ifnull(spare_parts_details.model_number, booking_unit_details.sf_model_number) = appliance_model_details.model_number');
         $this->db->join('warranty_plan_model_mapping', 'appliance_model_details.id = warranty_plan_model_mapping.model_id', 'Left');
-        $this->db->join('warranty_plans', 'warranty_plan_model_mapping.plan_id = warranty_plans.plan_id and date(warranty_plans.period_start) <= spare_parts_details.date_of_purchase and date(warranty_plans.period_end) >= spare_parts_details.date_of_purchase and warranty_plans.is_active = 1', 'Left');
+        $this->db->join('warranty_plans', 'warranty_plan_model_mapping.plan_id = warranty_plans.plan_id and date(warranty_plans.period_start) <= ifnull(spare_parts_details.date_of_purchase, booking_unit_details.sf_purchase_date) and date(warranty_plans.period_end) >= ifnull(spare_parts_details.date_of_purchase, booking_unit_details.sf_purchase_date) and warranty_plans.is_active = 1', 'Left');
 //        Extra join condition of Partner Id
 //        $this->db->join('warranty_plans', 'warranty_plan_model_mapping.plan_id = warranty_plans.plan_id and date(warranty_plans.period_start) <= spare_parts_details.date_of_purchase and date(warranty_plans.period_end) >= spare_parts_details.date_of_purchase and warranty_plans.is_active = 1 and warranty_plans.partner_id = booking_details.partner_id');
         $this->db->where_in('booking_details.booking_id', $arrBookings);
