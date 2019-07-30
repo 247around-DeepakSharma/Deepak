@@ -98,7 +98,7 @@
                 url: '<?php echo base_url(); ?>employee/inventory/download_missing_serviceable_bom_data',
                 data: {partner_id : partner_id, service_id : service_id},
                 success: function (data) {
-                    $('#serviceable_bom').html("Download").attr('disabled',false);
+                    $('#serviceable_bom').html("Download BOM").attr('disabled',false);
                     var obj = JSON.parse(data); 
                     if(obj['status']){
                         window.location.href = obj['msg'];
