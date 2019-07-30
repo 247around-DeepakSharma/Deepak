@@ -371,7 +371,7 @@ class Bulkupload extends CI_Controller {
      * @param $file array  //consist file temporary name, file extension and status(file type is correct or not)
      * @param $response array  //consist file name,sheet name(in case of excel),header details,sheet highest row and highest column
      */
-    private function read_upload_file_header($file, $sheet_no = 0) {
+    private function read_upload_file_header($file, $sheet_no = 0, $offset = 0) {
         log_message('info', __FUNCTION__ . "=> getting upload file header");
         try {
             $objReader = PHPExcel_IOFactory::createReader($file['file_ext']);
@@ -408,6 +408,38 @@ class Bulkupload extends CI_Controller {
         $response['sheet'] = $sheet;
         $response['highest_row'] = $highestRow;
         $response['highest_column'] = $highestColumn;
+        
+        // Read multiple Sheets Data
+        if($offset > 0){
+            for($i = 1; $i <= 1; $i++)
+            {
+                $sheet = $objPHPExcel->getSheet($i);
+                $highestRow = $sheet->getHighestDataRow();
+                $highestColumn = $sheet->getHighestDataColumn();
+                $response['status'.$i] = TRUE;
+                
+                //Validation for Empty File
+                if ($highestRow <= 1) {
+                    log_message('info', __FUNCTION__ . ' Empty File Uploaded');
+                    $response['status'.$i] = False;
+                }
+
+                $headings = $sheet->rangeToArray('A1:' . $highestColumn . 1, NULL, TRUE, FALSE);
+                $headings_new = array();
+                foreach ($headings as $heading) {
+                    $heading = str_replace(array("/", "(", ")", "."), "", $heading);
+                    array_push($headings_new, str_replace(array(" "), "_", $heading));
+                }
+
+                $headings_new1 = array_map('strtolower', $headings_new[0]);
+                
+                $response['header_data'.$i] = $headings_new1;
+                $response['sheet'.$i] = $sheet;
+                $response['highest_row'.$i] = $highestRow;
+                $response['highest_column'.$i] = $highestColumn;
+            }
+        }
+        
         return $response;
     }
 
@@ -441,7 +473,7 @@ class Bulkupload extends CI_Controller {
         $this->load->view('employee/bulk_upload_add_warranty');
     }
 
-    function add_warranty_data() {
+    function add_warranty_data() {     
         ini_set('display_errors', '1');
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', 0);
@@ -455,7 +487,7 @@ class Bulkupload extends CI_Controller {
             if ($file_status['status']) {
                 // ********************* UPLOAD PLAN, STATE, PART TYPE DATA   ***********************************************************************                 
                 //get file header
-                $data = $this->read_upload_file_header($file_status, 0);
+                $data = $this->read_upload_file_header($file_status, 0, 1);
                 $data['post_data'] = $this->input->post();
 
                 //column which must be present in the  upload inventory file
@@ -531,13 +563,12 @@ class Bulkupload extends CI_Controller {
                             $arr_data['inclusive_svc_charge'] = (trim(strtoupper($sanitizes_row_data[5])) == 'YES') ? 1 : 0;
                             $arr_data['inclusive_gas_charge'] = (trim(strtoupper($sanitizes_row_data[6])) == 'YES') ? 1 : 0;
                             $arr_data['inclusive_transport_charge'] = (trim(strtoupper($sanitizes_row_data[7])) == 'YES') ? 1 : 0;
-                            $arr_data['warranty_period'] = "CONVERT('$sanitizes_row_data[8]', SIGNED)";
+                            $arr_data['warranty_period'] = (int) $sanitizes_row_data[8];
                             $arr_data['warranty_grace_period'] = (int) $sanitizes_row_data[9];
                             $arr_data['is_active'] = (trim(strtoupper($sanitizes_row_data[12])) == 'YES') ? 1 : 0;
                             $arr_data['create_date'] = date('Y-m-d H:i:s');
                             $arr_data['created_by'] = $this->session->userdata('employee_id');
                             $plan_id = $this->reusable_model->insert_into_table('warranty_plans', $arr_data);
-
                             if (empty($plan_id)) {
                                 $returnMsg[$row][4] = "Invalid Data";
                                 continue;
@@ -553,18 +584,18 @@ class Bulkupload extends CI_Controller {
                                 return $plan_state;
                             }, $arr_plan_states);
 
-                            foreach ($arr_plan_states as $rec_plan_state) {
+                            foreach ($arr_plan_states as $key => $rec_plan_state) {
                                 if (!empty($arr_states[$rec_plan_state])) {
                                     $state_data = [];
                                     $state_data['state_code'] = $arr_states[$rec_plan_state];
                                     $state_data['plan_id'] = $plan_id;
                                     $state_data['create_date'] = date('Y-m-d H:i:s');
                                     $state_data['created_by'] = $this->session->userdata('employee_id');
-                                    $plan_state_mapping_id = $this->reusable_model->insert_into_table('warranty_plan_state_mapping', $state_data);
-                                    $arr_state_mapping_result[$row] = "Success";
+                                    $plan_state_mapping_id = $this->reusable_model->insert_into_table('warranty_plan_state_mapping', $state_data);                                    
+                                    $arr_state_mapping_result[$row][$key] = "Success : ".$rec_plan_state;
                                     if(empty($plan_state_mapping_id))
                                     {
-                                        $arr_state_mapping_result[$row] = "Fail";
+                                        $arr_state_mapping_result[$row][$key] = "Fail : ".$rec_plan_state;
                                     }
                                 }
                             }
@@ -583,7 +614,7 @@ class Bulkupload extends CI_Controller {
                                 }
                                 return $plan_part;
                             }, $arr_plan_parts);
-                            foreach ($arr_plan_parts as $rec_plan_part) {
+                            foreach ($arr_plan_parts as $key => $rec_plan_part) {
                                 if (!empty($arr_parts[$rec_plan_part])) {
                                     $plan_data = [];
                                     $plan_data['part_type_id'] = $arr_parts[$rec_plan_part];
@@ -591,10 +622,10 @@ class Bulkupload extends CI_Controller {
                                     $plan_data['create_date'] = date('Y-m-d H:i:s');
                                     $plan_data['created_by'] = $this->session->userdata('employee_id');
                                     $plan_part_mapping_id = $this->reusable_model->insert_into_table('warranty_plan_part_type_mapping', $plan_data);
-                                    $arr_part_mapping_result[$row] = "Success";
+                                    $arr_part_mapping_result[$row][$key] = "Success : ".$rec_plan_part;
                                     if(empty($plan_part_mapping_id))
                                     {
-                                        $arr_part_mapping_result[$row] = "Fail";
+                                        $arr_part_mapping_result[$row][$key] = "Fail : ".$rec_plan_part;
                                     }
                                 }
                             }
@@ -603,15 +634,12 @@ class Bulkupload extends CI_Controller {
                 }
                 // ********************* UPLOAD MODEL DATA   ***********************************************************************                // 
                 //get file header
-                $data = [];
                 $arr_model_mapping_result = [];
-                $data = $this->read_upload_file_header($file_status, 1);
-                $data['post_data'] = $this->input->post();
 
                 //column which must be present in the  upload inventory file
                 $header_column_need_to_be_present = array('product', 'plan_name', 'model_list');
                 //check if required column is present in upload file header
-                $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
+                $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data1']));
 
                 if ($check_header['status']) {
                     // Get Plans Data
@@ -629,8 +657,8 @@ class Bulkupload extends CI_Controller {
                     }
 
                     // apply loop for validation.
-                    for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
-                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                    for ($row = 2, $i = 0; $row <= $data['highest_row1']; $row++, $i++) {
+                        $rowData_array = $data['sheet1']->rangeToArray('A' . $row . ':' . $data['highest_column1'] . $row, NULL, TRUE, FALSE);
                         $sanitizes_row_data = $rowData_array[0];
                         $is_data_validated = true;
 
@@ -679,15 +707,15 @@ class Bulkupload extends CI_Controller {
             }
         }
         
-        //        $file_path = "";
-        //        if (!empty($file_data)) {
-        //            $file_path = TMP_FOLDER . "extended_warranty_data-" . date('Y-m-d');
-        //            $file = fopen($file_path . ".txt", "a+") or die("Unable to open file!");
-        //            fwrite($file, $arr_state_mapping_result . "\n");
-        //            fwrite($file, $arr_part_mapping_result . "\n");
-        //            fwrite($file, $arr_model_mapping_result . "\n");
-        //            fclose($file);
-        //        }
+        $file_path = TMP_FOLDER . "warranty_data_log-" . date('Y-m-d');
+        $file = fopen($file_path . ".txt", "a+") or die("Unable to open file!");
+        fwrite($file, "*******************  STATE MAPPING ***************************" . "\n");
+        fwrite($file, print_r($arr_state_mapping_result, true) . "\n");
+        fwrite($file, "*******************  PART TYPE MAPPING ***************************" . "\n");
+        fwrite($file, print_r($arr_part_mapping_result, true) . "\n");
+        fwrite($file, "*******************  MODEL MAPPING ***************************" . "\n");
+        fwrite($file, print_r($arr_model_mapping_result, true) . "\n");
+        fclose($file);                       
     
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/bulk_upload_add_warranty', ['data' => $returnMsg, 'partner_id' => $post_data['partner_id']]);

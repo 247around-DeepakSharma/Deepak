@@ -51,7 +51,10 @@
                             </div>
                         </form>
                     </div>
-                   
+                    <div class="col-md-6">
+                        <p style="font-size: 18px;"><b>Download Sample File. Use this file to upload Warranty Data.</b></p>
+                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/warranty-docs/warranty_plans_sample.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
+                    </div>
                 </section>
                 <div class="col-md-12" style="margin-top:20px;">
                     <h3>File Upload History</h3>
