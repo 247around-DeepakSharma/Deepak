@@ -2642,13 +2642,7 @@ class Inventory extends CI_Controller {
             $post['column_search'] = array('part_name', 'part_number', 'type','services.services');
             $post['where'] = array('inventory_stocks.stock <> 0' => NULL);
 
-            if(!empty($this->input->post('sf_id')) && empty($this->input->post('is_show_all'))) {
-                $post['where']['inventory_stocks.entity_id'] = trim($this->input->post('sf_id'));
-                $post['where']['inventory_stocks.entity_type'] = 'vendor';
-            } elseif(!empty($this->input->post('wh_id')) && empty($this->input->post('is_show_all'))) {
-                $post['where']['inventory_stocks.entity_id'] = trim($this->input->post('wh_id'));
-                $post['where']['inventory_stocks.entity_type'] = 'vendor';
-            } elseif ($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type')) {
+            if ($this->input->post('receiver_entity_id') && $this->input->post('receiver_entity_type')) {
                 $post['where']['inventory_stocks.entity_id'] = trim($this->input->post('receiver_entity_id'));
                 $post['where']['inventory_stocks.entity_type'] = trim($this->input->post('receiver_entity_type'));
             }
@@ -6906,7 +6900,7 @@ class Inventory extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
-        $select = "SELECT DISTINCT services, `appliance_model_details`.`model_number`";
+        $select = "SELECT DISTINCT services AS APPLIANCE, `appliance_model_details`.`model_number` AS MODEL_NUMBER";
         $where = array("appliance_model_details.entity_id" => $partner_id, "appliance_model_details.service_id" => $service_id);
         $bom_details = $this->inventory_model->get_missing_serviceable_bom_data($select, $partner_id, $service_id);
 
