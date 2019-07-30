@@ -31,7 +31,7 @@
                     <h3>Warehouse Spare Parts Inventory <span id="total_stock"></span> 
                         <span class="pull-right"><input type="button" id="sellItem" class="btn btn-primary btn-md" onclick="open_selected_parts_to_return()" value="Return new Parts (0)"></span>
                         <span class="pull-right"><input type="button" id="micro_warehouse" class="download_stock  btn btn-primary btn-md" value="Download Micro-Warehouse Stock"></span>
-                        <span class="pull-right"><input type="button" id="warehouse" class="download_stock btn btn-primary btn-md" value="Download Warehouse Stocks"></span>
+                        <span class="pull-right"><input type="button" id="warehouse" class="download_stock btn btn-primary btn-md" value="Download Warehouse Stock"></span>
                     </h3>
                     <hr>
                     <div class="clearfix"></div>
