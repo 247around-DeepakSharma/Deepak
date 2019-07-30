@@ -2563,7 +2563,7 @@ class Inventory_model extends CI_Model {
         $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
         $this->db->order_by('p.public_name, sc.name');
         
-        $this->db->group_by('im.inventory_id');
+        $this->db->group_by('im.inventory_id, sc.id');
         
         $query = $this->db->get();
         return $query->result_array();
@@ -2582,7 +2582,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
         $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_micro_wh =1 ');
         $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id AND sc.id = i.entity_id', 'left');
-        $this->db->join('micro_warehouse_state_mapping as ms', 'sc.id = ms.vendor_id AND ms.active = 1');
+        $this->db->join('micro_warehouse_state_mapping as ms', 'ms.partner_id = p.id AND sc.id = ms.vendor_id AND ms.active = 1');
 
         if(!empty($inventory_id)){
             $this->db->where('im.inventory_id', $inventory_id);
@@ -2591,7 +2591,7 @@ class Inventory_model extends CI_Model {
         $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
         $this->db->order_by('p.public_name, sc.name, part_name');
         
-        $this->db->group_by('im.inventory_id');
+        $this->db->group_by('im.inventory_id, sc.id');
         
         $query = $this->db->get();
         return $query->result_array();
