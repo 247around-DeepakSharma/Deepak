@@ -2392,63 +2392,7 @@ class Inventory_model extends CI_Model {
         
         return $res;
     }
-    
-    /**
-     * @desc This function is used to return MSL data for the warehouse
-     * @param String $date
-     * @param int $inventory_id
-     * @return Array
-     */
-    function get_msl_data($date, $inventory_id = ""){
-       
-        $this->db->select('public_name as company_name, im.inventory_id,  part_name, part_number, '
-                . 'im.type, price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
-        $this->db->from('spare_parts_details as s');
-        $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
-        $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_wh =1 ');
-        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id', 'left');
-        $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND sc.is_wh = 1 ', 'left');
 
-        if(!empty($inventory_id)){
-            $this->db->where('im.inventory_id', $inventory_id);
-        }
-        $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
-        $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
-        $this->db->order_by('p.public_name, sc.name');
-        
-        $this->db->group_by('im.inventory_id');
-        
-        $query = $this->db->get();
-        return $query->result_array();
-    }
-    /**
-     * @desc Used to get MicroWarehouse MSL
-     * @param String $date
-     * @param int $inventory_id
-     * @return Array
-     */
-    function get_microwarehouse_msl_data($date, $inventory_id = ""){
-        $this->db->select('public_name as company_name, sc.name as warehouse_name, im.inventory_id,  part_name, part_number, '
-                . 'im.type, ((price + price *gst_rate/100) * oow_around_margin/100) as price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
-        $this->db->from('spare_parts_details as s');
-        $this->db->join('service_centres as sc', 'sc.id = s.service_center_id AND sc.is_micro_wh = 1 ');
-        $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
-        $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_micro_wh =1 ');
-        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id AND sc.id = i.entity_id', 'left');
-        $this->db->join('micro_warehouse_state_mapping as ms', 'ms.partner_id = p.id AND sc.id = ms.vendor_id AND ms.active = 1');
-
-        if(!empty($inventory_id)){
-            $this->db->where('im.inventory_id', $inventory_id);
-        }
-        $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
-        $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
-        $this->db->order_by('p.public_name, sc.name');
-        
-        $this->db->group_by('im.inventory_id');
-        
-        $query = $this->db->get();
-        return $query->result_array();
-    }
     /**
      * @Desc: This function is used to get data from the generic table
      * @params $table string 
@@ -2585,7 +2529,76 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
- 
+    
+    /**
+     * @desc This function is used to return MSL data for the warehouse
+     * @param String $date
+     * @param int $inventory_id
+     * @return Array
+     */
+    function get_msl_data($date, $inventory_id = ""){
+       
+        $this->db->select('public_name as company_name, im.inventory_id,  part_name, part_number, '
+                . 'im.type, price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
+        $this->db->from('spare_parts_details as s');
+        $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
+        $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_wh =1 ');
+        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id', 'left');
+        $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND sc.is_wh = 1 ', 'left');
+
+        if(!empty($inventory_id)){
+            $this->db->where('im.inventory_id', $inventory_id);
+        }
+        $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
+        $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
+        $this->db->order_by('p.public_name, sc.name');
+        
+        $this->db->group_by('im.inventory_id');
+        
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+    /**
+     * @desc Used to get MicroWarehouse MSL
+     * @param String $date
+     * @param int $inventory_id
+     * @return Array
+     */
+    function get_microwarehouse_msl_data($date, $inventory_id = ""){
+        $this->db->select('public_name as company_name, sc.name as warehouse_name, im.inventory_id,  part_name, part_number, '
+                . 'im.type, ( (price + price *gst_rate/100)+ ((price + price *gst_rate/100) * oow_around_margin/100)) as price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
+        $this->db->from('spare_parts_details as s');
+        $this->db->join('service_centres as sc', 'sc.id = s.service_center_id AND sc.is_micro_wh = 1 ');
+        $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
+        $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_micro_wh =1 ');
+        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id AND sc.id = i.entity_id', 'left');
+        $this->db->join('micro_warehouse_state_mapping as ms', 'sc.id = ms.vendor_id AND ms.active = 1');
+
+        if(!empty($inventory_id)){
+            $this->db->where('im.inventory_id', $inventory_id);
+        }
+        $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
+        $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
+        $this->db->order_by('p.public_name, sc.name, part_name');
+        
+        $this->db->group_by('im.inventory_id');
+        
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+        /**
+     * @Desc: This function is used to inser gst data data  
+     * @params: $select string
+     * @return: $id  
+     * 
+     */
+    
+    function  insert_entity_gst_data($data){
+        $this->db->insert('entity_gst_details',$data);
+        return $this->db->insert_id();
+
+    }
+    
     function get_entity_gst_data($select="entity_gst_details.*", $where){
         $this->db->select($select);
         $this->db->where($where);
@@ -2637,14 +2650,6 @@ class Inventory_model extends CI_Model {
         echo $this->db->last_query();
         return $query;        
        
-    }
-
-
-    function get_entity_gst_data($select="*", $where){
-        $this->db->select($select);
-        $this->db->where($where);
-        $query = $this->db->get("entity_gst_details");
-        return $query->result_array();
     }
         /**
      * @Desc: This function is used to inser gst data data  
