@@ -2940,7 +2940,7 @@ class Service_centers extends CI_Controller {
 
         $spare_part = $this->partner_model->get_spare_parts_booking($where);
 
-        if (!empty($$spare_part)) {
+        if (!empty($spare_part)) {
             
         $_POST['sf_id'] = $spare_part[0]['service_center_id'];
         $_POST['booking_id'] = $spare_part[0]['booking_id'];
