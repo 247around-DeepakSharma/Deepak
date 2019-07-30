@@ -504,7 +504,7 @@ class Inventory_model extends CI_Model {
      * 
      */
     function _get_inventory_stocks($post,$select){
-        
+                
         if (empty($select)) {
             $select = '*';
         }
@@ -2662,7 +2662,6 @@ class Inventory_model extends CI_Model {
             $this->db->where($where,false);
         }        
         $query = $this->db->get();
-        echo $this->db->last_query();
         return $query;        
        
     }
@@ -2704,6 +2703,33 @@ class Inventory_model extends CI_Model {
 
         $query = $this->db->query($sql);
         return $query;
+    }
+    
+    
+    
+     /**
+     * @Desc: This function is used to get data from the inventory_stocks table
+     * @params: $post array
+     * @params: $select string
+     * @return: void
+     * 
+     */
+    function get_warehouse_stocks($post,$select){
+                
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->distinct();
+        $this->db->select($select,FALSE);
+        $this->db->from('inventory_stocks');
+        $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
+        $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+      $query = $this->db->get();
+      return $query; 
     }
 
 }
