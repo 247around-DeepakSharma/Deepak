@@ -40,10 +40,11 @@ class reporting_lib {
         $directory_xls = "call-center-summary-excels/" . $newCSVFileName;
 
         if (!empty($partner_id) && !empty($date_report_start)) {
-            $select = "partners.id, partners.summary_email_to, partners.summary_email_cc, "
-                    . " partners.summary_email_bcc, partners.public_name";
-            $where_get_partner = array('partners.id' => $partner_id, 'partners.is_active' => '1');
-            $partners = $this->My_CI->partner_model->getpartner_details($select, $where_get_partner, '1');
+//            $select = "partners.id, partners.summary_email_to, partners.summary_email_cc, "
+//                    . " partners.summary_email_bcc, partners.public_name";
+//            $where_get_partner = array('partners.id' => $partner_id, 'partners.is_active' => '1');
+//            $partners = $this->My_CI->partner_model->getpartner_details($select, $where_get_partner, '1');
+
             $report = $this->My_CI->partner_model->get_agent_wise_call_center_booking_summary($partner_id, $date_report_start, $date_report_end);
             $delimiter = ",";
             $newline = "\r\n";
