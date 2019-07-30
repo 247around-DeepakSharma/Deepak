@@ -590,6 +590,10 @@ class Upcountry_model extends CI_Model {
         $this->db->where('service_centres.active', "1");
         $this->db->where('service_centres.on_off', "1");
         $data = $this->db->get()->result_array();
+
+        if(empty($data)) {
+            return [];
+        }
         if(empty($brand_name)) {
             return $data;
         }
@@ -871,23 +875,23 @@ class Upcountry_model extends CI_Model {
                     }
                 }
                 
-//                if($partner_id == PAYTM){
-//                    $m_data = $this->generate_paytm_upcountry_distance($value['sub_vendor_id'], $value["upcountry_pincode"], $value['booking_pincode']);
-//                    if(!empty($m_data)){
-//                         if($m_data[0]['distance'] > 0){
-//                            $result[$key]['upcountry_distance'] = $m_data[0]['distance'];
-//                            $result[$key]['upcountry_price'] = $m_data[0]['distance'] * $value['partner_upcountry_rate'];
-//                            $result[$key]['municipal_limit'] = $m_data[0]['municipal_limit'];
-//                            $result[$key]['district'] = $m_data[0]['district'];
-//                         } else {
-//                             unset($result[$key]);
-//                         }
-//                         
-//                    } else {
-//                        $result[$key]['municipal_limit'] = "";
-//                        $result[$key]['district'] = "";
-//                    }
-//                }
+                if($partner_id == PAYTM){
+                    $m_data = $this->generate_paytm_upcountry_distance($value['sub_vendor_id'], $value["upcountry_pincode"], $value['booking_pincode'], $value['upcountry_distance']);
+                    if(!empty($m_data)){
+                         if($m_data[0]['distance'] > 0){
+                            $result[$key]['upcountry_distance'] = $m_data[0]['distance'];
+                            $result[$key]['upcountry_price'] = $m_data[0]['distance'] * $value['partner_upcountry_rate'];
+                            $result[$key]['municipal_limit'] = $m_data[0]['municipal_limit'];
+                            $result[$key]['district'] = $m_data[0]['district'];
+                         } else {
+                             unset($result[$key]);
+                         }
+                         
+                    } else {
+                        $result[$key]['municipal_limit'] = "";
+                        $result[$key]['district'] = "";
+                    }
+                }
                 if(isset($result[$key])){
                     $total_price += $result[$key]['upcountry_price'];
                     $total_booking += $value['count_booking'];
@@ -908,12 +912,12 @@ class Upcountry_model extends CI_Model {
         }
     }
     
-    function generate_paytm_upcountry_distance($sub_vendor_id, $upcountry_pincode, $booking_pincode){
+    function generate_paytm_upcountry_distance($sub_vendor_id, $upcountry_pincode, $booking_pincode, $upcountry_distance){
         $where = array("sub_service_center_details.id" => $sub_vendor_id);
-        $data = $this->get_municipal_limit($where, "municipal_limit, sub_service_center_details.district");
+        $data = $this->get_municipal_limit($where, "min_upcountry_distance as municipal_limit, sub_service_center_details.district");
         if(!empty($data)){
-            $distance_data = $this->get_distance_between_pincodes($booking_pincode,$upcountry_pincode);
-            $upcountry_distance = ($distance_data[0]['distance'] - $data[0]["municipal_limit"]) * 2;
+//            $distance_data = $this->get_distance_between_pincodes($booking_pincode,$upcountry_pincode);
+//            $upcountry_distance = ($distance_data[0]['distance'] - $data[0]["municipal_limit"]) * 2;
             $data[0]['distance'] = $upcountry_distance;
         } else {
             $data = array();
@@ -932,7 +936,7 @@ class Upcountry_model extends CI_Model {
         $this->db->select($select);
         $this->db->from("sub_service_center_details");
         $this->db->where($where);
-        $this->db->join("municipal_limit", "municipal_limit.district = sub_service_center_details.district");
+        $this->db->join("service_centres", "service_centres.id = sub_service_center_details.service_center_id");
         $query = $this->db->get();
         return $query->result_array();
     }

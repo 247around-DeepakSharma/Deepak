@@ -69,7 +69,10 @@
                 <form action="<?php echo base_url(); ?>employee/upcountry/assign_sc_to_upcountry" method="POST" style="margin-bottom:8px;" target="_blank">
                     <input type="hidden" value="<?php echo $query[0]['id']; ?>" name="service_center_id" />
                      <input type="hidden" value="<?php echo $query[0]['state']; ?>" name="state" />
-                     <input type="submit" value="Add Upcountry" class="btn btn-primary btn-md pull-right"/>
+                     <input type="submit" value="Add Upcountry" class="btn btn-primary btn-md pull-right" style="margin-left: 1%;"/>
+                     <?php if($this->session->userdata['user_group'] == _247AROUND_ADMIN) { ?>
+                        <a onclick="edit_form();" class="btn btn-primary pull-right" href="javascript:void(0);" title="Edit Service Center" style="margin-left:1%;"><span class="glyphicon glyphicon-pencil"></span></a>
+                     <?php } ?>
                 </form>
                 <?php }?>
                 <center><b>
@@ -515,7 +518,7 @@
                             echo "Save Basic Details";
                         }
                         ?>" class="btn btn-primary" id="submit_btn">
-                        <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
+                        <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
                         </center>
 <!--                    </div>-->
                 </div>
@@ -806,7 +809,7 @@
                                         echo "Save Documents";
                                     }
                                     ?>" class="btn btn-primary" id="submit_btn">
-                            <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
+                            <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
                                 </center>
    </form>
  </div>   
@@ -877,7 +880,7 @@
                                         echo "Save";
                                     }
                                     ?>" class="btn btn-primary" id="submit_btn">
-                                                                <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
+                                                                <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
                                 </center>
                             </div>
                                                             </form>
@@ -1163,7 +1166,7 @@
                                         echo "Save Contact Person";
                                     }
                                     ?>" class="btn btn-primary" id="submit_btn">
-                            <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
+                            <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
                                 </center>
             </div>    
         </form>
@@ -1331,7 +1334,7 @@
                                 </div>
         </div>
                         <center><input type="submit" onclick="return validate_bank_details()" value="Update Bank Details" class="btn btn-primary" id="submit_btn">
-                            <?php echo "<a class='btn btn-small btn-primary' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
+                            <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/viewvendor>Cancel</a>"; ?>
                                 </center>
                         </div>
                                 
@@ -1827,6 +1830,7 @@ function manageAccountNameField(value){
             $("#gst_type, #gst_status").val("");
         }
     }
+    
     function validate_ifsc_code(){
         var ifsc_code = $("#ifsc_code").val();
         if(ifsc_code.length == '11'){
@@ -1899,5 +1903,37 @@ function manageAccountNameField(value){
     .panel {
         border-radius:0px !important;
     }
-</style>
 
+<?php if(empty($is_editable) && !empty($query[0]['id'])) {  ?>
+    
+    #container-1, .form-control, .select2 {
+        pointer-events:none; 
+    }
+    .form-control, .select2 { 
+        background-color:#e6ede8;
+    }
+    
+    .select2-container--default .select2-selection--single {
+         background-color:#e6ede8;
+    }
+    
+    #submit_btn, .cancel{
+        display:none;
+    }
+    a[title="Remove Image"] {
+         display:none;
+    }
+  .select2-container .select2-selection--multiple {
+    background-color: #e6ede8;
+}
+<?php } ?>
+
+</style>    
+
+<script>
+    function edit_form() {
+        $('#container-1, .form-control, .select2, #submit_btn').css('pointer-events', 'auto');
+        $('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
+        $('#submit_btn, .cancel, a[title="Remove Image"]').css('display', 'inline-block');
+    }
+</script>

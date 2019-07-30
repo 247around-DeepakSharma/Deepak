@@ -53,6 +53,7 @@ class Partner extends CI_Controller {
         $select = "partner_logo,alt_text";
         $where = array('partner_logo IS NOT NULL' => NULL);
         $data['partner_logo'] = $this->booking_model->get_partner_logo($select, $where);
+        $data['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $this->load->view('partner/partner_login', $data);
     }
 
@@ -1939,7 +1940,7 @@ class Partner extends CI_Controller {
         }
     }
 
- /**
+    /**
      * @desc: This method is used to load update form(spare parts).
      * @param String $booking_id
      */
@@ -4517,6 +4518,26 @@ class Partner extends CI_Controller {
         }
         echo $option;
     }
+
+
+
+        function get_partner_list_warehouse(){
+
+        $where = array('warehouse_details.entity_type'=>_247AROUND_PARTNER_STRING);
+ 
+        $partner_list = $this->partner_model->get_all_partner_warehouse($where);
+        $option = '<option selected="" disabled="">Select Partner Warehouse Hub</option>';
+
+        foreach ($partner_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            $option .= " > ";
+            $option .= $value['name']. ' ( '. $value['city'] . ' ) ' . "</option>";  //address
+        }
+        echo $option;
+    }
+
+
+
     
      /**
      * @desc: This function is used to upload the challan file when partner shipped spare parts
@@ -5122,6 +5143,7 @@ class Partner extends CI_Controller {
         unlink($csv);
     }
     function download_waiting_upcountry_bookings(){
+        ob_start();
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
         $this->checkUserSession();
         $data = $this->upcountry_model->get_waiting_for_approval_upcountry_charges($this->session->userdata('partner_id'));
@@ -5162,6 +5184,8 @@ class Partner extends CI_Controller {
             "Current Booking Date",
             "Booking Completion Date",
             "Product",
+            "Booking Request Type",
+            "Part Warranty Status",
             "Requested On Partner/Warehouse",
             "Spare Status",
             "Booking Status Level 1",
@@ -5172,11 +5196,13 @@ class Partner extends CI_Controller {
             "SF Remarks",
             "Requested Part Code",
             "Requested Part Name",
+            "Requested Quantity",
             "Requested Part Type",
             "Requested Part Date",
             "Parts Charge",
             "Dispatched Part Code (To SF)",
             "Dispatched Part Name (To SF)",
+            "Dispatched Quantity (To SF)",
             "Dispatched Part Type (To SF)",
             "Dispatched Part Date (To SF)",
             "Dispatched Invoice Number (To SF)",
@@ -5201,8 +5227,10 @@ class Partner extends CI_Controller {
             $tempArray[] = ((!empty($sparePartBookings['create_date']))?date("d-m-Y",strtotime($sparePartBookings['create_date'])):'');
             $tempArray[] = ((!empty($sparePartBookings['initial_booking_date']))?date("d-m-Y",strtotime($sparePartBookings['initial_booking_date'])):'');
             $tempArray[] = ((!empty($sparePartBookings['booking_date']))?date("d-m-Y",strtotime($sparePartBookings['booking_date'])):'');
-            $tempArray[] = ((!empty($sparePartBookings['closed_date']))?date("d-m-Y",strtotime($sparePartBookings['closed_date'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['service_center_closed_date']))?date("d-m-Y",strtotime($sparePartBookings['service_center_closed_date'])):'');
             $tempArray[] = $sparePartBookings['services'];
+            $tempArray[] = $sparePartBookings['request_type'];
+            $tempArray[] = (($sparePartBookings['part_warranty_status'] == 1)? "In- Warranty" :(($sparePartBookings['part_warranty_status'] == 2)? "Out of Warranty" : ""));
             $tempArray[] = (($sparePartBookings['is_micro_wh'] == 0)? "Partner" :(($sparePartBookings['is_micro_wh'] == 1)? "Micro Warehouse - " : "").$sparePartBookings['warehouse_name']);
             $tempArray[] = $sparePartBookings['status'];
             $tempArray[] = $sparePartBookings['partner_current_status'];     
@@ -5213,11 +5241,13 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['remarks_by_sc'];
             $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['part_name'];
+            $tempArray[] = $sparePartBookings['quantity'];
             $tempArray[] = $sparePartBookings['type'];
             $tempArray[] = ((!empty($sparePartBookings['date_of_request']))?date("d-m-Y",strtotime($sparePartBookings['date_of_request'])):'');
             $tempArray[] = $sparePartBookings['challan_approx_value'];
             $tempArray[] = $sparePartBookings['shipped_part_number'];
             $tempArray[] = $sparePartBookings['shipped_part_name'];
+            $tempArray[] = $sparePartBookings['shipped_quantity'];
             $tempArray[] = $sparePartBookings['shipped_part_type'];
             $tempArray[] = ((!empty($sparePartBookings['shipped_date']))?date("d-m-Y",strtotime($sparePartBookings['shipped_date'])):'');
             $tempArray[] = $sparePartBookings['purchase_invoice_id'];
@@ -6086,7 +6116,7 @@ class Partner extends CI_Controller {
             $this->session->set_flashdata('inProcessBookings', $inProcessBookings);
             $url = base_url() . "employee/do_background_process/complete_booking";
             if (!empty($approved_booking)) {
-                $this->booking_model->mark_booking_in_process($approved_booking);
+                //$this->booking_model->mark_booking_in_process($approved_booking);
                 $data['booking_id'] = $approved_booking;
                 $data['agent_id'] = $this->session->userdata('agent_id');
                 $data['agent_name'] = $this->session->userdata('partner_name');
@@ -6108,7 +6138,7 @@ class Partner extends CI_Controller {
         $whereIN['booking_id'] = $postArray['booking_id']; 
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
         if(!empty($tempArray)){
-            $this->booking_model->mark_booking_in_process(array($postArray['booking_id']));
+            //$this->booking_model->mark_booking_in_process(array($postArray['booking_id']));
             echo "Booking Updated Successfully";
             $postArray = $this->input->post();
             $this->miscelleneous->reject_booking_from_review($postArray);
@@ -6193,7 +6223,7 @@ class Partner extends CI_Controller {
                } 
              $tempArray[] = $sn_no . $upcountryString;
             if($row->booking_files_purchase_inv){
-                $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a><br><a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/'.$row->booking_files_purchase_inv.'" title = "Purchase Invoice Varified" aria-hidden="true"><img src="http://localhost/247around-adminp-aws/images/varified.png" style="width:20px; height: 20px;"></a>';
+                $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a><br><a target="_blank" href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/'.$row->booking_files_purchase_inv.'" title = "Purchase Invoice Verified" aria-hidden="true"><img src="http://localhost/247around-adminp-aws/images/varified.png" style="width:20px; height: 20px;"></a>';
             }
             else{
                 $tempArray[] = '<a style="color:blue;" href='.base_url().'partner/booking_details/'.$row->booking_id.' target="_blank" title="View">'.$row->booking_id.'</a>';
@@ -7294,7 +7324,8 @@ class Partner extends CI_Controller {
             }
         }
     }
-      /*
+    
+     /*
      * @desc - This function is used to deactivate brand collateral
      */ 
     function deactivate_brand_collateral(){
@@ -7378,7 +7409,6 @@ class Partner extends CI_Controller {
     function get_posible_parent_id(){
         $this->miscelleneous->get_posible_parent_booking();
     }
-
     function process_partner_sample_no_pic()
     {
         $partner_id=$this->input->post('partner_id');
@@ -7388,7 +7418,7 @@ class Partner extends CI_Controller {
         'image/gif',
         'image/png');
         $allowed_size=2097152;
-        if(isset($_FILES))
+         if(isset($_FILES))
         {
             $sample_no_pic=$_FILES['SamplePicfile'];
             $cpt = count($_FILES['SamplePicfile']['name']);
@@ -7430,6 +7460,7 @@ class Partner extends CI_Controller {
 
                                     $attachment_sample_no_pic = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/vendor-partner-docs/" . $sample_file;
                                     unlink(TMP_FOLDER . $sample_file);
+
                                     //Logging success for file uppload
                                     log_message('info', __FUNCTION__ . ' SampleNoPicture is being uploaded sucessfully.');
                           }
@@ -7438,7 +7469,7 @@ class Partner extends CI_Controller {
                               $errormsg=$errormsg.$name.'  File should have jpeg,png,jpg type and size should be less than 2 MB.  ';
                           }
                       }
-                      else
+                       else
                       {
                           $errormsg=$errormsg.$name.'  The uploaded file exceeds the upload_max_filesize.  ';
                       }
@@ -7862,6 +7893,7 @@ class Partner extends CI_Controller {
         echo json_encode($res);
     }
 
+
     /**
      * @desc: This function is used to show  history for parts send by partner to Sfs
 
@@ -7872,6 +7904,7 @@ class Partner extends CI_Controller {
         $this->load->view('partner/partner_footer');
 
     }
+
     
     /**
      * @Desc: This function is used to get  Model for Partner for particular service_id  
@@ -7886,6 +7919,7 @@ class Partner extends CI_Controller {
         $service_id = $this->input->post('service_id');
         $where = array('entity_type' => 'partner', 'entity_id' => $partner_id, 'service_id' => $service_id, "active" => 1);
         $data = $this->partner_model->get_model_number_partner_service_wise($where);
+
         $option = "";
         foreach ($data as $value) {
             $option .= "<option ";

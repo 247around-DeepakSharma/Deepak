@@ -52,7 +52,7 @@
       </tr>
     </tbody>
     </table>
-    <center><img id="loader_gif_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                 <center><img id="loader_gif_escalation_n" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
     <button type="button" class="btn btn-success" id="full_view_escalation" ng-click="full_view_escalation()" style="float: right;">Show All SF</button>
 <!--                    <center><img id="loader_gif_unit_escalation" src="<?php echo base_url(); ?>images/loadring.gif" ></center>-->
                     </div>

@@ -285,6 +285,7 @@ class Service_centers_model extends CI_Model {
          }
          $join=$join." LEFT JOIN agent_filters ON agent_filters.state = booking_details.state";
         }
+        
          if(!$select){
              $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,booking_details.request_type,booking_details.city,booking_details.state"
                 . ",STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
@@ -307,6 +308,7 @@ class Service_centers_model extends CI_Model {
 
     function getcharges_filled_by_service_center($booking_id,$status,$whereIN,$is_partner,$offest,$perPage,$having_arr=array()) {
         $booking = $this->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,$offest,$perPage, [], 0, NULL, Null, 0, [],$having_arr);
+        
         foreach ($booking as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
             $this->db->select('booking_unit_details.partner_id,unit_details_id, service_charge, additional_service_charge,  parts_cost, upcountry_charges,'
@@ -919,6 +921,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         log_message('info', __METHOD__. "  ".$this->db->last_query());
         return $query->result_array();
     }
+    
     function dashboard_data_count($from_count,$second_count)
     {
         $today_date=date('Y-m-d');
@@ -1147,5 +1150,4 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         
         return $this->db->query($sql)->result_array();     
     }
-
 }

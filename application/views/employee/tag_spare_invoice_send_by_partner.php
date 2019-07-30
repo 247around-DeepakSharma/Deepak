@@ -82,6 +82,7 @@
                                             <div class="col-xs-8 col-sm-4">
                                                 <input placeholder="Select Date" type="text" class="form-control"  readonly=""  onkeydown="return false;"  name="dated" id="dated" autocomplete="off"/>
                                                 <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
+                                                <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_PARTNER; ?>">
                                             </div>
                                              <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                             <div class="col-xs-8 col-sm-4">
@@ -128,7 +129,20 @@
                                                 <input type="file" class="form-control" name="courier_file" id="courier_file"/>
                                             </div>
                                         </div>
-                                        
+                                        <div class="form-group">
+                                            <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
+                                            <div class="col-xs-4">
+                                                <select class="form-control" name="from_gst_number" id="from_gst_number" required="">
+                                                    <option value="" disabled="">Select From GST Number</option>
+                                                </select>
+                                            </div>
+                                            <label class="col-xs-2 control-label">To GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="247around GST Number print on invoice"><i class="fa fa-info"></i></span></label>
+                                            <div class="col-xs-8 col-sm-4">
+                                                <select class="form-control" name="to_gst_number" id="to_gst_number" required="">
+                                                    <option value="" disabled="">Select To GST Number</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                     <hr>
                                     <div class="dynamic-form-box">
@@ -195,10 +209,10 @@
                                                 <input type="hidden" id="shippingStatus" value="1">
                                                 <select class="form-control" id="service_id"  required="" onchange="get_part_details(this.id)"></select>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-2">
+                                            <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <select class="form-control" id="part_name"  required="" onchange="get_part_details(this.id)"></select>
                                             </div>
-                                            <div class="col-xs-12 col-sm-6 col-md-2">
+                                            <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <select class="form-control" id="part_number"></select>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
@@ -294,6 +308,7 @@
                                         <div class="col-xs-8 col-sm-4">
                                             <input type="file" class="form-control" name="file" id="on_invoice_file" required=""/>
                                             <input type="hidden" name="invoice_tag" value="<?php echo IN_WARRANTY; ?>">
+                                            <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_PARTNER; ?>">
                                         </div>
                                         
                                     </div>
@@ -450,12 +465,23 @@
         $('#partNumber_0').select2({
             placeholder:'Select Part Number'
         });
+        
+        $('#from_gst_number').select2({
+            placeholder:'Select From GST Number'
+        });
+        
+        $('#to_gst_number').select2({
+            placeholder:'Select To GST Number'
+        });
             
         get_partner_list();
+       
        // get_vendor('','');        
         $("#partner_id").on('change',function(){
             var partner_id = $("#partner_id").val();
-              get_vendor('1',partner_id);              
+               get_vendor('1',partner_id);
+               get_partner_gst_number();
+               get_247around_wh_gst_number();
         });
         
         
@@ -1254,7 +1280,7 @@
     
         //Declaring new Form Data Instance  
         var formData = new FormData();
-        var is_micro = $("on_wh_id").find(':selected').attr('data-warehose');
+        var is_micro = $("#on_wh_id").find(':selected').attr('data-warehose');
         formData.append("is_wh_micro", is_micro);
         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
         for (var i = 0; i < invoice_files.length; i++) {
@@ -1295,4 +1321,26 @@
             }
         });
     }
+    
+    function get_partner_gst_number(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/inventory/get_partner_gst_number',
+            data:{partner_id:$("#partner_id").val()},
+            success: function (response) {
+                $("#from_gst_number").html(response);
+            }
+        });
+    }
+
+   function get_247around_wh_gst_number(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/inventory/get_247around_wh_gst_number',
+            data:{partner_id:$("#partner_id").val()},
+            success: function (response) {
+                $("#to_gst_number").html(response);
+            }
+        });
+   }
 </script>

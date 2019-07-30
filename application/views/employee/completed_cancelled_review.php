@@ -125,7 +125,7 @@
                                              <span id="<?php echo "parts_cost".$count;?>"><?php echo $value1['parts_cost']; ?></span>
                                           </td>
                                           <td>
-                                             <span id="<?php echo "upcountry".$count;?>"><?php if($key1 ==0){ echo $value1['upcountry_charges'];} ?></span>
+                                             <span id="<?php echo "upcountry".$count;?>"><?php  echo $value1['upcountry_charges']; ?></span>
                                           </td>
                                           <td>
                                              <span id="<?php echo "broken".$count;?>"><?php if($value1['is_broken'] == 1){ echo "Yes";} else{ echo "No";} ?></span>
@@ -155,7 +155,7 @@
                               <?php if($review_status == "Completed"){ ?>
                               <td>
                                   <?php
-                                    $strWarrantyStatus = '--';
+                                    $strWarrantyStatus = 'OW';
                                     if(!empty($warranty_data[$value['booking_id']]))
                                     {
                                         $strWarrantyStatus = $warranty_data[$value['booking_id']];

@@ -276,7 +276,7 @@
                                                             <input type="hidden" name="is_model_dropdown" value="1" />
                                                            <?php } else { ?>
                                                              <input type="hidden" name="is_model_dropdown" value="0" />
-                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?= (!empty($unit_details['model_number']) ? $unit_details['model_number'] : ''); ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
+                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
                                                           <?php } ?>
                                                             <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_dop_".$key1."_".$key;?>" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>" />
@@ -289,14 +289,12 @@
                                                             if ((strpos($price['price_tags'],REPAIR_STRING) !== false) && (strpos($price['price_tags'],IN_WARRANTY_STRING) !== false)) {
                                                                    $dop_mendatory = 1; 
                                                             }
-                                                            
-                                                           // echo"<pre>";var_dump((isset($price['en_serial_number'])));exit;
                                                             ?>
                                                             <?php if ($price['pod'] == "1" || !empty($sr)) { ?>
                                                             <div class="form-group">
                                                                 <div class="col-md-12">
                                                                     <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
-                                                                        value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} elseif(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else { echo $price["serial_number_pic"];}  ?>" placeholder=""   />
+                                                                        value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];} elseif(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>" placeholder=""   />
 <!--                                                                    onblur="validateSerialNo('<?php //echo $count;?>')" -->
                                                                     <input type="text" style="text-transform: uppercase;" id="<?php echo "serial_number" . $count ?>" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  
                                                                         value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];}
@@ -334,6 +332,7 @@
                                                                            }
                                                                         }
                                                                     }
+                                                                    
                                                                     
                                                                     if(!empty($price["serial_number_pic"])) {
                                                                         $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/".SERIAL_NUMBER_PIC_DIR."/".$price["serial_number_pic"];
@@ -478,7 +477,7 @@
                                                             
                                                             <br/>
                                                             <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
-                                                            <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" .  $price['unit_id'] . "new" . $value['id'] . "]" ?>"   />
+                                                            <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control serialNumberPic" name="<?php echo "upload_serial_number_pic[" .  $price['unit_id'] . "new" . $value['id'] . "]" ?>"   />
                                                     <?php } ?>
                                                         </td>
                                                
@@ -745,13 +744,12 @@
         
         $('.priceList').children('tbody').next('tbody').children('tr').each(function(index){
             validateSerialNo(index);
-        });
-        
+    });
+    
         $('.serialNumberPic').on('change', function(){
             $('#'+$(this).attr('id').replace("upload_", "")).val($(this).val());
         });
     });
-    
     
     $(document).on('keyup', '.cost', function(e) {
     

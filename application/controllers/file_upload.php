@@ -43,7 +43,6 @@ class File_upload extends CI_Controller {
         //get file extension and file tmp name
         $file_status = $this->get_upload_file_type();
         $redirect_to = $this->input->post('redirect_url'); 
-       
         if ($file_status['file_name_lenth']) {
             if ($file_status['status']) {
                 //get file header
@@ -1348,6 +1347,7 @@ class File_upload extends CI_Controller {
         }
         return $response;
     }
+
 
     /**
      * @desc: This function is used to make the data to do the correct mapping between inventory and model_number 
