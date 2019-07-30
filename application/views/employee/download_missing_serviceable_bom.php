@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header" style="border-bottom: none;">
-                    <b> Download Serviceable BOM</b>
+                    <b> Download Missing Serviceable BOM</b>
                 </h1>
                 <div class="x_panel" style="padding-top: 40px; padding-bottom: 30px;">
                     <section>
@@ -95,7 +95,7 @@
             $('#serviceable_bom').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
             $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url(); ?>employee/inventory/download_serviceable_bom_data',
+                url: '<?php echo base_url(); ?>employee/inventory/download_missing_serviceable_bom_data',
                 data: {partner_id : partner_id, service_id : service_id},
                 success: function (data) {
                     $('#serviceable_bom').html("Download BOM").attr('disabled',false);

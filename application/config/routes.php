@@ -227,10 +227,10 @@ $route['partner/search_docket_number'] = 'employee/partner/search_docket_number'
 $route['partner/review_bookings/(:any)/(:any)'] = 'employee/partner/partner_review_bookings/$1/$2';
 $route['partner/contacts'] = 'partner/manage_partner_contacts';
 $route['partner/brand_collateral']='employee/partner/brandCollateral';
-$route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
 $route['partner/inventory/download_serviceable_bom'] = 'employee/partner/show_download_serviceable_bom';
 $route['partner/inventory/model_mapping'] = 'employee/partner/show_appliance_model_mapping';
 $route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
+$route['partner/inventory/download_missing_serviceable_bom'] = 'employee/partner/show_download_missing_serviceable_bom';
 $route['partner/inventory/download_part_master'] = 'employee/partner/show_download_part_master';
 $route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
 
@@ -270,6 +270,7 @@ $route['check_invoice_id_exists/(:any)'] = 'employee/inventory/check_invoice_id_
 $route['service_center/inventory/requested_spare_on_sf'] = 'employee/service_centers/requested_spare_on_sf';
 $route['service_center/requested_spare_on_sf/(:any)'] = 'employee/service_centers/get_spare_requested_spare_on_sf/$1';
 $route['service_center/send_to_partner_list'] = 'employee/service_centers/warehouse_task_list_tab_send_to_partner';
+$route['service_centers/spare_assigned_to_partner'] = 'employee/service_centers/spare_assigned_to_partner';
 $route['upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alternate_spare_parts_file';
 
 $route['service_center/update_booking_by_sf/(:any)/(:any)'] = 'employee/booking/update_booking_by_sf/$1/$2';

@@ -29,19 +29,8 @@
                                         </select>
                                     </div>
                                     <div class="form-group col-md-3">
-                                        <select class="form-control" id="service_center_id">
-                                            <option value="">Select Service Center</option>
-                                            <?php if(!empty($sf)) { foreach($sf as $sf_data) { ?>
-                                            <option value="<?= $sf_data['id']; ?>"><?= $sf_data['name']; ?></option>
-                                            <?php } } ?>
-                                        </select>
-                                    </div> 
-                                    <div class="form-group col-md-3">
-                                        <select class="form-control" id="warehouse_id">
-                                            <option value="">Select Warehouse</option>
-                                            <?php if(!empty($wh)) { foreach($wh as $wh_data) { ?>
-                                            <option value="<?= $wh_data['id']; ?>"><?= $wh_data['name']; ?></option>
-                                            <?php } } ?>
+                                        <select class="form-control" id="wh_id">
+                                            <option value="" disabled="">Select Warehouse</option>
                                         </select>
                                     </div> 
                                     <div class="form-group col-md-2">
@@ -65,6 +54,7 @@
                                     <th>  Part Number</th>
                                     <th>Description</th>
                                     <th>  Stock</th>
+                                    <th>  Requested Parts</th>
                                     <th> SF Basic Price</th>
                                     <th>  GST Rate</th>
                                     <th>  Total Price</th>
@@ -84,35 +74,16 @@
 </div>
 <script>
 
-    $('#service_center_id').select2({
-        allowClear: true,
-        placeholder :'Select Sevice Center'
-    });
-    $('#warehouse_id').select2({
-        allowClear: true,
-        placeholder :'Select Warehouse'
-    });
-    
     var inventory_stock_table;
 
     $(document).ready(function () {
         get_partner();
         get_inventory_list();
         
-        $('#service_center_id').on('select2:selecting', function(){
-            if($('#warehouse_id').val() != '') {
-                $('#warehouse_id').val('').change();
-            } 
-            $('#show_all_inventory').prop("checked", false);
+        $('#wh_id').select2({
+            placeholder:"Select Warehouse"
         });
-
-        $('#warehouse_id').on('select2:selecting', function(){
-            if($('#service_center_id').val() != '') {
-                $('#service_center_id').val('').change();
-            } 
-            $('#show_all_inventory').prop("checked", false);
-        });
-
+        
         $('#show_all_inventory').on('click', function(){
             if($(this).prop("checked") == true) {
                 $('#service_center_id').val('').change();
@@ -120,6 +91,26 @@
             } 
         });
     });
+
+    $('#partner_id').on('change',function(){
+        var partner_id = $('#partner_id').val();
+        if(partner_id){
+            get_vendor(partner_id);
+        }else{
+            alert('Please Select Partner');
+        }
+    });
+
+    function get_vendor(partner_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh',
+            data:{'is_wh' : 1,partner_id:partner_id},
+            success: function (response) {
+                $('#wh_id').html(response);
+            }
+        });
+    }    
     
     $('#get_inventory_data').on('click',function(){
         var partner_id = $('#partner_id').val();
@@ -170,13 +161,10 @@
                 url: "<?php echo base_url(); ?>employee/inventory/get_inventory_stocks_details",
                 type: "POST",
                 data: function(d){
-                 //   console.log(d); 
                     var entity_details = get_entity_details();
                     d.receiver_entity_id = entity_details.receiver_entity_id,
                     d.receiver_entity_type = entity_details.receiver_entity_type,
                     d.sender_entity_id = entity_details.sender_entity_id,
-                    d.sf_id = entity_details.sf_id,
-                    d.wh_id = entity_details.wh_id,
                     d.sender_entity_type = entity_details.sender_entity_type,
                     d.is_show_all = entity_details.is_show_all_checked
                 }
@@ -186,12 +174,16 @@
     }
     
     function get_entity_details(){
+    
+        var receiver_id = '<?php echo $this->session->userdata('service_center_id'); ?>';
+        if($('#wh_id').val() != null) {
+            receiver_id = $('#wh_id').val();
+        } 
+    
         var data = {
-            'receiver_entity_id': '<?php echo $this->session->userdata('service_center_id'); ?>',
+            'receiver_entity_id': receiver_id,
             'receiver_entity_type' : '<?php echo _247AROUND_SF_STRING; ?>',
             'sender_entity_id': $('#partner_id').val(),
-            'sf_id': $('#service_center_id').val(),
-            'wh_id': $('#warehouse_id').val(),
             'sender_entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
             'is_show_all_checked':$('#show_all_inventory:checked').val()
         };

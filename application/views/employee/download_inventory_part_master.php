@@ -99,7 +99,7 @@
                 url: '<?php echo base_url(); ?>employee/inventory/download_inventory_part_master_data',
                 data: {partner_id : partner_id, service_id : service_id},
                 success: function (data) {
-                    $('#part_master').html("Download").attr('disabled',false);
+                    $('#part_master').html("Download BOM").attr('disabled',false);
                     var obj = JSON.parse(data); 
                     if(obj['status']){
                         window.location.href = obj['msg'];

@@ -290,16 +290,26 @@ class invoices_model extends CI_Model {
     }
     
     function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
-            $sql = "SELECT COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid "
+            if($vendor_partner ==  _247AROUND_SF_STRING){
+                $s = "CASE WHEN (amount_collected_paid > 0) THEN COALESCE(SUM(`amount_collected_paid` - amount_paid ),0) ELSE COALESCE(SUM(`amount_collected_paid` + amount_paid ),0) END as amount_collected_paid ";
+                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_SECURITY_AMOUNT."', '".NEW_PART_RETURN."' ) ";
+            } else {
+                $s = " COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid ";
+                $w = "";
+            }
+            $sql = "SELECT $s "
                     . " FROM  `vendor_partner_invoices` "
-                    . " WHERE vendor_partner_id = '$vendor_partner_id' AND vendor_partner = '$vendor_partner' $otherWhere";
+                    . " WHERE vendor_partner_id = '$vendor_partner_id' AND vendor_partner = '$vendor_partner' $w  $otherWhere";
 
 
             $data = $this->db->query($sql);
             $result = $data->result_array();
-            
-            $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
-            $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
+            if($vendor_partner ==  _247AROUND_SF_STRING){
+                $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid']));
+            } else {
+                 $bank_transactions = $this->getbank_transaction_summary($vendor_partner, $vendor_partner_id);
+                 $result[0]['final_amount'] = sprintf("%.2f",($result[0]['amount_collected_paid'] - $bank_transactions[0]['credit_amount'] + $bank_transactions[0]['debit_amount']));
+            }
             return $result;
     }
     /**
@@ -689,6 +699,7 @@ class invoices_model extends CI_Model {
         $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
         $pickup_courier = $this->get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date);
         $warehouse_courier = $this->get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date);
+        $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
         $defective_return_to_partner = $this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date);
         
         
@@ -712,6 +723,7 @@ class invoices_model extends CI_Model {
         $result['packaging_quantity'] = 0;
         $result['warehouse_storage_charge'] = 0;
         $result['micro_warehouse_list'] = array();
+        $result['packaging_data'] = array();
         $result['spare_requested_data'] = $spare_requested_data;
         $final_courier = array_merge($courier,$pickup_courier, $warehouse_courier, $defective_return_to_partner);
         
@@ -731,14 +743,14 @@ class invoices_model extends CI_Model {
             
         }
 
-        if (!empty($warehouse_courier)) {
+        if (!empty($packaging_charge)) {
             $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG));
+                "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG, 'fixed_charges > 0' => NULL));
             if (!empty($packaging)) {
                 $c_data = array();
                 $c_data[0]['description'] = $packaging[0]['description'];
                 $c_data[0]['hsn_code'] = $packaging[0]['hsn_code'];
-                $c_data[0]['qty'] = count($warehouse_courier);
+                $c_data[0]['qty'] = count($packaging_charge);
                 $c_data[0]['rate'] = $packaging[0]['fixed_charges'];
                 $c_data[0]['gst_rate'] = $packaging[0]['gst_rate'];
                 $c_data[0]['product_or_services'] = $packaging[0]['description'];
@@ -746,9 +758,10 @@ class invoices_model extends CI_Model {
                 $result['result'] = array_merge($result['result'], $c_data);
                 
                 $result['packaging_rate'] = $packaging[0]['fixed_charges'];
-                $result['packaging_quantity'] = count($warehouse_courier);
+                $result['packaging_quantity'] = count($packaging_charge);
                 
                 $result['warehouse_courier'] = $warehouse_courier;
+                $result['packaging_data'] = $packaging_charge;
             }
         }
 
@@ -947,6 +960,7 @@ class invoices_model extends CI_Model {
             $data['penalty_booking_data'] = $penalty_data['penalty_booking_data'];
             $data['pickup_courier'] = $result_data['pickup_courier'];
             $data['micro_warehouse_list'] = $result_data['micro_warehouse_list'];
+            $data['packaging_data'] = $result_data['packaging_data'];
           
             return $data;
         } else {
@@ -956,20 +970,19 @@ class invoices_model extends CI_Model {
     
     function _set_partner_excel_invoice_data($result, $sd, $ed, $invoice_type, 
             $invoice_date = false, $is_customer = false, $customer_state =false){
-            //get company detail who generated invoice
-            if(isset($result[0]['state_code'])  && !empty($result[0]['state_code'])){
-                $state = $this->get_state_code(array('state_code' => $result[0]['state_code']))[0]['state'];
+        
+            if(isset($result[0]['c_s_gst'])){
+                $c_s_gst = $result[0]['c_s_gst'];
             } else {
-                $state = $result[0]['state'];
+                //get company detail who generated invoice
+                $c_s_gst =$this->check_gst_tax_type($result[0]['state'], $customer_state);
             }
-            $c_s_gst =$this->check_gst_tax_type($state, $customer_state);
-            
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
                     $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
             $meta['total_ins_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
             $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-            $meta += $this->partner_model->get_main_partner_invoice_detail($partner_on_saas);
+            $meta += $this->partner_model->get_main_partner_invoice_detail($partner_on_saas );
             
             $parts_count = 0;
             $service_count = 0;
@@ -1044,6 +1057,14 @@ class invoices_model extends CI_Model {
                     $meta['total_parts_charge'] += $value['taxable_value'];
                     $parts_count += $value['qty'];
                 }
+                
+                if(isset($value['to_gst_number_id'])){
+                    $result[$key]['to_gst_number_id'] = $value['to_gst_number_id'];
+                }
+                
+                if(isset($value['from_gst_number_id'])){
+                    $result[$key]['from_gst_number_id'] = $value['from_gst_number_id'];
+                }
             }
             $meta['parts_count'] = $parts_count;
             $meta['service_count'] = $service_count;
@@ -1085,8 +1106,8 @@ class invoices_model extends CI_Model {
                     $result[0]['district'] . ", Pincode -" . $result[0]['pincode'] . ", " . $result[0]['state'];
             $meta['reference_invoice_id'] = "";
            
-            $meta['state_code'] = $this->get_state_code(array('state' => $state))[0]['state_code'];
-            $meta['state'] = $state;
+            $meta['state_code'] = $this->get_state_code(array('state' => $result[0]['state']))[0]['state_code'];
+            $meta['state'] = $result[0]['state'];
             return array(
                 "meta" => $meta,
                 "booking" => $result
@@ -1410,21 +1431,21 @@ class invoices_model extends CI_Model {
             $result['misc'] = $misc;
         }
         
-        $micro_invoice = $this->get_micro_warehoue_invoice_ledger_details($vendor_id, $from_date_tmp, $to_date);
-        if(!empty($micro_invoice) && $micro_invoice['count'] > 0){
-
-            $c_data = array();
-            $c_data[0]['description'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
-            $c_data[0]['hsn_code'] = HSN_CODE;
-            $c_data[0]['qty'] = $micro_invoice['count'];
-            $c_data[0]['rate'] = "";
-            $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
-            $c_data[0]['product_or_services'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
-            $c_data[0]['taxable_value'] = $micro_invoice['charge'];
-            $result['booking'] = array_merge($result['booking'], $c_data);
-            $result['micro_warehouse_list'] = $micro_invoice['list'];
-                
-        }
+//        $micro_invoice = $this->get_micro_warehoue_invoice_ledger_details($vendor_id, $from_date_tmp, $to_date);
+//        if(!empty($micro_invoice) && $micro_invoice['count'] > 0){
+//
+//            $c_data = array();
+//            $c_data[0]['description'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
+//            $c_data[0]['hsn_code'] = HSN_CODE;
+//            $c_data[0]['qty'] = $micro_invoice['count'];
+//            $c_data[0]['rate'] = "";
+//            $c_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+//            $c_data[0]['product_or_services'] = MICRO_WAREHOUSE_CHARGES_DESCRIPTION;
+//            $c_data[0]['taxable_value'] = $micro_invoice['charge'];
+//            $result['booking'] = array_merge($result['booking'], $c_data);
+//            $result['micro_warehouse_list'] = $micro_invoice['list'];
+//                
+//        }
         
 //            if (!empty($warehouse_courier)) {
 //                $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_SF_STRING,
@@ -2422,6 +2443,25 @@ class invoices_model extends CI_Model {
                 . ' AND  parts_shipped IS NOT NULL '
                 . ' AND partner_warehouse_courier_invoice_id IS NULL'
                 . ' GROUP BY awb_by_partner HAVING courier_charges_by_sf > 0 ';
+                
+       
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    function get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date){
+        log_message('info', __METHOD__. " Enterring..");
+        $sql = 'SELECT sp.id as sp_id '
+                . ' FROM spare_parts_details as sp '
+                . ' JOIN  booking_details as bd ON bd.booking_id = sp.booking_id  '
+                . ' WHERE '
+                . ' entity_type = "'._247AROUND_SF_STRING.'" '
+                . ' AND bd.partner_id = "'.$partner_id.'" '
+                . ' AND awb_by_partner IS NOT NULL '
+                . ' AND sp.shipped_date >= "'.$from_date.'" '
+                . ' AND sp.shipped_date < "'.$to_date.'" '
+                . ' AND  parts_shipped IS NOT NULL '
+                . ' AND partner_warehouse_packaging_invoice_id IS NULL'
+                . ' GROUP BY sp.id  ';
                 
        
         $query = $this->db->query($sql);

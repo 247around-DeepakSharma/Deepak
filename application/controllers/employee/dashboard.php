@@ -1979,10 +1979,10 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             //Filter on status
             if($status !="not_set"){
                 if($status == 'Completed'){
-                     $conditionArray['where']['current_status'] = 'Completed'; 
+                     $conditionArray['where']['!(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
                 }
                 else{
-                    $conditionArray['where']['current_status'] = 'Cancelled'; 
+                    $conditionArray['where']['(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
                 }
             }
             //only is sf closed date is not null
@@ -2342,7 +2342,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
              if(array_key_exists('Total_Pending',$values)){
                 $headings[] = ">TAT_3";
              }
-
             $headings[] = "TAT_0";
              if(!array_key_exists('Total_Pending',$values)){
                  $headings[] = "TAT_0_percentage";

@@ -229,6 +229,14 @@ ALTER TABLE `engineer_booking_action` ADD `parts_cost` INT NOT NULL DEFAULT '0' 
 ALTER TABLE `engineer_booking_action` ADD `amount_paid` INT NULL AFTER `cancellation_reason`;
 
 ALTER TABLE employee_relation ADD COLUMN individual_service_centres_id text NULL DEFAULT NULL AFTER service_centres_id;
+--Abhay /07/2019
+
+ALTER TABLE `entity_gst_details` ADD `city` VARCHAR(64) NOT NULL AFTER `gst_file`, ADD `pincode` INT(11) NOT NULL AFTER `city`, ADD `address` VARCHAR(256) NOT NULL AFTER `pincode`;
+
+ALTER TABLE `inventory_ledger` ADD `micro_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `invoice_id`;
+--- Gorakh 28-06-2019 
+INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
+('spare_part_shipment_pending', 'OUT OF TAT - UNDELIVERED %s COURIER', 'Please find attached excel in which mentioned undelivered <b>%s</b> courier above 5 days.', NULL, 'noreply@247around.com', '', '', '', '1', '2019-06-28 05:52:56');
 
 --Kajal 12/07/2019 --
 ALTER TABLE `spare_parts_details` ADD `cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `shipped_quantity`;
@@ -321,6 +329,15 @@ ALTER TABLE service_category_mapping ADD CONSTRAINT `uk_scm_service_category_cap
 ALTER TABLE `engineer_booking_action` ADD `booking_status` INT NOT NULL AFTER `solution`;
 -- Prity 16-July-2019
 ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT uk_state_plan UNIQUE (plan_id, state_code);
+--Kajal 13/07/2019 --
+ALTER TABLE `spare_parts_details` CHANGE `cancellation_reason` `spare_cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
+
+-- Kajal 19-July-2019 --
+ALTER TABLE `inventory_model_mapping` ADD `bom_main_part` INT(1) NOT NULL DEFAULT '1' COMMENT '1 - Main Part, 0 - Alternate Part' AFTER `max_quantity`;
+
+--Ankit 15/07/2019 --
+ALTER TABLE service_center_brand_mapping ADD COLUMN service_id int(11) NOT NULL AFTER service_center_id;
+
 -- Ankit 17-July-2019
 ALTER TABLE service_center_brand_mapping ADD COLUMN created_by varchar(150) NOT NULL AFTER create_date;
 
