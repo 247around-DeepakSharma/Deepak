@@ -405,9 +405,9 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
     *
     */
 
-   function get_booking_report_by_service_center_data($sf_list, $interval_in_days) {
+   function get_booking_report_by_service_center_data($sf_list, $interval_in_days, $sf_closed_date = NULL) {
 
-       $data = $this->My_CI->reporting_utils->get_booking_by_service_center($sf_list, $interval_in_days);
+       $data = $this->My_CI->reporting_utils->get_booking_by_service_center($sf_list, $interval_in_days, $sf_closed_date);
        
        foreach ($data['service_center_id'] as $key => $val) {
            
@@ -500,8 +500,8 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
        return array("final_way"=>$final_way,"state_final"=>$state_final);
 }
 
-   function booking_report_by_service_center($sf_list,$cron_flag, $interval_in_days = 1) {
-       $bookingReportData = $this->get_booking_report_by_service_center_data($sf_list, $interval_in_days);
+   function booking_report_by_service_center($sf_list,$cron_flag, $interval_in_days = 1, $sf_closed_date = NULL) {
+       $bookingReportData = $this->get_booking_report_by_service_center_data($sf_list, $interval_in_days, $sf_closed_date);
        //Getting States and City List
        foreach($bookingReportData['final_way'] as $value){
            $state_array[] = $value['state'];
@@ -559,9 +559,9 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:10%">State</th>
                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:9%">City</th>
                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Name</th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Today Booked<p><span class="js-sorter-desc  glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Today Completed<p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
-                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Today Cancelled<p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Booked<p><span class="js-sorter-desc  glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Completed<p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
+                               <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">Cancelled<p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">' . date('M') . ' Booking Completed <p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">' . date('M') . ' Booking Cancelled <p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE">0-2 Days <p><span class="js-sorter-desc     glyphicon glyphicon-chevron-down pull-right"></span> <span class="js-sorter-asc     glyphicon glyphicon-chevron-up pull-right"></span></th>
@@ -654,10 +654,10 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                            $greater_than_5_days = 0;
 
                    $html.="<tr style='".$style."'>" .
-                           "<td style='text-align: center;border: 1px solid #001D48;padding:5px;font-size:80%' class='text-right'>" . $rm .
-                           "<td style='text-align: center;border: 1px solid #001D48;padding:5px;font-size:80%' class='text-right'>" . $value['state'] .
-                           "<td style='text-align: center;border: 1px solid #001D48;padding:5px;font-size:80%;' class='text-right'>" . $value['city'] .
-                           "</td><td style='text-align: center;border: 1px solid #001D48;font-size:80%;padding:5px;' class='text-right'>" . $value['service_center_name'] .
+                           "<td width='8%' style='text-align: center;border: 1px solid #001D48;padding:5px;font-size:80%' class='text-right'>" . $rm .
+                           "<td width='10%' style='text-align: center;border: 1px solid #001D48;padding:5px;font-size:80%' class='text-right'>" . $value['state'] .
+                           "<td width='11%' style='text-align: center;border: 1px solid #001D48;padding:5px;font-size:80%;' class='text-right'>" . $value['city'] .
+                           "</td><td width='15%' style='text-align: center;border: 1px solid #001D48;font-size:80%;padding:5px;' class='text-right'>" . $value['service_center_name'] .
                            " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['yesterday_booked'] .
                            " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['yesterday_completed'] .
                            " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['yesterday_cancelled'] .
@@ -691,7 +691,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
        $html .="</tbody>
                          </table>";
        $html.="<table width='100%' style='margin-bottom: 20px;border: 1px solid #ddd; border-collapse: collapse;'><tbody><tr>" .
-               "</td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:43%'>" . 'TOTAL' .
+               "</td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:45%'>" . 'TOTAL' .
                " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_yesterday_booked . '<strong>' .
                " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_yesterday_completed . '<strong>' .
                " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_yesterday_cancelled . '<strong>' .

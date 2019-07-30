@@ -909,7 +909,16 @@ class Reporting_utils extends CI_Model {
         $data_greater_than_5_days = $this->db->query($queries['sql_greater_than_5_days'])->result_array();
         return array('data_last_2_day'=>$data_last_2_day,'data_last_3_day'=>$data_last_3_day,'data_greater_than_5_days'=>$data_greater_than_5_days);
     }
-function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_days = 1){
+function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_days = 1, $sf_closed_date = NULL){
+   
+        if(empty($sf_closed_date)) {
+            $sf_closed_date = date('Y-m-d', strtotime(' -1 day')). ' - '. date('Y-m-d');
+        }
+        
+        $date = explode(' - ', $sf_closed_date);
+        $startDate = $date[0];
+        $endDate = $date[1];
+        
         $queries['sql_yesterday_booked'] = "SELECT count(distinct(`booking_state_change`.booking_id)) as booked, service_centres.name as service_center_name, service_centres.state, 
             service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off   
                                 FROM  `booking_state_change`, `booking_details` , service_centres
@@ -917,8 +926,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                 IN (
                                 'Pending',  'Rescheduled'
                                 )" . $where . "
-                                AND booking_state_change.create_date >= DATE_SUB( CURDATE( ) , INTERVAL ".$interval_in_days."
-                                DAY )
+                                AND booking_state_change.create_date BETWEEN '{$startDate}' AND '{$endDate}'
                                 AND booking_state_change.create_date < CURDATE()
                                 AND `booking_details`.booking_id = `booking_state_change`.booking_id
                                 AND `service_centres`.id = `booking_details`.assigned_vendor_id ".$groupBY;
@@ -929,9 +937,8 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                     FROM `booking_details` , service_centres
                                     WHERE `current_status` = 'Completed'
                                     " . $where . "
-                                    AND booking_details.closed_date >= DATE_SUB( CURDATE() , INTERVAL 1 
-                                    DAY ) 
-                                    AND booking_details.closed_date < CURDATE() 
+                                    AND booking_details.service_center_closed_date BETWEEN '{$startDate}' AND '{$endDate}'
+                                    AND booking_details.service_center_closed_date < CURDATE() 
                                     AND `service_centres`.id = `booking_details`.assigned_vendor_id ".$groupBY;
 
         $queries['sql_yesterday_cancelled'] = "SELECT COUNT( DISTINCT (
@@ -940,9 +947,8 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                     FROM `booking_details` , service_centres
                                     WHERE `current_status` = 'Cancelled'
                                     " . $where . "
-                                    AND booking_details.closed_date >= DATE_SUB( CURDATE() , INTERVAL 1 
-                                    DAY ) 
-                                    AND booking_details.closed_date < CURDATE() 
+                                    AND booking_details.service_center_closed_date BETWEEN '{$startDate}' AND '{$endDate}'
+                                    AND booking_details.service_center_closed_date < CURDATE() 
                                     AND `service_centres`.id = `booking_details`.assigned_vendor_id ".$groupBY;
 
         $queries['sql_month_completed'] = "SELECT COUNT( DISTINCT (
@@ -951,8 +957,8 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Completed'
                                             " . $where . "
-                                            AND DATE_FORMAT( booking_details.closed_date, '%m' ) = MONTH( CURDATE() ) 
-                                            AND DATE_FORMAT( booking_details.closed_date, '%Y' ) = YEAR( CURDATE() )
+                                            AND DATE_FORMAT( booking_details.service_center_closed_date, '%m' ) = MONTH( CURDATE() ) 
+                                            AND DATE_FORMAT( booking_details.service_center_closed_date, '%Y' ) = YEAR( CURDATE() )
                                             AND `service_centres`.id = `booking_details`.assigned_vendor_id ".$groupBY;
         
         $queries['sql_month_cancelled'] = "SELECT COUNT( DISTINCT (
@@ -961,8 +967,8 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                             FROM `booking_details` , service_centres
                                             WHERE `current_status` = 'Cancelled'
                                             " . $where . "
-                                            AND DATE_FORMAT( booking_details.closed_date, '%m' ) = MONTH( CURDATE() ) 
-                                            AND DATE_FORMAT( booking_details.closed_date, '%Y' ) = YEAR( CURDATE() )
+                                            AND DATE_FORMAT( booking_details.service_center_closed_date, '%m' ) = MONTH( CURDATE() ) 
+                                            AND DATE_FORMAT( booking_details.service_center_closed_date, '%Y' ) = YEAR( CURDATE() )
                                             AND `service_centres`.id = `booking_details`.assigned_vendor_id ".$groupBY;
         $pendingBookingArray = $this->get_pending_booking_by_service_center_query_data($where,$groupBY);
         $data_yesterday['booked'] = $this->db->query($queries['sql_yesterday_booked'])->result_array();
@@ -979,14 +985,14 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
      * return: Array
      */
 
-    function get_booking_by_service_center($sf_list = "", $interval_in_days = 1) {
+    function get_booking_by_service_center($sf_list = "", $interval_in_days = 1, $sf_closed_date = NULL) {
         if ($sf_list != "") {
             $where = " AND service_centres.id  IN (" . $sf_list . ") ";
         } else {
             $where = "";
         }
         $groupBY = "GROUP BY service_centres.state, service_centres.name";
-        $finalArray = $this->get_booking_by_service_center_query_data($where,$groupBY, $interval_in_days);
+        $finalArray = $this->get_booking_by_service_center_query_data($where,$groupBY, $interval_in_days, $sf_closed_date);
         //Setting $result array with all values
         $result['yesterday_booked'] = $this->remove_no_state_error($finalArray['data_yesterday']['booked'], 'booked');
         $result['yesterday_completed'] = $this->remove_no_state_error($finalArray['data_yesterday']['completed'], 'completed');
