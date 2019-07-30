@@ -90,7 +90,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
-                    <h2>Download Serviceable BOM</h2>
+                    <h2>Download Missing Serviceable BOM</h2>
                     <input type="hidden" id="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>">
                     <div class="clearfix"></div>
                 </div>
@@ -149,7 +149,7 @@
                 $('#serviceable_bom').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
                 $.ajax({
                     type: 'POST',
-                    url: '<?php echo base_url(); ?>employee/inventory/download_serviceable_bom_data',
+                    url: '<?php echo base_url(); ?>employee/inventory/download_missing_serviceable_bom_data',
                     data: {partner_id : partner_id, service_id : service_id},
                     success: function (data) {
                         $('#serviceable_bom').html("Download").attr('disabled',false);

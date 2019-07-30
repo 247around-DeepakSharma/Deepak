@@ -2576,19 +2576,20 @@ class Inventory_model extends CI_Model {
      */
     function get_microwarehouse_msl_data($date, $inventory_id = ""){
         $this->db->select('public_name as company_name, sc.name as warehouse_name, im.inventory_id,  part_name, part_number, '
-                . 'im.type, price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
+                . 'im.type, ( (price + price *gst_rate/100)+ ((price + price *gst_rate/100) * oow_around_margin/100)) as price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
         $this->db->from('spare_parts_details as s');
         $this->db->join('service_centres as sc', 'sc.id = s.service_center_id AND sc.is_micro_wh = 1 ');
         $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
         $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_micro_wh =1 ');
         $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id AND sc.id = i.entity_id', 'left');
+        $this->db->join('micro_warehouse_state_mapping as ms', 'sc.id = ms.vendor_id AND ms.active = 1');
 
         if(!empty($inventory_id)){
             $this->db->where('im.inventory_id', $inventory_id);
         }
         $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
         $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
-        $this->db->order_by('p.public_name, sc.name');
+        $this->db->order_by('p.public_name, sc.name, part_name');
         
         $this->db->group_by('im.inventory_id');
         
@@ -2661,6 +2662,7 @@ class Inventory_model extends CI_Model {
             $this->db->where($where,false);
         }        
         $query = $this->db->get();
+        echo $this->db->last_query();
         return $query;        
        
     }
@@ -2684,4 +2686,24 @@ class Inventory_model extends CI_Model {
         return $query->result_array();        
        
     }
+    
+    /**
+     * @Desc: This function is used to get Details of Missing serviceable BOM
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_missing_serviceable_bom_data($select, $partner_id, $service_id) {
+
+        $where = "";
+        if (!empty($partner_id)) {
+            $where = " WHERE NOT EXISTS (SELECT DISTINCT inventory_model_mapping.model_number_id FROM inventory_model_mapping WHERE inventory_model_mapping.model_number_id = appliance_model_details.id) AND services.id = service_id AND appliance_model_details.entity_id =" . $partner_id . " AND services.id=" . $service_id;
+        }
+        $sql = $select . " FROM appliance_model_details, services " . $where;
+
+        $query = $this->db->query($sql);
+        return $query;
+    }
+
 }
