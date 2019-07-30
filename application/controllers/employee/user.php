@@ -695,6 +695,10 @@ class User extends CI_Controller {
                 $to .= (($manager_details[0]['official_email'] != '')? (','.$manager_details[0]['official_email']):'');
             }
             
+            if(!empty($email_template[0]['to'])) {
+                $to .= ','.$email_template[0]['to'];
+            }
+            
             $to = trim($to,',');
             
             if($to == '') {
@@ -723,7 +727,7 @@ class User extends CI_Controller {
             if (isset($temp)) {
                 $emailBody = vsprintf($email_template[0]['body'], $temp);
                 //Sending Mail
-                $this->notify->sendEmail($email_template[0]['from'], $to, '', '', $email_template[0]['subject'], $emailBody, $attachment,$email_template[0]['template']);
+                $this->notify->sendEmail($email_template[0]['from'], $to, $email_template[0]['cc'], $email_template[0]['bcc'], $email_template[0]['subject'], $emailBody, $attachment,$email_template[0]['template']);
                 //Login send mail details
                 log_message('info', __FUNCTION__ . ' Mail send to the following employee ID ' . $employee_details[0]['id']);
                 //Set Flag to check success or error
