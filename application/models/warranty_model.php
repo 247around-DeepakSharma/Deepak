@@ -136,8 +136,8 @@ class Warranty_model extends CI_Model {
     function check_warranty_by_booking_ids($arrBookings) {
         $strSelect = "booking_details.booking_id,booking_details.service_id,booking_details.partner_id,"
                 . "booking_details.create_date,appliance_model_details.id as model_id,"
-                . "ifnull(spare_parts_details.model_number, booking_unit_details.sf_model_number) as model_number,"
-                . "ifnull(spare_parts_details.date_of_purchase, booking_unit_details.sf_purchase_date) as date_of_purchase,"
+                . "ifnull(spare_parts_details.model_number, ifnull(booking_unit_details.sf_model_number,booking_unit_details.model_number)) as model_number,"
+                . "ifnull(spare_parts_details.date_of_purchase, ifnull(booking_unit_details.sf_purchase_date,booking_unit_details.purchase_date)) as date_of_purchase,"
                 . "warranty_plan_model_mapping.plan_id,"
                 . "ifnull(MAX(warranty_plans.warranty_period), 12) as warranty_period,"
                 . "CASE WHEN warranty_plans.warranty_type = ".EXTENDED_WARRANTY_STATUS." THEN 'EW' else 'IW' end as warranty_type";
