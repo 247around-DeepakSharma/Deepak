@@ -92,13 +92,6 @@
                 <div class="x_title">
                     <h2>Serviceable BOM</h2>
                     <input type="hidden" id="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>">
-                    <ul class="nav navbar-right panel_toolbox">
-                        <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_model" title="Add New Model">Add New Model</a>
-
-                        <a class="btn btn-success pull-right" style="margin-top: 10px;" id="map_model" title="Add New Mapping">Add New Mapping</a>
-
-                        
-                    </ul>
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
@@ -114,7 +107,7 @@
                             </div>
                         </div>
                     </div>
-                    <hr>
+                    <br/><br/>
                     <div class="success_msg_div" style="display:none;">
                         <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
                             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -154,7 +147,7 @@
 
 
 
-                           <div id="appliance_model_details_dataeditmodeldiv" class="modal fade" role="dialog">
+                    <div id="appliance_model_details_dataeditmodeldiv" class="modal fade" role="dialog">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
@@ -181,12 +174,12 @@
                                                 </div>
                                             </div>
                                         </div>
- 
+
                                         <div class="modal-footer">
                                             <input type="hidden"  id="entity_id2" name='entity_id' value='<?php echo $this->session->userdata('partner_id') ?>'>
                                             <input type="hidden" id="entity_type2" name='entity_type' value="partner">
                                             <input type="hidden" id="model_id2" name='model_id' value="">
-                                             <input type="hidden" id="" name='status' value="1">
+                                            <input type="hidden" id="" name='status' value="1">
                                             <button type="submit"  class="btn btn-success"  id="model_submit_btn2"   name='submit_type' value="">Submit</button>
                                             <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                                             <p class="pull-left text-danger">* These fields are required</p>
@@ -197,84 +190,7 @@
                         </div>
                     </div>
 
-
-
-                    <!--Modal start-->
-                    <div id="appliance_model_details_data" class="modal fade" role="dialog">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h4 class="modal-title" id="modal_title_action"> </h4>
-                                </div>
-                                <div class="modal-body">
-
-                                    <form class="form-horizontal" id="applince_model_list_details">
-                                        <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="control-label col-md-4" for="service_id">Appliance*</label>
-                                                    <div class="col-md-7 col-md-offset-1">
-                                                        <select class="form-control addservices" onchange="get_partner_brands();"  id="service_id" name="service_id"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="control-label col-md-4" for="model_numbernew">Model Number *</label>
-                                                    <div class="col-md-7 col-md-offset-1">
-                                                        <input type="text" class="form-control" id="mapping_model_numbernew" name="model_number">
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                          <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="control-label col-md-4" for="mapping_brandnew">Brand*</label>
-                                                    <div class="col-md-7 col-md-offset-1">
-                                                        <select class="form-control" id="mapping_brandnew" onchange="get_partner_mapping_category();" name="mapping_brand"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="control-label col-md-4" for="mapping_categorynew">Category *</label>
-                                                    <div class="col-md-7 col-md-offset-1">
-                                                        <select class="form-control" id="mapping_categorynew" onchange="get_partner_mapping_capacity();"  name="mapping_category"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                           <div class="row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label class="control-label col-md-4" for="mapping_capacitynew">Capacity*</label>
-                                                    <div class="col-md-7 col-md-offset-1">
-                                                        <select class="form-control" id="mapping_capacitynew" name="mapping_capacity"></select>
-                                                    </div>
-                                                </div>
-                                            </div>
- 
-                                        </div>
-
-                                        <div class="modal-footer">
-                                            <input type="hidden"  id="entity_id" name='entity_id' value='<?php echo $this->session->userdata('partner_id') ?>'>
-                                            <input type="hidden" id="entity_type" name='entity_type' value="partner">
-                                            <input type="hidden" id="model_id" name='model_id' value="">
-                                            <button type="button" onclick="model_number_check_and_add_mapping()" class="btn btn-success"  name='submit_type' value="">Submit</button>
-                                            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                                            <p class="pull-left text-danger">* These fields are required</p>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Modal end -->
-
-                     <!--Modal start [ map model number ]-->
+    <!--Modal start [ map model number ]-->
       <div id="map_appliance_model" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -476,26 +392,7 @@
             }
         });
     }
-    
-    $('#add_model').click(function(){
-        $('#service_id').val(null).trigger('change');
-        get_services('service_id');
-        $("#applince_model_list_details")[0].reset();
-        $('#model_submit_btn').val('Add');
-        $('#modal_title_action').html("Add Item");
-        $('#appliance_model_details_data').modal('toggle');
-    });
-
-        $('#map_model').click(function(){
-        $("#model_action").val("add");
-        $("#mapping_service_id").prop('selectedIndex',0).change();
-        $("#mapping_model_number").empty();
-        $("#mapping_brand").empty();
-        $("#mapping_category").empty();
-        $("#mapping_capacity").empty();
-        $('#map_appliance_model').modal('toggle');
-    });
-    
+        
     $(document).on("click", "#appliance_model_details_dataeditmodel", function () {  
         var form_data = $(this).data('id');
         if(form_data.service){
@@ -795,53 +692,6 @@
             }
         });
     }
-
-    function model_number_check_and_add_mapping(){
-        if(!$("#service_id").val()){
-            alert("Please Select Service");
-            return false;
-        }
-        else if(!$("#mapping_model_numbernew").val()){
-            alert("Please Select Model Number");
-            return false;
-        }
-        else if(!$("#mapping_brandnew").val()){
-            alert("Please Select Brand");
-            return false;
-        }
-        else if(!$("#mapping_categorynew").val()){
-            alert("Please Select Category");
-            return false;
-        }
-        else{
-            var url = "";
-            var data;
-                url = '<?php echo base_url();?>employee/inventory/add_model_number_mapping';
-                data = {partner_appliance_details_id:$("#model_mapping_id").val(), partner_id:$('#partner_id').val(), service_id:$('#service_id').val(), category:$('#mapping_categorynew').val(), brand:$('#mapping_brandnew').val(), capacity:$('#mapping_capacitynew').val(), model: $('#mapping_model_numbernew').val(),entity_id:$("#entity_id").val(),entity_type:$("#entity_type").val()};
-
-            $.ajax({
-                type:'POST',
-                url:url,
-                data:data,
-                success:function(response){
-                    response = JSON.parse(response);
-                    $('#appliance_model_details_data').modal('toggle');
-                    if(response.status == true){
-                        $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
-                        $('#success_msg').html(response.message);
-                    //    appliance_model_details_table.ajax.reload();
-                    }
-                    else{
-                        $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
-                        $('#error_msg').html(response.message);
-                    }
-                    
-                }
-            });
-        }
-    }
-
-
 </script>
 <style type="text/css">
     
@@ -850,9 +700,11 @@
 }
 
 
-        @media (min-width: 1200px){
-.container {
-    width: 100% !important;
+@media (min-width: 1200px){
+    .container {
+        width: 100% !important;
+        
+    }
 }
 
 .dataTables_filter{
