@@ -111,7 +111,7 @@
         if(confirm_varification){
             $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url();?>employee/vendor/varify_engineer',
+                url: '<?php echo base_url();?>employee/vendor/verify_engineer',
                 data: {engineer_id: engineer_id,varified_status: varified_status},
                 success: function (response) {
                     if(response){
