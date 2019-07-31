@@ -459,9 +459,10 @@ class File_upload extends CI_Controller {
             );
 
             $this->table->set_template($template1);
-            $this->table->set_heading(array('Part Number', 'Invoice Id','HSN Code'));
+            $this->table->set_heading(array('Part Number', 'Invoice Id','HSN Code','Error Type'));
             //get file data to process
             $post_data = array();
+            $error_type="";
             $reciver_entity_id = 0;
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
@@ -472,12 +473,23 @@ class File_upload extends CI_Controller {
                         $select = '*';
                         $where_part = array('part_number' => $rowData['part_code']);
                         $where_in_parts = array();
+                        
                         $part_details = $this->inventory_model->get_inventory_master_list_data($select, $where_part, $where_in_parts);
-
+                        if(empty($part_details)){
+                          $error_type = "Part not found in inventory";  
+                        }
                         $from_gst_data = $this->inventory_model->get_entity_gst_data('*', $where = array('gst_number' => $rowData['from_gst']));
-
+                        if(empty($from_gst_data)){
+                          $error_type = "From gst details not found";  
+                        }
                         $to_gst_data = $this->inventory_model->get_entity_gst_data('*', $where = array('gst_number' => $rowData['to_gst']));
+                        if(empty($to_gst_data)){
+                          $error_type = "To gst details not found"; 
+                        }
                         $wh_details = $this->vendor_model->getVendorContact(trim($rowData['sap_vendor_id']));
+                         if(empty($wh_details)){
+                          $error_type = "Warehouse details not found";  
+                        }
 
                         if (!empty($part_details) && !empty($from_gst_data) && !empty($to_gst_data) && !empty($wh_details)  && !empty($part_details) ) {
                               
@@ -540,21 +552,24 @@ class File_upload extends CI_Controller {
                             }
                         }else{
                             
-                           $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code']);  
+                           $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type);  
                         }
                     } else {
-                        $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code']);
+                    	$error_type ="Error in header";
+                        $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type);
                     }
                 }
             }
             
              $err_msg = $this->table->generate();
         } else {
-    $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $this->session->userdata('id'));
+             $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $this->session->userdata('id'));
              $this->session->set_flashdata('fail','Excel header is incorrect');
              redirect(base_url() . "inventory/msl_excel_upload");
         }
 
+        if (!empty($error_type)) {
+        	
         foreach ($post_data as $post) {
             
             $post_json = json_encode($post, true);
@@ -569,12 +584,19 @@ class File_upload extends CI_Controller {
             curl_close($ch);
         }
 
-
        $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $this->session->userdata('id'));
-
           //echo $err_msg;  exit;
          $this->session->set_flashdata('details',$err_msg);
          redirect(base_url() . "inventory/msl_excel_upload");
+
+        }else{
+
+       $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "default", $data['post_data']['entity_type'], $this->session->userdata('id'));
+          //echo $err_msg;  exit;
+         $this->session->set_flashdata('details',$err_msg);
+         redirect(base_url() . "inventory/msl_excel_upload");
+        }
+
         //return $response;
     }
 
