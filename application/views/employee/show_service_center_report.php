@@ -18,6 +18,11 @@
         <span class="btn btn-primary" style="float:right;margin-top: 20%;" id="sendmail">Send Mail</span>
     </div>
     <div class="clear"></div>
+    <div class="row">
+        <div class="col-md-12">
+            <center><img id="loader_gif_title" src="<?php echo base_url(); ?>images/loader.gif" style="display: none;"></center>
+        </div>
+    </div>
     <?php echo $html; ?>
 
 </div>
@@ -110,12 +115,17 @@
                 alert("Maximum range allowed is 1 month.");
                 return false;
             } else {
+                console.log(date);
                 $.ajax({
                     method:'POST',
                     url: '<?php echo base_url() ?>employee/vendor/show_service_center_report',
-                    data: {date: date}
+                    data: {date: date},
+                    beforeSend: function() {
+                        $('#loader_gif_title').show();
+                    },
                 }).done(function(data) {
-                    $('body').html(data);
+                    $('#loader_gif_title').hide();
+                    $('body').html($.trim(data));
                     $('#date').val(date);
                 });
             }  
