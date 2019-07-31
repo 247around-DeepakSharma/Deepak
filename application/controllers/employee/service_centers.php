@@ -2977,7 +2977,7 @@ class Service_centers extends CI_Controller {
                     . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
 
         $spare_part = $this->partner_model->get_spare_parts_booking($where);
-        if (!empty($$spare_part)) {
+        if (!empty($spare_part)) {
         	
         $_POST['sf_id'] = $spare_part[0]['service_center_id'];
         $_POST['booking_id'] = $spare_part[0]['booking_id'];
@@ -5271,9 +5271,7 @@ class Service_centers extends CI_Controller {
     function inventory_stock_list(){
         //$this->check_WH_UserSession();
         $this->load->view('service_centers/header');
-        $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",array('is_micro_wh' => 1),NULL,NULL,array("name"=>"ASC"),NULL,array());
-        $data['wh'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",array('is_wh' => 1),NULL,NULL,array("name"=>"ASC"),NULL,array());
-        $this->load->view('service_centers/inventory_stock_list',$data);
+        $this->load->view('service_centers/inventory_stock_list');
     }
       
     /**

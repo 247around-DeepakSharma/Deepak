@@ -2330,7 +2330,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $where1['spare_parts_details.courier_name_by_sf LIKE "%trackon%"'] = NULL; 
         $defective_parts_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post1, $where1);
         
-        $post2['select'] .=", spare_parts_details.awb_by_partner as awb_no, "; 
+        $post2['select'] .=", spare_parts_details.awb_by_sf as awb_no, "; 
         $requested_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post2, $where2);
        
         $spare_part_data['booking_list'] = array_merge($spare_parts_shipped_by_partner, $defective_parts_shipped_by_sf,$requested_shipped_by_sf);
@@ -2395,7 +2395,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $where1['spare_parts_details.courier_name_by_partner LIKE "%gati%"'] =NULL;
         $defective_parts_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post1, $where1);
         
-        $post2['select'] .=", spare_parts_details.awb_by_partner as awb_no, ";       
+        $post2['select'] .=", spare_parts_details.awb_by_sf as awb_no, ";       
         $requested_shipped_by_sf = $this->inventory_model->get_pending_spare_part_details($post2, $where2);
                 
         $spare_part_data['booking_list'] = array_merge($spare_parts_shipped_by_partner, $defective_parts_shipped_by_sf, $requested_shipped_by_sf);
