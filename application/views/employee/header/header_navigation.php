@@ -412,7 +412,7 @@
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
 
-              gtag('config', <?php echo _247AROUND_CRM_GGL_ANALYTICS_TAG_ID ; ?>);
+              gtag('config', '<?php echo _247AROUND_CRM_GGL_ANALYTICS_TAG_ID ; ?>');
             </script>
 
         <?php } ?>
