@@ -2931,11 +2931,12 @@ class Service_centers extends CI_Controller {
 
     function do_multiple_spare_shipping() {
 
-
         $sp_ids = explode(',', $_POST['sp_ids']);
+
         $count_spare = count($sp_ids);
         $count_spare = $count_spare - 1;
         $service_center_id = 0;
+
         if ($this->session->userdata('userType') == 'service_center') {
             $service_center_id = $this->session->userdata('service_center_id');
         } else {
@@ -2943,7 +2944,6 @@ class Service_centers extends CI_Controller {
             echo "fail";
         }
         foreach ($sp_ids as $key => $value) {
-
             $where = "spare_parts_details.service_center_id = '" . $service_center_id . "'  "
                     . " AND spare_parts_details.id = '" . $value . "' AND spare_parts_details.defective_part_required = 1 "
                     . " AND spare_parts_details.status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED . "') ";
@@ -2963,7 +2963,7 @@ class Service_centers extends CI_Controller {
                 $_POST['partner_challan_number'] = array();
                 $_POST['challan_approx_value'] = array();
                 $_POST['parts_requested'] = array();
-
+                $_POST['no_redirect_flag'] = true;
                 $_POST['defective_part_shipped'][$value] = $spare_part[0]['defective_part_shipped'];
                 $_POST['partner_challan_number'][$value] = $spare_part[0]['partner_challan_number'];
                 $_POST['challan_approx_value'][$value] = $spare_part[0]['challan_approx_value'];
@@ -3126,10 +3126,13 @@ class Service_centers extends CI_Controller {
                         $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS, "", $booking_id);
                     }
 
+                    if (isset($_POST['no_redirect_flag'])) {
+                     echo "Updated By Bulk";   
+                    }else{
                     $userSession = array('success' => 'Parts Updated.');
-
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . "service_center/get_defective_parts_booking");
+                    }
                 } else {
                     log_message('info', __FUNCTION__ . '=> Defective Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_name') .
                             " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
