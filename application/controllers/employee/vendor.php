@@ -2913,7 +2913,12 @@ class vendor extends CI_Controller {
         if(!empty($sf_list)){
             $sf_list = $sf_list[0]['service_centres_id'];
         }
-        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list,'', '0');
+        
+        $sf_closed_date = NULL;
+        if(!empty($this->input->post('date'))) {
+            $sf_closed_date = $this->input->post('date');
+        }
+        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list,'', '0', $sf_closed_date);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_service_center_report',$data);
     }
