@@ -2956,7 +2956,7 @@ class Service_centers extends CI_Controller {
     }
 
 
-    function do_multiple_spare_shipping(){
+   function do_multiple_spare_shipping(){
 
 
      $sp_ids =  explode(',',$_POST['sp_ids']);
@@ -2978,7 +2978,7 @@ class Service_centers extends CI_Controller {
 
         $spare_part = $this->partner_model->get_spare_parts_booking($where);
         if (!empty($spare_part)) {
-        	
+            
         $_POST['sf_id'] = $spare_part[0]['service_center_id'];
         $_POST['booking_id'] = $spare_part[0]['booking_id'];
         $_POST['user_name'] = $spare_part[0]['name'];
@@ -2997,7 +2997,7 @@ class Service_centers extends CI_Controller {
         $_POST['challan_approx_value'][$value] = $spare_part[0]['challan_approx_value'];
         $_POST['parts_requested'][$value] = $spare_part[0]['parts_requested'];
         if (!isset($_POST['courier_boxes_weight_flag']) || empty($_POST['courier_boxes_weight_flag'])) {
-        	   $_POST['courier_boxes_weight_flag'] = $count_spare;
+               $_POST['courier_boxes_weight_flag'] = $count_spare;
              } 
        
 
@@ -3161,10 +3161,13 @@ class Service_centers extends CI_Controller {
                         $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS, "", $booking_id);
                     }
 
+                    if (isset($_POST['no_redirect_flag'])) {
+                     echo "Updated By Bulk";   
+                    }else{
                     $userSession = array('success' => 'Parts Updated.');
-
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . "service_center/get_defective_parts_booking");
+                    }
                 } else {
                     log_message('info', __FUNCTION__ . '=> Defective Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_name') .
                             " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));

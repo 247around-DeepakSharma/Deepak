@@ -3292,7 +3292,7 @@ class Spare_parts extends CI_Controller {
      *  @param : void
      *  @return : void
      */
-    function download_alternet_part_list() {
+    function download_alternate_part_list() {
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/download_alternet_part_list");
@@ -3330,7 +3330,7 @@ class Spare_parts extends CI_Controller {
             }
         }
         $headings = array("Main Part Code", "Alternate Part Code");
-        $this->miscelleneous->downloadCSV($data, $headings, "alternet_spare_parts");
+        $this->miscelleneous->downloadCSV($data, $headings, "alternate_spare_parts");
     }
 
 }
