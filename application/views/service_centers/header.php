@@ -200,8 +200,7 @@
                                  <li><a href="<?php echo base_url();?>service_center/defective_parts_sent">Defective Parts Shipped</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/get_approved_defective_parts_booking">Approved Defective Parts</a></li>
-                                <li role="separator" class="divider"></li>
-                                <li><a href="<?php echo base_url();?>service_center/defective_part_shipped_by_sf">Defective Parts Shipped By SF</a></li>
+                                
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url();?>service_center/search_docket_number">Search Docket Number</a></li>
                                 <li role="separator" class="divider"></li>
