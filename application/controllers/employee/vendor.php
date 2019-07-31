@@ -5824,7 +5824,7 @@ class vendor extends CI_Controller {
         echo $brand_view;exit;
     }
     
-    function varify_engineer(){
+    function verify_engineer(){
         $where = array("id"=>$this->input->post("engineer_id"));
         $data = array("varified"=>$this->input->post("varified_status"));
         $this->vendor_model->update_engineer($where, $data);
