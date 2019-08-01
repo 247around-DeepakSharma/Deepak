@@ -41,7 +41,7 @@
                         foreach($reason as $key =>$data1){?>
                      <div class="radio">
                         <label>
-                            <input class="inputradio  <?php if($data1->reason==_247AROUND_WRONG_PINCODE_CANCEL_REASON){echo 'wrong_pincode';} ?>    <?php if($data1->reason==CANCELLATION_REASON_WRONG_AREA){echo 'not_servicable';} ?>"   data-attr   type="radio" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" required>
+                           <input class="inputradio <?php if($data1->reason==_247AROUND_WRONG_PINCODE_CANCEL_REASON){echo 'wrong_pincode';} ?>    <?php if($data1->reason==CANCELLATION_REASON_WRONG_AREA){echo 'not_servicable';} ?>"   data-attr   type="radio" name="cancellation_reason" id="<?php echo " cancellation_reason ".$count; $count++;?>" value="<?php  echo $data1->reason;?>" <?php if($this->session->userdata('is_engineer_app') == 1){ if(!empty($engineer_data)){ if($data1->reason == $engineer_data[0]['cancellation_reason']){ echo "checked"; }  }  } ?> required>
                         <?php  echo $data1->reason;?>
                         </label>
                      </div>
@@ -58,7 +58,7 @@
                <div class="form-group">
                   <label for="cancellation_reason" class="col-md-2"> </label>
                   <div class="col-md-6">
-                     <textarea class="form-control" id="cancellation_reason_text" name="cancellation_reason_text" value="<?php echo set_value('cancellation_reason'); ?>" rows="8" ></textarea>
+                     <textarea class="form-control" id="cancellation_reason_text" name="cancellation_reason_text" value="<?php echo set_value('cancellation_reason'); ?>"  rows="8" ><?php if($this->session->userdata('is_engineer_app') == 1){ if(!empty($engineer_data)){ echo $engineer_data[0]['cancellation_remark']; }  } ?></textarea>
                   </div>
                </div>
                 <input type="hidden" name="partner_id" value="<?php if (isset($user_and_booking_details[0]['partner_id'])) {echo $user_and_booking_details[0]['partner_id']; } ?>">

@@ -367,3 +367,21 @@ ALTER TABLE `engineer_details` ADD `varified` BOOLEAN NOT NULL DEFAULT FALSE AFT
 --Gorakh - 24 -july - 2019
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Download serviceable BOM', NULL, 'employee/inventory/download_serviceable_bom', 2, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-06-05 05:27:42');
+
+
+ALTER TABLE warranty_plans add column service_id int(11) NULL DEFAULT NULL after partner_id;
+ALTER TABLE warranty_plans ADD CONSTRAINT `fk_warranty_plans_services` FOREIGN KEY(`service_id`) REFERENCES services(id);
+ALTER TABLE warranty_plans add column `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE warranty_plans add column `created_by` varchar(25) NOT NULL;
+ALTER TABLE warranty_plan_state_mapping add column `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE warranty_plan_state_mapping add column `created_by` varchar(25) NOT NULL;
+ALTER TABLE warranty_plan_part_type_mapping add column `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE warranty_plan_part_type_mapping add column `created_by` varchar(25) NOT NULL;
+ALTER TABLE warranty_plan_model_mapping add column `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE warranty_plan_model_mapping add column `created_by` varchar(25) NOT NULL;
+ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT uk_part_plan UNIQUE (plan_id, part_type_id);
+ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT uk_model_plan UNIQUE (plan_id, model_id);
+
+--Kalyani 01-08-2019
+ALTER TABLE `engineer_booking_action` ADD `cancellation_remark` VARCHAR(255) NOT NULL AFTER `cancellation_reason`;
+
