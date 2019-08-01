@@ -1,9 +1,17 @@
+<style>
+    .dataTables_filter{
+        float: right;
+    }
+    .pagination{
+        float: right;
+    }
+</style>
 <div id="page-wrapper" >
     <div>
         <h3>Inventory Ledger Details </h3>
         <hr>
         <div class="stocks_table">
-            <table class="table table-responsive table-hover table-bordered table-striped">
+            <table class="table table-responsive table-hover table-bordered table-striped" id="inventory_ledger">
                 <thead>
                     <tr>
                         <th>S.No.</th>                        
@@ -112,5 +120,11 @@
                     console.log("Contact Developers For This Issue");
                 }
         }
+        
+        $(document).ready(function() {
+            $('#inventory_ledger').DataTable();
+        } );
     </script>
+    
+    
 </div>

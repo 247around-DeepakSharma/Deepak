@@ -2449,45 +2449,6 @@ function get_data_for_partner_callback($booking_id) {
     }
     
     /**
-     This function returns partner wise mapped appliance data
-     * @author Prity Sharma
-     * @date 24-06-2019
-     * @param type $partner_id
-     * @param type $start_date, $end_date
-     * @return array 
-     */
-    function get_partner_appliances($post, $strSelect)
-    {
-
-        $this->db->select($strSelect);
-        $this->db->from('service_category_mapping');
-        $this->db->join('category', 'service_category_mapping.category_id = category.id');
-        $this->db->join('capacity', 'service_category_mapping.capacity_id = capacity.id');
-        $this->db->join('partner_appliance_mapping', 'service_category_mapping.id = partner_appliance_mapping.appliance_configuration_id and partner_appliance_mapping.isActive = 1 and '.$post['where_partner'], 'Left');
-        $this->db->where($post['where']);
-
-        $column_search = array('category.name', 'capacity.name');
-        if (!empty($data['search']['value'])) {
-            $like = "";
-            foreach ($column_search as $key => $item) { // loop column 
-                // if datatable send POST for search
-                if ($key === 0) { // first loop
-                    $like .= "( " . $item . " LIKE '%" . $data['search']['value'] . "%' ";
-                } else {
-                    $like .= " OR " . $item . " LIKE '%" . $data['search']['value'] . "%' ";
-                }
-            }
-            $like .= ") ";
-
-            $this->db->where($like, null, false);
-        }
-
-        $this->db->order_by('category.name, capacity.name');
-        $query = $this->db->get();
-        return $query->result();
-    }
-    
-    /**
      This function maps a specific appliance configuration to partner
      * @author Prity Sharma
      * @date 18-07-2019

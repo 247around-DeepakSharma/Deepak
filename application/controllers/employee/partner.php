@@ -2720,9 +2720,12 @@ class Partner extends CI_Controller {
         $brand = $this->input->post('brand');
         $partner_type = $this->input->post('partner_type');
         $is_repeat = $this->input->post('is_repeat');
-        if($this->input->post('is_mapping')){            
+        if($this->input->post('is_mapping')){     
+                $select = 'category.name as category';
                 $where = array('partner_appliance_mapping.partner_id' => $partner_id, 'service_category_mapping.service_id' => $service_id);
-                $data = $this->service_centre_charges_model->getPartnerServiceCategoryMapping($where, "category.name as category","category.name");           
+                $join['partner_appliance_mapping']  = 'service_category_mapping.id = partner_appliance_mapping.appliance_configuration_id';
+                $JoinTypeTableArray['partner_appliance_mapping'] = 'left';            
+                $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, $select,"category.name", NULL, $join, $JoinTypeTableArray);           
         } else {
             $where_in = array();
             
@@ -2775,7 +2778,11 @@ class Partner extends CI_Controller {
             
             $where = array('partner_appliance_mapping.partner_id' => $partner_id, 'service_category_mapping.service_id' => $service_id);
             $where_in = array("category.name" => $category);
-            $data = $this->service_centre_charges_model->getPartnerServiceCategoryMapping($where, "capacity.name as capacity","capacity.name", $where_in);
+            $join['partner_appliance_mapping']  = 'service_category_mapping.id = partner_appliance_mapping.appliance_configuration_id';
+            $join['capacity']  = 'service_category_mapping.capacity_id = capacity.id';
+            $JoinTypeTableArray['capacity'] = 'left';
+            $JoinTypeTableArray['partner_appliance_mapping'] = 'left';
+            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "capacity.name as capacity","capacity.name", $where_in, $join, $JoinTypeTableArray);
         } else {
             
             $where_in = array("category" => $category);
