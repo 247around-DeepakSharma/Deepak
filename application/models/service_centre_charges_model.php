@@ -446,7 +446,26 @@ class service_centre_charges_model extends CI_Model {
      * 
      */
      function update_appliance_detail($id, $data) {
-        $this->db->where('id', $id);
+        // Check if Record already exists
+        $select_data = $data;
+        $select_data['id != '] = $id;
+        if(array_key_exists('create_date', $select_data))
+        {
+            unset($select_data['create_date']);
+        }
+         
+        $this->db->select('*');
+        $this->db->from('service_category_mapping');
+        $this->db->where($select_data);
+        $query = $this->db->get();
+        $result = $query->result();
+        if(!empty($result))
+        {
+            return false;
+        }
+        // -------------------------------------
+        
+        $this->db->where('id', $id);      
         $this->db->update('service_category_mapping', $data);
         
         if ($this->db->affected_rows() > 0) {
