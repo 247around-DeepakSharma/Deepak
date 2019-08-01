@@ -7077,7 +7077,7 @@ class Service_centers extends CI_Controller {
                 );
                 $this->service_centers_model->update_spare_parts(array('id' => $to_spare_id), $to_details_array);
 
-                 $this->notify->insert_state_change($frombooking, SPARE_DELIVERED_TO_SF, "", "Spare Part Transfer from".$frombooking." to ".$tobooking, $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'),"","", NULL, $this->session->userdata('service_center_id'));
+                 $this->notify->insert_state_change($frombooking, SPARE_DELIVERED_TO_SF, "", "Spare Part Transfer from ".$frombooking." to ".$tobooking, $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'),"","", NULL, $this->session->userdata('service_center_id'));
 
                      $sc_data['current_status'] = _247AROUND_PENDING;
                      $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
@@ -7089,12 +7089,12 @@ class Service_centers extends CI_Controller {
                 }
                 $this->service_centers_model->update_spare_parts(array('id' => $from_spare_id), $from_details_array);
 
-                  $this->notify->insert_state_change($frombooking, SPARE_PARTS_REQUESTED, "", "Spare Part Transfer from".$tobooking." to ".$frombooking, $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'),"","", NULL, $this->session->userdata('service_center_id'));
+                  $this->notify->insert_state_change($tobooking, SPARE_PARTS_REQUESTED, "", "Spare Part Transfer from ".$tobooking." to ".$frombooking, $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'),"","", NULL, $this->session->userdata('service_center_id'));
 
                      $sc_data1['current_status'] = _247AROUND_PENDING;
                      $sc_data1['internal_status'] = SPARE_PARTS_REQUESTED;
                      $sc_data1['update_date'] = date("Y-m-d H:i:s");
-                     $this->vendor_model->update_service_center_action($frombooking, $sc_data1);
+                     $this->vendor_model->update_service_center_action($tobooking, $sc_data1);
 
 
                 if ($this->db->affected_rows() > 0) {
