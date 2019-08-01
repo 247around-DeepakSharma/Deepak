@@ -280,9 +280,11 @@ $("#submitbutton").click(function(e) {
            data: form.serialize(), // serializes the form's elements.
            success: function(data)
            {
-               if(data=='success'){
+
+               if(data.trim()=='success'){
                    $(".loader").addClass('hide');
                    swal("Transferred!", "Your spare is transferred from one booking to another!", "success")
+                   $("#transferform").addClass('hide');
                }else{
                     $(".loader").addClass('hide');
                   swal("Error! ", "Your spare is not transferred from one booking to another!", "error")
