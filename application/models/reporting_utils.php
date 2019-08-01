@@ -921,20 +921,16 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
         
         $queries['sql_yesterday_booked'] = "SELECT count(distinct(`booking_state_change`.booking_id)) as booked, service_centres.name as service_center_name, service_centres.state, 
             service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off   
-                                FROM  `booking_state_change`, `booking_details` , service_centres
-                                WHERE  `new_state`
-                                IN (
-                                'Pending',  'Rescheduled'
-                                )" . $where . "
-                                AND booking_state_change.create_date BETWEEN '{$startDate}' AND '{$endDate}'
-                                AND `booking_details`.booking_id = `booking_state_change`.booking_id
+                                FROM   `booking_details` , service_centres
+                                WHERE" . $where . "
+                                AND booking_details.create_date BETWEEN '{$startDate}' AND '{$endDate}'
                                 AND `service_centres`.id = `booking_details`.assigned_vendor_id ".$groupBY;
 
         $queries['sql_yesterday_completed'] = "SELECT COUNT( DISTINCT (
                                     `booking_details`.booking_id
                                     ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city ,service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off 
                                     FROM `booking_details` , service_centres
-                                    WHERE `current_status` = 'Completed'
+                                    WHERE !(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') 
                                     " . $where . "
                                     AND booking_details.service_center_closed_date BETWEEN '{$startDate}' AND '{$endDate}'
                                     AND `service_centres`.id = `booking_details`.assigned_vendor_id ".$groupBY;
@@ -943,7 +939,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                     `booking_details`.booking_id
                                     ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city, service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off 
                                     FROM `booking_details` , service_centres
-                                    WHERE `current_status` = 'Cancelled'
+                                    WHERE (current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') 
                                     " . $where . "
                                     AND booking_details.service_center_closed_date BETWEEN '{$startDate}' AND '{$endDate}'
                                     AND `service_centres`.id = `booking_details`.assigned_vendor_id ".$groupBY;
@@ -952,7 +948,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                             `booking_details`.booking_id
                                             ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off 
                                             FROM `booking_details` , service_centres
-                                            WHERE `current_status` = 'Completed'
+                                            WHERE !(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled')
                                             " . $where . "
                                             AND DATE_FORMAT( booking_details.service_center_closed_date, '%m' ) = MONTH( CURDATE() ) 
                                             AND DATE_FORMAT( booking_details.service_center_closed_date, '%Y' ) = YEAR( CURDATE() )
@@ -962,7 +958,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                             `booking_details`.booking_id
                                             ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off 
                                             FROM `booking_details` , service_centres
-                                            WHERE `current_status` = 'Cancelled'
+                                            WHERE (current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled')
                                             " . $where . "
                                             AND DATE_FORMAT( booking_details.service_center_closed_date, '%m' ) = MONTH( CURDATE() ) 
                                             AND DATE_FORMAT( booking_details.service_center_closed_date, '%Y' ) = YEAR( CURDATE() )
