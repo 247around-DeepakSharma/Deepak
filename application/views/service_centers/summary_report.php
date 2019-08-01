@@ -4,9 +4,6 @@
             <div class="col-lg-12">
                 <h3 class="page-header">
                     <b> Download Summary Report</b>
-                    <a id="download_realtime_summary_report" href="<?php echo base_url() . "employee/partner/download_real_time_summary_report/" . $this->session->userdata('partner_id') ?>" class="btn btn-success" style="float:right">Download Real Time Summary Report</a>
-                    <div class="clear"></div>
-                    
                 </h3>
                 <div class='panel'>
                     <div class='panel-body' style='padding:0px !important;'>
@@ -81,13 +78,26 @@
                                 $filterArray = json_decode($summaryReport['filters'], true);
                                 foreach ($filterArray as $key => $value) {
                                     if ($key == "Date_Range") {
-                                        $dArray = explode(" - ", $value);
                                         $key = "Registration Date";
-                                        $startTemp = strtotime($dArray[0]);
-                                        $endTemp = strtotime($dArray[1]);
-                                        $startD = date('d-F-Y', $startTemp);
-                                        $endD = date('d-F-Y', $endTemp);
-                                        $value = $startD . " To " . $endD;
+                                        if(!empty($filterArray[$key])) {
+                                            $dArray = explode(" - ", $value);
+                                            $startTemp = strtotime($dArray[0]);
+                                            $endTemp = strtotime($dArray[1]);
+                                            $startD = date('d-F-Y', $startTemp);
+                                            $endD = date('d-F-Y', $endTemp);
+                                            $value = $startD . " To " . $endD;
+                                        }
+                                    }
+                                    if ($key == "Completion_Date_Range") {
+                                        $key = "Completion Date";
+                                        if(!empty($filterArray[$key])){
+                                            $dArray = explode(" - ", $value);
+                                            $startTemp = strtotime($dArray[0]);
+                                            $endTemp = strtotime($dArray[1]);
+                                            $startD = date('d-F-Y', $startTemp);
+                                            $endD = date('d-F-Y', $endTemp);
+                                            $value = $startD . " To " . $endD;
+                                        }
                                     }
                                     $finalFilterArray[] = $key . " : " . $value;
                                 }
@@ -140,37 +150,6 @@
     });
     $('input[name="completion_date"]').on('apply.daterangepicker', function (ev, picker) {
             $(this).val(picker.startDate.format('YYYY/MM/DD') + ' - ' + picker.endDate.format('YYYY/MM/DD'));  
-    });
-
-    $(document).ready(function () {
-        
-       $('#partner_id').on('change', function(){
-            var partner_id = $(this).val();
-            if(partner_id != '' || partner_id != null) {
-                var url = '<?php echo base_url()."employee/partner/download_real_time_summary_report/"?>'+partner_id;
-                $('#download_realtime_summary_report').attr('href', url + partner_id);
-                
-                var dataUrl = '<?php echo base_url()."employee/service_centers/get_summary_report_data/"?>'+partner_id;
-                $.ajax({
-                    type: 'POST',
-                    url: dataUrl,
-                    data: {is_wh: true},
-                    success: function (response) {
-                        $('#summary_report_table').children('tbody').html(response);
-                    }
-                });
-            }
-        }); 
-        
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/partner/get_partner_list',
-            data: {is_wh: true},
-            success: function (response) {
-                $('#partner_id').html(response);
-                $('#partner_id').select2();
-            }
-        });
     });
     
     function generate_summary_report(){
