@@ -2,6 +2,9 @@
     .dataTables_filter{
         float: right;
     }
+    .pagination{
+        float: right;
+    }
 </style>
 <div id="page-wrapper" >
     <div>
