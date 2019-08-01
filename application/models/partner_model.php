@@ -378,8 +378,14 @@ function get_data_for_partner_callback($booking_id) {
         return $finalArray;
     }
     function get_partner_summary_report_fields($partner_id){
-        $data = $this->reusable_model->get_search_result_data("partner_summary_report_mapping","*",array("is_default =1 OR partner_id LIKE '%".$partner_id."%'"=>NULL),NULL,NULL,
-                array("index_in_report"=>"ASC"),NULL,NULL,array());
+        
+        if(!empty($partner_id)) {  // for partner specific.
+            $data = $this->reusable_model->get_search_result_data("partner_summary_report_mapping","*",array("is_default =1 OR partner_id LIKE '%".$partner_id."%'"=>NULL),NULL,NULL,
+                    array("index_in_report"=>"ASC"),NULL,NULL,array());
+        } else { // for service center.
+            $data = $this->reusable_model->get_search_result_data("partner_summary_report_mapping","*",array("is_default" => '1'),NULL,NULL,
+                    array("index_in_report"=>"ASC"),NULL,NULL,array());
+        }
         return $data;
     }
     //Return all leads shared by Partner in the last 30 days in CSV
@@ -403,6 +409,11 @@ function get_data_for_partner_callback($booking_id) {
                 . ' DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) END) ELSE "" END) as TAT';
              $subQueryArray['Ageing']  = '(CASE WHEN booking_details.service_center_closed_date IS NULL THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,"%d-%m-%Y")) ELSE "" END) as Ageing';
         }
+        
+        if(!empty($partner_id)) {
+            $where .= " AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' )"; 
+         }
+        
         $subQueryString = implode(",", array_values($subQueryArray));
         return $query = $this->db->query("SELECT $subQueryString
             FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
@@ -415,7 +426,7 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN inventory_master_list as im ON im.inventory_id = spare_parts_details.shipped_inventory_id
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
             LEFT JOIN service_centres ON service_center_booking_action.service_center_id = service_centres.id
-            WHERE product_or_services != 'Product' AND ( booking_details.partner_id = $partner_id  OR booking_details.origin_partner_id = '$partner_id' ) AND $where GROUP BY ud.booking_id");
+            WHERE product_or_services != 'Product' AND $where GROUP BY ud.booking_id");
     } 
     
     //Return all leads shared by Partner in the last 30 days
