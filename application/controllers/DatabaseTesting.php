@@ -517,6 +517,13 @@ class DatabaseTesting extends CI_Controller {
 
     }
 
+
+
+   function force_generate_challan($id,$s){
+        $this->invoice_lib->force_generate_challan_file($id, $s);
+
+    }
+
     function insert_partner_code(){ 
         $data =array();
        
