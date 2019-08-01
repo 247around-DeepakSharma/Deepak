@@ -416,3 +416,6 @@ ALTER TABLE warranty_plan_model_mapping add column `create_date` timestamp NOT N
 ALTER TABLE warranty_plan_model_mapping add column `created_by` varchar(25) NOT NULL;
 ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT uk_part_plan UNIQUE (plan_id, part_type_id);
 ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT uk_model_plan UNIQUE (plan_id, model_id);
+
+--Kalyani 01-08-2019
+ALTER TABLE `engineer_booking_action` ADD `cancellation_remark` VARCHAR(255) NOT NULL AFTER `cancellation_reason`;
