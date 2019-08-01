@@ -5040,6 +5040,10 @@ class Partner extends CI_Controller {
                 $where[] = "booking_details.state IN ('".implode("','",$state)."')";
             }
            log_message('info', __FUNCTION__ . "Where ".print_r($where,true));
+           
+           if(!empty($this->session->userdata('service_center_id'))) {
+              $where[] = "booking_details.assigned_vendor_id = ". $this->session->userdata('service_center_id');
+           }
         $report =  $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0,implode(' AND ',$where));
         $delimiter = ",";
         $newline = "\r\n";
@@ -5062,8 +5066,17 @@ class Partner extends CI_Controller {
             unlink(TMP_FOLDER . $newCSVFileName);
             if($is_upload == 1){
                 //Save File log in report log table
-                $data['entity_type'] = "Partner";
-                $data['entity_id'] = $partnerID;
+                if(!empty($partnerID)) {
+                    $data['entity_type'] = _247AROUND_PARTNER_STRING;
+                } else {
+                    $data['entity_type'] = _247AROUND_SF_STRING;
+                }
+                if(!empty($partnerID)) {
+                    $data['entity_id'] = $partnerID;
+                } else {
+                    $data['entity_id'] = $this->session->userdata('service_center_id');
+                }
+                
                 $data['report_type'] = "partner_custom_summary_report";
                 $data['filters'] = json_encode($postArray);
                 $data['url'] =$directory_xls;
