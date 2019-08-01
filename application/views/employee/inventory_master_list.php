@@ -279,7 +279,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="hsn_code">HSN Code*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code" readonly="">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="hsn_code" name="hsn_code" <?php if(empty($saas_module)){ echo 'readonly'; } ?>>
                                     </div>
                                 </div>
                             </div>
@@ -287,7 +287,7 @@
                                 <div class="form-group">
                                     <label class="control-label col-md-4" for="gst_rate">GST Rate*</label>
                                     <div class="col-md-7 col-md-offset-1">
-                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" readonly="" required="">
+                                        <input type="text" class="form-control allowNumericWithOutDecimal" id="gst_rate"  name="gst_rate" <?php if(empty($saas_module)){ echo 'readonly'; } ?> required="">
                                     </div>
                                 </div>
                             </div>

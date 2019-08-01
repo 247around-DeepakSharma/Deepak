@@ -1760,7 +1760,16 @@ class service_centre_charges extends CI_Controller {
 
     public function appliance_data_view() {
         $this->miscelleneous->load_nav_header();
-        $data['appliance_data'] = $this->service_centre_charges_model->get_appliance_data();
+        
+        $where = "";
+        $where_in = "";
+        $select = "service_category_mapping.*, services.services, category.name as category, capacity.name as capacity";        
+        $order_by = "services.services, category.name, capacity.name";
+        $join['services']  = 'service_category_mapping.service_id = services.id';
+        $join['capacity']  = 'service_category_mapping.capacity_id = capacity.id';
+        $JoinTypeTableArray['capacity'] = 'left';
+        
+        $data['appliance_data'] = $this->service_centre_charges_model->getServiceCategoryMapping($where, $select, $order_by, $where_in, $join, $JoinTypeTableArray, $result_array = false);        
         $data['categories'] = $this->category_model->select_category();
         $data['capacities'] = $this->capacity_model->select_capacity();
         $this->load->view('employee/service_category_mapping_view', $data);
@@ -2222,6 +2231,7 @@ class service_centre_charges extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $data['partners'] = $this->partner_model->get_all_partner_source();
         $data['services'] = $this->booking_model->selectservice();
+        $data['status'] = [0 => "All", 1 => "Active", 2 => "Deactive"];
         $this->load->view('employee/partner_wise_appliances', $data);
     }
 
@@ -2263,12 +2273,44 @@ class service_centre_charges extends CI_Controller {
      * @return array
      */
     function get_partner_wise_appliance_data($post) {
-        $post['column_order'] = array();
-        $post['column_search'] = array('category.name', 'capacity.name');
-        $post['where'] = array('service_category_mapping.service_id' => trim($post['service_id']));
-        $post['where_partner'] = 'partner_appliance_mapping.partner_id = "'.trim($post['partner_id']).'"';
         $select = 'service_category_mapping.id as configuration_id, category.name as category, capacity.name as capacity, partner_appliance_mapping.id as mapping_id';
-        $list = $this->partner_model->get_partner_appliances($post, $select);
+        $where = array('(partner_appliance_mapping.partner_id IS NULL OR partner_appliance_mapping.partner_id = '.trim($post['partner_id']).')' => NULL, 'service_category_mapping.service_id' => trim($post['service_id']));        
+        if(!empty($post['status']))
+        {
+            if($post['status'] == 1)
+            {
+                // Mapped Data
+                $where['partner_appliance_mapping.id IS NOT NULL'] = NULL;
+            }
+            else
+            {
+                // Un-Mapped Data
+                $where['partner_appliance_mapping.id IS NULL'] = NULL;
+            }
+        }
+
+        // data table filter search
+        $column_search = array('category.name', 'capacity.name');
+        if (!empty($post['search']['value'])) {
+            $like = "";
+            foreach ($column_search as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+            $where[$like] = NULL;
+        }
+        
+        $join['partner_appliance_mapping']  = 'service_category_mapping.id = partner_appliance_mapping.appliance_configuration_id';
+        $join['capacity']  = 'service_category_mapping.capacity_id = capacity.id';
+        $JoinTypeTableArray['capacity'] = 'left';
+        $JoinTypeTableArray['partner_appliance_mapping'] = 'left';
+        $order_by = 'category.name, capacity.name';
+        $list = $this->service_centre_charges_model->getServiceCategoryMapping($where, $select,$order_by, NULL, $join, $JoinTypeTableArray, $result_array = false);
 
         $data = array();
         $no = $post['start'];

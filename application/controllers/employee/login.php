@@ -349,6 +349,7 @@ class Login extends CI_Controller {
         $data['entity_login_table.entity'] = "partner";
         $data['entity_login_table.entity_id'] = $partner_id;
         $data['entity_login_table.active'] = 1;
+        $data['entity_login_table.contact_person_id'] = PARTNER_DEFAULT_CONTACT_PERSON_ID;
         $data['contact_person.role'] = PARTNER_POC_ROLE_ID;
         $agent = $this->dealer_model->get_entity_login_details($data);
         if (!empty($agent)) {

@@ -7156,8 +7156,7 @@ class Service_centers extends CI_Controller {
      * 
      */
     
-    
-    function do_delivered_spare_transfer() {
+   function do_delivered_spare_transfer() {
         $from_spare_id = $this->input->post('fromspareid');
         $to_spare_id = $this->input->post('tospareid');
         $frombooking = $this->input->post('frombooking');
@@ -7165,11 +7164,11 @@ class Service_centers extends CI_Controller {
         $inventory_id_from = $this->input->post('inventoryidfrom');
         $inventory_id_to = $this->input->post('inventoryidto');
         $data['frombooking'] = $frombooking;
-        $data['tobooking'] = $tobooking; 
-        $to_update=false;
-        $from_update=false;
+        $data['tobooking'] = $tobooking;
+        $to_update = false;
+        $from_update = false;
         if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to)) {
-            echo 'fail';   
+            echo 'fail';
         } else {
             $form_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $from_spare_id));
             $to_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $to_spare_id));
@@ -7182,27 +7181,26 @@ class Service_centers extends CI_Controller {
                     'partner_id' => $form_details[0]['partner_id'],
                     'is_micro_wh' => $form_details[0]['is_micro_wh'],
                     'purchase_invoice_id' => $form_details[0]['purchase_invoice_id'],
-                    'model_number_shipped'=>$form_details[0]['purchase_invoice_id'],
-                    'parts_shipped'=>$form_details[0]['parts_shipped'],
-                    'shipped_parts_type'=>$form_details[0]['shipped_parts_type'],
-                    'shipped_date'=>$form_details[0]['shipped_date'],
-                    'defective_part_shipped'=>$form_details[0]['defective_part_shipped'],
-                    'defective_part_shipped_date'=>$form_details[0]['defective_part_shipped_date'],
-                    'shipped_inventory_id'=>$form_details[0]['shipped_inventory_id'],
-                    'defective_return_to_entity_type'=>$form_details[0]['defective_return_to_entity_type'],
-                    'defective_return_to_entity_id'=>$form_details[0]['defective_return_to_entity_id'],
-                    'courier_name_by_partner'=>$form_details[0]['courier_name_by_partner'],
-                    'awb_by_partner'=>$form_details[0]['awb_by_partner'],
-                    'courier_price_by_partner'=>$form_details[0]['courier_price_by_partner'],
-                    'courier_pic_by_partner'=>$form_details[0]['courier_pic_by_partner'],
-                    'wh_ack_received_part'=>$form_details[0]['wh_ack_received_part'],
-                    'acknowledge_date'=>$form_details[0]['acknowledge_date'],
-                    'auto_acknowledeged'=>$form_details[0]['auto_acknowledeged'],
-                    'remarks_by_partner'=>$form_details[0]['remarks_by_partner'],
-                    'partner_challan_number'=>$form_details[0]['partner_challan_number'],
-                    'partner_challan_file'=>$form_details[0]['partner_challan_file'],
-                    'spare_request_symptom'=>$form_details[0]['spare_request_symptom'],
-                    
+                    'model_number_shipped' => $form_details[0]['purchase_invoice_id'],
+                    'parts_shipped' => $form_details[0]['parts_shipped'],
+                    'shipped_parts_type' => $form_details[0]['shipped_parts_type'],
+                    'shipped_date' => $form_details[0]['shipped_date'],
+                    'defective_part_shipped' => $form_details[0]['defective_part_shipped'],
+                    'defective_part_shipped_date' => $form_details[0]['defective_part_shipped_date'],
+                    'shipped_inventory_id' => $form_details[0]['shipped_inventory_id'],
+                    'defective_return_to_entity_type' => $form_details[0]['defective_return_to_entity_type'],
+                    'defective_return_to_entity_id' => $form_details[0]['defective_return_to_entity_id'],
+                    'courier_name_by_partner' => $form_details[0]['courier_name_by_partner'],
+                    'awb_by_partner' => $form_details[0]['awb_by_partner'],
+                    'courier_price_by_partner' => $form_details[0]['courier_price_by_partner'],
+                    'courier_pic_by_partner' => $form_details[0]['courier_pic_by_partner'],
+                    'wh_ack_received_part' => $form_details[0]['wh_ack_received_part'],
+                    'acknowledge_date' => $form_details[0]['acknowledge_date'],
+                    'auto_acknowledeged' => $form_details[0]['auto_acknowledeged'],
+                    'remarks_by_partner' => $form_details[0]['remarks_by_partner'],
+                    'partner_challan_number' => $form_details[0]['partner_challan_number'],
+                    'partner_challan_file' => $form_details[0]['partner_challan_file'],
+                    'spare_request_symptom' => $form_details[0]['spare_request_symptom'],
                 );
 
                 $from_details_array = array(
@@ -7211,44 +7209,61 @@ class Service_centers extends CI_Controller {
                     'partner_id' => $to_details[0]['partner_id'],
                     'is_micro_wh' => $to_details[0]['is_micro_wh'],
                     'purchase_invoice_id' => $to_details[0]['purchase_invoice_id'],
-                    'model_number_shipped'=>$to_details[0]['purchase_invoice_id'],
-                    'parts_shipped'=>$to_details[0]['parts_shipped'],
-                    'shipped_parts_type'=>$to_details[0]['shipped_parts_type'],
-                    'shipped_date'=>$to_details[0]['shipped_date'],
-                    'defective_part_shipped'=>$to_details[0]['defective_part_shipped'],
-                    'defective_part_shipped_date'=>$to_details[0]['defective_part_shipped_date'],
-                    'shipped_inventory_id'=>$to_details[0]['shipped_inventory_id'],
-                    'defective_return_to_entity_type'=>$to_details[0]['defective_return_to_entity_type'],
-                    'defective_return_to_entity_id'=>$to_details[0]['defective_return_to_entity_id'],
-                    'courier_name_by_partner'=>$to_details[0]['courier_name_by_partner'],
-                    'awb_by_partner'=>$to_details[0]['awb_by_partner'],
-                    'courier_price_by_partner'=>$to_details[0]['courier_price_by_partner'],
-                    'courier_pic_by_partner'=>$to_details[0]['courier_pic_by_partner'],
-                    'wh_ack_received_part'=>$to_details[0]['wh_ack_received_part'],
-                    'acknowledge_date'=>$to_details[0]['acknowledge_date'],
-                    'auto_acknowledeged'=>$to_details[0]['auto_acknowledeged'],
-                    'remarks_by_partner'=>$to_details[0]['remarks_by_partner'],
-                    'partner_challan_number'=>$to_details[0]['partner_challan_number'],
-                    'partner_challan_file'=>$to_details[0]['partner_challan_file'],
-                    'spare_request_symptom'=>$to_details[0]['spare_request_symptom'],
+                    'model_number_shipped' => $to_details[0]['purchase_invoice_id'],
+                    'parts_shipped' => $to_details[0]['parts_shipped'],
+                    'shipped_parts_type' => $to_details[0]['shipped_parts_type'],
+                    'shipped_date' => $to_details[0]['shipped_date'],
+                    'defective_part_shipped' => $to_details[0]['defective_part_shipped'],
+                    'defective_part_shipped_date' => $to_details[0]['defective_part_shipped_date'],
+                    'shipped_inventory_id' => $to_details[0]['shipped_inventory_id'],
+                    'defective_return_to_entity_type' => $to_details[0]['defective_return_to_entity_type'],
+                    'defective_return_to_entity_id' => $to_details[0]['defective_return_to_entity_id'],
+                    'courier_name_by_partner' => $to_details[0]['courier_name_by_partner'],
+                    'awb_by_partner' => $to_details[0]['awb_by_partner'],
+                    'courier_price_by_partner' => $to_details[0]['courier_price_by_partner'],
+                    'courier_pic_by_partner' => $to_details[0]['courier_pic_by_partner'],
+                    'wh_ack_received_part' => $to_details[0]['wh_ack_received_part'],
+                    'acknowledge_date' => $to_details[0]['acknowledge_date'],
+                    'auto_acknowledeged' => $to_details[0]['auto_acknowledeged'],
+                    'remarks_by_partner' => $to_details[0]['remarks_by_partner'],
+                    'partner_challan_number' => $to_details[0]['partner_challan_number'],
+                    'partner_challan_file' => $to_details[0]['partner_challan_file'],
+                    'spare_request_symptom' => $to_details[0]['spare_request_symptom'],
                 );
-                $this->service_centers_model->update_spare_parts(array('id'=>$to_spare_id),$to_details_array);
-                if($this->db->affected_rows()>0){
-                    $to_update=true;
+                $this->service_centers_model->update_spare_parts(array('id' => $to_spare_id), $to_details_array);
+
+                 $this->notify->insert_state_change($frombooking, SPARE_DELIVERED_TO_SF, "", "Spare Part Transfer from ".$frombooking." to ".$tobooking, $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'),"","", NULL, $this->session->userdata('service_center_id'));
+
+                     $sc_data['current_status'] = _247AROUND_PENDING;
+                     $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
+                     $sc_data['update_date'] = date("Y-m-d H:i:s");
+                     $this->vendor_model->update_service_center_action($frombooking, $sc_data);
+
+                if ($this->db->affected_rows() > 0) {
+                    $to_update = true;
                 }
-                $this->service_centers_model->update_spare_parts(array('id'=>$from_spare_id),$from_details_array);
-                if($this->db->affected_rows()>0){
-                    $from_update=true; 
+                $this->service_centers_model->update_spare_parts(array('id' => $from_spare_id), $from_details_array);
+
+                  $this->notify->insert_state_change($tobooking, SPARE_PARTS_REQUESTED, "", "Spare Part Transfer from ".$tobooking." to ".$frombooking, $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'),"","", NULL, $this->session->userdata('service_center_id'));
+
+                     $sc_data1['current_status'] = _247AROUND_PENDING;
+                     $sc_data1['internal_status'] = SPARE_PARTS_REQUESTED;
+                     $sc_data1['update_date'] = date("Y-m-d H:i:s");
+                     $this->vendor_model->update_service_center_action($tobooking, $sc_data1);
+
+
+                if ($this->db->affected_rows() > 0) {
+                    $from_update = true;
                 }
-                if($to_update && $from_update ){
-                   echo 'success';  
-                }else{
-                   echo 'fail';
+                if ($to_update && $from_update) {
+                    echo 'success';
+                } else {
+                    echo 'fail';
                 }
-               
             }
         }
     }
+    
     
     /**
      * @desc: this is used to check warranty data
@@ -7317,4 +7332,62 @@ class Service_centers extends CI_Controller {
         $this->miscelleneous->downloadCSV($list, $headings,"SF_completed_bookings");
     }
 
+    /**
+     * Booking summary report for service center.
+     */
+    function summary_report() {
+
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","state",array(),array(),NULL,array('state'=>'ASC'),NULL,array(),array());
+        $data['services'] = $this->booking_model->selectservice();
+        $data['summaryReportData'] = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>_247AROUND_SF_STRING,"entity_id"=>$this->session->userdata('service_center_id')),NULL,array("length"=>50,"start"=>""),
+                array('id'=>'DESC'),NULL,NULL,array());
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/summary_report', $data);
+    }
+    
+    function get_summary_report_data($partnerID) {
+       
+        $summaryReportData = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>_247AROUND_PARTNER_STRING,"entity_id"=>$partnerID),NULL,array("length"=>50,"start"=>""),
+                array('id'=>'DESC'),NULL,NULL,array());
+        
+        $str_body = '';
+        if(!empty($summaryReportData)) {
+            foreach ($summaryReportData as $summaryReport) {
+                $finalFilterArray = array();
+                $filterArray = json_decode($summaryReport['filters'], true);
+                foreach ($filterArray as $key => $value) {
+                    if ($key == "Date_Range" && is_array($value) && !empty(array_filter($value))) {
+                        $dArray = explode(" - ", $value);
+                        $key = "Registration Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                    }
+                    if ($key == "Completion_Date_Range" && is_array($value) && !empty(array_filter($value))) { 
+                        $dArray = explode(" - ", $value);
+                        $key = "Completion Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                        
+                    }
+                    $finalFilterArray[] = $key . " : " . $value;
+                }
+                
+                $str_body .=  '<tr>';
+                $str_body .=  '<td>' . implode(", ", $finalFilterArray) .'</td>';
+                $str_body .=  '<td>' . $summaryReport['create_date'] .'</td>';
+                $str_body .= '<td><a class="btn btn-success" style="background: #2a3f54;" href="'. base_url() ."employee/partner/download_custom_summary_report/". $summaryReport['url'] .'">Download</a></td>';
+                $str_body .=  '</tr>';
+                
+            }
+        }
+        
+        echo $str_body;
+    }
+    
 }

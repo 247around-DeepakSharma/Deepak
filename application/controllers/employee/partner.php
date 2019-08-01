@@ -686,6 +686,8 @@ class Partner extends CI_Controller {
                 $return_data['partner']['customer_care_contact'] = $this->input->post("customer_care_contact");
                 $return_data['partner']['upcountry_max_distance_threshold'] = $return_data['partner']['upcountry_max_distance_threshold'] + 25;
                 $partner_id = $this->partner_model->add_partner($return_data['partner']);
+                // Save partner default contact person login.
+                $this->save_partner_default_contact_person_login($partner_id);
                 //Set Flashdata on success or on Error of Data insert in table
                 if (!empty($partner_id)) {
                     //Create Login For Partner
@@ -775,6 +777,25 @@ class Partner extends CI_Controller {
             $this->get_add_partner_form();
         }
     }
+    
+    /**
+     * Function creates default contact person login for partner.
+     * @param type $partner_id
+     */
+    function save_partner_default_contact_person_login($partner_id) {
+        $password = mt_rand(100000, 999999);
+        $loginData['entity_id'] = $partner_id;
+        $loginData['entity'] = $loginData['entity_name'] = _247AROUND_PARTNER_STRING;
+        $loginData['user_id'] = _247AROUND_EMPLOYEE_STRING."_".mt_rand(1,5);
+        $loginData['password'] = md5($password);
+        $loginData['clear_password'] = $password;
+        $loginData['contact_person_id'] = PARTNER_DEFAULT_CONTACT_PERSON_ID;
+        $loginData['create_date'] = date('Y-m-d H:i:s');
+        $loginData['active'] = 1;
+        $agent_id = $this->miscelleneous->create_entity_login($loginData);
+        return $agent_id;
+    }
+    
     function get_partner_form_data() {
         $return_data['company_name'] = trim($this->input->post('company_name'));
         $return_data['company_type'] = trim($this->input->post('company_type'));
@@ -2699,9 +2720,12 @@ class Partner extends CI_Controller {
         $brand = $this->input->post('brand');
         $partner_type = $this->input->post('partner_type');
         $is_repeat = $this->input->post('is_repeat');
-        if($this->input->post('is_mapping')){            
+        if($this->input->post('is_mapping')){     
+                $select = 'category.name as category';
                 $where = array('partner_appliance_mapping.partner_id' => $partner_id, 'service_category_mapping.service_id' => $service_id);
-                $data = $this->service_centre_charges_model->getPartnerServiceCategoryMapping($where, "category.name as category","category.name");           
+                $join['partner_appliance_mapping']  = 'service_category_mapping.id = partner_appliance_mapping.appliance_configuration_id';
+                $JoinTypeTableArray['partner_appliance_mapping'] = 'left';            
+                $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, $select,"category.name", NULL, $join, $JoinTypeTableArray);           
         } else {
             $where_in = array();
             
@@ -2754,7 +2778,11 @@ class Partner extends CI_Controller {
             
             $where = array('partner_appliance_mapping.partner_id' => $partner_id, 'service_category_mapping.service_id' => $service_id);
             $where_in = array("category.name" => $category);
-            $data = $this->service_centre_charges_model->getPartnerServiceCategoryMapping($where, "capacity.name as capacity","capacity.name", $where_in);
+            $join['partner_appliance_mapping']  = 'service_category_mapping.id = partner_appliance_mapping.appliance_configuration_id';
+            $join['capacity']  = 'service_category_mapping.capacity_id = capacity.id';
+            $JoinTypeTableArray['capacity'] = 'left';
+            $JoinTypeTableArray['partner_appliance_mapping'] = 'left';
+            $data = $this->service_centre_charges_model->getServiceCategoryMapping($where, "capacity.name as capacity","capacity.name", $where_in, $join, $JoinTypeTableArray);
         } else {
             
             $where_in = array("category" => $category);
@@ -5040,6 +5068,10 @@ class Partner extends CI_Controller {
                 $where[] = "booking_details.state IN ('".implode("','",$state)."')";
             }
            log_message('info', __FUNCTION__ . "Where ".print_r($where,true));
+           
+           if(!empty($this->session->userdata('service_center_id'))) {
+              $where[] = "booking_details.assigned_vendor_id = ". $this->session->userdata('service_center_id');
+           }
         $report =  $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0,implode(' AND ',$where));
         $delimiter = ",";
         $newline = "\r\n";
@@ -5062,8 +5094,17 @@ class Partner extends CI_Controller {
             unlink(TMP_FOLDER . $newCSVFileName);
             if($is_upload == 1){
                 //Save File log in report log table
-                $data['entity_type'] = "Partner";
-                $data['entity_id'] = $partnerID;
+                if(!empty($partnerID)) {
+                    $data['entity_type'] = _247AROUND_PARTNER_STRING;
+                } else {
+                    $data['entity_type'] = _247AROUND_SF_STRING;
+                }
+                if(!empty($partnerID)) {
+                    $data['entity_id'] = $partnerID;
+                } else {
+                    $data['entity_id'] = $this->session->userdata('service_center_id');
+                }
+                
                 $data['report_type'] = "partner_custom_summary_report";
                 $data['filters'] = json_encode($postArray);
                 $data['url'] =$directory_xls;
