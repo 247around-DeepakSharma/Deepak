@@ -358,6 +358,9 @@ class File_upload extends CI_Controller {
                                         
                                         $inventory_data = array("type" => $val['type'], 'description' => $val['description'], 'hsn_code' => $val['hsn_code'],
                                             'gst_rate' => $val['gst_rate'], 'oow_around_margin' => $val['oow_around_margin'], 'oow_vendor_margin' => $val['oow_vendor_margin']);
+                                        if ($data['saas_module'] == 1) {
+                                            $inventory_data['price'] = $val['price'];
+                                        }
                                         $rows_affected = $this->inventory_model->update_inventory_master_list_data($where, $inventory_data);
                                     }
                                     if($rows_affected > 0) {
