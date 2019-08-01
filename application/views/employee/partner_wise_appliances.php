@@ -1,11 +1,15 @@
 <div id="page-wrapper">
     <div class="container-fluid">        
         <div class="row">
-            <div class="col-lg-12">
+            <div class="col-md-12">
                 <h1 class="page-header">
-                    Partner Appliance List                    
-                </h1>                        
-            </div>
+                    Partner Appliance List   
+                    <div class="pull-right" title="Add Service Mapping" style="padding-right:5px;"><a class="btn btn-primary" href="<?php echo  base_url()?>employee/service_centre_charges/appliance_data_view" target="_blank">Add Product Mapping</a></div>
+                    <div class="pull-right" title="Add Capacity" style="padding-right:5px;"><a class="btn btn-primary" href="<?php echo  base_url()?>capacity" target="_blank">Add Capacity</a></div>
+                    <div class="pull-right" title="Add Category" style="padding-right:5px;"><a class="btn btn-primary" href="<?php echo  base_url()?>category" target="_blank">Add Category</a></div>
+                </h1>                                                      
+            </div>            
+             
         </div>
         <form id="applianceInfo" name="applianceInfo"  method="POST" action="map_partner_appiances">
             <div class="row">
@@ -29,8 +33,18 @@
                         ?>
                     </select>          
                 </div>
-                <div class="col-md-4">
-                    <input type="button" name="Show" id="Show" class="btn btn-primary" value="Show">
+                <div class="col-md-2">
+                    <select class="form-control" id="status" required name="status" style="height:28px;">
+                        <option value="" disabled="" selected>Select Status</option>
+                        <?php
+                        foreach ($status as $key => $rec) {
+                            echo "<option value='" . $key . "'>" . $rec . "</option>";
+                        }
+                        ?>
+                    </select>          
+                </div>
+                <div class="col-md-2">
+                    <input type="button" name="Show" id="Show" class="btn btn-success" value="Show">
                 </div>
             </div>
         </form>        
@@ -83,6 +97,7 @@
             "data": function (d) {
                 d.partner_id = $("#partner_id option:selected").val();
                 d.service_id = $("#service_id option:selected").val();
+                d.status = $("#status option:selected").val();
             },
         },
         "columnDefs": [
