@@ -878,6 +878,101 @@ class Invoice_lib {
        
     }
 
+
+
+
+
+ function force_generate_challan_file($spare_id, $service_center_id, $service_center_closed_date = "") {
+
+        $spare_parts_details=array();
+        $spare_ids = explode(',',$spare_id);
+        foreach ($spare_ids as  $spare_id) {
+        $select = 'spare_parts_details.*';
+        $where = array('spare_parts_details.id' => $spare_id,'defective_part_required' => 1);
+        $spare_parts_details[] = $this->ci->partner_model->get_spare_parts_by_any($select, $where); 
+        }
+
+        if (!empty($spare_parts_details)) {
+            $partner_challan_number = trim(implode(',', array_column($spare_parts_details, 'partner_challan_number')), ',');
+
+           
+            $shipped_inventory_id ='';
+            foreach ($spare_parts_details as $spare_key =>  $spare_parts_details_value) {
+                if (!empty($spare_parts_details_value[0]['shipped_inventory_id'])) {
+                   $shipped_inventory_id = $spare_parts_details_value[0]['shipped_inventory_id'];
+
+                  if (!empty($shipped_inventory_id)){
+                  $whereinventory = array('inventory_id'=>$shipped_inventory_id);
+                  $inventory_master_data = $this->ci->inventory_model->get_inventory_master_list_data('part_number', $whereinventory);
+                   $spare_parts_details_value[$spare_key]['part_number']=$inventory_master_data[0]['part_number'];   
+                  }else{
+                 $spare_parts_details_value[$spare_key]['part_number']='-';    
+                 }
+                }else{
+                    $spare_parts_details_value[$spare_key]['part_number']='-';
+                }
+  
+            }
+
+
+            $sf_details = $this->ci->vendor_model->getVendorDetails('name as company_name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $service_center_id));
+
+            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number";
+
+
+            $where = array('contact_person.entity_id' => $spare_parts_details[0][0]['defective_return_to_entity_id'],
+                'contact_person.entity_type' => $spare_parts_details[0][0]['defective_return_to_entity_type']);
+            $wh_address_details = $this->ci->inventory_model->get_warehouse_details($select, $where, false, true);
+
+            $partner_details = array();
+
+            if ($spare_parts_details[0][0]['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                $partner_details = $this->ci->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number', array('partners.id' => $spare_parts_details[0][0]['defective_return_to_entity_id']));
+            } else if ($spare_parts_details[0][0]['defective_return_to_entity_type'] === _247AROUND_SF_STRING) {
+                $partner_details = $this->ci->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $spare_parts_details[0][0]['defective_return_to_entity_id']));
+            }
+
+            if (!empty($wh_address_details)) {
+                $partner_details[0]['address'] = $wh_address_details[0]['address'];
+                $partner_details[0]['contact_person_name'] = $wh_address_details[0]['contact_person_name'];
+                $partner_details[0]['contact_number'] = $wh_address_details[0]['contact_number'];
+            
+            }
+            
+            $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
+            $partner_details[0]['owner_name'] = $sf_details[0]['owner_name'];
+            
+            log_message('info', __FUNCTION__ . 'sf challan debugging spare_id: ' . $spare_id, true);
+
+            $sf_challan_number = $spare_parts_details[0][0]['sf_challan_number'];
+
+            if (empty($sf_challan_number)) {
+                $sf_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
+            }
+
+            
+            $sf_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
+
+            $data['sf_challan_number'] = $sf_challan_number;
+            $data['sf_challan_file'] = $sf_challan_file;
+
+
+
+            foreach ($spare_parts_details as $value) {
+                $this->ci->service_centers_model->update_spare_parts(array('id' => $value[0]['id']), $data);
+            }
+        }
+           $partner_on_saas = $this->ci->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            if ($partner_on_saas) {
+                return $sf_challan_file;
+            }else{
+                return true; 
+            }
+
+       
+    }
+
+
     /**
      * @desc This function is used to get settle inventory data
      * @param Array $postData
