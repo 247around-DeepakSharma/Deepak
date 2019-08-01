@@ -912,7 +912,7 @@ class Reporting_utils extends CI_Model {
 function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_days = 1, $sf_closed_date = NULL){
    
         if(empty($sf_closed_date)) {
-            $sf_closed_date = date('Y-m-d', strtotime(' -1 day')). ' - '. date('Y-m-d');
+            $sf_closed_date = date('Y-m-d'). ' - '. date('Y-m-d');
         }
         
         $date = explode(' - ', $sf_closed_date);
@@ -927,7 +927,6 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                 'Pending',  'Rescheduled'
                                 )" . $where . "
                                 AND booking_state_change.create_date BETWEEN '{$startDate}' AND '{$endDate}'
-                                AND booking_state_change.create_date < CURDATE()
                                 AND `booking_details`.booking_id = `booking_state_change`.booking_id
                                 AND `service_centres`.id = `booking_details`.assigned_vendor_id ".$groupBY;
 
@@ -938,7 +937,6 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                     WHERE `current_status` = 'Completed'
                                     " . $where . "
                                     AND booking_details.service_center_closed_date BETWEEN '{$startDate}' AND '{$endDate}'
-                                    AND booking_details.service_center_closed_date < CURDATE() 
                                     AND `service_centres`.id = `booking_details`.assigned_vendor_id ".$groupBY;
 
         $queries['sql_yesterday_cancelled'] = "SELECT COUNT( DISTINCT (
@@ -948,7 +946,6 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                     WHERE `current_status` = 'Cancelled'
                                     " . $where . "
                                     AND booking_details.service_center_closed_date BETWEEN '{$startDate}' AND '{$endDate}'
-                                    AND booking_details.service_center_closed_date < CURDATE() 
                                     AND `service_centres`.id = `booking_details`.assigned_vendor_id ".$groupBY;
 
         $queries['sql_month_completed'] = "SELECT COUNT( DISTINCT (
