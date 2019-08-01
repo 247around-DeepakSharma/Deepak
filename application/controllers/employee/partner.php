@@ -686,6 +686,8 @@ class Partner extends CI_Controller {
                 $return_data['partner']['customer_care_contact'] = $this->input->post("customer_care_contact");
                 $return_data['partner']['upcountry_max_distance_threshold'] = $return_data['partner']['upcountry_max_distance_threshold'] + 25;
                 $partner_id = $this->partner_model->add_partner($return_data['partner']);
+                // Save partner default contact person login.
+                $this->save_partner_default_contact_person_login($partner_id);
                 //Set Flashdata on success or on Error of Data insert in table
                 if (!empty($partner_id)) {
                     //Create Login For Partner
@@ -775,6 +777,25 @@ class Partner extends CI_Controller {
             $this->get_add_partner_form();
         }
     }
+    
+    /**
+     * Function creates default contact person login for partner.
+     * @param type $partner_id
+     */
+    function save_partner_default_contact_person_login($partner_id) {
+        $password = mt_rand(100000, 999999);
+        $loginData['entity_id'] = $partner_id;
+        $loginData['entity'] = $loginData['entity_name'] = _247AROUND_PARTNER_STRING;
+        $loginData['user_id'] = _247AROUND_EMPLOYEE_STRING."_".mt_rand(1,5);
+        $loginData['password'] = md5($password);
+        $loginData['clear_password'] = $password;
+        $loginData['contact_person_id'] = PARTNER_DEFAULT_CONTACT_PERSON_ID;
+        $loginData['create_date'] = date('Y-m-d H:i:s');
+        $loginData['active'] = 1;
+        $agent_id = $this->miscelleneous->create_entity_login($loginData);
+        return $agent_id;
+    }
+    
     function get_partner_form_data() {
         $return_data['company_name'] = trim($this->input->post('company_name'));
         $return_data['company_type'] = trim($this->input->post('company_type'));
