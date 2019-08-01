@@ -120,7 +120,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title" id="modal-title">Generate Purchase Invoice</h4>
+                <h4 class="modal-title" id="modal-title">Send Bulk Courier</h4>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -243,7 +243,7 @@
                    processData: false,  // tell jQuery not to process the data
                    contentType: false   // tell jQuery not to set contentType
                    }).done(function(response) {
-                         console.log(response);
+                        // console.log(response);
                           
                             $(".loader").addClass('hide');
                              swal({title: "Updated !", text: "Your courier details updated .", type: "success"},

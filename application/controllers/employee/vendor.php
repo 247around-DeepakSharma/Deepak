@@ -2913,7 +2913,12 @@ class vendor extends CI_Controller {
         if(!empty($sf_list)){
             $sf_list = $sf_list[0]['service_centres_id'];
         }
-        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list,'', '0');
+        
+        $sf_closed_date = NULL;
+        if(!empty($this->input->post('date'))) {
+            $sf_closed_date = $this->input->post('date');
+        }
+        $data['html'] = $this->booking_utilities->booking_report_by_service_center($sf_list,'', '0', $sf_closed_date);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/show_service_center_report',$data);
     }
@@ -3915,28 +3920,27 @@ class vendor extends CI_Controller {
      */
     function update_sub_service_center_details(){
         log_message('info',__FUNCTION__);
-       if($this->input->post()){
-           $data = array('district'=>$this->input->post('district'),
-                         'pincode'=>$this->input->post('pincode'),
-                         'upcountry_rate'=>$this->input->post('upcountry_rate'));
-           $id = $this->input->post('id');
-           $sc_id = $this->input->post('service_center_id');
-           $update_id = $this->upcountry_model->update_sub_service_center_upcountry_details($data,$id);
-           if($update_id){
-                $log = array(
-                    "entity" => "vendor",
-                    "entity_id" => $sc_id,
-                    "agent_id" => $this->session->userdata('id'),
-                    "action" =>  "SC HQ Updated",
-                    "remarks" => "Update SC HQ ID ".$id
-                );
-                $this->vendor_model->insert_log_action_on_entity($log);
-               echo "success";
-           }
-           else{
-               echo "failed";
-           }
-       }
+        if($this->input->post()){
+            $id = $this->input->post('id');
+            $sc_id = $this->input->post('service_center_id');
+            $update_array = [];
+            $update_array['upcountry_rate'] = $this->input->post('upcountry_rate');
+            $update_id = $this->upcountry_model->update_sub_service_center_upcountry_details($update_array,$id);
+            
+            if($update_id) {
+                 $log = array(
+                     "entity" => "vendor",
+                     "entity_id" => $sc_id,
+                     "agent_id" => $this->session->userdata('id'),
+                     "action" =>  "SC HQ Updated",
+                     "remarks" => "Update SC HQ ID ".$id
+                 );
+                 $this->vendor_model->insert_log_action_on_entity($log);
+                echo "success";
+            } else {
+                echo "failed";
+            }
+        }
     }
 
     /**
@@ -5820,7 +5824,7 @@ class vendor extends CI_Controller {
         echo $brand_view;exit;
     }
     
-    function varify_engineer(){
+    function verify_engineer(){
         $where = array("id"=>$this->input->post("engineer_id"));
         $data = array("varified"=>$this->input->post("varified_status"));
         $this->vendor_model->update_engineer($where, $data);

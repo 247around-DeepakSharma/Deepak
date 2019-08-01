@@ -2956,7 +2956,7 @@ class Service_centers extends CI_Controller {
     }
 
 
-    function do_multiple_spare_shipping(){
+   function do_multiple_spare_shipping(){
 
 
      $sp_ids =  explode(',',$_POST['sp_ids']);
@@ -2977,8 +2977,8 @@ class Service_centers extends CI_Controller {
                     . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
 
         $spare_part = $this->partner_model->get_spare_parts_booking($where);
-        if (!empty($$spare_part)) {
-        	
+        if (!empty($spare_part)) {
+            
         $_POST['sf_id'] = $spare_part[0]['service_center_id'];
         $_POST['booking_id'] = $spare_part[0]['booking_id'];
         $_POST['user_name'] = $spare_part[0]['name'];
@@ -2997,7 +2997,7 @@ class Service_centers extends CI_Controller {
         $_POST['challan_approx_value'][$value] = $spare_part[0]['challan_approx_value'];
         $_POST['parts_requested'][$value] = $spare_part[0]['parts_requested'];
         if (!isset($_POST['courier_boxes_weight_flag']) || empty($_POST['courier_boxes_weight_flag'])) {
-        	   $_POST['courier_boxes_weight_flag'] = $count_spare;
+               $_POST['courier_boxes_weight_flag'] = $count_spare;
              } 
        
 
@@ -3161,10 +3161,13 @@ class Service_centers extends CI_Controller {
                         $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS, "", $booking_id);
                     }
 
+                    if (isset($_POST['no_redirect_flag'])) {
+                     echo "Updated By Bulk";   
+                    }else{
                     $userSession = array('success' => 'Parts Updated.');
-
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . "service_center/get_defective_parts_booking");
+                    }
                 } else {
                     log_message('info', __FUNCTION__ . '=> Defective Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_name') .
                             " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
@@ -5271,9 +5274,7 @@ class Service_centers extends CI_Controller {
     function inventory_stock_list(){
         //$this->check_WH_UserSession();
         $this->load->view('service_centers/header');
-        $data['sf'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",array('is_micro_wh' => 1),NULL,NULL,array("name"=>"ASC"),NULL,array());
-        $data['wh'] = $this->reusable_model->get_search_result_data("service_centres","service_centres.id,name",array('is_wh' => 1),NULL,NULL,array("name"=>"ASC"),NULL,array());
-        $this->load->view('service_centers/inventory_stock_list',$data);
+        $this->load->view('service_centers/inventory_stock_list');
     }
       
     /**
@@ -7309,4 +7310,62 @@ class Service_centers extends CI_Controller {
         $this->miscelleneous->downloadCSV($list, $headings,"SF_completed_bookings");
     }
 
+    /**
+     * Booking summary report for service center.
+     */
+    function summary_report() {
+
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code","state",array(),array(),NULL,array('state'=>'ASC'),NULL,array(),array());
+        $data['services'] = $this->booking_model->selectservice();
+        $data['summaryReportData'] = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>_247AROUND_SF_STRING,"entity_id"=>$this->session->userdata('service_center_id')),NULL,array("length"=>50,"start"=>""),
+                array('id'=>'DESC'),NULL,NULL,array());
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/summary_report', $data);
+    }
+    
+    function get_summary_report_data($partnerID) {
+       
+        $summaryReportData = $this->reusable_model->get_search_result_data("reports_log","filters,date(create_date) as create_date,url",array("entity_type"=>_247AROUND_PARTNER_STRING,"entity_id"=>$partnerID),NULL,array("length"=>50,"start"=>""),
+                array('id'=>'DESC'),NULL,NULL,array());
+        
+        $str_body = '';
+        if(!empty($summaryReportData)) {
+            foreach ($summaryReportData as $summaryReport) {
+                $finalFilterArray = array();
+                $filterArray = json_decode($summaryReport['filters'], true);
+                foreach ($filterArray as $key => $value) {
+                    if ($key == "Date_Range" && is_array($value) && !empty(array_filter($value))) {
+                        $dArray = explode(" - ", $value);
+                        $key = "Registration Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                    }
+                    if ($key == "Completion_Date_Range" && is_array($value) && !empty(array_filter($value))) { 
+                        $dArray = explode(" - ", $value);
+                        $key = "Completion Date";
+                        $startTemp = strtotime($dArray[0]);
+                        $endTemp = strtotime($dArray[1]);
+                        $startD = date('d-F-Y', $startTemp);
+                        $endD = date('d-F-Y', $endTemp);
+                        $value = $startD . " To " . $endD;
+                        
+                    }
+                    $finalFilterArray[] = $key . " : " . $value;
+                }
+                
+                $str_body .=  '<tr>';
+                $str_body .=  '<td>' . implode(", ", $finalFilterArray) .'</td>';
+                $str_body .=  '<td>' . $summaryReport['create_date'] .'</td>';
+                $str_body .= '<td><a class="btn btn-success" style="background: #2a3f54;" href="'. base_url() ."employee/partner/download_custom_summary_report/". $summaryReport['url'] .'">Download</a></td>';
+                $str_body .=  '</tr>';
+                
+            }
+        }
+        
+        echo $str_body;
+    }
+    
 }
