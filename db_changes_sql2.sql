@@ -242,7 +242,7 @@ INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`
 ALTER TABLE `spare_parts_details` ADD `cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `shipped_quantity`;
 
 -- Prity 12-July-2019
-CREATE TABLE `category` (
+CREATE TABLE IF NOT EXISTS `category` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `private_key` varchar(200) NOT NULL COMMENT 'here we store trimed, uppercased, filtered (remove all special characters instead of hyphen(-) and dot(.)) value of name for unique constraints',
   `name` varchar(200) NOT NULL COMMENT 'this is the name of the category, this value will be replaced each time user changes the appearance of name.(eg: double spaces))',
@@ -252,9 +252,9 @@ CREATE TABLE `category` (
   `last_updated_by` varchar(25) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_private_key` (`private_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
-CREATE TABLE `capacity` (
+CREATE TABLE IF NOT EXISTS `capacity` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `private_key` varchar(200) NOT NULL COMMENT 'here we store trimed, uppercased, filtered (remove all special characters instead of hyphen(-) and dot(.)) value of name for unique constraints',
   `name` varchar(200) NOT NULL COMMENT 'this is the name of the category, this value will be replaced each time user changes the appearance of name.(eg: double spaces))',
@@ -264,15 +264,15 @@ CREATE TABLE `capacity` (
   `last_updated_by` varchar(25) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_private_key` (`private_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=198 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 -----------------------------    Script for Data Insertion     ------------------------------------------------------
 -------------------------------- CATEGORY --------------------------------------------------------------------------
--- select distinct concat("('",(REPLACE(UPPER(category), " ", "")),"','",category,"',1,'247around'),") as category from service_centre_charges where category <> "";
--- INSERT INTO category (private_key,name,active,last_updated_by) values 
+-- select distinct concat("('",(REPLACE(UPPER(category), " ", "")),"','",category,"',1,'1'),") as category from service_category_mapping where category <> "";
+-- INSERT IGNORE category (private_key,name,active,last_updated_by) values 
 -------------------------------- CAPACITY ---------------------------------------------------------------------------
--- select distinct concat("('",(REPLACE(UPPER(capacity), " ", "")),"','",capacity,"',1,'247around'),") from service_centre_charges where capacity <> "";
--- INSERT INTO capacity (private_key, name, active, last_updated_by) values 
+-- select distinct concat("('",(REPLACE(UPPER(capacity), " ", "")),"','",capacity,"',1,'1'),") from service_category_mapping where capacity <> "";
+-- INSERT IGNORE INTO capacity (private_key, name, active, last_updated_by) values 
 
 --Kajal 13/07/2019 --
 ALTER TABLE `spare_parts_details` CHANGE `cancellation_reason` `spare_cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
@@ -298,8 +298,8 @@ SET service_category_mapping.capacity_id = capacity.id;
 -- Add data in Category/Capacity Table if some mapping is missing from above queries.
 -- ---------------------------------------------------------------------------------------------
 ALTER TABLE service_category_mapping drop key uniq;
-ALTER TABLE service_category_mapping change drop column category;
-ALTER TABLE service_category_mapping change drop column capacity;
+ALTER TABLE service_category_mapping drop column category;
+ALTER TABLE service_category_mapping drop column capacity;
 -- PART 1 ENDS HERE -----------------------------------------------
 -- PART 2 STARTS HERE -------------------------------------------------
 ALTER TABLE service_category_mapping change column category category_id int(11) NOT NULL;
