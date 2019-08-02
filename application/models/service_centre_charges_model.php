@@ -353,21 +353,24 @@ class service_centre_charges_model extends CI_Model {
     	return $query->result_array();
     }
     
-    function getServiceCategoryMapping($where, $select, $order_by, $where_in = array()){
-        $this->db->distinct();
-        $this->db->select($select);
-        $this->db->join('category', 'service_category_mapping.category_id = category.id');
-        $this->db->join('capacity', 'service_category_mapping.capacity_id = capacity.id', 'left');
-        if(!empty($where_in)){
-            foreach($where_in as $index => $value){
-                $this->db->where_in($index, $value);
-            } 
-        }
-        $this->db->where($where);
-        $this->db->order_by($order_by);
-        $query = $this->db->get('service_category_mapping');
-    	return $query->result_array();
-    }
+//    ----------------------------- NOT IN USE ----------------------------------------------------------
+//    ---------------------------- Commented by Prity Sharma on 01-08-2019 ------------------------------
+    
+//    function getServiceCategoryMapping($where, $select, $order_by, $where_in = array()){
+//        $this->db->distinct();
+//        $this->db->select($select);
+//        $this->db->join('category', 'service_category_mapping.category_id = category.id');
+//        $this->db->join('capacity', 'service_category_mapping.capacity_id = capacity.id', 'left');
+//        if(!empty($where_in)){
+//            foreach($where_in as $index => $value){
+//                $this->db->where_in($index, $value);
+//            } 
+//        }
+//        $this->db->where($where);
+//        $this->db->order_by($order_by);
+//        $query = $this->db->get('service_category_mapping');
+//    	return $query->result_array();
+//    }
     
     function delete_service_charges($where_in){
        if(!empty($where_in)){
@@ -420,20 +423,20 @@ class service_centre_charges_model extends CI_Model {
      * @return: string
      * 
      */
-             function get_appliance_data($where = array()){  
-             $this->db->select('service_category_mapping.*, services.services, category.name as category, capacity.name as capacity');
-             $this->db->from('service_category_mapping');
-             $this->db->join('services', 'services.id =  service_category_mapping.service_id');
-             $this->db->join('category', 'category.id =  service_category_mapping.category_id');
-             $this->db->join('capacity', 'capacity.id =  service_category_mapping.capacity_id', 'left');
-             
-             if(!empty($where)){
-                 $this->db->where($where);
-             }
-             $this->db->order_by('services.services, category.name, capacity.name');
-             $query = $this->db->get();
-            return $query->result();  
-        } 
+//             function get_appliance_data($where = array()){  
+//             $this->db->select('service_category_mapping.*, services.services, category.name as category, capacity.name as capacity');
+//             $this->db->from('service_category_mapping');
+//             $this->db->join('services', 'services.id =  service_category_mapping.service_id');
+//             $this->db->join('category', 'category.id =  service_category_mapping.category_id');
+//             $this->db->join('capacity', 'capacity.id =  service_category_mapping.capacity_id', 'left');
+//             
+//             if(!empty($where)){
+//                 $this->db->where($where);
+//             }
+//             $this->db->order_by('services.services, category.name, capacity.name');
+//             $query = $this->db->get();
+//            return $query->result();  
+//        } 
         
         /**
      * @desc: This function is used to update service category capacity data in service_category_mapping table
@@ -443,7 +446,26 @@ class service_centre_charges_model extends CI_Model {
      * 
      */
      function update_appliance_detail($id, $data) {
-        $this->db->where('id', $id);
+        // Check if Record already exists
+        $select_data = $data;
+        $select_data['id != '] = $id;
+        if(array_key_exists('create_date', $select_data))
+        {
+            unset($select_data['create_date']);
+        }
+         
+        $this->db->select('*');
+        $this->db->from('service_category_mapping');
+        $this->db->where($select_data);
+        $query = $this->db->get();
+        $result = $query->result();
+        if(!empty($result))
+        {
+            return false;
+        }
+        // -------------------------------------
+        
+        $this->db->where('id', $id);      
         $this->db->update('service_category_mapping', $data);
         
         if ($this->db->affected_rows() > 0) {
@@ -719,16 +741,38 @@ class service_centre_charges_model extends CI_Model {
      * @date 18-07-2019
      * @return array 
      */
-    function getPartnerServiceCategoryMapping($where, $select, $order_by, $where_in = array()){
+    function getServiceCategoryMapping($where, $select, $order_by, $where_in = array(), $join_array = array(), $join_type_array = array(), $result_array = true){        
         $this->db->distinct();
-        $this->db->select($select);
-        $this->db->join('service_category_mapping', 'partner_appliance_mapping.appliance_configuration_id = service_category_mapping.id');
-        $this->db->join('category', 'service_category_mapping.category_id = category.id');
-        $this->db->join('capacity', 'service_category_mapping.capacity_id = capacity.id', 'left');
-        $this->db->where($where);
-        $this->db->order_by('category.name, capacity.name');
-        $query = $this->db->get('partner_appliance_mapping');
+        $this->db->select($select);        
+        $this->db->join('category', 'service_category_mapping.category_id = category.id');   
+        if(!empty($join_array)){
+            foreach ($join_array as $tableName => $joinCondition){
+                if(array_key_exists($tableName, $join_type_array)){
+                    $this->db->join($tableName,$joinCondition,$join_type_array[$tableName]);
+                }
+                else{
+                    $this->db->join($tableName,$joinCondition);
+                }
+            }
+        }
+        
+        if(!empty($where))
+        {
+            $this->db->where($where);
+        }
+        
+        if(!empty($where_in))
+        {
+            foreach($where_in as $key => $values){
+                $this->db->where_in($key, $values);
+            }
+        }
+        $this->db->order_by($order_by);
+        $query = $this->db->get('service_category_mapping');
+        if(!$result_array)
+        {
+            return $query->result();
+        }
     	return $query->result_array();
-    }
-    
+    }    
 }

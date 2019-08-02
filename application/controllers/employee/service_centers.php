@@ -1104,7 +1104,14 @@ class Service_centers extends CI_Controller {
        
         $where = array('reason_of' => 'vendor');
         $data['reason'] = $this->booking_model->cancelreason($where);
-
+        
+        if ($this->session->userdata('is_engineer_app') == 1) { 
+            $en_where = array("booking_id" => $booking_id, 
+                              "service_center_id" => $this->session->userdata('service_center_id')
+                        );
+            $data['engineer_data'] = $this->engineer_model->getengineer_action_data("cancellation_reason, cancellation_remark", $en_where);
+        }
+        
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/cancel_booking_form', $data);
     }

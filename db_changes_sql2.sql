@@ -385,6 +385,7 @@ CREATE TABLE `partner_appliance_mapping` (
   `create_date` datetime NOT NULL DEFAULT current_timestamp(),
   `isActive` int(1) DEFAULT 1,
   PRIMARY KEY (`id`),  
+  UNIQUE KEY `uk_partner_appliance_configuration` (partner_id, appliance_configuration_id),
   KEY fk_pam_partner_id_partners_id (partner_id),
   KEY fk_pam_aci_service_category_mapping_id (appliance_configuration_id),
   CONSTRAINT fk_pam_partner_id_partners_id FOREIGN KEY (partner_id) REFERENCES partners (id),
@@ -416,3 +417,27 @@ ALTER TABLE warranty_plan_model_mapping add column `create_date` timestamp NOT N
 ALTER TABLE warranty_plan_model_mapping add column `created_by` varchar(25) NOT NULL;
 ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT uk_part_plan UNIQUE (plan_id, part_type_id);
 ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT uk_model_plan UNIQUE (plan_id, model_id);
+
+--Kalyani 01-08-2019
+ALTER TABLE `engineer_booking_action` ADD `cancellation_remark` VARCHAR(255) NOT NULL AFTER `cancellation_reason`;
+
+-- Prity 02-08-2019
+-- Query to add data in partner_appliance_mapping Table
+SELECT DISTINCT
+    concat("INSERT IGNORE INTO partner_appliance_mapping (partner_id, appliance_configuration_id) VALUES (",partner_appliance_details.partner_id,",",service_category_mapping.id,");") as query,
+    partner_appliance_details.partner_id,
+    partner_appliance_details.service_id,
+    partner_appliance_details.category,
+    category.id as category_id,
+    partner_appliance_details.capacity,
+    capacity.id as capacity_id,
+    service_category_mapping.id as appliance_configuration_id
+FROM
+    partner_appliance_details
+        LEFT JOIN
+    category ON (REPLACE(UPPER(partner_appliance_details.category),' ','') = category.private_key)
+        LEFT JOIN
+    capacity ON (REPLACE(UPPER(partner_appliance_details.capacity),' ','') = capacity.private_key)
+        LEFT JOIN 
+    service_category_mapping ON (partner_appliance_details.service_id = service_category_mapping.service_id AND category.id = service_category_mapping.category_id AND capacity.id = service_category_mapping.capacity_id)    
+;
