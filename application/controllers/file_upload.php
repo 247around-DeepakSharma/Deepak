@@ -571,7 +571,7 @@ class File_upload extends CI_Controller {
              redirect(base_url() . "inventory/msl_excel_upload");
         }
 
-        if (!empty($error_type)) {
+        if (empty($error_type)) {
         	
         foreach ($post_data as $post) {
             
