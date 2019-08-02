@@ -256,7 +256,7 @@
     });
 
     $("#partner,#service_id,#brand,#model").select2();
-    $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd', maxDate: new Date()});
+    $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd', maxDate: new Date(), changeMonth: true, changeYear: true});
 
     $('#show').click(function () {
         validateform();
