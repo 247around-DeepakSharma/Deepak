@@ -467,6 +467,7 @@ class File_upload extends CI_Controller {
             $post_data = array();
             $error_type="";
             $reciver_entity_id = 0;
+            $error_array=array();
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
@@ -479,19 +480,23 @@ class File_upload extends CI_Controller {
                         
                         $part_details = $this->inventory_model->get_inventory_master_list_data($select, $where_part, $where_in_parts);
                         if(empty($part_details)){
-                          $error_type = "Part not found in inventory";  
+                          $error_type = "Part not found in inventory"; 
+                          $error_array[] =$error_type;  
                         }
                         $from_gst_data = $this->inventory_model->get_entity_gst_data('*', $where = array('gst_number' => $rowData['from_gst']));
                         if(empty($from_gst_data)){
                           $error_type = "From gst details not found";  
+                          $error_array[] =$error_type;
                         }
                         $to_gst_data = $this->inventory_model->get_entity_gst_data('*', $where = array('gst_number' => $rowData['to_gst']));
                         if(empty($to_gst_data)){
                           $error_type = "To gst details not found"; 
+                          $error_array[] =$error_type;
                         }
                         $wh_details = $this->vendor_model->getVendorContact(trim($rowData['sap_vendor_id']));
                          if(empty($wh_details)){
-                          $error_type = "Warehouse details not found";  
+                          $error_type = "Warehouse details not found"; 
+                          $error_array[] =$error_type; 
                         }
 
                         if (!empty($part_details) && !empty($from_gst_data) && !empty($to_gst_data) && !empty($wh_details)  && !empty($part_details) ) {
@@ -559,6 +564,7 @@ class File_upload extends CI_Controller {
                         }
                     } else {
                     	$error_type ="Error in header";
+                        $error_array[] = $error_type;
                         $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type);
                     }
                 }
@@ -571,7 +577,7 @@ class File_upload extends CI_Controller {
              redirect(base_url() . "inventory/msl_excel_upload");
         }
 
-        if (empty($error_type)) {
+        if (empty($error_array)) {
         	
         foreach ($post_data as $post) {
             
