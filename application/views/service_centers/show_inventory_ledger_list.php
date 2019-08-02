@@ -3,7 +3,7 @@
         <h3>Inventory Ledger Details</h3>
         <hr>
         <div class="stocks_table">
-            <table class="table table-responsive table-hover table-bordered table-striped">
+            <table class="table table-responsive table-hover table-bordered table-striped" id="inventory_ledger">
                 <thead>
                     <tr>
                         <th>S.No.</th>
@@ -57,3 +57,24 @@
         </div>
     </div>
 </div>
+
+<script>
+ var time = moment().format('D-MMM-YYYY');
+ $(document).ready(function() {
+        $('#inventory_ledger').DataTable( {
+            "processing": true,
+            "serverSide": false,
+            dom: 'lBfrtip',
+            "buttons": [
+            {
+            extend: 'excel',
+            text: 'Export',
+            exportOptions: {
+              columns: [ 0, 1, 2,3,4, 5,6,7,8,9]
+            },
+            title: 'inventory_ledger_details_'+time,
+            },
+            ],
+        } );
+   } );
+</script>
