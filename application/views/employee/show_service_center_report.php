@@ -9,7 +9,7 @@
     <div class="col-md-4">
         <div class="col-md-12" style="margin-top: 4%;">
             <div class="input-group input-append date">
-                <input id="date" class="form-control date"  name="date" type="text" value = "" autocomplete='off' onkeydown="return false" >
+                <input id="date" class="form-control date"  name="date" type="text" value = "<?php echo date('Y-m-d'). ' - '. date('Y-m-d'); ?>" autocomplete='off' onkeydown="return false" >
                 <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
             </div>
         </div>

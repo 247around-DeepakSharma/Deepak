@@ -1298,11 +1298,13 @@ class engineerApi extends CI_Controller {
             $data['engineer_id'] = $requestData["engineer_id"];
             $data['current_status'] = "InProcess";
             $data['internal_status'] = _247AROUND_CANCELLED;
+            $data['cancellation_reason'] = $requestData["cancellationReason"];
+            $data['cancellation_remark'] = $requestData["remarks"];
             $data["closed_date"] = date("Y-m-d H:i:s");
             $this->engineer_model->update_engineer_table($data, array( "booking_id" =>$requestData["bookingID"] ));
             
             $en["booking_id"] = $requestData["bookingID"];
-            $en["remarks"] = $requestData["cancellationReason"];
+            $en["remarks"] = "Booking Cancelled By Engineer From App";
             $en['closed_date'] = date("Y-m-d H:i:s");
             $bookinghistory = $this->booking_model->getbooking_history($requestData["bookingID"]);
             if(!empty($requestData['location']) ){

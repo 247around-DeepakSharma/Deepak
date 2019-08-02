@@ -288,7 +288,7 @@ ALTER TABLE employee_relation ADD COLUMN individual_service_centres_id text NULL
 ALTER TABLE `spare_parts_details` ADD `cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `shipped_quantity`;
 
 -- Prity 12-July-2019
-CREATE TABLE `category` (
+CREATE TABLE IF NOT EXISTS `category` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `private_key` varchar(200) NOT NULL COMMENT 'here we store trimed, uppercased, filtered (remove all special characters instead of hyphen(-) and dot(.)) value of name for unique constraints',
   `name` varchar(200) NOT NULL COMMENT 'this is the name of the category, this value will be replaced each time user changes the appearance of name.(eg: double spaces))',
@@ -298,9 +298,9 @@ CREATE TABLE `category` (
   `last_updated_by` varchar(25) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_private_key` (`private_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=67 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
-CREATE TABLE `capacity` (
+CREATE TABLE IF NOT EXISTS `capacity` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `private_key` varchar(200) NOT NULL COMMENT 'here we store trimed, uppercased, filtered (remove all special characters instead of hyphen(-) and dot(.)) value of name for unique constraints',
   `name` varchar(200) NOT NULL COMMENT 'this is the name of the category, this value will be replaced each time user changes the appearance of name.(eg: double spaces))',
@@ -310,15 +310,15 @@ CREATE TABLE `capacity` (
   `last_updated_by` varchar(25) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uk_private_key` (`private_key`)
-) ENGINE=InnoDB AUTO_INCREMENT=198 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
 
 -----------------------------    Script for Data Insertion     ------------------------------------------------------
 -------------------------------- CATEGORY --------------------------------------------------------------------------
--- select distinct concat("('",(REPLACE(UPPER(category), " ", "")),"','",category,"',1,'247around'),") as category from service_centre_charges where category <> "";
--- INSERT INTO category (private_key,name,active,last_updated_by) values 
+-- select distinct concat("('",(REPLACE(UPPER(category), " ", "")),"','",category,"',1,'1'),") as category from service_category_mapping where category <> "";
+-- INSERT IGNORE category (private_key,name,active,last_updated_by) values 
 -------------------------------- CAPACITY ---------------------------------------------------------------------------
--- select distinct concat("('",(REPLACE(UPPER(capacity), " ", "")),"','",capacity,"',1,'247around'),") from service_centre_charges where capacity <> "";
--- INSERT INTO capacity (private_key, name, active, last_updated_by) values 
+-- select distinct concat("('",(REPLACE(UPPER(capacity), " ", "")),"','",capacity,"',1,'1'),") from service_category_mapping where capacity <> "";
+-- INSERT IGNORE INTO capacity (private_key, name, active, last_updated_by) values 
 
 --Kajal 13/07/2019 --
 ALTER TABLE `spare_parts_details` CHANGE `cancellation_reason` `spare_cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
@@ -344,8 +344,8 @@ SET service_category_mapping.capacity_id = capacity.id;
 -- Add data in Category/Capacity Table if some mapping is missing from above queries.
 -- ---------------------------------------------------------------------------------------------
 ALTER TABLE service_category_mapping drop key uniq;
-ALTER TABLE service_category_mapping change drop column category;
-ALTER TABLE service_category_mapping change drop column capacity;
+ALTER TABLE service_category_mapping drop column category;
+ALTER TABLE service_category_mapping drop column capacity;
 -- PART 1 ENDS HERE -----------------------------------------------
 -- PART 2 STARTS HERE -------------------------------------------------
 ALTER TABLE service_category_mapping change column category category_id int(11) NOT NULL;
@@ -385,6 +385,7 @@ CREATE TABLE `partner_appliance_mapping` (
   `create_date` datetime NOT NULL DEFAULT current_timestamp(),
   `isActive` int(1) DEFAULT 1,
   PRIMARY KEY (`id`),  
+  UNIQUE KEY `uk_partner_appliance_configuration` (partner_id, appliance_configuration_id),
   KEY fk_pam_partner_id_partners_id (partner_id),
   KEY fk_pam_aci_service_category_mapping_id (appliance_configuration_id),
   CONSTRAINT fk_pam_partner_id_partners_id FOREIGN KEY (partner_id) REFERENCES partners (id),
@@ -416,3 +417,27 @@ ALTER TABLE warranty_plan_model_mapping add column `create_date` timestamp NOT N
 ALTER TABLE warranty_plan_model_mapping add column `created_by` varchar(25) NOT NULL;
 ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT uk_part_plan UNIQUE (plan_id, part_type_id);
 ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT uk_model_plan UNIQUE (plan_id, model_id);
+
+--Kalyani 01-08-2019
+ALTER TABLE `engineer_booking_action` ADD `cancellation_remark` VARCHAR(255) NOT NULL AFTER `cancellation_reason`;
+
+-- Prity 02-08-2019
+-- Query to add data in partner_appliance_mapping Table
+SELECT DISTINCT
+    concat("INSERT IGNORE INTO partner_appliance_mapping (partner_id, appliance_configuration_id) VALUES (",partner_appliance_details.partner_id,",",service_category_mapping.id,");") as query,
+    partner_appliance_details.partner_id,
+    partner_appliance_details.service_id,
+    partner_appliance_details.category,
+    category.id as category_id,
+    partner_appliance_details.capacity,
+    capacity.id as capacity_id,
+    service_category_mapping.id as appliance_configuration_id
+FROM
+    partner_appliance_details
+        LEFT JOIN
+    category ON (REPLACE(UPPER(partner_appliance_details.category),' ','') = category.private_key)
+        LEFT JOIN
+    capacity ON (REPLACE(UPPER(partner_appliance_details.capacity),' ','') = capacity.private_key)
+        LEFT JOIN 
+    service_category_mapping ON (partner_appliance_details.service_id = service_category_mapping.service_id AND category.id = service_category_mapping.category_id AND capacity.id = service_category_mapping.capacity_id)    
+;

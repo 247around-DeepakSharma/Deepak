@@ -359,6 +359,9 @@ class File_upload extends CI_Controller {
                                         
                                         $inventory_data = array("type" => $val['type'], 'description' => $val['description'], 'hsn_code' => $val['hsn_code'],
                                             'gst_rate' => $val['gst_rate'], 'oow_around_margin' => $val['oow_around_margin'], 'oow_vendor_margin' => $val['oow_vendor_margin']);
+                                        if ($data['saas_module'] == 1) {
+                                            $inventory_data['price'] = $val['price'];
+                                        }
                                         $rows_affected = $this->inventory_model->update_inventory_master_list_data($where, $inventory_data);
                                     }
                                     if($rows_affected > 0) {
@@ -1910,10 +1913,7 @@ class File_upload extends CI_Controller {
     
     function upload_partner_appliance_list()
     {
-        
         $file_status = $this->get_upload_file_type();
-        $post_data = $this->input->post();
-        $redirect_to = $this->input->post('redirect_url');
         $partner_id = $this->input->post('partner_id');
         $returnMsg = [];
 
@@ -1956,33 +1956,19 @@ class File_upload extends CI_Controller {
                                 // Insert Status of Record
                                 $returnMsg[$row][3] .= 'Insufficient Data<br/>';
                                 $is_data_validated = false;
+                                continue;
                             }
-                            
-                            // Check For Partner
-//                            $arr_partner = $this->reusable_model->get_search_result_data('partners', 'id', ['UPPER(TRIM(public_name))' => $rowData['PARTNER']], NULL, NULL, NULL, NULL, NULL);                            
-//                            if (empty($arr_partner)) {
-//                                $returnMsg[$row][3] .= 'Partner Not Found<br/>';
-//                                $is_data_validated = false;
-//                            }
-//                            else
-//                            {
-//                                $partner_id = $arr_partner[0]['id'];
-//                            }
                             
                             // Check For Product
                             $arr_service = $this->reusable_model->get_search_result_data('services', 'id', ['UPPER(TRIM(services))' => $rowData['PRODUCT']], NULL, NULL, NULL, NULL, NULL);                            
                             if (empty($arr_service)) {
                                 $returnMsg[$row][3] .= 'Product Not Found<br/>`';
                                 $is_data_validated = false;
+                                continue;
                             }
                             else
                             {
                                 $service_id = $arr_service[0]['id'];
-                            }
-                            
-                            if(!$is_data_validated)
-                            {
-                                continue; // Continue to next record.
                             }
                             
                             // Check For Category
@@ -2049,7 +2035,6 @@ class File_upload extends CI_Controller {
                 }                
             }
         }
-//        echo '<pre>';print_R($returnMsg);exit;
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/import_partner_appliance_configuration', ['partner_id' => $partner_id, 'data' => $returnMsg]);        
     }

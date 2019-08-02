@@ -1,9 +1,17 @@
+<style>
+    .dataTables_filter{
+        float: right;
+    }
+    .pagination{
+        float: right;
+    }
+</style>
 <div id="page-wrapper" >
     <div>
         <h3>Inventory Ledger Details </h3>
         <hr>
         <div class="stocks_table">
-            <table class="table table-responsive table-hover table-bordered table-striped">
+            <table class="table table-responsive table-hover table-bordered table-striped" id="inventory_ledger">
                 <thead>
                     <tr>
                         <th>S.No.</th>                        
@@ -25,7 +33,6 @@
                         <td><?php echo $key+1;?></td>
                         <td><?php echo $value['sender'];?></td>
                         <td>
-<!--                            <a href="javascript:void(0);" onclick="get_vendor_stocks('<?php echo $value['receiver_entity_id']?>','<?php echo $value['receiver_entity_type']?>')"> </a>-->
                             <?php echo $value['receiver'];?>
                         </td>                        
                         <td><?php echo $value['part_name'];?></td>
@@ -83,7 +90,7 @@
     </div>
     <!-- Modal end -->
     <script>
-        
+        var time = moment().format('D-MMM-YYYY');
         function get_vendor_stocks(entity_id,entity_type){
             $.ajax({
                 type:'POST',
@@ -112,5 +119,26 @@
                     console.log("Contact Developers For This Issue");
                 }
         }
+      
+        $(document).ready(function() {
+            $('#inventory_ledger').DataTable( {
+                "processing": true,
+                "serverSide": false,
+                dom: 'lBfrtip',
+                "buttons": [
+                {
+                extend: 'excel',
+                text: 'Export',
+                exportOptions: {
+                  columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10]
+                },
+                title: 'inventory_ledger_details_'+time,
+                },
+                ],
+            } );
+        } );
+           
     </script>
+    
+    
 </div>

@@ -671,5 +671,6 @@ define('PARTNER_APPLIANCE_MAPPING', 'Partner_Appliance_Mapping_File');
 //warranty related constants
 define('IN_WARRANTY_STATUS', 1);
 define('EXTENDED_WARRANTY_STATUS', 2);
+define('PARTNER_DEFAULT_CONTACT_PERSON_ID', '1002706');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
