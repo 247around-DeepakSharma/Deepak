@@ -2232,7 +2232,7 @@ class service_centre_charges extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         $data['partners'] = $this->partner_model->get_all_partner_source();
         $data['services'] = $this->booking_model->selectservice();
-        $data['status'] = [0 => "All", 1 => "Active", 2 => "Deactive"];
+        $data['status'] = [0 => "All", 1 => "Mapped", 2 => "Un-Mapped"];
         $this->load->view('employee/partner_wise_appliances', $data);
     }
 
