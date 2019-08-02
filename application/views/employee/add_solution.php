@@ -99,6 +99,8 @@
             data:{'is_wh' : 1},
             success: function (response) {
                 $('#partner_id').html(response);
+                $('#partner_id option:selected').removeAttr("selected");
+                $('#partner_id option:eq(0)').prop("selected",true);
             }
         });
     }
