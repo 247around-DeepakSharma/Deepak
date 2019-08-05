@@ -2120,6 +2120,25 @@ class vendor extends CI_Controller {
 
 	$where  = array('id' => $engineer_id );
         $this->vendor_model->update_engineer($where, array('active'=> $active));
+        $log = array(
+            "entity" => "engineer",
+            "entity_id" => $engineer_id,
+        );
+        if($this->session->userdata('userType') == 'service_center'){ 
+             $log['agent_id'] = $this->session->userdata('service_center_agent_id');
+        }
+        else{
+            $log['agent_id'] = $this->session->userdata('id');
+        }
+        if($active == 1){
+            $log['action'] = "Engineer Enabled";
+        }
+        else{
+            $log['action'] = "Engineer Disabled";
+        }
+        
+        $this->vendor_model->insert_log_action_on_entity($log);
+        
         if($this->session->userdata('userType') == 'service_center'){
 
            redirect(base_url()."service_center/get_engineers");
