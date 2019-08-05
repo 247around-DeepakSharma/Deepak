@@ -4,7 +4,7 @@
             <div class="col-md-12">
                 <h1 class="page-header">
                     Partner Appliance List   
-                    <div class="pull-right" title="Add Service Mapping" style="padding-right:5px;"><a class="btn btn-primary" href="<?php echo  base_url()?>employee/service_centre_charges/appliance_data_view" target="_blank">Add Product Mapping</a></div>
+                    <div class="pull-right" title="Add Product Mapping" style="padding-right:5px;"><a class="btn btn-primary" href="<?php echo  base_url()?>employee/service_centre_charges/add_new_category" target="_blank">Add Product Mapping</a></div>
                     <div class="pull-right" title="Add Capacity" style="padding-right:5px;"><a class="btn btn-primary" href="<?php echo  base_url()?>capacity" target="_blank">Add Capacity</a></div>
                     <div class="pull-right" title="Add Category" style="padding-right:5px;"><a class="btn btn-primary" href="<?php echo  base_url()?>category" target="_blank">Add Category</a></div>
                 </h1>                                                      
@@ -55,7 +55,7 @@
                         <th>S.No.</th>
                         <th>Category</th>
                         <th>Capacity</th>
-                        <th>Active</th>
+                        <th>Is Mapped</th>
                     </tr>
                 </thead>
                 <tbody>                    

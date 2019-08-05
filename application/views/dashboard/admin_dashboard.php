@@ -1002,7 +1002,10 @@
         </div>
     </div>
     <!-- Escalation End-->
- 
+    <?php
+        $saas_flag = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        if($saas_flag) { 
+    ?>
     <!-- Not assigned booking report -->
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
@@ -1027,7 +1030,7 @@
             </div>
         </div>
     </div>
-    
+    <?php } ?>
     <div class="row" style="margin-top:10px;">
         <!-- Company Monthly Status -->
         <div class="col-md-6 col-sm-12 col-xs-12" style="padding : 0px !important;">
