@@ -420,6 +420,9 @@ ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT uk_model_plan UNIQUE (pla
 
 --Kalyani 01-08-2019
 ALTER TABLE `engineer_booking_action` ADD `cancellation_remark` VARCHAR(255) NOT NULL AFTER `cancellation_reason`;
+--Kalyani 03-08-2019
+ALTER TABLE `ewaybill_details` ADD `vehicle_number` VARCHAR(255) NOT NULL AFTER `ewaybill_generated_date`;
+ALTER TABLE `ewaybill_details` ADD `invoice_id` VARCHAR(255) NOT NULL AFTER `vehicle_number`;
 
 -- Prity 02-08-2019
 -- Query to add data in partner_appliance_mapping Table
