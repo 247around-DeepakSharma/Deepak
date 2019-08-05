@@ -2686,13 +2686,14 @@ class Inventory_model extends CI_Model {
        
     }
     
-    /**
+    /*
      * @Desc: This function is used to get Details of Missing serviceable BOM
      * @params: $select string
-     * @params: $where array
-     * @return: $query array
-     * 
+     * @params: $partner_id 
+     * @params: $service_id 
+     * @return: $query Object
      */
+    
     function get_missing_serviceable_bom_data($select, $partner_id, $service_id) {
 
         $where = "";
@@ -2706,13 +2707,32 @@ class Inventory_model extends CI_Model {
     }
     
     
-    
-     /**
+        
+    /**
+     * @Desc: This function is used to get inventory ledger details.
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_ledger_details_data($select, $where) {
+
+        $this->db->select($select, FALSE);
+        $this->db->from('vendor_partner_invoices');
+        $this->db->join('invoice_details', 'invoice_details.invoice_id = vendor_partner_invoices.invoice_id');
+        $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = invoice_details.inventory_id');
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $query = $this->db->get();
+        return $query;
+    }
+
+    /**
      * @Desc: This function is used to get data from the inventory_stocks table
      * @params: $post array
      * @params: $select string
-     * @return: void
-     * 
+     * @return: Object 
      */
     function get_warehouse_stocks($post,$select){
                 

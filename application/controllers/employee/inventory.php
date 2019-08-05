@@ -6977,5 +6977,56 @@ class Inventory extends CI_Controller {
         }
         echo json_encode($res);
     }
+    
+    /**
+     *  @desc : This function is used to Download inventory ledger details
+     *  @param : void
+     *  @return : void
+     */
+    function download_invoice() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/download_inventory_ledger");
+    }
+     /**
+     *  @desc : This function is used to Download the Inventory Ledger Details.
+     *  @param : void
+     *  @return : void
+     */
+    function  download_sale_purchage_invoice_data(){
+        log_message('info', __METHOD__ . ' Processing...');
+
+        $partner_id = $this->input->post('partner_id');
+        
+        $select = "invoice_details.invoice_id AS 'Invoice Id', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', part_number AS 'Part Number', invoice_details.description AS 'Description', invoice_details.hsn_code AS 'HSN Code', invoice_details.qty AS 'Quantity', rate AS 'Rate', invoice_details.taxable_value AS 'Taxable Value', (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS 'GST Rate', (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS 'GST Tax Amount', total_amount AS 'Total Amount', vendor_partner_invoices.type AS Type";
+        
+        $where = array("sub_category IN ('".DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".NEW_PART_RETURN."')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+
+        if (!empty($partner_id)) {
+            $bom_details = $this->inventory_model->get_inventory_ledger_details_data($select, $where);
+            $this->load->dbutil();
+            $this->load->helper('file');
+
+            $file_name = 'inventory_ledger_details_data_' . date('j-M-Y-H-i-s') . ".csv";
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($bom_details, $delimiter, $newline);
+
+            write_file(TMP_FOLDER . $file_name, $new_report);
+
+            if (file_exists(TMP_FOLDER . $file_name)) {
+                log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                $res1 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                $res['status'] = true;
+                $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+            } else {
+                log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                $res['status'] = FALSE;
+                $res['msg'] = 'error in generating file';
+            }
+        }
+        echo json_encode($res);
+    }
 
 }
