@@ -441,3 +441,10 @@ FROM
         LEFT JOIN 
     service_category_mapping ON (partner_appliance_details.service_id = service_category_mapping.service_id AND category.id = service_category_mapping.category_id AND capacity.id = service_category_mapping.capacity_id)    
 ;
+
+--Kajal 02/08/2019 Start --
+UPDATE `spare_parts_details` JOIN `booking_cancellation_reasons` ON spare_parts_details.spare_cancellation_reason=booking_cancellation_reasons.reason SET spare_parts_details.spare_cancellation_reason=booking_cancellation_reasons.id WHERE spare_parts_details.spare_cancellation_reason<>'' ;
+
+ALTER TABLE `spare_parts_details` CHANGE `spare_cancellation_reason` `spare_cancellation_reason` INT(11) NULL DEFAULT NULL;
+
+--Kajal 02/08/2019 End  --
