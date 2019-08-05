@@ -5313,8 +5313,8 @@ class Booking extends CI_Controller {
             if(!empty($data['charges']))
             {
                 $arrBookings = array_column($data['charges'], 'booking_id');
-                $arrBookingWiseWarrantyStatus = $this->check_bookings_warranty($arrBookings);                             
-                    }
+                $arrBookingWiseWarrantyStatus = $this->booking_utilities->check_bookings_warranty($arrBookings);   
+            }
             $data['warranty_data'] = $arrBookingWiseWarrantyStatus;
             // Function ends here
             $this->load->view('employee/completed_cancelled_review', $data);
@@ -5698,33 +5698,4 @@ class Booking extends CI_Controller {
         endif;
         exit;
     }
-
-    function check_bookings_warranty($arrBookings)
-    {
-        $arrBookingsWarrantyData = [];
-        $arrBookingWiseWarrantyStatus = [];
-        $arrBookingWiseWarrantyData = $this->warranty_model->check_warranty_by_booking_ids($arrBookings);                 
-        if(!empty($arrBookingWiseWarrantyData)){
-            foreach ($arrBookingWiseWarrantyData as $key => $recBookingWiseWarrantyData) {
-                $arrBookingsWarrantyData[$recBookingWiseWarrantyData['booking_id']] = $recBookingWiseWarrantyData;
-}
-
-            $arrBookingWiseWarrantyStatus = array_map(function($recWarrantyData) {
-                $warrantyStatus = 'OW';
-                $warranty_months = $recWarrantyData['warranty_period'];
-                if($recWarrantyData['warranty_type'] == 'EW')
-                {
-                    $warranty_months = $recWarrantyData['warranty_period'] + 12;
-                }                        
-                $warranty_end_period = strtotime(date("Y-m-d", strtotime($recWarrantyData['date_of_purchase'])) . " +" . $warranty_months . " months");
-                $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
-                if (strtotime($recWarrantyData['create_date']) <= $warranty_end_period) :
-                    $warrantyStatus = $recWarrantyData['warranty_type'];      
-                endif;        
-                return $warrantyStatus;
-            }, $arrBookingsWarrantyData);
-        }  
-        return $arrBookingWiseWarrantyStatus;
-    }
-
 }

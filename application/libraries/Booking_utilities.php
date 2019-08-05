@@ -31,6 +31,7 @@ class Booking_utilities {
 	$this->My_CI->load->model('booking_model');
 	$this->My_CI->load->model('reporting_utils');
         $this->My_CI->load->model('booking_request_model');
+        $this->My_CI->load->model('warranty_model');
         $this->My_CI->load->library('paytm_payment_lib');
     }
     
@@ -932,6 +933,33 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
         } 
         return $c2c_enable;
         
+    }
+    
+    function check_bookings_warranty($arrBookings)
+    {
+        $arrBookingsWarrantyData = [];
+        $arrBookingWiseWarrantyStatus = [];
+        $arrBookingWiseWarrantyData = $this->My_CI->warranty_model->check_warranty_by_booking_ids($arrBookings);                 
+        if(!empty($arrBookingWiseWarrantyData)){
+            foreach ($arrBookingWiseWarrantyData as $key => $recBookingWiseWarrantyData) {
+                $arrBookingsWarrantyData[$recBookingWiseWarrantyData['booking_id']] = $recBookingWiseWarrantyData;
+            }
+            $arrBookingWiseWarrantyStatus = array_map(function($recWarrantyData) {
+                $warrantyStatus = 'OW';
+                $warranty_months = $recWarrantyData['warranty_period'];
+                if($recWarrantyData['warranty_type'] == 'EW')
+                {
+                    $warranty_months = $recWarrantyData['warranty_period'] + 12;
+                }                        
+                $warranty_end_period = strtotime(date("Y-m-d", strtotime($recWarrantyData['date_of_purchase'])) . " +" . $warranty_months . " months");
+                $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
+                if (strtotime($recWarrantyData['create_date']) <= $warranty_end_period) :
+                    $warrantyStatus = $recWarrantyData['warranty_type'];      
+                endif;        
+                return $warrantyStatus;
+            }, $arrBookingsWarrantyData);
+        }  
+        return $arrBookingWiseWarrantyStatus;
     }
 
 }
