@@ -105,6 +105,7 @@
         var partner_id = $('#partner_id').val();
         if(partner_id){
             inventory_spare_table.ajax.reload();
+            $('#ack_spare').removeAttr('disabled');
         }else{
             alert("Please Select Partner");
         }
@@ -214,7 +215,7 @@
                 success:function(response){
 
                 //console.log(response);
-                    $('#ack_spare').html("Acknowledge spare received").attr('disabled',false);
+                    $('#ack_spare').html("Acknowledge spare received").attr('disabled',true);
                     obj = JSON.parse(response);
                     if(obj.status){
                         $('.success_msg_div').fadeTo(2000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
