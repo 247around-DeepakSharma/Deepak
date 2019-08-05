@@ -406,4 +406,6 @@ FROM
         LEFT JOIN 
     service_category_mapping ON (partner_appliance_details.service_id = service_category_mapping.service_id AND category.id = service_category_mapping.category_id AND capacity.id = service_category_mapping.capacity_id)    
 ;
-
+--Kalyani 03-08-2019
+ALTER TABLE `ewaybill_details` ADD `vehicle_number` VARCHAR(255) NOT NULL AFTER `ewaybill_generated_date`;
+ALTER TABLE `ewaybill_details` ADD `invoice_id` VARCHAR(255) NOT NULL AFTER `vehicle_number`;

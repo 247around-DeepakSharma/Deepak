@@ -156,6 +156,30 @@
                                     
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="eway_bill_by_wh" class="col-md-3 vertical-align">E-Way Bill Number</label>
+                                    <div class="col-md-8">                                            
+                                        <input type="text" class="form-control"  id="eway_bill_by_wh" name="eway_bill_by_wh" placeholder="Please Enter E-Way Bill Number" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="eway_vehicle_number" class="col-md-3 vertical-align">Vehicle Number</label>
+                                    <div class="col-md-8">
+                                        <input type="text" class="form-control"  id="eway_vehicle_number" name="eway_vehicle_number" placeholder="Please Enter Vehicle Number" required>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="defective_parts_shippped_ewaybill_pic_by_wh" class="col-md-3 vertical-align">E-Way Bill File</label>
+                                    <div class="col-md-8">                                            
+                                        <input type="file" class="form-control"  id="defective_parts_shippped_ewaybill_pic_by_wh" name="defective_parts_shippped_ewaybill_pic_by_wh" required>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <br> 
