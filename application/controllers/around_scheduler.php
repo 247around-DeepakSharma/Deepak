@@ -2442,7 +2442,41 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         // directory
         $templateDir = __DIR__ . "/excel-templates/";
         $files = array();
-        if (!empty($template)) {
+       
+        if (!empty($awb_template)) {
+            $config1 = array(
+                'template' => $awb_template,
+                'templateDir' => $templateDir
+            );
+
+            //load template
+            if (ob_get_length() > 0) {
+                ob_end_clean();
+            }
+
+            $R1 = new PHPReport($config1);
+            $R1->load(array(
+                array(
+                    'id' => 'spare',
+                    'data' => $spare_part_data['awb_list'],
+                    'repeat' => true
+                ),
+                    )
+            );
+
+            $res = 0;
+            if (file_exists($awb_output_file_excel)) {
+
+                system(" chmod 777 " . $awb_output_file_excel, $res);
+                unlink($awb_output_file_excel);
+            }
+
+            $R1->render('excel', $awb_output_file_excel);
+            
+            
+        }
+        
+         if (!empty($template)) {
             $config = array(
                 'template' => $template,
                 'templateDir' => $templateDir
@@ -2470,44 +2504,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             }
 
             $R->render('excel', $output_file_excel);
-        }
-
-        if (!empty($awb_template)) {
-            $config1 = array(
-                'template' => $awb_template,
-                'templateDir' => $templateDir
-            );
-
-
-            //load template
-            if (ob_get_length() > 0) {
-                ob_end_clean();
-            }
-
-            $R1 = new PHPReport($config1);
-            $R1->load(array(
-                array(
-                    'id' => 'spare',
-                    'data' => $spare_part_data['awb_list'],
-                    'repeat' => true
-                ),
-                    )
-            );
-
-            $res = 0;
-            if (file_exists($awb_output_file_excel)) {
-
-                system(" chmod 777 " . $awb_output_file_excel, $res);
-                unlink($awb_output_file_excel);
-            }
-
-            $R1->render('excel', $awb_output_file_excel);
-            
-            array_push($files, $awb_output_file_excel);
-
+            array_push($files, $output_file_excel);
         }
         
-        $this->combined_spare_pending_shipment_sheet($output_file_excel, $files);
+        $this->combined_spare_pending_shipment_sheet($awb_output_file_excel, $files);
 
         $email_template = $this->booking_model->get_booking_email_template($template_tag);
         if (!empty($email_template)) {
@@ -2517,10 +2517,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $email_from = $email_template[2];
             $cc = $email_template[3];
             
-            $email_flag = $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_excel, $template_tag);
+            $email_flag = $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $awb_output_file_excel, $template_tag);
         }
 
-        log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
+        log_message('info', __FUNCTION__ . ' File created ' . $awb_output_file_excel);
 
         if (!empty($email_flag)) {
             return true;
