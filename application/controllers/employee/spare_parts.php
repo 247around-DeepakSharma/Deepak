@@ -436,9 +436,19 @@ class Spare_parts extends CI_Controller {
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
         $data = array();
+        // Function to get Warranty Period of Bookings                       
+        $arrBookingWiseWarrantyStatus = [];
+        if(!empty($list))
+        {
+            $arrBookings = array_column($list, 'booking_id');
+            $arrBookingWiseWarrantyStatus = $this->booking_utilities->check_bookings_warranty($arrBookings);            
+        }                                
+        $post['warranty_data'] = $arrBookingWiseWarrantyStatus;
+        // Function ends here
+            
         foreach ($list as $spare_list) {
             $no++;
-            $row =  $this->spare_parts_onapproval_table_data($spare_list, $no, $post['request_type']);
+            $row =  $this->spare_parts_onapproval_table_data($spare_list, $no, $post['request_type'], $post['warranty_data']);
             $data[] = $row;
         }
         
@@ -1015,7 +1025,7 @@ class Spare_parts extends CI_Controller {
      * @param int $no
      * @return Array
      */
-    function spare_parts_onapproval_table_data($spare_list, $no, $request_type){
+    function spare_parts_onapproval_table_data($spare_list, $no, $request_type, $arr_warranty_status = []){
                 
         $row = array();
         $row[] = $no;
@@ -1041,6 +1051,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->request_type;
         if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
         $row[] =  $part_status_text; 
+        $row[] =  !empty($arr_warranty_status[$spare_list->booking_id]) ? $arr_warranty_status[$spare_list->booking_id] : '--'; 
         if($request_type == _247AROUND_CANCELLED){
           $row[] = (empty($spare_list->spare_cancelled_date)) ? '0 Days' : $spare_list->spare_cancelled_date . " Days";  
         }else{
