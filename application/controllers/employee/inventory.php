@@ -4436,6 +4436,7 @@ class Inventory extends CI_Controller {
     function send_defective_parts_to_partner_from_wh() { 
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
         $this->check_WH_UserSession();
+        
         $sender_entity_id = $this->input->post('sender_entity_id');
         $sender_entity_type = $this->input->post('sender_entity_type');
         $awb_by_wh = $this->input->post('awb_by_wh');
@@ -4454,60 +4455,73 @@ class Inventory extends CI_Controller {
             }
 
             if ($courier_file['status']) {
-                $courier_details['sender_entity_id'] = $sender_entity_id;
-                $courier_details['sender_entity_type'] = $sender_entity_type;
-                $courier_details['receiver_entity_id'] = $this->input->post('receiver_partner_id');
-                $courier_details['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
-                $courier_details['bill_to_partner'] = $this->input->post('receiver_partner_id');
-                $courier_details['AWB_no'] = $awb_by_wh;
-                $courier_details['courier_name'] = $courier_name_by_wh;
-                $courier_details['courier_file'] = $courier_file['message'];
-                $courier_details['shipment_date'] = $defective_parts_shippped_date_by_wh;
-                $courier_details['courier_charge'] = $courier_price_by_wh;
-                $courier_details['create_date'] = date('Y-m-d H:i:s');
-                $courier_details['status'] = COURIER_DETAILS_STATUS;
-                $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
+                    $courier_details['sender_entity_id'] = $sender_entity_id;
+                    $courier_details['sender_entity_type'] = $sender_entity_type;
+                    $courier_details['receiver_entity_id'] = $this->input->post('receiver_partner_id');
+                    $courier_details['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
+                    $courier_details['bill_to_partner'] = $this->input->post('receiver_partner_id');
+                    $courier_details['AWB_no'] = $awb_by_wh;
+                    $courier_details['courier_name'] = $courier_name_by_wh;
+                    $courier_details['courier_file'] = $courier_file['message'];
+                    $courier_details['shipment_date'] = $defective_parts_shippped_date_by_wh;
+                    $courier_details['courier_charge'] = $courier_price_by_wh;
+                    $courier_details['create_date'] = date('Y-m-d H:i:s');
+                    $courier_details['status'] = COURIER_DETAILS_STATUS;
+                    $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
 
-                if (!empty($insert_courier_details)) { 
-                    log_message('info', 'Courier Details added successfully.');
-                    $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $insert_courier_details);
+                    if (!empty($insert_courier_details)) { 
+                        log_message('info', 'Courier Details added successfully.');
 
-                    if (!empty($invoice['processData'])) {
-
-                        $this->inventory_model->update_courier_detail(array('id' => $insert_courier_details), array(
-                            'quantity' => count($invoice['booking_id_array']),
-                            'booking_id' => implode(",", $invoice['booking_id_array'])
-                        ));
-                        foreach ($invoice['booking_id_array'] as $booking_id) {
-
-                            $agent_id = $this->session->userdata('service_center_agent_id');
-                            $agent_name = $this->session->userdata('service_center_name');
-                            $service_center_id = $this->session->userdata('service_center_id');
-                            $actor = ACTOR_NOT_DEFINE;
-                            $next_action = NEXT_ACTION_NOT_DEFINE;
-
-                            $this->notify->insert_state_change($booking_id, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id);
-                            log_message("info", "Booking State change inserted");
+                        $eway_details = array();
+                        $eway_file = $this->upload_defective_parts_shipped_eway_file($_FILES);
+                        if($eway_file['status']){
+                            $eway_details['ewaybill_file'] = $eway_file['message'];
                         }
+                        $eway_details['courier_details_id'] = $insert_courier_details;
+                        $eway_details['ewaybill_no'] = $this->input->post("eway_bill_by_wh");
+                        $eway_details['vehicle_number'] = $this->input->post("eway_vehicle_number");
+                        
+                        $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $insert_courier_details);
+                        if(!empty($invoice['invoice'][0])){
+                            $eway_details['invoice_id'] = $invoice['invoice'][0];
+                        }
+                        $this->inventory_model->insert_ewaybill_details($eway_details);
+                        if (!empty($invoice['processData'])) {
 
-                        if (empty($invoice['not_update_booking_id'])) {
-                            $res['status'] = TRUE;
-                            $res['message'] = 'Details Updated Successfully';
+                            $this->inventory_model->update_courier_detail(array('id' => $insert_courier_details), array(
+                                'quantity' => count($invoice['booking_id_array']),
+                                'booking_id' => implode(",", $invoice['booking_id_array'])
+                            ));
+                            foreach ($invoice['booking_id_array'] as $booking_id) {
+
+                                $agent_id = $this->session->userdata('service_center_agent_id');
+                                $agent_name = $this->session->userdata('service_center_name');
+                                $service_center_id = $this->session->userdata('service_center_id');
+                                $actor = ACTOR_NOT_DEFINE;
+                                $next_action = NEXT_ACTION_NOT_DEFINE;
+
+                                $this->notify->insert_state_change($booking_id, DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id);
+                                log_message("info", "Booking State change inserted");
+                            }
+
+                            if (empty($invoice['not_update_booking_id'])) {
+                                $res['status'] = TRUE;
+                                $res['message'] = 'Details Updated Successfully';
+                            } else {
+                                $res['status'] = false;
+                                $res['message'] = "These Bookings not updated " . implode(',', $invoice['not_update_booking_id']) .
+                                        " Please Contact to 247Around.";
+                            }
+
                         } else {
                             $res['status'] = false;
-                            $res['message'] = "These Bookings not updated " . implode(',', $invoice['not_update_booking_id']) .
-                                    " Please Contact to 247Around.";
+                            $res['message'] = "There is an issue in the invoice generation";
                         }
-
                     } else {
+                        log_message('info', 'Error in inserting courier details.');
                         $res['status'] = false;
-                        $res['message'] = "There is an issue in the invoice generation";
+                        $res['message'] = "Courier Details is not inserted";
                     }
-                } else {
-                    log_message('info', 'Error in inserting courier details.');
-                    $res['status'] = false;
-                    $res['message'] = "Courier Details is not inserted";
-                }
             } else {
                 $res['status'] = false;
                 $res['message'] = $courier_file['message'];
@@ -4552,7 +4566,6 @@ class Inventory extends CI_Controller {
             $booking_id_array = $m;
         }
         if (!empty($warehouse_spare)) { 
-            
             $w = $this->generate_inventory_invoice($postData1, $sender_entity_id, $sender_entity_type, $courier_id);
             $invoice = $w;
         }
@@ -5112,6 +5125,42 @@ class Inventory extends CI_Controller {
                     //Upload files to AWS
                     $directory_xls = "vendor-partner-docs/" . $file_name;
                     $this->s3->putObjectFile($file_details['file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+
+                    $res['status'] = true;
+                    $res['message'] = $file_name;
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = 'Uploaded file type not valid.';
+                }
+            } else {
+                $res['status'] = false;
+                $res['message'] = 'Uploaded file size can not be greater than 5 mb';
+            }
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'Please Upload File';
+        }
+
+        return $res;
+    }
+    
+    function upload_defective_parts_shipped_eway_file($file_details) {
+        log_message("info", __METHOD__);
+        $MB = 1048576;
+        //check if upload file is empty or not
+        if (!empty($file_details['eway_file']['name'])) {
+            //check upload file size. it should not be greater than 2mb in size
+            if ($file_details['eway_file']['size'] <= 5 * $MB) {
+                $allowed = array('pdf', 'jpg', 'png', 'jpeg');
+                $ext = pathinfo($file_details['eway_file']['name'], PATHINFO_EXTENSION);
+                //check upload file type. it should be pdf.
+                if (in_array($ext, $allowed)) {
+                    $upload_file_name = str_replace(' ', '_', trim($file_details['eway_file']['name']));
+
+                    $file_name = 'defective_spare_eway_pic_by_wh_' . rand(10, 100) . '_' . $upload_file_name;
+                    //Upload files to AWS
+                    $directory_xls = "vendor-partner-docs/" . $file_name;
+                    $this->s3->putObjectFile($file_details['eway_file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
 
                     $res['status'] = true;
                     $res['message'] = $file_name;

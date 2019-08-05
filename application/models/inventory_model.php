@@ -1295,6 +1295,16 @@ class Inventory_model extends CI_Model {
         return $this->db->insert_id();
     }
     
+    function insert_ewaybill_details_in_bulk($data) {
+        $this->db->insert_ignore_duplicate_batch('ewaybill_details', $data);
+         if($this->db->affected_rows() > 0){
+            $res = TRUE;
+        }else{
+            $res = FALSE;
+        }
+        
+        return $res;
+    }
     
     /**
      * @Desc: This function is used to get data from the appliance_model_details table
@@ -2717,5 +2727,5 @@ class Inventory_model extends CI_Model {
       $query = $this->db->get();
       return $query; 
     }
-
+    
 }

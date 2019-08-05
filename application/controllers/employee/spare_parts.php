@@ -436,9 +436,19 @@ class Spare_parts extends CI_Controller {
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
         $data = array();
+        // Function to get Warranty Period of Bookings                       
+        $arrBookingWiseWarrantyStatus = [];
+        if(!empty($list))
+        {
+            $arrBookings = array_column($list, 'booking_id');
+            $arrBookingWiseWarrantyStatus = $this->booking_utilities->check_bookings_warranty($arrBookings);            
+        }                                
+        $post['warranty_data'] = $arrBookingWiseWarrantyStatus;
+        // Function ends here
+            
         foreach ($list as $spare_list) {
             $no++;
-            $row =  $this->spare_parts_onapproval_table_data($spare_list, $no, $post['request_type']);
+            $row =  $this->spare_parts_onapproval_table_data($spare_list, $no, $post['request_type'], $post['warranty_data']);
             $data[] = $row;
         }
         
@@ -1015,7 +1025,7 @@ class Spare_parts extends CI_Controller {
      * @param int $no
      * @return Array
      */
-    function spare_parts_onapproval_table_data($spare_list, $no, $request_type){
+    function spare_parts_onapproval_table_data($spare_list, $no, $request_type, $arr_warranty_status = []){
                 
         $row = array();
         $row[] = $no;
@@ -1041,6 +1051,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->request_type;
         if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
         $row[] =  $part_status_text; 
+        $row[] =  !empty($arr_warranty_status[$spare_list->booking_id]) ? $arr_warranty_status[$spare_list->booking_id] : '--'; 
         if($request_type == _247AROUND_CANCELLED){
           $row[] = (empty($spare_list->spare_cancelled_date)) ? '0 Days' : $spare_list->spare_cancelled_date . " Days";  
         }else{
@@ -2390,17 +2401,37 @@ class Spare_parts extends CI_Controller {
             $courier_id_arr = array();
             $select = 'id, invoice_id, courier_id';
             $flag = true;
+            $eway_data = array();
+            
+            $upload_eway_file_name = str_replace(' ', '_', trim($_FILES['defective_parts_shippped_ewaybill_pic_by_wh']['name']));
+            $eway_file_name = 'defective_spare_ewaybill_by_wh_' . rand(10, 100) . '_' . $upload_eway_file_name;
+            //Upload files to AWS
+            $directory_xls = "vendor-partner-docs/" . $eway_file_name;
+            $this->s3->putObjectFile($_FILES['defective_parts_shippped_ewaybill_pic_by_wh']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
+           
             foreach ($invoice_ids_arr as $kay => $val) {
                 $where = array('invoice_id' => $val);
                 $inventory_ledger = $this->inventory_model->get_inventory_ledger_details($select, $where);
                 if (!empty($inventory_ledger)) {
                     $courier_id_arr[] = $inventory_ledger[0]['courier_id'];
+                    $eway_details = array();
+                    $eway_details['courier_details_id'] = $inventory_ledger[0]['courier_id'];
+                    $eway_details['ewaybill_no'] = $this->input->post("eway_bill_by_wh");
+                    $eway_details['vehicle_number'] = $this->input->post("eway_vehicle_number");
+                    $eway_details['ewaybill_file'] = $eway_file_name;
+                    $eway_details['invoice_id'] = $val;
+                    $eway_data[] = $eway_details;
                 } else {
                     $flag = false;
                     break;
                 }
             }
+            
            
+            if(!empty($eway_data)){
+                $this->inventory_model->insert_ewaybill_details_in_bulk($eway_data);
+            }
+            
             if ($flag) {
 
                 if ($total_invoice_id > 1) {
@@ -2412,7 +2443,7 @@ class Spare_parts extends CI_Controller {
                 if (!empty($exist_courier_image)) {
                     $courier_file['message'] = $exist_courier_image;
                 } else {
-                    $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+                    $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES['defective_parts_shippped_courier_pic_by_wh']);
                 }
 
                 $courier_details['courier_file'] = $courier_file['message'];
