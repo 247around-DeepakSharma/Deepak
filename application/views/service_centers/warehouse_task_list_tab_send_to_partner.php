@@ -180,7 +180,7 @@
                                 <div class='form-group'>
                                     <label for="defective_parts_shippped_date_by_wh" class="col-md-4">Courier Shipped Date *</label>
                                     <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="defective_parts_shippped_date_by_wh" name="defective_parts_shippped_date_by_wh" placeholder="Please enter Shiiped Date" required>
+                                        <input type="text" class="form-control"  id="defective_parts_shippped_date_by_wh" name="defective_parts_shippped_date_by_wh" placeholder="Please enter Shipped Date" required>
                                     </div>
                                 </div>
                             </div>
@@ -214,22 +214,22 @@
                             </div>
                         </div>
                         <br>
-<!--                        <h4 class="modal-title">E-Way Bill Details</h4>
+                        <h4 class="modal-title">E-Way Bill Details</h4>
                         <hr>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class='form-group'>
-                                    <label for="awb_by_wh" class="col-md-4">E-Way Bill</label>
+                                    <label for="eway_vehicle_number" class="col-md-4">Vehicle Number</label>
                                     <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="eway_bill_by_wh" name="eway_bill_by_wh" placeholder="Please Enter E-Way Bill" required>
+                                        <input type="text" class="form-control"  id="eway_vehicle_number" name="eway_vehicle_number" placeholder="Please Enter Vehicle Number" required>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class='form-group'>
-                                    <label for="defective_parts_ewaybill_date_by_wh" class="col-md-4">E-Way Bill Date </label>
+                                    <label for="eway_bill_by_wh" class="col-md-4">E-Way Bill Number </label>
                                     <div class="col-md-8">
-                                        <input type="text" class="form-control"  id="defective_parts_ewaybill_date_by_wh" name="defective_parts_ewaybill_date_by_wh" placeholder="Please enter E-Way Bill Date" required>
+                                        <input type="text" class="form-control"  id="eway_bill_by_wh" name="eway_bill_by_wh" placeholder="Please Enter E-Way Bill Number" required>
                                     </div>
                                 </div>
                             </div>
@@ -244,7 +244,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>-->
+                        </div>
                     </form>
                     <div class="text-center">
                             <span id="same_awb" style="display:none">This AWB already used same price will be added</span>
@@ -399,8 +399,8 @@
         postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_by_wh').val();
         postData['exist_courier_image'] = $('#exist_courier_image').val();
         postData['from_gst_number'] = $('#from_gst_number').val();
-//        postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
-//        postData['defective_parts_ewaybill_date_by_wh'] = $('#defective_parts_ewaybill_date_by_wh').val();
+        postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
+        postData['eway_vehicle_number'] = $('#eway_vehicle_number').val();
         var exist_courier_image = $("#exist_courier_image").val();       
         
         //Declaring new Form Data Instance  
@@ -409,10 +409,18 @@
         //Getting Files Collection
         var files = $("#defective_parts_shippped_courier_pic_by_wh")[0].files;
         
+        var eway_files = $("#defective_parts_shippped_ewaybill_pic_by_wh")[0].files;
+        
         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
         for (var i = 0; i < files.length; i++) {
             formData.append('file', files[i]);
         }
+        
+        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
+        for (var i = 0; i < eway_files.length; i++) {
+            formData.append('eway_file', eway_files[i]);
+        }
+        
         var is_exist_file = false;
         if(exist_courier_image){
             is_exist_file = true;
