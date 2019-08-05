@@ -1614,12 +1614,16 @@ class invoices_model extends CI_Model {
 
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         $data = $this->get_foc_invoice_data($vendor_id, $from_date, $to_date, $is_regenerate);
+        
         if (!empty($data['booking'])) {
             
             $meta['total_qty'] = $meta['total_rate'] =  $meta['total_taxable_value'] =  
             $meta['cgst_total_tax_amount'] = $meta['sgst_total_tax_amount'] =   $meta['igst_total_tax_amount'] =  $meta['sub_total_amount'] = 0;
             $meta['total_sc_charge'] = $meta['total_parts_charge'] =  $meta['total_parts_tax'] =  $meta['total_inst_tax'] = 0;
             $meta['igst_tax_rate'] =$meta['cgst_tax_rate'] = $meta['sgst_tax_rate'] = 0;
+            
+            $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $meta += $this->partner_model->get_main_partner_invoice_detail($partner_on_saas );
             
             $c_s_gst =$this->check_gst_tax_type($data['booking'][0]['state']);
             $parts_count = 0;
