@@ -524,6 +524,8 @@ class DatabaseTesting extends CI_Controller {
 
     }
 
+
+
     function insert_partner_code(){ 
         $data =array();
        
@@ -538,6 +540,15 @@ class DatabaseTesting extends CI_Controller {
             $this->partner_model->insert_data_in_batch("partner_code", $data, "gk");
         }
     }
+
+
+    function test2(){
+
+      $this->db->simple_query("
+      UPDATE spare_part_details SET model_number_shipped=model_number,parts_shipped=parts_requested,shipped_parts_type=parts_requested_type,shipped_date=date_of_request,shipped_inventory_id=requested_inventory_id WHERE  `parts_shipped` IS NULL  AND status ='Spare Parts Delivered to SF';");
+
+    }
+
     
     function all_partner_gst_checking_by_api(){
         $partners = $this->partner_model->getpartner('', false);
