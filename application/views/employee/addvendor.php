@@ -70,7 +70,7 @@
                     <input type="hidden" value="<?php echo $query[0]['id']; ?>" name="service_center_id" />
                      <input type="hidden" value="<?php echo $query[0]['state']; ?>" name="state" />
                      <input type="submit" value="Add Upcountry" class="btn btn-primary btn-md pull-right" style="margin-left: 1%;"/>
-                     <?php if($this->session->userdata['user_group'] == _247AROUND_ADMIN) { ?>
+                     <?php if($this->session->userdata['user_group'] == _247AROUND_ADMIN || $this->session->userdata['user_group'] == _247AROUND_RM) { ?>
                         <a onclick="edit_form();" class="btn btn-primary pull-right" href="javascript:void(0);" title="Edit Service Center" style="margin-left:1%;"><span class="glyphicon glyphicon-pencil"></span></a>
                      <?php } ?>
                 </form>
