@@ -36,10 +36,20 @@ class paytm_cb {
         $this->jsonResponseString['error'] = $err;
 
         $responseData = array("data" => $this->jsonResponseString);
-
+        
+        /*
         $activity = array(
             'partner_id' => PAYTM_ID,
             'activity' => json_encode(array('activity' => __METHOD__,'url'=>$url)),
+            'header' => json_encode($header, JSON_UNESCAPED_SLASHES),
+            'json_request_data' => $postData,
+            'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES)
+        );
+        */
+        
+        $activity = array(
+            'partner_id' => PAYTM_ID,
+            'activity' => __METHOD__,
             'header' => json_encode($header, JSON_UNESCAPED_SLASHES),
             'json_request_data' => $postData,
             'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES)

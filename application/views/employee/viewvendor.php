@@ -117,7 +117,9 @@
 <!--                </div>-->
                 <div class="row">
                     <div class="pull-right" style="margin-bottom: 20px;padding-top:8px">
+                        <?php if($this->session->userdata['user_group'] == _247AROUND_ADMIN || $this->session->userdata['user_group'] == _247AROUND_RM) { ?>
                         <a href="<?php echo base_url();?>employee/vendor/add_vendor"><input class="btn btn-primary" type="Button" value="Add Service Centre"></a>
+                        <?php } ?>
                     </div>
                     <form method="POST" action ="<?php echo base_url(); ?>employee/vendor/get_sc_charges_list" style="padding-top:8px;margin-bottom: 20px;">
                         <input type="submit" value="Download Charges List" class="btn btn-primary" />

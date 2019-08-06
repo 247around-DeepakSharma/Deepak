@@ -573,7 +573,7 @@ class Inventory_model extends CI_Model {
                 WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
                 WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*
                 FROM `inventory_ledger` as i LEFT JOIN service_centres as sc on (sc.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'vendor') Left JOIN partners as p on (p.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'partner') LEFT JOIN employee as e ON (e.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'employee')  
-                LEFT JOIN service_centres as sc1 on (sc1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'vendor') Left JOIN partners as p1 on (p1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'partner') LEFT JOIN employee as e1 ON (e1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'employee') $where $add_limit";
+                LEFT JOIN service_centres as sc1 on (sc1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'vendor') Left JOIN partners as p1 on (p1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'partner') LEFT JOIN employee as e1 ON (e1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'employee') $where ORDER BY i.create_date $add_limit";
         
         if($is_count){
             $query = count($this->db->query($sql)->result_array());
@@ -1247,7 +1247,24 @@ class Inventory_model extends CI_Model {
     }
 
 
-
+/**
+     * @Desc: This function is used to get data from the inventory_model_mapping table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_without_model_mapping_data($select,$where = array()){
+        
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('inventory_master_list');
+        $this->db->join('services','services.id = inventory_master_list.service_id');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 
 
 
@@ -1295,6 +1312,16 @@ class Inventory_model extends CI_Model {
         return $this->db->insert_id();
     }
     
+    function insert_ewaybill_details_in_bulk($data) {
+        $this->db->insert_ignore_duplicate_batch('ewaybill_details', $data);
+         if($this->db->affected_rows() > 0){
+            $res = TRUE;
+        }else{
+            $res = FALSE;
+        }
+        
+        return $res;
+    }
     
     /**
      * @Desc: This function is used to get data from the appliance_model_details table
@@ -2686,13 +2713,14 @@ class Inventory_model extends CI_Model {
        
     }
     
-    /**
+    /*
      * @Desc: This function is used to get Details of Missing serviceable BOM
      * @params: $select string
-     * @params: $where array
-     * @return: $query array
-     * 
+     * @params: $partner_id 
+     * @params: $service_id 
+     * @return: $query Object
      */
+    
     function get_missing_serviceable_bom_data($select, $partner_id, $service_id) {
 
         $where = "";
@@ -2706,13 +2734,32 @@ class Inventory_model extends CI_Model {
     }
     
     
-    
-     /**
+        
+    /**
+     * @Desc: This function is used to get inventory ledger details.
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_ledger_details_data($select, $where) {
+
+        $this->db->select($select, FALSE);
+        $this->db->from('vendor_partner_invoices');
+        $this->db->join('invoice_details', 'invoice_details.invoice_id = vendor_partner_invoices.invoice_id');
+        $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = invoice_details.inventory_id');
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $query = $this->db->get();
+        return $query;
+    }
+
+    /**
      * @Desc: This function is used to get data from the inventory_stocks table
      * @params: $post array
      * @params: $select string
-     * @return: void
-     * 
+     * @return: Object 
      */
     function get_warehouse_stocks($post,$select){
                 
@@ -2731,5 +2778,5 @@ class Inventory_model extends CI_Model {
       $query = $this->db->get();
       return $query; 
     }
-
+    
 }

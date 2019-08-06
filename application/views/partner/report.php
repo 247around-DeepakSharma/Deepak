@@ -184,13 +184,18 @@
                                                 </thead>
                                                 <tbody>
                                                     <?php 
-                                                        $rows = ['Download Upcountry Details' => 'partner/upcountry_report', 'Download All Shipped Spare Parts' => 'partner/download_spare_part_shipped_by_partner']; 
+                                                        $rows = ['Download Upcountry Details' => 'partner/upcountry_report', 'Download All Shipped Spare Parts' => 'partner/download_spare_part_shipped_by_partner','Download Sale and Purchase MSL Invoice' =>'employee/inventory/download_sale_purchage_invoice_data']; 
                                                         $sno = 1;
                                                         foreach($rows as $description => $link) {?>
                                                     <tr>
                                                         <td><?php echo $sno; ?></td>
                                                         <td style="font-size:15px;"><?php echo $description; ?></td>
-                                                        <td><a href="<?php echo base_url().$link; ?>"><span style="color:blue;font-size:30px;" class="glyphicon glyphicon-download"></span></a></td>
+                                                        <?php if($description == 'Download Sale and Purchase MSL Invoice'){ ?>
+                                                        <td><a href="#" id="inventory_ledger"><span style="color:blue;font-size:30px;" class="glyphicon glyphicon-download"></span></a></td>    
+                                                        <?php } else { ?>
+                                                         <td><a href="<?php echo base_url().$link; ?>"><span style="color:blue;font-size:30px;" class="glyphicon glyphicon-download"></span></a></td>
+                                                        <?php } ?>
+                                                        
                                                     </tr>
                                                     <?php $sno++; } ?>
                                                 </tbody>
@@ -401,4 +406,27 @@
         }
         });
     }
+    
+    $('#inventory_ledger').click(function(){
+   
+        var partner_id = '<?php echo $this->session->userdata('partner_id'); ?>';
+       
+        if((partner_id!=null && partner_id!='')){
+            $('#inventory_ledger').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/inventory/download_sale_purchage_invoice_data',
+                data: { partner_id : partner_id },
+                success: function (data) {
+                    $('#inventory_ledger').html("<span style='color:blue;font-size:30px;' class='glyphicon glyphicon-download'></span>").attr('disabled',false);
+                    var obj = JSON.parse(data); 
+                    if(obj['status']){
+                        window.location.href = obj['msg'];
+                    }else{
+                        alert('File Download Failed. Please Refresh Page And Try Again...')
+                    }
+                }
+            });
+        }
+    });
 </script>

@@ -415,8 +415,9 @@ function get_data_for_partner_callback($booking_id) {
          }
         
         $subQueryString = implode(",", array_values($subQueryArray));
-        return $query = $this->db->query("SELECT $subQueryString
-            FROM booking_details JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
+        $sql = "SELECT $subQueryString FROM booking_details"; 
+        
+        $sql .= " JOIN booking_unit_details ud  ON booking_details.booking_id = ud.booking_id 
             JOIN services ON booking_details.service_id = services.id 
             JOIN users ON booking_details.user_id = users.user_id
             LEFT JOIN booking_comments on booking_comments.booking_id = booking_details.booking_id
@@ -425,8 +426,20 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN inventory_master_list as i ON i.inventory_id = spare_parts_details.requested_inventory_id
             LEFT JOIN inventory_master_list as im ON im.inventory_id = spare_parts_details.shipped_inventory_id
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
-            LEFT JOIN service_centres ON service_center_booking_action.service_center_id = service_centres.id
-            WHERE product_or_services != 'Product' AND $where GROUP BY ud.booking_id");
+            LEFT JOIN service_centres ON service_center_booking_action.service_center_id = service_centres.id";
+        
+        $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        if($is_saas) {
+            $sql .= " LEFT JOIN booking_symptom_defect_details ON booking_details.booking_id = booking_symptom_defect_details.booking_id
+                    LEFT JOIN symptom creation_symptom ON booking_symptom_defect_details.symptom_id_booking_creation_time = creation_symptom.id
+                    LEFT JOIN symptom completion_symptom ON booking_symptom_defect_details.symptom_id_booking_completion_time = completion_symptom.id
+                    LEFT JOIN defect ON booking_symptom_defect_details.defect_id_completion = defect.id
+                    LEFT JOIN symptom_completion_solution ON booking_symptom_defect_details.solution_id = symptom_completion_solution.id";
+        }
+        
+        $sql .= " WHERE product_or_services != 'Product' AND $where GROUP BY ud.booking_id";
+        
+        return $query = $this->db->query($sql);
     } 
     
     //Return all leads shared by Partner in the last 30 days
@@ -2257,6 +2270,13 @@ function get_data_for_partner_callback($booking_id) {
                 $meta['main_company_logo'] = $main_partner[0]['partner_logo'];
                 $meta['main_company_description'] = "";
                 $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
+                $state_code = $this->invoices_model->get_state_code(array('state' => $main_partner[0]['state']));
+                if(!empty($state_code)){
+                    $meta['main_company_state_code'] = $state_code[0]['state_code'];
+                }
+                else{
+                    $meta['main_company_state_code'] = "";
+                }
             }
         }
         else{
@@ -2275,6 +2295,7 @@ function get_data_for_partner_callback($booking_id) {
             $meta['main_company_logo'] = "logo.jpg";
             $meta['main_company_description'] = _247AROUND_INVOICE_TEMPLATE_DESCRIPTION;
             $meta['main_company_gst_number'] = "07AAFCB1281J1ZQ";
+            $meta['main_company_state_code'] = "07";
         }
         return $meta;
     }

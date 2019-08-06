@@ -10,7 +10,8 @@
                     <th>SNo</th>
                     <th>Booking ID</th>
                     <th>Booking Type</th>
-                    <th>Part Status</th>
+                    <th>Part Type</th>
+                    <th>Spare Status</th>
                     <th>Partner Name</th>
                     <th>Purchase Price</th>
                     <th>Sell Price</th>
@@ -24,9 +25,10 @@
                 <?php foreach ($spare as $key => $value) { ?>
                 <tr>
                     <td><?php echo $key+1; ?></td>
-                    <td><?php echo $value->booking_id; ?></td>
+                    <td><a  target="_blank" href="<?php echo base_url();?>employee/booking/viewdetails/<?php echo $value->booking_id;?>"  title='View'><?php echo $value->booking_id; ?></a></td>
                     <td><?php echo $value->request_type; ?></td>
                     <td><?php  if($value->part_warranty_status==SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){echo REPAIR_OOW_TAG;}else{ echo REPAIR_IN_WARRANTY_TAG;}  ?></td>
+                    <td><?php echo $value->status; ?></td>
                     <td><?php  echo $value->public_name; ?></td>
                     <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $value->purchase_price; ?></td>
                     <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $value->sell_price; ?></td>

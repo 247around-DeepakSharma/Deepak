@@ -40,7 +40,7 @@ class Service_centers_model extends CI_Model {
             $booking = " AND bd.booking_id IN ('".$booking_id."') ";
         }
         $status = "";
-        for($i =1; $i < 4;$i++ ){
+        for($i =1; $i <= 4;$i++ ){
             if($booking_id !=""){
                 if($i==2){
                 //Future Booking
@@ -67,6 +67,9 @@ class Service_centers_model extends CI_Model {
                     // Rescheduled Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
                     $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending')  ";
+                } else if ($i== 4) {
+                    $day = " ";
+                    $status = " AND sc.current_status='InProcess' AND sc.internal_status IN (".$this->stored_internal_status().")";
                 }
                 
             }
