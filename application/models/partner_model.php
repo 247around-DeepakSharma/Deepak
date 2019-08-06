@@ -432,7 +432,9 @@ function get_data_for_partner_callback($booking_id) {
         if($is_saas) {
             $sql .= " LEFT JOIN booking_symptom_defect_details ON booking_details.booking_id = booking_symptom_defect_details.booking_id
                     LEFT JOIN symptom creation_symptom ON booking_symptom_defect_details.symptom_id_booking_creation_time = creation_symptom.id
-                    LEFT JOIN symptom completion_symptom ON booking_symptom_defect_details.symptom_id_booking_completion_time = completion_symptom.id";
+                    LEFT JOIN symptom completion_symptom ON booking_symptom_defect_details.symptom_id_booking_completion_time = completion_symptom.id
+                    LEFT JOIN defect ON booking_symptom_defect_details.defect_id_completion = defect.id
+                    LEFT JOIN symptom_completion_solution ON booking_symptom_defect_details.solution_id = symptom_completion_solution.id";
         }
         
         $sql .= " WHERE product_or_services != 'Product' AND $where GROUP BY ud.booking_id";
