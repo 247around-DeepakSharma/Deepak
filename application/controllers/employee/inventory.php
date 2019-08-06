@@ -4728,6 +4728,10 @@ class Inventory extends CI_Controller {
                     $template = "partner_inventory_invoice_annexure-v1.xlsx";
                     $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
                     
+                    unset($response['meta']['main_company_logo_cell']);
+                    unset($response['meta']['main_company_seal_cell']);
+                    unset($response['meta']['main_company_sign_cell']);
+                    
                     $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $invoiceValue['data'], TMP_FOLDER . $output_file);
                     $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
 
