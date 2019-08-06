@@ -5159,7 +5159,7 @@ class Inventory extends CI_Controller {
 
                     $file_name = 'defective_spare_eway_pic_by_wh_' . rand(10, 100) . '_' . $upload_file_name;
                     //Upload files to AWS
-                    $directory_xls = "vendor-partner-docs/" . $file_name;
+                    $directory_xls = "ewaybill/" . $file_name;
                     $this->s3->putObjectFile($file_details['eway_file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
 
                     $res['status'] = true;

@@ -2406,7 +2406,7 @@ class Spare_parts extends CI_Controller {
             $upload_eway_file_name = str_replace(' ', '_', trim($_FILES['defective_parts_shippped_ewaybill_pic_by_wh']['name']));
             $eway_file_name = 'defective_spare_ewaybill_by_wh_' . rand(10, 100) . '_' . $upload_eway_file_name;
             //Upload files to AWS
-            $directory_xls = "vendor-partner-docs/" . $eway_file_name;
+            $directory_xls = "ewaybill/" . $eway_file_name;
             $this->s3->putObjectFile($_FILES['defective_parts_shippped_ewaybill_pic_by_wh']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
            
             foreach ($invoice_ids_arr as $kay => $val) {
