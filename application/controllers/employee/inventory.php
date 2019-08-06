@@ -6897,7 +6897,7 @@ class Inventory extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
 
-        $select = "services.services AS APPLIANCE, appliance_model_details.model_number AS MODEL_NUMBER, inventory_master_list.part_number AS PART_NUMBER, "
+        $select = "services.services AS APPLIANCE, inventory_master_list.part_number AS PART_NUMBER, "
                 . "inventory_master_list.part_name AS PART_NAME, inventory_master_list.price AS PRICE, inventory_master_list.type AS TYPE, inventory_master_list.hsn_code AS HSN_CODE,"
                 . " inventory_master_list.gst_rate AS GST_RATE";
         $where = array("inventory_master_list.entity_id" => $partner_id, "appliance_model_details.service_id" => $service_id);
@@ -6993,21 +6993,21 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . ' Processing...');
 
         $request_type = $this->input->post('request_type');
-
+        $select = "service_centres.name AS Warehouse, partners.public_name AS 'Partner', inventory_master_list.part_number AS 'Part Number', inventory_master_list.part_name AS 'Part Name', inventory_stocks.stock AS Stock";
         if ($request_type == 'warehouse') {
-            $select = "service_centres.name AS Warehouse, inventory_master_list.part_number AS Part_Number, inventory_master_list.part_name AS Part_Name, inventory_stocks.stock AS Stock";
-            $post['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING);
+            
+            $post['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         } else {
-            $select = "service_centres.name AS Micro_Warehouse,inventory_master_list.part_number AS Part_Number, inventory_master_list.part_name AS Part_Name, inventory_stocks.stock AS Stock";
-            $post['where'] = array("service_centres.is_micro_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING);
+            
+            $post['where'] = array("service_centres.is_micro_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         }
 
         
 
         if (!empty($request_type)) {
-
+        
             $bom_details = $this->inventory_model->get_warehouse_stocks($post, $select);
-
+             
             $this->load->dbutil();
             $this->load->helper('file');
 
