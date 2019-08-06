@@ -499,6 +499,13 @@ class File_upload extends CI_Controller {
                           $error_array[] =$error_type; 
                         }
 
+
+                        $invoice_exist = $this->check_invoice_id_exists($rowData['invoice_id']);
+                        if ($invoice_exist) {
+                          $error_type = "Duplicate Invoice details  found"; 
+                          $error_array[] =$error_type; 
+                        }
+
                         if (!empty($part_details) && !empty($from_gst_data) && !empty($to_gst_data) && !empty($wh_details)  && !empty($part_details) ) {
                               
                             $reciver_entity_id = $wh_details[0]['id'];
@@ -607,6 +614,25 @@ class File_upload extends CI_Controller {
         }
 
         //return $response;
+    }
+
+
+
+    function check_invoice_id_exists($invoice_id_temp) {
+        $res = array();
+        if ($invoice_id_temp) {
+            $invoice_id = str_replace("/", "-", $invoice_id_temp);
+            $count = $this->invoices_model->get_invoices_details(array('invoice_id' => $invoice_id), 'count(invoice_id) as count');
+            if (!empty($count[0]['count'])) {
+               return TRUE;
+            } else {
+                return FALSE;
+            }
+        } else {
+           return FALSE;
+        }
+
+ 
     }
 
     /**
