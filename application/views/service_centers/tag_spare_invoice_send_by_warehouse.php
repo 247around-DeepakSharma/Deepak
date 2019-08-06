@@ -575,7 +575,7 @@
         if(partner_id){
             $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url() ?>employee/inventory/get_parts_name',
+                url: '<?php echo base_url() ?>employee/inventory/get_parts_name_without_model_mapping',
                 data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,is_option_selected:true},
                 success: function (response) {
                     $('#partName_'+index).val('val', "");
