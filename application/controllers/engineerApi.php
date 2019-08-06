@@ -1929,10 +1929,16 @@ class engineerApi extends CI_Controller {
                 }
                
                 $response['cancelledBookings'] = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false);
-
-                log_message("info", __METHOD__ . "Bookings Found Successfully");
-                $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array('0000', 'success'));
+                
+                if(!empty($response['cancelledBookings'])){
+                    log_message("info", __METHOD__ . "Bookings Found Successfully");
+                    $this->jsonResponseString['response'] = $response;
+                    $this->sendJsonResponse(array('0000', 'success'));
+                }
+                else{
+                    log_message("info", __METHOD__ . "Bookings not found");
+                    $this->sendJsonResponse(array('0025', 'Bookings not found'));
+                }
             }
             else{
                 log_message("info", __METHOD__ . "Incorrect Booking Status");

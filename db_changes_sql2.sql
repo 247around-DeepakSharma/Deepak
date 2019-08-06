@@ -396,7 +396,7 @@ CREATE TABLE `partner_appliance_mapping` (
 ALTER TABLE `inventory_model_mapping` ADD `bom_main_part` INT(1) NOT NULL DEFAULT '1' COMMENT '1 - Main Part, 0 - Alternate Part' AFTER `max_quantity`;
 
 --Kalyani 19-July-2019
-INSERT INTO `sms_template` (`tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'engineer_login_sms_template', 'Hi %S\r\n\r\nYour Engineer Login is created.\r\nUser Id - %s\r\nPassword - %s\r\n\r\n247around', NULL, '1', '0', CURRENT_TIMESTAMP);
+INSERT INTO `sms_template` (`tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES ('engineer_login_sms_template', 'Hi %S\r\n\r\nYour Engineer Login is created.\r\nUser Id - %s\r\nPassword - %s\r\n\r\n247around', NULL, '1', '0', CURRENT_TIMESTAMP);
 
 --Kalyani 24-July-2019
 ALTER TABLE `engineer_details` ADD `varified` BOOLEAN NOT NULL DEFAULT FALSE AFTER `alternate_phone`;
@@ -598,3 +598,6 @@ INSERT INTO entity_login_table (entity, entity_id, entity_name, contact_person_i
 INSERT INTO entity_login_table (entity, entity_id, entity_name, contact_person_id, agent_name, user_id, password, active, clear_password, create_date, update_date) VALUES ('partner','247160','VYOM','1002706','247around','247around_17483',md5(17483),'1','17483',now(),now());
 INSERT INTO entity_login_table (entity, entity_id, entity_name, contact_person_id, agent_name, user_id, password, active, clear_password, create_date, update_date) VALUES ('partner','247161','KENVA','1002706','247around','247around_93089',md5(93089),'1','93089',now(),now());
 INSERT INTO entity_login_table (entity, entity_id, entity_name, contact_person_id, agent_name, user_id, password, active, clear_password, create_date, update_date) VALUES ('partner','247162','HIT','1002706','247around','247around_79455',md5(79455),'1','79455',now(),now());
+
+--Kalyani 06-08-2019
+UPDATE `sms_template` SET `template` = 'Hi %S,Your Engineer Login is created.User Id - %s,Password - %s. download engineer app from https://urlzs.com/zoUkF.247around' WHERE `sms_template`.`tag` = 'engineer_login_sms_template';

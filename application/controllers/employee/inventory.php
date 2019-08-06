@@ -2867,7 +2867,39 @@ class Inventory extends CI_Controller {
         echo $option;
     }
 
-    /**
+    /*
+     *  @desc : This function is used to get inventory part name without using model mapping
+     *  @param : void
+     *  @return : $res array() 
+     */
+    function get_parts_name_without_model_mapping() {
+
+        if ($this->input->post('is_option_selected')) {
+            $option = '<option selected disabled>Select Part Name</option>';
+        } else {
+            $option = '';
+        }
+        $where = array();
+        if (!empty($this->input->post('entity_id'))) {
+            $where['inventory_master_list.entity_id'] = $this->input->post('entity_id');
+            $where['inventory_master_list.entity_type'] = $this->input->post('entity_type');
+            $where['inventory_master_list.service_id'] = $this->input->post('service_id');
+        }
+        if (!empty($where)) {
+            $inventory_master_list = $this->inventory_model->get_inventory_without_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id', $where);
+        }
+
+        foreach ($inventory_master_list as $value) {
+            $option .= "<option data-inventory='" . $value['inventory_id'] . "' value='" . $value['part_name'] . "'";
+
+            $option .= " > ";
+            $option .= $value['part_name'] . "</option>";
+        }
+
+        echo $option;
+    }
+    
+    /*
      *  @desc : This function is used to get inventory part name
      *  @param : void
      *  @return : $res array() // consist response message and response status
@@ -4722,6 +4754,10 @@ class Inventory extends CI_Controller {
                     $template = "partner_inventory_invoice_annexure-v1.xlsx";
                     $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
                     
+                    unset($response['meta']['main_company_logo_cell']);
+                    unset($response['meta']['main_company_seal_cell']);
+                    unset($response['meta']['main_company_sign_cell']);
+                    
                     $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $invoiceValue['data'], TMP_FOLDER . $output_file);
                     $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
 
@@ -5153,7 +5189,7 @@ class Inventory extends CI_Controller {
 
                     $file_name = 'defective_spare_eway_pic_by_wh_' . rand(10, 100) . '_' . $upload_file_name;
                     //Upload files to AWS
-                    $directory_xls = "vendor-partner-docs/" . $file_name;
+                    $directory_xls = "ewaybill/" . $file_name;
                     $this->s3->putObjectFile($file_details['eway_file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
 
                     $res['status'] = true;
