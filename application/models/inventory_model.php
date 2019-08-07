@@ -2717,6 +2717,8 @@ class Inventory_model extends CI_Model {
         $this->db->select($select, FALSE);
         $this->db->from('vendor_partner_invoices');
         $this->db->join('invoice_details', 'invoice_details.invoice_id = vendor_partner_invoices.invoice_id');
+        $this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = invoice_details.from_gst_number');
+        $this->db->join('entity_gst_details', 'entity_gst_details.id = invoice_details.to_gst_number');
         $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = invoice_details.inventory_id');
         if (!empty($where)) {
             $this->db->where($where);
