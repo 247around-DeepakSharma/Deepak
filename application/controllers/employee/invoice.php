@@ -3992,6 +3992,8 @@ class Invoice extends CI_Controller {
         $array[0]['service_center_id'] = $invoice_details[0]['vendor_partner_id'];
         $array[0]['id'] = $spare_data['id'];
         $array[0]['company_name'] = $vendor_details[0]['company_name'];
+        $array[0]['state'] = $vendor_details[0]['state'];
+        $array[0]['booking_id'] = $vendor_details[0]['booking_id'];
         
         $invoice_id = $this->create_invoice_id_to_insert($vendor_details[0]['sc_code']);
         $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $array);
@@ -5348,6 +5350,62 @@ class Invoice extends CI_Controller {
             $this->session->set_flashdata('file_error','CRM Setup Proforma invoices Not Generated');
             log_message('info', __METHOD__ . ": Validation Failed");
             $this->invoice_partner_view();
+        }
+    }
+    
+    
+    /**
+     * @desc: This is a test function for out of warranty booking
+     */
+    
+    function test() {
+        $sql = "SELECT spare_parts_details.* FROM `vendor_partner_invoices` JOIN spare_parts_details ON vendor_partner_invoices.invoice_id=spare_parts_details.sell_invoice_id WHERE `vendor_partner` = 'vendor' AND `invoice_date` >= '2019-08-03' AND `invoice_date` < '2019-08-04' AND parts_shipped IS NULL AND spare_parts_details.reverse_sale_invoice_id IS NULL AND total_amount_collected > 0 ";
+        $data = $this->db->query($sql)->result_array();
+        
+        foreach($data as $key => $row) {
+            $this->generate_reverse_oow_invoice_test($row['id']);
+            
+            $this->db->where(array("id" => $row['id']));
+            $this->db->update("spare_parts_details", array('sell_invoice_id' => NULL,'reverse_sale_invoice_id' => NULL));
+            
+            if ($this->db->affected_rows() > 1) {
+                exit();
+            }
+        }
+        echo "Success";
+        exit();
+    }
+    
+    /**
+     * @desc This is a test function which is used to generate reverse invoice for out of warranty booking
+     * It will generate for both party(SF/Partner)
+     * @param String $spare_id
+     */
+    function generate_reverse_oow_invoice_test($spare_id){
+        log_message('info', __METHOD__. " Spare ID ".$spare_id);
+        $oow_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_unit_details_id, purchase_price, sell_price, sell_invoice_id, purchase_invoice_id, "
+                . "spare_parts_details.purchase_price, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id,"
+                . "reverse_sale_invoice_id, reverse_purchase_invoice_id, booking_details.partner_id as booking_partner_id, invoice_gst_rate", 
+                    array('spare_parts_details.id' => $spare_id, 
+                        'booking_unit_details_id IS NOT NULL' => NULL,
+                        'sell_price > 0 ' => NULL,
+                        'sell_invoice_id IS NOT NULL' => NULL,
+                        'estimate_cost_given_date IS NOT NULL' => NULL,
+                        'spare_parts_details.part_warranty_status' => 2,
+                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
+                    true);
+
+        if(!empty($oow_data)){
+            foreach ($oow_data as $value) {
+                if(!empty($value['sell_invoice_id']) && empty($value['reverse_sale_invoice_id'])){
+                   $invoice_details = $this->invoices_model->get_invoices_details(array('invoice_id' => $value['sell_invoice_id']), $select = "*");
+                   $invoice_details[0]['booking_id'] = $value['booking_id'];
+
+                   if(!empty($invoice_details)){
+                       $this->generate_reverse_sale_invoice($invoice_details, $value);
+                   }
+                }
+            }
         }
     }
 }
