@@ -2680,6 +2680,7 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_serviceable_bom_data($select, $where = array()) {
+        $this->db->distinct();
         $this->db->select($select,false);
         $this->db->from('inventory_master_list');
         $this->db->join('inventory_model_mapping','inventory_model_mapping.inventory_id = inventory_master_list.inventory_id');
@@ -2747,6 +2748,8 @@ class Inventory_model extends CI_Model {
         $this->db->select($select, FALSE);
         $this->db->from('vendor_partner_invoices');
         $this->db->join('invoice_details', 'invoice_details.invoice_id = vendor_partner_invoices.invoice_id');
+        $this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = invoice_details.from_gst_number');
+        $this->db->join('entity_gst_details', 'entity_gst_details.id = invoice_details.to_gst_number');
         $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = invoice_details.inventory_id');
         if (!empty($where)) {
             $this->db->where($where);
@@ -2761,22 +2764,25 @@ class Inventory_model extends CI_Model {
      * @params: $select string
      * @return: Object 
      */
-    function get_warehouse_stocks($post,$select){
-                
+    function get_warehouse_stocks($post, $select) {
+
         if (empty($select)) {
             $select = '*';
         }
         $this->db->distinct();
-        $this->db->select($select,FALSE);
+        $this->db->select($select, FALSE);
         $this->db->from('inventory_stocks');
-        $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
-        $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
+        $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = inventory_stocks.inventory_id', 'left');
+        $this->db->join('partners', 'partners.id = inventory_master_list.entity_id', 'left');
+        $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id');
+
+        $this->db->order_by("service_centres.name ASC, inventory_master_list.part_number ASC");
+        
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
-        
-      $query = $this->db->get();
-      return $query; 
+        $query = $this->db->get();
+        return $query;
     }
-    
+
 }
