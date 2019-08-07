@@ -724,7 +724,7 @@ class Invoice_lib {
                 $tmp_arr['booking_id'] = $value2[0]['booking_id'];
                 $tmp_arr['spare_desc'] = $value2[0]['parts_shipped'];
                 $tmp_arr['part_number'] =(isset($value2[0]['part_number'])) ? $value2[0]['part_number'] : '-'; 
-                $tmp_arr['qty'] = $value2[0]['quantity'];
+                $tmp_arr['qty'] = $value2[0]['shipped_quantity'];
 
                 array_push($excel_data['excel_data_line_item'], $tmp_arr);
             }

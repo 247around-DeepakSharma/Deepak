@@ -3488,11 +3488,7 @@ function generate_image($base64, $image_name,$directory){
         return $response;
     }
 
-    
-    
-    
 
-    
     function get_247aroud_warehouse_in_sf_state($state){
         $select = "contact_person.entity_id, contact_person.entity_type";
         $where1 = array('warehouse_state_relationship.state' => $state,'warehouse_details.entity_id' => _247AROUND, 
@@ -3519,9 +3515,7 @@ function generate_image($base64, $image_name,$directory){
            
             if (!empty($alternate_inventory_stock_details)) {
                 $inventory_stock_details = $alternate_inventory_stock_details;
-                
             }
-            
         }
         
         if(!empty($inventory_stock_details)){
@@ -3532,7 +3526,7 @@ function generate_image($base64, $image_name,$directory){
 
                 }
                 $response = array();
-                $response['stock'] = TRUE;
+                $response['stock'] = $inventory_stock_details[0]['stock'];
                 $response['entity_id'] = $service_center_id;
                 $response['entity_type'] = _247AROUND_SF_STRING;
                 $response['part_name'] = $inventory_part_number[0]['part_name'];
@@ -3557,7 +3551,7 @@ function generate_image($base64, $image_name,$directory){
 
                         }
                         $response = array();
-                        $response['stock'] = TRUE;
+                        $response['stock'] = $value['stock'];
                         $response['entity_id'] = $value['entity_id'];
                         $response['entity_type'] = _247AROUND_SF_STRING;
                         $response['part_name'] = $inventory_part_number[0]['part_name'];
