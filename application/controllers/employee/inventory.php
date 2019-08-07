@@ -7068,7 +7068,7 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return : void
      */
-    function download_invoice() {
+    function download_msl_invoice() {
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/download_inventory_ledger");
