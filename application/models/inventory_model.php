@@ -667,7 +667,7 @@ class Inventory_model extends CI_Model {
                 
                 $where .= " AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
                 if (!empty($inventory_ids)) {
-                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name', $where, $inventory_ids);
+                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock - inventory_stocks.pending_request_count) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name', $where, $inventory_ids);
                 }
             }
         }
@@ -1103,7 +1103,7 @@ class Inventory_model extends CI_Model {
         }
 
         if ($post['is_micro_wh']) {
-           $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.micro_invoice_id', 'left');
+          $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.micro_invoice_id', 'left');
            $this->db->join('partners as pi', "pi.id = vendor_partner_invoices.third_party_entity_id AND inventory_master_list.entity_id= pi.id",'left');
         }
 
@@ -1141,6 +1141,7 @@ class Inventory_model extends CI_Model {
     
     
     function get_spare_need_to_acknowledge($post, $select = "",$is_array = false){
+       
         $this->_get_spare_need_to_acknowledge($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -1149,9 +1150,12 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         if($is_array){
             return $query->result_array();
+
         }else{
             return $query->result();
+
         }
+        
     }
     
     /**
@@ -2744,13 +2748,15 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_inventory_ledger_details_data($select, $where) {
-
+        $this->db->distinct();
         $this->db->select($select, FALSE);
-        $this->db->from('vendor_partner_invoices');
+        $this->db->from('inventory_ledger');
+        $this->db->join('vendor_partner_invoices', 'inventory_ledger.invoice_id = vendor_partner_invoices.invoice_id');
         $this->db->join('invoice_details', 'invoice_details.invoice_id = vendor_partner_invoices.invoice_id');
-        $this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = invoice_details.from_gst_number');
-        $this->db->join('entity_gst_details', 'entity_gst_details.id = invoice_details.to_gst_number');
+        $this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = invoice_details.from_gst_number','left');
+        $this->db->join('entity_gst_details', 'entity_gst_details.id = invoice_details.to_gst_number','left');
         $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = invoice_details.inventory_id');
+        $this->db->join('courier_details', 'inventory_ledger.courier_id = courier_details.id','left');
         if (!empty($where)) {
             $this->db->where($where);
         }
