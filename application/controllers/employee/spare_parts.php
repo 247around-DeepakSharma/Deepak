@@ -441,7 +441,7 @@ class Spare_parts extends CI_Controller {
         if(!empty($list))
         {
             $arrBookings = array_column($list, 'booking_id');
-            $arrBookingWiseWarrantyStatus = $this->booking_utilities->check_bookings_warranty($arrBookings);            
+//            $arrBookingWiseWarrantyStatus = $this->booking_utilities->check_bookings_warranty($arrBookings);            
         }                                
         $post['warranty_data'] = $arrBookingWiseWarrantyStatus;
         // Function ends here
