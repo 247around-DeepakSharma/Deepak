@@ -754,7 +754,7 @@
     spare_parts_requested_table = $('#spare_parts_requested_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[[ 14, "desc" ]],
+            order:[[ 15, "desc" ]],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -787,11 +787,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [14], //first column / numbering column
+                    "targets": [15], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
-                    "targets": [0,1,2,3,4,11,12,13], //first column / numbering column
+                    "targets": [0,1,2,3,4,11,12,13,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -807,7 +807,7 @@
     spare_parts_requested_table_approved = $('#spare_parts_requested_table_approved').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[[14,"desc"]],
+            "order": [],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -852,7 +852,7 @@
         spare_parts_requested_table_reject = $('#spare_parts_requested_table_reject').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[[14,"desc"]],
+            "order": [], 
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -861,7 +861,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,12 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,13 ],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'
@@ -879,7 +879,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,11,12,13], //first column / numbering column
+                    "targets": [15], //first column / numbering column
+                    "orderable": true //set not orderable
+                },
+                {
+                    "targets": [0,1,2,3,4,12,13,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],

@@ -337,37 +337,38 @@
         
     }
     
-    // $('#download_spare_list').click(function(){
-    //     var partner_id = $("#partner_id").val();
+      $('#download_spare_list').click(function(){
+        var partner_id = $("#partner_id").val();
         
-    //     if(partner_id!=null && partner_id!=''){
-    //         $("#partner_err").html('');
-    //         $('#download_spare_list').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
-    //         $.ajax({
-    //             type: 'POST',
-    //             url: '<?php echo base_url(); ?>employee/partner/download_spare_part_shipped_by_partner/1/'+partner_id,
-    //             data: {partner_id : partner_id},
-    //             success: function (data) {
-    //               console.log(data);
-    //                 $('#download_spare_list').html("Download").attr('disabled',false);
-    //                 var obj = JSON.parse(data); 
-    //               //  if(obj['status']){
-    //                //     window.location.href = obj['msg'];
-    //               //  }else{
-    //                     alert('File Download Failed. Please Refresh Page And Try Again...')
-    //               //  }
-    //             }
-    //         });
-    //     }else{
-    //     $("#partner_err").html("Please select partner").css('color','red');
-    //     }
-    // });
-
+        if(partner_id!=null && partner_id!=''){
+            $("#partner_err").html('');
+            $('#download_spare_list').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/inventory/download_spare_consolidated_data',
+                data: {partner_id : partner_id},
+                success: function (data) {
+                    $('#download_spare_list').html("Download").attr('disabled',false);
+                    var obj = JSON.parse(data); 
+                    if(obj['status']){
+                        window.location.href = obj['msg'];
+                    }else{
+                        alert('File Download Failed. Please Refresh Page And Try Again...')
+                    }
+                }
+            });
+        }else{
+        $("#partner_err").html("Please select partner").css('color','red');
+        }
+    });
+    
+   /*
     $("#partner_id").change(function(){
       var partner_id = $(this).val();
-      $("#download_spare_list").attr("href","<?php echo base_url(); ?>employee/partner/download_spare_part_shipped_by_partner/1/"+partner_id);
+      $("#download_spare_list").attr("href","<?php //echo base_url(); ?>employee/partner/download_spare_part_shipped_by_partner/1/"+partner_id);
 
     });
+    */
     
     $(".pickup").click(function(){
         $("#spare_pick_up").attr('disabled',false);  

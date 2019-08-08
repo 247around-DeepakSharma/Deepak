@@ -5313,8 +5313,8 @@ class Booking extends CI_Controller {
             if(!empty($data['charges']))
             {
                 $arrBookings = array_column($data['charges'], 'booking_id');
-                $arrBookingWiseWarrantyStatus = $this->booking_utilities->check_bookings_warranty($arrBookings);                             
-            }                                
+//                $arrBookingWiseWarrantyStatus = $this->booking_utilities->check_bookings_warranty($arrBookings);                             
+            }
             $data['warranty_data'] = $arrBookingWiseWarrantyStatus;
             // Function ends here
             $this->load->view('employee/completed_cancelled_review', $data);
