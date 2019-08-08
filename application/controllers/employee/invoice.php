@@ -3994,6 +3994,8 @@ class Invoice extends CI_Controller {
         $array[0]['service_center_id'] = $invoice_details[0]['vendor_partner_id'];
         $array[0]['id'] = $spare_data['id'];
         $array[0]['company_name'] = $vendor_details[0]['company_name'];
+        $array[0]['state'] = $vendor_details[0]['state'];
+        $array[0]['booking_id'] = $vendor_details[0]['booking_id'];
         
         $invoice_id = $this->create_invoice_id_to_insert($vendor_details[0]['sc_code']);
         $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $array);
