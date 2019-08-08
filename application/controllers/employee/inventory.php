@@ -6997,16 +6997,20 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . ' Processing...');
 
         $request_type = $this->input->post('request_type');
+        $partner_id = $this->input->post('partner_id');
+
         $select = "service_centres.name AS Warehouse, partners.public_name AS 'Partner', inventory_master_list.part_number AS 'Part Number', inventory_master_list.part_name AS 'Part Name', inventory_stocks.stock AS Stock";
+
         if ($request_type == 'warehouse') {
-            
             $post['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         } else {
-            
             $post['where'] = array("service_centres.is_micro_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         }
 
-        
+        if (!empty($partner_id)) {
+            $post['where']['inventory_master_list.entity_id'] = $this->input->post('partner_id');
+            $post['where']['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;
+        }
 
         if (!empty($request_type)) {
         
