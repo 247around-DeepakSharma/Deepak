@@ -2186,7 +2186,7 @@ class vendor_model extends CI_Model {
                             'service_id' => $appliance_id, 
                             'brand_id' => explode('-', $brand_data)[0], 
                             'brand_name' => explode('-', $brand_data)[1],
-                            'created_by' => $this->session->userdata('employee_id')
+                            'created_by' => $this->session->userdata('id')
                         ];
                     }
                 }

@@ -573,7 +573,7 @@ class Inventory_model extends CI_Model {
                 WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
                 WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*
                 FROM `inventory_ledger` as i LEFT JOIN service_centres as sc on (sc.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'vendor') Left JOIN partners as p on (p.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'partner') LEFT JOIN employee as e ON (e.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'employee')  
-                LEFT JOIN service_centres as sc1 on (sc1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'vendor') Left JOIN partners as p1 on (p1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'partner') LEFT JOIN employee as e1 ON (e1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'employee') $where $add_limit";
+                LEFT JOIN service_centres as sc1 on (sc1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'vendor') Left JOIN partners as p1 on (p1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'partner') LEFT JOIN employee as e1 ON (e1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'employee') $where ORDER BY i.create_date $add_limit";
         
         if($is_count){
             $query = count($this->db->query($sql)->result_array());
@@ -667,7 +667,7 @@ class Inventory_model extends CI_Model {
                 
                 $where .= " AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
                 if (!empty($inventory_ids)) {
-                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name', $where, $inventory_ids);
+                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock - inventory_stocks.pending_request_count) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name', $where, $inventory_ids);
                 }
             }
         }
@@ -1102,7 +1102,7 @@ class Inventory_model extends CI_Model {
         }
 
         if ($post['is_micro_wh']) {
-           $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.micro_invoice_id', 'left');
+          $this->db->join('vendor_partner_invoices', 'vendor_partner_invoices.invoice_id = i.micro_invoice_id', 'left');
            $this->db->join('partners as pi', "pi.id = vendor_partner_invoices.third_party_entity_id AND inventory_master_list.entity_id= pi.id",'left');
         }
 
@@ -1140,6 +1140,7 @@ class Inventory_model extends CI_Model {
     
     
     function get_spare_need_to_acknowledge($post, $select = "",$is_array = false){
+       
         $this->_get_spare_need_to_acknowledge($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -1149,9 +1150,12 @@ class Inventory_model extends CI_Model {
         
         if($is_array){
             return $query->result_array();
+
         }else{
             return $query->result();
+
         }
+        
     }
     
     /**
@@ -2648,6 +2652,7 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_serviceable_bom_data($select, $where = array()) {
+        $this->db->distinct();
         $this->db->select($select,false);
         $this->db->from('inventory_master_list');
         $this->db->join('inventory_model_mapping','inventory_model_mapping.inventory_id = inventory_master_list.inventory_id');
@@ -2682,13 +2687,14 @@ class Inventory_model extends CI_Model {
        
     }
     
-    /**
+    /*
      * @Desc: This function is used to get Details of Missing serviceable BOM
      * @params: $select string
-     * @params: $where array
-     * @return: $query array
-     * 
+     * @params: $partner_id 
+     * @params: $service_id 
+     * @return: $query Object
      */
+    
     function get_missing_serviceable_bom_data($select, $partner_id, $service_id) {
 
         $where = "";
@@ -2702,30 +2708,56 @@ class Inventory_model extends CI_Model {
     }
     
     
-    
-     /**
+        
+    /**
+     * @Desc: This function is used to get inventory ledger details.
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_ledger_details_data($select, $where) {
+        $this->db->distinct();
+        $this->db->select($select, FALSE);
+        $this->db->from('inventory_ledger');
+        $this->db->join('vendor_partner_invoices', 'inventory_ledger.invoice_id = vendor_partner_invoices.invoice_id');
+        $this->db->join('invoice_details', 'invoice_details.invoice_id = vendor_partner_invoices.invoice_id');
+        $this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = invoice_details.from_gst_number','left');
+        $this->db->join('entity_gst_details', 'entity_gst_details.id = invoice_details.to_gst_number','left');
+        $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = invoice_details.inventory_id');
+        $this->db->join('courier_details', 'inventory_ledger.courier_id = courier_details.id','left');
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $query = $this->db->get();
+        return $query;
+    }
+
+    /**
      * @Desc: This function is used to get data from the inventory_stocks table
      * @params: $post array
      * @params: $select string
-     * @return: void
-     * 
+     * @return: Object 
      */
-    function get_warehouse_stocks($post,$select){
-                
+    function get_warehouse_stocks($post, $select) {
+
         if (empty($select)) {
             $select = '*';
         }
         $this->db->distinct();
-        $this->db->select($select,FALSE);
+        $this->db->select($select, FALSE);
         $this->db->from('inventory_stocks');
-        $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
-        $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
+        $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = inventory_stocks.inventory_id', 'left');
+        $this->db->join('partners', 'partners.id = inventory_master_list.entity_id', 'left');
+        $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id');
+
+        $this->db->order_by("service_centres.name ASC, inventory_master_list.part_number ASC");
+        
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
-        
-      $query = $this->db->get();
-      return $query; 
+        $query = $this->db->get();
+        return $query;
     }
-    
+
 }

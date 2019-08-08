@@ -2232,6 +2232,13 @@ function get_data_for_partner_callback($booking_id) {
                 $meta['main_company_logo'] = $main_partner[0]['partner_logo'];
                 $meta['main_company_description'] = "";
                 $meta['main_company_gst_number'] = $main_partner[0]['gst_number'];
+                $state_code = $this->invoices_model->get_state_code(array('state' => $main_partner[0]['state']));
+                if(!empty($state_code)){
+                    $meta['main_company_state_code'] = $state_code[0]['state_code'];
+                }
+                else{
+                    $meta['main_company_state_code'] = "";
+                }
             }
         }
         else{
@@ -2250,6 +2257,7 @@ function get_data_for_partner_callback($booking_id) {
             $meta['main_company_logo'] = "logo.jpg";
             $meta['main_company_description'] = _247AROUND_INVOICE_TEMPLATE_DESCRIPTION;
             $meta['main_company_gst_number'] = "07AAFCB1281J1ZQ";
+            $meta['main_company_state_code'] = "07";
         }
         return $meta;
     }

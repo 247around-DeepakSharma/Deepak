@@ -20,7 +20,7 @@
                  <strong>Failed!</strong>  <?php echo $this->session->flashdata('fail'); ?>
                 </div>
             <?php }else if(!empty($this->session->flashdata('details'))){ ?>
-                   <div class="alert alert-success">
+                   <div class="alert alert-dangers">
                    <strong>Success!</strong> Click See details button to see the details because some data may not be updated
                    <?php if(!empty($this->session->flashdata('fail')) || !empty($this->session->flashdata('details'))){ ?>
                              <a href="#" class="btn btn-sm btn-warning"  data-toggle="modal" data-target="#myModal">See details</a>

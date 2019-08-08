@@ -2029,7 +2029,7 @@ class Inventory extends CI_Controller {
             "(`purchase_invoice_id` IS NULL )" => NULL,
             "spare_parts_details.partner_id != '" . _247AROUND . "'" => NULL);
         $w['select'] = "spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.booking_id, purchase_price, public_name,"
-                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id,booking_details.request_type";
+                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id,booking_details.request_type, spare_parts_details.status";
         $data['spare'] = $this->inventory_model->get_spare_parts_query($w);
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/spare_invoice_list", $data);
@@ -4728,6 +4728,10 @@ class Inventory extends CI_Controller {
                     $template = "partner_inventory_invoice_annexure-v1.xlsx";
                     $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
                     
+                    unset($response['meta']['main_company_logo_cell']);
+                    unset($response['meta']['main_company_seal_cell']);
+                    unset($response['meta']['main_company_sign_cell']);
+                    
                     $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $invoiceValue['data'], TMP_FOLDER . $output_file);
                     $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
 
@@ -5159,7 +5163,7 @@ class Inventory extends CI_Controller {
 
                     $file_name = 'defective_spare_eway_pic_by_wh_' . rand(10, 100) . '_' . $upload_file_name;
                     //Upload files to AWS
-                    $directory_xls = "vendor-partner-docs/" . $file_name;
+                    $directory_xls = "ewaybill/" . $file_name;
                     $this->s3->putObjectFile($file_details['eway_file']['tmp_name'], BITBUCKET_DIRECTORY, $directory_xls, S3::ACL_PUBLIC_READ);
 
                     $res['status'] = true;
@@ -6897,7 +6901,7 @@ class Inventory extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
 
-        $select = "services.services AS APPLIANCE, appliance_model_details.model_number AS MODEL_NUMBER, inventory_master_list.part_number AS PART_NUMBER, "
+        $select = "services.services AS APPLIANCE, inventory_master_list.part_number AS PART_NUMBER, "
                 . "inventory_master_list.part_name AS PART_NAME, inventory_master_list.price AS PRICE, inventory_master_list.type AS TYPE, inventory_master_list.hsn_code AS HSN_CODE,"
                 . " inventory_master_list.gst_rate AS GST_RATE";
         $where = array("inventory_master_list.entity_id" => $partner_id, "appliance_model_details.service_id" => $service_id);
@@ -6993,25 +6997,83 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . ' Processing...');
 
         $request_type = $this->input->post('request_type');
+        $partner_id = $this->input->post('partner_id');
+
+        $select = "service_centres.name AS Warehouse, partners.public_name AS 'Partner', inventory_master_list.part_number AS 'Part Number', inventory_master_list.part_name AS 'Part Name', inventory_stocks.stock AS Stock";
 
         if ($request_type == 'warehouse') {
-            $select = "service_centres.name AS Warehouse, inventory_master_list.part_number AS Part_Number, inventory_master_list.part_name AS Part_Name, inventory_stocks.stock AS Stock";
-            $post['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING);
+            $post['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         } else {
-            $select = "service_centres.name AS Micro_Warehouse,inventory_master_list.part_number AS Part_Number, inventory_master_list.part_name AS Part_Name, inventory_stocks.stock AS Stock";
-            $post['where'] = array("service_centres.is_micro_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING);
+            $post['where'] = array("service_centres.is_micro_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         }
 
-        
+        if (!empty($partner_id)) {
+            $post['where']['inventory_master_list.entity_id'] = $this->input->post('partner_id');
+            $post['where']['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;
+        }
 
         if (!empty($request_type)) {
-
+        
             $bom_details = $this->inventory_model->get_warehouse_stocks($post, $select);
-
+             
             $this->load->dbutil();
             $this->load->helper('file');
 
             $file_name = $request_type . '_stock_data_' . date('j-M-Y-H-i-s') . ".csv";
+            $delimiter = ",";
+            $newline = "\r\n";
+            $new_report = $this->dbutil->csv_from_result($bom_details, $delimiter, $newline);
+
+            write_file(TMP_FOLDER . $file_name, $new_report);
+
+            if (file_exists(TMP_FOLDER . $file_name)) {
+                log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+                $res1 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+                $res['status'] = true;
+                $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+            } else {
+                log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+                $res['status'] = FALSE;
+                $res['msg'] = 'error in generating file';
+            }
+        }
+        echo json_encode($res);
+    }
+    
+    /**
+     *  @desc : This function is used to Download inventory ledger details
+     *  @param : void
+     *  @return : void
+     */
+    function download_msl_invoice() {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/download_inventory_ledger");
+    }
+     /**
+     *  @desc : This function is used to Download the Inventory Ledger Details.
+     *  @param : void
+     *  @return : void
+     */
+    function  download_sale_purchage_invoice_data(){
+        log_message('info', __METHOD__ . ' Processing...');
+
+        $partner_id = $this->input->post('partner_id');
+        
+        $select = "invoice_details.invoice_id AS 'Invoice Id', invoice_details.create_date AS 'Invoice Date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', part_number AS 'Part Number', "
+                . "invoice_details.description AS 'Description', invoice_details.hsn_code AS 'HSN Code', invoice_details.qty AS 'Quantity', rate AS 'Rate', invoice_details.taxable_value AS 'Taxable Value', (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS 'GST Rate',"
+                . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS 'GST Tax Amount', total_amount AS 'Total Amount', vendor_partner_invoices.type AS Type, entt_gst_dtl.gst_number AS 'From GST Number',entity_gst_details.gst_number AS 'To GST Number',"
+                . "vendor_partner_invoices.sub_category AS 'Sub Category',courier_details.AWB_no AS 'Awb_Number',courier_details.courier_name AS 'Courier Name',courier_details.shipment_date AS 'Shipment Date',courier_details.quantity AS 'Shipment Quantity',courier_details.booking_id AS 'Booking Id'";
+        
+        $where = array("sub_category IN ('".DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".NEW_PART_RETURN."')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+
+        if (!empty($partner_id)) {
+            $bom_details = $this->inventory_model->get_inventory_ledger_details_data($select, $where);
+            $this->load->dbutil();
+            $this->load->helper('file');
+
+            $file_name = 'inventory_ledger_details_data_' . date('j-M-Y-H-i-s') . ".csv";
             $delimiter = ",";
             $newline = "\r\n";
             $new_report = $this->dbutil->csv_from_result($bom_details, $delimiter, $newline);

@@ -723,7 +723,7 @@ class Invoice_lib {
                 $tmp_arr['booking_id'] = $value2[0]['booking_id'];
                 $tmp_arr['spare_desc'] = $value2[0]['parts_shipped'];
                 $tmp_arr['part_number'] =(isset($value2[0]['part_number'])) ? $value2[0]['part_number'] : '-'; 
-                $tmp_arr['qty'] = $value2[0]['quantity'];
+                $tmp_arr['qty'] = $value2[0]['shipped_quantity'];
 
                 array_push($excel_data['excel_data_line_item'], $tmp_arr);
             }
@@ -753,7 +753,7 @@ class Invoice_lib {
             $output_file = "delivery_challan_" . $booking_id . "_" . rand(10, 100) . "_" . date('d_M_Y_H_i_s');
             //generated pdf file template
             $html_file = $this->ci->load->view('templates/' . $template, $excel_data, true);
-            echo $html_file;
+           // echo $html_file;
             $output_pdf_file_name = $output_file . ".pdf";
              $json_result = $this->ci->miscelleneous->convert_html_to_pdf($html_file, $booking_id, $output_pdf_file_name, 'vendor-partner-docs');
             log_message('info', __FUNCTION__ . 'HTML TO PDF JSON RESPONSE' . print_r($json_result, TRUE));

@@ -50,11 +50,11 @@
                 <td colspan="6" style="border-right: 2px solid;" align="center"><b>Bill to Party</b></tr>
 
 
-            <tr style="height: 20px" class="bold"><td colspan="6" style="border-right: 2px solid;">Name: Blackmelon Advance Technology Co. Pvt. Ltd.</td></tr>
-            <tr style="height: 5%"><td colspan="6" style="padding-top: 2%; padding-bottom: 2%; border-right: 2px solid;">Address: A-1/7, F/F A BLOCK, KRISHNA NAGAR, DELHI, 110051</td></tr>
-            <tr><td colspan="2">GSTIN: 07AAFCB1281J1ZQ</td>
-                <td colspan="3" width="30%">Place of Supply: Delhi</td>	
-                <td style="border-right: 2px solid;">Code: 07</td></tr>
+            <tr style="height: 20px" class="bold"><td colspan="6" style="border-right: 2px solid;">Name: <?php echo $meta['main_company_name']; ?></td></tr>
+            <tr style="height: 5%"><td colspan="6" style="padding-top: 2%; padding-bottom: 2%; border-right: 2px solid;">Address: <?php echo $meta['main_company_address']; ?></td></tr>
+            <tr><td colspan="2">GSTIN: <?php echo $meta['main_company_gst_number']; ?></td>
+                <td colspan="3" width="30%">Place of Supply: <?php echo $meta['main_company_state']; ?></td>	
+                <td style="border-right: 2px solid;">Code: <?php echo $meta['main_company_state_code']; ?></td></tr>
 
 
             <tr style="text-align: center;background-color: rgb(211,211,211);">
