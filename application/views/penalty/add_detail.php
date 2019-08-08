@@ -32,8 +32,8 @@
                         </div>
                         <div class="col-md-9">
                             <select name="entity[]" multiple="true" id="entity" style="width:100% !important;">
-                                <option value="partner" <?php if($penalty['entity'] == 'partner') { echo 'selected';}?>>Partner</option>
-                                <option value="247around" <?php if($penalty['entity'] == '247around') { echo 'selected';}?>>247around</option>
+                                <option value="partner" <?php if(!empty($penalty['entity']) && $penalty['entity'] == 'partner') { echo 'selected';}?>>Partner</option>
+                                <option value="247around" <?php if(!empty($penalty['entity']) && $penalty['entity'] == '247around') { echo 'selected';}?>>247around</option>
                             </select>
                         </div>
                     </div>
