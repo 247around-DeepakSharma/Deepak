@@ -3381,8 +3381,8 @@ function generate_image($base64, $image_name,$directory){
         $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
         
         $saas_module = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        if(isset($saas_module) && (!$saas_module)) { 
-            $where['e.groups'] = _247AROUND_RM;
+        if($saas_module) { 
+            $where['employee.groups'] = _247AROUND_RM;
         }
         
         if($state_check) {
