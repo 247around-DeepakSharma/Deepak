@@ -3942,6 +3942,8 @@ class Invoice extends CI_Controller {
             foreach ($oow_data as $value) {
                 if(!empty($value['sell_invoice_id']) && empty($value['reverse_sale_invoice_id'])){
                    $invoice_details = $this->invoices_model->get_invoices_details(array('invoice_id' => $value['sell_invoice_id']), $select = "*");
+                   $invoice_details[0]['booking_id'] = $value['booking_id'];
+                   
                    if(!empty($invoice_details)){
                        $this->generate_reverse_sale_invoice($invoice_details, $value);
                    }
