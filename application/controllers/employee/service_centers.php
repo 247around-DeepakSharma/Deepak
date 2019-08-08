@@ -2304,6 +2304,7 @@ class Service_centers extends CI_Controller {
                             $data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
                             $data['challan_approx_value'] = round($warehouse_details['challan_approx_value']*$data['quantity'],2);
                             $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                            $data['shipped_quantity'] = $data['quantity'];
                             
                         } else {
                             $data['partner_id'] = $this->input->post('partner_id');
