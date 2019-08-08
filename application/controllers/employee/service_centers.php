@@ -348,7 +348,7 @@ class Service_centers extends CI_Controller {
             
         }
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-
+       
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);
     }
@@ -2605,7 +2605,7 @@ class Service_centers extends CI_Controller {
             $ss = $this->service_centers_model->update_spare_parts($where, $sp_data);
             if ($ss) { //if($ss){
                 $is_requested = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . SPARE_SHIPPED_BY_PARTNER . '", "'
-                    . SPARE_PARTS_REQUESTED . '", "' . ESTIMATE_APPROVED_BY_CUSTOMER . '", "' . SPARE_OOW_EST_GIVEN . '", "' . SPARE_OOW_EST_REQUESTED . '") ' => NULL));
+                    . SPARE_PARTS_REQUESTED . '", "' . ESTIMATE_APPROVED_BY_CUSTOMER . '", "' . SPARE_OOW_EST_GIVEN . '", "' . SPARE_OOW_EST_REQUESTED . '", "'.SPARE_PART_ON_APPROVAL.'", "'.SPARE_OOW_SHIPPED.'") ' => NULL));
                 if ($this->session->userdata('service_center_id')) {
                     $agent_id = $this->session->userdata('service_center_agent_id');
                     $sc_entity_id = $this->session->userdata('service_center_id');

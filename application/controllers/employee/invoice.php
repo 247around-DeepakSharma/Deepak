@@ -496,8 +496,16 @@ class Invoice extends CI_Controller {
 
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
 
-        $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
-
+        $this->invoice_lib->generate_invoice_excel($template, $misc_data['Completed']['meta'], $misc_data['Completed']['annexure'], $output_file_excel);
+        
+        // Generate Pending Bookings Excel
+        if (!empty($misc_data['Pending'])) {
+            $pending_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-Spare_Not_Shipped-detailed.xlsx";
+            $this->invoice_lib->generate_invoice_excel($template, $misc_data['Pending']['meta'], $misc_data['Pending']['annexure'], $pending_file_excel);
+            array_push($files, $pending_file_excel);
+            log_message('info', __METHOD__ . "=> File created " . $pending_file_excel);
+        }
+        
         // Generate Upcountry Excel
         if (!empty($misc_data['upcountry'])) {
             $meta['total_upcountry_price'] = $misc_data['upcountry'][0]['total_upcountry_price'];
@@ -1980,7 +1988,17 @@ class Invoice extends CI_Controller {
         log_message('info', __FUNCTION__ . ' Entering....... Partner_id:'.$partner_id.' invoice_type:'.$invoice_type.' from_date: '.$from_date.' to_date: '.$to_date);
         $invoices = $this->invoices_model->generate_partner_invoice($partner_id, $from_date, $to_date);
         if (!empty($invoices)) {
+            $invoices['booking'] = (isset($invoices['Pending']['booking']) ? array_merge($invoices['Pending']['booking'],$invoices['Completed']['booking']) : $invoices['Completed']['booking']);
+            $invoices['annexure'] = (isset($invoices['Pending']['annexure']) ? array_merge($invoices['Pending']['annexure'],$invoices['Completed']['annexure']) : $invoices['Completed']['annexure']);
 
+            foreach ($invoices['Completed']['meta'] as $key => $value) {
+                if ((strpos($key, 'company') !== false) || (strpos($key, 'state') !== false) || ((strpos($key, 'rate') !== false) && ($key != 'total_rate'))) {
+                    $invoices['meta'][$key] = $value;
+                }
+                else {
+                    $invoices['meta'][$key] = (is_numeric($value) ? ($value + (isset($invoices['Pending']['meta'][$key]) ? $invoices['Pending']['meta'][$key] : 0)) : (($key == 'price_inword') ? convert_number_to_words(round($invoices['meta']['sub_total_amount'],0)):$value));
+                }
+            }
             $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
             //Send Push Notification
             $receiverArray['partner'] = array($partner_id);
@@ -1995,9 +2013,12 @@ class Invoice extends CI_Controller {
             if($status){
                 
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
-                unset($invoices['meta']['main_company_logo_cell']);
-                unset($invoices['meta']['main_company_seal_cell']);
-                unset($invoices['meta']['main_company_sign_cell']);
+                unset($invoices['Pending']['meta']['main_company_logo_cell']);
+                unset($invoices['Pending']['meta']['main_company_seal_cell']);
+                unset($invoices['Pending']['meta']['main_company_sign_cell']);
+                unset($invoices['Completed']['meta']['main_company_logo_cell']);
+                unset($invoices['Completed']['meta']['main_company_seal_cell']);
+                unset($invoices['Completed']['meta']['main_company_sign_cell']);
                 //unset($invoices['booking']);
                 $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoices,$agent_id, $hsn_code);
                 return true;
@@ -3287,12 +3308,19 @@ class Invoice extends CI_Controller {
 
             // Copy worksheets from $objPHPExcel2 to $objPHPExcel1
             foreach ($objPHPExcel2->getAllSheets() as $sheet) {
+                if(strpos($file_path, 'Spare_Not_Shipped') !== false) {
+                    $objPHPExcel1->getActiveSheet()->setTitle("Completed");
+                }
                 $objPHPExcel1->addExternalSheet($sheet);
+                if(strpos($file_path, 'Spare_Not_Shipped') !== false) {
+                    $objPHPExcel1->setActiveSheetIndex($objPHPExcel1->getActiveSheetIndex()+1);
+                    $objPHPExcel1->getActiveSheet()->setTitle("Spare Not Shipped");
+                }
             }
             
             
         }
-        
+        $objPHPExcel1->setActiveSheetIndex(0);
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, "Excel2007");
         // Save $objPHPExcel1 to browser as an .xls file
         $objWriter->save($details_excel);
@@ -3942,6 +3970,8 @@ class Invoice extends CI_Controller {
             foreach ($oow_data as $value) {
                 if(!empty($value['sell_invoice_id']) && empty($value['reverse_sale_invoice_id'])){
                    $invoice_details = $this->invoices_model->get_invoices_details(array('invoice_id' => $value['sell_invoice_id']), $select = "*");
+                   $invoice_details[0]['booking_id'] = $value['booking_id'];
+                   
                    if(!empty($invoice_details)){
                        $this->generate_reverse_sale_invoice($invoice_details, $value);
                    }
@@ -5350,62 +5380,6 @@ class Invoice extends CI_Controller {
             $this->session->set_flashdata('file_error','CRM Setup Proforma invoices Not Generated');
             log_message('info', __METHOD__ . ": Validation Failed");
             $this->invoice_partner_view();
-        }
-    }
-    
-    
-    /**
-     * @desc: This is a test function for out of warranty booking
-     */
-    
-    function test() {
-        $sql = "SELECT spare_parts_details.* FROM `vendor_partner_invoices` JOIN spare_parts_details ON vendor_partner_invoices.invoice_id=spare_parts_details.sell_invoice_id WHERE `vendor_partner` = 'vendor' AND `invoice_date` >= '2019-08-03' AND `invoice_date` < '2019-08-04' AND parts_shipped IS NULL AND spare_parts_details.reverse_sale_invoice_id IS NULL AND total_amount_collected > 0 ";
-        $data = $this->db->query($sql)->result_array();
-        
-        foreach($data as $key => $row) {
-            $this->generate_reverse_oow_invoice_test($row['id']);
-            
-            $this->db->where(array("id" => $row['id']));
-            $this->db->update("spare_parts_details", array('sell_invoice_id' => NULL,'reverse_sale_invoice_id' => NULL));
-            
-            if ($this->db->affected_rows() > 1) {
-                exit();
-            }
-        }
-        echo "Success";
-        exit();
-    }
-    
-    /**
-     * @desc This is a test function which is used to generate reverse invoice for out of warranty booking
-     * It will generate for both party(SF/Partner)
-     * @param String $spare_id
-     */
-    function generate_reverse_oow_invoice_test($spare_id){
-        log_message('info', __METHOD__. " Spare ID ".$spare_id);
-        $oow_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_unit_details_id, purchase_price, sell_price, sell_invoice_id, purchase_invoice_id, "
-                . "spare_parts_details.purchase_price, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id,"
-                . "reverse_sale_invoice_id, reverse_purchase_invoice_id, booking_details.partner_id as booking_partner_id, invoice_gst_rate", 
-                    array('spare_parts_details.id' => $spare_id, 
-                        'booking_unit_details_id IS NOT NULL' => NULL,
-                        'sell_price > 0 ' => NULL,
-                        'sell_invoice_id IS NOT NULL' => NULL,
-                        'estimate_cost_given_date IS NOT NULL' => NULL,
-                        'spare_parts_details.part_warranty_status' => 2,
-                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
-                    true);
-
-        if(!empty($oow_data)){
-            foreach ($oow_data as $value) {
-                if(!empty($value['sell_invoice_id']) && empty($value['reverse_sale_invoice_id'])){
-                   $invoice_details = $this->invoices_model->get_invoices_details(array('invoice_id' => $value['sell_invoice_id']), $select = "*");
-                   $invoice_details[0]['booking_id'] = $value['booking_id'];
-
-                   if(!empty($invoice_details)){
-                       $this->generate_reverse_sale_invoice($invoice_details, $value);
-                   }
-                }
-            }
         }
     }
 }
