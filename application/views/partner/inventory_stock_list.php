@@ -66,13 +66,20 @@
     .dataTables_length{
      width: 15%;   
     }
+    .pull-right {
+        padding: 5px;
+    }
 </style>
 <div class="right_col" role="main">
     <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Inventory List</h3>
+                     <div>
+                        <h3>Inventory List</h3>
+                        <span class="pull-right"><input type="button" id="micro_warehouse" class="download_stock  btn btn-primary btn-md" value="Download Micro-Warehouse Stock"></span>
+                        <span class="pull-right"><input type="button" id="warehouse" class="download_stock btn btn-primary btn-md" value="Download Warehouse Stock"></span>
+                    </div>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
@@ -236,6 +243,29 @@
             }
         });
     }
+    
+        
+    $(".download_stock").click(function(){
+    var req_type = $(this).attr("id");
+    if(req_type !=''){
+        $("#"+req_type).html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+        $.ajax({
+              type: 'POST',
+              url: '<?php echo base_url(); ?>employee/inventory/download_warehouse_stock_data',
+              data: {request_type : req_type, partner_id :'<?php echo $this->session->userdata('partner_id'); ?>'},
+              success: function (data) {
+                  $("#"+req_type).html("Download").attr('disabled',false);
+                  var obj = JSON.parse(data); 
+                  if(obj['status']){
+                      window.location.href = obj['msg'];
+                  }else{
+                      alert('File Download Failed. Please Refresh Page And Try Again...')
+                  }
+              }
+          });
+    }
+        
+    });
 
 </script>
 <style>
