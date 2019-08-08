@@ -383,7 +383,7 @@ class invoices_model extends CI_Model {
      * @param: partner id and date range
      * @return: Array()
      */
-    function getpartner_invoices($partner_id, $from_date, $to_date, $spare_requested_data = array() ) {
+    function getpartner_invoices($partner_id, $from_date, $to_date, $spare_requested_data = array(), $statusCond = "" ) {
         log_message('info', __FUNCTION__);
         $s = "";
         if(!empty($spare_requested_data)){
@@ -422,7 +422,7 @@ class invoices_model extends CI_Model {
                             AND booking_unit_details.ud_closed_date >= '$from_date'
                             AND booking_unit_details.ud_closed_date < '$to_date'
                         ) $s
-                    ) GROUP BY `booking_details`.booking_id
+                    ) $statusCond GROUP BY `booking_details`.booking_id
                ";
 
 
@@ -648,53 +648,8 @@ class invoices_model extends CI_Model {
             $s = " OR ( ud.id IN(". implode(",", $u).") ) ";
         }
         
-        $sql = "SELECT DISTINCT (`partner_net_payable`) AS rate, " . HSN_CODE . " AS hsn_code, 
-                CASE 
-                   WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
-                   concat(services,' ', price_tags )
-                    
-                   WHEN (MIN( ud.`appliance_capacity` ) = MAX( ud.`appliance_capacity` ) ) THEN 
-                   concat(services,' ', price_tags,' (', 
-                   MAX( ud.`appliance_capacity` ),') ' )
-
-                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
-                    concat(services,' ', price_tags,' (', 
-                    MAX( ud.`appliance_capacity` ),') ' )
-
-                    WHEN MIN( ud.`appliance_capacity` ) != '' AND MAX( ud.`appliance_capacity` ) = '' THEN
-                     concat(services,' ', price_tags,' (', 
-                    MIN( ud.`appliance_capacity` ),') ' )
-                
-                ELSE 
-                    concat(services,' ', price_tags,' (', MIN( ud.`appliance_capacity` ),
-                '-',MAX( ud.`appliance_capacity` ),') ' )
-                
-                
-                END AS description, 
-                " . DEFAULT_TAX_RATE . " as gst_rate,
-                COUNT( ud.`appliance_capacity` ) AS qty, 
-                (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS taxable_value,
-                `partners`.company_name, product_or_services,
-                `partners`.address as company_address, partners.pincode, partners.district,
-                `partners`.state, partners.is_wh,
-                `partners`.gst_number
-                FROM  `booking_unit_details` AS ud, services, partners
-                WHERE `partner_net_payable` >0
-                AND ud.service_id = services.id
-                AND partners.id = ud.partner_id
-                AND partner_invoice_id IS NULL
-                AND ( ( ud.partner_id =  '$partner_id'
-                        AND ud.booking_status =  'Completed'
-                        AND ud.ud_closed_date >=  '$from_date'
-                        AND ud.ud_closed_date < '$to_date'
-                    ) $s
-                  )
-                GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services   ";
-
-        $query = $this->db->query($sql);
-        $result['result'] = $query->result_array();
-
-        //if (!empty($result['result'])) {
+        $result['result']['Pending'] = $this->get_partner_invoice_data_statuswise($partner_id, $from_date, $to_date, $s, 'Pending');
+        $result['result']['Completed'] = $this->get_partner_invoice_data_statuswise($partner_id, $from_date, $to_date, $s, 'Completed');
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
         $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
         $pickup_courier = $this->get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date);
@@ -800,25 +755,6 @@ class invoices_model extends CI_Model {
         }
 
         if (!empty($result['result'])) {
-
-
-            if (!isset($result['result'][0]['company_name'])) {
-                $partner_details = $this->partner_model->getpartner_details('partner_id,invoice_email_to,invoice_email_cc,'
-                        . '`partners`.company_name, `partners`.address as company_address, partners.pincode, partners.district,'
-                        . '`partners`.state, partners.is_wh,`partners`.gst_number'
-                        . '', array('partners.id' => $partner_id));
-
-                $result['result'][0]['company_name'] = $partner_details[0]['company_name'];
-                $result['result'][0]['invoice_email_to'] = $partner_details[0]['invoice_email_to'];
-                $result['result'][0]['invoice_email_cc'] = $partner_details[0]['invoice_email_cc'];
-                $result['result'][0]['company_address'] = $partner_details[0]['company_address'];
-                $result['result'][0]['pincode'] = $partner_details[0]['pincode'];
-                $result['result'][0]['district'] = $partner_details[0]['district'];
-                $result['result'][0]['state'] = $partner_details[0]['state'];
-                $result['result'][0]['is_wh'] = $partner_details[0]['is_wh'];
-                $result['result'][0]['gst_number'] = $partner_details[0]['gst_number'];
-            }
-
             
             $fixed_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
                 "entity_id" => $partner_id, "variable_charges_type.is_fixed" => 1));
@@ -863,6 +799,88 @@ class invoices_model extends CI_Model {
         } else {
             return false;
         }
+    }
+    /**
+     * @desc This function is used to get partner invoice data statuswise (Pending or Completed)
+     * @param int $partner_id
+     * @param String $from_date
+     * @param String $to_date
+     * @param String $status(optional)
+     * @return Array
+     */
+    function get_partner_invoice_data_statuswise($partner_id, $from_date, $to_date, $s, $status = '') {
+        $Cond = $statusCond = "";
+        if($status !== '') {
+            $Cond = " AND ud.booking_status =  '$status' ";
+            $statusCond = " AND bd.current_status = '$status' ";
+        }
+    
+        $sql = "SELECT DISTINCT (`partner_net_payable`) AS rate, " . HSN_CODE . " AS hsn_code, 
+                CASE 
+                   WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) = '' THEN
+                   concat(services,' ', price_tags )
+                    
+                   WHEN (MIN( ud.`appliance_capacity` ) = MAX( ud.`appliance_capacity` ) ) THEN 
+                   concat(services,' ', price_tags,' (', 
+                   MAX( ud.`appliance_capacity` ),') ' )
+
+                    WHEN MIN( ud.`appliance_capacity` ) = '' AND MAX( ud.`appliance_capacity` ) != '' THEN 
+                    concat(services,' ', price_tags,' (', 
+                    MAX( ud.`appliance_capacity` ),') ' )
+
+                    WHEN MIN( ud.`appliance_capacity` ) != '' AND MAX( ud.`appliance_capacity` ) = '' THEN
+                     concat(services,' ', price_tags,' (', 
+                    MIN( ud.`appliance_capacity` ),') ' )
+                
+                ELSE 
+                    concat(services,' ', price_tags,' (', MIN( ud.`appliance_capacity` ),
+                '-',MAX( ud.`appliance_capacity` ),') ' )
+                
+                
+                END AS description, 
+                " . DEFAULT_TAX_RATE . " as gst_rate,
+                COUNT( ud.`appliance_capacity` ) AS qty, 
+                (partner_net_payable * COUNT( ud.`appliance_capacity` )) AS taxable_value,
+                `partners`.company_name, product_or_services,
+                `partners`.address as company_address, partners.pincode, partners.district,
+                `partners`.state, partners.is_wh,
+                `partners`.gst_number
+                FROM  `booking_unit_details` AS ud, services, partners
+                WHERE `partner_net_payable` >0
+                AND ud.service_id = services.id
+                AND partners.id = ud.partner_id
+                AND partner_invoice_id IS NULL
+                AND ( ( ud.partner_id =  '$partner_id'
+                        AND ud.booking_status =  'Completed'
+                        AND ud.ud_closed_date >=  '$from_date'
+                        AND ud.ud_closed_date < '$to_date'
+                    ) $s
+                  ) $Cond 
+                GROUP BY  `partner_net_payable`, ud.service_id,price_tags,product_or_services   ";
+
+        $query = $this->db->query($sql);
+        $result['result'] = $query->result_array();
+        
+        if (!empty($result['result'])) {
+            if (!isset($result['result'][0]['company_name'])) {
+                $partner_details = $this->partner_model->getpartner_details('partner_id,invoice_email_to,invoice_email_cc,'
+                        . '`partners`.company_name, `partners`.address as company_address, partners.pincode, partners.district,'
+                        . '`partners`.state, partners.is_wh,`partners`.gst_number'
+                        . '', array('partners.id' => $partner_id));
+
+                $result['result'][0]['company_name'] = $partner_details[0]['company_name'];
+                $result['result'][0]['invoice_email_to'] = $partner_details[0]['invoice_email_to'];
+                $result['result'][0]['invoice_email_cc'] = $partner_details[0]['invoice_email_cc'];
+                $result['result'][0]['company_address'] = $partner_details[0]['company_address'];
+                $result['result'][0]['pincode'] = $partner_details[0]['pincode'];
+                $result['result'][0]['district'] = $partner_details[0]['district'];
+                $result['result'][0]['state'] = $partner_details[0]['state'];
+                $result['result'][0]['is_wh'] = $partner_details[0]['is_wh'];
+                $result['result'][0]['gst_number'] = $partner_details[0]['gst_number'];
+            }
+        }
+        
+        return $result;
     }
     /**
      * @desc This function is used to get micro warehouse invoice data for Partner
@@ -913,15 +931,18 @@ class invoices_model extends CI_Model {
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         log_message("info", $from_date . "- " . $to_date);
         $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date, $from_date_tmp);
+        $statusCond='';
         $anx_data = array();
         $penalty_count = array();
         $penalty_tat = array();
         if (!empty($result_data['result'])) {
-            $anx_data = $this->invoices_model->getpartner_invoices($partner_id, $from_date, $to_date, $result_data['spare_requested_data']);
-            
-            if(!empty($anx_data)){
+            $statusCond = " AND booking_unit_details.booking_status = 'Pending' ";
+            $anx_data['Pending'] = $this->invoices_model->getpartner_invoices($partner_id, $from_date, $to_date, $result_data['spare_requested_data'], $statusCond);
+
+            if(!empty($anx_data['Pending'])){
                 $result_data['penalty_discount'] = array();
-                $penalty_data = $this->get_partner_invoice_tat_data($anx_data, $partner_id);
+                $penalty_data = $this->get_partner_invoice_tat_data($anx_data['Pending'], $partner_id);
+
                 if (!empty($penalty_data)) {
                     $penalty_price = (array_sum(array_column($penalty_data['tat'], 'penalty_amount')));
                     $penalty_tat = $penalty_data['tat'];
@@ -941,11 +962,41 @@ class invoices_model extends CI_Model {
                 }
             }
             
-            $result =  $result_data['result'];
+            $statusCond = " AND booking_unit_details.booking_status = 'Completed' ";
+            $anx_data['Completed'] = $this->invoices_model->getpartner_invoices($partner_id, $from_date, $to_date, $result_data['spare_requested_data'], $statusCond);
+
+            if(!empty($anx_data['Completed'])){
+                $result_data['penalty_discount'] = array();
+                $penalty_data = $this->get_partner_invoice_tat_data($anx_data['Completed'], $partner_id);
+                if (!empty($penalty_data)) {
+                    $penalty_price = (array_sum(array_column($penalty_data['tat'], 'penalty_amount')));
+                    $penalty_tat = $penalty_data['tat'];
+                    $penalty_count = $penalty_data['tat_count'];
+                    if($penalty_price > 0){
+                        $p_data = array();
+                        $p_data[0]['description'] = 'Discount';
+                        $p_data[0]['hsn_code'] = '';
+                        $p_data[0]['qty'] = '';
+                        $p_data[0]['rate'] = '';
+                        $p_data[0]['gst_rate'] = DEFAULT_TAX_RATE;
+                        $p_data[0]['product_or_services'] = 'Penalty Discount';
+                        $p_data[0]['taxable_value'] = -sprintf("%.2f", $penalty_price);
+                        $result_data['result'] = array_merge($result_data['result'], $p_data);
+                    }
+
+                }
+            }
+            
+            $result =  $result_data['result']['Pending']['result'];
             $response = $this->_set_partner_excel_invoice_data($result,$from_date_tmp,$to_date_tmp, "Tax Invoice");
 
-            $data['booking'] = $response['booking'];
-            $data['meta'] = $response['meta'];
+            $data['Pending']['booking'] = $response['booking'];
+            $data['Pending']['meta'] = $response['meta'];
+            $result =  $result_data['result']['Completed']['result'];
+            $response = $this->_set_partner_excel_invoice_data($result,$from_date_tmp,$to_date_tmp, "Tax Invoice");
+            
+            $data['Completed']['booking'] = $response['booking'];
+            $data['Completed']['meta'] = $response['meta'];
             $data['courier'] = $result_data['courier'];
             $data['upcountry'] = $result_data['upcountry'];
             $data['warehouse_courier'] = $result_data['warehouse_courier'];
@@ -955,7 +1006,8 @@ class invoices_model extends CI_Model {
             $data['defective_part_by_wh'] = $result_data['defective_part_by_wh'];
             $data['packaging_rate'] = $result_data['packaging_rate'];
             $data['packaging_quantity'] = $result_data['packaging_quantity'];
-            $data['annexure'] = $anx_data;
+            $data['Pending']['annexure'] = $anx_data['Pending'];
+            $data['Completed']['annexure'] = $anx_data['Completed'];
             $data['penalty_discount'] = $penalty_tat;
             $data['penalty_tat_count'] = $penalty_count;
             $data['penalty_booking_data'] = $penalty_data['penalty_booking_data'];
