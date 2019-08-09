@@ -3043,7 +3043,7 @@ class Invoice extends CI_Controller {
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where']['sub_category NOT IN ("'.DEFECTIVE_RETURN.'", "'.IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.NEW_PART_RETURN.'") '] = NULL;
+        $where_invoice['where']['sub_category NOT IN ("'.MSL_DEFECTIVE_RETURN.'", "'.IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.MSL_NEW_PART_RETURN.'") '] = NULL;
         $where_invoice['length'] = -1;
         return $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
     }
@@ -3063,7 +3063,7 @@ class Invoice extends CI_Controller {
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where_in']['sub_category'] = array(DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, NEW_PART_RETURN);
+        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN);
         $where_invoice['length'] = -1;
         $data = $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
         
@@ -3996,9 +3996,10 @@ class Invoice extends CI_Controller {
         $array[0]['company_name'] = $vendor_details[0]['company_name'];
         $array[0]['state'] = $vendor_details[0]['state'];
         $array[0]['booking_id'] = $vendor_details[0]['booking_id'];
+        $array[0]['reference_invoice_id'] = $invoice_details[0]['invoice_id'];
         
         $invoice_id = $this->create_invoice_id_to_insert($vendor_details[0]['sc_code']);
-        $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $array);
+        $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $array, 1);
         if($a){
              return true;
         } else {
@@ -4091,7 +4092,7 @@ class Invoice extends CI_Controller {
      * @param Array $spare
      * @return boolean
      */           
-    function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare){
+    function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $is_oow = 0){
         $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice", $invoice_date);
         $response['meta']['invoice_id'] = $invoice_id;
         $c_s_gst = $this->invoices_model->check_gst_tax_type($spare[0]['state']);
@@ -4158,8 +4159,9 @@ class Invoice extends CI_Controller {
                 "remarks" => $data[0]['description'],
                 "vertical" => SERVICE,
                 "category" => SPARES,
-                "sub_category" => DEFECTIVE_RETURN,
-                "accounting" => 1
+                "sub_category" => (($is_oow == 1) ? OOW_NEW_PART_RETURN : MSL_DEFECTIVE_RETURN),
+                "accounting" => 1,
+                "reference_invoice_id" => (($is_oow == 1) ? $spare[0]['reference_invoice_id'] : NULL)
             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -4344,7 +4346,7 @@ class Invoice extends CI_Controller {
                     "remarks" => $data[0]['description'],
                     "vertical" => SERVICE,
                     "category" => SPARES,
-                    "sub_category" => DEFECTIVE_RETURN,
+                    "sub_category" => MSL_DEFECTIVE_RETURN,
                     "accounting" => 1
                 );
 
