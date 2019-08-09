@@ -979,28 +979,73 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
         return $c2c_enable;
         
     }
+
+    function get_warranty_data($arrBookings){
+        if(empty($arrBookings)){
+            return array();
+        }
+        
+        foreach ($arrBookings as $booking_id => $rec_data) {
+            $arrWhere["(appliance_model_details.model_number = '".$rec_data['model_number']."' and date(warranty_plans.period_start) <= '".$rec_data['purchase_date']."' and date(warranty_plans.period_end) >= '".$rec_data['purchase_date']."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+        }   
+        $arrWarrantyData = $this->My_CI->warranty_model->get_warranty_data($arrWhere);
+        return $arrWarrantyData;
+    }
     
-    function check_bookings_warranty($arrBookings)
+    function get_model_wise_warranty_data($arrWarrantyData)
     {
-        $arrBookingsWarrantyData = [];
-        $arrBookingWiseWarrantyStatus = [];
-        $arrBookingWiseWarrantyData = $this->My_CI->warranty_model->check_warranty_by_booking_ids($arrBookings);                 
-        if(!empty($arrBookingWiseWarrantyData)){
-            foreach ($arrBookingWiseWarrantyData as $key => $recBookingWiseWarrantyData) {
-                $arrBookingsWarrantyData[$recBookingWiseWarrantyData['booking_id']] = $recBookingWiseWarrantyData;
+        $arrModelWiseWarrantyData = [];
+        foreach($arrWarrantyData as $recWarrantyData)
+        {
+            $arrModelWiseWarrantyData[$recWarrantyData['model_number']][] = $recWarrantyData;
+        }
+        return $arrModelWiseWarrantyData;
+    }
+    
+    function map_warranty_period_to_booking($arrBooking, $arrWarrantyData){
+        $arrBooking['in_warranty_period'] = !empty($arrBooking['in_warranty_period']) ? $arrBooking['in_warranty_period'] : 12;
+        $arrBooking['extended_warranty_period'] = !empty($arrBooking['extended_warranty_period']) ? $arrBooking['extended_warranty_period'] : 0;
+        foreach($arrWarrantyData as $recWarrantyData)
+        {
+            if((strtotime($recWarrantyData['plan_start_date']) <= strtotime($arrBooking['purchase_date'])) && (strtotime($recWarrantyData['plan_end_date']) >= strtotime($arrBooking['purchase_date']))){
+                if($recWarrantyData['in_warranty_period'] > $arrBooking['in_warranty_period'])
+                {
+                    $arrBooking['in_warranty_period'] = $recWarrantyData['in_warranty_period'];
+                }
+                if($recWarrantyData['extended_warranty_period'] > $arrBooking['extended_warranty_period'])
+                {
+                    $arrBooking['extended_warranty_period'] = $recWarrantyData['extended_warranty_period'];
+                }
             }
+        }
+        return $arrBooking;
+    }
+    
+    function get_bookings_warranty_status($arrBookingsWarrantyData)
+    {
+        $arrBookingWiseWarrantyStatus = [];                 
+        if(!empty($arrBookingsWarrantyData)){
             $arrBookingWiseWarrantyStatus = array_map(function($recWarrantyData) {
                 $warrantyStatus = 'OW';
-                $warranty_months = $recWarrantyData['warranty_period'];
-                if($recWarrantyData['warranty_type'] == 'EW')
-                {
-                    $warranty_months = $recWarrantyData['warranty_period'] + 12;
-                }                        
-                $warranty_end_period = strtotime(date("Y-m-d", strtotime($recWarrantyData['date_of_purchase'])) . " +" . $warranty_months . " months");
+                $in_warranty_months = !empty($recWarrantyData['in_warranty_period']) ? $recWarrantyData['in_warranty_period'] : 12;
+                $extended_warranty_months = !empty($recWarrantyData['extended_warranty_period']) ? $recWarrantyData['extended_warranty_period'] : 0;                
+                
+                $total_warranty_months = $extended_warranty_months + $in_warranty_months;
+                
+                // Calculate In-Warranty End Period
+                $in_warranty_end_period = strtotime(date("Y-m-d", strtotime($recWarrantyData['purchase_date'])) . " +" . $in_warranty_months . " months");
+                $in_warranty_end_period = strtotime(date("Y-m-d", $in_warranty_end_period) . " -1 day");
+                
+                // Calculate Extended-Warranty End Period
+                $warranty_end_period = strtotime(date("Y-m-d", strtotime($recWarrantyData['purchase_date'])) . " +" . $total_warranty_months . " months");
                 $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
-                if (strtotime($recWarrantyData['create_date']) <= $warranty_end_period) :
-                    $warrantyStatus = $recWarrantyData['warranty_type'];      
-                endif;        
+                
+                // Calculate Warranty Status
+                if (strtotime($recWarrantyData['booking_create_date']) <= $in_warranty_end_period) :
+                    $warrantyStatus = 'IW';      
+                elseif (strtotime($recWarrantyData['booking_create_date']) <= $warranty_end_period) :
+                    $warrantyStatus = 'EW';      
+                endif; 
                 return $warrantyStatus;
             }, $arrBookingsWarrantyData);
         }  
