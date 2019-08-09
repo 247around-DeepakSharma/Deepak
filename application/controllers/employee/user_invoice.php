@@ -633,7 +633,7 @@ class User_invoice extends CI_Controller {
             $response['meta']['invoice_id'] = $invoice_id;
             $response['meta']['vertical'] = SERVICE;
             $response['meta']['category'] = SPARES;
-            $response['meta']['sub_category'] = DEFECTIVE_RETURN;
+            $response['meta']['sub_category'] = MSL_DEFECTIVE_RETURN;
             $response['meta']['accounting'] = 1;
             
             $this->invoice_lib->insert_invoice_breackup($response);
@@ -1074,7 +1074,7 @@ class User_invoice extends CI_Controller {
                         $response['meta']['accounting'] = 1;
                         $response['meta']["vertical"] = SERVICE;
                         $response['meta']["category"] = SPARES;
-                        $response['meta']["sub_category"] = NEW_PART_RETURN;
+                        $response['meta']["sub_category"] = MSL_NEW_PART_RETURN;
 
                         $response['meta']['third_party_entity'] = _247AROUND_SF_STRING;
                         $response['meta']['third_party_entity_id'] = $wh_id;
@@ -1240,7 +1240,7 @@ class User_invoice extends CI_Controller {
         $response['meta']['accounting'] = 1;
         $response['meta']["vertical"] = SERVICE;
         $response['meta']["category"] = SPARES;
-        $response['meta']["sub_category"] = NEW_PART_RETURN;
+        $response['meta']["sub_category"] = MSL_NEW_PART_RETURN;
 
         $response['meta']['third_party_entity'] = _247AROUND_PARTNER_STRING;
         $response['meta']['owner_phone_1'] = $entity_details[0]['owner_phone_1'];
