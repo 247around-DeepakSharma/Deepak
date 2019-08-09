@@ -5308,14 +5308,30 @@ class Booking extends CI_Controller {
             $data['total_pages'] = $data['total_rows']/$data['per_page'];
             $data['is_partner'] = $is_partner;
             
-            // Function to get Warranty Period of Bookings                       
-            $arrBookingWiseWarrantyStatus = [];
+            // Function to get Bookings for calculating warranty status
+            $arrBookingsData = [];
             if(!empty($data['charges']))
-            {
-                $arrBookings = array_column($data['charges'], 'booking_id');
-//                $arrBookingWiseWarrantyStatus = $this->booking_utilities->check_bookings_warranty($arrBookings);                             
-            }
-            $data['warranty_data'] = $arrBookingWiseWarrantyStatus;
+            { 
+                $arrBookingsData = array_map(function($recData) {
+                    $arrData['partner_id'] = $recData['partner_id'];
+                    $arrData['booking_id'] = $recData['booking_id'];
+                    $arrData['booking_create_date'] = $recData['booking_create_date'];
+                    $arrData['model_number'] = !empty($recData['unit_details'][0]['model_number']) ? $recData['unit_details'][0]['model_number'] : "";
+                    $arrData['purchase_date'] = !empty($recData['unit_details'][0]['sf_purchase_date']) ? $recData['unit_details'][0]['sf_purchase_date'] : "";
+                    $arrData['in_warranty_period'] = 12;
+                    $arrData['extended_warranty_period'] = 0;
+                    // Choose only Videocon bookings whose model and dop exists
+                    // ADDED THIS CONDITION ALSO ($recData['partner_id'] != VIDEOCON_ID) 
+                    if(empty($arrData['model_number']) || empty($arrData['purchase_date']) || $arrData['purchase_date'] == '0000-00-00'):
+                        return;
+                    endif;
+                    return $arrData;
+                },$data['charges']);
+                
+                $arrBookingsData = array_filter($arrBookingsData);                
+                $arrBookingsData = array_chunk($arrBookingsData, 50);
+                $data['bookings_data'] = $arrBookingsData;
+            }   
             // Function ends here
             $this->load->view('employee/completed_cancelled_review', $data);
         }
@@ -5697,5 +5713,23 @@ class Booking extends CI_Controller {
             echo("success");
         endif;
         exit;
+    }
+    
+    public function get_warranty_data(){
+        $post_data = $this->input->post();
+        $arrBookings = $post_data['bookings_data'];  
+        $arrWarrantyData = $this->booking_utilities->get_warranty_data($arrBookings);  
+        $arrModelWiseWarrantyData = $this->booking_utilities->get_model_wise_warranty_data($arrWarrantyData); 
+        foreach($arrBookings as $key => $arrBooking)
+        {
+            if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
+            {   
+                $arrBookings[$key] = $this->booking_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
+            }
+            $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
+            unset($arrBookings[$key]);
+        }
+        $arrBookingsWarrantyStatus = $this->booking_utilities->get_bookings_warranty_status($arrBookings);   
+        echo json_encode($arrBookingsWarrantyStatus);
     }
 }
