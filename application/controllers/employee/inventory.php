@@ -2027,7 +2027,9 @@ class Inventory extends CI_Controller {
             "status != 'Cancelled'" => NULL,
             "spare_parts_details.create_date >= '2017-12-01'" => NULL,
             "(`purchase_invoice_id` IS NULL )" => NULL,
-            "spare_parts_details.partner_id != '" . _247AROUND . "'" => NULL);
+            "spare_parts_details.partner_id != '" . _247AROUND . "'" => NULL,
+            "spare_parts_details.parts_shipped IS NOT NULL" => NULL,
+            "spare_parts_details.is_micro_wh" => 0);
         $w['select'] = "spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.booking_id, purchase_price, public_name,"
                 . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id,booking_details.request_type, spare_parts_details.status";
         $data['spare'] = $this->inventory_model->get_spare_parts_query($w);
@@ -7023,16 +7025,20 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . ' Processing...');
 
         $request_type = $this->input->post('request_type');
+        $partner_id = $this->input->post('partner_id');
+
         $select = "service_centres.name AS Warehouse, partners.public_name AS 'Partner', inventory_master_list.part_number AS 'Part Number', inventory_master_list.part_name AS 'Part Name', inventory_stocks.stock AS Stock";
+
         if ($request_type == 'warehouse') {
-            
             $post['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         } else {
-            
             $post['where'] = array("service_centres.is_micro_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         }
 
-        
+        if (!empty($partner_id)) {
+            $post['where']['inventory_master_list.entity_id'] = $this->input->post('partner_id');
+            $post['where']['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;
+        }
 
         if (!empty($request_type)) {
         
@@ -7086,7 +7092,7 @@ class Inventory extends CI_Controller {
         $select = "invoice_details.invoice_id AS 'Invoice Id', invoice_details.create_date AS 'Invoice Date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', part_number AS 'Part Number', "
                 . "invoice_details.description AS 'Description', invoice_details.hsn_code AS 'HSN Code', invoice_details.qty AS 'Quantity', rate AS 'Rate', invoice_details.taxable_value AS 'Taxable Value', (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS 'GST Rate',"
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS 'GST Tax Amount', total_amount AS 'Total Amount', vendor_partner_invoices.type AS Type, entt_gst_dtl.gst_number AS 'From GST Number',entity_gst_details.gst_number AS 'To GST Number',"
-                . "vendor_partner_invoices.sub_category AS 'Sub Category',courier_details.AWB_no AS 'Awb_Number',courier_details.courier_name AS 'Courier Name',courier_details.shipment_date AS 'Shipment Date',courier_details.quantity AS 'Shipment Quantity',courier_details.booking_id AS 'Booking Id'";
+                . "vendor_partner_invoices.sub_category AS 'Sub Category',courier_details.AWB_no AS 'Awb_Number',courier_details.courier_name AS 'Courier Name',courier_details.shipment_date AS 'Shipment Date'";
         
         $where = array("sub_category IN ('".DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".NEW_PART_RETURN."')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
