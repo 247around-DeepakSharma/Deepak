@@ -7116,5 +7116,27 @@ class Inventory extends CI_Controller {
         }
         echo json_encode($res);
     }
+    
+     /**
+     *  @desc : This function is used to remove msl consumption 
+     *  @param : void
+     *  @return : void
+     */
+    function remove_msl_consumption(){
+        $spare_parts_id = $this->input->post("spare_parts_id");
+        $booking_id= $this->input->post("booking_id");
+        $spare_action = $this->update_action_on_spare_parts($spare_parts_id, $booking_id, "CANCEL_PARTS");
+        //increase stock on cancel part
+        $data = array(
+            "receiver_entity_type" => _247AROUND_SF_STRING,
+            "receiver_entity_id" => $this->session->userdata("service_center_id"),
+            "stock" => 1,
+            "booking_id" => $this->input->post("booking_id"),
+            "inventory_id" => $this->input->post("inventory_id"),
+            "agent_id" => $this->session->userdata("service_center_agent_id"),
+        );
+        $this->miscelleneous->process_inventory_stocks($data);
+        echo $spare_action;
+    }
 
 }
