@@ -292,7 +292,7 @@ class invoices_model extends CI_Model {
     function get_summary_invoice_amount($vendor_partner, $vendor_partner_id, $otherWhere =""){
             if($vendor_partner ==  _247AROUND_SF_STRING){
                 $s = "CASE WHEN (amount_collected_paid > 0) THEN COALESCE(SUM(`amount_collected_paid` - amount_paid ),0) ELSE COALESCE(SUM(`amount_collected_paid` + amount_paid ),0) END as amount_collected_paid ";
-                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_SECURITY_AMOUNT."', '".NEW_PART_RETURN."' ) ";
+                $w = "AND settle_amount = 0 AND sub_category NOT IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_SECURITY_AMOUNT."', '".MSL_NEW_PART_RETURN."' ) ";
             } else {
                 $s = " COALESCE(SUM(`amount_collected_paid` ),0) as amount_collected_paid ";
                 $w = "";
