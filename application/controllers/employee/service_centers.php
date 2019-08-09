@@ -1852,10 +1852,20 @@ class Service_centers extends CI_Controller {
 //                $data['defective_return_to_entity_id'] = $partner_id;
 //            }
 //        }
+        $delivered_sp =array();
+        if($data['is_micro_wh']==1){
 
+                $data['spare_id'] = $this->input->post('spare_id');
+                $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
+                array_push($delivered_sp, $data);
+            }
         $where = array('id' => $this->input->post('spare_id'));
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager') {
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
+
+             $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+
+
             if ($affected_row == TRUE) {
                 $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "", $data['remarks_by_sc'], $this->session->userdata('id'), $this->session->userdata('emp_name'), NULL, NULL, $partner_id, NULL);
                 $userSession = array('success' => 'Spare Parts Updated');
@@ -1869,6 +1879,9 @@ class Service_centers extends CI_Controller {
         } else {
             $this->checkUserSession();
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
+
+              $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+
             if ($affected_row == TRUE) {
                 $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "", $data['remarks_by_sc'], $this->session->userdata('service_center_id'), $this->session->userdata('service_center_name'), NULL, NULL, $partner_id, NULL);
                 $userSession = array('success' => 'Spare Parts Updated');
@@ -2267,6 +2280,7 @@ class Service_centers extends CI_Controller {
                             $data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
                             $data['challan_approx_value'] = round($warehouse_details['challan_approx_value']*$data['quantity'],2);
                             $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                            $data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
                             $data['shipped_quantity'] = $data['quantity'];
                             
                         } else {
@@ -2299,6 +2313,7 @@ class Service_centers extends CI_Controller {
                     
                     if ($data['is_micro_wh'] == 1 ) {
                         $data['spare_id'] = $spare_id;
+                        $data['shipped_inventory_id'] = $data['requested_inventory_id'];
                         array_push($delivered_sp, $data);
                         array_push($delivered_sp_all, $delivered_sp);
                         unset($data['spare_id']);
