@@ -1420,6 +1420,7 @@ class Spare_parts extends CI_Controller {
                 if ($affected_id) {
                     if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 ) {
                         $data['spare_id'] = $spare_parts_id;
+                         $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
                         array_push($delivered_sp, $data);
                     }
 
@@ -2058,6 +2059,7 @@ class Spare_parts extends CI_Controller {
                                 $spare_data['parts_requested'] = $warehouse_details['part_name'];
                                 $spare_data['quantity'] = $data['quantity'];
                                 $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                                $spare_data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
 
                             } else {
                                 $spare_data['partner_id'] = $partner_id;
@@ -2142,6 +2144,8 @@ class Spare_parts extends CI_Controller {
                     if (isset($is_micro_wh) && $is_micro_wh == 1) {
                      
                         $data['spare_id'] = $spare_id;
+                        $data['requested_inventory_id'] = $spare_data['requested_inventory_id'];
+                        $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
                         array_push($delivered_sp, $data);
                     }
                 }
