@@ -270,7 +270,7 @@ class Spare_parts extends CI_Controller {
     function get_defective_parts_pending($post){
         log_message('info', __METHOD__. json_encode($post, true));
         
-        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.shipped_quantity, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.shipped_quantity, users.name, booking_primary_contact_no, service_centres.name as sc_name, service_centres.on_off, service_centres.active,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.shipped_parts_type,"
                 . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.around_pickup_from_service_center,"
                 . "spare_parts_details.acknowledge_date, spare_parts_details.around_pickup_courier, spare_parts_details.is_micro_wh, spare_parts_details.service_center_id, challan_approx_value, status, inventory_master_list.part_number,im.part_number as shipped_part_number";
@@ -794,6 +794,7 @@ class Spare_parts extends CI_Controller {
      */
     function defective_parts_pending_table_data($spare_list, $no){        
         $row = array();
+        $sc_icon_style = "";
         $row[] = $no;
         $row[] = '<a href="'. base_url().'employee/booking/viewdetails/'.$spare_list->booking_id.'" target= "_blank" >'.$spare_list->booking_id.'</a>';
         	if($spare_list->is_micro_wh == 1){
@@ -804,10 +805,21 @@ class Spare_parts extends CI_Controller {
         } else {
           $spare_pending_on = 'Partner';   
         }	
-
+        
+        if($spare_list->active == 0){
+            $sc_icon_style = "color:#e10f0fd1;";
+        }
+        else if($spare_list->on_off == 0){
+            $sc_icon_style = "color:#f1bc44;";
+        }
+        else{
+            $sc_icon_style = "color:#14d914;";
+        }
+        
+        
         $row[] = $spare_pending_on; 
         $row[] = $spare_list->name;
-        $row[] = $spare_list->sc_name;
+        $row[] = "<i class='fa fa-circle' aria-hidden='true' style='margin-right:5px;".$sc_icon_style."'></i>".$spare_list->sc_name;
         $row[] = $spare_list->source;
         $row[] = $spare_list->parts_requested;
         $row[] = $spare_list->quantity;
@@ -845,8 +857,9 @@ class Spare_parts extends CI_Controller {
             
             if($spare_list->defective_part_required == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>'; $cl ="btn-primary";} else{ $text = '<i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i>'; $required_parts =  'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'; $cl = "btn-danger"; }
             $row[] = '<button type="button" data-booking_id="'.$spare_list->booking_id.'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$spare_list->id.'/'.$spare_list->booking_id.'/'.$required_parts.'" class="btn btn-sm '.$cl.' open-adminremarks" data-toggle="modal" data-target="#myModal2">'.$text.'</button>';
+            $row[] = '<a href="'.base_url().'employee/spare_parts/defective_spare_invoice" class="btn btn-sm btn-primary" style="margin-left:5px" target="_blank">Generate Invoice</a>';
         } else {
-            
+            $row[] = "";
             $row[] = "";
         }
         

@@ -411,6 +411,7 @@
                                         <th class="text-center" data-orderable="true">Pickup Schedule</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                        <th class="text-center" data-orderable="false">Generate Invoice</th>
                                     </tr>
                                 </thead>
                             </table>
