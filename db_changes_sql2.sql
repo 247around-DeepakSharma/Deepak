@@ -601,3 +601,9 @@ INSERT INTO entity_login_table (entity, entity_id, entity_name, contact_person_i
 
 --Kalyani 06-08-2019
 UPDATE `sms_template` SET `template` = 'Hi %S,Your Engineer Login is created.User Id - %s,Password - %s. download engineer app from https://urlzs.com/zoUkF.247around' WHERE `sms_template`.`tag` = 'engineer_login_sms_template';
+
+-- Menus for category/capacity
+INSERT INTO `header_navigation` ( `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Partner Category Capacity Mapping', NULL, 'employee/service_centre_charges/show_partner_appliances', 2, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:13:09'),
+( '247Around', 'Capacity', NULL, 'capacity', 2, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:11:02'),
+( '247Around', 'Category', NULL, 'category', 1, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:07:06');
