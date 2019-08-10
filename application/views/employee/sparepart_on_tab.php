@@ -751,7 +751,23 @@
     
     
     //datatables    
-    spare_parts_requested_table = $('#spare_parts_requested_table').DataTable({
+    spare_parts_requested_table = $('#spare_parts_requested_table').on('xhr.dt', function (e, settings, json, xhr) {
+            var arr_bookings_data = json["bookings_data"];
+            for (var rec_bookings_data in arr_bookings_data) {
+                $.ajax({
+                    method:'POST',
+                    url:"<?php echo base_url(); ?>employee/booking/get_warranty_data",
+                    data:{'bookings_data': arr_bookings_data[rec_bookings_data]},
+                    success:function(response){
+                        var warrantyData = JSON.parse(response);
+                        $(".warranty-status").html("--");
+                        $.each(warrantyData, function(index, value) {
+                            $("#warranty-"+index).html(value);
+                        });
+                    }                            
+                }); 
+            }
+        }).DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order:[[ 15, "desc" ]],
@@ -782,7 +798,7 @@
                     d.partner_id =  '<?php echo $partner_id; ?>';       
                     d.partner_wise_parts_requested =  $('#partner_wise_parts_requested').val();     
                     d.appliance_wise_parts_requested =  $('#appliance_wise_parts_requested').val();     
-                 }
+                },  
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -795,10 +811,9 @@
                     "orderable": false //set not orderable
                 }
             ],
-            "fnInitComplete": function (oSettings, response) {
-            
-            $(".dataTables_filter").addClass("pull-right");
-          }
+            "fnInitComplete": function (oSettings, response) {                
+                $(".dataTables_filter").addClass("pull-right");                
+            },      
         });
     
     
