@@ -607,3 +607,13 @@ INSERT INTO `header_navigation` ( `entity_type`, `title`, `title_icon`, `link`, 
 ('247Around', 'Partner Category Capacity Mapping', NULL, 'employee/service_centre_charges/show_partner_appliances', 2, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:13:09'),
 ( '247Around', 'Capacity', NULL, 'capacity', 2, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:11:02'),
 ( '247Around', 'Category', NULL, 'category', 1, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:07:06');
+
+-- Add Foriegn key Constraints on Warranty Tables
+ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT `fk_warranty_plan_model_mapping_services` FOREIGN KEY(`service_id`) REFERENCES services(id);
+ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT `fk_warranty_plan_model_mapping_plans` FOREIGN KEY(`plan_id`) REFERENCES warranty_plans(plan_id);
+ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT `fk_warranty_plan_model_mapping_model` FOREIGN KEY(`model_id`) REFERENCES appliance_model_details(id);
+ALTER TABLE warranty_plans  ADD CONSTRAINT `fk_warranty_plan_partner_id_partners_id` FOREIGN KEY (partner_id) REFERENCES partners (id);
+ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_mapping_plan_id_warranty_plan_plan_id FOREIGN KEY (plan_id) REFERENCES warranty_plans (plan_id);
+ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_mapping_state_code_state_state_code FOREIGN KEY (state_code) REFERENCES state_code (state_code);
+ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_part_type_inventory_parts_type_id FOREIGN KEY (part_type_id) REFERENCES inventory_parts_type (id);
+ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_plan_id_warranty_plan_plan_id FOREIGN KEY (plan_id) REFERENCES warranty_plans (plan_id);
