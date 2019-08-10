@@ -290,7 +290,7 @@
                                                                    $dop_mendatory = 1; 
                                                             }
                                                             ?>
-                                                            <?php if ($price['pod'] == "1" || !empty($sr)) { ?>
+                                                            <?php //if ($price['pod'] == "1" || !empty($sr)) { ?>
                                                             <div class="form-group">
                                                                 <div class="col-md-12">
                                                                     <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
@@ -357,7 +357,7 @@
                                                                 </div>
                                                                 
                                                             </div>
-                                                            <?php } ?>
+                                                            <?php //} ?>
                                                         </td>
                                                         <td id="<?php echo "price_tags".$count; ?>"><?php echo $price['price_tags']; ?></td>
                                                         <td id="<?php echo "amount_due".$count; ?>"><?php echo $price['customer_net_payable']; ?></td>
