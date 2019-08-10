@@ -1085,7 +1085,7 @@ class vendor extends CI_Controller {
          $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         if ($this->form_validation->run()) {
             $spare_data = $this->inventory_model->get_spare_parts_details("id, status", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
-            if(empty($spare_data)){
+            if(!empty($spare_data)){
                 $booking_id = $this->input->post('booking_id');
                 $service_center_id = $this->input->post('service');
                 $remarks = $this->input->post('remarks');
