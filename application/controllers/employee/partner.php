@@ -7684,6 +7684,7 @@ class Partner extends CI_Controller {
         $post['partner_id'] = $this->input->post('partner_id');
         $post['service_id']=$this->input->post('service_id');
         $post['brand']=$this->input->post('brand');
+        $post['model']=$this->input->post('model');
         $post['request_type']=$this->input->post('request_type');
 
         return $post;
