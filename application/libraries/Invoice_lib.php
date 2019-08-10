@@ -1216,7 +1216,7 @@ class Invoice_lib {
             $invoice['hsn_code'] = $value['hsn_code'];
             $invoice['qty'] = $value['qty'];
             $invoice['rate'] = $value['rate'];
-            $invoice['inventory_id'] = $value['inventory_id'];
+            $invoice['inventory_id'] = (isset($value['inventory_id']) ? $value['inventory_id'] : NULL);
             $invoice['taxable_value'] = $value['taxable_value'];
             
             $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = isset($value['sgst_tax_amount']) ?$value['sgst_tax_amount']:0;
