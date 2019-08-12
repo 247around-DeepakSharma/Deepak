@@ -29,6 +29,24 @@ class Inventory extends CI_Controller {
         $this->load->library('booking_utilities');
         $this->load->library('invoice_lib');
         $this->load->library('table');
+        
+        // Mention those functions whom you want to put create/generate invoice validations
+        $arr_functions_on_validation = ['spare_invoice_list', 'upload_docket_number'];
+        $arr_url_segments = $this->uri->segments; 
+        $allowedForAll = 1;
+        if(!empty(array_intersect($arr_functions_on_validation, $arr_url_segments))){        
+            $allowedForAll = 0;
+        }
+        if(!$allowedForAll){
+            if (($this->session->userdata('user_group') === 'admin') || ($this->session->userdata('user_group') === 'developer') || ($this->session->userdata('user_group') === 'accountant')) {
+                return TRUE;
+            } else {
+                redirect(base_url() . "employee/login");
+            } 
+        }
+        else{
+            return TRUE;
+        }
     }
 
     public function index() {
