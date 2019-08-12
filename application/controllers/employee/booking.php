@@ -2182,7 +2182,7 @@ class Booking extends CI_Controller {
                 $data['sf_model_number'] = $model_number[$unit_id];
             }
             $data['sf_purchase_date'] = NULL;
-            if (isset($purchase_date[$unit_id])) {
+            if (!empty($purchase_date[$unit_id])) {
                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
             }
             
