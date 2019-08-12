@@ -154,7 +154,7 @@
                               
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_age ?></strong></td>
                               <?php if($review_status == "Completed"){ ?>
-                              <td id="warranty-<?= $value['booking_id']?>">--</td>
+                              <td class="warranty-<?= $value['booking_id']?>">--</td>
                               <?php } ?>
                               <td style="text-align: left;white-space: inherit;">
                                  <p id="<?php echo "admin_remarks_".$count; ?>"><?php echo $value['admin_remarks']; ?></p>
@@ -267,7 +267,7 @@
                 success:function(response){
                     var warrantyData = JSON.parse(response);
                     $.each(warrantyData, function(index, value) {
-                        $("#warranty-"+index).html(value);
+                        $(".warranty-"+index).html(value);
                     });
                 }                            
             }); 
