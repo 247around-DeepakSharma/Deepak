@@ -115,7 +115,7 @@ class Service_centers extends CI_Controller {
             $sf_data['model_number_id'] = $model_number_id;
             $sf_data['partner_id'] = '';
             $sf_data['service_id'] = '';  
-            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services', array('inventory_model_mapping.model_number_id' => $model_number_id));
+            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services', array('inventory_model_mapping.model_number_id' => $model_number_id, 'inventory_model_mapping.active' => 1));
         } else {
             $data['inventory_details'] = array();
             $sf_data['model_number_id'] = '';
