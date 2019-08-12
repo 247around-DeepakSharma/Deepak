@@ -1068,7 +1068,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->request_type;
         if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
         $row[] =  $part_status_text; 
-        $row[] =  '<div id="warranty-'.$spare_list->booking_id.'" class="warranty-status"><i class="fa fa-spinner" aria-hidden="true"></i></div>'; 
+        $row[] =  '<div class="warranty-'.$spare_list->booking_id.' warranty-status"><i class="fa fa-spinner warranty-loader" aria-hidden="true"></i></div>'; 
         if($request_type == _247AROUND_CANCELLED){
           $row[] = (empty($spare_list->spare_cancelled_date)) ? '0 Days' : $spare_list->spare_cancelled_date . " Days";  
         }else{
