@@ -29,6 +29,24 @@ class Inventory extends CI_Controller {
         $this->load->library('booking_utilities');
         $this->load->library('invoice_lib');
         $this->load->library('table');
+        
+        // Mention those functions whom you want to put create/generate invoice validations
+        $arr_functions_on_validation = ['spare_invoice_list', 'upload_docket_number'];
+        $arr_url_segments = $this->uri->segments; 
+        $allowedForAll = 1;
+        if(!empty(array_intersect($arr_functions_on_validation, $arr_url_segments))){        
+            $allowedForAll = 0;
+        }
+        if(!$allowedForAll){
+            if (($this->session->userdata('user_group') === 'admin') || ($this->session->userdata('user_group') === 'developer') || ($this->session->userdata('user_group') === 'accountant')) {
+                return TRUE;
+            } else {
+                redirect(base_url() . "employee/login");
+            } 
+        }
+        else{
+            return TRUE;
+        }
     }
 
     public function index() {
@@ -2395,6 +2413,12 @@ class Inventory extends CI_Controller {
             $colour_class = 'btn-primary';
         }
         
+        if ($stock_list->status == 1) {
+            $row[]= " <span style='color:#01903a;'>Active</span>";
+        } else {
+            $row[] = "<span style='color:#d9534f;'>Inactive</span>";
+        }
+        
         if ($this->session->userdata('userType') == 'employee') {
             $json_data = json_encode(array('status' => $stock_list->status, 'inventory_id' => $stock_list->inventory_id));
             $row[] = "<a href='javascript:void(0)' class ='btn $colour_class' data-alternate_spare_details='$json_data' id='change_status_alternate_spare_part'>" . $icon . "</a>";
@@ -2911,7 +2935,7 @@ class Inventory extends CI_Controller {
         $model_number_id = $this->input->post('model_number_id');
         $part_name = $this->input->post('part_name');
         if (!empty($model_number_id)) {
-            $part_number_details = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number', array('model_number_id' => $model_number_id, 'part_name' => $part_name));
+            $part_number_details = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number', array('model_number_id' => $model_number_id, 'part_name' => $part_name,'inventory_model_mapping.active' => 1));
 
             if (!empty($part_number_details)) {
                 $part_number = $part_number_details[0]['part_number'];
@@ -3032,9 +3056,9 @@ class Inventory extends CI_Controller {
     function get_parts_type() {
 
         $model_number_id = $this->input->post('model_number_id');
-
-        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type', array('model_number_id' => $model_number_id));
-
+                
+        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type', array('model_number_id' => $model_number_id,'inventory_model_mapping.active' => 1));
+  
         $option = '<option selected disabled>Select Part Type</option>';
 
         foreach ($inventory_type as $value) {
@@ -5619,10 +5643,10 @@ class Inventory extends CI_Controller {
      *  @param : $model_number_id integer
      *  @return : void
      */
-    function get_inventory_by_model($model_number_id) {
+    function get_inventory_by_model($model_number_id) {      
         if ($model_number_id) {
             $model_number_id = urldecode($model_number_id);
-            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services', array('inventory_model_mapping.model_number_id' => $model_number_id));
+            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services,inventory_model_mapping.id', array('inventory_model_mapping.model_number_id' => $model_number_id,'inventory_model_mapping.active' => 1));
         } else {
             $data['inventory_details'] = array();
         }
@@ -5646,11 +5670,11 @@ class Inventory extends CI_Controller {
 
         if ($inventory_id) {
             $inventory_id = urldecode($inventory_id);
-            $data['model_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number,appliance_model_details.model_number,services.services', array('inventory_model_mapping.inventory_id' => $inventory_id));
+            $data['model_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number,appliance_model_details.model_number,services.services', array('inventory_model_mapping.inventory_id' => $inventory_id,'inventory_model_mapping.active' => 1));
         } else {
             $data['model_details'] = array();
         }
-
+       
         if ($this->session->userdata('employee_id')) {
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_appliance_model_by_inventory_id', $data);
@@ -6710,7 +6734,7 @@ class Inventory extends CI_Controller {
 
     /**
      *  @desc : This function is used to update alternate inventory set
-     *  @param : $inventory_id, 
+     *  @param : void, 
      *  @return : json
      */
     function upate_alternate_inventory_set() {
@@ -7122,6 +7146,46 @@ class Inventory extends CI_Controller {
         }
         echo json_encode($res);
     }
+     /**
+     *  @desc : This function is used to deactive the model number.
+     *  @param : void
+     *  @return : void
+     */
+    function get_model_details_deactive(){
+        $inventory_id = $this->input->post('inventory_id');
+        $select = "inventory_model_mapping.id,inventory_model_mapping.inventory_id,inventory_model_mapping.active,inventory_master_list.part_number,inventory_master_list.part_name, appliance_model_details.model_number";
+        $where = array("inventory_master_list.inventory_id" => $inventory_id);
+        $model_details = $this->inventory_model->get_inventory_model_mapping_data($select, $where);
+        echo json_encode($model_details);
+        
+    }
+    
+    /**
+     *  @desc : This function is used to update alternate inventory set
+     *  @param : void, 
+     *  @return : json
+     */
+    
+    function upate_inventory_model_mapping(){
+       $res = array();
+        if (!empty($this->input->post("model_mapping_id"))) {
+            
+            $data = array('inventory_model_mapping.active' => $this->input->post("status"));
+            $where = array('inventory_model_mapping.id' => $this->input->post("model_mapping_id"));
+            
+            $affect_row = $this->inventory_model->update_inventory_model_mapping($data, $where);
+            
+            if ($affect_row) {
+                $res['status'] = TRUE;
+            } else {
+                $res['status'] = FALSE;
+            }
+        } else {
+            $res['status'] = 'inventory model mapping id not found';
+        }
+
+        echo json_encode($res);
+    }
     
      /**
      *  @desc : This function is used to remove msl consumption 
@@ -7142,7 +7206,7 @@ class Inventory extends CI_Controller {
             "agent_id" => $this->session->userdata("service_center_agent_id"),
         );
         $this->miscelleneous->process_inventory_stocks($data);
-        echo $spare_action;
+        echo $spare_action; 
     }
 
 }

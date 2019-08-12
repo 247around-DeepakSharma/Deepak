@@ -5828,9 +5828,10 @@ class vendor extends CI_Controller {
     
     function getRMs() {
         $data = $this->employee_model->get_state_wise_rm($this->input->post('state'));
-        $option = '<option value="" disabled '.(count($data) > 1 ? 'selected' : '').'>Select Regional Manager</option>';
+        $rm_id = $this->input->post('rm_id');
+        $option = '<option value="" disabled '.(empty($rm_id) && count($data) > 1 ? 'selected' : '').'>Select Regional Manager</option>';
         foreach ($data as $employee) {
-            $option .= "<option value='{$employee['id']}'>{$employee['full_name']}</option>";
+            $option .= "<option value='{$employee['id']}' ".(!empty($rm_id) && $rm_id == $employee['id'] ? 'selected' : '').">{$employee['full_name']}</option>";
         }
         
         echo $option;

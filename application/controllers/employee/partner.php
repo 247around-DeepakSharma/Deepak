@@ -2674,7 +2674,7 @@ class Partner extends CI_Controller {
      * @return: String
      * 
      */
-    function get_brands_from_service() {
+    function get_brands_from_service() {    
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $appliace_brand = $this->input->post('brand');
@@ -2689,11 +2689,11 @@ class Partner extends CI_Controller {
             $data = $this->booking_model->getBrandForService($service_id);
         }
 
-        $option = "";
+        $option = "<option selected disabled value=''>Select Brand</option>";
         foreach ($data as $value) {
             $option .= "<option ";
             if ($appliace_brand == $value['brand_name'] || count($data) == 1) {
-                $option .= " selected ";
+                $option .= " ";
             }
             else{
                  if($is_repeat){
@@ -2703,6 +2703,16 @@ class Partner extends CI_Controller {
             $option .= " value='" . $value['brand_name'] . "'>" . $value['brand_name'] . "</option>";
         }
 
+//         $data['services'] = "<option selected disabled value=''>Select Product</option>";
+//            foreach ($services as $appliance) {
+//                $data['services'] .= "<option ";
+//                if ($selected_service_id == $appliance->id) {
+//                    $data['services'] .= " selected ";
+//                } else if (count($services) == 1) {
+//                    $data['services'] .= " selected ";
+//                }
+//                $data['services'] .=" value='" . $appliance->id . "'>$appliance->services</option>";
+//            }
         echo $option;
     }
 
@@ -2815,6 +2825,55 @@ class Partner extends CI_Controller {
         echo $capacity;
     }
 
+    /**
+     * @Desc: This function is used to get  Model for Partner for particular Brand, service_id, capacity and category
+     *      This is being called from AJAX
+     * @params: partner_id, service_name, brand_name, category
+     * $return: Json
+     * 
+     */
+    function get_model_for_partner_with_brand() {
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $brand = $this->input->post('brand');
+ 
+        
+       
+            $where = array(
+                "partner_appliance_details.partner_id" => $partner_id,
+                'partner_appliance_details.service_id' => $service_id,
+                'partner_appliance_details.brand' => $brand,
+                'appliance_model_details.active'=> 1
+            );
+            
+           
+            $data = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number, model", $where);
+       
+
+
+        if (!empty($data[0]['model'])) {
+            $model = "";
+            foreach ($data as $value) {
+                $model .= "<option ";
+//                if (trim($model_number) === trim($value['model_number'])) {
+//                    $model .= " selected ";
+//                } else if (count($data) == 1) {
+//                    $model .= " selected ";
+//                }
+//                else{
+//                    if($is_repeat){
+//                        $model .= " disabled ";
+//                    }
+//                }
+                
+                $model .= " value='" . $value['model_number'] . "'>" . $value['model_number'] . "</option>";
+            }
+            echo $model;
+        } else {
+            echo "Data Not Found";
+        }
+    }
+    
     /**
      * @Desc: This function is used to get  Model for Partner for particular Brand, service_id, capacity and category
      *      This is being called from AJAX
@@ -7558,6 +7617,7 @@ class Partner extends CI_Controller {
         $this->load->view('partner/show_appliance_model_mapping');
         $this->load->view('partner/partner_footer');
     }
+    
     public function brandCollateral()
     {
         $partnerArray = array();
@@ -7624,6 +7684,7 @@ class Partner extends CI_Controller {
         $post['partner_id'] = $this->input->post('partner_id');
         $post['service_id']=$this->input->post('service_id');
         $post['brand']=$this->input->post('brand');
+        $post['model']=$this->input->post('model');
         $post['request_type']=$this->input->post('request_type');
 
         return $post;
@@ -7634,9 +7695,10 @@ class Partner extends CI_Controller {
         $service_id=$data['service_id'];
         $brand=$data['brand'];
         $request_type=$data['request_type'];
+        $model=$data['model'];
         
         if(!empty($id)){
-            $data['where']['entity_id'] =  $id;
+            $data['where']['collateral.entity_id'] =  $id;
         }
         if(!empty($service_id))
             $data['where']['collateral.appliance_id'] =  $service_id;
@@ -7644,6 +7706,8 @@ class Partner extends CI_Controller {
             $data['where']['collateral.brand'] =  $brand;
         if(!empty($request_type))
             $data['where_in']['request_type'] =  $request_type;
+        if(!empty($model))
+            $data['where']['collateral.model'] =  $model;
         
         $data['column_order'] = array(NULL,'collateral_type','model','category', 'capacity',NULL, NULL,'start_date');
         $data['column_search'] = array('collateral_type','model','category', 'capacity','document_description');

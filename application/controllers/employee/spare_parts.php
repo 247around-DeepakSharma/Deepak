@@ -419,14 +419,14 @@ class Spare_parts extends CI_Controller {
 
 
 
-        /**
+    /**
      * @desc Used to create tab in which we are showing
      * Parts requested by Sf and pending fro approval
      * @param Array $post
      */
     function get_approval_pending($post){        
         log_message('info', __METHOD__);       
-        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.part_warranty_status,spare_parts_details.model_number, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.part_warranty_status,spare_parts_details.model_number,spare_parts_details.date_of_purchase,STR_TO_DATE(booking_details.create_date, '%Y-%m-%d') as booking_create_date, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
                 . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number ";
 
@@ -436,19 +436,36 @@ class Spare_parts extends CI_Controller {
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
         $data = array();
-        // Function to get Warranty Period of Bookings                       
-        $arrBookingWiseWarrantyStatus = [];
-        if(!empty($list))
-        {
-            $arrBookings = array_column($list, 'booking_id');
-//            $arrBookingWiseWarrantyStatus = $this->booking_utilities->check_bookings_warranty($arrBookings);            
-        }                                
-        $post['warranty_data'] = $arrBookingWiseWarrantyStatus;
+        
+        // Function to get Bookings for calculating warranty status
+        $arrBookingsData = [];
+        $arrList = json_decode(json_encode($list), true); 
+        if(!empty($arrList))
+        { 
+            $arrBookingsData = array_map(function($recData) {
+                $arrData['partner_id'] = $recData['partner_id'];
+                $arrData['booking_id'] = $recData['booking_id'];
+                $arrData['booking_create_date'] = $recData['booking_create_date'];
+                $arrData['model_number'] = $recData['model_number'];
+                $arrData['purchase_date'] = $recData['date_of_purchase'];
+                $arrData['in_warranty_period'] = 12;
+                $arrData['extended_warranty_period'] = 0;
+                // Choose only Videocon bookings whose model and dop exists
+                // ADDED THIS CONDITION ALSO ($recData['partner_id'] != VIDEOCON_ID) 
+                if(empty($arrData['model_number']) || empty($arrData['purchase_date']) || $arrData['purchase_date'] == '0000-00-00'):
+                    return;
+                endif;
+                return $arrData;
+            },$arrList);
+
+            $arrBookingsData = array_filter($arrBookingsData);                
+            $arrBookingsData = array_chunk($arrBookingsData, 50);
+        } 
         // Function ends here
-            
+
         foreach ($list as $spare_list) {
             $no++;
-            $row =  $this->spare_parts_onapproval_table_data($spare_list, $no, $post['request_type'], $post['warranty_data']);
+            $row =  $this->spare_parts_onapproval_table_data($spare_list, $no, $post['request_type']);
             $data[] = $row;
         }
         
@@ -464,8 +481,8 @@ class Spare_parts extends CI_Controller {
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
             "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
             "unapproved" => $total,
-            "data" => $data,
-            
+            "data" => $data,            
+            "bookings_data" => $arrBookingsData
         );
         
         echo json_encode($output);
@@ -1032,7 +1049,7 @@ class Spare_parts extends CI_Controller {
     }
     
 
-        /**
+    /**
      * @desc this function is used to create table row data for the spare parts ron approval
      * @param Array $spare_list
      * @param int $no
@@ -1064,7 +1081,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->request_type;
         if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
         $row[] =  $part_status_text; 
-        $row[] =  !empty($arr_warranty_status[$spare_list->booking_id]) ? $arr_warranty_status[$spare_list->booking_id] : '--'; 
+        $row[] =  '<div class="warranty-'.$spare_list->booking_id.' warranty-status"><i class="fa fa-spinner warranty-loader" aria-hidden="true"></i></div>'; 
         if($request_type == _247AROUND_CANCELLED){
           $row[] = (empty($spare_list->spare_cancelled_date)) ? '0 Days' : $spare_list->spare_cancelled_date . " Days";  
         }else{
