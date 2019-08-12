@@ -760,10 +760,10 @@
                     url:"<?php echo base_url(); ?>employee/booking/get_warranty_data",
                     data:{'bookings_data': arr_bookings_data[rec_bookings_data]},
                     success:function(response){
-                        var warrantyData = JSON.parse(response);
-                        $(".warranty-status").html("--");
+                        $(".warranty-loader").hide();
+                        var warrantyData = JSON.parse(response);                        
                         $.each(warrantyData, function(index, value) {
-                            $("#warranty-"+index).html(value);
+                            $(".warranty-"+index).html(value);
                         });
                     }                            
                 }); 
