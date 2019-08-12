@@ -312,7 +312,7 @@
                                                             class="<?php echo "unit_dop_".$keys."_".$key;?>" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>" />
                                                        <input type="hidden" name="<?php echo "appliance_purchase_invoice[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_purchase_invoice_".$keys."_".$key;?>" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_invoice'])){  echo $unit_details['quantity'][0]['sf_purchase_invoice']; } ?>" />
-                                                    <?php //if ($price['pod'] == "1") { ?>
+                                                    <?php if ($price['pod'] == "1") { ?>
                                                     <?php  if ((strpos($price['price_tags'],REPAIR_STRING) !== false) && (strpos($price['price_tags'],IN_WARRANTY_STRING) !== false)) {
                                                                    $dop_mendatory = 1; 
                                                             }
@@ -351,7 +351,7 @@
                                                                      ?>
                                                         </div>
                                                     </div>
-                                                    <?php //} ?>
+                                                    <?php } ?>
                                                 </td>
                                                 <td ><span id="<?php echo "price_tags".$count;?>"><?php echo $price['price_tags'] ?></span>
                                                     <input type="hidden"  id="<?php echo "booking_unit_details".$count;?>" value="<?php echo $price['unit_id'] ?>" />
