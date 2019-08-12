@@ -1084,8 +1084,8 @@ class vendor extends CI_Controller {
          $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
          $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         if ($this->form_validation->run()) {
-            $spare_data = $this->inventory_model->get_spare_parts_details("id, status", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
-            if(empty($spare_data)){
+         //   $spare_data = $this->inventory_model->get_spare_parts_details("id, status", array("booking_id"=>$this->input->post('booking_id')));
+        //    if(!empty($spare_data)){
                 $booking_id = $this->input->post('booking_id');
                 $service_center_id = $this->input->post('service');
                 $remarks = $this->input->post('remarks');
@@ -1227,14 +1227,14 @@ class vendor extends CI_Controller {
 
 
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
-        }
-        else{
-            $booking_id = $this->input->post('booking_id');
-            $output = "You cann't reassign this booking because spare part already requested. If you want to reassign then please cancel part request.";
-            $userSession = array('error' => $output);
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "employee/vendor/get_reassign_vendor_form/".$booking_id);
-        }
+        // }
+        // else{
+        //     $booking_id = $this->input->post('booking_id');
+        //     $output = "You cann't reassign this booking because spare part already requested. If you want to reassign then please cancel part request.";
+        //     $userSession = array('error' => $output);
+        //     $this->session->set_userdata($userSession);
+        //     redirect(base_url() . "employee/vendor/get_reassign_vendor_form/".$booking_id);
+        // }
         } else {
             $booking_id = $this->input->post('booking_id');
             $output = "All Fields are required";

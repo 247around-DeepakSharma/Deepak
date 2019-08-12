@@ -2301,7 +2301,7 @@ class Miscelleneous {
                         $stock = "stock + '" . $data['stock'] . "'";
                         if(isset($data['is_wh']) && !empty($requested_inventory_id)){
                             if($is_entity_exist[0]['pending_request_count'] > 0){
-                                $this->My_CI->inventory_model->update_pending_inventory_stock_request($data['sender_entity_type'], $data['sender_entity_id'], $requested_inventory_id, -1);
+                                $this->My_CI->inventory_model->update_pending_inventory_stock_request($data['sender_entity_type'], $data['sender_entity_id'], $requested_inventory_id, -$data['stock']);
                             }
                         }
                         $update_stocks = $this->My_CI->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
