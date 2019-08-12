@@ -141,7 +141,6 @@
 </div>
         <script>
             $('#defective_spare_shipped_by_sf').DataTable({
-                pageLength:75,
                 dom: 'Bfrtip',
                 buttons: [
                     {
@@ -153,7 +152,8 @@
                         title: 'defective_spare_shipped_by_sf_to_wh'
                     }
                 ],
-                "bSortClasses": false
+                "bSortClasses": false,
+                "pageLength":2000,
             });
         </script>
 <?php if(empty($is_ajax)) { ?> 
