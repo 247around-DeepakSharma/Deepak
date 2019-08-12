@@ -601,3 +601,5 @@ INSERT INTO entity_login_table (entity, entity_id, entity_name, contact_person_i
 
 --Kalyani 06-08-2019
 UPDATE `sms_template` SET `template` = 'Hi %S,Your Engineer Login is created.User Id - %s,Password - %s. download engineer app from https://urlzs.com/zoUkF.247around' WHERE `sms_template`.`tag` = 'engineer_login_sms_template';
+--Gorakh 08-08-2019
+ALTER TABLE `inventory_model_mapping` ADD `active` TINYINT DEFAULT 1 AFTER  `create_date`;
