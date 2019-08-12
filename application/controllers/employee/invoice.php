@@ -4065,7 +4065,7 @@ class Invoice extends CI_Controller {
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
                     . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1 ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
             if (!empty($spare)) {
-                if ($spare[0]['is_micro_wh'] == 1) {
+                if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) {
                     if (!empty($spare[0]['shipped_inventory_id'])) {
                         if (empty($spare[0]['gst_number'])) {
                             $spare[0]['gst_number'] = TRUE;
@@ -4088,7 +4088,8 @@ class Invoice extends CI_Controller {
                                     $data[0]['taxable_value'] = $value['rate'];
                                     $data[0]['product_or_services'] = "Product";
                                     $data[0]['gst_number'] = $spare[0]['gst_number'];
-                                    $data[0]['main_gst_number'] = $value['from_gst_number'];
+                                    $data[0]['main_gst_number'] = $value['to_gst_number'];
+                                    $data[0]['from_gst_number_id'] = $value['to_gst_number_id'];
                                     $data[0]['invoice_id'] = $invoice_id;
                                     $data[0]['spare_id'] = $spare_id;
                                     $data[0]['inventory_id'] = $spare[0]['inventory_id'];
@@ -4103,7 +4104,11 @@ class Invoice extends CI_Controller {
                                     $data[0]['hsn_code'] = $value['hsn_code'];
                                     $sd = $ed = $invoice_date = date("Y-m-d");
                                     $data[0]['gst_rate'] = $value['gst_rate'];
-
+                                    $data[0]['from_state_code'] = $value['to_state_code'];
+                                    $data[0]['from_address'] = $value['to_address'];
+                                    $data[0]['from_pincode'] = $value['to_pincode'];
+                                    $data[0]['from_city'] = $value['to_city'];
+                                    $data[0]['from_pincode'] = $value['to_city'];
                                     $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare);
                                     if ($a) {
                                         
@@ -4138,7 +4143,19 @@ class Invoice extends CI_Controller {
      */           
     function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $is_oow = 0){
         $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice", $invoice_date);
+        if(isset($data[0]['from_gst_number_id']) && !empty($data[0]['from_gst_number_id'])){
+            $response['meta']['main_company_gst_number'] = $data[0]['main_gst_number'];
+            $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $data[0]['from_state_code']))[0]['state'];
+            $response['meta']['main_company_address'] = $data[0]['from_address'] . "," 
+                        . $data[0]['from_city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
+                        . $data[0]['from_pincode'];
+
+            $response['meta']['main_company_pincode'] = $data[0]['from_pincode'];
+        }
         $response['meta']['invoice_id'] = $invoice_id;
+        
+        
+        
         $c_s_gst = $this->invoices_model->check_gst_tax_type($spare[0]['state']);
         if ($c_s_gst) {
             $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
