@@ -349,9 +349,9 @@
                                  <?php echo form_error('miscellaneous_charges'); ?>
                             </div>
                             <div class="form-group">
-                                <label for="invoice_file_excel" class="col-md-4">Main Invoice Excel</label>
+                                <label for="invoice_file_excel" class="col-md-4">Main Invoice Excel <?php if (!isset($invoice_details[0]['invoice_id'])) { echo "*"; } ?></label>
                                 <div class="col-md-6">
-                                    <input type="file" class="form-control"  name="invoice_file_excel" >
+                                    <input type="file" class="form-control"  name="invoice_file_excel" id="invoice_file_excel" <?php if (!isset($invoice_details[0]['invoice_id'])) { echo "required"; } ?>  >
                                 </div>
                                 <div class="col-md-2">
                                     <?php
@@ -389,9 +389,9 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label for="invoice_file_main" class="col-md-4">Main Invoice</label>
+                                <label for="invoice_file_main" class="col-md-4">Main Invoice <?php if (!isset($invoice_details[0]['invoice_id'])) { echo "*"; } ?></label>
                                 <div class="col-md-6">
-                                    <input type="file" class="form-control"  name="invoice_file_main" >
+                                    <input type="file" class="form-control"  name="invoice_file_main" id="invoice_file_main" <?php if (!isset($invoice_details[0]['invoice_id'])) { echo "required"; } ?> >
                                 </div>
                                 <div class="col-md-2">
                                     <?php
@@ -525,6 +525,19 @@
     }
     
     $('#submitform').on('click', function() {
+        var insert = "<?php echo !isset($invoice_details[0]['invoice_id'])?>";
+        if(insert) {
+            if($("#invoice_file_excel").val() === ''){ 
+                alert("Please Select Main Invoice Excel File");
+                $("#invoice_file_excel").focus();
+                return false;
+            }
+            else if($("#invoice_file_main").val() === ''){ 
+                alert("Please Select Main Invoice File");
+                $("#invoice_file_main").focus();
+                return false;
+            }
+        }
         var $this = $(this);
         $this.button('loading');
           setTimeout(function() {
