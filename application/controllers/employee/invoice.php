@@ -42,6 +42,23 @@ class Invoice extends CI_Controller {
         $this->load->library("invoice_lib");
         $this->load->library('email');
 
+        // Mention those functions whom you want to put create/generate invoice validations
+        $arr_functions_on_validation = ['get_invoices_form', 'process_invoices_form', 'insert_update_invoice', 'process_insert_update_invoice', 'show_purchase_brackets_credit_note_form', 'process_purchase_bracket_credit_note', 'generate_oow_parts_invoice', 'generate_spare_purchase_invoice'];
+        $arr_url_segments = $this->uri->segments; 
+        $allowedForAll = 1;
+        if(!empty(array_intersect($arr_functions_on_validation, $arr_url_segments))){        
+            $allowedForAll = 0;
+        }
+        if(!$allowedForAll){
+            if (($this->session->userdata('user_group') === 'admin') || ($this->session->userdata('user_group') === 'developer') || ($this->session->userdata('user_group') === 'accountant')) {
+                return TRUE;
+            } else {
+                redirect(base_url() . "employee/login");
+            } 
+        }
+        else{
+            return TRUE;
+        }
     }
 
     /**
@@ -3064,7 +3081,7 @@ class Invoice extends CI_Controller {
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where']['sub_category NOT IN ("'.DEFECTIVE_RETURN.'", "'.IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.NEW_PART_RETURN.'") '] = NULL;
+        $where_invoice['where']['sub_category NOT IN ("'.MSL_DEFECTIVE_RETURN.'", "'.IN_WARRANTY.'", "'.MSL.'", "'.MSL_SECURITY_AMOUNT.'", "'.MSL_NEW_PART_RETURN.'") '] = NULL;
         $where_invoice['length'] = -1;
         return $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
     }
@@ -3084,7 +3101,7 @@ class Invoice extends CI_Controller {
             "settle_amount" => 0); 
         }
         
-        $where_invoice['where_in']['sub_category'] = array(DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, NEW_PART_RETURN);
+        $where_invoice['where_in']['sub_category'] = array(MSL_DEFECTIVE_RETURN, IN_WARRANTY, MSL, MSL_SECURITY_AMOUNT, MSL_NEW_PART_RETURN);
         $where_invoice['length'] = -1;
         $data = $this->invoices_model->searchInvoicesdata($select_invoice, $where_invoice);
         
@@ -4024,9 +4041,10 @@ class Invoice extends CI_Controller {
         $array[0]['company_name'] = $vendor_details[0]['company_name'];
         $array[0]['state'] = $vendor_details[0]['state'];
         $array[0]['booking_id'] = $vendor_details[0]['booking_id'];
+        $array[0]['reference_invoice_id'] = $invoice_details[0]['invoice_id'];
         
         $invoice_id = $this->create_invoice_id_to_insert($vendor_details[0]['sc_code']);
-        $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $array);
+        $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $array, 1);
         if($a){
              return true;
         } else {
@@ -4118,7 +4136,7 @@ class Invoice extends CI_Controller {
      * @param Array $spare
      * @return boolean
      */           
-    function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare){
+    function _reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare, $is_oow = 0){
         $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice", $invoice_date);
         $response['meta']['invoice_id'] = $invoice_id;
         $c_s_gst = $this->invoices_model->check_gst_tax_type($spare[0]['state']);
@@ -4185,8 +4203,9 @@ class Invoice extends CI_Controller {
                 "remarks" => $data[0]['description'],
                 "vertical" => SERVICE,
                 "category" => SPARES,
-                "sub_category" => DEFECTIVE_RETURN,
-                "accounting" => 1
+                "sub_category" => (($is_oow == 1) ? OOW_NEW_PART_RETURN : MSL_DEFECTIVE_RETURN),
+                "accounting" => 1,
+                "reference_invoice_id" => (($is_oow == 1) ? $spare[0]['reference_invoice_id'] : NULL)
             );
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -4371,7 +4390,7 @@ class Invoice extends CI_Controller {
                     "remarks" => $data[0]['description'],
                     "vertical" => SERVICE,
                     "category" => SPARES,
-                    "sub_category" => DEFECTIVE_RETURN,
+                    "sub_category" => MSL_DEFECTIVE_RETURN,
                     "accounting" => 1
                 );
 
@@ -5380,6 +5399,170 @@ class Invoice extends CI_Controller {
             $this->session->set_flashdata('file_error','CRM Setup Proforma invoices Not Generated');
             log_message('info', __METHOD__ . ": Validation Failed");
             $this->invoice_partner_view();
+        }
+    }
+    
+    /**
+     * @desc: This is a test function to generate DN .
+     */
+    function test() {
+        $sql = "SELECT *,vpi.hsn_code as part_hsn_code FROM `vendor_partner_invoices` as vpi JOIN `invoice_details` as id ON vpi.invoice_id=id.invoice_id where vpi.invoice_id in ('GWMRHW-1920-0031','SWJMEX-1920-0035','SWJMEX-1920-0030','CUKQGV-1920-0023','ZGWHKF-1920-0072','YODLPC-1920-0015','XUEGIF-1920-0007','GWMRHW-1920-0038','GWMRHW-1920-0014','YODLPC-1920-0011','GWMRHW-1920-0008','SWJMEX-1920-0018','RCMKZX-1920-0036','GMPAYV-1920-0010','GWMRHW-1920-0022','PYFTLI-1920-0007','FKINCS-1920-0005','SWJMEX-1920-0025','GWMRHW-1920-0027','GWMRHW-1920-0028','GWMRHW-1920-0015','GWMRHW-1920-0023','SWJMEX-1920-0017','GWMRHW-1920-0030','GWMRHW-1920-0033','CUKQGV-1920-0008','CGCTHW-1920-0003','YBEFGC-1920-0007','BSWZCD-1920-0004','SCSABD-1920-0059','GWMRHW-1920-0035','MTCQMW-1920-0027','QVVJGH-1920-0015','GWMRHW-1920-0016','SWJMEX-1920-0005','UWOFIK-1920-0112','SRHEOB-1920-0004','GWMRHW-1920-0034','SRHEOB-1920-0007','ADRLFP-1920-0028','SWJMEX-1920-0028','ACORDG-1920-0004','VFNLQS-1920-0011','HUZLXN-1920-0002','PENHCY-1920-0009','ACORDG-1920-0006','UWOFIK-1920-0111','SWJMEX-1920-0004','UWOFIK-1920-0107','UWOFIK-1920-0109','NPMYWU-1920-0004','UDVYJV-1920-0002','UWOFIK-1920-0108','YODLPC-1920-0008','CGCTHW-1920-0006','YODLPC-1920-0013','YVKSOA-1920-0002','MTHYVA-1920-0009','YGUSBW-1920-0002','RCMKZX-1920-0038','ADRLFP-1920-0022','AXKLJW-1920-0006','PENHCY-1920-0008','UDVYJV-1920-0013','SRHEOB-1920-0003','VBOXKD-1920-0011','SRHEOB-1920-0005','ADRLFP-1920-0029','GWMRHW-1920-0032','SWJMEX-1920-0037','GWMRHW-1920-0025','PENHCY-1920-0006','PBVDGH-1920-0063','DBSLUY-1920-0004','NGIDTY-1920-0007','GWMRHW-1920-0049','SWJMEX-1920-0036','SWJMEX-1920-0006','QVVJGH-1920-0014','RKOQSJ-1920-0008','RUOIJI-1920-0003','NGIDTY-1920-0006','GKXNPZ-1920-0008','MSSGUR-1920-0019','GWMRHW-1920-0010','ADRLFP-1920-0012','PENHCY-1920-0007','SCSABD-1920-0029','KSAXIM-1920-0074','GWMRHW-1920-0039','ACORDG-1920-0005','ADRLFP-1920-0023','QVVJGH-1920-0016','MTOJPY-1920-0007','CUKQGV-1920-0025','SCSABD-1920-0030','RKOQSJ-1920-0009','UWOFIK-1920-0106','RKOQSJ-1920-0010','NTACKU-1920-0007','MSSGUR-1920-0003','JSBTSB-1920-0006','UWOFIK-1920-0110','UDVYJV-1920-0011','YSRUKZ-1920-0003','ADRLFP-1920-0027','GWMRHW-1920-0009','UDVYJV-1920-0010','YODLPC-1920-0010','SWJMEX-1920-0024','SWJMEX-1920-0019','SWJMEX-1920-0020','SWJMEX-1920-0022','GWMRHW-1920-0043','SWJMEX-1920-0027','RBKINO-1920-0039','RCMKZX-1920-0037','PBVDGH-1920-0062','GWMRHW-1920-0044','DBSLUY-1920-0002','PBVDGH-1920-0064','RJPMUR-1920-0006','RJPMUR-1920-0007','CUKQGV-1920-0009','VRYZFP-1920-0005','NGIDTY-1920-0005','UDVYJV-1920-0012','SWJMEX-1920-0034','QVVJGH-1920-0013','QVVJGH-1920-0012','SWJMEX-1920-0021','XUEGIF-1920-0006','GWMRHW-1920-0029','GWMRHW-1920-0041','GWMRHW-1920-0040') ";
+        $data = $this->db->query($sql)->result_array();
+        
+        foreach($data as $key => $row) {
+            echo "\n";
+            print_r($row).PHP_EOL;
+            
+            $sql1 = "Select sell_invoice_id from spare_parts_details where id = '".$row['spare_id']."'";
+            $result = $this->db->query($sql1)->result_array();
+            
+            if(empty($result[0]['sell_invoice_id'])) {
+                $this->generate_credit_debit_note_test($row);
+            }
+        }
+        echo "\nSuccess";
+        exit();
+    }
+    /**
+     * @desc This is a test function used to insert Debit note
+     */
+    function generate_credit_debit_note_test($row) {
+        $data['vendor_partner'] = $row['vendor_partner'];
+        $data['vendor_partner_id'] = $row['vendor_partner_id'];
+        $data['type'] = $row['type'];
+        $parts_rate = $row['rate'];
+        $data['num_bookings'] = $row['num_bookings'];
+        $data['parts_count'] = $row['parts_count'];
+        $part_gst_rate = trim($row['cgst_tax_rate']+$row['sgst_tax_rate']+$row['igst_tax_rate']);
+        $part_hsn_code = $row['part_hsn_code'];
+        $data['remarks'] = $row['remarks'];
+        $part_description = $row['description'];
+        $reference_invoice_id = $row['invoice_id'];
+
+        $invoice_date = $sd = $ed = date('Y-m-d');
+        $hsn_code = "";
+
+        $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,"
+                . "state,address as company_address,company_name,district, pincode", array("id" => $data['vendor_partner_id']));
+        
+        if(!empty($entity_details[0]['gst_number'])){
+
+            $c_gst = $this->invoice_lib->check_gst_number_valid($data['vendor_partner_id'], $entity_details[0]['gst_number']);
+
+        } else {
+            $c_gst = TRUE;
+        }
+        
+        if (!empty($c_gst)) {
+
+            $invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN");
+            $type = "Debit Note";
+            $data['type_code'] = "A";
+            $data['vertical'] = SERVICE;
+            $data['category'] = SPARES;
+            $data['sub_category'] = DEBIT_NOTE;
+            $data['accounting'] = 1;
+
+            $invoice = array();
+            if ($parts_rate > 0) {
+                $p = $this->get_credit_debit_note_array_data(0, $part_description, $parts_rate, $data['parts_count'], "Product", $part_gst_rate, $part_hsn_code, $entity_details[0], true);
+                array_push($invoice, $p[0]);
+                $hsn_code = $part_hsn_code;
+            }
+
+            if (!empty($invoice)) {
+                $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, $type, $invoice_date);
+                $response['meta']['invoice_id'] = $invoice_id;
+                $response['meta']['reference_invoice_id'] = $reference_invoice_id;
+                $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+                if (!empty($status)) {
+//                    $convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice_id, "final");
+                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+                    $output_pdf_file_name = $convert['main_pdf_file_name'];
+                    $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+                    $response['meta']['copy_file'] = $convert['copy_file'];
+                    $response['meta']['invoice_file_excel'] = $invoice_id . ".xlsx";
+
+                    $this->upload_invoice_to_S3($invoice_id, false);
+                    $file = $this->upload_create_update_invoice_to_s3($invoice_id);
+                    if (isset($file['invoice_detailed_excel'])) {
+                        $data['invoice_detailed_excel'] = $file['invoice_detailed_excel'];
+                    }
+
+
+                    $data['invoice_id'] = $invoice_id;
+                    $data['total_service_charge'] = $response['meta']['total_ins_charge'];
+                    $data['parts_cost'] = $response['meta']['total_parts_charge'];
+                    $data['invoice_file_main'] = $response['meta']['invoice_file_main'];
+                    $data['invoice_file_excel'] = $response['meta']['invoice_id'] . ".xlsx";
+                    $data['from_date'] = date("Y-m-d", strtotime($sd));
+                    $data['to_date'] = date("Y-m-d", strtotime($sd));
+                    $data['due_date'] = date("Y-m-d", strtotime($sd));
+                    $data['total_amount_collected'] = $response['meta']['sub_total_amount'];
+                    $data['invoice_date'] = date("Y-m-d", strtotime($sd));
+                    if ($data['type'] == "CreditNote") {
+                        $data['amount_collected_paid'] = -$response['meta']['sub_total_amount'];
+                    } else {
+                        $data['amount_collected_paid'] = $response['meta']['sub_total_amount'];
+                    }
+                    $data['agent_id'] = $this->session->userdata('id');
+                    $data['cgst_tax_rate'] = $response['meta']['cgst_tax_rate'];
+                    $data['sgst_tax_rate'] = $response['meta']['sgst_tax_rate'];
+                    $data['igst_tax_rate'] = $response['meta']['igst_tax_rate'];
+                    $data['igst_tax_amount'] = $response['meta']['igst_total_tax_amount'];
+                    $data['sgst_tax_amount'] = $response['meta']['sgst_total_tax_amount'];
+                    $data['cgst_tax_amount'] = $response['meta']['cgst_total_tax_amount'];
+                    $data['hsn_code'] = $part_hsn_code;
+                    $data['reference_invoice_id'] = $response['meta']['reference_invoice_id'];
+
+                    $status = $this->invoices_model->insert_new_invoice($data);
+                    
+                    $invoice_details = array(0 => array(
+                            "invoice_id" => $data['invoice_id'],
+                            "description" => $part_description,
+                            "qty" => 1,
+                            "product_or_services" => "Product",
+                            "rate" => $parts_rate,
+                            "taxable_value" => $parts_rate,
+                            "cgst_tax_rate" => $data['cgst_tax_rate'],
+                            "sgst_tax_rate" => $data['sgst_tax_rate'],
+                            "igst_tax_rate" => $data['igst_tax_rate'],
+                            "cgst_tax_amount" => $data['cgst_tax_amount'],
+                            "sgst_tax_amount" => $data['sgst_tax_amount'],
+                            "igst_tax_amount" => $data['igst_tax_amount'],
+                            "hsn_code" => $data['hsn_code'],
+                            "total_amount" => $data['total_amount_collected'],
+                            "create_date" => date('Y-m-d H:i:s'),
+                            "inventory_id" => $row['inventory_id'],
+                            "spare_id" => $row['spare_id']
+                        )
+                    );
+                    
+                    $this->invoices_model->insert_invoice_breakup($invoice_details);
+
+                    $this->db->where(array("id" => $row['spare_id']));
+                    $this->db->update("spare_parts_details", array('sell_invoice_id' => $data['invoice_id']));
+
+                    if (!empty($status)) {
+                        log_message("info", __METHOD__ . " Invoice Inserted ");
+                        echo " Invoice Inserted ".$invoice_id;
+                    } else {
+                        log_message("info", __METHOD__ . " Invoice not Inserted ");
+                        echo " Invoice not Inserted ";
+                    }
+
+                    unlink(TMP_FOLDER . $invoice_id . ".xlsx");
+                    unlink(TMP_FOLDER . "copy_" . $invoice_id . ".xlsx");
+                } else {
+                    echo "Invoice is not generating";
+                }
+            } else {
+                log_message("info", __METHOD__ . " Invoice is not generating");
+                echo "Invoice is not generating";
+            }
+        } else {
+            log_message("info", __METHOD__ . " Invalid GST Number");
+            echo "Invoice is not generating. Please check GST Number";
         }
     }
 }

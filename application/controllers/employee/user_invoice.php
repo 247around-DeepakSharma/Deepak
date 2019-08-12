@@ -620,7 +620,7 @@ class User_invoice extends CI_Controller {
                 $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
                 exec($cmd); 
 
-                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
+                //$this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
 
                 unlink(TMP_FOLDER.$output_pdf_file_name);
 
@@ -633,7 +633,7 @@ class User_invoice extends CI_Controller {
             $response['meta']['invoice_id'] = $invoice_id;
             $response['meta']['vertical'] = SERVICE;
             $response['meta']['category'] = SPARES;
-            $response['meta']['sub_category'] = DEFECTIVE_RETURN;
+            $response['meta']['sub_category'] = DEFECTIVE_PART_LOST;
             $response['meta']['accounting'] = 1;
             
             $this->invoice_lib->insert_invoice_breackup($response);
@@ -668,7 +668,7 @@ class User_invoice extends CI_Controller {
                     }
                     //$to = $email_template[1];
                     //$cc = $email_template[3];
-                    $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", DEFECTIVE_SPARE_SOLED_NOTIFICATION, "", $booking_id);
+                    //$this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", DEFECTIVE_SPARE_SOLED_NOTIFICATION, "", $booking_id);
                 }
                 
                 $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id'=>$booking_id));
@@ -1074,7 +1074,7 @@ class User_invoice extends CI_Controller {
                         $response['meta']['accounting'] = 1;
                         $response['meta']["vertical"] = SERVICE;
                         $response['meta']["category"] = SPARES;
-                        $response['meta']["sub_category"] = NEW_PART_RETURN;
+                        $response['meta']["sub_category"] = MSL_NEW_PART_RETURN;
 
                         $response['meta']['third_party_entity'] = _247AROUND_SF_STRING;
                         $response['meta']['third_party_entity_id'] = $wh_id;
@@ -1240,7 +1240,7 @@ class User_invoice extends CI_Controller {
         $response['meta']['accounting'] = 1;
         $response['meta']["vertical"] = SERVICE;
         $response['meta']["category"] = SPARES;
-        $response['meta']["sub_category"] = NEW_PART_RETURN;
+        $response['meta']["sub_category"] = MSL_NEW_PART_RETURN;
 
         $response['meta']['third_party_entity'] = _247AROUND_PARTNER_STRING;
         $response['meta']['owner_phone_1'] = $entity_details[0]['owner_phone_1'];

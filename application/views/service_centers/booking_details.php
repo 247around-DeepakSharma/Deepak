@@ -398,6 +398,9 @@
                                 <th >Remarks By SC </th>
                                 <th>Current Status</th>
                                 <th>Spare Cancellation Reason</th>
+                                <?php if($this->session->userdata("is_micro_wh") == 1){ ?>
+                                <th>Remove MSL Consumption</th>
+                                <?php } ?>
                             </tr>
                         </thead>
                         <tbody>
@@ -432,6 +435,13 @@
                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                 <td><?php echo $sp['status'];?></td>
                                 <td><?php echo $sp['part_cancel_reason'];?></td>
+                                <?php if($this->session->userdata("is_micro_wh") == 1){ 
+                                    if($sp['status'] == SPARE_DELIVERED_TO_SF && $sp['entity_type'] == _247AROUND_SF_STRING && $sp['partner_id'] == $this->session->userdata("service_center_id") && $sp['service_center_id'] == $this->session->userdata("service_center_id")){ ?>
+                                <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['requested_inventory_id']; ?>)">Remove</button></td>
+                                <?php }else{ ?>
+                                    <td><button class="btn btn-primary" disabled>Remove</button></td>
+                                <?php } ?>
+                                <?php } ?>
                             </tr>
                             <?php if(!is_null($sp['parts_shipped'])){ $parts_shipped = true;} if(!empty($sp['defective_part_shipped'])){
                                 $defective_parts_shipped = TRUE;
@@ -839,6 +849,32 @@
 
         </div>
     </div>
+    
+    <div id="remove_msl_model" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="modal-title">Remove MSL Consumption</h4>
+                </div>
+                <div class="modal-body">
+                    <h4 style="padding: 3px;font-size: 1em;" id="status_label" class="modal-title">Cancellation Reason *</h4>
+                    <select id="msl_remove_reason" class="form-control"></select>
+                    <h4 style="padding: 3px;font-size: 1em; margin-top: 10px;" id="remarks_label" class="modal-title">Remarks *</h4>
+                    <textarea rows="3" class="form-control" id="msl_remove_remark" placeholder="Enter Remarks"></textarea>
+                    <input type="hidden" id="model_spare_id">
+                    <input type="hidden" id="model_booking_id">
+                    <input type="hidden" id="model_inventory_id">
+                </div>
+                <input type="hidden" id="url"></input>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" onclick="cancelAutoDeliveredPart()" id="reject_btn">Send</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 <style type="text/css">
     .spare_image {
     width: 350px;;
@@ -962,4 +998,48 @@
              }
             });
         }
+        
+    function open_model_for_remove_msl(spare_id, booking_id, inventory_id){ 
+        $.ajax({
+            method:"POST",
+            data : {},
+            url:'<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons',
+            success: function(response){
+                $("#model_spare_id").val(spare_id);
+                $("#model_booking_id").val(booking_id);
+                $("#model_inventory_id").val(inventory_id);
+                $("#msl_remove_reason").html(response);
+                $("#msl_remove_reason").select2();
+            }
+        });
+        $("#remove_msl_model").modal('show');
+    }    
+        
+    function cancelAutoDeliveredPart(){ 
+        var spare_id = $("#model_spare_id").val();
+        var booking_id = $("#model_booking_id").val();
+        var spare_cancel_id = $("#msl_remove_reason").val();
+        if(!spare_cancel_id){
+            alert("Please select cancellation reason");
+        }
+        else if(!$("#msl_remove_remark").val()){
+            alert("Please fill remarks");
+        }
+        else{
+            $.ajax({
+                method:"POST",
+                url:'<?php echo base_url(); ?>employee/inventory/remove_msl_consumption',
+                data:{'spare_parts_id':spare_id, 'booking_id':booking_id, 'spare_cancel_id':spare_cancel_id, 'spare_cancel_reason': $("#msl_remove_reason option:selected").text(), 'remarks':$("#msl_remove_remark").val(), 'inventory_id':$("#model_inventory_id").val()},
+                success: function(response){
+                    if(response){
+                        alert("MSL removed successfully");
+                        location.reload();
+                    }
+                    else{
+                        alert("Error in removing MSL");
+                    }
+                }
+            });
+        }
+    }
 </script>

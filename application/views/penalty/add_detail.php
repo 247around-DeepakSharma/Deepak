@@ -16,20 +16,6 @@
                 </div>
                 <?php echo form_open('penalty/get_penalty_detail_form/'.(!empty($penalty['id']) ? $penalty['id'] : NULL)); ?>
                 <div class="panel-body form-horizontal">
-                    <?php 
-                        if ($this->session->userdata('success')) {
-                            echo '<div class="col-md-12 alert alert-success alert-dismissible" role="alert">
-                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                        <span aria-hidden="true">&times;</span>
-                                    </button>
-                                    <strong>' . $this->session->userdata('success') . '</strong>
-                                </div>';
-                            
-                            $this->session->unset_userdata('success');
-                        }
-                    ?>
-                    
-                    
                     
                     <div class="form-group row">
                         <div class="col-md-3">
@@ -37,6 +23,18 @@
                         </div>
                         <div class="col-md-9">
                             <textarea class="form-control" name="escalation" id="escalation"><?php if(!empty($penalty['escalation_reason'])) { echo $penalty['escalation_reason']; } ?></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-3">
+                            <label>Entity</label>
+                        </div>
+                        <div class="col-md-9">
+                            <select name="entity[]" multiple="true" id="entity" style="width:100% !important;">
+                                <option value="partner" <?php if(!empty($penalty['entity']) && $penalty['entity'] == 'partner') { echo 'selected';}?>>Partner</option>
+                                <option value="247around" <?php if(!empty($penalty['entity']) && $penalty['entity'] == '247around') { echo 'selected';}?>>247around</option>
+                            </select>
                         </div>
                     </div>
                     
@@ -91,6 +89,7 @@
 <script>
     
     $(document).ready(function() {
+        $('#entity').select2();
         applyPenalty();
     });
     
@@ -107,6 +106,7 @@
         var cap_amount = $('#cap_amount').val();
         var reason = $('#escalation').val();
         var is_penalty = $('#apply_penalty').prop("checked");
+        var entity = $('#entity').val();
         
         if(reason == '') {
             alert('Escalation reason cannot be blank.');
@@ -125,6 +125,11 @@
         
         if(is_penalty === true && (penalty_amount == '' || cap_amount == '')) {
             alert('If apply penalty is checked then amount fields cannot be blank.');
+            return false;
+        }
+        
+        if(entity === null) {
+            alert('Please select entity.');
             return false;
         }
         
