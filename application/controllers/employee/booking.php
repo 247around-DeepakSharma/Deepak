@@ -5291,7 +5291,7 @@ class Booking extends CI_Controller {
             $whereIN['sc.added_by_SF'] = [1];
         }
         
-        if(!is_null($cancellation_reason_id)){
+        if(!empty($cancellation_reason_id)){
            $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
            $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
         }
