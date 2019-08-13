@@ -481,7 +481,9 @@ class Bulkupload extends CI_Controller {
         $file_status = $this->get_upload_file_type();
         $post_data = $this->input->post();
         $redirect_to = $this->input->post('redirect_url');
-        $returnMsg = [];
+        $returnMsg = [];        
+        $arr_part_mapping_result = [];                        
+        $arr_state_mapping_result = [];
 
         if ($file_status['file_name_lenth'] && !empty($post_data['partner_id'])) {
             if ($file_status['status']) {
@@ -520,13 +522,15 @@ class Bulkupload extends CI_Controller {
                     // apply loop for validation.
                     for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                         $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                        $sanitizes_row_data = $rowData_array[0];
+                        $sanitizes_row_data = $rowData_array[0];                        
                         $is_data_validated = true;
 
                         // Check If Product exists or not
                         $returnMsg[$row][4] = "";
                         if (empty($arr_services[$sanitizes_row_data[4]])) {
-                            $returnMsg[$row][4] = "Product Not Found";
+                            $returnMsg[$row][0] = $arr_data['plan_name'] = $sanitizes_row_data[0];
+                            $returnMsg[$row][1] = $arr_data['plan_description'] = $sanitizes_row_data[1];
+                            $returnMsg[$row][4] = "Product ".$sanitizes_row_data[4]." Not Found";
                             continue;
                         }
                         $service_id = $arr_services[$sanitizes_row_data[4]];
@@ -575,7 +579,6 @@ class Bulkupload extends CI_Controller {
                             }
 
                             // Insert Data in Warranty Plan State Mapping
-                            $arr_state_mapping_result = [];
                             $str_plan_states = $sanitizes_row_data[10];
                             $arr_plan_states = explode(',', $str_plan_states);
                             $arr_plan_states = array_filter($arr_plan_states);
@@ -601,7 +604,6 @@ class Bulkupload extends CI_Controller {
                             }
 
                             // Insert Data in Warranty Plan Part Type Mapping
-                            $arr_part_mapping_result = [];
                             $str_plan_parts = $sanitizes_row_data[11];
                             $arr_plan_parts = explode(',', $str_plan_parts);
                             $arr_plan_parts = explode(',', $str_plan_parts);
@@ -704,9 +706,16 @@ class Bulkupload extends CI_Controller {
                         }
                     }
                 }
+                else
+                {
+                    echo $check_header['message'];exit;
+                }
+            }
+            else
+            {
+                echo $check_header['message'];exit;
             }
         }
-        
         $file_path = TMP_FOLDER . "warranty_data_log-" . date('Y-m-d');
         $file = fopen($file_path . ".txt", "a+") or die("Unable to open file!");
         fwrite($file, "*******************  STATE MAPPING ***************************" . "\n");

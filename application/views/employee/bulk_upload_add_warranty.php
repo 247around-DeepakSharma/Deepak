@@ -10,6 +10,11 @@
 <div id="page-wrapper">
     <div class="container-fluid">
         <div class="row">
+            <div class="col-md-12">
+                <center><img id="loader_gif_title" src="<?php echo base_url(); ?>images/loader.gif" style="display: none;"></center>
+            </div>
+        </div>
+        <div class="row">
             <div class="col-lg-12">                
                 <h1 class="page-header">
                     <b> Upload File</b>
@@ -36,9 +41,9 @@
                             ?>">
                                 <label for="excel" class="col-md-3">Upload File</label>
                                 <div class="col-md-9">
-                                    <input type="file" class="form-control"  name="file" required="">
+                                    <input type="file" class="form-control"  name="file" required="" accept=".xlsx, .xls, .csv">
                                     <?php
-                                    if (form_error('excel')) {
+                                    if (form_error('file')) {
                                         echo 'File size or file type is not supported. Allowed extentions are "xls" or "xlsx". Maximum file size is 2 MB.';
                                     }
                                     ?>
@@ -77,11 +82,11 @@
                                     {
                                         $str = '<tr>';
                                         $str .= '<td>'.$count++.'</td>';
-                                        $str .= '<td>'.$rec[0].'</td>';
-                                        $str .= '<td>'.$rec[1].'</td>';
-                                        $str .= '<td>'.$rec[2].'</td>';
-                                        $str .= '<td>'.$rec[3].'</td>';
-                                        $str .= '<td>'.$rec[4].'</td>';
+                                        $str .= '<td>'.(!empty($rec[0]) ? $rec[0] : '--').'</td>';
+                                        $str .= '<td>'.(!empty($rec[1]) ? $rec[1] : '--').'</td>';
+                                        $str .= '<td>'.(!empty($rec[2]) ? $rec[2] : '--').'</td>';
+                                        $str .= '<td>'.(!empty($rec[3]) ? $rec[3] : '--').'</td>';
+                                        $str .= '<td>'.(!empty($rec[4]) ? $rec[4] : '--').'</td>';
                                         $str .= '</tr>';
                                         echo $str;
                                     }
@@ -96,10 +101,11 @@
 </div>
 <script>
     $(document).ready(function () {
+        $('#loader_gif_title').hide();
         $('#datatable1').DataTable({
             dom: 'Bfrtip',
             buttons: [
-               'csv'
+                { extend: 'csv', text: 'Export', title: 'Add Warranty'}               
             ]
         });
         
@@ -125,5 +131,6 @@
             alert("Please Select Partner");
             return false;
         }
+        $('#loader_gif_title').show();
     }
 </script>
