@@ -467,7 +467,7 @@ class User extends CI_Controller {
             redirect(base_url() . "employee/user/add_employee");
         }
         
-        $this->session->set_userdata('success','Employee Added Sucessfully.');
+        $this->session->set_userdata('success','Employee Added Successfully.');
         
         redirect(base_url() . "employee/user/show_employee_list");
     }
@@ -594,7 +594,7 @@ class User extends CI_Controller {
             $this->employee_model->insertManagerData($data2);
         }
         
-        $this->session->set_userdata('success','Employee Updated Sucessfully.');
+        $this->session->set_userdata('success','Employee Updated Successfully.');
         
         redirect(base_url() . "employee/user/show_employee_list");
     }
