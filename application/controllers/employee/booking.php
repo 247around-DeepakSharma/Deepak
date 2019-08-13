@@ -5267,7 +5267,7 @@ class Booking extends CI_Controller {
         }
         $this->load->view('employee/rescheduled_review', $data);
     }
-    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL){
+    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL){
         
         $this->checkUserSession();
         $whereIN = $where = $join = $having = array();
@@ -5302,6 +5302,20 @@ class Booking extends CI_Controller {
         }
         $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['cancellation_reason_selected'] = $cancellation_reason_id;
+        
+        if(!empty($state_code)) {
+           $state =  $this->reusable_model->get_search_result_data("state_code", "*", array('state_code' => $state_code), NULL, NULL, NULL, NULL, NULL, array())[0]['state'];
+           $whereIN['booking_details.state'] = [$state];
+        }
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+        $data['state_selected'] = $state_code;
+
+        if(!empty($partner_id)) {
+           $whereIN['booking_details.partner_id'] = [$partner_id];
+        }
+        $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+        $data['partner_selected'] = $partner_id;
+        
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
         if(!empty($total_rows)){
             $data['per_page'] = 100;
