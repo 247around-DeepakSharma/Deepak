@@ -121,7 +121,7 @@ class Service_centers extends CI_Controller {
             $sf_data['model_number_id'] = $model_number_id;
             $sf_data['partner_id'] = '';
             $sf_data['service_id'] = '';  
-            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services', array('inventory_model_mapping.model_number_id' => $model_number_id));
+            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services', array('inventory_model_mapping.model_number_id' => $model_number_id, 'inventory_model_mapping.active' => 1));
         } else {
             $data['inventory_details'] = array();
             $sf_data['model_number_id'] ='';
@@ -621,7 +621,7 @@ class Service_centers extends CI_Controller {
                                         $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
                                     }
                                 }
-                                $data['sf_purchase_date'] = $purchase_date[$unit_id];
+                                $data['sf_purchase_date'] = (!empty($purchase_date[$unit_id]) ? $purchase_date[$unit_id] : NULL);
                                 $data['sf_purchase_invoice'] = NULL;
                                 if (!empty($purchase_invoice[$unit_id]) || !empty($purchase_invoice_file_name)) {
                                     if(empty($purchase_invoice_file_name)) {

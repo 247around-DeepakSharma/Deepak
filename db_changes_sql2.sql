@@ -601,6 +601,8 @@ INSERT INTO entity_login_table (entity, entity_id, entity_name, contact_person_i
 
 --Kalyani 06-08-2019
 UPDATE `sms_template` SET `template` = 'Hi %S,Your Engineer Login is created.User Id - %s,Password - %s. download engineer app from https://urlzs.com/zoUkF.247around' WHERE `sms_template`.`tag` = 'engineer_login_sms_template';
+--Gorakh 08-08-2019
+ALTER TABLE `inventory_model_mapping` ADD `active` TINYINT DEFAULT 1 AFTER  `create_date`;
 
 -- Menus for category/capacity
 INSERT INTO `header_navigation` ( `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
@@ -617,3 +619,6 @@ ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_ma
 ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_mapping_state_code_state_state_code FOREIGN KEY (state_code) REFERENCES state_code (state_code);
 ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_part_type_inventory_parts_type_id FOREIGN KEY (part_type_id) REFERENCES inventory_parts_type (id);
 ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_plan_id_warranty_plan_plan_id FOREIGN KEY (plan_id) REFERENCES warranty_plans (plan_id);
+
+-- Ankit 13-08-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'not_delivered_bb_orders', NULL, ' ', 'sunilk@247around.com', 'kmardee@amazon.com,ybhargav@amazon.com', 'sunilk@247around.com', '', '1', '', CURRENT_TIMESTAMP);
