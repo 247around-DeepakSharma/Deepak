@@ -2,7 +2,11 @@
 <link rel="stylesheet" href="<?php echo base_url(); ?>css/jquery.loading.css">
 <script src="<?php echo base_url(); ?>js/jquery.loading.js"></script>
 <div class="container-fluid">
-    <div class="row" style="margin-top: 40px;">
+    <div style="padding: 3px;">
+        <h3>Dispatch Defective Part</h3>
+    </div>
+    <div class="row" style="margin-top: 10px;">
+        
         <div class="col-md-12">
             <?php
                 if ($this->session->userdata('success')) {
@@ -14,6 +18,7 @@
                     </div>';
                 }
                 ?>
+             
             <form action="<?php echo base_url(); ?>service_center/process_update_defective_parts/<?php echo $spare_parts[0]['id']; ?>" class ="form-horizontal" 
                 id="update_form"  method="POST" enctype="multipart/form-data">
                 <div class="panel panel-default">
