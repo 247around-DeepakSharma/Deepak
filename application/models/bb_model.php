@@ -542,4 +542,29 @@ class Bb_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    function get_not_delivered_orders_list() {
+        
+        $sql = "SELECT 
+            bb_order_details.partner_order_id,
+            bb_order_details.partner_tracking_id,
+            services.services,
+            bb_unit_details.category,
+            bb_order_details.city,
+            bb_order_details.order_date,
+            bb_order_details.delivery_date,
+            bb_cp_order_action.current_status,
+            (bb_unit_details.partner_basic_charge + bb_unit_details.partner_tax_charge) as exchange_price
+        FROM
+            bb_order_details
+            INNER JOIN bb_unit_details ON (bb_order_details.partner_order_id = bb_unit_details.partner_order_id)
+            INNER JOIN services ON (bb_unit_details.service_id = services.id)
+            INNER JOIN bb_cp_order_action ON (bb_order_details.partner_order_id = bb_cp_order_action.partner_order_id)
+        WHERE
+            bb_order_details.partner_id = ".AMAZON_SELLER_ID." 
+            AND bb_cp_order_action.current_status = '"._247AROUND_BB_NOT_DELIVERED."'	
+            AND date(bb_cp_order_action.acknowledge_date) = (CURDATE() - INTERVAL 1 DAY)";
+        
+        return $this->db->query($sql)->result_array();
+    }
 }
