@@ -413,7 +413,7 @@
         $.ajax({
               type: 'POST',
               url: '<?php echo base_url(); ?>employee/inventory/download_warehouse_stock_data',
-              data: {request_type : req_type},
+              data: {request_type : req_type , is_access_to_sf_price : 1 },
               success: function (data) {
                   $("#"+req_type).html("Download").attr('disabled',false);
                   var obj = JSON.parse(data); 
