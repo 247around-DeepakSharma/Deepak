@@ -445,6 +445,9 @@ class User extends CI_Controller {
                 $data4=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.employee_id' => $val['id']));
                 
                 if(count($data4) > 0) {
+                    $this->employee_model->deleteemployee($id);
+                    $this->employee_model->deleteManager("employee_id in (".$id.")");
+                    
                     $sub_data=$this->employee_model->getemployeefromid($val['id']);
                     //Logging error if there is already manager added to any subordinate
                     log_message('info', __FUNCTION__ . $sub_data[0]['full_name']." already has one Manager");
@@ -513,10 +516,12 @@ class User extends CI_Controller {
         $manager=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.employee_id' => $id));
         $subordinate=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.manager_id' => $id));
         
-        if(!empty($manager))
-        $data['manager']=$manager[0]['manager_id'];
-        if(!empty($subordinate))
-        $data['subordinate']=$subordinate;
+        if(!empty($manager)) {
+            $data['manager']=$manager[0]['manager_id'];
+        }
+        if(!empty($subordinate)) {
+            $data['subordinate']=$subordinate;
+        }
         
         $data['error'] = $this->session->flashdata('error');
         $this->miscelleneous->load_nav_header();
