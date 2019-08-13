@@ -3593,13 +3593,13 @@ class Inventory extends CI_Controller {
             
             $post['where_in'] = array('entity_type' => $entity_array);
             
-            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, "
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id,spare_parts_details.quantity "
                     . "spare_parts_details.status,spare_parts_details.part_warranty_status, entity_type, spare_parts_details.partner_id, "
                     . "requested_inventory_id,spare_parts_details.courier_name_by_partner,spare_parts_details.model_number,spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.shipped_date,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_quantity", $array, false,false,false,$post);
             
             log_message('info', __METHOD__ . " Spare Data " . json_encode($spare, true));
             if (!empty($spare)) {
-                $qty = 1;
+                $qty = $value['quantity'];
                 foreach ($spare as $value) {
                     if ($ledger['quantity'] >= $qty) {
                         $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
@@ -3625,7 +3625,7 @@ class Inventory extends CI_Controller {
                                 $data['shipped_parts_type'] =$value['parts_requested_type'];
                                 $data['shipped_date'] =$this->input->post('courier_shipment_date');
                                 $data['shipped_inventory_id'] =$value['requested_inventory_id']; 
-                                $data['shipped_quantity'] =1;
+                                $data['shipped_quantity'] = $qty;
                                 if($value['part_warranty_status']==1){
                                 $data['status'] = SPARE_PARTS_SHIPPED;	
                                 }else{
@@ -3654,7 +3654,7 @@ class Inventory extends CI_Controller {
                         
                         if($value['entity_type']==_247AROUND_SF_STRING){
                             
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $value['partner_id'], $value['requested_inventory_id'], -1);
+                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $value['partner_id'], $value['requested_inventory_id'], -$qty);
                             
                         }
                         
