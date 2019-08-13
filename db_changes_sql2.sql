@@ -569,3 +569,6 @@ INSERT INTO entity_login_table (entity, entity_id, entity_name, contact_person_i
 --Kalyani 06-08-2019
 UPDATE `sms_template` SET `template` = 'Hi %S,Your Engineer Login is created.User Id - %s,Password - %s. download engineer app from https://urlzs.com/zoUkF.247around' WHERE `sms_template`.`tag` = 'engineer_login_sms_template';
 
+-- Ankit 13-08-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'not_delivered_bb_orders', NULL, ' ', 'sunilk@247around.com', 'kmardee@amazon.com,ybhargav@amazon.com', 'sunilk@247around.com', '', '1', '', CURRENT_TIMESTAMP);
+
