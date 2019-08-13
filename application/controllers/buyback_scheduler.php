@@ -8,6 +8,8 @@ ini_set('max_execution_time', 360000);
 class buyback_scheduler extends CI_Controller {
     function __Construct() {
         parent::__Construct();
+        $this->load->model('bb_model');
+        $this->load->model('booking_model');
         $this->load->library("buyback");
         $this->load->library("notify");
     }
@@ -43,26 +45,7 @@ class buyback_scheduler extends CI_Controller {
     // 2) Previous day from current day.
     function send_not_delivered_orders_list() {
         
-        $sql = "SELECT 
-                    bb_order_details.partner_order_id,
-                    bb_order_details.partner_tracking_id,
-                    services.services,
-                    bb_unit_details.category,
-                    bb_order_details.city,
-                    bb_order_details.order_date,
-                    bb_order_details.delivery_date,
-                    bb_cp_order_action.current_status,
-                    (bb_unit_details.partner_basic_charge + bb_unit_details.partner_tax_charge) as exchange_price
-                FROM
-                    bb_order_details
-                    LEFT JOIN bb_unit_details ON (bb_order_details.partner_order_id = bb_unit_details.partner_order_id)
-                    LEFT JOIN services ON (bb_unit_details.service_id = services.id)
-                    LEFT JOIN bb_cp_order_action ON (bb_order_details.partner_order_id = bb_cp_order_action.partner_order_id)
-                WHERE
-                    bb_cp_order_action.current_status = 'Not Delivered'	
-                    AND date(bb_cp_order_action.acknowledge_date) = (CURDATE() - INTERVAL 1 DAY)";
-        
-        $data = $this->db->query($sql)->result_array();
+        $data = $this->bb_model->get_not_delivered_orders_list();
         
         // generate data in table format.
         $table = '<table>';
@@ -98,10 +81,12 @@ class buyback_scheduler extends CI_Controller {
         
         $table .= '</table>';
         
+        $email_template = $this->booking_model->get_booking_email_template(NOT_DELIVERED_BB_ORDERS);
+        
         // prepare mail
-        $from = 'sunilk@247around.com';
-        $to = 'kmardee@amazon.com,ybhargav@amazon.com';
-        $cc = 'sunilk@247around.com';
+        $to = $email_template[1];
+        $from = $email_template[2];
+        $cc = $email_template[3];
         $subject = 'Delivered Not Received orders reporting - '.date('d-M-Y', strtotime('-1 day', strtotime(date('Y-m-d'))));
         
         $body = '<p>Hi Team,<br />
