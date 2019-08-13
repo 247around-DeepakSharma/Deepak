@@ -619,7 +619,7 @@ define("NOT_DEFINE_SN",2);
 //Define Constant for booking upload file type for updating partner Royalty
 define('PARTNER_ROYALTY_FILE_TYPE','partner_royalty_file');
 define('SPARE_REQUEST_SMS_TAG', 'spare_request_sms_tag');
-define('CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT', 'Can not allow to re-complete booking');
+define('CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT', "Don't have permission to re-complete booking.");
 define('PAYMENT_SUCCESS_NOTICATION_TYPE', '5');
 define('PAYMENT_HOLD_NOTICATION_TYPE', '6');
 
