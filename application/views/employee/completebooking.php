@@ -10,7 +10,8 @@
         <?php }?>
         <?php $enable_button = TRUE; 
                 if($booking_history[0]['current_status'] == _247AROUND_COMPLETED){
-                    if($booking_history[0]['current_status'] == _247AROUND_COMPLETED && ($this->session->userdata('user_group') == "admin") 
+                    if($booking_history[0]['current_status'] == _247AROUND_COMPLETED && empty($is_invoice_generated)
+                        && ($this->session->userdata('user_group') == "admin") 
                         || ($this->session->userdata('user_group') == "closure")
                         || ($this->session->userdata('user_group') == "inventory_manager" ) 
                         || ($this->session->userdata('user_group') == "developer" )  )  {
@@ -58,11 +59,37 @@
             }
             
             }?>
-        <center><?php if($requestedParts) { ?><span style="color:red; font-weight: bold;" ><?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?></span><?php } ?></center>
-        <center><?php if(!$enable_button) { ?><span style="color:red; font-weight: bold;" ><?php echo CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT;?></span><?php } ?></center>
+        
+        
+        
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Complete Booking <span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span></div>
             <div class="panel-body">
+                <?php if($requestedParts || !$enable_button || $is_invoice_generated) { ?>
+            <div class="alert alert-warning">
+                <span><?php if($requestedParts) { ?><span style="color:red; font-weight: bold;" ><?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?></span><?php } ?></span>
+                <span><?php if(!$enable_button) { ?><span style="color:red; font-weight: bold;" ><?php echo CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT;?></span><?php } ?></span>
+
+                <?php if($requestedParts) { ?>
+                <div style="font-weight: bold;">
+                    <?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?>
+
+                <?php } elseif(!empty ($is_invoice_generated)) { ?>
+                     <span style="font-weight: bold;">
+                    <?php echo "<p style='color:red; '>".UNABLE_TO_COMPLETE_BOOKING_INVOICE_GENERATED_MSG."</p>";?>
+                </span>
+                <?php } else { ?>
+                <center>
+                    <?php if(!$enable_button) { 
+                        echo "<p style='color:red; '>".CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT."</p>";
+                    }
+                    ?>
+                </center>
+                </div>
+                <?php } ?>
+            </div>
+                <?php } ?>
+                
                 <?php
                     if (isset($booking_history[0]['current_status'])) {
                         if ($booking_history[0]['current_status'] == "Completed") {
@@ -619,9 +646,7 @@
                     <br>
                     <div class="form-group  col-md-12" >
                         <?php if($requestedParts) { ?>
-                        <center style="margin-top:60px; font-weight: bold;">
-                            <?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?>
-                        </center>
+                        
                         <?php } else { ?>
                         <center>
                             <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
@@ -629,7 +654,7 @@
                             ?>
                             <input type="submit" id="submitform" onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $k_count; ?>')" class="btn btn-info" value="Complete Booking">
                             <?php } else {
-                                echo "<p style='color:red; '>".CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT."</p>";
+                                
                             }?>
                         </center>
                         <?php } ?>
