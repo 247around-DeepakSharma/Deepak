@@ -1564,6 +1564,35 @@ class Service_centers extends CI_Controller {
                     $assigned['service_center_id'] = $this->session->userdata('service_center_id');
                     // Insert data into Assigned Engineer Table
                     $inserted_id = $this->vendor_model->insert_assigned_engineer($assigned);
+                     
+                    $where = array('booking_id' => $booking_id);
+                    
+                    $unit_details = $this->booking_model->get_unit_details($where);
+
+                    foreach ($unit_details as $value) {
+                        $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
+                    "engineer_booking_action.unit_details_id" => $value['id']);
+                       $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
+                       if(empty($en)){
+                            $engineer_action['unit_details_id'] = $value['id'];
+                            $engineer_action['booking_id'] = $booking_id;
+                            $engineer_action['engineer_id'] = $engineer_id;
+                            $engineer_action['service_center_id'] = $this->session->userdata('service_center_id');
+                            $engineer_action['current_status'] = _247AROUND_PENDING;
+                            $engineer_action['internal_status'] = _247AROUND_PENDING;
+                            $engineer_action["create_date"] = date("Y-m-d H:i:s");
+
+                            $this->engineer_model->insert_engineer_action($engineer_action);
+                       } else {
+                          
+                           $engineer_action['engineer_id'] = $engineer_id;
+                           $engineer_action['service_center_id'] = $this->session->userdata('service_center_id');
+                           $engineer_action['current_status'] = _247AROUND_PENDING;
+                           $engineer_action['internal_status'] = _247AROUND_PENDING;
+                           $this->engineer_model->update_engineer_table($engineer_action,array('id' => $en[0]['id']) );
+                       }
+                    }
+            
                     if ($inserted_id) {
                         $this->insert_details_in_state_change($booking_id, $assigned['current_state'], "Engineer Id: " . $engineer_id,"not_define","not_define");
 
