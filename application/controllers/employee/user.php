@@ -402,33 +402,19 @@ class User extends CI_Controller {
         $data1['employee_password'] = md5($data1['clear_password']);
         $data1['create_date'] = date('Y-m-d H:i:s');
         
-        $maxid = 0;
+        $maxid = $id = 0;
         $row = $this->db->query('SELECT MAX(id) maxid FROM employee')->row();
         if ($row) {
-            $maxid = $row->maxid; 
+            $id = $row->maxid; 
         }
 
-        $maxid=10000+$maxid;
+        ++$id;
+        $maxid=10000+$id;
 
         do {
-            ++$maxid;
             $row = $this->db->query('SELECT * FROM employee where employee_id='.$maxid)->result_array();
         }while (count($row)>0);
         $data1['employee_id'] = $maxid;
-        
-        $id = $this->employee_model->insertData($data1);
-        $data2 = array();
-        
-        if(!empty($data['manager'])) {
-            $manager=$this->input->post('manager');
-            
-            $data2[]=array("id" => $id, "manager" => $manager);
-            
-        }
-        
-        if(count($data2) > 0) {
-            $this->employee_model->insertManagerData($data2);
-        }
         
         $data2 = $data4 = array();
         
@@ -445,9 +431,6 @@ class User extends CI_Controller {
                 $data4=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.employee_id' => $val['id']));
                 
                 if(count($data4) > 0) {
-                    $this->employee_model->deleteemployee($id);
-                    $this->employee_model->deleteManager("employee_id in (".$id.")");
-                    
                     $sub_data=$this->employee_model->getemployeefromid($val['id']);
                     //Logging error if there is already manager added to any subordinate
                     log_message('info', __FUNCTION__ . $sub_data[0]['full_name']." already has one Manager");
@@ -458,6 +441,21 @@ class User extends CI_Controller {
             $this->employee_model->insertManagerData($data2);
         }
 
+        $data2 = array();
+        
+        if(!empty($data['manager'])) {
+            $manager=$this->input->post('manager');
+            
+            $data2[]=array("id" => $id, "manager" => $manager);
+            
+        }
+        
+        if(count($data2) > 0) {
+            $this->employee_model->insertManagerData($data2);
+        }
+        
+        $id = $this->employee_model->insertData($data1);
+        
         $tag='employee_login_details';
         if(!$this->process_mail_to_employee($tag,$id,$manager)) {
             //Logging error if there is some error in sending mail
