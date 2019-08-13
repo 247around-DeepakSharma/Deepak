@@ -419,14 +419,20 @@ class User extends CI_Controller {
         $id = $this->employee_model->insertData($data1);
         $data2 = array();
         
-        if(isset($data['manager'])) {
+        if(!empty($data['manager'])) {
             $manager=$this->input->post('manager');
             
             $data2[]=array("id" => $id, "manager" => $manager);
             
         }
         
-        if(isset($data['subordinate'])) {
+        if(count($data2) > 0) {
+            $this->employee_model->insertManagerData($data2);
+        }
+        
+        $data2 = $data4 = array();
+        
+        if(!empty($data['subordinate'])) {
             $subordinate=$this->input->post('subordinate');
             
             foreach($subordinate as $key=>$val) {
@@ -434,8 +440,21 @@ class User extends CI_Controller {
             }
         }
         
-        if(count($data2) > 0)
+        if(count($data2) > 0) {
+            foreach($data2 as $key=>$val) {
+                $data4=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.employee_id' => $val['id']));
+                
+                if(count($data4) > 0) {
+                    $sub_data=$this->employee_model->getemployeefromid($val['id']);
+                    //Logging error if there is already manager added to any subordinate
+                    log_message('info', __FUNCTION__ . $sub_data[0]['full_name']." already has one Manager");
+                    $this->session->set_flashdata('error',$sub_data[0]['full_name']." already has one Manager.");
+                    redirect(base_url() . "employee/user/add_employee");
+                }
+            }
             $this->employee_model->insertManagerData($data2);
+        }
+
         $tag='employee_login_details';
         if(!$this->process_mail_to_employee($tag,$id,$manager)) {
             //Logging error if there is some error in sending mail
@@ -520,7 +539,7 @@ class User extends CI_Controller {
         $this->employee_model->update($data1['id'],$data1);
         
         $data2 = array();
-        if(isset($data['manager'])) {
+        if(!empty($data['manager'])) {
             $manager=$this->input->post('manager');
             
             $data2[]=array("id" => $data1['id'], "manager" => $manager);
@@ -530,16 +549,18 @@ class User extends CI_Controller {
         if(count($data2) > 0) {
             $data3=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.employee_id' => $data1['id']));
 
-            if(count($data3) <= 0)
+            if(count($data3) <= 0) {
                 $this->employee_model->insertManagerData($data2);
-            else
+            }
+            else {
                 $this->employee_model->updateManager($data2);
+            }
         }
         
         
-        $data2 = array();
+        $data2 = $data4 = array();
         
-        if(isset($data['subordinate'])) {
+        if(!empty($data['subordinate'])) {
             $subordinate=$this->input->post('subordinate');
             
             foreach($subordinate as $key=>$val) {
@@ -547,11 +568,24 @@ class User extends CI_Controller {
             }
         }
         
-        $data3=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.manager_id' => $data1['id']));
-        
-        if(count($data3) > 0)
-            $this->employee_model->deleteManager("manager_id in (".$data1['id'].")");
         if(count($data2) > 0) {
+            foreach($data2 as $key=>$val) {
+                $data4=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.employee_id' => $val['id']));
+                
+                if((count($data4) > 0) && ($data4[0]['manager_id'] !== $data1['id'])) {
+                    $sub_data=$this->employee_model->getemployeefromid($val['id']);
+                    //Logging error if there is already manager added to any subordinate
+                    log_message('info', __FUNCTION__ . $sub_data[0]['full_name']." already has one Manager");
+                    $this->session->set_flashdata('error',$sub_data[0]['full_name']." already has one Manager.");
+                    redirect(base_url() . "employee/user/update_employee/".$data1['id']);
+                }
+            }
+
+            $data3=$this->employee_model->getemployeeManagerDetails("employee_hierarchy_mapping.*",array('employee_hierarchy_mapping.manager_id' => $data1['id']));
+            
+            if(count($data3) > 0) {
+                $this->employee_model->deleteManager("manager_id in (".$data1['id'].")");
+            }
             $this->employee_model->insertManagerData($data2);
         }
         
@@ -724,7 +758,7 @@ class User extends CI_Controller {
                 }
             }
             //Sending Mail to the employee
-            if (isset($temp)) {
+            if (!empty($temp)) {
                 $emailBody = vsprintf($email_template[0]['body'], $temp);
                 //Sending Mail
                 $this->notify->sendEmail($email_template[0]['from'], $to, $email_template[0]['cc'], $email_template[0]['bcc'], $email_template[0]['subject'], $emailBody, $attachment,$email_template[0]['template']);
