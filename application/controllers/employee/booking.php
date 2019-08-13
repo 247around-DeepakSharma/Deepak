@@ -1201,14 +1201,14 @@ class Booking extends CI_Controller {
                 $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING,$reschedule_reason, $this->session->userdata('id'), 
                         $this->session->userdata('employee_id'),$actor,$next_action, _247AROUND);
 
-    //            $service_center_data['internal_status'] = _247AROUND_PENDING;
-    //            $service_center_data['current_status'] = _247AROUND_PENDING;
-                //$service_center_data['update_date'] = date("Y-m-d H:i:s");
+                $service_center_data['internal_status'] = _247AROUND_PENDING;
+                $service_center_data['current_status'] = _247AROUND_PENDING;
+                $service_center_data['update_date'] = date("Y-m-d H:i:s");
 
 
-    //            log_message('info', __FUNCTION__ . " Booking Id " . $booking_id . " Update Service center action table  " . print_r($service_center_data, true));
+                log_message('info', __FUNCTION__ . " Booking Id " . $booking_id . " Update Service center action table  " . print_r($service_center_data, true));
 
-                //$this->vendor_model->update_service_center_action($booking_id, $service_center_data);
+                $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
 
                 $send_data['booking_id'] = $booking_id;
                 $send_data['state'] = "Rescheduled";
