@@ -619,3 +619,12 @@ ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_ma
 ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_mapping_state_code_state_state_code FOREIGN KEY (state_code) REFERENCES state_code (state_code);
 ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_part_type_inventory_parts_type_id FOREIGN KEY (part_type_id) REFERENCES inventory_parts_type (id);
 ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_plan_id_warranty_plan_plan_id FOREIGN KEY (plan_id) REFERENCES warranty_plans (plan_id);
+
+
+--- Abhishek -----
+
+CREATE TABLE spare_nrn_approval ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `booking_id` VARCHAR(50) NOT NULL ,  `email_to` VARCHAR(100) NULL DEFAULT NULL ,  `remark` TEXT NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `spare_nrn_approval` ADD `approval_file` TEXT NULL DEFAULT NULL AFTER `email_to`;
+ALTER TABLE `spare_parts_details` ADD `nrn_approv_by_partner` INT(5) NOT NULL DEFAULT '0' AFTER `spare_cancellation_reason`;
+

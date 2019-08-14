@@ -32,7 +32,7 @@
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_spare_parts_booking/0/1">
+                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="partner/get_spare_parts_booking/0/1">
                                     Pending Spares
                                 </a>
                             </li>
@@ -49,6 +49,12 @@
                             <li role="presentation">
                                 <a href="#tabs-5" role="tab" data-toggle="tab" aria-expanded="true">
                                     Pending Spare Quotes
+                                </a>
+                            </li>
+
+                            <li role="presentation">
+                                <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true"  data-url="partner/get_nrn_approval"  >
+                                    Approved NRN
                                 </a>
                             </li>
                             <?php
