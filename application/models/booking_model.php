@@ -1747,7 +1747,7 @@ class Booking_model extends CI_Model {
         $oldRequestType =  $this->get_old_request_type($booking_id);
         if (!empty($price_tag)) {
             $results = array_filter($price_tag, function($value) {
-                if ((stripos($value, 'Installation') !== false) || stripos($value, 'Repair') !== false) {
+                if ((stripos($value, 'Installation') !== false) || stripos($value, 'Repair') !== false || stripos($value, 'Extended') !== false) {
                     return $value; 
                     
                 } else {
