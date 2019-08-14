@@ -49,7 +49,7 @@
                         <table class="table table-bordered table-hover table-striped" id="spare_table" style=" z-index: -1;position: static;">
                             <thead>
                                 <tr>
-                                    <th class="text-center">S.N</th>
+                                    <th class="text-center">S.No</th>
                                     <th class="text-center">Booking ID</th>
                                     <th class="text-center">Appliance</th>
                                     <th class="text-center">Customer Name</th>
@@ -66,6 +66,7 @@
                                     <th class="text-center">SF GST Declaration</th>
                                     <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
                                     <th class="text-center" >Courier Manifest <input type="checkbox" id="selectall_manifest" ></th>
+                                    <th data-sortable="false" class="text-center">Approve NRN</th>
                                 </tr>
                             </thead>
                         </table>
@@ -143,6 +144,87 @@
 
     </div>
 </div>
+
+
+
+<div id="myModal77" class="modal fade" role="dialog">
+  <div class="modal-dialog" style="width: 55%;">
+    <!-- Modal content-->
+    <div class="modal-content" >
+        <form id="idForm"  action="<?php echo base_url(); ?>employee/partner/de_partner_nrn_approval"  method="POST" enctype="multipart/form-data" onsubmit="return submitForm();">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title" id="modal-title">Approve NRN Details</h4>
+            </div>
+            <br>
+                <div class="row">
+                            <div class="col-md-6">
+                          
+                        
+
+                               
+                                 <div class="form-group "id="email_ids">
+                                    
+                                    <label for="" class="col-md-4">Email</label>
+                                    <div class="col-md-6">
+                                        <input id="email" class="form-control" name="email" type="text"  value="" style="background-color:#fff;pointer-events:cursor">
+
+                                        <input type="hidden" name="booking_id" id="booking_id">
+                                                                                
+                                    </div>
+                                </div>
+
+
+                                        <br>
+                                        <div class="form-group       " id="approval_file">
+                                            <br>
+                                    <label for="AWS Receipt" class="col-md-4">Approval File </label>
+                                    <div class="col-md-6">
+                                        <input id="aws_recipt" class="form-control" name="approval_file" type="file"  value="" style="background-color:#fff;pointer-events:cursor">
+                                                                                
+                                    </div>
+                                </div>
+
+
+
+
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group ">
+                                    
+                                    <label for="remarks_defective_part" class="col-md-4">Remarks *</label>
+                                    <div class="col-md-6">
+                                        <textarea type="text" class="form-control" id="remarks" name="remarks" placeholder="Please Enter Remarks" required=""></textarea>
+                                    </div>
+                                   </div>
+                            </div>
+                        </div>
+                 <div class="modal-footer">
+                <button type="submit" class="btn btn-success">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+                </div>
+        </div>
+        </form>
+
+    </div>
+
+  </div>
+</div>
+<div class="loader hide"></div>
+ <style>
+    .loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    background: url('<?php echo base_url();  ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.62);
+  }
+</style>
+
+
 <script>
     $(document).ready(function () {
         $('#state_search').select2();
@@ -363,6 +445,54 @@
                 return false;
             }
         }
+
+$('body').on('click', '.approve_nrn_booking', function() {
+var booking = $(this).attr("data-booking_id");
+$("#booking_id").val(booking);
+});
+
+
+$('body').on('click', '.approved_nrn_booking', function() {
+     spare_table.ajax.reload(null, false); 
+    swal("Already Approved", "Your NRN for this booking already approved.");
+});
+
+
+
+    function submitForm(){
+       event.preventDefault();
+       $(".loader").removeClass('hide');
+       var form_data = new FormData(document.getElementById("idForm"));
+               $.ajax({
+                   url: "<?php echo base_url(); ?>employee/partner/do_partner_nrn_approval",
+                   type: "POST",
+                   data: form_data,
+                   processData: false,  // tell jQuery not to process the data
+                   contentType: false   // tell jQuery not to set contentType
+                   }).done(function(response) {
+                          console.log(response);
+                          var response = response.trim();
+                          spare_table.ajax.reload(null, false); 
+                            $(".loader").addClass('hide');
+                            if(response=='1'){
+                                $(".close").click();
+                                 swal({title: "Approved !", text: "Your NRN is  approved .", type: "success"},
+                                    function(){ 
+                              
+                                    }
+                            );  
+                             }else{
+                                  swal({title: "Error !", text: "Your approval not processed . Try again !", type: "error"},
+                              function(){ 
+                              //  location.reload();
+                             });
+                             }
+    
+               });
+ 
+    }
+
+
     </script>
     <style>
 .dropdown-backdrop{
