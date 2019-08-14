@@ -29,7 +29,7 @@
             <div class="clearfix"></div>
                     
         </div>
-    <input type="text" id="booking_id_search" onchange="booking_search()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;" placeholder="Search">
+    
         <div class="x_content">
             <table class="table table-bordered table-hover table-striped" id="nrn_table" style=" z-index: -1;position: static;">
                 <thead>
@@ -46,7 +46,7 @@
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">State</th>
                                     <th class="text-center">Problem Description</th>
-                                    <th data-sortable="false" class="text-center">Approve NRN</th>
+                                    <th data-sortable="false" class="text-center"> NRN Status</th>
 
                     </tr>
                 </thead>
