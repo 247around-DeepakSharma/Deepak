@@ -2055,10 +2055,9 @@ class Spare_parts extends CI_Controller {
                 if (!empty($sms_template_tag)) {
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_details[0]['parts_requested_type'], $booking_id, $sms_template_tag);
                 }
-                
+                $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
                 if ($entity_type == _247AROUND_PARTNER_STRING && $part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS) {
-                    $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
-
+                    
                     /** search if there is any warehouse for requested spare parts
                      * if any warehouse exist then assign this spare request to that service center otherwise assign
                      * assign to respective partner. 
@@ -2110,6 +2109,12 @@ class Spare_parts extends CI_Controller {
                        
                 $spare_data['part_requested_on_approval'] = 1;
                 $spare_data['part_warranty_status'] = $part_warranty_status; 
+                
+                if($part_warranty_status == SPARE_PART_IN_WARRANTY_STATUS){
+                    $spare_data['defective_part_required'] = $partner_details[0]['is_def_spare_required'];
+                } else {
+                    $spare_data['defective_part_required'] = 0;
+                }
                 
                 $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
 
