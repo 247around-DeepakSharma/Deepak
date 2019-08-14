@@ -8196,7 +8196,7 @@ class Partner extends CI_Controller {
                     $tempArray[] =  $row['serial_number'];
                     $tempArray[] =  $row['state'];
                     $tempArray[] =  $row['remarks_by_sc'];
-                    $tempArray[] =  "<button class='btn btn-success approved_nrn_booking' data-booking_id='".$row['booking_id']."' >Approved</button>";
+                    $tempArray[] =  "<span class='btn btn-success approved_nrn_booking' data-booking_id='".$row['booking_id']."' ><i class='fa fa-check' aria-hidden='true'></i></span>";
                     
                     
                     $finalArray[] = $tempArray;
