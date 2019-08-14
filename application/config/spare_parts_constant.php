@@ -135,3 +135,7 @@ define('MSL_TRANSFERED_BY_PARTNER_BY_EXCEL', 'Msl send by partner by excel uploa
 define('AMC_PRICE_TAGS', 'AMC (Annual Maintenance Contract)');
 define('UNABLE_TO_COMPLETE_BOOKING_INVOICE_GENERATED_MSG', 'Invoice has been generated so booking can not be updated.');
 
+define('NRN_APPROVED_BY_PARTNER', 'NRN Approved By Partner');
+define('NRN_TO_BE_APPROVED_BY_PARTNER', 'NRN To Be Approved By Partner');
+define('NRN_TO_BE_SHIPPED_BY_PARTNER', 'NRN To Be Shipped By Partner');
+

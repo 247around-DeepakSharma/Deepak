@@ -167,6 +167,8 @@ $route['partner/booking_form'] = 'employee/partner/get_addbooking_form';
 $route['partner/booking_form/(:any)'] = 'employee/partner/get_addbooking_form/$1';
 $route['partner/invoices_details'] = 'employee/partner/invoices_details';
 $route['partner/get_user_form'] = 'employee/partner/get_user_form';
+$route['partner/get_nrn_approval'] = 'employee/partner/get_nrn_approval';
+
 $route['partner/invoices_details'] = 'employee/partner/invoices_details';
 $route['partner/get_cancel_form/(:any)/(:any)'] = 'employee/partner/get_cancel_form/$1/$2';
 $route['partner/get_reschedule_booking_form/(:any)'] = 'employee/partner/get_reschedule_booking_form/$1';
