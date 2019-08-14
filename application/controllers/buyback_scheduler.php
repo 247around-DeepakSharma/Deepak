@@ -48,17 +48,17 @@ class buyback_scheduler extends CI_Controller {
         $data = $this->bb_model->get_not_delivered_orders_list();
         
         // generate data in table format.
-        $table = '<table>';
+        $table = '<table border="1" style="border-collapse:collapse">';
         $table .= '<thead><tr>
-                    <th>Order ID</th>
-                    <th>Tracking ID</th>
-                    <th>Appliance</th>
-                    <th>Category/Size</th>
-                    <th>City</th>
-                    <th>Order Date</th>
-                    <th>Delivery Date</th>
-                    <th>Current Status</th>
-                    <th>Exchange Price</th>
+                    <th style="text-align:left;">Order ID</th>
+                    <th style="text-align:left;">Tracking ID</th>
+                    <th style="text-align:left;">Appliance</th>
+                    <th style="text-align:left;">Category/Size</th>
+                    <th style="text-align:left;">City</th>
+                    <th style="text-align:left;">Order Date</th>
+                    <th style="text-align:left;">Delivery Date</th>
+                    <th style="text-align:left;">Current Status</th>
+                    <th style="text-align:left;">Exchange Price</th>
             </tr></thead>';
         
         if(empty($data)) {
