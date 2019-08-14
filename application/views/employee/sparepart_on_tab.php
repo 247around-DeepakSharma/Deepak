@@ -411,6 +411,7 @@
                                         <th class="text-center" data-orderable="true">Pickup Schedule</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                        <th class="text-center" data-orderable="false">Generate Invoice</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -751,10 +752,26 @@
     
     
     //datatables    
-    spare_parts_requested_table = $('#spare_parts_requested_table').DataTable({
+    spare_parts_requested_table = $('#spare_parts_requested_table').on('xhr.dt', function (e, settings, json, xhr) {
+            var arr_bookings_data = json["bookings_data"];
+            for (var rec_bookings_data in arr_bookings_data) {
+                $.ajax({
+                    method:'POST',
+                    url:"<?php echo base_url(); ?>employee/booking/get_warranty_data",
+                    data:{'bookings_data': arr_bookings_data[rec_bookings_data]},
+                    success:function(response){
+                        $(".warranty-loader").hide();
+                        var warrantyData = JSON.parse(response);                        
+                        $.each(warrantyData, function(index, value) {
+                            $(".warranty-"+index).html(value);
+                        });
+                    }                            
+                }); 
+            }
+        }).DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[[ 14, "desc" ]],
+            order:[[ 15, "desc" ]],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -782,23 +799,22 @@
                     d.partner_id =  '<?php echo $partner_id; ?>';       
                     d.partner_wise_parts_requested =  $('#partner_wise_parts_requested').val();     
                     d.appliance_wise_parts_requested =  $('#appliance_wise_parts_requested').val();     
-                 }
+                },  
             },
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [14], //first column / numbering column
+                    "targets": [15], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
-                    "targets": [0,1,2,3,4,11,12,13], //first column / numbering column
+                    "targets": [0,1,2,3,4,11,12,13,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
-            "fnInitComplete": function (oSettings, response) {
-            
-            $(".dataTables_filter").addClass("pull-right");
-          }
+            "fnInitComplete": function (oSettings, response) {                
+                $(".dataTables_filter").addClass("pull-right");                
+            },      
         });
     
     
@@ -807,7 +823,7 @@
     spare_parts_requested_table_approved = $('#spare_parts_requested_table_approved').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[[14,"desc"]],
+            "order": [],
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -852,7 +868,7 @@
         spare_parts_requested_table_reject = $('#spare_parts_requested_table_reject').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order:[[14,"desc"]],
+            "order": [], 
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
@@ -861,7 +877,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,12 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,13 ],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'
@@ -879,7 +895,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,11,12,13], //first column / numbering column
+                    "targets": [15], //first column / numbering column
+                    "orderable": true //set not orderable
+                },
+                {
+                    "targets": [0,1,2,3,4,12,13,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],

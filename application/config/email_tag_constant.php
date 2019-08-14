@@ -134,3 +134,4 @@ define('UPDATE_APPLIANCE_BY_SF','send_mail_for_insert_update_applaince_by_sf');
 define('TRANSFER_SPARE_FROM_WH_TO_WH','spare_not_transfer_from_wh_to_wh');
 define('TRACKON_SPARE_PART_SHIPMENT_PENDING', 'trackon_spare_part_shipment_pending');
 define('GATI_SPARE_PART_SHIPMENT_PENDING', 'gati_spare_part_shipment_pending');
+define('NOT_DELIVERED_BB_ORDERS', 'not_delivered_bb_orders');

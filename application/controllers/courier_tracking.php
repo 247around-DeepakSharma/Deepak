@@ -415,7 +415,8 @@ class Courier_tracking extends CI_Controller {
                 if ($update_status) {
                     $actor = $next_action = NULL;
                     log_message('info', ' Spare Details updated for spare id ' . $parts_details[0]);
-                    $is_requested = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.booking_id", array('booking_id' => $parts_details[0], 'status' => SPARE_SHIPPED_BY_PARTNER));
+                    $is_requested = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.booking_id", array('booking_id' => $parts_details[0], 'status IN ("' . SPARE_SHIPPED_BY_PARTNER . '", "'
+                    . SPARE_PARTS_REQUESTED . '", "' . ESTIMATE_APPROVED_BY_CUSTOMER . '", "' . SPARE_OOW_EST_GIVEN . '", "' . SPARE_OOW_EST_REQUESTED . '", "'.SPARE_PART_ON_APPROVAL.'", "'.SPARE_OOW_SHIPPED.'") ' => NULL));
                     if (empty($is_requested)) {
                         if (date('l' == 'Sunday')) {
                             $booking['booking_date'] = date('d-m-Y', strtotime("+1 days"));

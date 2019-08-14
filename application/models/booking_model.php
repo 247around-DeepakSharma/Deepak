@@ -126,7 +126,7 @@ class Booking_model extends CI_Model {
 
         foreach ($appliance as $key => $value) {
             // get data from booking unit details table on the basis of appliance id
-            $this->db->select('id as unit_id, pod, invoice_pod, price_tags, customer_total, serial_number_pic, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges');
+            $this->db->select('id as unit_id, pod, invoice_pod, price_tags, customer_total, serial_number_pic, around_net_payable, partner_net_payable, customer_net_payable, customer_paid_basic_charges, customer_paid_extra_charges, customer_paid_parts, booking_status, partner_paid_basic_charges,product_or_services, serial_number, around_paid_basic_charges, partner_invoice_id');
             $this->db->where('appliance_id', $value['appliance_id']);
             $this->db->where('booking_id', $value['booking_id']);
             $this->db->order_by("price_tags","asc");

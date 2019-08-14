@@ -127,9 +127,9 @@ define('_247AROUND_BRACKETS_PENDING','Brackets_Pending');
 //constant to define 247around brackets charge for 19-24 inch
 //define('_247AROUND_BRACKETS_19_24_UNIT_PRICE',120);
 //constant to define 247around brackets charge for 26-32 inch
-define('_247AROUND_BRACKETS_26_32_UNIT_PRICE',100);
+define('_247AROUND_BRACKETS_26_32_UNIT_PRICE',190);
 //constant to define 247around brackets charge for 36-42 inch
-define('_247AROUND_BRACKETS_36_42_UNIT_PRICE',165);
+define('_247AROUND_BRACKETS_36_42_UNIT_PRICE',190);
 //constant to define 247around brackets charge for greater than 43 inch
 //define('_247AROUND_BRACKETS_43_UNIT_PRICE',425);
 //constant to define State for making Vendor Activate
@@ -619,7 +619,7 @@ define("NOT_DEFINE_SN",2);
 //Define Constant for booking upload file type for updating partner Royalty
 define('PARTNER_ROYALTY_FILE_TYPE','partner_royalty_file');
 define('SPARE_REQUEST_SMS_TAG', 'spare_request_sms_tag');
-define('CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT', 'Can not allow to re-complete booking');
+define('CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT', "Don't have permission to re-complete booking.");
 define('PAYMENT_SUCCESS_NOTICATION_TYPE', '5');
 define('PAYMENT_HOLD_NOTICATION_TYPE', '6');
 

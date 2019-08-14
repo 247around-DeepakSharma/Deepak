@@ -179,23 +179,21 @@ class Bulkupload extends CI_Controller {
       booking_details.service_id,
       services.services,
       appliance_model_details.id,
-      booking_unit_details.sf_model_number,
+      spare_parts_details.model_number,
       spare_parts_details.date_of_purchase,
       booking_details.create_date,
       booking_details.request_type
       FROM
       booking_details
+      JOIN
+      spare_parts_details ON (booking_details.booking_id = spare_parts_details.booking_id)
       LEFT JOIN
       services ON (services.id = booking_details.service_id)
       LEFT JOIN
-      booking_unit_details ON (booking_unit_details.booking_id = booking_details.booking_id)
-      LEFT JOIN
-      appliance_model_details ON (appliance_model_details.model_number = booking_unit_details.sf_model_number)
-      LEFT JOIN
-      spare_parts_details ON (spare_parts_details.booking_id = booking_details.booking_id)
+      appliance_model_details ON (spare_parts_details.model_number = appliance_model_details.model_number)      
       WHERE
       booking_details.booking_id IN ()
-      AND booking_unit_details.sf_model_number IS NOT NULL AND booking_unit_details.sf_model_number <> '' and spare_parts_details.date_of_purchase IS NOT NULL
+      AND spare_parts_details.model_number IS NOT NULL AND spare_parts_details.model_number <> '' and spare_parts_details.date_of_purchase IS NOT NULL
       GROUP BY booking_details.booking_id;
      */
 
@@ -208,7 +206,6 @@ class Bulkupload extends CI_Controller {
         $post_data = $this->input->post();
         $redirect_to = $this->input->post('redirect_url');
         $returnMsg = [];
-
         if ($file_status['file_name_lenth']) {
             if ($file_status['status']) {
 
@@ -217,7 +214,7 @@ class Bulkupload extends CI_Controller {
                 $data['post_data'] = $this->input->post();
 
                 //column which must be present in the  upload inventory file
-                $header_column_need_to_be_present = array('booking_id', 'booking_create_date', 'product', 'booking_request_type', 'part_warranty_status', 'product_id', 'model_id', 'dop');
+                $header_column_need_to_be_present = array('booking_id', 'booking_create_date', 'product', 'booking_request_type', 'product_id', 'model_id', 'dop');
                 //check if required column is present in upload file header
                 $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
 
@@ -291,32 +288,33 @@ class Bulkupload extends CI_Controller {
                             $arr_data['model'] = $model_id;
                             $arr_data['purchase_date'] = $dop;
                             $arr_data['booking_date'] = $bd;
-
-                            $arr_warranty_data = $this->warranty_model->check_warranty_for_bulk_data($arr_data);
+                            
+                            $arrWhere = [];
+                            $arrWhere["(appliance_model_details.id = '".$model_id."' and date(warranty_plans.period_start) <= '".date('Y-m-d', strtotime($dop))."' and date(warranty_plans.period_end) >= '".date('Y-m-d', strtotime($dop))."' and warranty_plans.partner_id = '247130')"] = null; 
+                            $arr_warranty_data = $this->warranty_model->get_warranty_data($arrWhere);
                             
                             $returnMsg[$row][8] = 'OW';
-                            if (empty($arr_warranty_data)):
-                                $in_warranty_end_period = strtotime(date("Y-m-d", strtotime($arr_data['purchase_date'])) . " +1 year");
+                            if(!empty($arr_warranty_data)):
+                                $in_warranty_months = !empty($arr_warranty_data[0]['in_warranty_period']) ? $arr_warranty_data[0]['in_warranty_period'] : 12;
+                                $extended_warranty_months = !empty($arr_warranty_data[0]['extended_warranty_period']) ? $arr_warranty_data[0]['extended_warranty_period'] : 0;                
+                                
+                                $total_warranty_months = $extended_warranty_months + $in_warranty_months;
+                
+                                // Calculate In-Warranty End Period
+                                $in_warranty_end_period = strtotime(date("Y-m-d", strtotime($dop)) . " +" . $in_warranty_months . " months");
                                 $in_warranty_end_period = strtotime(date("Y-m-d", $in_warranty_end_period) . " -1 day");
-                                if (strtotime($arr_data['booking_date']) <= $in_warranty_end_period) :
+
+                                // Calculate Extended-Warranty End Period
+                                $warranty_end_period = strtotime(date("Y-m-d", strtotime($dop)) . " +" . $total_warranty_months . " months");
+                                $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
+
+                                // Calculate Warranty Status
+                                if (strtotime($bd) <= $in_warranty_end_period) :
                                     $returnMsg[$row][8] = 'IW';
                                     $returnMsg[$row][9] = 'Warranty will end on ' . date("d-M-Y", $in_warranty_end_period);
-                                endif;
-                            else:
-                                $warranty_months = $arr_warranty_data[0]['warranty_period'] + 12;
-                                $strWarrantyType = "EW";
-                                $strWarranty = "Extended";
-                                if($arr_warranty_data[0]['warranty_type'] == 1)
-                                {
-                                    $strWarrantyType = "IW";
-                                    $strWarranty = "";
-                                    $warranty_months = $arr_warranty_data[0]['warranty_period'];
-                                }                                
-                                $warranty_end_period = strtotime(date("Y-m-d", strtotime($arr_data['purchase_date'])) . " +" . $warranty_months . " months");
-                                $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
-                                if (strtotime($arr_data['booking_date']) <= $warranty_end_period) :
-                                    $returnMsg[$row][8] = $strWarrantyType;
-                                    $returnMsg[$row][9] = 'Product lies in '.$strWarranty.' warranty of ' . $arr_warranty_data[0]['warranty_period'] . ' months. Warranty will end on ' . date("d-m-Y", $warranty_end_period);
+                                elseif (strtotime($bd) <= $warranty_end_period) :
+                                    $returnMsg[$row][8] = 'EW';
+                                    $returnMsg[$row][9] = 'Product lies in extended warranty of ' . $total_warranty_months . ' months. Warranty will end on ' . date("d-m-Y", $warranty_end_period);
                                 endif;
                             endif;
                         }
@@ -481,7 +479,9 @@ class Bulkupload extends CI_Controller {
         $file_status = $this->get_upload_file_type();
         $post_data = $this->input->post();
         $redirect_to = $this->input->post('redirect_url');
-        $returnMsg = [];
+        $returnMsg = [];        
+        $arr_part_mapping_result = [];                        
+        $arr_state_mapping_result = [];
 
         if ($file_status['file_name_lenth'] && !empty($post_data['partner_id'])) {
             if ($file_status['status']) {
@@ -520,13 +520,15 @@ class Bulkupload extends CI_Controller {
                     // apply loop for validation.
                     for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                         $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                        $sanitizes_row_data = $rowData_array[0];
+                        $sanitizes_row_data = $rowData_array[0];                        
                         $is_data_validated = true;
 
                         // Check If Product exists or not
                         $returnMsg[$row][4] = "";
                         if (empty($arr_services[$sanitizes_row_data[4]])) {
-                            $returnMsg[$row][4] = "Product Not Found";
+                            $returnMsg[$row][0] = $arr_data['plan_name'] = $sanitizes_row_data[0];
+                            $returnMsg[$row][1] = $arr_data['plan_description'] = $sanitizes_row_data[1];
+                            $returnMsg[$row][4] = "Product ".$sanitizes_row_data[4]." Not Found";
                             continue;
                         }
                         $service_id = $arr_services[$sanitizes_row_data[4]];
@@ -575,7 +577,6 @@ class Bulkupload extends CI_Controller {
                             }
 
                             // Insert Data in Warranty Plan State Mapping
-                            $arr_state_mapping_result = [];
                             $str_plan_states = $sanitizes_row_data[10];
                             $arr_plan_states = explode(',', $str_plan_states);
                             $arr_plan_states = array_filter($arr_plan_states);
@@ -601,7 +602,6 @@ class Bulkupload extends CI_Controller {
                             }
 
                             // Insert Data in Warranty Plan Part Type Mapping
-                            $arr_part_mapping_result = [];
                             $str_plan_parts = $sanitizes_row_data[11];
                             $arr_plan_parts = explode(',', $str_plan_parts);
                             $arr_plan_parts = explode(',', $str_plan_parts);
@@ -704,9 +704,16 @@ class Bulkupload extends CI_Controller {
                         }
                     }
                 }
+                else
+                {
+                    echo $check_header['message'];exit;
+                }
+            }
+            else
+            {
+                echo $check_header['message'];exit;
             }
         }
-        
         $file_path = TMP_FOLDER . "warranty_data_log-" . date('Y-m-d');
         $file = fopen($file_path . ".txt", "a+") or die("Unable to open file!");
         fwrite($file, "*******************  STATE MAPPING ***************************" . "\n");

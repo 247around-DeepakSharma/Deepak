@@ -724,7 +724,7 @@ class Invoice_lib {
                 $tmp_arr['booking_id'] = $value2[0]['booking_id'];
                 $tmp_arr['spare_desc'] = $value2[0]['parts_shipped'];
                 $tmp_arr['part_number'] =(isset($value2[0]['part_number'])) ? $value2[0]['part_number'] : '-'; 
-                $tmp_arr['qty'] = $value2[0]['quantity'];
+                $tmp_arr['qty'] = $value2[0]['shipped_quantity'];
 
                 array_push($excel_data['excel_data_line_item'], $tmp_arr);
             }
@@ -995,10 +995,10 @@ class Invoice_lib {
                 $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
 
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
-
                 if (!empty($unsettle)) {
                     $qty = 1;
                     $inventory_details = $this->ci->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $value['inventory_id']));
+                    $value['part_name'] = $inventory_details[0]['part_name'];
 
                     foreach ($unsettle as $key => $b) {
 
@@ -1037,7 +1037,6 @@ class Invoice_lib {
 
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
-
                             if (!empty($s)) {
                                 $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
                                 $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
@@ -1118,12 +1117,12 @@ class Invoice_lib {
         $partner_gst = $this->ci->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $b['from_gst_number']));
         $around_gst = $this->ci->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $b['to_gst_number']));
         
-        if(!empty($around_gst) && !empty($partner_gst)){
-            $around_gst_number = $around_gst[0]['gst_number'];
-            $around_state_code = $around_gst[0]['state'];
-            $around_address = $around_gst[0]['address'];
-            $around_pincode = $around_gst[0]['pincode'];
-            $around_city = $around_gst[0]['city'];
+        if((!empty($around_gst) && !empty($partner_gst)) || (!empty($partner_gst) && $value['is_micro_wh'] ==  1)){
+            $around_gst_number = !empty($around_gst[0]['gst_number'])? $around_gst[0]['gst_number']: "";
+            $around_state_code = !empty($around_gst[0]['state'])? $around_gst[0]['state']: "";
+            $around_address = !empty($around_gst[0]['address'])? $around_gst[0]['address']: "";
+            $around_pincode = !empty($around_gst[0]['pincode'])? $around_gst[0]['pincode']: "";
+            $around_city = !empty($around_gst[0]['city'])? $around_gst[0]['city']: "";
             
             $partner_state_code = $partner_gst[0]['state'];
             $partner_gst_number = $partner_gst[0]['gst_number'];
@@ -1177,7 +1176,7 @@ class Invoice_lib {
 
         $this->ci->table->set_heading(array('Part Name', 'Booking ID', "Inventory ID "));
         
-        $this->ci->table->add_row($data['part_name'], $data['booking_id'], $data['inventory_id']);
+        $this->ci->table->add_row(isset($data['part_name'])?$data['part_name']:$data['description'], $data['booking_id'], $data['inventory_id']);
         
 
         $this->ci->table->set_template($template1);
@@ -1216,7 +1215,7 @@ class Invoice_lib {
             $invoice['hsn_code'] = $value['hsn_code'];
             $invoice['qty'] = $value['qty'];
             $invoice['rate'] = $value['rate'];
-            $invoice['inventory_id'] = $value['inventory_id'];
+            $invoice['inventory_id'] = (isset($value['inventory_id']) ? $value['inventory_id'] : NULL);
             $invoice['taxable_value'] = $value['taxable_value'];
             
             $invoice['cgst_tax_amount'] = $invoice['sgst_tax_amount'] = isset($value['sgst_tax_amount']) ?$value['sgst_tax_amount']:0;

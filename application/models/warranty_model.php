@@ -135,28 +135,78 @@ class Warranty_model extends CI_Model {
     
     function check_warranty_by_booking_ids($arrBookings) {
         $this->db->_protect_identifiers = FALSE;
-        $strSelect = "booking_details.booking_id,booking_details.service_id,booking_details.partner_id,"
-                . "booking_details.create_date,appliance_model_details.id as model_id,"
-                . "ifnull(spare_parts_details.model_number, ifnull(booking_unit_details.sf_model_number,ifnull(service_center_booking_action.model_number, booking_unit_details.model_number))) as model_number,"
-                . "ifnull(spare_parts_details.date_of_purchase, ifnull(booking_unit_details.sf_purchase_date,CASE WHEN (service_center_booking_action.sf_purchase_date IS NULL OR service_center_booking_action.sf_purchase_date = '0000-00-00 00:00:00') THEN booking_unit_details.purchase_date ELSE service_center_booking_action.sf_purchase_date END)) as date_of_purchase,"
-                . "warranty_plan_model_mapping.plan_id,"
-                . "ifnull(MAX(warranty_plans.warranty_period), 12) as warranty_period,"
-                . "CASE WHEN warranty_plans.warranty_type = ".EXTENDED_WARRANTY_STATUS." THEN 'EW' else 'IW' end as warranty_type";
-                
+        $strBookings = '"'.implode('","', $arrBookings).'"';
+        $strSelect =    'booking_details.booking_id,
+                        booking_details.service_id,
+                        booking_details.partner_id,
+                        booking_details.create_date,
+                        appliance_model_details.id AS model_id,
+                        IFNULL(spare_parts_details.model_number,
+                                        IFNULL(booking_unit_details.sf_model_number,
+                                                        IFNULL(service_center_booking_action.model_number,
+                                                                        booking_unit_details.model_number))) AS model_number,
+                        IFNULL(spare_parts_details.date_of_purchase,
+                                        IFNULL(booking_unit_details.sf_purchase_date,
+                                                        IFNULL(service_center_booking_action.sf_purchase_date,
+                                                                        booking_unit_details.purchase_date))) AS date_of_purchase,
+                        warranty_plans.plan_id,
+                        ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") as warranty_type,
+                        ifnull(warranty_plans.warranty_period, 12) as warranty_period,
+                        (CASE WHEN ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") = ".IN_WARRANTY_STATUS." THEN ifnull(warranty_plans.warranty_period, 12) ELSE 0 END) as in_warranty_period,
+                        (CASE WHEN ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") <> ".IN_WARRANTY_STATUS." THEN ifnull(warranty_plans.warranty_period, 12) ELSE 0 END) as extended_warranty_period';
+        
+        $arrWhere = [
+            'booking_details.booking_id IN ' => "(".$strBookings.")"           
+        ];
+        
         $this->db->select($strSelect);
         $this->db->from('booking_details');
-        $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id','left');
-        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id','left');
-        $this->db->join('service_center_booking_action', 'booking_details.booking_id = service_center_booking_action.booking_id','left');
-        $this->db->join('appliance_model_details', 'ifnull(spare_parts_details.model_number, ifnull(booking_unit_details.sf_model_number, ifnull(service_center_booking_action.model_number, booking_unit_details.model_number))) = appliance_model_details.model_number');
+        $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id', 'Left');
+        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'Left');
+        $this->db->join('service_center_booking_action', 'booking_details.booking_id = service_center_booking_action.booking_id', 'Left');
+        $this->db->join('appliance_model_details', 'IFNULL(spare_parts_details.model_number,
+                                        IFNULL(booking_unit_details.sf_model_number,
+                                                        IFNULL(service_center_booking_action.model_number,
+                                                                        booking_unit_details.model_number))) = appliance_model_details.model_number');
         $this->db->join('warranty_plan_model_mapping', 'appliance_model_details.id = warranty_plan_model_mapping.model_id', 'Left');
-        $this->db->join('warranty_plans', 'warranty_plan_model_mapping.plan_id = warranty_plans.plan_id and date(warranty_plans.period_start) <= ifnull(spare_parts_details.date_of_purchase, ifnull(booking_unit_details.sf_purchase_date,CASE WHEN (service_center_booking_action.sf_purchase_date IS NULL OR service_center_booking_action.sf_purchase_date = "0000-00-00 00:00:00") THEN booking_unit_details.purchase_date ELSE service_center_booking_action.sf_purchase_date END)) and date(warranty_plans.period_end) >= ifnull(spare_parts_details.date_of_purchase, ifnull(booking_unit_details.sf_purchase_date,CASE WHEN (service_center_booking_action.sf_purchase_date IS NULL OR service_center_booking_action.sf_purchase_date = "0000-00-00 00:00:00") THEN booking_unit_details.purchase_date ELSE service_center_booking_action.sf_purchase_date END)) and warranty_plans.is_active = 1 and warranty_plans.partner_id = booking_details.partner_id', 'Left');
-        $this->db->where('warranty_plans.plan_id IS NOT NULL', NULL);
-        $this->db->where_in('booking_details.booking_id', $arrBookings);
-        $this->db->group_by('booking_details.booking_id, warranty_plan_model_mapping.model_id');
-        $query = $this->db->get();
-//        echo '<pre>';print_R($this->db->last_query());exit;
+        $this->db->join('warranty_plans', 'warranty_plan_model_mapping.plan_id = warranty_plans.plan_id
+                                AND DATE(warranty_plans.period_start) <= IFNULL(spare_parts_details.date_of_purchase,
+                                        IFNULL(booking_unit_details.sf_purchase_date,
+                                                        IFNULL(service_center_booking_action.sf_purchase_date,
+                                                                        booking_unit_details.purchase_date)))
+                                AND DATE(warranty_plans.period_end) >= IFNULL(spare_parts_details.date_of_purchase,
+                                        IFNULL(booking_unit_details.sf_purchase_date,
+                                                        IFNULL(service_center_booking_action.sf_purchase_date,
+                                                                        booking_unit_details.purchase_date)))
+                                AND warranty_plans.is_active = 1
+                                AND warranty_plans.partner_id = booking_details.partner_id', 'Left');
+        $this->db->where($arrWhere);
+        $this->db->group_by('booking_details.booking_id, warranty_plans.plan_id');
+        $query = $this->db->get();        
         return $query->result_array();
     }
 
+    function get_warranty_data($arrWhere) {
+        $this->db->_protect_identifiers = FALSE;
+        $strSelect = "appliance_model_details.id as model_id,
+                    appliance_model_details.model_number,
+                    warranty_plans.plan_id,
+                    warranty_plans.period_start as plan_start_date,
+                    warranty_plans.period_end as plan_end_date,
+                    ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") as warranty_type,
+                    ifnull(warranty_plans.warranty_period, 12) as warranty_period,
+                    MAX(CASE WHEN ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") = ".IN_WARRANTY_STATUS." THEN ifnull(warranty_plans.warranty_period, 12) ELSE 0 END) as in_warranty_period,
+                    MAX(CASE WHEN ifnull(warranty_plans.warranty_type, ".IN_WARRANTY_STATUS.") <> ".IN_WARRANTY_STATUS." THEN ifnull(warranty_plans.warranty_period, 0) ELSE 0 END) as extended_warranty_period";
+        
+        $this->db->select($strSelect);
+        $this->db->or_where($arrWhere);
+        $this->db->from('warranty_plan_model_mapping');
+        $this->db->join('warranty_plans', 'warranty_plan_model_mapping.plan_id = warranty_plans.plan_id');
+        $this->db->join('appliance_model_details', 'warranty_plan_model_mapping.model_id = appliance_model_details.id');
+        
+        $this->db->group_by('appliance_model_details.id,appliance_model_details.model_number,warranty_plans.period_start, warranty_plans.period_end');
+        $query = $this->db->get();
+//        echo '<pre>';print_r($this->db->last_query());exit;
+        return $query->result_array();
+    }
 }

@@ -1,13 +1,44 @@
 <?php if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no =  $this->uri->segment(3) +1; } else{ $sn_no = 1;} ?>
 <script type="text/javascript" src="<?php echo base_url();?>js/base_url.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>      
+<input type='hidden' name='arr_bookings' id='arr_bookings' value='<?= json_encode($bookings_data); ?>'>
 <div class="" style="margin-top: 30px;">
          <div class="row">
             <div class="col-md-3 pull-right" style="margin-top:20px;">
                
                 <input type="search" class="form-control pull-right"  id="search_<?=$review_status?>_<?=$is_partner?>" placeholder="search" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
             </div>
-              <?php if($status == 'Cancelled') { 
+             <?php if($status == 'Completed') { ?>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="state_completed" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($states as $state) { ?>
+                    <option value="<?= $state['state_code']; ?>"><?= $state['state']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
+            </div>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="partner_completed" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($partners as $partner) { ?>
+                    <option value="<?= $partner['id']; ?>"><?= $partner['public_name']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
+            </div>
+                 
+                 
+            
+             <?php } if($status == 'Cancelled') { 
               ?>
              <div class="col-md-3 pull-right" style="margin-top:20px;">
               
@@ -22,6 +53,33 @@
                
                 
             </div>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="state_cancelled" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($states as $state) { ?>
+                    <option value="<?= $state['state_code']; ?>"><?= $state['state']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
+            </div>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="partner_cancelled" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($partners as $partner) { ?>
+                    <option value="<?= $partner['id']; ?>"><?= $partner['public_name']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
+            </div>
+             
              <?php } ?>
              <h2 style="margin-left: 13px;" >
                   <b><?php echo $status; ?> Bookings</b>
@@ -153,16 +211,7 @@
                               
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_age ?></strong></td>
                               <?php if($review_status == "Completed"){ ?>
-                              <td>
-                                  <?php
-                                    $strWarrantyStatus = 'OW';
-                                    if(!empty($warranty_data[$value['booking_id']]))
-                                    {
-                                        $strWarrantyStatus = $warranty_data[$value['booking_id']];
-                                    }
-                                    echo '<b>'.$strWarrantyStatus.'</b>';
-                                  ?>
-                              </td>
+                              <td class="warranty-<?= $value['booking_id']?>">--</td>
                               <?php } ?>
                               <td style="text-align: left;white-space: inherit;">
                                  <p id="<?php echo "admin_remarks_".$count; ?>"><?php echo $value['admin_remarks']; ?></p>
@@ -246,9 +295,22 @@
    </div>
 
 <script>
-     $('#cancellation_reason').select2({
+    $('#cancellation_reason').select2({
        placeholder: 'Cancellation Reason'
-   }); 
+    }); 
+    $('#state_cancelled').select2({
+       placeholder: 'State'
+    }); 
+    $('#partner_cancelled').select2({
+       placeholder: 'Partner'
+    });    
+    $('#partner_completed').select2({
+       placeholder: 'Partner'
+    });    
+    $('#state_completed').select2({
+       placeholder: 'State'
+    });    
+   
    $(document).ready(function(){
         $("#selecctall").change(function(){
             var isChecked = document.getElementById('selecctall').checked;
@@ -263,6 +325,23 @@
                   }
           }
          });
+        
+        // this ajax fetches the warranty status of showed bookings
+        var bookings_data = $('#arr_bookings').val();
+        var arr_bookings_data = JSON.parse(bookings_data);
+        for (var rec_bookings_data in arr_bookings_data) {
+            $.ajax({
+                method:'POST',
+                url:"<?php echo base_url(); ?>employee/booking/get_warranty_data",
+                data:{'bookings_data': arr_bookings_data[rec_bookings_data]},
+                success:function(response){
+                    var warrantyData = JSON.parse(response);
+                    $.each(warrantyData, function(index, value) {
+                        $(".warranty-"+index).html(value);
+                    });
+                }                            
+            }); 
+        }        
    });
      function is_sn_correct_validation(booking_id,bulkalert){
        if(bulkalert !== 'Yes'){
