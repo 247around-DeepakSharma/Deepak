@@ -51,6 +51,12 @@
                                     Pending Spare Quotes
                                 </a>
                             </li>
+
+                            <li role="presentation">
+                                <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true"  data-url="<?php echo base_url();?>partner/get_nrn_approval"  >
+                                    Approved NRN
+                                </a>
+                            </li>
                             <?php
                             if($this->session->userdata('review') == 1){
                             ?>

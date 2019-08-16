@@ -67,7 +67,8 @@
                     <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
                         <thead>
                             <tr>
-                                <th>S.No.</th>                                
+                                <th>S.No.</th>  
+                                <th>Booking Id</th>  
                                 <th>Product</th>
                                 <th>Booking Date</th>                                
                                 <th>Model</th>
@@ -84,6 +85,7 @@
                                     {
                                         $str = '<tr>';
                                         $str .= '<td>'.$count++.'</td>';
+                                        $str .= '<td>'.$rec[0].'</td>';
                                         $str .= '<td>'.$rec[2].'</td>';
                                         $str .= '<td>'.$rec[6].'</td>';
                                         $str .= '<td>'.$rec[3].'</td>';
