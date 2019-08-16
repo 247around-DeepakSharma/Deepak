@@ -944,6 +944,7 @@ class Booking extends CI_Controller {
         $upcountry_price = 0;
         
         $unit_price_tags = array();
+        $data['is_invoice_generated'] = FALSE;
         //Process booking Unit Details Data Through loop
         foreach ($data['booking_unit_details'] as $keys => $value) {
             //If partner type is OEM then get price for booking unit brands
@@ -993,6 +994,10 @@ class Booking extends CI_Controller {
                 unset($prices[$id]);
                 if ($keys == 0) {
                     $upcountry_price = isset($service_center_data[0]['upcountry_charges']) ? $service_center_data[0]['upcountry_charges'] : "";
+                }
+                
+                if(!empty($price_tag['partner_invoice_id']) && empty($data['is_invoice_generated'])) {
+                    $data['is_invoice_generated'] = TRUE;
                 }
             }
 
@@ -1068,6 +1073,13 @@ class Booking extends CI_Controller {
         if ($status == _247AROUND_FOLLOWUP) {
             $where_internal_status = array("page" => "Cancel", "active" => '1');
             $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
+        }
+        
+        $check_invoice_generated = array_column($this->reusable_model->get_search_result_data('booking_unit_details', 'partner_invoice_id', ['booking_id' => $booking_id], NULL, NULL, NULL, NULL, NULL), 'partner_invoice_id');
+        if(!empty(array_filter($check_invoice_generated))) {
+            $data['is_invoice_generated'] = TRUE;
+        } else {
+            $data['is_invoice_generated'] = FALSE;
         }
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/cancelbooking', $data);

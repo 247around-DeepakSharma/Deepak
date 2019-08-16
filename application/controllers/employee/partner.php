@@ -6510,6 +6510,9 @@ class Partner extends CI_Controller {
                       $tempArray[] = $tempString5;
                       $tempArray[] = '<input type="checkbox" class="form-control checkbox_address"  name="download_address[]" onclick="check_checkbox(1)" value="'.$row['booking_id'].'" />';
                       $tempArray[] = '<input type="checkbox" class="form-control checkbox_manifest" name="download_courier_manifest[]" onclick="check_checkbox(0)" value="'.$row['booking_id'].'" />';
+
+                      $tempArray[] =  "<a href='#' class='btn btn-info approve_nrn_booking' data-toggle='modal'  data-target='#myModal77'   data-booking_id='".$row['booking_id']."' >Approve</a>";
+
                       $finalArray[] = $tempArray;
            }
         $output = array(
@@ -6712,6 +6715,10 @@ class Partner extends CI_Controller {
           );
           echo json_encode($output);
     }
+
+
+   
+
     function get_review_booking_data(){
         $finalArray = array();
         $state=0;
@@ -8101,6 +8108,154 @@ class Partner extends CI_Controller {
         $this->load->view('partner/download_alternate_parts.php');
         $this->load->view('partner/partner_footer');
     }
-    
+
+
+    function get_nrn_approval(){
+
+        $this->checkUserSession();
+        $agent_id = $this->session->userdata('agent_id');
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        }
+        else{
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        }
+        $data['is_ajax'] = $this->input->post('is_ajax');
+        if(empty($this->input->post('is_ajax'))){
+            $this->miscelleneous->load_partner_nav_header();
+            $this->load->view('partner/nrn_approval', $data);
+            $this->load->view('partner/partner_footer');
+        }else{
+            $this->load->view('partner/nrn_approval', $data);
+        }
+
+
+    }
+
+
+
+      function get_nrn_approval_table(){
+      $agent_id = $this->session->userdata('agent_id');
+      $finalArray = array();
+      $postData = $this->input->post();
+      $state = 0;
+      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d'))",
+          "column_4"=>"GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested)","column_7"=>"booking_details.state");    
+      $order['column'] =$columnMappingArray["column_3"];
+      $order['sorting'] = "desc";
+      // if(array_key_exists("order", $postData)){
+      //       $order['column'] =$columnMappingArray["column_".$postData['order'][0]['column']];
+      //       $order['sorting'] = $postData['order'][0]['dir'];
+      //   }
+       $partner_id = $this->session->userdata('partner_id');
+       $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND  spare_parts_details.entity_type =  '"._247AROUND_PARTNER_STRING."' AND status IN('".NRN_APPROVED_BY_PARTNER."') " 
+                . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
+                . " ";
+       if($this->input->post('state')){
+           $state = $this->input->post('state');
+           $where = $where." AND booking_details.state = '$state'";
+       }
+       if($this->input->post('booking_id')){
+           $booking_id = $this->input->post('booking_id');
+           $where = $where." AND booking_details.booking_id = '$booking_id'";
+       }
+       if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+            $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
+        }
+        $select = "spare_parts_details.booking_id,spare_parts_details.nrn_approv_by_partner,spare_parts_details.quantity,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
+                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
+                . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
+                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "
+                . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
+                . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
+                . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.model_number) as model_number, "
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic ";
+         $bookingData = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", false, $postData['length'], $postData['start'],0,$order);
+         $bookingCount = $this->service_centers_model->get_spare_parts_on_group($where, "count( Distinct spare_parts_details.booking_id) AS total_rows","spare_parts_details.booking_id", FALSE,-1,-1,1)[0]['total_rows'];
+         $sn = $postData['start'];
+         foreach ($bookingData as $key => $row) {
+                    $tempArray = array();
+                    $sn++;
+                    $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 ="";
+                    if($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) {
+                       $tempString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$row['booking_id'].'", "'.$row['amount_due'].'", "'.$row['flat_upcountry'].')" class="fa fa-road" aria-hidden="true"></i>';
+                    }
+                    $tempArray[] =  $sn. $tempString;
+                    $tempArray[] =  '<a target="_blank"  style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
+                    $tempArray[] =  $row['services'];
+                    $tempArray[] =  $row['name'];
+                    $tempArray[] =  $row['age_of_request'];
+                    $tempArray[] =  "<span style='word-break: break-all;'>". $row['parts_requested'] ."</span>";
+                    $tempArray[] =  "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";
+                    $tempArray[] =  $row['quantity'];
+                    $tempArray[] =  $row['model_number'];
+                    $tempArray[] =  $row['serial_number'];
+                    $tempArray[] =  $row['state'];
+                    $tempArray[] =  $row['remarks_by_sc'];
+                    $tempArray[] =  "<span class='btn btn-success approved_nrn_booking' data-booking_id='".$row['booking_id']."' ><i class='fa fa-check' aria-hidden='true'></i></span>";
+                    
+                    
+                    $finalArray[] = $tempArray;
+           }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingCount,
+            "recordsFiltered" =>  $bookingCount,
+            "data" => $finalArray,
+        );
+        echo json_encode($output);
+    }
+
+
+
+
+    function do_partner_nrn_approval(){
+
+        $booking_id = trim($this->input->post('booking_id'));
+        $email="Not Given";
+        $remarks = $this->input->post('remarks');
+        if (isset($_POST['email']) && !empty($_POST['email'])) {
+           $email = $this->input->post('email');
+        }
+      //  $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG',);
+        $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG');
+        $approval_file_name = "Not Uploaded";
+        if(isset($_FILES["approval_file"]) && !empty($_FILES["approval_file"])){
+           $approval_file_name = $this->miscelleneous->upload_file_to_s3($_FILES["approval_file"], "nrn_approval", $allowedExts, $booking_id, "nrn_approvals_files", "incoming_approve_nrn");
+        }
+
+        $data_nrn = array(
+            'booking_id'=>$booking_id,
+            'email_to'=>trim($email),
+            'approval_file'=>$approval_file_name,
+            'remark'=>trim($remarks)
+        );
+
+        $response = $this->partner_model->insert_nrn_approval($data_nrn);
+        if ($response) {
+                $where = array('booking_id' => trim($booking_id));
+                $data = array(
+                    'status'=>NRN_APPROVED_BY_PARTNER,
+                    'nrn_approv_by_partner'=>1
+                );
+                $response = $this->service_centers_model->update_spare_parts($where, $data);
+
+                $new_state=NRN_APPROVED_BY_PARTNER;
+                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', NRN_TO_BE_APPROVED_BY_PARTNER);
+                echo "1";   
+        }else{
+           echo "0";
+        }
+       
+    }
+
+
+
+
+
    
 }

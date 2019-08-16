@@ -2496,5 +2496,27 @@ function get_data_for_partner_callback($booking_id) {
             return 'success';  
         }        
     }
+
+    /**
+     This function insert in nrn details
+     * @author Abhishek Awasthi
+     * @date 13-08-2019
+     * @param type $data
+     * @return boolean 
+     */
+
+    function insert_nrn_approval($data){
+       $this->db->insert('spare_nrn_approval',$data); 
+        if(!empty($this->db->affected_rows())){
+            return TRUE; 
+        }else{
+          return FALSE;
+        }
+    }
+
+
+
+
+
 }
 

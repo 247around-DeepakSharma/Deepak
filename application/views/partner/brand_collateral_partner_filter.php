@@ -156,6 +156,13 @@
         }
     }
     function get_appliance(){
+       $("#service_id").html("");
+        $("#service_id").val(null).trigger("change");
+       $('#brand').html("");
+       $("#brand").val(null).trigger("change");
+        $('#model').html("");
+        $("#model").val(null).trigger("change");
+        $("#request_type").val(null).trigger("change");
         var partner_id=$("#partner").val();
         $.ajax({
             type: 'POST',
@@ -173,6 +180,11 @@
     }
     //This funciton is used to get Distinct Brands for selected service for Logged Partner
     function get_brand(){
+     $('#brand').html("");
+       $("#brand").val(null).trigger("change");
+        $('#model').html("");
+        $("#model").val(null).trigger("change");
+        $("#request_type").val(null).trigger("change");
         var partner_id=$("#partner").val();
         var service_id =  $("#service_id").val();
 
@@ -197,6 +209,9 @@
     // added by pranjal dt - 8/9/2019 
     // for getting model as per selection criteria
      function get_model(){
+     $('#model').html("");
+        $("#model").val(null).trigger("change");
+        $("#request_type").val(null).trigger("change");
         var partner_id=$("#partner").val();
         var service_id =  $("#service_id").val();
         var brand =  $("#brand").val();
@@ -259,7 +274,11 @@
                 }
             ],
         });
-        $("#partner,#service_id,#brand,#model").select2();
+        $("#partner").select2();
+        $("#service_id").select2({placeholder: "Select Service"});
+        $("#brand").select2({placeholder: "Select Brand"});
+        $("#model").select2({placeholder: "Select Model"});
+        
         $("#request_type").select2({
                 placeholder: "Select Service Category",
                 allowClear: true
