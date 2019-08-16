@@ -923,8 +923,8 @@ class Dashboard extends CI_Controller {
     function download_missing_sf_pincode_excel($rmID = NULL){
         ob_start();
         $pincodeArray =  $this->dashboard_model->get_pincode_data_for_not_found_sf($rmID);
-        $config = array('template' => "missing_sf_pincode.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
-        $this->miscelleneous->downloadExcel($pincodeArray,$config);
+        $heading = ['Pincode', 'City', 'State', 'Services', 'RM'];
+        $this->miscelleneous->downloadCSV($pincodeArray, $heading, "missing_sf_pincode.csv");
     }
     
     /**
