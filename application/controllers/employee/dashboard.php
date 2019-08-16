@@ -3170,7 +3170,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $employees = $this->reusable_model->get_search_result_data('employee_hierarchy_mapping', '*', ['manager_id' => $manager_id], NULL, NULL, NULL, NULL, NULL);
         
         if($this->session->userdata('userType') == 'employee'){
-            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+            $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         }
         else if($this->session->userdata('userType') == 'partner'){
             $this->miscelleneous->load_partner_nav_header();
