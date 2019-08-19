@@ -2326,7 +2326,9 @@ class Inventory extends CI_Controller {
         }
 
         if (!empty($inventory_id)) {
-            $group_inventory_id = $this->inventory_model->get_group_wise_inventory_id_detail('alternate_inventory_set.inventory_id,alternate_inventory_set.group_id', $inventory_id);
+            $where_clause = "AND alternate_inventory_set.inventory_id = ".$inventory_id;
+            $flag = false;
+            $group_inventory_id = $this->inventory_model->get_group_wise_inventory_id_detail('alternate_inventory_set.inventory_id,alternate_inventory_set.group_id', $where_clause, $flag);
             $inventory_ids = implode(',', array_map(function ($entry) {
                         return $entry['inventory_id'];
                     }, $group_inventory_id));
