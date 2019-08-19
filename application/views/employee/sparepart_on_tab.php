@@ -647,7 +647,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,11,12,13 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,11,12,13,14 ]
                     },
                     title: 'partner_shipped_oow_part'
                 }
@@ -685,7 +685,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14 ]
                     },
                     title: 'spare_cost_given'
                 }
@@ -726,7 +726,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14 ]
                     },
                     title: 'cost_requested'
                 }
@@ -832,7 +832,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,12 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14 ],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'
@@ -864,7 +864,7 @@
           }
         });
     
-  //spare_parts_requested_rejected  
+          
         spare_parts_requested_table_reject = $('#spare_parts_requested_table_reject').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
@@ -877,7 +877,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10,13 ],
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,13,14,15 ],
                          modifier : {
                             // DataTables core
                             page : 'All',      // 'all',     'current'
@@ -922,7 +922,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15 ]
                     },
                     title: 'partner_shipped_part'
                 }
@@ -1039,7 +1039,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12 ]
+                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14 ]
                     },
                     title: 'defective_part_rejected'
                 }

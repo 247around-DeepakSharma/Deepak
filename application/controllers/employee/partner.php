@@ -222,6 +222,15 @@ class Partner extends CI_Controller {
                 }
             }
         }
+        else {
+            $data['symptom'][0] = array("symptom" => "Default");
+            
+            if(in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
+                $data['completion_symptom'][0] = array("symptom" => "Default");
+                $data['technical_defect'][0] = array("defect" => "Default");
+                $data['technical_solution'][0] = array("technical_solution" => "Default");
+            }
+        }
         
         if (!empty($data['booking_history']['spare_parts'])) {
             $spare_parts_list = array();
@@ -1881,7 +1890,10 @@ class Partner extends CI_Controller {
                 $bookingSymptom['booking_id'] = $booking_id;
                 $bookingSymptom['symptom_id_booking_creation_time'] = $post['booking_request_symptom'];
                 $bookingSymptom['create_date'] = date("Y-m-d H:i:s");
-                $this->booking_model->addBookingSymptom($bookingSymptom);
+                
+                if($post['booking_request_symptom']) {
+                    $this->booking_model->addBookingSymptom($bookingSymptom);
+                }
             }
             $up_flag = 1;
             $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_details['booking_id'] . "/" . $up_flag;
@@ -1980,7 +1992,7 @@ class Partner extends CI_Controller {
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
         $where = array();
         if(!empty($data['spare_parts'])) {
-            $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
+            $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'inventory_model_mapping.active' => 1);
         }
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
         $data['appliance_model_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
@@ -4036,7 +4048,7 @@ class Partner extends CI_Controller {
      * 
      */
     function download_sf_list_excel() {
-        $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1');
+        $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1',is_CP => '0');
         $select = "service_centres.id,service_centres.district,service_centres.state,service_centres.pincode,service_centres.appliances,service_centres.non_working_days,GROUP_CONCAT(sub_service_center_details.district) as upcountry_districts";
         //$vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
              $vendor =  $this->reusable_model->get_search_result_data("service_centres",$select,$where,array("sub_service_center_details"=>"sub_service_center_details.service_center_id = service_centres.id"),
