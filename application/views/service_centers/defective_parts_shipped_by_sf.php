@@ -23,12 +23,26 @@
             .table.dataTable thead .sorting:after {
               opacity: 1;            
             }
+                .loader {
+    position: fixed;
+    left: 0px;
+    top: 0px;
+    display: none;
+    width: 100%;
+    height: 100%;
+    z-index: 9999999;
+    background: url('<?php echo base_url();  ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.62);
+  }
         </style>
+        <div class="loader"></div>
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
         <div class="x_title">
+            <button class="btn btn-success pull-right" id="revieve_multiple_parts_btn">Recieve Multiple Parts</button>
             <h2>Defective Parts Shipped By SF</h2>
             <div class="clearfix"></div>
+
+            
         </div>
         <hr>
         <div class="x_content">
@@ -96,7 +110,7 @@
                                 </td>
                                 <td>
                                 <?php if (!empty($row['defective_part_shipped'])) { ?> 
-                                    <a onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts" href="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a>
+                                    <a  onclick="return confirm_received()"  class="btn btn-sm btn-primary recieve_defective" id="defective_parts" href="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a> <input type="checkbox" class="checkbox_revieve_class" name="revieve_checkbox"  data-url="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/1"  />
                                 <?php } ?>
                                 </td>
                                 <td>
@@ -127,7 +141,6 @@
 </div>
         <script>
             $('#defective_spare_shipped_by_sf').DataTable({
-                pageLength:75,
                 dom: 'Bfrtip',
                 buttons: [
                     {
@@ -139,7 +152,8 @@
                         title: 'defective_spare_shipped_by_sf_to_wh'
                     }
                 ],
-                "bSortClasses": false
+                "bSortClasses": false,
+                "pageLength":2000,
             });
         </script>
 <?php if(empty($is_ajax)) { ?> 
@@ -155,5 +169,31 @@ function confirm_received(){
         return false;
     }
 }
+
+$("#revieve_multiple_parts_btn").click(function(){
+$(".loader").css("display","block !important");
+$('.checkbox_revieve_class').each(function () {
+        if (this.checked) { 
+         var url = $(this).attr("data-url");
+          $.ajax({
+           type: "POST",
+           url: url,
+           async: false,
+           success: function(data)
+           {
+               console.log("Receiving");
+           }
+           }); 
+           }
+}).promise().done(function () { 
+     swal("Received!", "Your all selected spares are received !.", "success");
+         $(".loader").css("display","none");
+         location.reload();
+});
+
+
+});
+
+
 
 </script>

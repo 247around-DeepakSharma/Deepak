@@ -8,7 +8,37 @@
                
                 <input type="search" class="form-control pull-right"  id="search_<?=$review_status?>_<?=$is_partner?>" placeholder="search" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
             </div>
-              <?php if($status == 'Cancelled') { 
+             <?php if($status == 'Completed') { ?>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="state_completed" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($states as $state) { ?>
+                    <option value="<?= $state['state_code']; ?>"><?= $state['state']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
+            </div>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="partner_completed" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($partners as $partner) { ?>
+                    <option value="<?= $partner['id']; ?>"><?= $partner['public_name']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
+            </div>
+                 
+                 
+            
+             <?php } if($status == 'Cancelled') { 
               ?>
              <div class="col-md-3 pull-right" style="margin-top:20px;">
               
@@ -23,6 +53,33 @@
                
                 
             </div>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="state_cancelled" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($states as $state) { ?>
+                    <option value="<?= $state['state_code']; ?>"><?= $state['state']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
+            </div>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="partner_cancelled" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($partners as $partner) { ?>
+                    <option value="<?= $partner['id']; ?>"><?= $partner['public_name']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
+            </div>
+             
              <?php } ?>
              <h2 style="margin-left: 13px;" >
                   <b><?php echo $status; ?> Bookings</b>
@@ -59,7 +116,7 @@
                               <?php $offset++ ;?>
                               <td style="text-align: left;white-space: inherit;font-size:80%"><?php echo $offset; ?></td>
                               
-                              <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']; ?>
+                              <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']?><?php if(!empty($value['sf_purchase_invoice'])) { echo "<br/><br/><a href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$value['sf_purchase_invoice']."' target=\"_blank\">Invoice</a>"; }?>
                                  
                                   <input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
                                   <input type="hidden" name="approved_by" value='<?php echo _247AROUND ?>'  id="approved_by">
@@ -154,7 +211,7 @@
                               
                               <td style="text-align: center;white-space: inherit;"><strong><?php echo $booking_age ?></strong></td>
                               <?php if($review_status == "Completed"){ ?>
-                              <td id="warranty-<?= $value['booking_id']?>">--</td>
+                              <td class="warranty-<?= $value['booking_id']?>">--</td>
                               <?php } ?>
                               <td style="text-align: left;white-space: inherit;">
                                  <p id="<?php echo "admin_remarks_".$count; ?>"><?php echo $value['admin_remarks']; ?></p>
@@ -238,9 +295,22 @@
    </div>
 
 <script>
-     $('#cancellation_reason').select2({
+    $('#cancellation_reason').select2({
        placeholder: 'Cancellation Reason'
-   }); 
+    }); 
+    $('#state_cancelled').select2({
+       placeholder: 'State'
+    }); 
+    $('#partner_cancelled').select2({
+       placeholder: 'Partner'
+    });    
+    $('#partner_completed').select2({
+       placeholder: 'Partner'
+    });    
+    $('#state_completed').select2({
+       placeholder: 'State'
+    });    
+   
    $(document).ready(function(){
         $("#selecctall").change(function(){
             var isChecked = document.getElementById('selecctall').checked;
@@ -267,7 +337,7 @@
                 success:function(response){
                     var warrantyData = JSON.parse(response);
                     $.each(warrantyData, function(index, value) {
-                        $("#warranty-"+index).html(value);
+                        $(".warranty-"+index).html(value);
                     });
                 }                            
             }); 

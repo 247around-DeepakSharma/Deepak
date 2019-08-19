@@ -2083,7 +2083,7 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //$requestData = array("model_number_id" => "157");
         if(!empty($requestData["model_number_id"])) {
-            $response['partTypeList'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type as part_type', array('model_number_id' => $requestData["model_number_id"]));
+            $response['partTypeList'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type as part_type', array('model_number_id' => $requestData["model_number_id"], 'inventory_model_mapping.active' => 1));
             log_message("info", __METHOD__ . "Part Type found successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
@@ -2111,7 +2111,8 @@ class engineerApi extends CI_Controller {
 
             $where['inventory_master_list.service_id'] = $requestData['service_id'];
             $where['inventory_master_list.entity_id'] = $requestData['partner_id'];
-            $where['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;;
+            $where['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;
+            $where['inventory_model_mapping.active'] = 1;
             $select = "inventory_master_list.part_name, inventory_master_list.inventory_id, inventory_model_mapping.max_quantity, inventory_master_list.part_number, CAST((price + (price*gst_rate/100) + (price*oow_around_margin/100) + (price*oow_vendor_margin/100)) as decimal(10,2)) as amount";
             $response = $this->inventory_model->get_inventory_model_mapping_data($select, $where);
             log_message("info", __METHOD__ . "Spare Part Name found successfully");

@@ -944,6 +944,7 @@ class Booking extends CI_Controller {
         $upcountry_price = 0;
         
         $unit_price_tags = array();
+        $data['is_invoice_generated'] = FALSE;
         //Process booking Unit Details Data Through loop
         foreach ($data['booking_unit_details'] as $keys => $value) {
             //If partner type is OEM then get price for booking unit brands
@@ -993,6 +994,10 @@ class Booking extends CI_Controller {
                 unset($prices[$id]);
                 if ($keys == 0) {
                     $upcountry_price = isset($service_center_data[0]['upcountry_charges']) ? $service_center_data[0]['upcountry_charges'] : "";
+                }
+                
+                if(!empty($price_tag['partner_invoice_id']) && empty($data['is_invoice_generated'])) {
+                    $data['is_invoice_generated'] = TRUE;
                 }
             }
 
@@ -1068,6 +1073,13 @@ class Booking extends CI_Controller {
         if ($status == _247AROUND_FOLLOWUP) {
             $where_internal_status = array("page" => "Cancel", "active" => '1');
             $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
+        }
+        
+        $check_invoice_generated = array_column($this->reusable_model->get_search_result_data('booking_unit_details', 'partner_invoice_id', ['booking_id' => $booking_id], NULL, NULL, NULL, NULL, NULL), 'partner_invoice_id');
+        if(!empty(array_filter($check_invoice_generated))) {
+            $data['is_invoice_generated'] = TRUE;
+        } else {
+            $data['is_invoice_generated'] = FALSE;
         }
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/cancelbooking', $data);
@@ -1201,14 +1213,14 @@ class Booking extends CI_Controller {
                 $this->notify->insert_state_change($booking_id, _247AROUND_RESCHEDULED, _247AROUND_PENDING,$reschedule_reason, $this->session->userdata('id'), 
                         $this->session->userdata('employee_id'),$actor,$next_action, _247AROUND);
 
-    //            $service_center_data['internal_status'] = _247AROUND_PENDING;
-    //            $service_center_data['current_status'] = _247AROUND_PENDING;
-                //$service_center_data['update_date'] = date("Y-m-d H:i:s");
+                $service_center_data['internal_status'] = _247AROUND_PENDING;
+                $service_center_data['current_status'] = _247AROUND_PENDING;
+                $service_center_data['update_date'] = date("Y-m-d H:i:s");
 
 
-    //            log_message('info', __FUNCTION__ . " Booking Id " . $booking_id . " Update Service center action table  " . print_r($service_center_data, true));
+                log_message('info', __FUNCTION__ . " Booking Id " . $booking_id . " Update Service center action table  " . print_r($service_center_data, true));
 
-                //$this->vendor_model->update_service_center_action($booking_id, $service_center_data);
+                $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
 
                 $send_data['booking_id'] = $booking_id;
                 $send_data['state'] = "Rescheduled";
@@ -2182,7 +2194,7 @@ class Booking extends CI_Controller {
                 $data['sf_model_number'] = $model_number[$unit_id];
             }
             $data['sf_purchase_date'] = NULL;
-            if (isset($purchase_date[$unit_id])) {
+            if (!empty($purchase_date[$unit_id])) {
                 $data['sf_purchase_date'] = $purchase_date[$unit_id];
             }
             
@@ -5262,7 +5274,7 @@ class Booking extends CI_Controller {
         }
         $this->load->view('employee/rescheduled_review', $data);
     }
-    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL){
+    function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL){
         
         $this->checkUserSession();
         $whereIN = $where = $join = $having = array();
@@ -5291,12 +5303,26 @@ class Booking extends CI_Controller {
             $whereIN['sc.added_by_SF'] = [1];
         }
         
-        if(!is_null($cancellation_reason_id)){
+        if(!empty($cancellation_reason_id)){
            $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $cancellation_reason_id), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
            $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
         }
         $data['cancellation_reason'] = $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
         $data['cancellation_reason_selected'] = $cancellation_reason_id;
+        
+        if(!empty($state_code)) {
+           $state =  $this->reusable_model->get_search_result_data("state_code", "*", array('state_code' => $state_code), NULL, NULL, NULL, NULL, NULL, array())[0]['state'];
+           $whereIN['booking_details.state'] = [$state];
+        }
+        $data['states'] = $this->reusable_model->get_search_result_data("state_code", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+        $data['state_selected'] = $state_code;
+
+        if(!empty($partner_id)) {
+           $whereIN['booking_details.partner_id'] = [$partner_id];
+        }
+        $data['partners'] = $this->reusable_model->get_search_result_data("partners", "*", array(), NULL, NULL, NULL, NULL, NULL, array());
+        $data['partner_selected'] = $partner_id;
+        
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
         if(!empty($total_rows)){
             $data['per_page'] = 100;

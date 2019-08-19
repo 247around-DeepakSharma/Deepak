@@ -121,7 +121,7 @@ class Service_centers extends CI_Controller {
             $sf_data['model_number_id'] = $model_number_id;
             $sf_data['partner_id'] = '';
             $sf_data['service_id'] = '';  
-            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services', array('inventory_model_mapping.model_number_id' => $model_number_id));
+            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services', array('inventory_model_mapping.model_number_id' => $model_number_id, 'inventory_model_mapping.active' => 1));
         } else {
             $data['inventory_details'] = array();
             $sf_data['model_number_id'] ='';
@@ -621,7 +621,7 @@ class Service_centers extends CI_Controller {
                                         $data['service_center_remarks'] = date("F j") . ":- " . $closing_remarks;
                                     }
                                 }
-                                $data['sf_purchase_date'] = $purchase_date[$unit_id];
+                                $data['sf_purchase_date'] = (!empty($purchase_date[$unit_id]) ? $purchase_date[$unit_id] : NULL);
                                 $data['sf_purchase_invoice'] = NULL;
                                 if (!empty($purchase_invoice[$unit_id]) || !empty($purchase_invoice_file_name)) {
                                     if(empty($purchase_invoice_file_name)) {
@@ -1564,6 +1564,35 @@ class Service_centers extends CI_Controller {
                     $assigned['service_center_id'] = $this->session->userdata('service_center_id');
                     // Insert data into Assigned Engineer Table
                     $inserted_id = $this->vendor_model->insert_assigned_engineer($assigned);
+                     
+                    $where = array('booking_id' => $booking_id);
+                    
+                    $unit_details = $this->booking_model->get_unit_details($where);
+
+                    foreach ($unit_details as $value) {
+                        $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
+                    "engineer_booking_action.unit_details_id" => $value['id']);
+                       $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
+                       if(empty($en)){
+                            $engineer_action['unit_details_id'] = $value['id'];
+                            $engineer_action['booking_id'] = $booking_id;
+                            $engineer_action['engineer_id'] = $engineer_id;
+                            $engineer_action['service_center_id'] = $this->session->userdata('service_center_id');
+                            $engineer_action['current_status'] = _247AROUND_PENDING;
+                            $engineer_action['internal_status'] = _247AROUND_PENDING;
+                            $engineer_action["create_date"] = date("Y-m-d H:i:s");
+
+                            $this->engineer_model->insert_engineer_action($engineer_action);
+                       } else {
+                          
+                           $engineer_action['engineer_id'] = $engineer_id;
+                           $engineer_action['service_center_id'] = $this->session->userdata('service_center_id');
+                           $engineer_action['current_status'] = _247AROUND_PENDING;
+                           $engineer_action['internal_status'] = _247AROUND_PENDING;
+                           $this->engineer_model->update_engineer_table($engineer_action,array('id' => $en[0]['id']) );
+                       }
+                    }
+            
                     if ($inserted_id) {
                         $this->insert_details_in_state_change($booking_id, $assigned['current_state'], "Engineer Id: " . $engineer_id,"not_define","not_define");
 
@@ -5656,7 +5685,7 @@ class Service_centers extends CI_Controller {
                         $this->insert_details_in_state_change($booking_id, SPARE_PARTS_CANCELLED, "Warehouse Reject Spare Part", "", "");
                         $response = $this->service_centers_model->update_spare_parts(array("id" => $part_details['spare_id']), array('status' => _247AROUND_CANCELLED, "old_status" => SPARE_PARTS_REQUESTED));
 
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], -1);
+                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], -$data['quantity']);
                     } else if ($part_details['shippingStatus'] == -1) {
                         $this->insert_details_in_state_change($booking_id, "SPARE TO BE SHIP", "Warehouse Update - " . $part_details['shipped_parts_name'] . " To Be Shipped", "", "");
                     }

@@ -633,7 +633,7 @@ class User_invoice extends CI_Controller {
             $response['meta']['invoice_id'] = $invoice_id;
             $response['meta']['vertical'] = SERVICE;
             $response['meta']['category'] = SPARES;
-            $response['meta']['sub_category'] = MSL_DEFECTIVE_RETURN;
+            $response['meta']['sub_category'] = DEFECTIVE_PART_LOST;
             $response['meta']['accounting'] = 1;
             
             $this->invoice_lib->insert_invoice_breackup($response);

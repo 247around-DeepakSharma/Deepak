@@ -32,16 +32,25 @@
                 <div class="col-md-2">
                     <div class="form-group" >
 
-                        <select class="form-control" id="brand" required="" name="brand">
+                        <select class="form-control" id="brand" required="" name="brand" onchange="get_model();">
                             <option selected disabled  >Select Brand</option>
                         </select>
                     </div>
                     <?php echo form_error('brand'); ?>
                 </div>
-                <div class="col-md-2" style="width: 450px">
+                <div class="col-md-2">
                     <div class="form-group" >
 
-                        <select class="form-control" id="request_type" required="" name="request_type[]" multiple="multiple" style="width: 430px">
+                        <select class="form-control" id="model" required="" name="model" >
+                            <option selected disabled  >Select Model</option>
+                        </select>
+                    </div>
+                    <?php echo form_error('model'); ?>
+                </div>
+                <div class="col-md-2" >
+                    <div class="form-group" >
+
+                        <select class="form-control" id="request_type" required="" name="request_type[]" multiple="multiple" >
                             <option disabled  >Select Service Category</option>
                             <option value="Installation"  >Installation</option>
                             <option value="Repair"  >Repair</option>
@@ -105,6 +114,11 @@
            alert("Please Select Brand ");
            return false;
         }
+        else if(brand==='Select Model')
+        {
+           alert("Please Select Model ");
+           return false;
+        }
         else if(request_type==null || request_type=='')
         {
            alert("Please Select Service Category ");
@@ -142,6 +156,13 @@
         }
     }
     function get_appliance(){
+       $("#service_id").html("");
+        $("#service_id").val(null).trigger("change");
+       $('#brand').html("");
+       $("#brand").val(null).trigger("change");
+        $('#model').html("");
+        $("#model").val(null).trigger("change");
+        $("#request_type").val(null).trigger("change");
         var partner_id=$("#partner").val();
         $.ajax({
             type: 'POST',
@@ -159,6 +180,11 @@
     }
     //This funciton is used to get Distinct Brands for selected service for Logged Partner
     function get_brand(){
+     $('#brand').html("");
+       $("#brand").val(null).trigger("change");
+        $('#model').html("");
+        $("#model").val(null).trigger("change");
+        $("#request_type").val(null).trigger("change");
         var partner_id=$("#partner").val();
         var service_id =  $("#service_id").val();
 
@@ -168,9 +194,36 @@
             data: {service_id: service_id,partner_id:partner_id},
             success: function (data) {
                 //First Resetting Options values present if any
-                $('#brand').html("<option selected disabled  >Select Brand</option>");
-                $('#brand').append(data);
-                $('#brand').trigger("change");
+                $('#brand').html("");
+                if(data){
+                    $('#brand').append(data);
+//                    if(data.length>)
+//                    $('#brand').trigger("change");
+                }
+               // console.log($('#brand').text());
+                //$('#brand').trigger("change");
+            }
+        });
+    }
+    
+    // added by pranjal dt - 8/9/2019 
+    // for getting model as per selection criteria
+     function get_model(){
+     $('#model').html("");
+        $("#model").val(null).trigger("change");
+        $("#request_type").val(null).trigger("change");
+        var partner_id=$("#partner").val();
+        var service_id =  $("#service_id").val();
+        var brand =  $("#brand").val();
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/partner/get_model_for_partner_with_brand',
+            data: {service_id: service_id,partner_id:partner_id,brand: brand},
+            success: function (data) {
+                //First Resetting Options values present if any
+                $('#model').html("<option selected disabled  >Select Model</option>");
+                $('#model').append(data);
+               // $('#model').trigger("change");
             }
         });
     }
@@ -210,6 +263,7 @@
                   d.partner_id = $("#partner option:selected").val();
                   d.service_id = $("#service_id option:selected").val();
                   d.brand = $("#brand option:selected").val();
+                  d.model = $("#model option:selected").val();
                   d.request_type = $("#request_type").val();
                }
             },
@@ -220,7 +274,11 @@
                 }
             ],
         });
-        $("#partner,#service_id,#brand").select2();
+        $("#partner").select2();
+        $("#service_id").select2({placeholder: "Select Service"});
+        $("#brand").select2({placeholder: "Select Brand"});
+        $("#model").select2({placeholder: "Select Model"});
+        
         $("#request_type").select2({
                 placeholder: "Select Service Category",
                 allowClear: true
