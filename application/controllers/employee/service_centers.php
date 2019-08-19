@@ -2506,7 +2506,11 @@ class Service_centers extends CI_Controller {
             $in['sender_entity_type'] = _247AROUND_SF_STRING;
             $in['stock'] = -1;
             $in['booking_id'] = $value['booking_id'];
-            $in['agent_id'] = $this->session->userdata('agent_id');
+            if($this->session->userdata('userType') == 'service_center'){
+             $in['agent_id'] = $this->session->userdata('service_center_id');            
+            }else{
+              $in['agent_id'] = $this->session->userdata('agent_id');   
+            }
             $in['agent_type'] = _247AROUND_SF_STRING;
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
