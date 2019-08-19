@@ -4357,6 +4357,10 @@ class Inventory extends CI_Controller {
             $update['status'] = SPARE_DELIVERED_TO_SF;  /// update deliver date also
             $update['acknowledge_date'] = date('Y-m-d');
             $status = SPARE_DELIVERED_TO_SF;
+            $sc_data['current_status'] = _247AROUND_PENDING;
+            $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
+            $this->vendor_model->update_service_center_action($data->booking_id, $sc_data);
+
         }
         if (!empty($data->booking_id)) {
 
