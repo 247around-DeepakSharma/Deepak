@@ -156,12 +156,12 @@
                                     </div>
                                 </div>
                                 <hr>
-                                <div class="dynamic-form-box">
+                                <div class="dynamic-form-box" id="appliance_details_id">
                                     <div class="form-group">
                                         <div class="col-xs-12 col-sm-6 col-md-2">
                                             <p class="text-center"><strong>Appliance</strong></p>
                                         </div>
-                                        <div class="col-xs-12 col-sm-6 col-md-4">
+                                        <div class="col-xs-12 col-sm-6 col-md-2">
                                             <p class="text-center"><strong>Part Name</strong></p>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
@@ -188,7 +188,7 @@
                                             <input type="hidden" name="part[0][shippingStatus]" id="shippingStatus_0" value="1">
                                             <select class="form-control" name="part[0][service_id]" id="serviceId_0" required="" onchange="get_part_details(this.id)"></select>
                                         </div>
-                                        <div class="col-xs-12 col-sm-6 col-md-4">
+                                        <div class="col-xs-12 col-sm-6 col-md-2">
                                             <select class="form-control" name="part[0][part_name]" id="partName_0" required="" onchange="get_part_details(this.id)"></select>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
@@ -220,7 +220,7 @@
                                             <input type="hidden" id="shippingStatus" value="1">
                                             <select class="form-control" id="service_id"  required="" onchange="get_part_details(this.id)"></select>
                                         </div>
-                                        <div class="col-xs-12 col-sm-6 col-md-4">
+                                        <div class="col-xs-12 col-sm-6 col-md-2">
                                             <select class="form-control" id="part_name"  required="" onchange="get_part_details(this.id)"></select>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
@@ -268,7 +268,9 @@
                                             <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
                                             <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_PARTNER; ?>">
                                             <input type="hidden" id="is_defective_part_return_wh" name="is_defective_part_return_wh" value="<?php echo $is_defective_part_return_wh; ?>"/>
-                                            <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
+                                            <input type="hidden" id="confirmation" value="0">
+                                            <input type="hidden" id="requested_appliance_count" value="">
+                                            <button type="submit" class="btn btn-success" id="submit_btn">Prevent</button>
                                         </div>
                                     </div>
                                 </div>
@@ -432,7 +434,41 @@
     </div>
 </div>
 
+    <!--Modal start [ send spare parts list ]-->
+      <div id="map_appliance_model" class="modal fade" role="dialog">
+          <div class="modal-dialog modal-lg" style="width: 90%;">
+              <div class="modal-content">
+                  <button type="button" class="close btn-primary" style="margin: 6px 10px;" data-dismiss="modal">×</button>
+                  <div class="modal-header">
+                      <h4 class="modal-title">Send MSL Details To <strong id="modal_title_action"></strong> </h4>
+                  </div>
+                  <div class="modal-body" style="margin-right: -400px;">
+                          <form class="form-horizontal">
+                              <div id="clone_id" style="text-align: center;"></div>
+                              <div class="modal-footer" style="margin-right: 389px;text-align: center;">
+                                  <input type="hidden" id="mapped_model_table_id">
+                                  <button type="button" class="btn btn-success" id="sumit_msl">Submit</button>
+                                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                              </div>
+                          </form>
+                  </div>
+              </div>
+          </div>
+      </div>
+    <!--Modal end--> 
+    
 <script>
+    
+    $("#wh_id").on('change',function(){
+        var wh_name = $("#wh_id option:selected").text();
+        $("#modal_title_action").html(wh_name);
+    });
+
+    $("#sumit_msl").click(function(){
+        $("#confirmation").val('1');
+        $("#spareForm").submit();
+    });
+    
     var date_before_15_days = new Date();
     date_before_15_days.setDate(date_before_15_days.getDate()-15);
 
@@ -569,46 +605,76 @@
         $("#spareForm").on('submit', function(e) {
             e.preventDefault();
             var isvalid = $("#spareForm").valid();
+            var flag = '';
             if (isvalid) {
                 var wh_name = $('#wh_id option:selected').text();
                 $('#wh_name').val(wh_name);
                 var entered_invoice_amt = Number($('#invoice_amount').val());
                 var our_invoice_amt = Number($('#total_spare_invoice_price').text());
                 if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
+                    flag = true;
                     $('#invoice_amount').css('border','1px solid #ccc');
                     $('#total_spare_invoice_price').removeClass('text-danger');
+                                             
+                   var c_status = $("#confirmation").val();
+                   if(c_status !=''&& c_status == '1'){                    
                     showConfirmDialougeBox('Are you sure you want to submit ?', 'info');
+                   }
                     
                 }else{
                     showConfirmDialougeBox('Amount of invoice does not match with total price', 'warning');
                     $('#invoice_amount').css('border','1px solid red');
                     $('#total_spare_invoice_price').addClass('text-danger');
+                    flag = false;
                     return false;
                 }
                 
                 $(".part-total-price").each(function(i) {
-    
+                    
+                    var count = $("#requested_appliance_count").val();
+                    if(count == ''){
+                        $("#requested_appliance_count").val(i); 
+                    }
+                    
                     if(Number($('#partBasicPrice_'+i).val()) == 0){
                         showConfirmDialougeBox('Please enter basic price', 'warning');
                         $('#partBasicPrice_'+i).addClass('text-danger');
+                        flag = false;
                         return false;
                     }
 
                     if(Number($('#partHsnCode_'+i).val()) === ""){
                         $('#partHsnCode_'+i).addClass('text-danger', 'warning');
                         showConfirmDialougeBox('Please enter HSN Code');
+                        flag = false;
                         return false;
                     }
-
+                    
+                    if( i <= count){
                     if(Number($('#partGstRate_'+i).val()) == 5 || Number($('#partGstRate_'+i).val()) == 12 || Number($('#partGstRate_'+i).val()) == 18 || Number($('#partGstRate_'+i).val())  == 28){
 
                     } else {
                         $('#partGstRate_'+i).addClass('text-danger');
                         showConfirmDialougeBox('Please invalid Gst Number', 'warning');
-                       
+                        flag = false;
                         return false;
                     }
+                 }
                 });
+                
+                 /* Open Modal */
+                    $("#clone_id").empty();
+                    $('#appliance_details_id').clone(true).appendTo('#clone_id');
+                    $('#clone_id .form-control').each(function(){
+                    $(this).attr("readonly","readonly");
+                    });
+                    $("#clone_id .select2-selection__rendered").css('background','#eee');
+                    $("#clone_id .addButton").hide();
+                    $("#clone_id .removeButton").hide(); 
+                    if(flag = true){
+                      $('#map_appliance_model').modal('toggle');  
+                    }
+                    
             }
         });
         
@@ -717,11 +783,12 @@
                     $('#success_msg').html(obj.message);
                     $("#spareForm")[0].reset();
                     $(".warehouse_print_address").css({'display':'block'});
-                                    $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
+                    $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
                 }else{
                     showConfirmDialougeBox(obj.message, 'warning');
                     $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                     $('#error_msg').html(obj.message);
+                    $("#confirmation").val('0');
                 }
             }
         });

@@ -3619,7 +3619,7 @@ class Inventory extends CI_Controller {
             
             $post['where_in'] = array('entity_type' => $entity_array);
             
-            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id,spare_parts_details.quantity "
+            $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id,spare_parts_details.quantity, "
                     . "spare_parts_details.status,spare_parts_details.part_warranty_status, entity_type, spare_parts_details.partner_id, "
                     . "requested_inventory_id,spare_parts_details.courier_name_by_partner,spare_parts_details.model_number,spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.shipped_date,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_quantity", $array, false,false,false,$post);
             
