@@ -290,7 +290,7 @@ class Service_centers_model extends CI_Model {
         }
         
          if(!$select){
-             $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,booking_details.request_type,booking_details.city,booking_details.state"
+             $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,sc.sf_purchase_invoice,booking_details.request_type,booking_details.city,booking_details.state"
                 . ",STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
                 . ",STR_TO_DATE(booking_details.create_date,'%Y-%m-%d') as booking_create_date,booking_details.booking_primary_contact_no,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due $userSelect";
              $groupBy = "GROUP BY sc.booking_id";
@@ -323,6 +323,7 @@ class Service_centers_model extends CI_Model {
                     . ' service_center_booking_action.mismatch_pincode, '
                     . ' service_center_booking_action.is_sn_correct, '
                     . ' service_center_booking_action.sf_purchase_date, '
+                    . ' service_center_booking_action.sf_purchase_invoice, '
                     . ' service_center_booking_action.model_number');
             $this->db->where('service_center_booking_action.booking_id', $value['booking_id']); 
             $this->db->from('service_center_booking_action');

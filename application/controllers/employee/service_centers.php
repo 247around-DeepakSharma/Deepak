@@ -1575,6 +1575,35 @@ class Service_centers extends CI_Controller {
                     $assigned['service_center_id'] = $this->session->userdata('service_center_id');
                     // Insert data into Assigned Engineer Table
                     $inserted_id = $this->vendor_model->insert_assigned_engineer($assigned);
+                     
+                    $where = array('booking_id' => $booking_id);
+                    
+                    $unit_details = $this->booking_model->get_unit_details($where);
+
+                    foreach ($unit_details as $value) {
+                        $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
+                    "engineer_booking_action.unit_details_id" => $value['id']);
+                       $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
+                       if(empty($en)){
+                            $engineer_action['unit_details_id'] = $value['id'];
+                            $engineer_action['booking_id'] = $booking_id;
+                            $engineer_action['engineer_id'] = $engineer_id;
+                            $engineer_action['service_center_id'] = $this->session->userdata('service_center_id');
+                            $engineer_action['current_status'] = _247AROUND_PENDING;
+                            $engineer_action['internal_status'] = _247AROUND_PENDING;
+                            $engineer_action["create_date"] = date("Y-m-d H:i:s");
+
+                            $this->engineer_model->insert_engineer_action($engineer_action);
+                       } else {
+                          
+                           $engineer_action['engineer_id'] = $engineer_id;
+                           $engineer_action['service_center_id'] = $this->session->userdata('service_center_id');
+                           $engineer_action['current_status'] = _247AROUND_PENDING;
+                           $engineer_action['internal_status'] = _247AROUND_PENDING;
+                           $this->engineer_model->update_engineer_table($engineer_action,array('id' => $en[0]['id']) );
+                       }
+                    }
+            
                     if ($inserted_id) {
                         $this->insert_details_in_state_change($booking_id, $assigned['current_state'], "Engineer Id: " . $engineer_id,"not_define","not_define");
 
@@ -1744,7 +1773,7 @@ class Service_centers extends CI_Controller {
                 $data['purchase_date'] = $dateofpurchase; 
                 $data['unit_serial_number_pic'] = $serial_number_pic; 
 
-                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'],'active' => 1);
+                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'],'inventory_model_mapping.active' => 1);
                 $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
@@ -2528,7 +2557,11 @@ class Service_centers extends CI_Controller {
             $in['sender_entity_type'] = _247AROUND_SF_STRING;
             $in['stock'] = -$value['quantity']; //-1;
             $in['booking_id'] = $value['booking_id'];
-            $in['agent_id'] = $this->session->userdata('agent_id');
+            if($this->session->userdata('userType') == 'service_center'){
+             $in['agent_id'] = $this->session->userdata('service_center_id');            
+            }else{
+              $in['agent_id'] = $this->session->userdata('agent_id');   
+            }
             $in['agent_type'] = _247AROUND_SF_STRING;
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
