@@ -316,6 +316,15 @@ class Service_centers extends CI_Controller {
                 }
             }
         }
+        else {
+            $data['symptom'][0] = array("symptom" => "Default");
+            
+            if(in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
+                $data['completion_symptom'][0] = array("symptom" => "Default");
+                $data['technical_defect'][0] = array("defect" => "Default");
+                $data['technical_solution'][0] = array("technical_solution" => "Default");
+            }
+        }
         
         $data['unit_details'] = $booking_unit_details;
         $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id, $data['booking_history'][0]['assigned_vendor_id']);
@@ -635,13 +644,15 @@ class Service_centers extends CI_Controller {
                             }
                         }
                     }
-
-                    $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
-                    if (!$rowsStatus) {
-                        $booking_symptom['booking_id'] = $booking_id;
-                        $booking_symptom['symptom_id_booking_creation_time'] = 0;
-                        $booking_symptom['create_date'] = date("Y-m-d H:i:s");
-                        $this->booking_model->addBookingSymptom($booking_symptom);
+                    
+                    if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
+                        $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
+                        if (!$rowsStatus) {
+                            $booking_symptom['booking_id'] = $booking_id;
+                            $booking_symptom['symptom_id_booking_creation_time'] = 0;
+                            $booking_symptom['create_date'] = date("Y-m-d H:i:s");
+                            $this->booking_model->addBookingSymptom($booking_symptom);
+                        }
                     }
 
                     //Send Push Notification to account group
