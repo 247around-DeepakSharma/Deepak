@@ -1837,6 +1837,7 @@ class engineerApi extends CI_Controller {
                     "assigned_engineer_id" => $engineer_id,
                     "booking_details.booking_timeslot" => $slot,
                     "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
+                    "engineer_booking_action.internal_status != '"._247AROUND_COMPLETED."'" => NULL,
                     "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0)" => NULL,
                     "service_center_booking_action.current_status = '"._247AROUND_PENDING."'" => NULL,
                     "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
@@ -2317,7 +2318,7 @@ class engineerApi extends CI_Controller {
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //$requestData = array("technical_problem" => "1");
-        if(!empty($requestData["technical_problem"])){
+        if(isset($requestData["technical_problem"])){
             $response = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', array('symptom_id' => $requestData['technical_problem']));
             if(count($response)<=0) {
                 array_push($response, array('defect_id' => 0, 'defect' => 'Default'));
@@ -2343,7 +2344,7 @@ class engineerApi extends CI_Controller {
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         //$requestData = array("technical_symptom" => "1", "technical_defect" => "1");
-        if(!empty($requestData["technical_symptom"]) && !empty($requestData["technical_defect"])){
+        if(isset($requestData["technical_symptom"]) && isset($requestData["technical_defect"])){
             $response = $this->booking_request_model->get_solution_of_symptom('solution_id,technical_solution', array('symptom_id' => $requestData["technical_symptom"], 'defect_id' => $requestData["technical_defect"]));
             if(count($response)<=0) {
                 array_push($response, array('solution_id' => 0, 'technical_solution' => 'Default'));
