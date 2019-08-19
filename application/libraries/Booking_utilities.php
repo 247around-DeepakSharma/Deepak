@@ -242,8 +242,12 @@ class Booking_utilities {
                 }
             }
             $booking_details['parant_booking_serial_number'] = $parant_booking_serial_number;
-            if(!empty($booking_symptom[0]['symptom_id_booking_creation_time'])){
-                 $symptom1 = $this->My_CI->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $booking_symptom[0]['symptom_id_booking_creation_time']));
+            $symptom_id = "";
+            if(count($booking_symptom)>0) {
+                $symptom_id = ((!is_null($booking_symptom[0]['symptom_id_booking_completion_time'])) ? $booking_symptom[0]['symptom_id_booking_completion_time'] : $booking_symptom[0]['symptom_id_booking_creation_time']);
+            }
+            if($symptom_id !== ""){
+                 $symptom1 = $this->My_CI->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $symptom_id));
                  if(!empty($symptom1)){
                      $symptom =  $symptom1[0]['symptom'];
                  } else {
