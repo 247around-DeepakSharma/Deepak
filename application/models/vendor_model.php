@@ -40,7 +40,7 @@ class vendor_model extends CI_Model {
             $where_active .= "service_centres.active= '$active'";
         }
         if($sf_list != ""){
-            $where_sf .= "service_centres.id  IN (" .$sf_list.")";
+            $where_sf .= "service_centres.id  IN (" .trim($sf_list, ',').")";
         }
         if(!empty($state) && empty($city))
         {
