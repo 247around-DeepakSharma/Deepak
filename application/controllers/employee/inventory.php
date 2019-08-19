@@ -1147,7 +1147,7 @@ class Inventory extends CI_Controller {
 
                     $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     $data['approved_defective_parts_by_admin'] = 1;
-                    $courier_charge = $this->input->post("charge");
+                    $courier_charge = $this->input->post("courier_charge");
                     if (!empty($courier_charge)) {
                         $data['courier_charges_by_sf'] = $courier_charge;
                     } else {
