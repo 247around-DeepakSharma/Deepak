@@ -1837,6 +1837,7 @@ class engineerApi extends CI_Controller {
                     "assigned_engineer_id" => $engineer_id,
                     "booking_details.booking_timeslot" => $slot,
                     "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
+                    "engineer_booking_action.internal_status != '"._247AROUND_COMPLETED."'" => NULL,
                     "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0)" => NULL,
                     "service_center_booking_action.current_status = '"._247AROUND_PENDING."'" => NULL,
                     "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
