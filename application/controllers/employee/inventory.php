@@ -4462,7 +4462,7 @@ class Inventory extends CI_Controller {
                             $in['inventory_id'] = $data->inventory_id;
                             $this->miscelleneous->process_inventory_stocks($in);
                             $pcb = array();
-                            $cb_url = base_url() . "service_centers/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $receiver_entity_id . "/" . $spare_booking_value['id'] . "/" . $sender_entity_id . "/1/0";
+                            $cb_url = base_url() . "service_centers/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $receiver_entity_id . "/" . $value['id'] . "/" . $sender_entity_id . "/1/0";
                             $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                         }
                     }
@@ -4532,7 +4532,7 @@ class Inventory extends CI_Controller {
                                 $this->miscelleneous->process_inventory_stocks($in);
 
                                 $pcb = array();
-                                $cb_url = base_url() . "service_centers/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $receiver_entity_id . "/" . $spare_booking_value['id'] . "/" . $sender_entity_id . "/1/0";
+                                $cb_url = base_url() . "service_centers/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $receiver_entity_id . "/" . $value['id'] . "/" . $sender_entity_id . "/1/0";
                                 $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                             }
                         }
