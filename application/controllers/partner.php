@@ -1557,7 +1557,7 @@ class Partner extends CI_Controller {
                     $booking['create_date'] = date("Y-m-d H:i:s");
                     
                     $booking_symptom['booking_id'] = $booking['booking_id'];
-                    $booking_symptom['symptom_id_booking_creation_time'] = $requestData['booking_request_symptom'];;
+                    $booking_symptom['symptom_id_booking_creation_time'] = $requestData['booking_request_symptom'];
                     $booking_symptom['create_date'] = date("Y-m-d H:i:s");
                     
                     if ($requestData['product_type'] == "Shipped") {
@@ -1604,7 +1604,9 @@ class Partner extends CI_Controller {
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
                     $return_id = $this->booking_model->addbooking($booking);
-                    $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);
+                    if($requestData['booking_request_symptom']) {
+                        $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);
+                    }
                     
                     if(!$symptomStatus) {
                         log_message('info', __FUNCTION__ . ' Error Partner booking symptom details not inserted: ' . print_r($booking_symptom, true));
