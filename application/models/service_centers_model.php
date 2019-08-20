@@ -895,7 +895,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         return $insert_id;
     }
     
-    function get_spare_parts_on_group($where, $select, $group_by, $sf_id = false, $start = -1, $end = -1,$count = 0,$orderBY=array()){
+    function get_spare_parts_on_group($where, $select, $group_by, $sf_id = false, $start = -1, $end = -1,$count = 0,$orderBY=array(),$nrn=FALSE){
         $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
         $this->db->_protect_identifiers = FALSE;
         $this->db->select($select, false);
@@ -908,6 +908,9 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         }
         $this->db->join("users", "users.user_id = booking_details.user_id");
         $this->db->join("service_centres", "service_centres.id = booking_details.assigned_vendor_id");
+        if ($nrn) {
+        $this->db->join("spare_nrn_approval", "spare_parts_details.booking_id = spare_nrn_approval.booking_id","left");
+        }
         $this->db->where($where);
         if($start > -1){
             $this->db->limit($start, $end);
