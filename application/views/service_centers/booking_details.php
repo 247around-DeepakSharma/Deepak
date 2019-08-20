@@ -437,7 +437,7 @@
                                 <td><?php echo $sp['part_cancel_reason'];?></td>
                                 <?php if($this->session->userdata("is_micro_wh") == 1){ 
                                     if($sp['status'] == SPARE_DELIVERED_TO_SF && $sp['entity_type'] == _247AROUND_SF_STRING && $sp['partner_id'] == $this->session->userdata("service_center_id") && $sp['service_center_id'] == $this->session->userdata("service_center_id")){ ?>
-                                <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['requested_inventory_id']; ?>)">Remove</button></td>
+                                <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>)">Remove</button></td>
                                 <?php }else{ ?>
                                     <td><button class="btn btn-primary" disabled>Remove</button></td>
                                 <?php } ?>
