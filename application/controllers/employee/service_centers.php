@@ -32,6 +32,7 @@ class Service_centers extends CI_Controller {
         $this->load->library("pagination");
         $this->load->library('asynchronous_lib');
         $this->load->library('booking_utilities');
+        $this->load->library('warranty_utilities');        
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->helper(array('form', 'url'));
@@ -7465,6 +7466,30 @@ class Service_centers extends CI_Controller {
         }
         
         echo $str_body;
+    }
+    
+    /**
+     * this function is used to get the warranty status of booking
+     * @author Prity Sharma
+     * @date 20-08-2019
+     * @return JSON
+     */
+    public function get_warranty_data(){
+        $post_data = $this->input->post();
+        $arrBookings = $post_data['bookings_data'];  
+        $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);  
+        $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData); 
+        foreach($arrBookings as $key => $arrBooking)
+        {
+            if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
+            {   
+                $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
+            }
+            $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
+            unset($arrBookings[$key]);
+        }
+        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);   
+        echo json_encode($arrBookingsWarrantyStatus);
     }
     
 }
