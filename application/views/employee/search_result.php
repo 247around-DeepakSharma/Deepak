@@ -284,6 +284,7 @@
                             <th>Re-assign</th>
                             <th>Escalate</th>
                             <th>Remove Penalty</th>
+                            <th>Helper Document</th>
                         </tr>
                     </thead>
                     <?php if($offset == 0){ $offset = 1;}else { $offset = $offset+1; }  ?>
@@ -436,6 +437,9 @@
                         </td>
                         <td>
                             <a class='btn btn-sm btn-color col-md-4' style='margin-left:10px;padding-right: 17px;' onclick='get_penalty_details("<?php echo $row->booking_id; ?>","<?php echo $row->current_status; ?>","<?php echo $row->assigned_vendor_id;?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
+                        </td>
+                        <td>
+                            <a class="btn btn-sm btn-color" title="Helper Document" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral('<?php echo $row->booking_id; ?>')"><i class="fa fa-file-text-o" aria-hidden="true"></i></a>
                         </td>
                     </tr>
                     <?php $count++; $offset++;
@@ -725,6 +729,26 @@
             </div>
         </div>
     </div>
+    <!-- Helper Document Model -->
+    <div id="showBrandCollateral" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Brand Collateral</h4>
+                </div>
+                <div class="modal-body" id="collatral_container">
+                    <center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Helper Document Model -->
+
 <script type="text/javascript">
         $(document).ready(function() {
         <?php if(isset($data['FollowUp_count'])){ ?>
@@ -878,5 +902,17 @@
         } else { 
             return false;
         }
+    }
+    
+    function  get_brand_collateral(booking_id){
+       $('#collatral_container').html('<center><img id="loader_gif_pending" src="<?php echo base_url(); ?>images/loadring.gif" ></center>');
+       $.ajax({
+         type: 'POST',
+         data: {booking_id: booking_id},
+         url: '<?php echo base_url(); ?>employee/service_centers/get_learning_collateral_for_bookings/',
+         success: function (data) {
+             $('#collatral_container').html(data);
+         }
+       });
     }
 </script>
