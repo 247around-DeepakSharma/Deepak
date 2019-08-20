@@ -201,7 +201,7 @@
                             </div>
                         </div>
                  <div class="modal-footer">
-                <button type="submit" class="btn btn-success">Submit</button>
+                <button type="submit" id="uploadButton" class="btn btn-success">Submit</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
                 </div>
         </div>
@@ -449,6 +449,29 @@
 $('body').on('click', '.approve_nrn_booking', function() {
 var booking = $(this).attr("data-booking_id");
 $("#booking_id").val(booking);
+$("#idForm")[0].reset();
+});
+
+
+
+
+    $('#aws_recipt').change(function () {
+    var ext = this.value.match(/\.(.+)$/)[1];
+    switch (ext) {
+        case 'jpg':
+        case 'jpeg':
+        case 'png':
+        case 'pdf':
+        case 'doc':
+        case 'jpeg':
+        case 'docx':
+        case 'gif':
+            $('#uploadButton').attr('disabled', false);
+            break;
+        default:
+            alert('This is not an allowed file type. Only PDF,DOC,JPEG,PNG,JPG are allowd');
+            this.value = '';
+    }
 });
 
 

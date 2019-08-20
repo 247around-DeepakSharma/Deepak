@@ -8149,7 +8149,7 @@ class Partner extends CI_Controller {
                     if ($row['approval_file']=='0') {
                        $tempArray[] =  '<span style="color: red;font-size:40px;cursor: not-allowed;"><i class="fa fa-window-close" aria-hidden="true"></i></span>';
                     }else{
-                     $tempArray[] =  '<a href='.S3_WEBSITE_URL.'nrn_approvals_files/'.$row['approval_file'].'" download><span style="color: #0ce10c;font-size:40px;"><i class="fa fa-download" aria-hidden="true"></i></span></a>';  
+                     $tempArray[] =  '<a download  target="_blank" href='.S3_WEBSITE_URL.'nrn_approvals_files/'.$row['approval_file'].'  ><span style="color: #0ce10c;font-size:40px;"><i class="fa fa-download" aria-hidden="true"></i></span></a>';  
                     }
                     
                     $tempArray[] =  "<span class='btn btn-success approved_nrn_booking' data-booking_id='".$row['booking_id']."' ><i class='fa fa-check' aria-hidden='true'></i></span>";
@@ -8178,7 +8178,7 @@ class Partner extends CI_Controller {
            $email = $this->input->post('email');
         }
       //  $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG',);
-        $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG');
+        $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG','docx','DOCX','doc','DOC');
         $approval_file_name = "Not Uploaded";
         if(isset($_FILES["approval_file"]) && !empty($_FILES["approval_file"])){
            $approval_file_name = $this->miscelleneous->upload_file_to_s3($_FILES["approval_file"], "nrn_approval", $allowedExts, $booking_id, "nrn_approvals_files", "incoming_approve_nrn");
