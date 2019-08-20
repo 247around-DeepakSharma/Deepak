@@ -630,4 +630,8 @@ ALTER TABLE `spare_parts_details` ADD `nrn_approv_by_partner` INT(5) NOT NULL DE
  
 -- Ankit 13-08-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'not_delivered_bb_orders', NULL, ' ', 'sunilk@247around.com', 'kmardee@amazon.com,ybhargav@amazon.com', 'sunilk@247around.com', '', '1', '', CURRENT_TIMESTAMP);
- 
+
+-- Kajal 20-08-2019
+INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare_part_lost', 'Part Sold', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
+UPDATE `invoice_tags` SET `tag` = 'part_lost' WHERE `invoice_tags`.`sub_category` = 'Defective Part Lost';
+INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accounting`, `remarks`, `tag`) VALUES (NULL, 'Service', 'Spares', 'Defective Part Sold', '1', 'Defective Part Sold by sf', 'part_sold'); 

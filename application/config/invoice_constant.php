@@ -55,5 +55,6 @@ define('SALE', 'Sale');
 define('BUYBACK_VERTICAL', 'Buyback');
 define('REIMBURSEMENT', 'Reimbursement');
 define('MSL_SECURITY_AMOUNT', 'MSL Security Amount');
-define('DEFECTIVE_PART_LOST', 'Defective Part Lost');
+define('DEFECTIVE_PART_LOST','part_lost');
+define('DEFECTIVE_PART_SOLD','part_sold');
 ?>
