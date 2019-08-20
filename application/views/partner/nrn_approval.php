@@ -92,7 +92,7 @@
                     pageSize: 'LEGAL',
                     title: 'NRN Approvals', 
                     exportOptions: { 
-                       columns: [0,1,2,3,4,5,6,7,8,9,10,11],
+                       columns: [0,1,2,3,4,5,6,7,8,9,10,11,12],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -115,6 +115,9 @@
     function booking_search(){
              nrn_table.ajax.reload();
              }
+
+
+
 
     </script>
     <style>
