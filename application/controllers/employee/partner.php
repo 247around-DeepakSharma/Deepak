@@ -8087,6 +8087,7 @@ class Partner extends CI_Controller {
       $finalArray = array();
       $postData = $this->input->post();
       $state = 0;
+      $nrn =true;
       $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d'))",
           "column_4"=>"GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested)","column_7"=>"booking_details.state");    
       $order['column'] =$columnMappingArray["column_3"];
@@ -8111,7 +8112,7 @@ class Partner extends CI_Controller {
             $state = 1;
             $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
         }
-        $select = "spare_parts_details.booking_id,spare_parts_details.nrn_approv_by_partner,spare_parts_details.quantity,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
+        $select = "spare_nrn_approval.remark as nrn_remark,spare_nrn_approval.approval_file,spare_parts_details.booking_id,spare_parts_details.nrn_approv_by_partner,spare_parts_details.quantity,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "
@@ -8122,7 +8123,7 @@ class Partner extends CI_Controller {
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic ";
-         $bookingData = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", false, $postData['length'], $postData['start'],0,$order);
+         $bookingData = $this->service_centers_model->get_spare_parts_on_group($where, $select, "spare_parts_details.booking_id", false, $postData['length'], $postData['start'],0,$order,$nrn);
          $bookingCount = $this->service_centers_model->get_spare_parts_on_group($where, "count( Distinct spare_parts_details.booking_id) AS total_rows","spare_parts_details.booking_id", FALSE,-1,-1,1)[0]['total_rows'];
          $sn = $postData['start'];
          foreach ($bookingData as $key => $row) {
@@ -8144,6 +8145,13 @@ class Partner extends CI_Controller {
                     $tempArray[] =  $row['serial_number'];
                     $tempArray[] =  $row['state'];
                     $tempArray[] =  $row['remarks_by_sc'];
+                    $tempArray[] =  $row['nrn_remark'];
+                    if ($row['approval_file']=='0') {
+                       $tempArray[] =  '<span style="color: red;font-size:40px;cursor: not-allowed;"><i class="fa fa-window-close" aria-hidden="true"></i></span>';
+                    }else{
+                     $tempArray[] =  '<a href='.S3_WEBSITE_URL.'nrn_approvals_files/'.$row['approval_file'].'" download><span style="color: #0ce10c;font-size:40px;"><i class="fa fa-download" aria-hidden="true"></i></span></a>';  
+                    }
+                    
                     $tempArray[] =  "<span class='btn btn-success approved_nrn_booking' data-booking_id='".$row['booking_id']."' ><i class='fa fa-check' aria-hidden='true'></i></span>";
                     
                     
@@ -8193,7 +8201,7 @@ class Partner extends CI_Controller {
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
 
                 $new_state=NRN_APPROVED_BY_PARTNER;
-                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', NRN_TO_BE_APPROVED_BY_PARTNER);
+                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), '', '', NRN_TO_BE_APPROVED_BY_PARTNER);
                 echo "1";   
         }else{
            echo "0";
