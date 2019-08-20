@@ -3064,7 +3064,7 @@ class Service_centers extends CI_Controller {
         $_POST['challan_approx_value']=array();
         $_POST['parts_requested']=array(); 
  
-        $_POST['defective_part_shipped'][$value] = $spare_part[0]['defective_part_shipped'];
+        $_POST['defective_part_shipped'][$value] = $spare_part[0]['parts_shipped'];
         $_POST['partner_challan_number'][$value] = $spare_part[0]['partner_challan_number'];
         $_POST['challan_approx_value'][$value] = $spare_part[0]['challan_approx_value'];
         $_POST['parts_requested'][$value] = $spare_part[0]['parts_requested'];
