@@ -8173,6 +8173,9 @@ class Partner extends CI_Controller {
 
         $booking_id = trim($this->input->post('booking_id'));
         $partner_id = $this->session->userdata('partner_id');
+        if(empty($partner_id)){
+         $partner_id = $this->input->post('partner_id');   
+        }
         $email="Not Given";
         $remarks = $this->input->post('remarks');
         if (isset($_POST['email']) && !empty($_POST['email'])) {
