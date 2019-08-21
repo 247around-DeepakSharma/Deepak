@@ -7157,4 +7157,14 @@ class Inventory extends CI_Controller {
         echo json_encode($res);
     }
 
+
+    function get_rejected_from_review($booking_id) {
+        $booking = $this->reusable_model->get_search_result_data('booking_details', 'booking_id, internal_status', ['booking_id' => $booking_id, 'internal_status' => REJECTED_FROM_REVIEW_STATUS], NULL, NULL, NULL, NULL, NULL);
+        if(!empty($booking)){
+            echo json_encode($booking);
+        } else {
+            echo json_encode(array("Not Exist"));
+        }
+    }
 }
+
