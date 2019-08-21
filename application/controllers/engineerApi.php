@@ -2275,6 +2275,12 @@ class engineerApi extends CI_Controller {
             $response['booking_symptom'] = $this->booking_model->getBookingSymptom($requestData["booking_id"]);
             $price_tags = str_replace('(Free)', '', $requestData["request_type"]);
             $price_tags1 = str_replace('(Paid)', '', $price_tags);
+            
+            $symptom_id = "";
+            if(count($response['booking_symptom'])>0) {
+                $symptom_id = ((!is_null($response['booking_symptom'][0]['symptom_id_booking_completion_time'])) ? $response['booking_symptom'][0]['symptom_id_booking_completion_time'] : $response['booking_symptom'][0]['symptom_id_booking_creation_time']);
+            }
+            
             $where = array(
                 'symptom.service_id' => $requestData["service_id"], 
                 'symptom.active' => 1, 
@@ -2284,15 +2290,17 @@ class engineerApi extends CI_Controller {
                 'request_type.service_category' => $price_tags1
             );
             $response['symptoms'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', $where, $where_in);
-            if(count($response['symptoms']) <= 0) {
+            if((count($response['symptoms']) <= 0) || ($symptom_id == 0)) {
                 $response['symptoms'][0] = array('id' => 0, 'symptom' => 'Default');
             }
             
-            $defect_where = array(
-                'symptom_id' => $response['booking_symptom'][0]['symptom_id_booking_creation_time'],
-                'partner_id' => $requestData["partner_id"]
-            );
-            $response['defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', $defect_where);
+            if($symptom_id !== "") {
+                $defect_where = array(
+                    'symptom_id' => $symptom_id,
+                    'partner_id' => $requestData["partner_id"]
+                );
+                $response['defect'] = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', $defect_where);
+            }
             if(count($response['defect']) <= 0) {
                 $response['defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
             }

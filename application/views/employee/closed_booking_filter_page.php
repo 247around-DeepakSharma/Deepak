@@ -7,7 +7,7 @@
                     <select class="form-control" id="partner_id">
                         <option value="" selected="selected" disabled=""> Partner</option>
                         <?php foreach($partners as $val){ ?>
-                        <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>
+                        <option value="<?php echo $val['id']?>" <?php if(!empty($partners) && count($partners) == 1) { echo 'selected';} ?>><?php echo $val['public_name']?></option>
                         <?php } ?>
                     </select>
                 </div>

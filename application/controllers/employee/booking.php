@@ -44,6 +44,7 @@ class Booking extends CI_Controller {
         $this->load->library('s3');
         $this->load->library('email');
         $this->load->library('notify');
+        $this->load->library('warranty_utilities');
         $this->load->library('booking_utilities');
         $this->load->library('partner_sd_cb');
         $this->load->library('asynchronous_lib');
@@ -335,7 +336,9 @@ class Booking extends CI_Controller {
                                 $bookingSymptom['booking_id'] = $booking_id;
                                 $bookingSymptom['symptom_id_booking_creation_time'] = $this->input->post('booking_request_symptom');
                                 $bookingSymptom['create_date'] = date("Y-m-d H:i:s");
-                                $this->booking_model->addBookingSymptom($bookingSymptom);
+                                if($this->input->post('booking_request_symptom')) {
+                                    $this->booking_model->addBookingSymptom($bookingSymptom);
+                                }
                             }
                             break;
                     }
@@ -583,10 +586,10 @@ class Booking extends CI_Controller {
                     $booking_symptom['create_date'] = date("Y-m-d H:i:s");
                 
                     $status = $this->booking_model->addbooking($booking);
-                    $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);
+                    if($this->input->post('booking_request_symptom')) {
+                        $symptomStatus = $this->booking_model->addBookingSymptom($booking_symptom);
+                    }
                     
-                    if(!$symptomStatus)
-                        return false;
 
                     if ($status) {
                         $booking['is_send_sms'] = $is_send_sms;
@@ -1750,6 +1753,15 @@ class Booking extends CI_Controller {
                 }
             }
         }
+        else {
+            $data['symptom'][0] = array("symptom" => "Default");
+            
+            if(in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
+                $data['completion_symptom'][0] = array("symptom" => "Default");
+                $data['technical_defect'][0] = array("defect" => "Default");
+                $data['technical_solution'][0] = array("technical_solution" => "Default");
+            }
+        }
         
 //        if (!empty($data['booking_history']['spare_parts'])) {
 //            $spare_parts_list = array();
@@ -2360,13 +2372,16 @@ class Booking extends CI_Controller {
         //$booking_file['size'] = filesize("https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$purchase_invoice_file_name);
         $booking_file['create_date'] = date("Y-m-d H:i:s");
         $this->booking_model->insert_booking_file($booking_file);
-        $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
-        if(!$rowsStatus)
-        {
-            $booking_symptom['booking_id'] = $booking_id;
-            $booking_symptom['symptom_id_booking_creation_time'] = 0;
-            $booking_symptom['create_date'] = date("Y-m-d H:i:s");
-            $this->booking_model->addBookingSymptom($booking_symptom);
+        if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
+            $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
+            
+            if(!$rowsStatus)
+            {
+                $booking_symptom['booking_id'] = $booking_id;
+                $booking_symptom['symptom_id_booking_creation_time'] = 0;
+                $booking_symptom['create_date'] = date("Y-m-d H:i:s");
+                $this->booking_model->addBookingSymptom($booking_symptom);
+            }
         }
         
         if($spare_parts_required == 1){
@@ -5744,18 +5759,18 @@ class Booking extends CI_Controller {
     public function get_warranty_data(){
         $post_data = $this->input->post();
         $arrBookings = $post_data['bookings_data'];  
-        $arrWarrantyData = $this->booking_utilities->get_warranty_data($arrBookings);  
-        $arrModelWiseWarrantyData = $this->booking_utilities->get_model_wise_warranty_data($arrWarrantyData); 
+        $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);  
+        $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData); 
         foreach($arrBookings as $key => $arrBooking)
         {
             if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
             {   
-                $arrBookings[$key] = $this->booking_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
+                $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
             }
             $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
             unset($arrBookings[$key]);
         }
-        $arrBookingsWarrantyStatus = $this->booking_utilities->get_bookings_warranty_status($arrBookings);   
+        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);   
         echo json_encode($arrBookingsWarrantyStatus);
     }
 }
