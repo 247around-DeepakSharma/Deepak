@@ -8160,6 +8160,7 @@ class Partner extends CI_Controller {
     function do_partner_nrn_approval(){
 
         $booking_id = trim($this->input->post('booking_id'));
+        $partner_id = $this->session->userdata('partner_id');
         $email="Not Given";
         $remarks = $this->input->post('remarks');
         if (isset($_POST['email']) && !empty($_POST['email'])) {
@@ -8179,6 +8180,7 @@ class Partner extends CI_Controller {
             'remark'=>trim($remarks)
         );
 
+ 
         $response = $this->partner_model->insert_nrn_approval($data_nrn);
         if ($response) {
                 $where = array('booking_id' => trim($booking_id));
@@ -8188,8 +8190,28 @@ class Partner extends CI_Controller {
                 );
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
 
+                    $booking['internal_status'] =NRN_APPROVED_BY_PARTNER;
+                    $booking['current_status'] = _247AROUND_PENDING;
+                    $actor="";
+                    $next_action="";
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING,NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);
+                
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
+                }
+                $this->booking_model->update_booking($booking_id, $booking);
+
+               $data_service_center=array(
+                		'current_status'=>_247AROUND_PENDING,
+                		'internal_status'=>NRN_APPROVED_BY_PARTNER
+                );
+               $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
+
                 $new_state=NRN_APPROVED_BY_PARTNER;
-                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), '', '', NRN_TO_BE_APPROVED_BY_PARTNER);
+                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor,$next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
                 echo "1";   
         }else{
            echo "0";
