@@ -46,6 +46,8 @@
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">State</th>
                                     <th class="text-center">Problem Description</th>
+                                    <th class="text-center">NRN Remark</th>
+                                    <th class="text-center">Approval File</th>
                                     <th data-sortable="false" class="text-center"> NRN Status</th>
 
                     </tr>
@@ -82,6 +84,25 @@
                     d.state =  $('#state_search').val();
                  }
             },
+             "dom": 'lBfrtip',
+                "buttons": [
+                {
+                    extend: 'excel',
+                    text: '<span class="fa fa-file-excel-o"></span>  Export',
+                    pageSize: 'LEGAL',
+                    title: 'NRN Approvals', 
+                    exportOptions: { 
+                       columns: [0,1,2,3,4,5,6,7,8,9,10,11,12],
+                        modifier : {
+                             // DataTables core
+                             order : 'index',  // 'current', 'applied', 'index',  'original'
+                             page : 'current',      // 'all',     'current'
+                             search : 'none'     // 'none',    'applied', 'removed'
+                         }
+                    }
+                    
+                }
+            ],
             "columnDefs": [
             {
                     "targets": [0,2,3,8,9], //first column / numbering column
@@ -95,6 +116,9 @@
              nrn_table.ajax.reload();
              }
 
+
+
+
     </script>
     <style>
 .dropdown-backdrop{
@@ -106,5 +130,9 @@
 #waiting_upcountry_charges_table_processing{
     border:none !important;
     background-color: transparent !important;
+}
+.dataTables_length {
+    width: 8% !important;
+    float: left;
 }
         </style>

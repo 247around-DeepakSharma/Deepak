@@ -1103,6 +1103,7 @@ class Inventory extends CI_Controller {
             switch ($requestType) {
                 case 'CANCEL_PARTS':
                 case 'QUOTE_REQUEST_REJECTED';
+                case 'DELIVERED_PART_CANCELLED'; 
                     if (!empty($this->input->post("spare_cancel_id"))) {
                         $data['spare_cancellation_reason'] = $this->input->post("spare_cancel_id");
                     }
@@ -1129,8 +1130,17 @@ class Inventory extends CI_Controller {
                         $new_state = REQUESTED_QUOTE_REJECTED;
                         $data['old_status'] = SPARE_PARTS_REQUESTED;
                     }
-
-                    $old_state = SPARE_PARTS_REQUESTED;
+                    
+                    if($requestType == 'CANCEL_PARTS'){
+                        $old_state = SPARE_PARTS_REQUESTED;
+                    }
+                    else if($requestType == 'QUOTE_REQUEST_REJECTED'){
+                        $old_state = SPARE_OOW_EST_REQUESTED;
+                    }
+                    else if($requestType == 'DELIVERED_PART_CANCELLED'){
+                        $old_state = SPARE_DELIVERED_TO_SF;
+                    }
+                    
                     $sc_data['current_status'] = _247AROUND_PENDING;
                     $sc_data['internal_status'] = _247AROUND_PENDING;
                     $sc_data['update_date'] = date("Y-m-d H:i:s");
@@ -1232,7 +1242,7 @@ class Inventory extends CI_Controller {
             }
             if ($flag) {
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
-                if ($response && $requestType == "CANCEL_PARTS") {
+                if ($response && ($requestType == "CANCEL_PARTS" || $requestType == "DELIVERED_PART_CANCELLED")) { 
                     $this->update_inventory_on_cancel_parts($id, $booking_id, $old_state);
                 }
             }
@@ -7262,7 +7272,7 @@ class Inventory extends CI_Controller {
     function remove_msl_consumption(){
         $spare_parts_id = $this->input->post("spare_parts_id");
         $booking_id= $this->input->post("booking_id");
-        $spare_action = $this->update_action_on_spare_parts($spare_parts_id, $booking_id, "CANCEL_PARTS");
+        $spare_action = $this->update_action_on_spare_parts($spare_parts_id, $booking_id, "DELIVERED_PART_CANCELLED");
         //increase stock on cancel part
         $data = array(
             "receiver_entity_type" => _247AROUND_SF_STRING,
@@ -7271,6 +7281,9 @@ class Inventory extends CI_Controller {
             "booking_id" => $this->input->post("booking_id"),
             "inventory_id" => $this->input->post("inventory_id"),
             "agent_id" => $this->session->userdata("service_center_agent_id"),
+            "agent_type" => _247AROUND_SF_STRING,
+            "is_wh" => TRUE,
+            "is_cancel_part" => TRUE
         );
         $this->miscelleneous->process_inventory_stocks($data);
         echo $spare_action; 

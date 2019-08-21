@@ -32,6 +32,7 @@ class Service_centers extends CI_Controller {
         $this->load->library("pagination");
         $this->load->library('asynchronous_lib');
         $this->load->library('booking_utilities');
+        $this->load->library('warranty_utilities');        
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->helper(array('form', 'url'));
@@ -3064,7 +3065,7 @@ class Service_centers extends CI_Controller {
         $_POST['challan_approx_value']=array();
         $_POST['parts_requested']=array(); 
  
-        $_POST['defective_part_shipped'][$value] = $spare_part[0]['defective_part_shipped'];
+        $_POST['defective_part_shipped'][$value] = $spare_part[0]['parts_shipped'];
         $_POST['partner_challan_number'][$value] = $spare_part[0]['partner_challan_number'];
         $_POST['challan_approx_value'][$value] = $spare_part[0]['challan_approx_value'];
         $_POST['parts_requested'][$value] = $spare_part[0]['parts_requested'];
@@ -5410,7 +5411,7 @@ class Service_centers extends CI_Controller {
                 . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
                 . " AND wh_ack_received_part != 0 ";
         
-        $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id, spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
+        $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id,spare_parts_details.partner_challan_file,spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
@@ -7465,6 +7466,30 @@ class Service_centers extends CI_Controller {
         }
         
         echo $str_body;
+    }
+    
+    /**
+     * this function is used to get the warranty status of booking
+     * @author Prity Sharma
+     * @date 20-08-2019
+     * @return JSON
+     */
+    public function get_warranty_data(){
+        $post_data = $this->input->post();
+        $arrBookings = $post_data['bookings_data'];  
+        $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);  
+        $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData); 
+        foreach($arrBookings as $key => $arrBooking)
+        {
+            if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
+            {   
+                $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
+            }
+            $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
+            unset($arrBookings[$key]);
+        }
+        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);   
+        echo json_encode($arrBookingsWarrantyStatus);
     }
     
 }

@@ -130,7 +130,7 @@
                                         <label for="model_number" class="col-md-4">Model Number *</label>
                                         <?php $is_modal_number = false;  if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-6">
-                                            <select class="form-control spare_parts" id="model_number_id" name="model_number_id"  >
+                                            <select class="form-control spare_parts" id="model_number_id" name="model_number_id"  onchange="check_booking_request()">
                                                 <option value="" disabled="" selected="">Select Model Number <?php  //echo $unit_model_number; ?></option>
                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
                                                 <option value="<?php echo $value['id']; ?>"   <?php if($unit_model_number==$value['model_number']){ $is_modal_number = true; echo 'selected';} ?>   ><?php echo $value['model_number']; ?></option>
@@ -153,7 +153,7 @@
                                         <label for="dop" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && !empty($purchase_date)){ echo $purchase_date; } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;">
+                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && !empty($purchase_date)){ echo $purchase_date; } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -439,8 +439,9 @@
         </div>
     </div>
 </div>
+<?php $arr_warranty_status = ['IW' => ['In Warranty'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];?>
 <script type="text/javascript">
-    
+var arr_warranty_status = <?php echo json_encode($arr_warranty_status); ?>;    
     
     
 function alpha(e) {
@@ -645,7 +646,7 @@ function alpha(e) {
                 alert("Please Enter serial number");
                 checkbox_value = 0;
                 return false;
-              }
+              }            
   <?php if((!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)) && empty($on_saas)){ ?>
       
                 if(serial_number_pic.length === 0){
@@ -941,8 +942,54 @@ function alpha(e) {
         });
     });
 
- 
-     
+    // function to cross check request type of booking with warranty status of booking 
+    function check_booking_request()
+    {
+        var model_number = $('#model_number').val();
+        var dop = $("#dop").val();
+        if(model_number !== "" && model_number !== null && dop !== ""){                  
+            var booking_id = "<?= $bookinghistory[0]['booking_id']?>";
+            var booking_request_type = "<?= $bookinghistory[0]['request_type']?>";  
+            var warranty_mismatch_flag = false;
+            $.ajax({
+                method:'POST',
+                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data",
+                data:{
+                    'bookings_data[0]' : {
+                        'partner_id' : "<?= $bookinghistory[0]['partner_id']?>",
+                        'booking_id' : booking_id,
+                        'booking_create_date' : "<?= $bookinghistory[0]['create_date']?>",
+                        'model_number' : model_number,
+                        'purchase_date' : dop, 
+                    }
+                },
+                success:function(response){
+                    var warrantyData = JSON.parse(response);
+                    var warranty_status = warrantyData[booking_id];      
+                    var warranty_mismatch = true;
+                    if(typeof arr_warranty_status[warranty_status] !== 'undefined') {                        
+                        warranty_mismatch = true;
+                        for(var index in arr_warranty_status[warranty_status])
+                        {
+                            if(booking_request_type.indexOf(arr_warranty_status[warranty_status][index]) !== -1)
+                            {
+                                warranty_mismatch = false;
+                                break;
+                            }
+                        }           
+                   }
+                   
+                   $("#submitform").attr("disabled", false);
+                   if(warranty_mismatch)
+                   {
+                       $("#submitform").attr("disabled", true);
+                       alert("Booking Request type '"+booking_request_type+"' mismatches with warranty status '"+warranty_status+"'");
+                   }
+                }                            
+            });
+        }
+    }
+    // function ends here ---------------------------------------------------------------- 
 </script>
 <style type="text/css">
     #hide_spare, #hide_rescheduled { display: none;}
