@@ -673,5 +673,6 @@ define('PARTNER_APPLIANCE_MAPPING', 'Partner_Appliance_Mapping_File');
 define('IN_WARRANTY_STATUS', 1);
 define('EXTENDED_WARRANTY_STATUS', 2);
 define('PARTNER_DEFAULT_CONTACT_PERSON_ID', '1002706');
+define('REJECTED_FROM_REVIEW_STATUS','Rejected From Review');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
