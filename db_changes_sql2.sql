@@ -619,3 +619,23 @@ ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_ma
 ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_mapping_state_code_state_state_code FOREIGN KEY (state_code) REFERENCES state_code (state_code);
 ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_part_type_inventory_parts_type_id FOREIGN KEY (part_type_id) REFERENCES inventory_parts_type (id);
 ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_plan_id_warranty_plan_plan_id FOREIGN KEY (plan_id) REFERENCES warranty_plans (plan_id);
+
+
+
+
+
+--sachin 13-08-2019
+
+CREATE TABLE `boloaaka`.`courier_file_upload_header_mapping` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `docket_number` VARCHAR(64) NULL DEFAULT NULL , `booking_station` VARCHAR(128) NULL DEFAULT NULL , `delivery_station` VARCHAR(128) NULL DEFAULT NULL , `consignee_name` VARCHAR(256) NULL DEFAULT NULL , `courier_booking_date` VARCHAR(64) NULL DEFAULT NULL , `assured_delivery_date` VARCHAR(64) NULL DEFAULT NULL , `delivery_date` VARCHAR(64) NULL DEFAULT NULL , `docket_status` VARCHAR(64) NULL DEFAULT NULL , `docket_current_status` VARCHAR(64) NULL DEFAULT NULL , `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `courier_file_upload_header_mapping` ADD `courier_partner_id` INT(11) NOT NULL AFTER `id`;
+
+CREATE TABLE `boloaaka`.`courier_status_file_details` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `docket_no` VARCHAR(64) NOT NULL , `booking_stn` VARCHAR(64) NOT NULL , `delivery_stn` VARCHAR(64) NOT NULL , `bkg_dt` DATETIME NOT NULL , `assured_dly_dt` DATETIME NOT NULL , `delivery_date` DATETIME NOT NULL , `docket_status` VARCHAR(128) NOT NULL , `docket_curr_status` VARCHAR(128) NOT NULL , `consignee_name` VARCHAR(64) NOT NULL , `order_no` VARCHAR(64) NOT NULL , `remarks` VARCHAR(256) NOT NULL , `deps` VARCHAR(64) NOT NULL , `no_of_pkgs` VARCHAR(32) NOT NULL , `actual_wt` DECIMAL(10,2) NOT NULL , `charged_wt` DECIMAL(10,2) NOT NULL , `only_booking_amt` DECIMAL(10,2) NOT NULL , `cargo_value` DECIMAL(10,2) NOT NULL , `freight_amt` DECIMAL(10,2) NOT NULL , `cust_remarks` VARCHAR(256) NOT NULL , `bkg_zone` VARCHAR(64) NOT NULL , `dly_zone` VARCHAR(64) NOT NULL , `prod_service_name` VARCHAR(128) NOT NULL , `create_date` TIMESTAMP NOT NULL , `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `courier_status_file_details` CHANGE `delivery_date` `delivery_date` DATETIME NULL DEFAULT NULL;
+ALTER TABLE `courier_status_file_details` CHANGE `create_date` `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `courier_status_file_details` CHANGE `bkg_dt` `bkg_dt` DATE NOT NULL;
+ALTER TABLE `courier_status_file_details` CHANGE `assured_dly_dt` `assured_dly_dt` DATE NOT NULL;
+ALTER TABLE `courier_status_file_details` CHANGE `delivery_date` `delivery_date` DATE NULL DEFAULT NULL;
+
+INSERT INTO `courier_file_upload_header_mapping` (`id`, `courier_partner_id`, `docket_number`, `booking_station`, `delivery_station`, `consignee_name`, `courier_booking_date`, `assured_delivery_date`, `delivery_date`, `docket_status`, `docket_current_status`, `create_date`, `update_date`) VALUES ('10000', '10002', 'docket_no', 'booking_stn', 'delivery_stn', 'consignee_name', 'bkg_dt', 'assured_dly_dt', 'delivery_date', 'docket_status', 'docket_curr_status', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
