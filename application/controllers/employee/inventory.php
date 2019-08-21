@@ -2864,7 +2864,8 @@ class Inventory extends CI_Controller {
             $where['inventory_master_list.entity_type'] = $this->input->post('entity_type');
         }
         
-        $where['inventory_model_mapping.active'] = 1;     
+        $where['inventory_model_mapping.active'] = 1;
+        
         $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_image', $where);
 
         if ($this->input->post('is_option_selected')) {
