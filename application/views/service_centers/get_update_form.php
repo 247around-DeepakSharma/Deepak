@@ -947,7 +947,8 @@ function alpha(e) {
     {
         var model_number = $('#model_number').val();
         var dop = $("#dop").val();
-        if(model_number !== "" && model_number !== null && dop !== ""){                  
+        var partner_id = "<?= $bookinghistory[0]['partner_id']?>";
+        if(model_number !== "" && model_number !== null && dop !== "" && partner_id == "<?php echo VIDEOCON_ID;?>"){                  
             var booking_id = "<?= $bookinghistory[0]['booking_id']?>";
             var booking_request_type = "<?= $bookinghistory[0]['request_type']?>";  
             $.ajax({
