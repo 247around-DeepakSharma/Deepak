@@ -2873,7 +2873,9 @@ class Inventory extends CI_Controller {
             $where['inventory_master_list.entity_id'] = $this->input->post('entity_id');
             $where['inventory_master_list.entity_type'] = $this->input->post('entity_type');
         }
-
+        
+        $where['inventory_model_mapping.active'] = 1;
+        
         $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_image', $where);
 
         if ($this->input->post('is_option_selected')) {
@@ -5732,7 +5734,7 @@ class Inventory extends CI_Controller {
 
         if ($inventory_id) {
             $inventory_id = urldecode($inventory_id);
-            $data['model_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number,appliance_model_details.model_number,services.services', array('inventory_model_mapping.inventory_id' => $inventory_id,'inventory_model_mapping.active' => 1));
+            $data['model_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_model_mapping.id,inventory_model_mapping.active,inventory_master_list.part_number,appliance_model_details.model_number,services.services', array('inventory_model_mapping.inventory_id' => $inventory_id));
         } else {
             $data['model_details'] = array();
         }
