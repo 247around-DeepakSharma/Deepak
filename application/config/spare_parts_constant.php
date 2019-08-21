@@ -140,3 +140,6 @@ define('NRN_TO_BE_SHIPPED_BY_PARTNER', 'NRN To Be Shipped By Partner');
  
 define('UNABLE_TO_COMPLETE_BOOKING_INVOICE_GENERATED_MSG', 'Invoice has been generated so booking can not be updated.');
  
+
+define('COURIER_STATUS_FILE_MSG', 'Auto Acknowledged BY Courier Status File');
+define('COURIER_STATUS_FILE_STATUS_DESCRIPTION', 'Delivered at destination city');

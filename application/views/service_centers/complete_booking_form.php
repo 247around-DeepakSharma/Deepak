@@ -854,6 +854,10 @@
                         if(is_sf_purchase_invoice_required == '1') {
                            var sf_purchase_invoice = $('#purchase_invoice_'+div_class).val();
                             if(sf_purchase_invoice == '') {
+                                var sf_purchase_invoice = $('#purchase_invoice_'+div_class).attr('value');
+                            }
+                           
+                            if(sf_purchase_invoice == '') {
                                 alert("Please upload sf purchase invoice document.");
                                 flag = 1;
                                 return false;

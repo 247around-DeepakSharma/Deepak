@@ -2823,6 +2823,21 @@ class Inventory_model extends CI_Model {
         }
         
     }
+
+    function insert_courier_status_details($data) {
+
+        log_message('info', __METHOD__. ' inserting courier file data in batch...');
+
+        $this->db->insert_ignore_duplicate_batch('courier_status_file_details', $data);
+
+        if($this->db->affected_rows() > 0){
+            $res = TRUE;
+        }else{
+            $res = FALSE;
+        }
+        
+        return $res;
+    }
     
 
 }
