@@ -115,7 +115,7 @@
     </div>
   
 </div>
-<script>
+<script> 
     var alternate_inventory_master_list_table;
     var entity_type = '';
     var entity_id = '';
@@ -296,6 +296,7 @@
                 success:function(response){
                       if(response.status == true){
                           alternate_inventory_master_list_table.ajax.reload();
+                          $("#alternate_status,#bom_status").html(status_type);
                       }     
                 }
             });
@@ -347,5 +348,5 @@
         // Requery the server with the new one-time export settings
         alternate_inventory_master_list_table.ajax.reload();
     };
-    
+
 </script>
