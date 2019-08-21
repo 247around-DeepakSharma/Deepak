@@ -121,22 +121,6 @@
   
 </div>
 
-<div id="delete_model_modal" class="modal fade" role="dialog">
-    <div class="modal-dialog" style="width:60%;">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header" style="background-color: #2C9D9C;color: #fff;">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h3 class="modal-title" id="modal_title">Inventory Model Details</h3> 
-                <h4><div id="success_message">Alternate Part Successfully <span id="alternate_status"></span>. Now You Can <span id="bom_status"></span> BOM.</div></h4>
-            </div>
-            <table style="border-collapse: collapse;width: 100%; margin: 0 auto;">
-                <tbody id="add_model_list"></tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
 <script> 
     var alternate_inventory_master_list_table;
     var entity_type = '';
@@ -322,7 +306,6 @@
                       if(response.status == true){
                           alternate_inventory_master_list_table.ajax.reload();
                           $("#alternate_status,#bom_status").html(status_type);
-                          show_model_detalis(inventory_id,status_type);
                       }     
                 }
             });
@@ -374,87 +357,5 @@
         // Requery the server with the new one-time export settings
         alternate_inventory_master_list_table.ajax.reload();
     };
-    
-    function show_model_detalis(inventory_id){
-        $("#delete_model_modal").modal(); 
-        
-        setTimeout(function() {
-            $('#success_message').fadeOut('slow');
-        }, 2000); 
-        
-         $.ajax({
-                method:'POST',            
-                url:'<?php echo base_url(); ?>employee/inventory/get_model_details_deactive',
-                dataType: "json",
-                data: {inventory_id:inventory_id},
-                success:function(response){
-                    var html = '';
-                        html+='<tr><th style="padding: 15px;text-align: left;border-bottom: 1px solid #ddd;">Part Name</th>';
-                        html+='<th style="padding: 15px;text-align: left;border-bottom: 1px solid #ddd;">Part Number</th>';
-                        html+='<th style="padding: 15px;text-align: left;border-bottom: 1px solid #ddd;">Model Number</th>';
-                        html+='<th style="padding: 15px;text-align: left;border-bottom: 1px solid #ddd;">Status</th>';
-                        html+='<th style="padding: 15px;text-align: left;border-bottom: 1px solid #ddd;">Action</th> </tr>';
-                    for(i=0; i<response.length;i++){
-                        var button = '';
-                        html+='<tr><td style="padding: 15px;text-align: left;border-bottom: 1px solid #ddd;">'+response[i]['part_name']+'</td>';
-                        html+='<td style="padding: 15px;text-align: left;border-bottom: 1px solid #ddd;">'+response[i]['part_number']+'</td>';
-                        html+='<td style="padding: 15px;text-align: left;border-bottom: 1px solid #ddd;">'+response[i]['model_number']+'</td>';
-                        if(response[i]['active'] == 0){
-                          
-                           status_text ='Inactive' 
-                           button+= '<button type="button" class="btn" style="background-color: #337ab7; border-color: #fff; color: #fff;width: 95px;" id="model_status_'+response[i]['id']+'" onclick="change_model_status(\''+response[i]['active']+'\',\''+response[i]['id']+'\');">Activate</button>';
-                        }else{
-                            status_text ='Active' 
-                            button+= '<button type="button" class="btn" id="model_status_'+response[i]['id']+'" onclick="change_model_status(\''+response[i]['active']+'\',\''+response[i]['id']+'\');" style="background-color:#d9534f; border-color: #fff; color: #fff;">Deactivate</button>';
-                        }
-                        html+='<td style="padding: 15px;text-align: left;border-bottom: 1px solid #ddd;" id="is_active_'+response[i]['id']+'">'+status_text+'</td>';
-                        
-                        html+='<td style="padding: 15px;text-align: left;border-bottom: 1px solid #ddd;">'+button+'</td></tr>';
-                    }
-                    $("#add_model_list").html(html);
-                    
-                }
-         });                 
-    }
-    
-    
-    function change_model_status(is_active,model_mapping_id){
-            if(model_mapping_id!=''){
-                var button_content = '' ; 
-                var active_status = ''
-                if(is_active == 1){
-                    status = '0';
-                   button_content = 'Activate';
-                   active_status = 'Inactive';
-                }
-                if(is_active == '0'){
-                   status = '1';
-                   button_content = 'Deactivate';
-                   active_status = 'Active';
-                }
-            
-                if(confirm("Are you sure you want to "+button_content+" ?")){
-                    $.ajax({
-                     method:'POST',            
-                     url:'<?php echo base_url(); ?>employee/inventory/upate_inventory_model_mapping',
-                     dataType: "json",
-                     data: {model_mapping_id:model_mapping_id,status:status},
-                     success:function(response){
-                           if(response.status == true){
-                               if(is_active == '0'){
-                                   $("#model_status_"+model_mapping_id).css({"background-color": "#c9302c;","border-color": "#fff;", "color": "#fff;"});  
-                               }else{
-                                   $("#model_status_"+model_mapping_id).css({"width": "95px !important;","background-color": "#337ab7;","border-color": "#fff;", "color": "#fff;"});
-                               }
-                               $("#is_active_"+model_mapping_id).html(active_status);
-                               $("#model_status_"+model_mapping_id).attr('onclick','change_model_status(\''+status+'\',\''+model_mapping_id+'\');').html(button_content);
-                           }     
-                    }
-                    }); 
-                }
-            
-        }
-    }
-   
-        
+                
 </script>

@@ -37,8 +37,10 @@ class Engineer extends CI_Controller {
     }
     
     function review_engineer_action_form(){
-      
         $where['where'] = array("engineer_booking_action.current_status" => "InProcess");
+        if($this->session->userdata('service_center_id')){
+            $where['where']['engineer_booking_action.service_center_id'] = $this->session->userdata('service_center_id');
+        }
         $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid, engineer_table_sign.remarks, engineer_table_sign.mismatch_pincode");
        
         foreach ($data as $key => $value) {

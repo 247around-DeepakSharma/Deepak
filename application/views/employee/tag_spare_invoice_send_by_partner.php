@@ -145,7 +145,7 @@
                                         </div>
                                     </div>
                                     <hr>
-                                    <div class="dynamic-form-box">
+                                    <div class="dynamic-form-box" id="appliance_details_id">
                                         <div class="form-group">
                                             <div class="col-xs-12 col-sm-6 col-md-2">
                                                 <p class="text-center"><strong>Appliance</strong></p>
@@ -250,9 +250,10 @@
                                         <hr>
                                         <div class="row">
                                             <div class="col-xs-5 col-md-4 col-md-offset-5">
-                                                <button type="submit" class="btn btn-success" id="submit_btn">Submit</button>
+                                                <button type="submit" class="btn btn-success" id="submit_btn">Prevent</button>
                                                 <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value=""/>
                                                 <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
+                                                <input type="hidden" id="confirmation" value="0">
                                             </div>
                                         </div>
                                     </div>
@@ -430,8 +431,40 @@
 </div>
     </div>
 </div>
+ <!--Modal start [ send spare parts list ]-->
+      <div id="map_appliance_model" class="modal fade" role="dialog">
+          <div class="modal-dialog modal-lg" style="width: 90%;">
+              <div class="modal-content">
+                  <button type="button" class="close btn-primary" style="margin: 6px 10px;" data-dismiss="modal">×</button>
+                  <div class="modal-header">
+                      <h4 class="modal-title">Send MSL Details To <strong id="modal_title_action"></strong> </h4>
+                  </div>
+                  <div class="modal-body" style="margin-right: -400px;">
+                          <form class="form-horizontal">
+                              <div id="clone_id" style="text-align: center;"></div>
+                              <div class="modal-footer" style="margin-right: 389px;text-align: center;">
+                                  <input type="hidden" id="mapped_model_table_id">
+                                  <button type="button" class="btn btn-success" id="sumit_msl">Submit</button>
+                                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                              </div>
+                          </form>
+                  </div>
+              </div>
+          </div>
+      </div>
+ <!--Modal end-->
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 <script>
+    $("#wh_id").on('change',function(){
+        var wh_name = $("#wh_id option:selected").text();
+        $("#modal_title_action").html(wh_name);
+    });
+    
+    $("#sumit_msl").click(function(){
+        $("#confirmation").val('1');
+        $("#spareForm").submit();
+    });
+    
     var date_before_15_days = new Date();
     date_before_15_days.setDate(date_before_15_days.getDate()-15);
     
@@ -578,6 +611,20 @@
                     $('#invoice_amount').css('border','1px solid #ccc');
                     $('#total_spare_invoice_price').removeClass('text-danger');
                     
+                    /* Open Modal */
+                    $("#clone_id").empty();
+                    $('#appliance_details_id').clone(true).appendTo('#clone_id');
+                    $('#clone_id .form-control').each(function(){
+                    $(this).attr("readonly","readonly");
+                    });
+                    $("#clone_id .select2-selection__rendered").css('background','#eee');
+                    $("#clone_id .addButton").hide();
+                    $("#clone_id .removeButton").hide(); 
+                    $('#map_appliance_model').modal('toggle');
+                
+                   var c_status = $("#confirmation").val();
+                   if(c_status !=''&& c_status == '1'){
+                       
                     if(confirm('Are you sure to continue')){
                         $('#submit_btn').attr('disabled',true);
                         $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
@@ -628,7 +675,7 @@
 //                                    }
 //                                }                                
                                 $('#submit_btn').attr('disabled',false);
-                                $('#submit_btn').html("Submit");                               
+                                $('#submit_btn').html("Prevent");                               
                                 if(obj.status){
                                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                                     $('#success_msg').html(obj.message);
@@ -638,14 +685,16 @@
                                 }else{
                                     $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                                     $('#error_msg').html(obj.message);
+                                    $("#confirmation").val('0');
                                 }
     
                            }
                         });
                     }else{
+                    $("#confirmation").val('0');
                         return false;
                     }
-                    
+                }
                 }else{
                     alert('Amount of invoice does not match with total price');
                     $('#invoice_amount').css('border','1px solid red');

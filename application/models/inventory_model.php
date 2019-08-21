@@ -653,7 +653,9 @@ class Inventory_model extends CI_Model {
 
         $inventory_stock_details = array();
         if (!empty($inventory_id)) {
-            $inventory_id_sets = $this->get_group_wise_inventory_id_detail('alternate_inventory_set.inventory_id', $inventory_id);
+            $where_clause = "AND alternate_inventory_set.status = 1 AND alternate_inventory_set.inventory_id = ".$inventory_id;
+             $flag = true;
+            $inventory_id_sets = $this->get_group_wise_inventory_id_detail('alternate_inventory_set.inventory_id', $where_clause, $flag);
             if(!empty($inventory_id_sets)){
                 $inventory_ids = implode(',', array_map(function ($entry) {
                         return $entry['inventory_id'];
@@ -2202,9 +2204,15 @@ class Inventory_model extends CI_Model {
      * 
      */
     
-    function get_spare_parts_details($select, $where=array()){
+    function get_spare_parts_details($select, $where=array(),$inventory_join = false,$booking_join = false){
         $this->db->select($select);
         $this->db->where($where);
+        if($inventory_join){
+            $this->db->join('inventory_master_list','spare_parts_details.shipped_inventory_id=inventory_master_list.inventory_id', "left");
+        }
+        if($booking_join){
+            $this->db->join('booking_details','spare_parts_details.booking_id=booking_details.booking_id');
+        }
         $query = $this->db->get("spare_parts_details");
         return $query->result_array();
     }
@@ -2516,10 +2524,15 @@ class Inventory_model extends CI_Model {
      * @params: Array, Int id
      * @return: Int 
      */
-    function get_group_wise_inventory_id_detail($select, $inventory_id) {
+    function get_group_wise_inventory_id_detail($select, $where_clause, $flag) {
         $this->db->select($select);
-        $subquery = 'SELECT DISTINCT alternate_inventory_set.group_id FROM alternate_inventory_set WHERE alternate_inventory_set.inventory_id= ' . $inventory_id;
-        $this->db->where('alternate_inventory_set.group_id IN (' . $subquery . ') ', NULL);
+        $subquery = 'SELECT DISTINCT alternate_inventory_set.group_id FROM alternate_inventory_set WHERE 1 '.$where_clause;
+        if(!empty($flag)){
+          $this->db->where('alternate_inventory_set.status = 1 AND alternate_inventory_set.group_id IN (' . $subquery . ') ', NULL);  
+        }else{
+          $this->db->where('alternate_inventory_set.group_id IN (' . $subquery . ') ', NULL);  
+        }
+        
         $this->db->from('alternate_inventory_set');
         $query = $this->db->get();
         return $query->result_array();

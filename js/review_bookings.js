@@ -126,11 +126,30 @@ function review_search(status,is_partner){
     if(bookingID == '') {
         bookingID = 0;
     }
-    var cancellation_reason = '';
-    if($('#cancellation_reason').length){
-	cancellation_reason = $('#cancellation_reason').val().replace("/", "__");
+    var cancellation_reason = '0';
+    if($('#cancellation_reason').length && $('#cancellation_reason').val() != '') {
+	cancellation_reason = $('#cancellation_reason').val();
     }
-   
+
+    
+    var state_input_id = '#state_cancelled';
+    var state = '0';
+    if(status == 'Completed') {
+        state_input_id = '#state_completed';
+    }
+    if($(state_input_id).length && $(state_input_id).val() != ''){
+	state = $(state_input_id).val();
+    }
+
+    var partner_input_id = '#partner_cancelled';
+    var partner = '0';
+    if(status == 'Completed') {
+        partner_input_id = '#partner_completed';
+    }
+    if($(partner_input_id).length && $(partner_input_id).val() != '') {
+	partner = $(partner_input_id).val();
+    }
+    
     var tab = "#tabs-3";
     if(status == "Completed"){
        var tab = "#tabs-2";
@@ -143,7 +162,7 @@ function review_search(status,is_partner){
     }
 
  
-    load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+ cancellation_reason, tab,0);
+    load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+ cancellation_reason+'/'+partner+'/'+state, tab,0);
 
 }
 

@@ -32,6 +32,7 @@ class Service_centers extends CI_Controller {
         $this->load->library("pagination");
         $this->load->library('asynchronous_lib');
         $this->load->library('booking_utilities');
+        $this->load->library('warranty_utilities');        
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->helper(array('form', 'url'));
@@ -314,6 +315,15 @@ class Service_centers extends CI_Controller {
                 if(count($data['technical_solution'])<=0) {
                     $data['technical_solution'][0] = array("technical_solution" => "Default");
                 }
+            }
+        }
+        else {
+            $data['symptom'][0] = array("symptom" => "Default");
+            
+            if(in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
+                $data['completion_symptom'][0] = array("symptom" => "Default");
+                $data['technical_defect'][0] = array("defect" => "Default");
+                $data['technical_solution'][0] = array("technical_solution" => "Default");
             }
         }
         
@@ -635,13 +645,15 @@ class Service_centers extends CI_Controller {
                             }
                         }
                     }
-
-                    $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
-                    if (!$rowsStatus) {
-                        $booking_symptom['booking_id'] = $booking_id;
-                        $booking_symptom['symptom_id_booking_creation_time'] = 0;
-                        $booking_symptom['create_date'] = date("Y-m-d H:i:s");
-                        $this->booking_model->addBookingSymptom($booking_symptom);
+                    
+                    if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
+                        $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
+                        if (!$rowsStatus) {
+                            $booking_symptom['booking_id'] = $booking_id;
+                            $booking_symptom['symptom_id_booking_creation_time'] = 0;
+                            $booking_symptom['create_date'] = date("Y-m-d H:i:s");
+                            $this->booking_model->addBookingSymptom($booking_symptom);
+                        }
                     }
 
                     //Send Push Notification to account group
@@ -682,7 +694,7 @@ class Service_centers extends CI_Controller {
                         redirect(base_url() . "service_center/pending_booking");
                     }
                 } else {
-                    $this->session->set_userdata('error', "You cannot complete the booking id : $booking_id. Please contact to 247Around Team");
+                    $this->session->set_userdata('error', "Price Not Found Against Updated Information For Booking  : $booking_id. Please Contact to back Office Team");
                     redirect(base_url() . "service_center/pending_booking");
                 }
             } else {
@@ -1564,6 +1576,35 @@ class Service_centers extends CI_Controller {
                     $assigned['service_center_id'] = $this->session->userdata('service_center_id');
                     // Insert data into Assigned Engineer Table
                     $inserted_id = $this->vendor_model->insert_assigned_engineer($assigned);
+                     
+                    $where = array('booking_id' => $booking_id);
+                    
+                    $unit_details = $this->booking_model->get_unit_details($where);
+
+                    foreach ($unit_details as $value) {
+                        $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
+                    "engineer_booking_action.unit_details_id" => $value['id']);
+                       $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
+                       if(empty($en)){
+                            $engineer_action['unit_details_id'] = $value['id'];
+                            $engineer_action['booking_id'] = $booking_id;
+                            $engineer_action['engineer_id'] = $engineer_id;
+                            $engineer_action['service_center_id'] = $this->session->userdata('service_center_id');
+                            $engineer_action['current_status'] = _247AROUND_PENDING;
+                            $engineer_action['internal_status'] = _247AROUND_PENDING;
+                            $engineer_action["create_date"] = date("Y-m-d H:i:s");
+
+                            $this->engineer_model->insert_engineer_action($engineer_action);
+                       } else {
+                          
+                           $engineer_action['engineer_id'] = $engineer_id;
+                           $engineer_action['service_center_id'] = $this->session->userdata('service_center_id');
+                           $engineer_action['current_status'] = _247AROUND_PENDING;
+                           $engineer_action['internal_status'] = _247AROUND_PENDING;
+                           $this->engineer_model->update_engineer_table($engineer_action,array('id' => $en[0]['id']) );
+                       }
+                    }
+            
                     if ($inserted_id) {
                         $this->insert_details_in_state_change($booking_id, $assigned['current_state'], "Engineer Id: " . $engineer_id,"not_define","not_define");
 
@@ -1733,7 +1774,7 @@ class Service_centers extends CI_Controller {
                 $data['purchase_date'] = $dateofpurchase; 
                 $data['unit_serial_number_pic'] = $serial_number_pic; 
 
-                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'],'active' => 1);
+                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'],'inventory_model_mapping.active' => 1);
                 $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
@@ -2517,7 +2558,11 @@ class Service_centers extends CI_Controller {
             $in['sender_entity_type'] = _247AROUND_SF_STRING;
             $in['stock'] = -$value['quantity']; //-1;
             $in['booking_id'] = $value['booking_id'];
-            $in['agent_id'] = $this->session->userdata('agent_id');
+            if($this->session->userdata('userType') == 'service_center'){
+             $in['agent_id'] = $this->session->userdata('service_center_id');            
+            }else{
+              $in['agent_id'] = $this->session->userdata('agent_id');   
+            }
             $in['agent_type'] = _247AROUND_SF_STRING;
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
@@ -3020,7 +3065,7 @@ class Service_centers extends CI_Controller {
         $_POST['challan_approx_value']=array();
         $_POST['parts_requested']=array(); 
  
-        $_POST['defective_part_shipped'][$value] = $spare_part[0]['defective_part_shipped'];
+        $_POST['defective_part_shipped'][$value] = $spare_part[0]['parts_shipped'];
         $_POST['partner_challan_number'][$value] = $spare_part[0]['partner_challan_number'];
         $_POST['challan_approx_value'][$value] = $spare_part[0]['challan_approx_value'];
         $_POST['parts_requested'][$value] = $spare_part[0]['parts_requested'];
@@ -5366,7 +5411,7 @@ class Service_centers extends CI_Controller {
                 . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
                 . " AND wh_ack_received_part != 0 ";
         
-        $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id, spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
+        $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id,spare_parts_details.partner_challan_file,spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
@@ -7421,6 +7466,30 @@ class Service_centers extends CI_Controller {
         }
         
         echo $str_body;
+    }
+    
+    /**
+     * this function is used to get the warranty status of booking
+     * @author Prity Sharma
+     * @date 20-08-2019
+     * @return JSON
+     */
+    public function get_warranty_data(){
+        $post_data = $this->input->post();
+        $arrBookings = $post_data['bookings_data'];  
+        $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);  
+        $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData); 
+        foreach($arrBookings as $key => $arrBooking)
+        {
+            if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
+            {   
+                $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
+            }
+            $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
+            unset($arrBookings[$key]);
+        }
+        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);   
+        echo json_encode($arrBookingsWarrantyStatus);
     }
     
 }

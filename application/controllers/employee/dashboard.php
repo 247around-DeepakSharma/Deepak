@@ -923,8 +923,8 @@ class Dashboard extends CI_Controller {
     function download_missing_sf_pincode_excel($rmID = NULL){
         ob_start();
         $pincodeArray =  $this->dashboard_model->get_pincode_data_for_not_found_sf($rmID);
-        $config = array('template' => "missing_sf_pincode.xlsx", 'templateDir' => __DIR__ . "/../excel-templates/");
-        $this->miscelleneous->downloadExcel($pincodeArray,$config);
+        $heading = ['Pincode', 'City', 'State', 'Services', 'RM'];
+        $this->miscelleneous->downloadCSV($pincodeArray, $heading, "missing_sf_pincode.csv");
     }
     
     /**
@@ -3170,7 +3170,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $employees = $this->reusable_model->get_search_result_data('employee_hierarchy_mapping', '*', ['manager_id' => $manager_id], NULL, NULL, NULL, NULL, NULL);
         
         if($this->session->userdata('userType') == 'employee'){
-            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'));
+            $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $this->load->view('dashboard/header/' . $this->session->userdata('user_group'),$data);
         }
         else if($this->session->userdata('userType') == 'partner'){
             $this->miscelleneous->load_partner_nav_header();

@@ -8,7 +8,37 @@
                
                 <input type="search" class="form-control pull-right"  id="search_<?=$review_status?>_<?=$is_partner?>" placeholder="search" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
             </div>
-              <?php if($status == 'Cancelled') { 
+             <?php if($status == 'Completed') { ?>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="state_completed" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($states as $state) { ?>
+                    <option value="<?= $state['state_code']; ?>"><?= $state['state']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
+            </div>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="partner_completed" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($partners as $partner) { ?>
+                    <option value="<?= $partner['id']; ?>"><?= $partner['public_name']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
+            </div>
+                 
+                 
+            
+             <?php } if($status == 'Cancelled') { 
               ?>
              <div class="col-md-3 pull-right" style="margin-top:20px;">
               
@@ -23,6 +53,33 @@
                
                 
             </div>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="state_cancelled" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($states as $state) { ?>
+                    <option value="<?= $state['state_code']; ?>"><?= $state['state']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
+            </div>
+             <div class="col-md-3 pull-right" style="margin-top:20px;">
+              
+                
+                <select type="text" class="form-control"  id="partner_cancelled" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                    <option value=""></option>
+                    <?php foreach($partners as $partner) { ?>
+                    <option value="<?= $partner['id']; ?>"><?= $partner['public_name']; ?></option>
+                  
+                    <?php } ?>
+                </select>
+               
+                
+            </div>
+             
              <?php } ?>
              <h2 style="margin-left: 13px;" >
                   <b><?php echo $status; ?> Bookings</b>
@@ -59,10 +116,12 @@
                               <?php $offset++ ;?>
                               <td style="text-align: left;white-space: inherit;font-size:80%"><?php echo $offset; ?></td>
                               
-                              <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']; ?>
+                              <td  style="text-align: left;white-space: inherit;"><?php echo $value['booking_id']." <br/><br/>".$value['booking'][0]['vendor_name']?><?php if(!empty($value['sf_purchase_invoice'])) { echo "<br/><br/><a href='https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$value['sf_purchase_invoice']."' target=\"_blank\">Invoice</a>"; }?>
                                  
                                   <input type="hidden" name="booking_id[]" value="<?php echo $value['booking_id']; ?>" id="<?php echo "booking_id".$count; ?>">
                                   <input type="hidden" name="approved_by" value='<?php echo _247AROUND ?>'  id="approved_by">
+                                  <input type="hidden" name="booking_request_type[]" value="<?=$value['request_type']?>"  class="booking_request_type_<?=$value['booking_id']?>">
+                                  <input type="hidden" name="booking_warranty_status[]" value=''  class="booking_warranty_status_<?=$value['booking_id']?>">
                               </td>
 
                             <input type="hidden" class="form-control" id="partner_id" name="partner_id[<?php echo $value['booking_id']; ?>]" value = "<?php echo $value['booking'][0]['partner_id'];?>" >
@@ -237,10 +296,25 @@
       </div>
    </div>
 
+<?php $arr_warranty_status = ['IW' => ['In Warranty'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];?>
 <script>
-     $('#cancellation_reason').select2({
+    var arr_warranty_status = <?php echo json_encode($arr_warranty_status); ?>;
+    $('#cancellation_reason').select2({
        placeholder: 'Cancellation Reason'
-   }); 
+    }); 
+    $('#state_cancelled').select2({
+       placeholder: 'State'
+    }); 
+    $('#partner_cancelled').select2({
+       placeholder: 'Partner'
+    });    
+    $('#partner_completed').select2({
+       placeholder: 'Partner'
+    });    
+    $('#state_completed').select2({
+       placeholder: 'State'
+    });    
+   
    $(document).ready(function(){
         $("#selecctall").change(function(){
             var isChecked = document.getElementById('selecctall').checked;
@@ -252,6 +326,10 @@
                  })
                   if(outputArray.includes('no')){
                         alert("Review Booking Listing Contains Booking WIth Wrong Serial number All Wrong Serial number booking will be auto unselected");
+                  }
+                  if(outputArray.includes('mismatch'))
+                  {
+                      alert("Review Booking Listing Contains Booking whose booking request type mismatches with booking warranty status, these bookings will be auto unselected");
                   }
           }
          });
@@ -268,6 +346,7 @@
                     var warrantyData = JSON.parse(response);
                     $.each(warrantyData, function(index, value) {
                         $(".warranty-"+index).html(value);
+                        $(".booking_warranty_status_"+index).val(value);
                     });
                 }                            
             }); 
@@ -278,8 +357,23 @@
            bulkalert = false;
        }
        temp = true;
+       warranty_mismatch = false;
        booking_sn_div_id =  "sn_"+booking_id;
        current_div_booking =  "app_"+booking_id;
+       warranty_status = $("."+"booking_warranty_status_"+booking_id).val();
+       booking_request_type = $("."+"booking_request_type_"+booking_id).val();
+       if(typeof arr_warranty_status[warranty_status] !== 'undefined') {
+            warranty_mismatch = true;
+            for(var index in arr_warranty_status[warranty_status])
+            {
+                if(booking_request_type.indexOf(arr_warranty_status[warranty_status][index]) !== -1)
+                {
+                    warranty_mismatch = false;
+                    break;
+                }
+            }           
+       }
+
         $('.'+booking_sn_div_id).each(function() {
             if($(this).val() == 0){
                 temp = false;
@@ -289,8 +383,20 @@
         if(!temp && !bulkalert){
                 alert("Booking "+ booking_id + " Contains Wrong Serial number It can not be approved in Bulk Approval, Booking automatic will be unselected");
         }
+        
+        if(warranty_mismatch){
+                $("."+current_div_booking).prop("checked", false);
+                if(!bulkalert){
+                    alert("Booking Request type and Warranty status mismatched!");
+                }                
+        }
+        
         if(!temp){
             return 'no';
+        }
+        else if(warranty_mismatch)
+        {
+            return 'mismatch';
         }
         else{
              return 'yes';
