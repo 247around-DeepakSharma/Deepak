@@ -550,6 +550,24 @@ span.stars span {
           }
        });
    }
+   
+    function load_rejected_from_review(booking_id, key, block){
+       $.ajax({
+           type: 'post',
+           url: '<?php echo base_url()  ?>employee/inventory/get_rejected_from_review/' + booking_id,
+           success: function (response) {
+               var obj  = JSON.parse(response);
+               if($.trim(obj[0].internal_status) == '<?php echo REJECTED_FROM_REVIEW_STATUS; ?>'){
+                   document.getElementById("rejected_from_review_"+ block+ key).src="<?php echo base_url();?>images/rejected_from_review.png";
+               }  else {
+                    
+                    $("#rejected_from_review_"+block + key).css("display", "none");
+               }
+               //console.log(response);
+
+          }
+       });
+   }
 </script>
 <!-- end alert message -->
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
