@@ -121,9 +121,10 @@
                             <?php } ?>
                         </div>
                     </div>
-                    <input type="hidden" name="days" value="<?php echo $days; ?>" />                     
-                    <div class="panel panel-default col-md-offset-2" id="hide_spare" >
-                        <div class="panel-body" >
+                    <input type="hidden" name="days" value="<?php echo $days; ?>" />    
+                    <div class="row"><div class='col-md-2'></div><div class="col-md-10 errorMsg" style="font-weight:bold;padding:15px;color:#f30;"></div></div>
+                    <div class="panel panel-default col-md-offset-2" id="hide_spare" >                        
+                        <div class="panel-body">
                             <div class="row">
                                 <div class = 'col-md-6'>
                                     <div class="form-group">
@@ -442,7 +443,7 @@
 <?php $arr_warranty_status = ['IW' => ['In Warranty'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];?>
 <script type="text/javascript">
 var arr_warranty_status = <?php echo json_encode($arr_warranty_status); ?>;    
-    
+var arr_warranty_status_full_names = <?php echo json_encode(['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty']) ?>;    
     
 function alpha(e) {
    var k;
@@ -947,10 +948,10 @@ function alpha(e) {
     {
         var model_number = $('#model_number').val();
         var dop = $("#dop").val();
-        if(model_number !== "" && model_number !== null && dop !== ""){                  
-            var booking_id = "<?= $bookinghistory[0]['booking_id']?>";
-            var booking_request_type = "<?= $bookinghistory[0]['request_type']?>";  
-            var warranty_mismatch_flag = false;
+        var partner_id = "<?= $bookinghistory[0]['partner_id']?>";
+        var booking_id = "<?= $bookinghistory[0]['booking_id']?>";
+        var booking_request_type = "<?= $bookinghistory[0]['request_type']?>"; 
+        if(model_number !== "" && model_number !== null && dop !== "" && booking_request_type != "<?php echo REPEAT_BOOKING_TAG;?>"){                               
             $.ajax({
                 method:'POST',
                 url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data",
@@ -966,8 +967,9 @@ function alpha(e) {
                 success:function(response){
                     var warrantyData = JSON.parse(response);
                     var warranty_status = warrantyData[booking_id];      
-                    var warranty_mismatch = true;
-                    if(typeof arr_warranty_status[warranty_status] !== 'undefined') {                        
+                    var warranty_mismatch = false;
+                    if(typeof arr_warranty_status[warranty_status] !== 'undefined') {   
+                        warranty_status = arr_warranty_status_full_names[warranty_status];
                         warranty_mismatch = true;
                         for(var index in arr_warranty_status[warranty_status])
                         {
@@ -980,10 +982,12 @@ function alpha(e) {
                    }
                    
                    $("#submitform").attr("disabled", false);
+                   $(".errorMsg").html("");
                    if(warranty_mismatch)
                    {
-                       $("#submitform").attr("disabled", true);
-                       alert("Booking Request type '"+booking_request_type+"' mismatches with warranty status '"+warranty_status+"'");
+                        $("#submitform").attr("disabled", true);
+                        $(".errorMsg").html("<i class='fa fa-warning'></i>&nbsp;Booking Warranty Status ("+warranty_status+") is not matching with current request type ("+booking_request_type+"), to request part please change request type of the Booking.");
+//                        alert("Booking Warranty Status ("+warranty_status+") is not matching with current request type ("+booking_request_type+"), to request part please change request type of the Booking.");
                    }
                 }                            
             });
