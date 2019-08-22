@@ -353,7 +353,12 @@
     
     function check_awb_exist() {
         var awb = $("#awb_by_sf").val();
-        if (awb) {
+        var characterReg = /^\s*[.~!@#$%^&*\s]+\s*$/;
+            if (characterReg.test(awb) && awb != '') {
+                awb = '';
+                alert('Spacial character not allow in AWB.');
+            }  
+         if (awb) {
             $.ajax({
                 type: 'POST',
                 beforeSend: function () {
@@ -374,7 +379,7 @@
                     console.log(response);
                     var data = jQuery.parseJSON(response);
                     if (data.code === 247) {
-    
+                        
                         $("#same_awb").css({"color": "green", "font-weight": "900"});
                         //  $("#same_awb").css("font-wight",900);
                         alert("This AWB already used same price will be added");
@@ -445,7 +450,7 @@
                 }
             });
         }
-    
+   
     }
     
 </script>
