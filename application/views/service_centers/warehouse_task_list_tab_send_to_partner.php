@@ -63,6 +63,7 @@
                             <th class="text-center">Parts Code</th>
                             <th class="text-center">Model</th>
                             <th class="text-center">Shipped Date</th>
+                            <th class="text-center">SF Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">Remarks</th>
@@ -98,6 +99,9 @@
 
                                     <td>
                                         <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-m-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $row['vendor_name']; ?>
                                     </td>
                                    <td>
                                         <?php echo $row['awb_by_sf']; ?>
