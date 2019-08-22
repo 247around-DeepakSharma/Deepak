@@ -122,7 +122,7 @@
                         </div>
                     </div>
                     <input type="hidden" name="days" value="<?php echo $days; ?>" />    
-                    <div class="row"><div class='col-md-2'></div><div class="col-md-10 errorMsg" style="font-weight:bold;padding:15px;color:#f30;"></div></div>
+                    <div class="row"><div class='col-md-2'></div><div class="col-md-10 errorMsg" style="font-weight:bold;padding:15px;"></div></div>
                     <div class="panel panel-default col-md-offset-2" id="hide_spare" >                        
                         <div class="panel-body">
                             <div class="row">
@@ -978,16 +978,21 @@ function alpha(e) {
                                 break;
                             }
                         }
-                        warranty_status = arr_warranty_status_full_names[warranty_status];
                    }
                    
                    $("#submitform").attr("disabled", false);
                    $(".errorMsg").html("");
                    if(warranty_mismatch)
                    {
-                        $("#submitform").attr("disabled", true);
-                        $(".errorMsg").html("<i class='fa fa-warning'></i>&nbsp;Booking Warranty Status ("+warranty_status+") is not matching with current request type ("+booking_request_type+"), to request part please change request type of the Booking.");
-//                        alert("Booking Warranty Status ("+warranty_status+") is not matching with current request type ("+booking_request_type+"), to request part please change request type of the Booking.");
+                       if((booking_request_type.indexOf('Out Of Warranty')) !== -1 || (booking_request_type.indexOf('Out Warranty') !== -1))
+                       {
+                           $(".errorMsg").html("<span style='color:#e86100;'><i class='fa fa-warning'></i>&nbsp;Booking Warranty Status ("+arr_warranty_status_full_names[warranty_status]+") is not matching with current request type ("+booking_request_type+") of Booking.</span>");
+                       }
+                       else
+                       {
+                            $("#submitform").attr("disabled", true);
+                            $(".errorMsg").html("<span style='color:#f30;'><i class='fa fa-warning'></i>&nbsp;Booking Warranty Status ("+arr_warranty_status_full_names[warranty_status]+") is not matching with current request type ("+booking_request_type+"), to request part please change request type of the Booking.</span>");
+                       }
                    }
                 }                            
             });
