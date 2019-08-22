@@ -710,5 +710,6 @@ define("_247AROUND_GEYSER_GST_RATE",18);
 define("_247AROUND_AUDIO_SYSTEM_GST_RATE",18);
 //Chimney gst rate
 define("_247AROUND_CHIMNEY_GST_RATE",18);
+define('REJECTED_FROM_REVIEW_STATUS','Rejected From Review');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
