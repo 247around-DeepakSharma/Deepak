@@ -3777,7 +3777,7 @@ class Booking extends CI_Controller {
         $data['cities'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(city)",NULL,NULL,NULL,array('city'=>'ASC'));
         $data['states'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(state)",NULL,NULL,NULL,array('state'=>'ASC'));
         $data['service'] = $this->booking_model->get_advance_search_result_data("services","services,id",array('isBookingActive'=>1),NULL,NULL,array('services'=>'ASC'));
-        $data['brands'] = $this->booking_model->get_advance_search_result_data("appliance_brands","brand_name",NULL,NULL,NULL,array('brand_name'=>'ASC'));
+        $data['brands'] = $this->booking_model->get_advance_search_result_data("appliance_brands","distinct(brand_name) as brand_name",NULL,NULL,NULL,array('brand_name'=>'ASC'));
         $data['category'] = $this->booking_model->get_advance_search_result_data("service_centre_charges","DISTINCT(category)",NULL,NULL,NULL,array('category'=>'ASC'));
         $data['capacity'] = $this->booking_model->get_advance_search_result_data("service_centre_charges","DISTINCT(capacity)",NULL,NULL,NULL,array('capacity'=>'ASC'));
         $data['request_type'] = $this->booking_model->get_advance_search_result_data("booking_details","DISTINCT(request_type) as request_type",NULL,NULL,NULL,array('request_type'=>'ASC'));
