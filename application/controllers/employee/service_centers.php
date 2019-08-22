@@ -2358,6 +2358,10 @@ class Service_centers extends CI_Controller {
 
                                         
                     array_push($data_to_insert, $data);
+                    
+                    if($this->input->post("call_from_api")){
+                        $data['part_requested_by_engineer'] = 1;
+                    }
 
                     $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data);
                     $this->miscelleneous->process_booking_tat_on_spare_request($booking_id, $spare_id);
