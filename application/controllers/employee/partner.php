@@ -8270,7 +8270,7 @@ class Partner extends CI_Controller {
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
 
                     $booking['internal_status'] =NRN_APPROVED_BY_PARTNER;
-                    $booking['current_status'] = _247AROUND_PENDING;
+                    $booking['current_status'] = 'InProcess';
                     $actor="";
                     $next_action="";
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING,NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);
