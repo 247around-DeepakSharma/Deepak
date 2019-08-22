@@ -967,8 +967,7 @@ function alpha(e) {
                     var warrantyData = JSON.parse(response);
                     var warranty_status = warrantyData[booking_id];      
                     var warranty_mismatch = false;
-                    if(typeof arr_warranty_status[warranty_status] !== 'undefined') {   
-                        warranty_status = arr_warranty_status_full_names[warranty_status];
+                    if(typeof arr_warranty_status[warranty_status] !== 'undefined') {                         
                         warranty_mismatch = true;
                         for(var index in arr_warranty_status[warranty_status])
                         {
@@ -977,7 +976,8 @@ function alpha(e) {
                                 warranty_mismatch = false;
                                 break;
                             }
-                        }           
+                        }
+                        warranty_status = arr_warranty_status_full_names[warranty_status];
                    }
                    
                    $("#submitform").attr("disabled", false);
