@@ -45,6 +45,7 @@ class Booking extends CI_Controller {
         $this->load->library('email');
         $this->load->library('notify');
         $this->load->library('booking_utilities');
+        $this->load->library('warranty_utilities');
         $this->load->library('partner_sd_cb');
         $this->load->library('asynchronous_lib');
         $this->load->library("initialized_variable");
@@ -520,8 +521,12 @@ class Booking extends CI_Controller {
             }
         }
         
-        
-        $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
+        if(!empty($this->session->userdata('service_center_id'))){
+              $validate_order_id = true;
+        }
+        else{
+             $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
+        }
       
         if ($validate_order_id) {
             $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id'], $booking['state']);
@@ -5718,18 +5723,18 @@ class Booking extends CI_Controller {
     public function get_warranty_data(){
         $post_data = $this->input->post();
         $arrBookings = $post_data['bookings_data'];  
-        $arrWarrantyData = $this->booking_utilities->get_warranty_data($arrBookings);  
-        $arrModelWiseWarrantyData = $this->booking_utilities->get_model_wise_warranty_data($arrWarrantyData); 
+        $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);  
+        $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData); 
         foreach($arrBookings as $key => $arrBooking)
         {
             if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
             {   
-                $arrBookings[$key] = $this->booking_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
+                $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
             }
             $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
             unset($arrBookings[$key]);
         }
-        $arrBookingsWarrantyStatus = $this->booking_utilities->get_bookings_warranty_status($arrBookings);   
+        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);   
         echo json_encode($arrBookingsWarrantyStatus);
     }
 }

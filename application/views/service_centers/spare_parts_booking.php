@@ -70,6 +70,7 @@ if ($this->uri->segment(3)) {
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">Problem Description</th>
                                     <th class="text-center">Inventory Stock</th>
+                                    <th class="text-center">Download Challan</th>
                                     <th class="text-center">Update</th>
                                     <th class="text-center">Reject</th>
                                     <th class="text-center">SF GST Declaration</th>
@@ -123,6 +124,17 @@ if ($this->uri->segment(3)) {
                                         <td>
                                             <?php echo $row['stock']; ?>
                                         </td>
+
+
+                                       <td style="width: 80px;">
+                                        <?php if (!empty($row['partner_challan_file'])) { ?>
+                                          <a target="_blank" href="<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/<?php echo $row['partner_challan_file']; ?>"><span style="font-size: 25px;color: #0edf0e;"><i class="fa fa-download" aria-hidden="true"></i></span></a>  
+                                        <?php }else{ ?>
+                                         <a href="#" class="challan_not_generated"><span style="font-size: 25px;color:red;"><i class="fa fa-remove" aria-hidden="true"></i></span></a>
+
+                                        <?php } ?>
+                                        
+                                     </td> 
 
                                         <td>
                                             <a href="<?php echo base_url() ?>service_center/update_spare_parts_form/<?php echo $row['booking_id']; ?>" class="btn btn-sm btn-primary" title="Update" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
@@ -200,6 +212,13 @@ if ($this->uri->segment(3)) {
 </div>
 <?php } ?>
 <div class="clearfix"></div>
+<script>
+    $(".challan_not_generated").click(function(){
+
+       swal("Not able to download challan", "Challan was not generated. Try to complete booking once again or contact 247Around.");
+
+    });
+</script>
 <script>
     $(document).ready(function () {
         $('body').popover({

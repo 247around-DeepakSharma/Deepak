@@ -32,6 +32,7 @@ class Service_centers extends CI_Controller {
         $this->load->library("pagination");
         $this->load->library('asynchronous_lib');
         $this->load->library('booking_utilities');
+        $this->load->library('warranty_utilities');        
         $this->load->library("session");
         $this->load->library('s3');
         $this->load->helper(array('form', 'url'));
@@ -2506,7 +2507,11 @@ class Service_centers extends CI_Controller {
             $in['sender_entity_type'] = _247AROUND_SF_STRING;
             $in['stock'] = -1;
             $in['booking_id'] = $value['booking_id'];
-            $in['agent_id'] = $this->session->userdata('agent_id');
+            if($this->session->userdata('userType') == 'service_center'){
+             $in['agent_id'] = $this->session->userdata('service_center_id');            
+            }else{
+              $in['agent_id'] = $this->session->userdata('agent_id');   
+            }
             $in['agent_type'] = _247AROUND_SF_STRING;
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
@@ -2965,53 +2970,59 @@ class Service_centers extends CI_Controller {
     }
 
 
-    function do_multiple_spare_shipping() {
+   function do_multiple_spare_shipping(){
 
-        $sp_ids = explode(',', $_POST['sp_ids']);
 
-        $count_spare = count($sp_ids);
-        $count_spare = $count_spare - 1;
-        $service_center_id = 0;
-
-        if ($this->session->userdata('userType') == 'service_center') {
+     $sp_ids =  explode(',',$_POST['sp_ids']);
+     $count_spare=  count($sp_ids);
+     $count_spare=$count_spare-1;
+        $service_center_id=0;
+        if ($this->session->userdata('userType')=='service_center') {
             $service_center_id = $this->session->userdata('service_center_id');
-        } else {
+        }else{
 
             echo "fail";
+
         }
-        foreach ($sp_ids as $key => $value) {
-            $where = "spare_parts_details.service_center_id = '" . $service_center_id . "'  "
+      foreach ($sp_ids as $key => $value) {
+        
+        $where = "spare_parts_details.service_center_id = '" . $service_center_id . "'  "
                     . " AND spare_parts_details.id = '" . $value . "' AND spare_parts_details.defective_part_required = 1 "
-                    . " AND spare_parts_details.status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED . "') ";
+                    . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
 
-            $spare_part = $this->partner_model->get_spare_parts_booking($where);
-            if (!empty($spare_part)) {
+        $spare_part = $this->partner_model->get_spare_parts_booking($where);
+        if (!empty($spare_part)) {
+            
+        $_POST['sf_id'] = $spare_part[0]['service_center_id'];
+        $_POST['booking_id'] = $spare_part[0]['booking_id'];
+        $_POST['user_name'] = $spare_part[0]['name'];
+        $_POST['mobile'] = $spare_part[0]['booking_primary_contact_no'];
+        $_POST['defective_return_to_entity_type'] = $spare_part[0]['defective_return_to_entity_type'];
+        $_POST['defective_return_to_entity_id'] = $spare_part[0]['defective_return_to_entity_id'];
+        $_POST['shipped_inventory_id'] = $spare_part[0]['shipped_inventory_id'];
 
-                $_POST['sf_id'] = $spare_part[0]['service_center_id'];
-                $_POST['booking_id'] = $spare_part[0]['booking_id'];
-                $_POST['user_name'] = $spare_part[0]['name'];
-                $_POST['mobile'] = $spare_part[0]['booking_primary_contact_no'];
-                $_POST['defective_return_to_entity_type'] = $spare_part[0]['defective_return_to_entity_type'];
-                $_POST['defective_return_to_entity_id'] = $spare_part[0]['defective_return_to_entity_id'];
-                $_POST['shipped_inventory_id'] = $spare_part[0]['shipped_inventory_id'];
+        $_POST['defective_part_shipped']=array();
+        $_POST['partner_challan_number']=array();
+        $_POST['challan_approx_value']=array();
+        $_POST['parts_requested']=array(); 
+ 
+        $_POST['defective_part_shipped'][$value] = $spare_part[0]['parts_shipped'];
+        $_POST['partner_challan_number'][$value] = $spare_part[0]['partner_challan_number'];
+        $_POST['challan_approx_value'][$value] = $spare_part[0]['challan_approx_value'];
+        $_POST['parts_requested'][$value] = $spare_part[0]['parts_requested'];
+        if (!isset($_POST['courier_boxes_weight_flag']) || empty($_POST['courier_boxes_weight_flag'])) {
+               $_POST['courier_boxes_weight_flag'] = $count_spare;
+             } 
+       
 
-                $_POST['defective_part_shipped'] = array();
-                $_POST['partner_challan_number'] = array();
-                $_POST['challan_approx_value'] = array();
-                $_POST['parts_requested'] = array();
-                $_POST['no_redirect_flag'] = true;
-                $_POST['defective_part_shipped'][$value] = $spare_part[0]['defective_part_shipped'];
-                $_POST['partner_challan_number'][$value] = $spare_part[0]['partner_challan_number'];
-                $_POST['challan_approx_value'][$value] = $spare_part[0]['challan_approx_value'];
-                $_POST['parts_requested'][$value] = $spare_part[0]['parts_requested'];
-                if (!isset($_POST['courier_boxes_weight_flag']) || empty($_POST['courier_boxes_weight_flag'])) {
-                    $_POST['courier_boxes_weight_flag'] = $count_spare;
-                }
-                $this->process_update_defective_parts($value);
-            }
+        $this->process_update_defective_parts($value); 
         }
 
-        echo 'success';
+      }
+
+      echo 'success';
+
+
     }
 
     /**
@@ -5296,8 +5307,9 @@ class Service_centers extends CI_Controller {
                 . " AND booking_details.current_status IN ('" . _247AROUND_PENDING . "', '" . _247AROUND_RESCHEDULED . "') "
                 . " AND wh_ack_received_part != 0 ";
 
-        $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id, spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
-                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
+        
+        $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id,spare_parts_details.partner_challan_file,spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
+              . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
@@ -7303,6 +7315,30 @@ class Service_centers extends CI_Controller {
         }
         
         echo $str_body;
+    }
+    
+    /**
+     * this function is used to get the warranty status of booking
+     * @author Prity Sharma
+     * @date 20-08-2019
+     * @return JSON
+     */
+    public function get_warranty_data(){
+        $post_data = $this->input->post();
+        $arrBookings = $post_data['bookings_data'];  
+        $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);  
+        $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData); 
+        foreach($arrBookings as $key => $arrBooking)
+        {
+            if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
+            {   
+                $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
+            }
+            $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
+            unset($arrBookings[$key]);
+        }
+        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);   
+        echo json_encode($arrBookingsWarrantyStatus);
     }
     
 }
