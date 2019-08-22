@@ -16,6 +16,7 @@ class Bulkupload extends CI_Controller {
         $this->load->model('warranty_model');
         $this->load->library("session");
         $this->load->library('miscelleneous');
+        $this->load->library('warranty_utilities');
     }
 
     /** @desc: This function is used to upload the partner mapping with service configuration
@@ -32,298 +33,69 @@ class Bulkupload extends CI_Controller {
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', 36000);
 
-        $file_status = $this->get_upload_file_type();
-        $post_data = $this->input->post();
-        $redirect_to = $this->input->post('redirect_url');
-        $returnMsg = [];
+        $returnArray = [];
+        if(!empty($_FILES['file']['tmp_name'])){  
+            $file['file'] = $_FILES['file'];
+            $excelArray = $this->miscelleneous->excel_to_Array_converter($file);
+            
+            if(empty($excelArray))
+            {
+                echo("Empty File");exit;
+            }
+            
+            // headers present in excel
+            $excel_headers = array_keys($excelArray[0]);
 
-        if ($file_status['file_name_lenth']) {
-            if ($file_status['status']) {
+            //column which must be present in the  uploaded file
+            $header_column_need_to_be_present = array('booking_id', 'booking_create_date', 'partner_id', 'service_id', 'model_number', 'purchase_date');
 
-                //get file header
-                $data = $this->read_upload_file_header($file_status);
-                $data['post_data'] = $this->input->post();
-
-                //column which must be present in the  upload inventory file
-                $header_column_need_to_be_present = array('product', 'bookingdate', 'bookingid', 'dop');
-                //check if required column is present in upload file header
-                $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
-
-                if ($check_header['status']) {
-
-                    // apply loop for validation.
-                    for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
-                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                        $sanitizes_row_data = $rowData_array[0];
-                        $is_data_validated = true;
-
-                        if (!empty(array_filter($sanitizes_row_data))) {
-
-                            $returnMsg[$row][0] = $sanitizes_row_data[0]; // Product
-                            $returnMsg[$row][1] = $sanitizes_row_data[1]; // BookingDate
-                            $returnMsg[$row][2] = $sanitizes_row_data[2]; // Model
-                            $returnMsg[$row][3] = $sanitizes_row_data[3]; // DOP            
-                            $returnMsg[$row][4] = "";
-                            $returnMsg[$row][5] = "";
-
-                            $sanitizes_row_data = array_map('trim', $rowData_array[0]);
-                            $sanitizes_row_data = array_map('strtoupper', $rowData_array[0]);
-
-                            $data['header_data'] = array_map('trim', $data['header_data']);
-                            $data['header_data'] = array_map('strtoupper', $data['header_data']);
-                            $rowData = array_combine($data['header_data'], $rowData_array[0]);
-
-                            // check empty data.
-                            if (empty($rowData['PRODUCT']) || empty($rowData['BOOKINGDATE']) || empty($rowData['BOOKINGID']) || empty($rowData['DOP'])) {
-                                // Insert Status of Record
-                                $returnMsg[$row][5] .= 'Insufficient Data<br/>';
-                                $is_data_validated = false;
-                                continue;
-                            }
-
-                            // Check For Product
-                            $arr_service = $this->reusable_model->get_search_result_data('services', 'id', ['UPPER(TRIM(services))' => $rowData['PRODUCT']], NULL, NULL, NULL, NULL, NULL);
-                            if (empty($arr_service)) {
-                                $returnMsg[$row][5] .= 'Product Not Found<br/>`';
-                                $is_data_validated = false;
-                                continue; // Continue to next record.
-                            } else {
-                                $service_id = $arr_service[0]['id'];
-                            }
-
-                            if (!is_numeric($sanitizes_row_data[3])) {
-                                $returnMsg[$row][5] .= 'DOP not valid<br/>`';
-                                $is_data_validated = false;
-                                continue; // Continue to next record.
-                            }
-
-                            if (!is_numeric($sanitizes_row_data[1])) {
-                                $returnMsg[$row][5] .= 'Booking Date not valid<br/>`';
-                                $is_data_validated = false;
-                                continue; // Continue to next record.
-                            }
-
-                            $unix_date = ($sanitizes_row_data[3] - 25569) * 86400;
-                            $excel_date = (25569) + ($unix_date / 86400);
-                            $unix_date = ($excel_date - 25569) * 86400;
-                            $dop = date('d-m-Y', $unix_date);
-
-                            $unix_date1 = ($sanitizes_row_data[1] - 25569) * 86400;
-                            $excel_date1 = (25569) + ($unix_date1 / 86400);
-                            $unix_date1 = ($excel_date1 - 25569) * 86400;
-                            $bd = date('d-m-Y', $unix_date1);
-
-                            $returnMsg[$row][1] = $bd; // BookingDate
-                            $returnMsg[$row][3] = $dop; // DOP
-                            // Check For Model
-                            $join = array("appliance_model_details" => "appliance_model_details.model_number=booking_unit_details.sf_model_number");
-                            $arr_model = $this->reusable_model->get_search_result_data('booking_unit_details', 'appliance_model_details.id', ['UPPER(TRIM(booking_id))' => $rowData['BOOKINGID'], 'booking_unit_details.service_id' => $service_id], $join, NULL, NULL, NULL, NULL);
-
-                            if (empty($arr_model)) {
-                                $returnMsg[$row][5] .= 'Model Not Found<br/>';
-                                $is_data_validated = false;
-                            } else {
-                                $model_id = $arr_model[0]['id'];
-                            }
-
-                            if (!$is_data_validated) {
-                                continue; // Continue to next record.
-                            }
-
-                            //set data
-                            $arr_data['partner'] = '247130';
-                            $arr_data['service_id'] = $service_id;
-                            $arr_data['brand'] = 'Videocon';
-                            $arr_data['model'] = $model_id;
-                            $arr_data['purchase_date'] = $dop;
-                            $arr_data['booking_date'] = $bd;
-                            $arr_warranty_data = $this->warranty_model->check_warranty_for_bulk_data($arr_data);
-                            $returnMsg[$row][4] = 'OW';
-
-                            if (empty($arr_warranty_data)):
-                                $in_warranty_end_period = strtotime(date("Y-m-d", strtotime($arr_data['purchase_date'])) . " +1 year");
-                                $in_warranty_end_period = strtotime(date("Y-m-d", $in_warranty_end_period) . " -1 day");
-                                if (strtotime($arr_data['booking_date']) <= $in_warranty_end_period) :
-                                    $returnMsg[$row][4] = 'IW';
-                                    $returnMsg[$row][5] = 'Warranty will end on ' . date("d-M-Y", $in_warranty_end_period);
-                                endif;
-                            else:
-                                $warranty_months = $arr_warranty_data[0]['warranty_period'] + 12;
-                                $strWarrantyType = "EW";
-                                $strWarranty = "Extended";
-                                if($arr_warranty_data[0]['warranty_type'] == 1)
-                                {
-                                    $strWarrantyType = "IW";
-                                    $strWarranty = "";
-                                    $warranty_months = $arr_warranty_data[0]['warranty_period'];
-                                } 
-                                $warranty_end_period = strtotime(date("Y-m-d", strtotime($arr_data['purchase_date'])) . " +" . $warranty_months . " months");
-                                $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
-                                if (strtotime($arr_data['booking_date']) <= $warranty_end_period) :
-                                    $returnMsg[$row][4] = $strWarrantyType;
-                                    $returnMsg[$row][5] = 'Product lies in '.$strWarranty.' warranty of ' . $arr_warranty_data[0]['warranty_period'] . ' months. Warranty will end on ' . date("d-m-Y", $warranty_end_period);
-                                endif;
-                            endif;
-                        }
+            if($excel_headers != $header_column_need_to_be_present)
+            {
+                echo("Uploaded File format not matches with required file format");
+                exit;
+            }
+            
+            $excelArray = array_chunk($excelArray, 200);
+            foreach ($excelArray as $key => $arrBookings) {                
+                $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);            
+                $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);                 
+                foreach($arrBookings as $key => $arrBooking)
+                {
+                    // Calculate Purchase Date
+                    // Used in case data is read from excel
+                    if (DateTime::createFromFormat('Y-m-d', $arrBooking['purchase_date']) === FALSE) {
+                        $arrBooking['purchase_date'] = (double) $arrBooking['purchase_date'];
+                        $unix_date = ($arrBooking['purchase_date'] - 25569) * 86400;
+                        $excel_date = (25569) + ($unix_date / 86400);
+                        $unix_date = ($excel_date - 25569) * 86400;
+                        $arrBooking['purchase_date'] = date('Y-m-d', $unix_date);
+                        $arrBookings[$key]['purchase_date'] = date('Y-m-d', $unix_date);
                     }
-                }
+                    
+                    // Calculate Booking Create Date
+                    // Used in case data is read from excel
+                    if (DateTime::createFromFormat('Y-m-d', $arrBooking['booking_create_date']) === FALSE) {
+                        $arrBooking['booking_create_date'] = (double) $arrBooking['booking_create_date'];
+                        $unix_date = ($arrBooking['booking_create_date'] - 25569) * 86400;
+                        $excel_date = (25569) + ($unix_date / 86400);
+                        $unix_date = ($excel_date - 25569) * 86400;
+                        $arrBooking['booking_create_date'] = date('Y-m-d', $unix_date);
+                        $arrBookings[$key]['booking_create_date'] = date('Y-m-d', $unix_date);
+                    }
+
+                    if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
+                    {   
+                        $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
+                    }
+                    $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
+                    unset($arrBookings[$key]);
+                }                
+                $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);
+                $returnArray = array_merge($returnArray, $arrBookingsWarrantyStatus);
             }
         }
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/bulk_upload_check_warranty', ['data' => $returnMsg]);
-    }
-
-    /* --------------- Query for fetching data -------------------------------------------------------------------
-      SELECT
-      booking_details.booking_id,
-      booking_details.service_id,
-      services.services,
-      appliance_model_details.id,
-      spare_parts_details.model_number,
-      spare_parts_details.date_of_purchase,
-      booking_details.create_date,
-      booking_details.request_type
-      FROM
-      booking_details
-      JOIN
-      spare_parts_details ON (booking_details.booking_id = spare_parts_details.booking_id)
-      LEFT JOIN
-      services ON (services.id = booking_details.service_id)
-      LEFT JOIN
-      appliance_model_details ON (spare_parts_details.model_number = appliance_model_details.model_number)      
-      WHERE
-      booking_details.booking_id IN ()
-      AND spare_parts_details.model_number IS NOT NULL AND spare_parts_details.model_number <> '' and spare_parts_details.date_of_purchase IS NOT NULL
-      GROUP BY booking_details.booking_id;
-     */
-
-    function check_warranty_by_ids() {
-        ini_set('display_errors', '1');
-        ini_set('memory_limit', '-1');
-        ini_set('max_execution_time', 36000);
-
-        $file_status = $this->get_upload_file_type();
-        $post_data = $this->input->post();
-        $redirect_to = $this->input->post('redirect_url');
-        $returnMsg = [];
-        if ($file_status['file_name_lenth']) {
-            if ($file_status['status']) {
-
-                //get file header
-                $data = $this->read_upload_file_header($file_status);
-                $data['post_data'] = $this->input->post();
-
-                //column which must be present in the  upload inventory file
-                $header_column_need_to_be_present = array('booking_id', 'booking_create_date', 'product', 'booking_request_type', 'product_id', 'model_id', 'dop');
-                //check if required column is present in upload file header
-                $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
-
-                if ($check_header['status']) {
-
-                    // apply loop for validation.
-                    for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
-                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                        $sanitizes_row_data = $rowData_array[0];
-                        $is_data_validated = true;
-
-                        if (!empty(array_filter($sanitizes_row_data))) {
-
-                            $returnMsg[$row][0] = $sanitizes_row_data[0]; // BookingID
-                            $returnMsg[$row][1] = $sanitizes_row_data[1]; // ServiceId
-                            $returnMsg[$row][2] = $sanitizes_row_data[2]; // Service
-                            $returnMsg[$row][3] = $sanitizes_row_data[3]; // ModelID
-                            $returnMsg[$row][4] = $sanitizes_row_data[4]; // Model
-                            $returnMsg[$row][5] = $sanitizes_row_data[5]; // DOP
-                            $returnMsg[$row][6] = $sanitizes_row_data[6]; // Booking Date
-                            $returnMsg[$row][7] = $sanitizes_row_data[7]; // Request Type
-                            $returnMsg[$row][8] = ""; // warranty Status
-                            $returnMsg[$row][9] = ""; // Remarks
-
-                            $sanitizes_row_data = array_map('trim', $rowData_array[0]);
-                            $sanitizes_row_data = array_map('strtoupper', $rowData_array[0]);
-
-                            $data['header_data'] = array_map('trim', $data['header_data']);
-                            $data['header_data'] = array_map('strtoupper', $data['header_data']);
-                            $rowData = array_combine($data['header_data'], $rowData_array[0]);
-
-                            // check empty data.
-                            if (empty($rowData['PRODUCT_ID']) || empty($rowData['MODEL_ID']) || empty($rowData['DOP']) || empty($rowData['BOOKING_CREATE_DATE'])) {
-                                // Insert Status of Record
-                                $returnMsg[$row][9] .= 'Insufficient Data<br/>';
-                                $is_data_validated = false;
-                                continue;
-                            }
-
-                            if (!is_numeric($sanitizes_row_data[5])) {
-                                $returnMsg[$row][9] .= 'DOP not valid<br/>`';
-                                $is_data_validated = false;
-                                continue; // Continue to next record.
-                            }
-
-                            if (!is_numeric($sanitizes_row_data[6])) {
-                                $returnMsg[$row][6] .= 'Booking Date not valid<br/>`';
-                                $is_data_validated = false;
-                                continue; // Continue to next record.
-                            }
-
-                            $service_id = $rowData['PRODUCT_ID'];
-                            $model_id = $rowData['MODEL_ID'];
-
-                            $unix_date = ($sanitizes_row_data[5] - 25569) * 86400;
-                            $excel_date = (25569) + ($unix_date / 86400);
-                            $unix_date = ($excel_date - 25569) * 86400;
-                            $dop = date('d-m-Y', $unix_date);
-
-                            $unix_date1 = ($sanitizes_row_data[6] - 25569) * 86400;
-                            $excel_date1 = (25569) + ($unix_date1 / 86400);
-                            $unix_date1 = ($excel_date1 - 25569) * 86400;
-                            $bd = date('d-m-Y', $unix_date1);
-
-                            $returnMsg[$row][6] = $bd; // BookingDate
-                            $returnMsg[$row][5] = $dop; // DOP
-                            //set data
-                            $arr_data['partner'] = '247130';
-                            $arr_data['service_id'] = $service_id;
-                            $arr_data['brand'] = 'Videocon';
-                            $arr_data['model'] = $model_id;
-                            $arr_data['purchase_date'] = $dop;
-                            $arr_data['booking_date'] = $bd;
-                            
-                            $arrWhere = [];
-                            $arrWhere["(appliance_model_details.id = '".$model_id."' and date(warranty_plans.period_start) <= '".date('Y-m-d', strtotime($dop))."' and date(warranty_plans.period_end) >= '".date('Y-m-d', strtotime($dop))."' and warranty_plans.partner_id = '247130')"] = null; 
-                            $arr_warranty_data = $this->warranty_model->get_warranty_data($arrWhere);
-                            
-                            $returnMsg[$row][8] = 'OW';
-                            if(!empty($arr_warranty_data)):
-                                $in_warranty_months = !empty($arr_warranty_data[0]['in_warranty_period']) ? $arr_warranty_data[0]['in_warranty_period'] : 12;
-                                $extended_warranty_months = !empty($arr_warranty_data[0]['extended_warranty_period']) ? $arr_warranty_data[0]['extended_warranty_period'] : 0;                
-                                
-                                $total_warranty_months = $extended_warranty_months + $in_warranty_months;
-                
-                                // Calculate In-Warranty End Period
-                                $in_warranty_end_period = strtotime(date("Y-m-d", strtotime($dop)) . " +" . $in_warranty_months . " months");
-                                $in_warranty_end_period = strtotime(date("Y-m-d", $in_warranty_end_period) . " -1 day");
-
-                                // Calculate Extended-Warranty End Period
-                                $warranty_end_period = strtotime(date("Y-m-d", strtotime($dop)) . " +" . $total_warranty_months . " months");
-                                $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
-
-                                // Calculate Warranty Status
-                                if (strtotime($bd) <= $in_warranty_end_period) :
-                                    $returnMsg[$row][8] = 'IW';
-                                    $returnMsg[$row][9] = 'Warranty will end on ' . date("d-M-Y", $in_warranty_end_period);
-                                elseif (strtotime($bd) <= $warranty_end_period) :
-                                    $returnMsg[$row][8] = 'EW';
-                                    $returnMsg[$row][9] = 'Product lies in extended warranty of ' . $total_warranty_months . ' months. Warranty will end on ' . date("d-m-Y", $warranty_end_period);
-                                endif;
-                            endif;
-                        }
-                    }
-                }
-            }
-        }
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/bulk_upload_check_warranty', ['data' => $returnMsg]);
+        $this->load->view('employee/bulk_upload_check_warranty', ['data' => $returnArray]);
     }
 
     /**

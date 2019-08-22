@@ -655,3 +655,6 @@ ALTER TABLE `courier_status_file_details` CHANGE `assured_dly_dt` `assured_dly_d
 ALTER TABLE `courier_status_file_details` CHANGE `delivery_date` `delivery_date` DATE NULL DEFAULT NULL;
 
 INSERT INTO `courier_file_upload_header_mapping` (`id`, `courier_partner_id`, `docket_number`, `booking_station`, `delivery_station`, `consignee_name`, `courier_booking_date`, `assured_delivery_date`, `delivery_date`, `docket_status`, `docket_current_status`, `create_date`, `update_date`) VALUES ('10000', '10002', 'docket_no', 'booking_stn', 'delivery_stn', 'consignee_name', 'bkg_dt', 'assured_dly_dt', 'delivery_date', 'docket_status', 'docket_curr_status', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+--Kalyani 22-08-2019
+ALTER TABLE `spare_parts_details` ADD `part_requested_by_engineer` BOOLEAN NOT NULL DEFAULT FALSE AFTER `nrn_approv_by_partner`;

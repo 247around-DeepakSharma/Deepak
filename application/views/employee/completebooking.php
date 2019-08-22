@@ -802,7 +802,10 @@
                 if(service_category_pod_required.includes($.trim($('#price_tags'+price_tag_row_number).text()))) {
                     var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required_'+div_class).val();
                     if(is_sf_purchase_invoice_required == '1') {
-                        var sf_purchase_invoice = $('#purchase_invoice_'+div_class).attr('value');
+                        var sf_purchase_invoice = $('#purchase_invoice_'+div_class).val();
+                        if(sf_purchase_invoice == '') {
+                            var sf_purchase_invoice = $('#purchase_invoice_'+div_class).attr('value');
+                        }
                         if(sf_purchase_invoice == '') {
                             alert("Please upload sf purchase invoice document.");
                             flag = 1;
@@ -1040,16 +1043,6 @@
 //            return false;
 //        }
 //    }
-
-
-        var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required').val();
-        if(is_sf_purchase_invoice_required == '1') {
-            var sf_purchase_invoice = $('#sf_purchase_invoice').val();
-            if(sf_purchase_invoice == '') {
-                alert("Please upload sf purchase invoice document.");
-                return false;
-            }
-        }
 
     if (flag === 0) {
         return true;

@@ -81,8 +81,9 @@
                                                 <a href="javascript:void(0)" data-popover="true" style="border:0px; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;max-width: 125px;" data-html="true" data-content="<?php if(isset($row->part_cancel_reason)){ echo implode('<br>',explode(',',$row->part_cancel_reason));}?>" > <img style="width: 83%;" id="<?php echo 'spare_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <a href="javascript:void(0)" > <img style="width: 83%;" id="<?php echo 'spare_delivered_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <a href="javascript:void(0)" > <img style="width: 89%;" id="<?php echo 'spare_cost_given_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
+                                                <a href="javascript:void(0)" > <img style="width: 89%;" id="<?php echo 'rejected_from_review_today'.$key; ?>" src="<?php echo base_url(); ?>images/loader.gif" /></a>
                                                 <script> $(document).ready(function(){ load_cancelled_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');
-                                                         load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');load_spare_cost_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');
+                                                         load_delivered_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');load_spare_cost_status('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');load_rejected_from_review('<?php echo $row->booking_id;?>', '<?php echo $key;?>', 'today');
                                                 });
                                                 
                                                 </script>
