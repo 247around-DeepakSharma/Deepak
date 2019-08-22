@@ -376,7 +376,7 @@
                     console.log(response);
                     var data = jQuery.parseJSON(response);
                     if (data.code === 247) {
-    
+                        
                         $("#same_awb").css({"color": "green", "font-weight": "900"});
                         //  $("#same_awb").css("font-wight",900);
                         alert("This AWB already used same price will be added");
@@ -447,7 +447,7 @@
                 }
             });
         }
-    
+   
     }
     
 </script>
