@@ -439,7 +439,7 @@
         </div>
     </div>
 </div>
-<?php $arr_warranty_status = ['IW' => ['In Warranty'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];?>
+<?php $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];?>
 <script type="text/javascript">
 var arr_warranty_status = <?php echo json_encode($arr_warranty_status); ?>;    
 var arr_warranty_status_full_names = <?php echo json_encode(['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty']) ?>;    
