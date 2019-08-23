@@ -1378,7 +1378,8 @@
              dateFormat: 'yy-mm-dd', 
              changeMonth: true,
              changeYear: true,
-             maxDate:0
+             maxDate:0,
+             yearRange: '1970:'+new Date().getFullYear()
          }).datepicker('show');
     }
 </script>
