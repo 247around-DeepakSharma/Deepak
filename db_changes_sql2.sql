@@ -638,7 +638,6 @@ INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_cur
 -- Kajal 20-08-2019
 INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare_part_lost', 'Part Sold', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
 UPDATE `invoice_tags` SET `tag` = 'part_lost' WHERE `invoice_tags`.`sub_category` = 'Defective Part Lost';
-INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accounting`, `remarks`, `tag`) VALUES (NULL, 'Service', 'Spares', 'Defective Part Sold', '1', 'Defective Part Sold by sf', 'part_sold'); 
 
 --sachin 13-08-2019
 
@@ -658,3 +657,6 @@ INSERT INTO `courier_file_upload_header_mapping` (`id`, `courier_partner_id`, `d
 
 --Kalyani 22-08-2019
 ALTER TABLE `spare_parts_details` ADD `part_requested_by_engineer` BOOLEAN NOT NULL DEFAULT FALSE AFTER `nrn_approv_by_partner`;
+
+-- Kajal 22-08-2019
+UPDATE `invoice_tags` SET `tag` = 'Out-of-Warranty' WHERE `invoice_tags`.`sub_category` = 'Out-of-Warranty';
