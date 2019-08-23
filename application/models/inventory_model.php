@@ -649,7 +649,7 @@ class Inventory_model extends CI_Model {
     *  @return : $res array
     */
     
-   function get_alternate_inventory_stock_list($inventory_id, $service_center_id) {
+   function get_alternate_inventory_stock_list($inventory_id, $service_center_id, $model_number) {
 
         $inventory_stock_details = array();
         if (!empty($inventory_id)) {
@@ -667,9 +667,9 @@ class Inventory_model extends CI_Model {
                     $where = "service_centres.is_wh = 1 ";
                 }
                 
-                $where .= " AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
+                $where .= " AND appliance_model_details.model_number ='".$model_number."' AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
                 if (!empty($inventory_ids)) {
-                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock - inventory_stocks.pending_request_count) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name', $where, $inventory_ids);
+                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock - inventory_stocks.pending_request_count) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name, inventory_master_list.type', $where, $inventory_ids);
                 }
             }
         }
@@ -2563,7 +2563,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         $this->db->order_by('inventory_stocks.stock', 'desc');
                 
-        $query = $this->db->get();
+        $query = $this->db->get();        
         return $query->result_array();
     }
     
@@ -2594,13 +2594,14 @@ class Inventory_model extends CI_Model {
      */
     function get_msl_data($date, $inventory_id = ""){
        
-        $this->db->select('public_name as company_name, im.inventory_id,  part_name, part_number, '
+        $this->db->select('public_name as company_name,ss.services, im.inventory_id,  part_name, part_number, '
                 . 'im.type, price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
         $this->db->from('spare_parts_details as s');
         $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
         $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_wh =1 ');
         $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id', 'left');
         $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND sc.is_wh = 1 ', 'left');
+        $this->db->join('services as ss', 'ss.id = im.service_id', 'left');
 
         if(!empty($inventory_id)){
             $this->db->where('im.inventory_id', $inventory_id);
@@ -2608,9 +2609,7 @@ class Inventory_model extends CI_Model {
         $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
         $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
         $this->db->order_by('p.public_name, sc.name');
-        
         $this->db->group_by('im.inventory_id, sc.id');
-        
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -2621,7 +2620,7 @@ class Inventory_model extends CI_Model {
      * @return Array
      */
     function get_microwarehouse_msl_data($date, $inventory_id = ""){
-        $this->db->select('public_name as company_name, sc.name as warehouse_name, im.inventory_id,  part_name, part_number, '
+        $this->db->select('public_name as company_name, sc.name as warehouse_name,ss.services, im.inventory_id,  part_name, part_number, '
                 . 'im.type, ( (price + price *gst_rate/100)+ ((price + price *gst_rate/100) * oow_around_margin/100)) as price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
         $this->db->from('spare_parts_details as s');
         $this->db->join('service_centres as sc', 'sc.id = s.service_center_id AND sc.is_micro_wh = 1 ');
@@ -2629,16 +2628,16 @@ class Inventory_model extends CI_Model {
         $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_micro_wh =1 ');
         $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id AND sc.id = i.entity_id', 'left');
         $this->db->join('micro_warehouse_state_mapping as ms', 'ms.partner_id = p.id AND sc.id = ms.vendor_id AND ms.active = 1');
+        $this->db->join('services as ss', 'ss.id = im.service_id', 'left');
 
         if(!empty($inventory_id)){
             $this->db->where('im.inventory_id', $inventory_id);
         }
         $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
+        $this->db->where('s.is_micro_wh','1');
         $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
         $this->db->order_by('p.public_name, sc.name, part_name');
-        
         $this->db->group_by('im.inventory_id, sc.id');
-        
         $query = $this->db->get();
         return $query->result_array();
     }

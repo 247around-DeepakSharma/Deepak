@@ -285,7 +285,7 @@ class Engineer extends CI_Controller {
         $row[] = $phone_call_button;
         $row[] = $alternet_phone_call_button;
         $row[] = $engineer_list->identity_proof;
-        $row[] = date('jS F Y', strtotime($engineer_list->create_date));
+        $row[] = date('Y-m-d', strtotime($engineer_list->create_date));
         if(!$this->input->post("service_center_id")){
             if($this->session->userdata('user_group') == 'regionalmanager'){ 
                 if($engineer_list->varified == 0){
