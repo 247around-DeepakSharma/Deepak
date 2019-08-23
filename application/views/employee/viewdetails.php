@@ -926,8 +926,8 @@
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
                                         <td><?php echo $sp['purchase_invoice_id']; ?></td>
                                         <td><?php echo $sp['sell_invoice_id']; ?></td>  
-                                        <td><?php echo $sp['reverse_sale_invoice_id']; ?></td>
                                         <td><?php echo $sp['reverse_purchase_invoice_id']; ?></td>  
+                                        <td><?php echo $sp['reverse_sale_invoice_id']; ?></td>
                                         <td><?php echo $sp['warehouse_courier_invoice_id']; ?></td> 
                                         <td><?php echo $sp['partner_courier_invoice_id']; ?></td> 
                                         <td><?php echo $sp['vendor_courier_invoice_id']; ?></td> 
