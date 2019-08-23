@@ -60,7 +60,7 @@
                                 <th>Part Type</th>
                                 <th>Challan Approx Value</th>
                                 <th>Status</th>
-                                <th>Purchase Amount</th>
+                                <th>Purchase Amount<small> (Including Tax) </small></th>
                                 <th>Reason</th>
                                 <th>Action</th>
                             </tr>
