@@ -950,7 +950,7 @@ function alpha(e) {
         var partner_id = "<?= $bookinghistory[0]['partner_id']?>";
         var booking_id = "<?= $bookinghistory[0]['booking_id']?>";
         var booking_request_type = "<?= $bookinghistory[0]['request_type']?>"; 
-        if(model_number !== "" && model_number !== null && dop !== "" && booking_request_type != "<?php echo REPEAT_BOOKING_TAG;?>"){                               
+        if(model_number !== "" && model_number !== null && dop !== "" && booking_request_type != "<?php echo REPEAT_BOOKING_TAG;?>" && booking_request_type != "<?php echo WARRANTY_TYPE_AMC;?>"){                               
             $.ajax({
                 method:'POST',
                 url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data",
