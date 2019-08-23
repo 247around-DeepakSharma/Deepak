@@ -30,6 +30,15 @@ class Warranty_utilities {
         }
         
         foreach ($arrBookings as $booking_id => $rec_data) {
+            // Calculate Purchase Date
+            // Used in case data is read from excel
+            if (DateTime::createFromFormat('Y-m-d', $rec_data['purchase_date']) === FALSE) {
+                $rec_data['purchase_date'] = (double) $rec_data['purchase_date'];
+                $unix_date = ($rec_data['purchase_date'] - 25569) * 86400;
+                $excel_date = (25569) + ($unix_date / 86400);
+                $unix_date = ($excel_date - 25569) * 86400;
+                $rec_data['purchase_date'] = date('Y-m-d', $unix_date);
+            }
             $arrWhere["(appliance_model_details.model_number = '".$rec_data['model_number']."' and date(warranty_plans.period_start) <= '".$rec_data['purchase_date']."' and date(warranty_plans.period_end) >= '".$rec_data['purchase_date']."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
         }   
         $arrWarrantyData = $this->My_CI->warranty_model->get_warranty_data($arrWhere);

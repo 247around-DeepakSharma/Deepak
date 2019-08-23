@@ -42,6 +42,7 @@ class engineerApi extends CI_Controller {
         $this->load->library('asynchronous_lib');
         $this->load->library('paytm_payment_lib');
         $this->load->library('validate_serial_no');
+        $this->load->library('warranty_utilities');
     }
 
     /**
@@ -375,6 +376,10 @@ class engineerApi extends CI_Controller {
             
             case 'validateSerialNumber':
                 $this->getValidateSerialNumber();
+                break;
+            
+            case 'sparePartsWarrantyChecker':
+                $this->getSparePartsWarrantyChecker();
                 break;
             
             default:
@@ -1159,9 +1164,8 @@ class engineerApi extends CI_Controller {
     function processCompleteBookingByEngineer(){
         $postData = json_decode($this->jsonRequestData['qsh'], true);
         $requestData = json_decode($postData['completeBookingByEngineer'], true);
-        //echo "<pre>"; print_r($requestData); die();
         $unitDetails = $requestData["unit_array"];
-        $booking_id = $requestData["booking_id"]; // = "PV-16565919070134";
+        $booking_id = $requestData["booking_id"]; 
         $validation = true;
         if($validation){
             foreach($unitDetails as $value){
@@ -1742,11 +1746,10 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "engineer_pincode"=>"201301");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "count(distinct(booking_details.booking_id)) as bookings";
             $slot_select = 'booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
-                    . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id';
+                    . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date';
             $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $tommorow_bookings_count = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $morning_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_10AM_TO_1PM, $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
@@ -1860,10 +1863,9 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "engineer_pincode"=>"201301");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
-                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date";
             $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($missed_bookings as $key => $value) {
                 if($requestData['engineer_pincode']){
@@ -1888,10 +1890,9 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("engineer_id" => 1, "service_center_id" => 1, "engineer_pincode"=>"201301");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
-                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date";
             $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($tomorrowBooking as $key => $value) {
                 if($requestData['engineer_pincode']){
@@ -1916,7 +1917,6 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("engineer_id" => 24, "service_center_id" => 1, "booking_status" => "Cancelled");
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"]) && !empty($requestData["booking_status"])) {
             if($requestData["booking_status"] == _247AROUND_CANCELLED || $requestData["booking_status"] == _247AROUND_COMPLETED){
                 $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
@@ -1961,7 +1961,6 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("booking_id" => "PB-16565919051532");
         if (!empty($requestData["booking_id"])) {
             $tech_support = $this->apis->techSupportNumberForEngineer($requestData["booking_id"]);
             if(!empty($tech_support)){
@@ -1988,7 +1987,6 @@ class engineerApi extends CI_Controller {
         $video_docs = array();
         $other_docs = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("booking_id" => "SP-2502017111426");
         if (!empty($requestData["booking_id"])) {
             $documets =  $this->service_centers_model->get_collateral_for_service_center_bookings($requestData["booking_id"]);
             $i = 0;
@@ -2033,7 +2031,6 @@ class engineerApi extends CI_Controller {
         $response = array();
         
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("engineer_id" => "1");
         if (!empty($requestData["engineer_id"])) {
             $eng_profile =  $this->engineer_model->engineer_profile_data($requestData['engineer_id']);
             if(!empty($eng_profile)){
@@ -2057,7 +2054,6 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("partner_id" => "1", "service_id" => "1");
         if (!empty($requestData["partner_id"]) && !empty($requestData["service_id"])) {
             $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'inventory_model_mapping.active' => 1);
             $model_detail = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
@@ -2082,7 +2078,6 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("model_number_id" => "157");
         if(!empty($requestData["model_number_id"])) {
             $response['partTypeList'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type as part_type', array('model_number_id' => $requestData["model_number_id"], 'inventory_model_mapping.active' => 1));
             log_message("info", __METHOD__ . "Part Type found successfully");
@@ -2099,7 +2094,6 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("part_type"=> "Main Board", "partner_id"=>"247010", "service_id" => "46");
         if(!empty($requestData["part_type"]) && !empty($requestData["partner_id"]) && !empty($requestData["service_id"])) {
             $where = array();
             if (!empty($requestData["model_number_id"])) {
@@ -2270,7 +2264,6 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("booking_id" => "PV-16565919062733", "service_id" => 28, "partner_id" => 236, "request_type" => 'Installation & Demo');
         if(!empty($requestData["booking_id"]) && !empty($requestData["service_id"]) && !empty($requestData["partner_id"]) && !empty($requestData["request_type"])){
             $response['booking_symptom'] = $this->booking_model->getBookingSymptom($requestData["booking_id"]);
             $price_tags = str_replace('(Free)', '', $requestData["request_type"]);
@@ -2325,7 +2318,6 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("technical_problem" => "1");
         if(isset($requestData["technical_problem"])){
             $response = $this->booking_request_model->get_defect_of_symptom('defect_id,defect', array('symptom_id' => $requestData['technical_problem']));
             if(count($response)<=0) {
@@ -2351,7 +2343,6 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("technical_symptom" => "1", "technical_defect" => "1");
         if(isset($requestData["technical_symptom"]) && isset($requestData["technical_defect"])){
             $response = $this->booking_request_model->get_solution_of_symptom('solution_id,technical_solution', array('symptom_id' => $requestData["technical_symptom"], 'defect_id' => $requestData["technical_defect"]));
             if(count($response)<=0) {
@@ -2379,7 +2370,6 @@ class engineerApi extends CI_Controller {
         $final_parices = array();
         $bookng_unit_details = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //$requestData = array("booking_id" => "PV-16565919070335", "brand"=>"TSeries", "partner_id" => 247073, "service_id"=> 46, "service_center_id" => 1);
         if(!empty($requestData["booking_id"]) && !empty($requestData["brand"]) && !empty($requestData["partner_id"]) && !empty($requestData["service_id"])){
             $source = $this->partner_model->getpartner_details('bookings_sources.source, partner_type', array('bookings_sources.partner_id' => $requestData['partner_id']));
             $where = array(
@@ -2751,6 +2741,74 @@ class engineerApi extends CI_Controller {
         } else {
             log_message("info", __METHOD__ . " Booking ID Not Found ");
             $this->sendJsonResponse(array('0056', 'Booking ID Not Found'));
+        }
+    }
+    
+    function getSparePartsWarrantyChecker(){
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        
+        $missing_key = "";
+        $check = true;
+        $matching_flag = false;
+        $validateKeys = array("booking_id", "partner_id", "booking_create_date", "model_number", "purchase_date", "request_type");
+        foreach ($validateKeys as $key){
+                if (!array_key_exists($key, $requestData)){ 
+                    $check = false;
+                    $missing_key = $key;
+                    break;
+                }
+        }
+        if($check){
+            $arrBookings[0] = array(
+                "booking_id" => $requestData["booking_id"],
+                "partner_id" => $requestData["partner_id"],
+                "booking_create_date" => $requestData["booking_create_date"],
+                "purchase_date" => $requestData["purchase_date"],
+                "model_number" => $requestData["model_number"]
+            );
+            $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);
+            $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData); 
+            foreach($arrBookings as $key => $arrBooking)
+            {
+                if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
+                {   
+                    $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
+                }
+                $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
+                unset($arrBookings[$key]);
+            }
+            $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings); 
+
+            $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];
+            $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');  
+
+            $db_warranty_status = $arrBookingsWarrantyStatus[$requestData["booking_id"]];
+
+            foreach ($arr_warranty_status[$db_warranty_status] as $key => $value) {
+                if(strpos($requestData['request_type'], $value)){ 
+                   $matching_flag = true;
+                   break;
+                }
+
+            }
+            if($matching_flag){
+                $response['warranty_flag'] = 0;
+                $response['message'] = "Warraranty status successfully varified";
+            }
+            else{
+                $response['warranty_flag'] = 1;
+                $response['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching current request type ".$requestData["request_type"]." to request part please change request type of the booking.";
+            }
+
+            log_message("info", "Warrenty plan found");
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', 'success'));
+        }
+        else{
+            log_message("info", __METHOD__ . "Warranty checker key missing - ".$missing_key);
+            $this->sendJsonResponse(array("0051", "Warranty checker key missing - ".$missing_key));
         }
     }
 }

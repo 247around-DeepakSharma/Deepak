@@ -1995,7 +1995,10 @@ class Partner extends CI_Controller {
             $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'inventory_model_mapping.active' => 1);
         }
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
-        $data['appliance_model_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
+        if(!empty($data['spare_parts'])) {
+        $where1 = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id);
+        }
+        $data['appliance_model_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where1);
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         
         
@@ -8237,6 +8240,9 @@ class Partner extends CI_Controller {
 
         $booking_id = trim($this->input->post('booking_id'));
         $partner_id = $this->session->userdata('partner_id');
+        if(empty($partner_id)){
+         $partner_id = $this->input->post('partner_id');   
+        }
         $email="Not Given";
         $remarks = $this->input->post('remarks');
         if (isset($_POST['email']) && !empty($_POST['email'])) {
@@ -8267,7 +8273,7 @@ class Partner extends CI_Controller {
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
 
                     $booking['internal_status'] =NRN_APPROVED_BY_PARTNER;
-                    $booking['current_status'] = _247AROUND_PENDING;
+                    $booking['current_status'] = 'InProcess';
                     $actor="";
                     $next_action="";
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING,NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);

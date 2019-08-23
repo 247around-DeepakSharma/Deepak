@@ -2554,9 +2554,11 @@ class Inventory_model extends CI_Model {
         if (!empty($where_in)) {
             $this->db->where('inventory_stocks.inventory_id IN (' . $where_in . ') ', NULL);
         }
-               
+                       
         $this->db->from('inventory_stocks');
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
+        $this->db->join('inventory_model_mapping','inventory_model_mapping.inventory_id = inventory_master_list.inventory_id');
+        $this->db->join('appliance_model_details','appliance_model_details.id = inventory_model_mapping.model_number_id');
         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         $this->db->order_by('inventory_stocks.stock', 'desc');
@@ -2820,6 +2822,21 @@ class Inventory_model extends CI_Model {
             return false;
         }
         
+    }
+
+    function insert_courier_status_details($data) {
+
+        log_message('info', __METHOD__. ' inserting courier file data in batch...');
+
+        $this->db->insert_ignore_duplicate_batch('courier_status_file_details', $data);
+
+        if($this->db->affected_rows() > 0){
+            $res = TRUE;
+        }else{
+            $res = FALSE;
+        }
+        
+        return $res;
     }
     
 
