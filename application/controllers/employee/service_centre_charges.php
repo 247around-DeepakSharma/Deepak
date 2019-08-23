@@ -2274,7 +2274,7 @@ class service_centre_charges extends CI_Controller {
      */
     function get_partner_wise_appliance_data($post) {
         $select = 'service_category_mapping.id as configuration_id, category.name as category, capacity.name as capacity, partner_appliance_mapping.id as mapping_id';
-        $where = array('(partner_appliance_mapping.partner_id IS NULL OR partner_appliance_mapping.partner_id = '.trim($post['partner_id']).')' => NULL, 'service_category_mapping.service_id' => trim($post['service_id']));        
+        $where = array('service_category_mapping.service_id' => trim($post['service_id']));        
         if(!empty($post['status']))
         {
             if($post['status'] == 1)
@@ -2305,7 +2305,7 @@ class service_centre_charges extends CI_Controller {
             $where[$like] = NULL;
         }
         
-        $join['partner_appliance_mapping']  = 'service_category_mapping.id = partner_appliance_mapping.appliance_configuration_id';
+        $join['partner_appliance_mapping']  = 'service_category_mapping.id = partner_appliance_mapping.appliance_configuration_id AND partner_appliance_mapping.partner_id = '.trim($post['partner_id']);
         $join['capacity']  = 'service_category_mapping.capacity_id = capacity.id';
         $JoinTypeTableArray['capacity'] = 'left';
         $JoinTypeTableArray['partner_appliance_mapping'] = 'left';
