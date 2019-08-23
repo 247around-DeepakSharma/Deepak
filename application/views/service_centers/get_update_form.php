@@ -439,7 +439,7 @@
         </div>
     </div>
 </div>
-<?php $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];?>
+<?php $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];?>
 <script type="text/javascript">
 var arr_warranty_status = <?php echo json_encode($arr_warranty_status); ?>;    
 var arr_warranty_status_full_names = <?php echo json_encode(['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty']) ?>;    
@@ -985,12 +985,12 @@ function alpha(e) {
                    {
                        if((booking_request_type.indexOf('Out Of Warranty')) !== -1 || (booking_request_type.indexOf('Out Warranty') !== -1))
                        {
-                           $(".errorMsg").html("<span style='color:#e86100;'><i class='fa fa-warning'></i>&nbsp;Booking Warranty Status ("+arr_warranty_status_full_names[warranty_status]+") is not matching with current request type ("+booking_request_type+") of Booking.</span>");
+                           $(".errorMsg").html("<span style='color:orange'>Booking Warranty Status ("+arr_warranty_status_full_names[warranty_status]+") is not matching with current request type ("+booking_request_type+") of booking, but if needed you may proceed with current request type.</span>");
                        }
                        else
                        {
                             $("#submitform").attr("disabled", true);
-                            $(".errorMsg").html("<span style='color:#f30;'><i class='fa fa-warning'></i>&nbsp;Booking Warranty Status ("+arr_warranty_status_full_names[warranty_status]+") is not matching with current request type ("+booking_request_type+"), to request part please change request type of the Booking.</span>");
+                            $(".errorMsg").html("<span style='color:red;'><i class='fa fa-warning'></i>&nbsp;Booking Warranty Status ("+arr_warranty_status_full_names[warranty_status]+") is not matching with current request type ("+booking_request_type+"), to request part please change request type of the Booking.</span>");
                        }
                    }
                 }                            
