@@ -85,7 +85,7 @@
             $.ajax({
                 url:'<?php echo base_url(); ?>employee/spare_parts/get_defective_spare_parts',
                 type:'POST',
-                data:{booking_id:booking_id, part_warranty_status: 2, page : "<?php echo BILL_DEFECTIVE_OOW_SPARE_PART_PAGE; ?>"}
+                data:{booking_id:booking_id, part_warranty_status: "<?php echo SPARE_PART_IN_OUT_OF_WARRANTY_STATUS; ?>", page : "<?php echo BILL_DEFECTIVE_OOW_SPARE_PART_PAGE; ?>"}
             }).done(function(response){
                 response = JSON.parse(response);
                 var remarks = response.remarks;
