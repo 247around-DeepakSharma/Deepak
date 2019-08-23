@@ -2748,9 +2748,11 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        
         $missing_key = "";
         $check = true;
-        $validateKeys = array("booking_id", "partner_id", "booking_create_date", "model_number", "purchase_date");
+        $matching_flag = false;
+        $validateKeys = array("booking_id", "partner_id", "booking_create_date", "model_number", "purchase_date", "request_type");
         foreach ($validateKeys as $key){
                 if (!array_key_exists($key, $requestData)){ 
                     $check = false;
@@ -2767,28 +2769,42 @@ class engineerApi extends CI_Controller {
                 "model_number" => $requestData["model_number"]
             );
             $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);
-            if(!empty($arrWarrantyData)){
-                $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData); 
-                foreach($arrBookings as $key => $arrBooking)
-                {
-                    if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
-                    {   
-                        $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
-                    }
-                    $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
-                    unset($arrBookings[$key]);
+            $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData); 
+            foreach($arrBookings as $key => $arrBooking)
+            {
+                if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
+                {   
+                    $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
                 }
-                $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings); 
-                $response['warranty_status'] = $arrBookingsWarrantyStatus[$requestData["booking_id"]];
-                $response['message'] = $warranty_message = "warranty status is - ".$arrBookingsWarrantyStatus[$requestData["booking_id"]];
-                log_message("info", "Warrenty plan found");
-                $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array('0000', 'success'));
+                $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
+                unset($arrBookings[$key]);
+            }
+            $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings); 
+
+            $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];
+            $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');  
+
+            $db_warranty_status = $arrBookingsWarrantyStatus[$requestData["booking_id"]];
+
+            foreach ($arr_warranty_status[$db_warranty_status] as $key => $value) {
+                if(strpos($requestData['request_type'], $value)){ 
+                   $matching_flag = true;
+                   break;
+                }
+
+            }
+            if($matching_flag){
+                $response['warranty_flag'] = 0;
+                $response['message'] = "Warraranty status successfully varified";
             }
             else{
-                log_message("info", __METHOD__ . "No Warrenty plan found");
-                $this->sendJsonResponse(array("0050", "Warranty checker key missing - ".$missing_key));
+                $response['warranty_flag'] = 1;
+                $response['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching current request type ".$requestData["request_type"]." to request part please change request type of the booking.";
             }
+
+            log_message("info", "Warrenty plan found");
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', 'success'));
         }
         else{
             log_message("info", __METHOD__ . "Warranty checker key missing - ".$missing_key);
