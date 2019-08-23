@@ -20,6 +20,7 @@ class User_invoice extends CI_Controller {
         $this->load->library("invoice_lib");
         $this->load->library('miscelleneous');
         $this->load->library("session");
+        $this->load->library('booking_utilities');
         $this->load->helper('file');
         $this->load->dbutil();
     }
@@ -570,6 +571,7 @@ class User_invoice extends CI_Controller {
                         $reason[$value->spare_detail_ids] = $value->reasons;
                         $data[$key]['description'] =  $value->spare_product_name."(".$booking_id.")";
                         $tax_charge = $this->booking_model->get_calculated_tax_charge($total_amount, $gst_rate);
+                        $shipped_quantity = (!is_null($chech_spare[0]['shipped_quantity']) ? $chech_spare[0]['shipped_quantity'] : 1);
                         $data[$key]['taxable_value'] = sprintf("%.2f", ($total_amount  - $tax_charge));
                         $data[$key]['product_or_services'] = "Product";
                         if(!empty($vendor_data['gst_no'])){
@@ -583,8 +585,8 @@ class User_invoice extends CI_Controller {
                         $data[$key]['district'] = $vendor_data['district'];
                         $data[$key]['pincode'] = $vendor_data['pincode'];
                         $data[$key]['state'] = $vendor_data['state'];
-                        $data[$key]['rate'] = sprintf("%.2f", ($data[$key]['taxable_value']/$chech_spare[0]['shipped_quantity']));
-                        $data[$key]['qty'] = $chech_spare[0]['shipped_quantity'];//1;
+                        $data[$key]['rate'] = sprintf("%.2f", ($data[$key]['taxable_value']/$shipped_quantity));
+                        $data[$key]['qty'] = $shipped_quantity;
                         $data[$key]['hsn_code'] = $hsn_code;
                         $data[$key]['gst_rate'] = $gst_rate;
                         $data[$key]['owner_phone_1'] = $vendor_data['owner_phone_1'];
@@ -636,7 +638,7 @@ class User_invoice extends CI_Controller {
             
             $response['meta']['invoice_id'] = $invoice_id;
             
-            $invoice_tag_details = $this->invoices_model->get_invoice_tag('vertical, category, sub_category', array('tag' => DEFECTIVE_PART_LOST));
+            $invoice_tag_details = $this->invoices_model->get_invoice_tag('vertical, category, sub_category', array('tag' => PART_LOST_TAG));
             
             if(!empty($invoice_tag_details)) {
                 $response['meta']['vertical'] = $invoice_tag_details[0]['vertical'];
@@ -645,32 +647,7 @@ class User_invoice extends CI_Controller {
             }
             $response['meta']['accounting'] = 1;
             
-            $invoice_breakup = array();
-            foreach($response['booking'] as $value){
-                $invoice = array(
-                    "invoice_id" => $response['meta']['invoice_id'],
-                    "inventory_id" => (($value['inventory_id'] !== "") ? $value['inventory_id'] : NULL),
-                    "spare_id" => $value['spare_id'],
-                    "description" => $value['description'],
-                    "qty" => $value['qty'],
-                    "product_or_services" => $value['product_or_services'],
-                    "rate" => $value['rate'],
-                    "taxable_value" => $value['taxable_value'],
-                    "cgst_tax_rate" => (isset($value['cgst_rate']) ? $value['cgst_rate'] : 0),
-                    "sgst_tax_rate" => (isset($value['sgst_rate']) ? $value['sgst_rate'] : 0),
-                    "igst_tax_rate" => (isset($value['igst_rate']) ? $value['igst_rate'] : 0),
-                    "cgst_tax_amount" => (isset($value['cgst_tax_amount']) ? $value['cgst_tax_amount'] : 0),
-                    "sgst_tax_amount" => (isset($value['sgst_tax_amount']) ? $value['sgst_tax_amount'] : 0),
-                    "igst_tax_amount" => (isset($value['igst_tax_amount']) ? $value['igst_tax_amount'] : 0),
-                    "hsn_code" => $value['hsn_code'],
-                    "total_amount" => $value['total_amount'],
-                    "create_date" => date('Y-m-d H:i:s')
-
-                );
-
-                array_push($invoice_breakup, $invoice);
-            }
-            $this->invoices_model->insert_invoice_breakup($invoice_breakup);
+            $this->invoice_lib->insert_invoice_breackup($response);
             $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_SF_STRING, $postData[0]->service_center_ids, $convert, $this->session->userdata('id'), $hsn_code);
             $inserted_invoice = $this->invoices_model->insert_new_invoice($invoice_details);
 
@@ -719,8 +696,16 @@ class User_invoice extends CI_Controller {
                     if($service_center_action[0]['service_center_closed_date']){
                         $sc_data['current_status'] = "InProcess";
                         $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                        $this->booking_model->update_booking($booking_id, $sc_data);
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                        
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, DEFECTIVE_PART_LOST, $partner_id, $booking_id);
+                        if (!empty($partner_status)) {               
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['partner_internal_status'] = $partner_status[1];
+                            $booking['actor'] = $partner_status[2];
+                            $booking['next_action'] = $partner_status[3];
+                        }
+                        $this->booking_model->update_booking($booking_id, $booking);
                     }
                 }
                 
@@ -1399,6 +1384,7 @@ class User_invoice extends CI_Controller {
         $partner_id = 0;
         $postData = json_decode($this->input->post('postData'));
         $booking_id = $this->input->post('booking_id');
+        $remarks = $this->input->post('remarks');
         //get detail for assigned vendor
         $vendor_data = $this->vendor_model->getVendorDetails("service_centres.id, gst_no, "
                             . "state,address as company_address, "
@@ -1411,7 +1397,7 @@ class User_invoice extends CI_Controller {
             $amount = $value->confirm_prices;
             $gst_rate = $value->gst_rates;
             $hsn_code = $value->hsn_codes;
-            $spare_data = $this->partner_model->get_spare_parts_by_any('parts_requested_type, booking_details.service_id, requested_inventory_id, shipped_inventory_id, booking_details.amount_due, is_micro_wh, booking_details.partner_id', array('spare_parts_details.id' => $spare_id), true);
+            $spare_data = $this->partner_model->get_spare_parts_by_any('parts_requested_type, booking_details.service_id, requested_inventory_id, shipped_inventory_id, booking_details.amount_due, is_micro_wh, booking_details.partner_id, shipped_quantity', array('spare_parts_details.id' => $spare_id), true);
             if (!empty($spare_data)) {
                 $partner_id = $spare_data[0]['partner_id'];
                 $vendor_email_parts_name .= $value->spare_product_name.",";
@@ -1457,6 +1443,7 @@ class User_invoice extends CI_Controller {
                         'spare_lost'=>1, 
                         'sell_price'=>$customer_total,
                         'purchase_price'=>$amount,
+                        'status'=>$value->reasons,
                     );
                     $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_update_data);
                 }
@@ -1470,6 +1457,7 @@ class User_invoice extends CI_Controller {
                 //create data for generating invoices
                 $data[$key]['description'] =  $value->spare_product_name."(".$booking_id.")";
                 $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $gst_rate);
+                $shipped_quantity = (!is_null($spare_data[0]['shipped_quantity']) ? $spare_data[0]['shipped_quantity'] : 1);
                 $data[$key]['taxable_value'] = sprintf("%.2f", ($around_total  - $tax_charge));
                 $data[$key]['product_or_services'] = "Product";
                 if(!empty($vendor_data['gst_no'])){
@@ -1483,10 +1471,15 @@ class User_invoice extends CI_Controller {
                 $data[$key]['district'] = $vendor_data['district'];
                 $data[$key]['pincode'] = $vendor_data['pincode'];
                 $data[$key]['state'] = $vendor_data['state'];
-                $data[$key]['rate'] = $data[$key]['taxable_value'];
-                $data[$key]['qty'] = 1;
+                $data[$key]['rate'] = sprintf("%.2f", ($data[$key]['taxable_value']/$shipped_quantity));
+                $data[$key]['qty'] = $shipped_quantity;
                 $data[$key]['hsn_code'] = $hsn_code;
                 $data[$key]['gst_rate'] = $gst_rate;
+                $data[$key]['inventory_id'] = $inventory_id;
+                $data[$key]['spare_id'] = $value->spare_detail_ids;
+                //insert entry into booking state change
+                $booking_state_remarks = $remarks."(Booking Id - ".$booking_id.")";
+                $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
             }
         }
         if(!empty($data)){ 
@@ -1528,9 +1521,14 @@ class User_invoice extends CI_Controller {
 
             }
             $response['meta']['invoice_id'] = $invoice_id;
-            $response['meta']['vertical'] = SERVICE;
-            $response['meta']['category'] = SPARES;
-            $response['meta']['sub_category'] = OUT_OF_WARRANTY;
+                        
+            $invoice_tag_details = $this->invoices_model->get_invoice_tag('vertical, category, sub_category', array('tag' => OUT_OF_WARRANTY));
+            
+            if(!empty($invoice_tag_details)) {
+                $response['meta']['vertical'] = $invoice_tag_details[0]['vertical'];
+                $response['meta']['category'] = $invoice_tag_details[0]['category'];
+                $response['meta']['sub_category'] = $invoice_tag_details[0]['sub_category'];
+            }
             $response['meta']['accounting'] = 1;
 
             $this->invoice_lib->insert_invoice_breackup($response);
@@ -1541,29 +1539,45 @@ class User_invoice extends CI_Controller {
                 if($email_parts_name_partner){
                     $email_parts_name_partner = rtrim($email_parts_name_partner)." (".$booking_id.") ";
                     $email_template = $this->booking_model->get_booking_email_template(DEFECTIVE_SPARE_SOLED_NOTIFICATION);
-                    $subject = vsprintf($email_template[4], array($booking_id));
-                    $message = vsprintf($email_template[0], array($email_parts_name_partner, $booking_id)); 
-                    $email_from = $email_template[2];
-                    $booking_partner = $this->reusable_model->get_search_query('partners','invoice_email_to, invoice_email_cc', array("id"=>$partner_id), "", "", "", "", "")->result_array();
-                    $to = $booking_partner[0]['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
-                    $cc = $booking_partner[0]['invoice_email_cc'].",".$email_template[3];
-                    //$to = $email_template[1];
-                    //$cc = $email_template[3];
-//                    $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", DEFECTIVE_SPARE_SOLED_NOTIFICATION, "", $booking_id);
+                    if(!empty($email_template)) {
+                        $subject = vsprintf($email_template[4], array($booking_id));
+                        $message = vsprintf($email_template[0], array($email_parts_name_partner, $booking_id)); 
+                        $email_from = $email_template[2];
+                        $booking_partner = $this->reusable_model->get_search_query('partners','invoice_email_to, invoice_email_cc', array("id"=>$partner_id), "", "", "", "", "")->result_array();
+                        $to = $booking_partner[0]['invoice_email_to'].",".$email_template[1].",".$this->session->userdata("official_email");
+                        $cc = $booking_partner[0]['invoice_email_cc'].",".$email_template[3];
+                        //$to = $email_template[1];
+                        //$cc = $email_template[3];
+//                        $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, "", DEFECTIVE_SPARE_SOLED_NOTIFICATION, "", $booking_id);
+                    }
                 }
 
-                $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id'=>$booking_id));
-                if($service_center_action[0]['service_center_closed_date']){
-                    $sc_data['current_status'] = "InProcess";
-                    $sc_data['internal_status'] = _247AROUND_COMPLETED;
-                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                }
                 $spare_parts_detail_ids = array_filter($spare_parts_detail_ids);
                 $where_in = array('id' => $spare_parts_detail_ids);
                 $spare_update_data = array(
                     'sell_invoice_id'=>$invoice_id, 
                 );
                 $result  = $this->inventory_model->update_bluk_spare_data($where_in, $spare_update_data);
+                
+                $check_oow_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status != "'.DEFECTIVE_PARTS_RECEIVED.'"' => NULL, 'spare_lost != 1' => NULL));
+                
+                if(count($check_oow_lost_part) === 0) {
+                    $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id'=>$booking_id));
+                    if($service_center_action[0]['service_center_closed_date']){
+                        $sc_data['current_status'] = "InProcess";
+                        $sc_data['internal_status'] = _247AROUND_COMPLETED;
+                        $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                        
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, OUT_OF_WARRANTY, $partner_id, $booking_id);
+                        if (!empty($partner_status)) {               
+                            $booking['partner_current_status'] = $partner_status[0];
+                            $booking['partner_internal_status'] = $partner_status[1];
+                            $booking['actor'] = $partner_status[2];
+                            $booking['next_action'] = $partner_status[3];
+                        }
+                        $this->booking_model->update_booking($booking_id, $booking);
+                    }
+                }
             }
             echo $result;
         }

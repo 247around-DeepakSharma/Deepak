@@ -638,4 +638,6 @@ INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_cur
 -- Kajal 20-08-2019
 INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare_part_lost', 'Part Sold', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
 UPDATE `invoice_tags` SET `tag` = 'part_lost' WHERE `invoice_tags`.`sub_category` = 'Defective Part Lost';
-INSERT INTO `invoice_tags` (`id`, `vertical`, `category`, `sub_category`, `accounting`, `remarks`, `tag`) VALUES (NULL, 'Service', 'Spares', 'Defective Part Sold', '1', 'Defective Part Sold by sf', 'part_sold'); 
+
+-- Kajal 22-08-2019
+UPDATE `invoice_tags` SET `tag` = 'Out-of-Warranty' WHERE `invoice_tags`.`sub_category` = 'Out-of-Warranty';
