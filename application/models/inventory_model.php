@@ -2634,6 +2634,7 @@ class Inventory_model extends CI_Model {
             $this->db->where('im.inventory_id', $inventory_id);
         }
         $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
+        $this->db->where('s.is_micro_wh','1');
         $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
         $this->db->order_by('p.public_name, sc.name, part_name');
         $this->db->group_by('im.inventory_id, sc.id');
