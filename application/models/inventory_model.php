@@ -2180,9 +2180,15 @@ class Inventory_model extends CI_Model {
      * 
      */
     
-    function get_spare_parts_details($select, $where=array()){
+    function get_spare_parts_details($select, $where=array(),$inventory_join = false,$booking_join = false){
         $this->db->select($select);
         $this->db->where($where);
+        if($inventory_join){
+            $this->db->join('inventory_master_list','spare_parts_details.shipped_inventory_id=inventory_master_list.inventory_id', "left");
+        }
+        if($booking_join){
+            $this->db->join('booking_details','spare_parts_details.booking_id=booking_details.booking_id');
+        }
         $query = $this->db->get("spare_parts_details");
         return $query->result_array();
     }

@@ -392,7 +392,6 @@
                                         <th class="text-center" >No</th>
                                         <th class="text-center" data-orderable="false">Booking Id</th>
                                         <th class="text-center" data-orderable="false">Spare Pending On</th>
-                                        <th class="text-center" data-orderable="false">User</th>
                                         <th class="text-center" data-orderable="false">Service Center</th>
                                         <th class="text-center" data-orderable="false">Partner</th>
                                         <th class="text-center" data-orderable="false">Requested Part</th>
@@ -411,6 +410,7 @@
                                         <th class="text-center" data-orderable="true">Pickup Schedule</th>
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
+                                        <th class="text-center" data-orderable="false">Generate Invoice</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -989,7 +989,7 @@
         defective_part_pending_table = $('#defective_part_pending_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[17, "desc"]], 
+            order: [[16, "desc"]], 
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -998,7 +998,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14]
+                        columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17]
                     },
                     title: 'defective_part_pending'
                 }
@@ -1012,11 +1012,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [1,4], //first column / numbering column
+                    "targets": [1,3], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                  {
-                    "targets": [0,8,16,18,19], //first column / numbering column
+                    "targets": [0,6,15,17,18], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],

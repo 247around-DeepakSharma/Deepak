@@ -2412,16 +2412,18 @@ class Booking extends CI_Controller {
         }
         $this->booking_model->update_booking($booking_id, $booking);
         $this->miscelleneous->process_booking_tat_on_completion($booking_id);
-        $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
+        $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id, spare_lost", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
         foreach($spare as $sp){
             //Update Spare parts details table
             
             if($sp['status'] == SPARE_PARTS_REQUESTED && !empty($sp['requested_inventory_id']) && $sp['entity'] == _247AROUND_SF_STRING){
                 $this->inventory_model->update_pending_inventory_stock_request($sp['entity_type'], $sp['partner_id'], $sp['requested_inventory_id'], -1);
+                if(!$sp['spare_lost']) {
+                    $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
+                }
+            } else if($sp['status'] == SPARE_PARTS_REQUESTED && !$sp['spare_lost']){
                 $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
-            } else if($sp['status'] == SPARE_PARTS_REQUESTED ){
-                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
-            } else {
+            } else if(!$sp['spare_lost']) {
                 $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
             }
         }
