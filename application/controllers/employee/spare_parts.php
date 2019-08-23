@@ -1396,7 +1396,7 @@ class Spare_parts extends CI_Controller {
                 }
                 if (!empty($is_warehouse)) {
 
-                    $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $spare_parts_list[0]['service_center_id']), $partner_id);
+                    $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $spare_parts_list[0]['service_center_id'],'model_number' => $spare_parts_list[0]['model_number']), $partner_id);
                     if (!empty($warehouse_details)) {
                         $data['partner_id'] = $warehouse_details['entity_id'];
                         $data['entity_type'] = $warehouse_details['entity_type'];
@@ -1405,6 +1405,8 @@ class Spare_parts extends CI_Controller {
                         $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
                         $data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
                         $data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
+                        $data['parts_requested'] = $warehouse_details['part_name'];
+                        $data['parts_requested_type'] = $warehouse_details['type'];
                         if (!empty($warehouse_details['inventory_id'])) {
                             $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                         }
@@ -1493,7 +1495,7 @@ class Spare_parts extends CI_Controller {
         $response = array();
         
         if(!empty($data['inventory_id'])){
-            return $this->miscelleneous->check_inventory_stock($data['inventory_id'], $partner_id, $data['state'], $data['service_center_id']);
+            return $this->miscelleneous->check_inventory_stock($data['inventory_id'], $partner_id, $data['state'], $data['service_center_id'],$data['model_number']);
         }
         
         return $response;
@@ -2083,7 +2085,7 @@ class Spare_parts extends CI_Controller {
 
                     if (!empty($is_warehouse)) {
                         
-                            $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $spare_parts_details[0]['requested_inventory_id'], 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id), $partner_id);
+                            $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $spare_parts_details[0]['requested_inventory_id'], 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$data['model_number']), $partner_id);
                             
                             if (!empty($warehouse_details) && $warehouse_details >= $data['quantity']) {
                                 $spare_data['partner_id'] = $warehouse_details['entity_id'];
@@ -2094,6 +2096,7 @@ class Spare_parts extends CI_Controller {
                                 $spare_data['challan_approx_value'] = round(($warehouse_details['challan_approx_value']*$data['quantity']),2);
                                 $spare_data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
                                 $spare_data['parts_requested'] = $warehouse_details['part_name'];
+                                $spare_data['parts_requested_type'] = $warehouse_details['type'];
                                 $spare_data['quantity'] = $data['quantity'];
                                 $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                                 $spare_data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
@@ -2874,7 +2877,7 @@ class Spare_parts extends CI_Controller {
             'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
             'spare_parts_details.requested_inventory_id IS NOT NULL ' => NULL
         );
-        $select = "spare_parts_details.id,spare_parts_details.booking_id, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
+        $select = "spare_parts_details.id,spare_parts_details.booking_id,spare_parts_details.model_number,spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
                 . " requested_inventory_id";
         $post['where_in'] = array('spare_parts_details.booking_id' => $bookigs);
         $post['is_inventory'] = true;
@@ -2889,7 +2892,7 @@ class Spare_parts extends CI_Controller {
         $this->table->set_template($template);
         $this->table->set_heading(array('Booking ID', 'Part Name','Spare part ID'));
 
-        list($tcount, $booking_error_array, $add_row) = $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
+        list($tcount, $booking_error_array, $add_row) = $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id, $bookings_spare['model_number']);
 
         foreach($add_row as $row_values) {
             $this->table->add_row($row_values);
@@ -3099,7 +3102,7 @@ class Spare_parts extends CI_Controller {
             'spare_parts_details.partner_id' => $service_center,
             'spare_parts_details.requested_inventory_id IS NOT NULL ' => NULL
         );
-        $select = "spare_parts_details.id,spare_parts_details.booking_id, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
+        $select = "spare_parts_details.id,spare_parts_details.booking_id, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, spare_parts_details.model_number, booking_details.partner_id as booking_partner_id,"
                 . " requested_inventory_id";
         $post['where_in'] = array('spare_parts_details.booking_id' => $bookingids);
         $post['is_inventory']=true;
@@ -3118,7 +3121,7 @@ class Spare_parts extends CI_Controller {
                 }else{
                  $requested_part_number = '-';  
                 }
-                $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
+                $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "",$booking['model_number']);
                 
                 if (!empty($data)) {
                     if($data['stock']){
@@ -3130,9 +3133,10 @@ class Spare_parts extends CI_Controller {
                         'defective_return_to_entity_type' =>_247AROUND_SF_STRING,
                         'challan_approx_value' => $data['challan_approx_value'],
                         'requested_inventory_id' => $data['inventory_id'],
-                        'parts_requested' => $data['part_name']
+                        'parts_requested' => $data['part_name'],
+                        'parts_requested_type' => $data['type']    
                     );
-
+                        
                     $spare_pending_on_to='';
                     $wh_details_to = $this->vendor_model->getVendorContact($service_center_to);
                     if(!empty($wh_details_to)){
@@ -3295,7 +3299,7 @@ class Spare_parts extends CI_Controller {
             'spare_parts_details.entity_type' => _247AROUND_SF_STRING,
             'spare_parts_details.requested_inventory_id IS NOT NULL ' => NULL
         );
-        $select = "spare_parts_details.id,spare_parts_details.booking_id, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
+        $select = "spare_parts_details.id,spare_parts_details.booking_id, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.model_number,spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
                 . " requested_inventory_id";
         $post['where_in'] = array('spare_parts_details.booking_id' => $bookigs);
         $post['is_inventory'] = true;
@@ -3309,7 +3313,7 @@ class Spare_parts extends CI_Controller {
         $this->table->set_heading(array('Booking ID', 'Part Name','Spare part ID'));
         foreach ($bookings_spare as $booking) {
             
-            $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $booking['state'], "");
+            $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $booking['state'], "",$booking['model_number']);
             if (!empty($data)) {
                 $dataupdate = array(
                         'is_micro_wh' => $data['is_micro_wh'],
@@ -3319,11 +3323,12 @@ class Spare_parts extends CI_Controller {
                         'defective_return_to_entity_type' => $data['defective_return_to_entity_type'],
                         'challan_approx_value' => $data['challan_approx_value'],
                         'requested_inventory_id' => $data['inventory_id'],
-                        'parts_requested' => $data['part_name']
-                    );
-                    $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
+                        'parts_requested' => $data['part_name'],
+                        'parts_requested_type' => $data['type']
+                    );                              
+                $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
 
-                    $spare_pending_on='';
+                $spare_pending_on='';
                     $wh_details = $this->vendor_model->getVendorContact($data['entity_id']);
                     if(!empty($wh_details)){
                     $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   

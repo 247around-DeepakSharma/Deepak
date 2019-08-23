@@ -1885,7 +1885,7 @@ class Service_centers extends CI_Controller {
         $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
         if(!empty($change_inventory_id)){
             
-            $warehouse_details = $this->miscelleneous->check_inventory_stock($data['requested_inventory_id'], $booking_partner_id, $sf_state[0]['state'], $this->session->userdata('service_center_id'));
+            $warehouse_details = $this->miscelleneous->check_inventory_stock($data['requested_inventory_id'], $booking_partner_id, $sf_state[0]['state'], $this->session->userdata('service_center_id'), $data['model_number']);
 
             if (!empty($warehouse_details)) {
                 $data['partner_id'] = $warehouse_details['entity_id'];
@@ -1895,6 +1895,7 @@ class Service_centers extends CI_Controller {
                 $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
                 $data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
                 $data['parts_requested'] = $warehouse_details['part_name'];
+                $data['parts_requested_type'] = $warehouse_details['type'];
                 $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                 
             } else {
@@ -2348,7 +2349,8 @@ class Service_centers extends CI_Controller {
                     }
 
                     if (!empty($is_warehouse) && $value['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS) {
-                        $warehouse_details = $this->get_warehouse_details(array('state' => $sf_state[0]['state'], 'inventory_id' => $value['requested_inventory_id']), $partner_id);     
+                        $warehouse_details = $this->get_warehouse_details(array('state' => $sf_state[0]['state'], 'inventory_id' => $value['requested_inventory_id'],'model_number'=>$data['model_number']), $partner_id);     
+                                                
                         if (!empty($warehouse_details) && $warehouse_details['is_micro_wh'] == 1 &&  $warehouse_details['stock']>= $data['quantity']) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
@@ -2356,6 +2358,8 @@ class Service_centers extends CI_Controller {
                             $data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
                             $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
                             $data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
+                            $data['parts_requested'] = $warehouse_details['part_name'];
+                            $data['parts_requested_type'] = $warehouse_details['type'];
                             $data['challan_approx_value'] = round($warehouse_details['challan_approx_value']*$data['quantity'],2);
                             $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                             $data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
@@ -5140,7 +5144,7 @@ class Service_centers extends CI_Controller {
 
                     if (!empty($is_warehouse)) {
 
-                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id), $partner_id);
+                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);
                         
                         
                         
@@ -5152,6 +5156,8 @@ class Service_centers extends CI_Controller {
                             $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
                             $data['challan_approx_value'] = round(($warehouse_details['challan_approx_value']*$spare_data['quantity']),2);
                             $data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
+                            $data['parts_requested'] = $warehouse_details['part_name'];
+                            $data['parts_requested_type'] = $warehouse_details['type'];
                             $entity_type = $warehouse_details['entity_type'];
                             $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                             $is_micro_wh = $warehouse_details['is_micro_wh'];
@@ -6036,7 +6042,7 @@ class Service_centers extends CI_Controller {
         $response = array();
         
         if(!empty($data['inventory_id'])){
-            return $this->miscelleneous->check_inventory_stock($data['inventory_id'], $partner_id, $data['state'], $this->session->userdata('service_center_id'));
+            return $this->miscelleneous->check_inventory_stock($data['inventory_id'], $partner_id, $data['state'], $this->session->userdata('service_center_id'), $data['model_number']);
         }else{
             $response = array();
         }
