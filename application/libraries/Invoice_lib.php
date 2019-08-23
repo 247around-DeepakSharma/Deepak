@@ -1372,6 +1372,8 @@ class Invoice_lib {
             $invoice_details = array(
                 "invoice_id" => $invoice['meta']['invoice_id'],
                 "description" => $value['description'],
+                "inventory_id" => (isset($value['inventory_id']) ? $value['inventory_id'] : NULL),
+                "spare_id" => (isset($value['spare_id']) ? $value['spare_id'] : NULL),
                 "qty" => $value['qty'],
                 "product_or_services" => $value['product_or_services'],
                 "rate" => $value['rate'],

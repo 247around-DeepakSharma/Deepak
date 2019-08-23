@@ -1,7 +1,7 @@
 
 <div id="page-wrapper">
     <div class="panel panel-info" style="margin-top:20px;">
-        <div class="panel-heading">Sold Defective Spare Invoice</div>
+        <div class="panel-heading">Defective Spare Sold Invoice</div>
             <div class="panel-body">
             <div class="row">
                  <?php
@@ -98,11 +98,10 @@
             $.ajax({
                 url:'<?php echo base_url(); ?>employee/spare_parts/get_defective_spare_parts',
                 type:'POST',
-                data:{booking_id:booking_id, page:"<?php echo BILL_DEFECTIVE_SPARE_PART_LOST_PAGE; ?>"}
+                data:{booking_id:booking_id, part_warranty_status: "<?php echo SPARE_PART_IN_WARRANTY_STATUS; ?>", page:"<?php echo BILL_DEFECTIVE_SPARE_PART_LOST_PAGE; ?>"}
             }).done(function(response){
                 response = JSON.parse(response);
                 var remarks = response.remarks;
-                var hsn_code = response.hsn_code;
                 response = response.data;
                 if(response.length == '0'){
                    alert("No data found for this booking id.");
@@ -120,7 +119,7 @@
                             html += "<td>"+ index +"</td>";
                             html += "<td><a href ='<?php echo base_url()?>employee/booking/viewdetails/"+ response[i]['booking_id']+ "' target='_blank'>"+ response[i]['booking_id']+ "</a></td>";
                             html += "<td>"+ response[i]['parts_shipped'] +"</td>";
-                            html += "<td>"+ response[i]['shipped_quantity'] +"</td>";
+                            html += "<td><input type='text' class='form-control' id='shipped_qty_"+i+"' value='"+ response[i]['shipped_quantity'] +"' readonly ></td>";
                             html += "<td>"+ response[i]['shipped_parts_type'] +"</td>";
                             html += "<td><a "+href+" target='_blank' id='challan_value_"+i+"' >"+ response[i]['challan_approx_value'] +"</a></td>";
                             html += "<td>"+ response[i]['status'] +"</td>";
@@ -147,7 +146,8 @@
                     var part_val = $('#confirm_value_'+id[2]).val();
                     if($('#price_val_'+id[2]).val() !== 'null') {
                         var invoice_value = parseFloat($('#price_val_'+id[2]).val()) + (parseFloat($('#price_val_'+id[2]).val())*(parseFloat($('#gst_rate_'+id[2]).val())/100));
-                        $('#confirm_value_'+id[2]).val(invoice_value.toFixed(2));
+                        var tot_invoice_value = parseFloat(invoice_value) * parseFloat($('#shipped_qty_'+id[2]).val());
+                        $('#confirm_value_'+id[2]).val(tot_invoice_value.toFixed(2));
                     }
                 });
             });

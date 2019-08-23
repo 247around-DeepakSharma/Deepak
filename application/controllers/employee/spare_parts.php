@@ -1809,7 +1809,8 @@ class Spare_parts extends CI_Controller {
         
         $select = "spare_parts_details.id, spare_parts_details.booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, spare_parts_details.status, partner_challan_file , hsn_code, gst_rate, price, shipped_quantity, booking_details.service_id";
         $booking_id = $this->input->post('booking_id');
-        $where = array("spare_parts_details.booking_id"=>$booking_id, "spare_parts_details.status != 'Cancelled'"=>NULL, "sell_invoice_id IS NULL"=>NULL, "is_micro_wh != 1" => NULL, "parts_shipped IS NOT NULL"=>NULL);
+        $part_warranty_status = $this->input->post('part_warranty_status');
+        $where = array("spare_parts_details.booking_id"=>$booking_id, "spare_parts_details.status != 'Cancelled'"=>NULL, "sell_invoice_id IS NULL"=>NULL, "is_micro_wh != 1" => NULL, "parts_shipped IS NOT NULL"=>NULL, "part_warranty_status"=>$part_warranty_status);
         $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where, true, true);
         $data['remarks'] = $internal_status;
         if(count($data['data']) > 0) {
@@ -2721,6 +2722,7 @@ class Spare_parts extends CI_Controller {
      * @desc This function is used to send MSL data to inventory manager
      */
     function get_msl_data($icwh = 1) {
+        $date_365 = date('Y-m-d', strtotime("-365 Days"));
         $date_45 = date('Y-m-d', strtotime("-45 Days"));
         $date_30 = date('Y-m-d', strtotime("-30 Days"));
         $date_15 = date('Y-m-d', strtotime("-15 Days"));
@@ -2734,13 +2736,19 @@ class Spare_parts extends CI_Controller {
             $temp_function = 'get_microwarehouse_msl_data';
             $template = "mwh_msl_data.xlsx";
         }
-        $data = $this->inventory_model->$temp_function($date_45);
+        $data = $this->inventory_model->$temp_function($date_365);
 
         if (!empty($data)) {
             foreach ($data as $key => $value) {
                 
-                $day_30 = $this->inventory_model->$temp_function($date_30, $value['inventory_id']);
+                $day_45 = $this->inventory_model->$temp_function($date_45, $value['inventory_id']);
+                if (!empty($day_45)) {
+                    $data[$key]['consumption_45_days'] = $day_45[0]['consumption'];
+                } else {
+                    $data[$key]['consumption_45_days'] = 0;
+                }
 
+                $day_30 = $this->inventory_model->$temp_function($date_30, $value['inventory_id']);
                 if (!empty($day_30)) {
                     $data[$key]['consumption_30_days'] = $day_30[0]['consumption'];
                 } else {
@@ -2802,13 +2810,21 @@ class Spare_parts extends CI_Controller {
         if (file_exists(TMP_FOLDER . $output_file_excel)) {
 
             system(" chmod 777 " . TMP_FOLDER . $output_file_excel, $res1);
-            unlink($output_file_excel);
+              unlink($output_file_excel);
         }
 
         $R->render('excel', TMP_FOLDER . $output_file_excel);
 
         system(" chmod 777 " . TMP_FOLDER . $output_file_excel, $res1);
 
+       if(!empty($this->session->userdata('session_id'))) {
+        $this->load->helper('download');
+        $data = file_get_contents(TMP_FOLDER . $output_file_excel);
+        force_download($output_file_excel, $data);
+        unlink(TMP_FOLDER . $output_file_excel);
+
+       } else {
+    
         $email_template = $this->booking_model->get_booking_email_template(SEND_MSL_FILE);
         if (!empty($email_template)) {
             $subject = $tmp_subject.$email_template[4];
@@ -2818,8 +2834,14 @@ class Spare_parts extends CI_Controller {
             $to = $email;
             $cc = $email_template[3];
             $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, TMP_FOLDER . $output_file_excel, SEND_MSL_FILE);
-            unlink(TMP_FOLDER . $output_file_excel);
+             unlink(TMP_FOLDER . $output_file_excel);
         }
+
+
+       }
+
+
+
     }
     
         /**
