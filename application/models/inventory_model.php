@@ -649,7 +649,7 @@ class Inventory_model extends CI_Model {
     *  @return : $res array
     */
     
-   function get_alternate_inventory_stock_list($inventory_id, $service_center_id) {
+   function get_alternate_inventory_stock_list($inventory_id, $service_center_id, $model_number) {
 
         $inventory_stock_details = array();
         if (!empty($inventory_id)) {
@@ -667,9 +667,9 @@ class Inventory_model extends CI_Model {
                     $where = "service_centres.is_wh = 1 ";
                 }
                 
-                $where .= " AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
+                $where .= " AND appliance_model_details.model_number ='".$model_number."' AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
                 if (!empty($inventory_ids)) {
-                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock - inventory_stocks.pending_request_count) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name', $where, $inventory_ids);
+                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock - inventory_stocks.pending_request_count) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name, inventory_master_list.type', $where, $inventory_ids);
                 }
             }
         }
@@ -2536,7 +2536,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         $this->db->order_by('inventory_stocks.stock', 'desc');
                 
-        $query = $this->db->get();
+        $query = $this->db->get();        
         return $query->result_array();
     }
     
