@@ -22,9 +22,9 @@
                             <div class="form-group">
                                 <label for="excel" class="col-md-3">Upload File</label>
                                 <div class="col-md-9">
-                                    <input type="file" class="form-control"  name="file" required="">
+                                    <input type="file" class="form-control"  name="file" required="" accept=".xlsx, .xls, .csv">
                                     <?php
-                                    if (form_error('excel')) {
+                                    if (form_error('file')) {
                                         echo 'File size or file type is not supported. Allowed extentions are "xls" or "xlsx". Maximum file size is 2 MB.';
                                     }
                                     ?>
@@ -89,7 +89,7 @@
         $('#datatable1').DataTable({
             dom: 'Bfrtip',
             buttons: [
-               'csv'
+                { extend: 'csv', text: 'Export', title: 'Check Warranty Status'}               
             ]
         });
         
@@ -104,4 +104,5 @@
             }
         });
     });
+    
 </script>
