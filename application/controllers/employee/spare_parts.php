@@ -1807,7 +1807,8 @@ class Spare_parts extends CI_Controller {
         
         $select = "spare_parts_details.id, spare_parts_details.booking_id, parts_shipped, shipped_parts_type, challan_approx_value, service_center_id, spare_parts_details.status, partner_challan_file , hsn_code, gst_rate, price, shipped_quantity, booking_details.service_id";
         $booking_id = $this->input->post('booking_id');
-        $where = array("spare_parts_details.booking_id"=>$booking_id, "spare_parts_details.status != 'Cancelled'"=>NULL, "sell_invoice_id IS NULL"=>NULL, "is_micro_wh != 1" => NULL, "parts_shipped IS NOT NULL"=>NULL);
+        $part_warranty_status = $this->input->post('part_warranty_status');
+        $where = array("spare_parts_details.booking_id"=>$booking_id, "spare_parts_details.status != 'Cancelled'"=>NULL, "sell_invoice_id IS NULL"=>NULL, "is_micro_wh != 1" => NULL, "parts_shipped IS NOT NULL"=>NULL, "part_warranty_status"=>$part_warranty_status);
         $data['data'] = $this->inventory_model->get_spare_parts_details($select, $where, true, true);
         $data['remarks'] = $internal_status;
         if(count($data['data']) > 0) {
