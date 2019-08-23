@@ -250,7 +250,7 @@ class Service_centers_model extends CI_Model {
         }
         if(!empty($whereIN)){
              foreach ($whereIN as $fieldName=>$conditionArray){
-                     $where_in = " AND ".$fieldName." IN ('".implode("','",$conditionArray)."')";
+                     $where_in .= " AND ".$fieldName." IN ('".implode("','",$conditionArray)."')";
              }
          }
          if(!empty($where)){
