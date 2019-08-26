@@ -1342,18 +1342,18 @@ class File_upload extends CI_Controller {
 
                           }
 
-                        $insert_inventory = $this->insert_Inventory_Model_Data(trim($val['inventory_id']), trim($val['alt_inventory_id']));
-                        $insert_alt_inventory = $this->insert_Inventory_Model_Data(trim($val['alt_inventory_id']), trim($val['inventory_id']));
-
-                        if ($insert_inventory && $insert_alt_inventory) {
-                            log_message("info", __METHOD__ . " inventory model mapping created succcessfully");
-                            $response['status'] = TRUE;
-                            $response['message'] = "Details inserted successfully.";
-                        } else {
-                            log_message("info", __METHOD__ . " Inventory Model Mapping already created.");
-                            $response['status'] = TRUE;
-                            $response['message'] = "Inventory Model Mapping already created.";
-                        }
+//                        $insert_inventory = $this->insert_Inventory_Model_Data(trim($val['inventory_id']), trim($val['alt_inventory_id']));
+//                        $insert_alt_inventory = $this->insert_Inventory_Model_Data(trim($val['alt_inventory_id']), trim($val['inventory_id']));
+//
+//                        if ($insert_inventory && $insert_alt_inventory) {
+//                            log_message("info", __METHOD__ . " inventory model mapping created succcessfully");
+//                            $response['status'] = TRUE;
+//                            $response['message'] = "Details inserted successfully.";
+//                        } else {
+//                            log_message("info", __METHOD__ . " Inventory Model Mapping already created.");
+//                            $response['status'] = TRUE;
+//                            $response['message'] = "Inventory Model Mapping already created.";
+//                        }
 
                         $where = array(
                             'spare_parts_details.status' => SPARE_PARTS_REQUESTED,

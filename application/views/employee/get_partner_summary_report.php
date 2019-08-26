@@ -152,7 +152,7 @@
             var partner_id = $(this).val();
             if(partner_id != '' || partner_id != null) {
                 var url = '<?php echo base_url()."employee/partner/download_real_time_summary_report/"?>'+partner_id;
-                $('#download_realtime_summary_report').attr('href', url + partner_id);
+                $('#download_realtime_summary_report').attr('href', url);
                 
                 var dataUrl = '<?php echo base_url()."employee/booking/get_summary_report_data/"?>'+partner_id;
                 $.ajax({
@@ -173,6 +173,7 @@
             success: function (response) {
                 $('#partner_id').html(response);
                 $('#partner_id').select2();
+                $('#partner_id').trigger('change');
             }
         });
     });
@@ -193,8 +194,8 @@
         var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
         var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
         
-        if(diffDays>30){
-            alert("Maximum range allowed is 1 month");
+        if(diffDays>90){
+            alert("Maximum range allowed is 3 months");
             return false;
         }  
         
