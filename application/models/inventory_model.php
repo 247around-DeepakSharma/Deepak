@@ -2792,5 +2792,22 @@ class Inventory_model extends CI_Model {
         
     }
     
+    /**
+     * @Desc: This function is used to get inventory ledger details.
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_mwh_invoice_ledger_data($select, $where) {
+
+        $this->db->select($select, FALSE);
+
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $query = $this->db->get();
+        return $query;
+    }
 
 }
