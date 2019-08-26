@@ -4890,6 +4890,41 @@ class vendor extends CI_Controller {
       </tr>'; }}
    echo $table .= '</tbody></table>';
     }
+
+    /**
+     * get partner on off history.
+     */
+    function get_partner_vendor_on_off_history_view($vendor){
+        if(!is_numeric($vendor)){
+            echo "<div class='text-danger'>Invalid Service Centre.</div>";die;
+        }
+        $data = $this->miscelleneous->service_centre_on_off_history_view($vendor);
+        $table = '<table class="table table-striped table-bordered table-responsive">'
+                    .'<thead><tr><th>S.No.</th><th>Name</th><th>Status</th><th>Temporary/Permanent</th><th>Agent</th><th>Date</th></tr></thead>'
+                    .'<tbody>';
+
+        if(!empty($data) && count($data)>0){
+            $index = 1;
+            foreach($data as $key=>$entry){
+                if(isset($prev_state) && $prev_state == $entry['on_off']){
+                    continue;
+                }
+                $prev_state = $entry['on_off'];
+                $table .= "<tr><td>". $index. "</td>"
+                    ."<td>". $entry["name"]. "</td>"
+                    ."<td>". ($entry["on_off"]?"On":"Off"). "</td>"
+                    ."<td>". ($entry["active"]?"Temporary":"Permanent"). "</td>"
+                    ."<td class='text-capitalize'>". ($entry["agent"]?$entry['agent']:"NA"). "</td>"
+                    ."<td>". $entry["date"]. "</td></tr>";
+                $index++;
+            }
+        }
+
+        $table .= "</tbody></table>";
+        echo $table;
+        //echo "<pre>";print_r($table);die;
+    }
+
     function show_escalation_graph_by_sf($sfID,$startDate,$endDate){
             if($this->session->userdata('userType') == 'employee'){
         $this->miscelleneous->load_nav_header();
