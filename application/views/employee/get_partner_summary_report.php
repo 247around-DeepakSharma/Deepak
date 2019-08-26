@@ -152,7 +152,7 @@
             var partner_id = $(this).val();
             if(partner_id != '' || partner_id != null) {
                 var url = '<?php echo base_url()."employee/partner/download_real_time_summary_report/"?>'+partner_id;
-                $('#download_realtime_summary_report').attr('href', url + partner_id);
+                $('#download_realtime_summary_report').attr('href', url);
                 
                 var dataUrl = '<?php echo base_url()."employee/booking/get_summary_report_data/"?>'+partner_id;
                 $.ajax({
