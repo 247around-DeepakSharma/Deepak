@@ -5213,6 +5213,7 @@ class Partner extends CI_Controller {
         }
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Waiting_Upcountry_Bookings_".date("Y-m-d"));
     }
+    
     function download_spare_part_shipped_by_partner($isAdmin=0,$partner_post=0){
         ob_start();
         $where = '1';
@@ -5229,10 +5230,37 @@ class Partner extends CI_Controller {
              $where = "booking_details.partner_id = '" . $partner_id . "' ";
             
          }
+         
+          $where .= " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
+          
+          $this->gotToDownloadCSV($where);
+         
+    }
+    
+    function download_all_spare_parts($isAdmin = 0, $partner_post = 0) {
+           
+        ob_start();
+        $where = '1';
+        if ($isAdmin == 0 && $partner_post == 0) {
+            log_message('info', __FUNCTION__ . ' Function Start For Partner ' . $this->session->userdata('partner_id'));
+            $this->checkUserSession();
+            $partner_id = $this->session->userdata('partner_id');
+            $where = "booking_details.partner_id = '" . $partner_id . "' ";
+        } else {
+            $this->checkEmployeeUserSession();
+            $partner_id = $partner_post;
+            $where = "booking_details.partner_id = '" . $partner_id . "' ";
+        }
+
+        //$where .= " AND status != 'Cancelled'";
+                
+        $this->gotToDownloadCSV($where);
+    }
+
+    function gotToDownloadCSV($where){
+        ini_set('memory_limit', '-1');
         $CSVData = array();
-        
-        $where .= " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
-        
+                
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Booking ID",
             "Booking Create Date",
@@ -5333,6 +5361,7 @@ class Partner extends CI_Controller {
 
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Shipped_By_Partner_".date("Y-m-d"));
     }
+    
     function download_spare_part_shipped_by_partner_not_acknowledged(){
         ob_start();
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
