@@ -113,11 +113,11 @@
                 var active_status = ''
                 if(is_active == 1){
                     status = '0';
-                   button_content = 'Activate';
+                   button_content = 'Deactivate';
                 }
                 if(is_active == '0'){
                    status = '1';
-                   button_content = 'Deactivate';
+                   button_content = 'Activate';
                 }
             
                 if(confirm("Are you sure you want to "+button_content+" ?")){
