@@ -2724,6 +2724,7 @@ class Spare_parts extends CI_Controller {
      * @desc This function is used to send MSL data to inventory manager
      */
     function get_msl_data($icwh = 1) {
+        ini_set('memory_limit', -1);
         $date_365 = date('Y-m-d', strtotime("-365 Days"));
         $date_45 = date('Y-m-d', strtotime("-45 Days"));
         $date_30 = date('Y-m-d', strtotime("-30 Days"));
