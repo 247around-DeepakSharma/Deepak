@@ -672,44 +672,6 @@ define('PARTNER_APPLIANCE_MAPPING', 'Partner_Appliance_Mapping_File');
 define('IN_WARRANTY_STATUS', 1);
 define('EXTENDED_WARRANTY_STATUS', 2);
 define('PARTNER_DEFAULT_CONTACT_PERSON_ID', '1002706');
-
-//tv hsn code
-define("_247AROUND_TV_HSN_CODE","84159000");
-//washing_machine hsn code
-define("_247AROUND_WASHING_MACHINE_HSN_CODE","85014090");
-//microwave hsn code
-define("_247AROUND_MICROWAVE_HSN_CODE","85299090");
-//water_purifier hsn code
-define("_247AROUND_WATER_PURIFIER_HSN_CODE","85299090");
-//ac hsn code
-define("_247AROUND_AC_HSN_CODE","84159000");
-//refrigerator hsn code
-define("_247AROUND_REFRIGERATOR_HSN_CODE","85014090");
-//geyser hsn code
-define("_247AROUND_GEYSER_HSN_CODE","85444920");
-//audio system hsn code
-define("_247AROUND_AUDIO_SYSTEM_HSN_CODE","85299090");
-//Chimney hsn code
-define("_247AROUND_CHIMNEY_HSN_CODE","85299090");
-
-//tv gst rate
-define("_247AROUND_TV_GST_RATE",18);
-//washing_machine gst rate
-define("_247AROUND_WASHING_MACHINE_GST_RATE",18);
-//microwave gst rate
-define("_247AROUND_MICROWAVE_GST_RATE",18);
-//water_purifier gst rate
-define("_247AROUND_WATER_PURIFIER_GST_RATE",18);
-//ac gst rate
-define("_247AROUND_AC_GST_RATE",18);
-//refrigerator gst rate
-define("_247AROUND_REFRIGERATOR_GST_RATE",18);
-//geyser gst rate
-define("_247AROUND_GEYSER_GST_RATE",18);
-//audio system gst rate
-define("_247AROUND_AUDIO_SYSTEM_GST_RATE",18);
-//Chimney gst rate
-define("_247AROUND_CHIMNEY_GST_RATE",18);
 define('REJECTED_FROM_REVIEW_STATUS','Rejected From Review');
 
 define('WARRANTY_TYPE_AMC', 'AMC (Annual Maintenance Contract)');
