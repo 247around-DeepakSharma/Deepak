@@ -382,6 +382,10 @@ class engineerApi extends CI_Controller {
                 $this->getSparePartsWarrantyChecker();
                 break;
             
+            case 'checkSparePartsOrder':
+                $this->checkSparePartsOrder();
+                break;
+            
             default:
                 break;
             
@@ -2808,7 +2812,37 @@ class engineerApi extends CI_Controller {
         }
         else{
             log_message("info", __METHOD__ . "Warranty checker key missing - ".$missing_key);
-            $this->sendJsonResponse(array("0051", "Warranty checker key missing - ".$missing_key));
+            $this->sendJsonResponse(array("0050", "Warranty checker key missing - ".$missing_key));
+        }
+    }
+    
+    function checkSparePartsOrder(){
+        log_message("info", __METHOD__. " Entering..");
+        $response = array();
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $requestData = array("booking_id"=>"SY-16565919082046");
+        if (!empty($requestData["booking_id"])) {
+            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData["booking_id"]));
+            foreach ($unit_details as $value) {
+                if (stristr($value['price_tags'], "Repair") 
+                        || stristr($value['price_tags'], "Repeat")
+                        || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
+                        || stristr($value['price_tags'], PRESALE_REPAIR_TAG)
+                        || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY)
+                        || stristr($value['price_tags'], AMC_PRICE_TAGS)
+                        || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
+                    $response["spare_flag"] = 1;
+                }
+                else{
+                    $response["spare_flag"] = 0;
+                }
+            }
+            log_message("info", "Spare parts flag found");
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', 'success'));
+        } else {
+            log_message("info", __METHOD__ . " Booking ID Not Found ");
+            $this->sendJsonResponse(array('0051', 'Booking ID Not Found'));
         }
     }
 }
