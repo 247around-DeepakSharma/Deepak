@@ -6500,7 +6500,7 @@ class Inventory extends CI_Controller {
             $option = '<option selected disabled>Select Model Number</option>';
             foreach ($inventory_details as $value) {
                 $option .= "<option value='" . $value['id'] . "'";
-                $option .=" > ";
+                $option .=">";
                 $option .= $value['model_number'] . "</option>";
             }
             echo $option;
