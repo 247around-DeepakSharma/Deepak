@@ -39,7 +39,7 @@
                     </div>
                     <div class="col-md-6">
                         <p style="font-size: 18px;"><b>Download Sample File. Use this file to check Warranty Data.</b></p>
-                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/warranty-docs/check_warranty_data_sample.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
+                        <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/warranty-docs/check_warranty_sample_sheet.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
                     </div>
                 </section>
                 <div class="col-md-12" style="margin-top:20px;">
