@@ -859,8 +859,8 @@
                     <h4 class="modal-title" id="modal-title">Remove MSL Consumption</h4>
                 </div>
                 <div class="modal-body">
-                    <h4 style="padding: 3px;font-size: 1em;" id="status_label" class="modal-title">Cancellation Reason *</h4>
-                    <select id="msl_remove_reason" class="form-control"></select>
+<!--                    <h4 style="padding: 3px;font-size: 1em;" id="status_label" class="modal-title">Cancellation Reason *</h4>
+                    <select id="msl_remove_reason" class="form-control"></select>-->
                     <h4 style="padding: 3px;font-size: 1em; margin-top: 10px;" id="remarks_label" class="modal-title">Remarks *</h4>
                     <textarea rows="3" class="form-control" id="msl_remove_remark" placeholder="Enter Remarks"></textarea>
                     <input type="hidden" id="model_spare_id">
@@ -999,11 +999,12 @@
             });
         }
         
-    function open_model_for_remove_msl(spare_id, booking_id, inventory_id){ 
+    function open_model_for_remove_msl(spare_id, booking_id, inventory_id){
+        /*
         $.ajax({
             method:"POST",
             data : {},
-            url:'<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons',
+            url:'<?php //echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons',
             success: function(response){
                 $("#model_spare_id").val(spare_id);
                 $("#model_booking_id").val(booking_id);
@@ -1012,24 +1013,32 @@
                 $("#msl_remove_reason").select2();
             }
         });
+        */
+           
+        $("#model_spare_id").val(spare_id);
+        $("#model_booking_id").val(booking_id);
+        $("#model_inventory_id").val(inventory_id);
+        $("#msl_remove_reason").select2();
         $("#remove_msl_model").modal('show');
     }    
         
     function cancelAutoDeliveredPart(){ 
         var spare_id = $("#model_spare_id").val();
         var booking_id = $("#model_booking_id").val();
+        /*
         var spare_cancel_id = $("#msl_remove_reason").val();
         if(!spare_cancel_id){
             alert("Please select cancellation reason");
         }
-        else if(!$("#msl_remove_remark").val()){
+        */
+        if(!$("#msl_remove_remark").val()){
             alert("Please fill remarks");
         }
         else{
             $.ajax({
                 method:"POST",
                 url:'<?php echo base_url(); ?>employee/inventory/remove_msl_consumption',
-                data:{'spare_parts_id':spare_id, 'booking_id':booking_id, 'spare_cancel_id':spare_cancel_id, 'spare_cancel_reason': $("#msl_remove_reason option:selected").text(), 'remarks':$("#msl_remove_remark").val(), 'inventory_id':$("#model_inventory_id").val()},
+                data:{'spare_parts_id':spare_id, 'booking_id':booking_id, 'spare_cancel_reason': '<?php echo SPARE_RECIEVED_NOT_USED; ?>', 'remarks':$("#msl_remove_remark").val(), 'inventory_id':$("#model_inventory_id").val()},
                 success: function(response){
                     if(response){
                         alert("MSL removed successfully");

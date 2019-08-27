@@ -2239,7 +2239,7 @@ class engineerApi extends CI_Controller {
            
             $check = true;
             $missing_key = "";
-            $keys = array("part_warranty_status", "parts_type", "parts_name", "quantity"); //we removed - requested_inventory_id check beacuse it it optional
+            $keys = array("part_warranty_status", "parts_type", "parts_name", "quantity", "requested_inventory_id");
             foreach($requestData['part'] as $parts){
                 foreach ($keys as $key){
                     if (!array_key_exists($key, $parts)){ 
@@ -2820,11 +2820,29 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $is_est_approved = false;
         if (!empty($requestData["booking_id"])) {
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData["booking_id"]));
-            if(!empty($unit_details)){
+            $data['bookinghistory'] = $this->booking_model->getbooking_history($requestData["booking_id"]);
+            if(!empty($data['bookinghistory'][0])){
+                if(isset($data['bookinghistory']['spare_parts'])){
+                    foreach ($data['bookinghistory']['spare_parts'] as $sp) {
+                        if ($sp['status'] == SPARE_OOW_EST_GIVEN) {
+                            $is_est_approved = true; 
+                        }
+                    }
+                }
                 foreach ($unit_details as $value) {
-                    if (stristr($value['price_tags'], "Repair") 
+                    if (strcasecmp($value['price_tags'], REPAIR_OOW_TAG) == 0) {
+                        if(!$is_est_approved){
+                           $response["spare_flag"] = 1;
+                           $response["message"] = "Success";
+                        }
+                        else{
+                            $response["spare_flag"] = 0;
+                            $response["message"] = "Spare estimate cost given. Please update Approved by customer and then order spare part";  
+                        }
+                    } else if (stristr($value['price_tags'], "Repair") 
                             || stristr($value['price_tags'], "Repeat")
                             || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
                             || stristr($value['price_tags'], PRESALE_REPAIR_TAG)
@@ -2832,9 +2850,12 @@ class engineerApi extends CI_Controller {
                             || stristr($value['price_tags'], AMC_PRICE_TAGS)
                             || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
                         $response["spare_flag"] = 1;
+                        $response["message"] = "Success";
+                        
                     }
                     else{
                         $response["spare_flag"] = 0;
+                        $response["message"] = "You can not request spare part for this booking";
                     }
                 }
                 log_message("info", "Spare parts flag found");

@@ -565,7 +565,7 @@ function alpha(e) {
             success:function(data){
                 if(data){
                     $("#appliance_model_div").empty();
-                    var html = "<select class='form-control spare_parts' id='model_number_id' name='model_number_id' onchange='model_number_text()'>";
+                    var html = "<select class='form-control spare_parts' id='model_number_id' name='model_number_id' onchange='model_number_text();check_booking_request()'>";
                         html += data;
                         html += "</select>";
                         html += "<input type='hidden' id='model_number' name='model_number'>";
