@@ -243,7 +243,7 @@
                    processData: false,  // tell jQuery not to process the data
                    contentType: false   // tell jQuery not to set contentType
                    }).done(function(response) {
-                        // console.log(response);
+                         console.log(response);
                           
                             $(".loader").addClass('hide');
                              swal({title: "Updated !", text: "Your courier details updated .", type: "success"},
