@@ -660,3 +660,6 @@ ALTER TABLE `spare_parts_details` ADD `part_requested_by_engineer` BOOLEAN NOT N
 
 -- Kajal 22-08-2019
 UPDATE `invoice_tags` SET `tag` = 'Out-of-Warranty' WHERE `invoice_tags`.`sub_category` = 'Out-of-Warranty';
+
+-- Prity 26-08-2019
+ALTER TABLE warranty_plans add column `plan_depends_on` int(11) NOT NULL DEFAULT 1 COMMENT '1 => Model Specific (Plan Valid on Model Number), 2 => Service Specific (Plan Valid on Product eg : AC, WM)';
