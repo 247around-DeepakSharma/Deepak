@@ -40,9 +40,8 @@
                                     <th>S.No</th>
                                     <th>Appliance</th>
                                     <th>Model Number</th>
-                                    <th>Part Number</th>
-                                    <th>BOM Status</th>
-                                    <th style="width:250px;">BOM Action</th>
+                                    <th>Status</th>
+                                    <th style="width:250px;">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -51,7 +50,6 @@
                                     <td><?php echo $sn; ?></td>
                                     <td><?php echo $value['services']; ?></td>
                                     <td><?php echo $value['model_number']; ?></td>
-                                    <td><?php echo $value['part_number']; ?></td>
                                     <td><?php if($value['active'] == 1 ){ echo 'Active'; } else { echo ' Inactive'; } ?></td>
                                     <td><?php 
                                     if($value['active'] == 1){ ?>
@@ -99,9 +97,9 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2,3,4]
+                        columns: [ 0, 1, 2]
                     },
-                    title: 'bom_mapping_list_'+part_name+time
+                    title: 'model_used_in_part_'+part_name+time
                 },
             ],
     });
@@ -131,10 +129,7 @@
                      success:function(response){
                            if(response.status == true){
                                $("#success_message").html('Model Number ('+model_number+') Successfully '+button_content+' !');
-                               setTimeout(function(){
-                                  window.location.reload();  
-                               },1500);
-                               
+                                window.location.reload();
                            }     
                     }
                     }); 
