@@ -243,7 +243,7 @@
                    processData: false,  // tell jQuery not to process the data
                    contentType: false   // tell jQuery not to set contentType
                    }).done(function(response) {
-                        // console.log(response);
+                         console.log(response);
                           
                             $(".loader").addClass('hide');
                              swal({title: "Updated !", text: "Your courier details updated .", type: "success"},
@@ -448,7 +448,14 @@ $("#spareids").val(yourArray);
 
  function check_awb_exist() {
         var awb = $("#awb_by_sf").val();
-        if (awb) {
+         var characterReg = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+            if (characterReg.test(awb) && awb != '') {
+                awb = '';
+                $("#awb_by_sf").val('');
+                alert('Special Characters are not allowed in AWB.');
+                return false;
+            }  
+        if (awb!='') {
             $.ajax({
                 type: 'POST',
                 beforeSend: function () {

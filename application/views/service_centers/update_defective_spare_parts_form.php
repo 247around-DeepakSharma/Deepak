@@ -353,12 +353,14 @@
     
     function check_awb_exist() {
         var awb = $("#awb_by_sf").val();
-        var characterReg = /^\s*[.~!@#$%^&*\s]+\s*$/;
+        var characterReg = /[ !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
             if (characterReg.test(awb) && awb != '') {
                 awb = '';
-                alert('Spacial character not allow in AWB.');
+                $("#awb_by_sf").val('');
+                alert('Special Characters are not allowed in AWB.');
+                return false;
             }  
-         if (awb) {
+         if (awb !='') {
             $.ajax({
                 type: 'POST',
                 beforeSend: function () {
