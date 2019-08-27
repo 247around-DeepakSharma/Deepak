@@ -138,7 +138,7 @@
                                                 <?php } ?>
                                             </select>
                                             
-                                            <input type="hidden" id="model_number" name="model_number" value="<?php echo $unit_model_number; ?>">
+                                            <input type="hidden" id="model_number" name="model_number" value="<?php echo trim($unit_model_number); ?>">
                                             
                                         </div>
                                         <?php } else { ?> 
@@ -948,6 +948,7 @@ function alpha(e) {
         var model_number = $('#model_number').val();
         var dop = $("#dop").val();
         var partner_id = "<?= $bookinghistory[0]['partner_id']?>";
+        var service_id = "<?= $bookinghistory[0]['service_id']?>";
         var booking_id = "<?= $bookinghistory[0]['booking_id']?>";
         var booking_request_type = "<?= $bookinghistory[0]['request_type']?>"; 
         if(model_number !== "" && model_number !== null && dop !== "" && booking_request_type != "<?php echo REPEAT_BOOKING_TAG;?>" && booking_request_type != "<?php echo WARRANTY_TYPE_AMC;?>"){                               
@@ -959,6 +960,7 @@ function alpha(e) {
                         'partner_id' : "<?= $bookinghistory[0]['partner_id']?>",
                         'booking_id' : booking_id,
                         'booking_create_date' : "<?= $bookinghistory[0]['create_date']?>",
+                        'service_id' : service_id,
                         'model_number' : model_number,
                         'purchase_date' : dop, 
                     }

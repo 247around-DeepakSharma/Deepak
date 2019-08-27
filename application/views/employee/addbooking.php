@@ -262,8 +262,8 @@
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
                                                 <?php echo form_error('model_number'); ?>
-                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" disabled="">
-                                                <select class="form-control select-model"   id="model_number_1" name="model_number[]" style="display:none;">
+                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" disabled=""  onfocusout="check_booking_request()">
+                                                <select class="form-control select-model"   id="model_number_1" name="model_number[]" style="display:none;" onchange="check_booking_request()">
                                                     <option selected disabled>Select Appliance Model</option>
                                                 </select>
 
@@ -300,7 +300,7 @@
                                 <label for="booking_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
+                                    <input id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -450,6 +450,7 @@
 
 </script>
 <script type="text/javascript">
+    var arr_warranty_status = <?php echo json_encode(['OW' => ['In Warranty'], 'IW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['In Warranty']]); ?>;
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex = $(".clonedInput").length +1;
 
@@ -543,6 +544,71 @@
    
 });
 $("#purchase_date_1").datepicker({dateFormat: 'yy-mm-dd', maxDate: 0});
+
+// function to cross check request type of booking with warranty status of booking 
+function check_booking_request()
+{
+    $(".price_checkbox").attr("disabled", false);
+    if($(".input-model").is(":hidden"))
+    {
+        var model_number = $(".select-model").val();
+    }
+    else
+    {
+        var model_number = $(".input-model").val();
+    } 
+    var dop = $(".purchase_date").val();
+    var partner_id = $('#source_code').find(':selected').attr('data-id');
+    var booking_create_date = "<?= date('Y-m-d')?>";
+    var booking_id = 1;
+    var service_id = $("#service_id").val();
+    
+    if(((model_number !== "" && model_number !== null && model_number != 'undefined') || (service_id != "")) && dop !== "" && partner_id != ""){                               
+        $.ajax({
+            method:'POST',
+            url:"<?php echo base_url(); ?>employee/booking/get_warranty_data",
+            data:{
+                'bookings_data[0]' : {
+                    'partner_id' : partner_id,
+                    'booking_id' : booking_id,
+                    'booking_create_date' : booking_create_date,
+                    'model_number' : model_number,
+                    'purchase_date' : dop,
+                    'service_id' : service_id
+                }
+            },
+            success:function(response){
+                var warrantyData = JSON.parse(response);
+                if((warrantyData[1]!== 'undefined') && (typeof arr_warranty_status[warrantyData[1]] !== 'undefined')) {
+                    var wrong_booking = false;
+                    var wrong_booking_types = "";
+                    $(".price_checkbox").each(function(){
+                        var price_tag = $(this).attr('data-price_tag');
+                        for(var index in arr_warranty_status[warrantyData[1]])
+                        {
+                            if(price_tag.indexOf(arr_warranty_status[warrantyData[1]][index]) !== -1){
+                                if($(this).prop("checked") == true)
+                                {
+                                    $(this).prop("checked", false);
+                                    wrong_booking = true;
+                                    wrong_booking_types = price_tag+",";
+                                }
+                                $(this).prop("disabled", true);
+                            }
+                        }
+                    });                    
+                       
+                    wrong_booking_types = wrong_booking_types.slice(0,-1);
+                    if(wrong_booking)
+                    {
+                        alert("Bookings type ("+wrong_booking_types+") are not allowed with this Purchase Date, will be auto unselected");
+                    }
+                }
+            }                            
+        });
+    }
+}
+// function ends here ---------------------------------------------------------------- 
 </script>
 <style type="text/css">
 #errmsg1
