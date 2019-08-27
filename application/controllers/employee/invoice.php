@@ -2080,7 +2080,7 @@ class Invoice extends CI_Controller {
                     $invoices['meta']['r_pc'] += $value['parts_cost'];
                     $total_amount_paid += $value['amount_paid'];
 
-                    if (!is_null($value['rating_stars']) || $value['rating_stars'] != '') {
+                    if (!is_null($value['rating_stars']) && $value['rating_stars'] != '') {
                         $rating += $value['rating_stars'];
                         $i++;
                     }

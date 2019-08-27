@@ -860,33 +860,33 @@ class Around_scheduler extends CI_Controller {
      * @return void()
      */
     function get_non_verified_appliance_description_data() {
-        $data = $this->around_scheduler_model->get_non_verified_appliance_description_data();
-        if (!empty($data)) {
-            $this->table->set_heading('Product Description', 'Service Id', 'Category', 'Capacity', 'Brand', 'Is Verified');
-            $template = array(
-                'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
-            );
-
-            foreach ($data as $val) {
-                $this->table->add_row($val['product_description'], $val['service_id'], $val['category'], $val['capacity'], $val['brand'], $val['is_verified']);
-            }
-
-            $this->table->set_template($template);
-            $html_table = $this->table->generate();
-
-            //send email
-            $email_template = $this->booking_model->get_booking_email_template("non_verified_appliance_mail");
-            $to = DEVELOPER_EMAIL;
-            $subject = $email_template[4];
-            $message = vsprintf($email_template[0], $html_table);
-
-            $sendmail = $this->notify->sendEmail($email_template[2], $to, '', "", $subject, $message, "",'non_verified_appliance_mail');
-            if ($sendmail) {
-                log_message('info', __FUNCTION__ . ' Report Mail has been send successfully');
-            } else {
-                log_message('info', __FUNCTION__ . ' Error in Sending Mail to partner ');
-            }
-        }
+//        $data = $this->around_scheduler_model->get_non_verified_appliance_description_data();
+//        if (!empty($data)) {
+//            $this->table->set_heading('Product Description', 'Service Id', 'Category', 'Capacity', 'Brand', 'Is Verified');
+//            $template = array(
+//                'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+//            );
+//
+//            foreach ($data as $val) {
+//                $this->table->add_row($val['product_description'], $val['service_id'], $val['category'], $val['capacity'], $val['brand'], $val['is_verified']);
+//            }
+//
+//            $this->table->set_template($template);
+//            $html_table = $this->table->generate();
+//
+//            //send email
+//            $email_template = $this->booking_model->get_booking_email_template("non_verified_appliance_mail");
+//            $to = DEVELOPER_EMAIL;
+//            $subject = $email_template[4];
+//            $message = vsprintf($email_template[0], $html_table);
+//
+//            $sendmail = $this->notify->sendEmail($email_template[2], $to, '', "", $subject, $message, "",'non_verified_appliance_mail');
+//            if ($sendmail) {
+//                log_message('info', __FUNCTION__ . ' Report Mail has been send successfully');
+//            } else {
+//                log_message('info', __FUNCTION__ . ' Error in Sending Mail to partner ');
+//            }
+//        }
     }
 
     /**
