@@ -2760,5 +2760,22 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
         return $query;
     }
+    
+     /**
+      +     * @Desc: This function is used to update Inventory Parts Type
+      +     * @params: Array, Int id
+      +     * @return: Int
+      +     *
+      + */
+    function update_inventory_model_mapping($data, $where) {
+        $this->db->where($where);
+        $this->db->update('inventory_model_mapping', $data);
+        if ($this->db->affected_rows() > 0) {
+            log_message('info', __METHOD__ . "=> inventory_model_mapping Set SQL " . $this->db->last_query());
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }
