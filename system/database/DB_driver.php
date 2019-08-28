@@ -1208,7 +1208,7 @@ class CI_DB_driver {
         }
         
         $CI->email->from(SYS_HEALTH_EMAIL, SYS_HEALTH_NAME);
-        $CI->email->to(DEVELOPER_EMAIL);
+        $CI->email->to(DB_ERROR_EMAIL);
         $CI->email->subject('Database Error');
         $CI->email->message($load_view);
 
