@@ -43,6 +43,7 @@ class engineerApi extends CI_Controller {
         $this->load->library('paytm_payment_lib');
         $this->load->library('validate_serial_no');
         $this->load->library('warranty_utilities');
+        $this->load->library('booking_creation_lib');
     }
 
     /**
@@ -384,6 +385,10 @@ class engineerApi extends CI_Controller {
             
             case 'checkSparePartsOrder':
                 $this->checkSparePartsOrder();
+                break;
+            
+            case 'warrantyCheckerAndCallTypeData':
+                $this->getWarrantyCheckerAndCallTypeData();
                 break;
             
             default:
@@ -2871,7 +2876,7 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array('0052', 'Booking ID Not Found'));
         }
     }
-
+    
     function getWarrantyCheckerAndCallTypeData(){
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
@@ -2917,5 +2922,4 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array("0053", "Request key missing - ".$missing_key));
         }
     }
-
 }
