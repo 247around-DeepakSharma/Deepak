@@ -2179,7 +2179,7 @@ class Inventory extends CI_Controller {
             $row[] = "<i class ='fa fa-inr'></i> " . round(($total * ( 1 + ($stock_list->oow_vendor_margin + $stock_list->oow_around_margin) / 100 )), 0);
         }
         $row[] = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_master_details' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";
-        $row[] = "<a href='" . base_url() . "employee/inventory/get_bom_list_by_inventory_id/" . urlencode($stock_list->inventory_id) . "' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";
+        $row[] = "<a href='" . base_url() . "employee/inventory/get_appliance_by_inventory_id/" . urlencode($stock_list->inventory_id) . "' class = 'btn btn-primary' title='Get Model Details' target='_blank'><i class ='fa fa-eye'></i></a>";
         $row[] = '<a href="' . base_url() . 'employee/inventory/alternate_inventory_list/' . $stock_list->entity_id . '/' . $stock_list->inventory_id . '/' . $stock_list->service_id . '" target="_blank" class="btn btn-info">View</a>';            
 
 
@@ -2398,10 +2398,10 @@ class Inventory extends CI_Controller {
         }
 
         if ($stock_list->status == 1) {
-            $icon = '<i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i>';
+            $icon = " <i class='glyphicon glyphicon-remove'></i>";
             $colour_class = 'btn-danger';
         } else {
-            $icon = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>';
+            $icon = "<i class='glyphicon glyphicon-ok'></i>";
             $colour_class = 'btn-primary';
         }
         
@@ -5688,11 +5688,11 @@ class Inventory extends CI_Controller {
      *  @param : $inventory_id integer
      *  @return : void
      */
-    function get_bom_list_by_inventory_id($inventory_id) {
+    function get_appliance_by_inventory_id($inventory_id) {
 
         if ($inventory_id) {
             $inventory_id = urldecode($inventory_id);
-            $data['model_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_model_mapping.id,inventory_model_mapping.active,inventory_master_list.part_number,appliance_model_details.model_number,services.services', array('inventory_model_mapping.inventory_id' => $inventory_id));
+            $data['model_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number,appliance_model_details.model_number,services.services', array('inventory_model_mapping.inventory_id' => $inventory_id));
         } else {
             $data['model_details'] = array();
         }
@@ -7074,10 +7074,7 @@ class Inventory extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
 
         $select = "service_centres.name AS Warehouse, partners.public_name AS 'Partner', inventory_master_list.part_number AS 'Part Number', inventory_master_list.part_name AS 'Part Name', inventory_stocks.stock AS Stock";
-        if(!empty($this->input->post('is_access_to_sf_price'))){
-           $select .= ", ROUND(inventory_master_list.price * ( 1 + inventory_master_list.oow_around_margin/100) + (inventory_master_list.price * ( 1 + inventory_master_list.oow_around_margin/100) * (inventory_master_list.gst_rate / 100)), 2) AS 'Price'"; 
-        }
-        
+
         if ($request_type == 'warehouse') {
             $post['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         } else {
