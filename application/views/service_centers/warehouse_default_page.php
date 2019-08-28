@@ -26,6 +26,13 @@
                                 <!--  Pending Spares--> Send To SF
                                 </a>
                             </li>
+
+                              <li role="presentation">
+                                <a href="#tabs-7" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_centers/spare_assigned_to_partner">
+                                    Spare Assigned To Partner
+                                </a>
+                            </li>
+
                             <li role="presentation">
                                 <a href="#tabs-3" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/defective_spare_parts/0/1">
                                     Acknowledge From SF
@@ -36,11 +43,7 @@
                                     Send To Partner
                                 </a>
                             </li>
-                            <li role="presentation">
-                                <a href="#tabs-7" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_centers/spare_assigned_to_partner">
-                                    Spare Assigned To Partner
-                                </a>
-                            </li>
+
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane" id="tabs-2"></div>
