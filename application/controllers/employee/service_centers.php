@@ -5521,11 +5521,16 @@ class Service_centers extends CI_Controller {
      * @param: void
      * @return void
      */
-    function update_spare_parts_form($booking_id){
+    function update_spare_parts_form($booking_id,$wh=0){
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Spare Parts ID: " . $booking_id);
         $this->check_WH_UserSession();
         $where['length'] = -1;
-        $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
+        if ($wh) {
+          $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED,'wh_ack_received_part' => 1,'spare_parts_details.partner_id'=>_247AROUND_PARTNER_STRING,'requested_inventory_id > 0'=>NULL); 
+        }else{
+            $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
+        }
+        
         $where['select'] = "booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type,spare_parts_details.part_warranty_status, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,booking_details.amount_due,parts_requested_type, inventory_invoice_on_booking";
 
@@ -7174,26 +7179,27 @@ class Service_centers extends CI_Controller {
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
         
-        $sf_states = $this->service_centers_model->get_warehouse_state($sf_id);
+        //$sf_states = $this->service_centers_model->get_warehouse_state($sf_id);
+        $sf_states = "";
         //echo"<pre>";print_r($sf_states);exit;
         $where = "spare_parts_details.entity_type =  '"._247AROUND_PARTNER_STRING."' AND status = '" . SPARE_PARTS_REQUESTED . "' "
-                . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
-                . " AND wh_ack_received_part != 0 "
+                . " AND inventory_stocks.stock > 0  AND  booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
+                . " AND wh_ack_received_part != 0  "
                 . (!empty($sf_states)? " AND booking_details.state IN ('".implode("','",$sf_states)."')" : "");
         
-        $select = "spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id, spare_parts_details.partner_challan_number,GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, purchase_invoice_id, users.name, "
+        $select = "spare_parts_details.id,spare_parts_details.partner_challan_file, spare_parts_details.booking_id, spare_parts_details.partner_id, spare_parts_details.entity_type, spare_parts_details.service_center_id, spare_parts_details.partner_challan_number,spare_parts_details.parts_requested as parts_requested, purchase_invoice_id, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.flat_upcountry,"
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due,booking_details.state, service_centres.name as vendor_name, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
                 . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
-                . " GROUP_CONCAT(DISTINCT inventory_stocks.stock) as stock, DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
-                . " GROUP_CONCAT(DISTINCT spare_parts_details.model_number) as model_number, "
-                . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
+                . "  inventory_stocks.stock as stock, DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
+                . "  spare_parts_details.model_number as model_number, "
+                . "  spare_parts_details.serial_number as serial_number,"
                 . " spare_parts_details.quantity,"
                 . " spare_parts_details.shipped_quantity,"
-                . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
-                . " GROUP_CONCAT(DISTINCT spare_parts_details.id) as spare_id, serial_number_pic, GROUP_CONCAT(DISTINCT spare_parts_details.inventory_invoice_on_booking) as inventory_invoice_on_booking, i.part_number ";
+                . "spare_parts_details.remarks_by_sc as remarks_by_sc, spare_parts_details.partner_id, "
+                . " spare_parts_details.id as spare_id, serial_number_pic, spare_parts_details.inventory_invoice_on_booking, i.part_number ";
 
         $data['spare_parts'] = $this->service_centers_model->spare_assigned_to_partner($where, $select, "spare_parts_details.booking_id", $sf_id, -1, -1, 0, ['column' => 'age_of_request', 'sorting' => 'desc']);
 

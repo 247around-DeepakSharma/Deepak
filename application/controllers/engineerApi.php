@@ -43,6 +43,7 @@ class engineerApi extends CI_Controller {
         $this->load->library('paytm_payment_lib');
         $this->load->library('validate_serial_no');
         $this->load->library('warranty_utilities');
+        $this->load->library('booking_creation_lib');
     }
 
     /**
@@ -384,6 +385,10 @@ class engineerApi extends CI_Controller {
             
             case 'checkSparePartsOrder':
                 $this->checkSparePartsOrder();
+                break;
+            
+            case 'warrantyCheckerAndCallTypeData':
+                $this->getWarrantyCheckerAndCallTypeData();
                 break;
             
             default:
@@ -2869,6 +2874,52 @@ class engineerApi extends CI_Controller {
         } else {
             log_message("info", __METHOD__ . " Booking ID Not Found ");
             $this->sendJsonResponse(array('0052', 'Booking ID Not Found'));
+        }
+    }
+    
+    function getWarrantyCheckerAndCallTypeData(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $missing_key = "";
+        $check = true;
+        $validateKeys = array("booking_id", "partner_id", "service_id");
+        foreach ($validateKeys as $key){
+            if (!array_key_exists($key, $requestData)){ 
+                $check = false;
+                $missing_key = $key;
+                break;
+            }
+        }
+        if($check){
+            $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'inventory_model_mapping.active' => 1);
+            $response['model_number_list'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
+            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'],NULL,NULL);
+            unset($booking_details['city']);
+            unset($booking_details['sources']);
+            unset($booking_details['booking_history']); 
+            unset($booking_details['services']);
+            unset($booking_details['capacity']); 
+            unset($booking_details['category']); 
+            unset($booking_details['file_type']);
+            unset($booking_details['booking_symptom']);
+            unset($booking_details['booking_files']);
+            unset($booking_details['symptom']);
+            unset($booking_details['follow_up_internal_status']);
+            unset($booking_details['active']);
+            unset($booking_details['brand']);
+            unset($booking_details['partner_type']);
+            unset($booking_details['model']);
+            unset($booking_details['appliance_id']);
+            unset($booking_details['c2c']);
+            $response['booking_details'] = $booking_details;
+            
+            log_message("info", "Warranty checker call type data founded successfully");
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', 'success'));
+        }
+        else{
+            log_message("info", __METHOD__ . "Request key missing - ".$missing_key);
+            $this->sendJsonResponse(array("0053", "Request key missing - ".$missing_key));
         }
     }
 }
