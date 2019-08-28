@@ -2880,7 +2880,6 @@ class engineerApi extends CI_Controller {
     function getWarrantyCheckerAndCallTypeData(){
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $requestData = array("booking_id" => "LP-16565919082746", "partner_id" => "247130", "service_id" => "50");
         $missing_key = "";
         $check = true;
         $validateKeys = array("booking_id", "partner_id", "service_id");
