@@ -7336,16 +7336,12 @@ class Service_centers extends CI_Controller {
         $post_data = $this->input->post();
         $arrBookings = $post_data['bookings_data'];  
         $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);  
-        $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);         
+        $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData); 
         foreach($arrBookings as $key => $arrBooking)
-        {            
-            $model_number = trim($arrBooking['model_number']);
-            if(!empty($arrModelWiseWarrantyData[$model_number]))
+        {
+            if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
             {   
-                $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$model_number]);
-            }
-            elseif (!empty($arrBooking['service_id']) && !empty($arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']])) {
-                $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']]);
+                $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
             }
             $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
             unset($arrBookings[$key]);
