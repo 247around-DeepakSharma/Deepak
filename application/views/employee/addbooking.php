@@ -450,7 +450,7 @@
 
 </script>
 <script type="text/javascript">
-    var arr_warranty_status = <?php echo json_encode(['OW' => ['In Warranty'], 'IW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['In Warranty']]); ?>;
+    var arr_warranty_status = <?php echo json_encode(['OW' => ['Repair - In Warranty'], 'IW' => ['Repair - Out Of Warranty'], 'EW' => ['Repair - In Warranty']]); ?>;
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex = $(".clonedInput").length +1;
 
