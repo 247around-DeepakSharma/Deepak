@@ -39,18 +39,9 @@ class Warranty_utilities {
                 $unix_date = ($excel_date - 25569) * 86400;
                 $rec_data['purchase_date'] = date('Y-m-d', $unix_date);
             }
-            
-            // if Service Id is there, get service specific plans also
-            if(!empty($rec_data['service_id']))
-            {
-                $arrOrWhere["((appliance_model_details.model_number = '".trim($rec_data['model_number'])."' OR (warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL)) and date(warranty_plans.period_start) <= '".$rec_data['purchase_date']."' and date(warranty_plans.period_end) >= '".$rec_data['purchase_date']."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
-            }
-            else
-            {
-                $arrOrWhere["(appliance_model_details.model_number = '".$rec_data['model_number']."' and date(warranty_plans.period_start) <= '".$rec_data['purchase_date']."' and date(warranty_plans.period_end) >= '".$rec_data['purchase_date']."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
-            }            
-        }    
-        $arrWarrantyData = $this->My_CI->warranty_model->get_warranty_data($arrOrWhere);        
+            $arrWhere["(appliance_model_details.model_number = '".$rec_data['model_number']."' and date(warranty_plans.period_start) <= '".$rec_data['purchase_date']."' and date(warranty_plans.period_end) >= '".$rec_data['purchase_date']."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+        }   
+        $arrWarrantyData = $this->My_CI->warranty_model->get_warranty_data($arrWhere);
         return $arrWarrantyData;
     }
     
