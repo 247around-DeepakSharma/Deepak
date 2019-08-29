@@ -3394,6 +3394,10 @@ class Inventory extends CI_Controller {
                                                 $invoice_annexure['from_gst_number'] = $this->input->post("from_gst_number");
                                                 $invoice_annexure['to_gst_number'] = $this->input->post("to_gst_number");
                                                
+                                                $inventory_master_data = $this->inventory_model->get_inventory_master_list_data("*", array('inventory_id' => $value['inventory_id']));
+                                                if(!empty($inventory_master_data) && ((floatval($inventory_master_data[0]['price']) != floatval($invoice_annexure['rate'])) || ($inventory_master_data[0]['hsn_code'] !== $value['hsn_code']) || ($inventory_master_data[0]['gst_rate'] !== $value['gst_rate'])) ) {
+                                                    $this->inventory_model->update_inventory_master_list_data(array('inventory_id' => $value['inventory_id']), array('price' => $invoice_annexure['rate'], 'hsn_code' => $value['hsn_code'], 'gst_rate' => $value['gst_rate'], 'is_invoice' => '1'));
+                                                }
                                                 $to_gst_number =  $invoice_annexure['to_gst_number'];
                                                 array_push($invoice, $invoice_annexure);
                                                 
@@ -3589,7 +3593,7 @@ class Inventory extends CI_Controller {
 
                 $a = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                     'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
-                    'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL,
+                    'sell_invoice_id' => (isset($ledger['micro_invoice_id'])? $ledger['micro_invoice_id'] : NULL),
                     'requested_inventory_id' => $ledger['inventory_id'],
                     'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
@@ -3643,7 +3647,7 @@ class Inventory extends CI_Controller {
                 foreach ($spare as $value) {
                     if ($ledger['quantity'] >= $qty) {
                         $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
-                            'wh_ack_received_part' => 0, 'inventory_invoice_on_booking' => 1, 'purchase_invoice_id' => $ledger['invoice_id'], 'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL);
+                            'wh_ack_received_part' => 0, 'inventory_invoice_on_booking' => 1, 'purchase_invoice_id' => $ledger['invoice_id'], 'sell_invoice_id' => (isset($ledger['micro_invoice_id'])? $ledger['micro_invoice_id'] : NULL));
                         if ($is_wh_micro == 2) {
                             log_message('info', 'is_micro 2 come means sending msl to warehouse.',true);
                             if ($ledger['is_defective_part_return_wh'] == 1) {
@@ -3677,7 +3681,7 @@ class Inventory extends CI_Controller {
                         } else {
                             $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                                 'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
-                                'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL,
+                                'sell_invoice_id' => (isset($ledger['micro_invoice_id'])? $ledger['micro_invoice_id'] : NULL),
                                 'requested_inventory_id' => $ledger['inventory_id'],
                                  'defective_return_to_entity_id' => $wh_id,
                                 'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => 2);
@@ -5989,7 +5993,7 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . ' Processing...');
        
         $partner_id = $this->input->post('partner_id');
-        $select = "spare_parts_details.id as spare_id, i.part_number, spare_parts_details.model_number, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',GROUP_CONCAT(employee.full_name) as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
+        $select = "spare_parts_details.id as spare_id, i.part_number, spare_parts_details.model_number, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as 'NRN Status',(CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status',GROUP_CONCAT(employee.full_name) as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
                 . "service_centres.district as 'SF City', "
                 . "booking_details.current_status as 'Booking Status',spare_parts_details.status as 'Spare Status', "
                 . "spare_parts_details.parts_shipped as 'Part Shipped By Partner',spare_parts_details.shipped_parts_type as 'Part Type',i.part_number as 'Part Code',"
@@ -6001,14 +6005,15 @@ class Inventory extends CI_Controller {
                 . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name',spare_parts_details.courier_charges_by_sf as 'SF Courier Price', spare_parts_details.model_number_shipped as 'Shipped Model Number',"
                 . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', defective_part_shipped_date as 'Defective Parts Shipped Date', received_defective_part_date as 'Partner Received Defective Parts Date', "
                 . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption reason'";
-        $where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
+        //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
+        $where = array();
         $group_by = "spare_parts_details.id";
         if (!empty($partner_id) && is_numeric($partner_id)) {
             $where['booking_details.partner_id'] = $partner_id;
         }
 
         $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
-
+        
         $this->load->dbutil();
         $this->load->helper('file');
 

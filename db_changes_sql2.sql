@@ -698,3 +698,5 @@ INSERT INTO `spare_consumption_status` (`id`, `consumed_status`, `is_consumed`, 
 
 ALTER TABLE spare_parts_details ADD COLUMN consumed_part_status_id int(11) NULL DEFAULT NULL AFTER old_status;
 
+-- Kajal 29-08-2019
+ALTER TABLE `inventory_master_list` ADD `is_invoice` INT(1) NOT NULL DEFAULT '0' AFTER `part_image`;

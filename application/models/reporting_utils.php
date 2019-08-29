@@ -868,9 +868,9 @@ class Reporting_utils extends CI_Model {
                             FROM booking_details
                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                             WHERE 
-                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.create_date, '%d-%m-%Y')) >= 0
+                            DATEDIFF(CURRENT_TIMESTAMP , booking_details.create_date) >= 0
                             AND 
-                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.create_date, '%d-%m-%Y')) <= 2
+                            DATEDIFF(CURRENT_TIMESTAMP , booking_details.create_date) <= 2
                             " . $where . "
                             AND booking_details.service_center_closed_date is null AND current_status
                             IN (
@@ -883,9 +883,9 @@ class Reporting_utils extends CI_Model {
                             FROM booking_details
                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                             WHERE 
-                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.create_date, '%d-%m-%Y')) >= 3
+                            DATEDIFF(CURRENT_TIMESTAMP , booking_details.create_date) >= 3
                             AND 
-                            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.create_date, '%d-%m-%Y')) <= 5
+                            DATEDIFF(CURRENT_TIMESTAMP , booking_details.create_date) <= 5
                             " . $where . "
                             AND booking_details.service_center_closed_date is null AND current_status
                             IN (
@@ -898,7 +898,7 @@ class Reporting_utils extends CI_Model {
                             FROM booking_details
                             JOIN service_centres ON service_centres.id = booking_details.assigned_vendor_id
                             WHERE 
-                DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.create_date, '%d-%m-%Y')) > 5
+                DATEDIFF(CURRENT_TIMESTAMP , booking_details.create_date) > 5
                             " . $where . "
                             AND booking_details.service_center_closed_date is null AND current_status
                             IN (
