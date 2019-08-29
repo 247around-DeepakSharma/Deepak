@@ -663,3 +663,16 @@ UPDATE `invoice_tags` SET `tag` = 'Out-of-Warranty' WHERE `invoice_tags`.`sub_ca
 
 -- Prity 26-08-2019
 ALTER TABLE warranty_plans add column `plan_depends_on` int(11) NOT NULL DEFAULT 1 COMMENT '1 => Model Specific (Plan Valid on Model Number), 2 => Service Specific (Plan Valid on Product eg : AC, WM)';
+
+-- Ankit 29-08-2019
+CREATE TABLE spare_consumption_status (
+	id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	consumed_status varchar(255) NOT NULL,
+	is_consumed tinyint(0) NOT NULL DEFAULT 0,
+	create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	update_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO `spare_consumption_status` (`id`, `consumed_status`, `is_consumed`, `create_date`, `update_date`) VALUES (NULL, 'Product consumed', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Product not delivered', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Damage/Broken part received', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Wrong part received', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Part shipped but not used', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Part cancelled', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Part not NRN approved', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+ALTER TABLE spare_parts_details ADD COLUMN consumed_part_status_id int(11) NULL DEFAULT NULL AFTER old_status;

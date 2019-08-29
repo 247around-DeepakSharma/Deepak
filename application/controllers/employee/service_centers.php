@@ -488,7 +488,9 @@ class Service_centers extends CI_Controller {
         if(count($data['technical_defect']) <= 0) {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
-        
+
+        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status',NULL, NULL, NULL, NULL, NULL, NULL);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
     }
@@ -646,6 +648,7 @@ class Service_centers extends CI_Controller {
                         }
                     }
                     
+                    $this->update_spare_consumption_status($this->input->post());
                     if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
                         $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
                         if (!$rowsStatus) {
@@ -705,6 +708,21 @@ class Service_centers extends CI_Controller {
     }
     
  
+      /**
+     * 
+     * @param type $post_data
+     * @return boolean
+     */
+    public function update_spare_consumption_status($post_data) {
+        if(!empty($post_data['spare_consumption_status'])) {
+            foreach($post_data['spare_consumption_status'] as $spare_id => $status_id) {
+                $this->reusable_model->update_table('spare_parts_details', ['consumed_part_status_id' => $status_id], ['id' => $spare_id]);
+            }
+        }
+        
+        return true;
+    }
+
  
     /**
      *  @desc : This function is used to upload the purchase invoice to s3 and save into database
@@ -1774,8 +1792,9 @@ class Service_centers extends CI_Controller {
                 $data['purchase_date'] = $dateofpurchase; 
                 $data['unit_serial_number_pic'] = $serial_number_pic; 
 
-                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'],'inventory_model_mapping.active' => 1);
-                $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
+
+                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'], 'inventory_model_mapping.active' => 1);
+                $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                 $this->load->view('service_centers/header');
@@ -3042,7 +3061,11 @@ class Service_centers extends CI_Controller {
 
      $sp_ids =  explode(',',$_POST['sp_ids']);
      $count_spare=  count($sp_ids);
-     $count_spare=$count_spare-1;
+
+     if (!empty($_POST['courier_boxes_weight_flag']>0)) {
+         
+       $_POST['courier_boxes_weight_flag']  = ($count_spare+$_POST['courier_boxes_weight_flag']); 
+     }
         $service_center_id=0;
         if ($this->session->userdata('userType')=='service_center') {
             $service_center_id = $this->session->userdata('service_center_id');
@@ -3061,6 +3084,7 @@ class Service_centers extends CI_Controller {
         if (!empty($spare_part)) {
             
         $_POST['sf_id'] = $spare_part[0]['service_center_id'];
+        $_POST['bulk_courier'] = TRUE;
         $_POST['booking_id'] = $spare_part[0]['booking_id'];
         $_POST['user_name'] = $spare_part[0]['name'];
         $_POST['mobile'] = $spare_part[0]['booking_primary_contact_no'];
@@ -3071,7 +3095,7 @@ class Service_centers extends CI_Controller {
         $_POST['defective_part_shipped']=array();
         $_POST['partner_challan_number']=array();
         $_POST['challan_approx_value']=array();
-        $_POST['parts_requested']=array(); 
+        $_POST['parts_requested']=array();
         $_POST['no_redirect_flag']=TRUE;
         $_POST['defective_part_shipped'][$value] = $spare_part[0]['parts_shipped'];
         $_POST['partner_challan_number'][$value] = $spare_part[0]['partner_challan_number'];
@@ -3079,9 +3103,9 @@ class Service_centers extends CI_Controller {
         $_POST['parts_requested'][$value] = $spare_part[0]['parts_requested'];
         if (!isset($_POST['courier_boxes_weight_flag']) || empty($_POST['courier_boxes_weight_flag'])) {
                $_POST['courier_boxes_weight_flag'] = $count_spare;
-             } 
-       
 
+             }
+ 
           $this->process_update_defective_parts($value); 
         }
 
@@ -3146,7 +3170,12 @@ class Service_centers extends CI_Controller {
                     $courier_boxes_weight_flag = $this->input->post('courier_boxes_weight_flag');
 
                     if ($courier_boxes_weight_flag > 0) {
-                        $pricecourier = round(($this->input->post('courier_charges_by_sf') / ($courier_boxes_weight_flag + 1)), 2);
+
+                        if (isset($_POST['bulk_courier']) && !empty($_POST['bulk_courier'])) {
+                             $pricecourier = round(($this->input->post('courier_charges_by_sf') / ($courier_boxes_weight_flag)), 2);
+                        }else{
+                            $pricecourier = round(($this->input->post('courier_charges_by_sf') / ($courier_boxes_weight_flag + 1)), 2);
+                        }                        
                         
                         $this->service_centers_model->update_spare_parts(array('awb_by_sf' => $awb, 'status != "'._247AROUND_CANCELLED.'" ' => NULL),
                             array('courier_charges_by_sf' => $pricecourier));

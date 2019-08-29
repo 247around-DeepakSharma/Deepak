@@ -6000,7 +6000,7 @@ class Inventory extends CI_Controller {
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
                 . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name',spare_parts_details.courier_charges_by_sf as 'SF Courier Price', spare_parts_details.model_number_shipped as 'Shipped Model Number',"
                 . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', defective_part_shipped_date as 'Defective Parts Shipped Date', received_defective_part_date as 'Partner Received Defective Parts Date', "
-                . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age'";
+                . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption reason'";
         $where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $group_by = "spare_parts_details.id";
         if (!empty($partner_id) && is_numeric($partner_id)) {
@@ -7126,9 +7126,9 @@ class Inventory extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         
         $select = "service_centres.name AS Warehouse, partners.public_name AS 'Partner', inventory_master_list.part_number AS 'Part Number', inventory_master_list.part_name AS 'Part Name', inventory_stocks.stock AS Stock";
-        if(!empty($this->input->post('is_access_to_sf_price'))){
-           $select .= ", ROUND(inventory_master_list.price * ( 1 + inventory_master_list.oow_around_margin/100) + (inventory_master_list.price * ( 1 + inventory_master_list.oow_around_margin/100) * (inventory_master_list.gst_rate / 100)), 2) AS 'Price'"; 
-        }
+        
+        $select .= ", ROUND(inventory_master_list.price * ( 1 + inventory_master_list.oow_around_margin/100) + (inventory_master_list.price * ( 1 + inventory_master_list.oow_around_margin/100) * (inventory_master_list.gst_rate / 100)), 2) AS 'Price'"; 
+       
         
         if ($request_type == 'warehouse') {
             $post['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
@@ -7305,10 +7305,19 @@ class Inventory extends CI_Controller {
      */
     function mwh_invoice_ledger(){
         log_message('info', __METHOD__ . ' Processing...');
-        
+        $where = array();
         $select = "service_centres.company_name as 'SF Name', public_name as Partner, vendor_partner_invoices.invoice_id, invoice_date, inventory_master_list.part_number, inventory_master_list.part_name, qty, rate, invoice_details.taxable_value, (invoice_details.cgst_tax_rate + invoice_details.sgst_tax_rate + invoice_details.igst_tax_rate ) as gst_rate, (invoice_details.cgst_tax_amount + invoice_details.sgst_tax_amount +invoice_details.igst_tax_amount) as tax_amount, invoice_details.total_amount, CASE when (inventory_ledger.is_wh_ack = 1) THEN 'YES' ELSE 'NO' END AS 'Is Ack', inventory_ledger.wh_ack_date  FROM `vendor_partner_invoices` JOIN invoice_details ON `vendor_partner` LIKE 'vendor' AND `sub_category` LIKE 'MSL' AND invoice_details.invoice_id = vendor_partner_invoices.invoice_id JOIN  inventory_master_list ON   inventory_master_list.inventory_id = invoice_details.inventory_id JOIN service_centres ON  service_centres.id = vendor_partner_id JOIN  partners ON partners.id =  vendor_partner_invoices.third_party_entity_id LEFT JOIN inventory_ledger ON inventory_ledger.inventory_id = invoice_details.inventory_id AND inventory_ledger.invoice_id = invoice_details.invoice_id";
-        $invoice_details = $this->inventory_model->get_mwh_invoice_ledger_data($select, array());
-              
+        
+        if(!empty($this->session->userdata("partner_id"))){
+           $where = array('vendor_partner_invoices.third_party_entity_id' => $this->session->userdata("partner_id"),'vendor_partner_invoices.third_party_entity'=> _247AROUND_PARTNER_STRING );
+        }
+        
+        if(!empty($this->session->userdata("service_center_id"))){
+           $where = array('vendor_partner_invoices.third_party_entity_id' => $this->session->userdata("service_center_id"),'vendor_partner_invoices.third_party_entity'=> _247AROUND_SF_STRING );
+        }
+        
+        $invoice_details = $this->inventory_model->get_mwh_invoice_ledger_data($select, $where);
+                      
         if (!empty($invoice_details)) {
            
             $this->load->dbutil();

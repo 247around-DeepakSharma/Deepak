@@ -17,7 +17,7 @@ function handleShutdown() {
         $CI = get_instance();
         $CI->email->clear(TRUE);
         $CI->email->from(SYS_HEALTH_EMAIL, SYS_HEALTH_NAME);
-        $CI->email->to(DEVELOPER_EMAIL);
+        $CI->email->to(FATAL_ERROR_EMAIL);
         $CI->email->subject('FATAL ERROR');
         $msg = "<b>Error Message:</b>";
         $msg .= $error['message'];
