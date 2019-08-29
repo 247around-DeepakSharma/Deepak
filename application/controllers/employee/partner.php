@@ -5305,6 +5305,7 @@ class Partner extends CI_Controller {
             "SF Challan Number",
             "SF AWB Number (Defective Shipped)",
             "Is Spare Auto Acknowledge By SF",
+            "Consumption"
             );
         
         foreach($data as $sparePartBookings){
@@ -5356,7 +5357,13 @@ class Partner extends CI_Controller {
              }else{
             $tempArray[] = "No";   
              }
-            $CSVData[]  = $tempArray;            
+            if($sparePartBookings['is_consumed']==1){
+            $tempArray[] = "Yes";   
+             }else{
+            $tempArray[] = "No";   
+             }
+
+             $CSVData[]  = $tempArray;            
         }  
 
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Shipped_By_Partner_".date("Y-m-d"));
