@@ -2970,7 +2970,11 @@ class Service_centers extends CI_Controller {
 
      $sp_ids =  explode(',',$_POST['sp_ids']);
      $count_spare=  count($sp_ids);
-     $count_spare=$count_spare-1;
+
+     if (!empty($_POST['courier_boxes_weight_flag']>0)) {
+         
+       $_POST['courier_boxes_weight_flag']  = ($count_spare+$_POST['courier_boxes_weight_flag']); 
+     }
         $service_center_id=0;
         if ($this->session->userdata('userType')=='service_center') {
             $service_center_id = $this->session->userdata('service_center_id');
@@ -2989,6 +2993,7 @@ class Service_centers extends CI_Controller {
         if (!empty($spare_part)) {
             
         $_POST['sf_id'] = $spare_part[0]['service_center_id'];
+        $_POST['bulk_courier'] = TRUE;
         $_POST['booking_id'] = $spare_part[0]['booking_id'];
         $_POST['user_name'] = $spare_part[0]['name'];
         $_POST['mobile'] = $spare_part[0]['booking_primary_contact_no'];
@@ -2999,7 +3004,7 @@ class Service_centers extends CI_Controller {
         $_POST['defective_part_shipped']=array();
         $_POST['partner_challan_number']=array();
         $_POST['challan_approx_value']=array();
-        $_POST['parts_requested']=array(); 
+        $_POST['parts_requested']=array();
         $_POST['no_redirect_flag']=TRUE;
         $_POST['defective_part_shipped'][$value] = $spare_part[0]['parts_shipped'];
         $_POST['partner_challan_number'][$value] = $spare_part[0]['partner_challan_number'];
@@ -3007,9 +3012,9 @@ class Service_centers extends CI_Controller {
         $_POST['parts_requested'][$value] = $spare_part[0]['parts_requested'];
         if (!isset($_POST['courier_boxes_weight_flag']) || empty($_POST['courier_boxes_weight_flag'])) {
                $_POST['courier_boxes_weight_flag'] = $count_spare;
-             } 
-       
 
+             }
+ 
           $this->process_update_defective_parts($value); 
         }
 
@@ -3036,15 +3041,15 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('defective_part_shipped_date', 'AWB', 'trim|required');
         $this->form_validation->set_rules('courier_charges_by_sf', 'Courier Charges', 'trim|required');
         $this->form_validation->set_rules('defective_courier_receipt', 'Courier Invoice', 'callback_upload_defective_spare_pic');
-
+        
         if ($this->form_validation->run() == FALSE) {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Service center ' . $this->session->userdata('service_center_name') .
                     " Spare id " . $sp_id . " Data" . print_r($this->input->post(), true));
             $this->update_defective_parts($sp_id);
         } else {
-
+            
             $defective_courier_receipt = $this->input->post("sp_parts");
-
+            
             if (!empty($defective_courier_receipt)) {
                 if (!empty($sp_id)) {
                     $data['defective_courier_receipt'] = $this->input->post("sp_parts");
@@ -3058,50 +3063,55 @@ class Service_centers extends CI_Controller {
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
                     $is_p = $this->booking_utilities->check_feature_enable_or_not(AUTO_APPROVE_DEFECTIVE_PARTS_COURIER_CHARGES);
-                    if (!empty($is_p)) {
+                    if(!empty($is_p)){
                         $data['approved_defective_parts_by_admin'] = 1;
                     }
 
                     $booking_id = $this->input->post('booking_id');
                     $partner_id = $this->input->post('booking_partner_id');
- 
                     $data['awb_by_sf'] = $awb;         
                     $kilo_gram = $this->input->post('defective_parts_shipped_kg') ? : '0';
                     $gram = $this->input->post('defective_parts_shipped_gram') ? : '00';
- 
+
                     $billable_weight = $kilo_gram . "." . $gram;
                     $courier_boxes_weight_flag = $this->input->post('courier_boxes_weight_flag');
 
                     if ($courier_boxes_weight_flag > 0) {
-                        $pricecourier = round(($this->input->post('courier_charges_by_sf') / ($courier_boxes_weight_flag + 1)), 2);
 
-                        $this->service_centers_model->update_spare_parts(array('awb_by_sf' => $awb, 'status != "' . _247AROUND_CANCELLED . '" ' => NULL), array('courier_charges_by_sf' => $pricecourier));
+                        if (isset($_POST['bulk_courier']) && !empty($_POST['bulk_courier'])) {
+                             $pricecourier = round(($this->input->post('courier_charges_by_sf') / ($courier_boxes_weight_flag)), 2);
+                        }else{
+                            $pricecourier = round(($this->input->post('courier_charges_by_sf') / ($courier_boxes_weight_flag + 1)), 2);
+                        }                        
+                        
+                        $this->service_centers_model->update_spare_parts(array('awb_by_sf' => $awb, 'status != "'._247AROUND_CANCELLED.'" ' => NULL),
+                            array('courier_charges_by_sf' => $pricecourier));
+                        
                     } else {
-                        $pricecourier = $this->input->post('courier_charges_by_sf');
+                        $pricecourier = $this->input->post('courier_charges_by_sf');   
                     }
                     
                     $data['courier_charges_by_sf'] =$pricecourier;
- 
                     $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $data);
                     if ($courier_boxes_weight_flag == 0) {
-
-                        $awb_data = array(
-                            'awb_number' => trim($awb),
-                            'company_name' => trim($this->input->post('courier_name_by_sf')),
-                            'courier_charge' => trim($this->input->post('courier_charges_by_sf')), //
-                            'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_gram
-                            'billable_weight' => trim($billable_weight),
-                            'actual_weight' => trim($billable_weight),
-                            'basic_billed_charge_to_partner' => trim($this->input->post('courier_charges_by_sf')),
-                            'booking_id' => trim($this->input->post('booking_id')),
-                            'courier_invoice_file' => trim($defective_courier_receipt),
-                            'shippment_date' => trim($this->input->post('defective_part_shipped_date')), //defective_part_shipped_date
+                        
+                        $awb_data=array(
+                            'awb_number'=>trim($awb),
+                            'company_name'=>trim($this->input->post('courier_name_by_sf')),
+                            'courier_charge'=>trim($this->input->post('courier_charges_by_sf')),  //
+                            'box_count'=>trim($this->input->post('defective_parts_shipped_boxes_count')),   //defective_parts_shipped_gram
+                            'billable_weight'=>trim($billable_weight),
+                            'actual_weight'=>trim($billable_weight),
+                            'basic_billed_charge_to_partner'=>trim($this->input->post('courier_charges_by_sf')),
+                            'booking_id'=>trim($this->input->post('booking_id')),
+                            'courier_invoice_file'=>trim($defective_courier_receipt),
+                            'shippment_date'=>trim($this->input->post('defective_part_shipped_date')),      //defective_part_shipped_date
                             'created_by' => 2,
                             'is_exist' => 0
-                        );
-
+                            );
+                       
                         $this->service_centers_model->insert_into_awb_details($awb_data);
-                    }
+                    }                    
                     $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '") ' => NULL));
 
                     //insert details into state change table   
