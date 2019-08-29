@@ -1398,6 +1398,7 @@ class Spare_parts extends CI_Controller {
                 if (!empty($is_warehouse)) {
 
                     $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $spare_parts_list[0]['service_center_id'],'model_number' => $spare_parts_list[0]['model_number']), $partner_id);
+
                     if (!empty($warehouse_details) && $warehouse_details['stock']>=$req_quantity) {
                         $data['partner_id'] = $warehouse_details['entity_id'];
                         $data['entity_type'] = $warehouse_details['entity_type'];
