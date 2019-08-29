@@ -6000,7 +6000,7 @@ class Inventory extends CI_Controller {
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
                 . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name',spare_parts_details.courier_charges_by_sf as 'SF Courier Price', spare_parts_details.model_number_shipped as 'Shipped Model Number',"
                 . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', defective_part_shipped_date as 'Defective Parts Shipped Date', received_defective_part_date as 'Partner Received Defective Parts Date', "
-                . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age'";
+                . "datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption reason'";
         $where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $group_by = "spare_parts_details.id";
         if (!empty($partner_id) && is_numeric($partner_id)) {
