@@ -5305,7 +5305,6 @@ class Partner extends CI_Controller {
             "SF Challan Number",
             "SF AWB Number (Defective Shipped)",
             "Is Spare Auto Acknowledge By SF",
-            "Consumption"
             );
         
         foreach($data as $sparePartBookings){
@@ -5357,13 +5356,6 @@ class Partner extends CI_Controller {
              }else{
             $tempArray[] = "No";   
              }
-            
-             if($sparePartBookings['consumption']==1){
-            $tempArray[] = "Yes";   
-             }else{
-            $tempArray[] = "No";   
-             }
-             
             $CSVData[]  = $tempArray;            
         }  
 
