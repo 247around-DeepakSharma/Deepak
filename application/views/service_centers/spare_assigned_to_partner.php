@@ -55,7 +55,8 @@ if ($this->uri->segment(3)) {
                 </div>
                 <div class="x_content">
                     <form target="_blank"  action="<?php echo base_url(); ?>service_center/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                        <table class="table table-bordered table-hover table-striped">
+
+                        <table id="on_partner" class="table table-bordered table-hover table-striped">
                             <thead>
                                 <tr>
                                     <th class="text-center">No</th>
@@ -69,6 +70,14 @@ if ($this->uri->segment(3)) {
                                     <th class="text-center">Model Number</th>
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">Problem Description</th>
+                                    <th class="text-center">Stock</th>
+                                     <th class="text-center">Update</th>
+                                     <th class="text-center">SF GST Declaration</th>
+                                     <th class="text-center">Download Challan</th>
+                                    <th class="text-center">Couriers Declaration<input type="checkbox" id="selectall_concern_detail" > </th>
+                                     
+                                     <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
+                                     <th class="text-center"> Generate Challan<input type="checkbox" id="selectall_challan" ></th>
                                     
                                 </tr>
                             </thead>
@@ -114,8 +123,48 @@ if ($this->uri->segment(3)) {
                                             <?php echo $row['remarks_by_sc']; ?>
                                         </td>
 
-                                        
+                                        <td>
+                                            <?php echo $row['stock']; ?>
+                                        </td>
 
+                                        <td>
+                                            <a href="<?php echo base_url() ?>service_center/update_spare_parts_form/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>" class="btn btn-sm btn-info" title="Update" style="" ><i class='fa fa-pencil-square-o' aria-hidden='true'></i></a>
+                                        </td>
+
+
+                                             <td>
+                                            <?php if(!empty($row['gst_no']) && empty($row['signature_file'])){ ?> 
+                                                <a class="btn btn-sm btn-success nodn" href="#" title="GST number is not available" style="background-color:red; border-color: red; cursor: not-allowed;"><i class="fa fa-close"></i></a>
+                                            <?php }else if(empty ($row['signature_file'])) { ?> 
+                                                <a class="btn btn-sm btn-success nodn" href="#" title="Signature file is not available" style="background-color:red; border-color: red;cursor: not-allowed;"><i class="fa fa-close"></i></a>
+                                            <?php }else{ ?>
+                                                <a class="btn btn-sm btn-success" href="<?php echo base_url();?>service_center/download_sf_declaration/<?php echo rawurlencode($row['sf_id'])?>" title="Download Declaration" style="background-color:#0edf0e; border-color: #2C9D9C;" target="_blank"><i class="fa fa-download"></i></a>
+                                            <?php } ?>
+                                        </td>
+
+
+                                         <td style="width: 80px;">
+                                        <?php if (!empty($row['partner_challan_file'])) { ?>
+                                          <a style="background-color:#0edf0e;" title="Download Challan" target="_blank" class="btn btn-sm btn-success" href="<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/<?php echo $row['partner_challan_file']; ?>"><span ><i class="fa fa-download" aria-hidden="true" ></i></span></a>  
+                                        <?php }else{ ?>
+                                         <a href="#" title="Challan not available" style="background-color:red;border-color: red;" class="challan_not_generated btn btn-sm btn-success"><span style=" "><i class="fa fa-remove" aria-hidden="true"></i></span></a>
+
+                                        <?php } ?>
+                                        
+                                     </td>
+
+                                      <td>
+                                            <input type="checkbox" class="form-control concern_detail" onclick="check_checkbox(3)" name="coueriers_declaration[<?php echo $row['partner_id'].'-'.$row['entity_type'] ;?>][]"  value="<?php echo $row['id']; ?>"/>
+                                        </td>
+
+                                       <td>
+                                            <input type="checkbox" class="form-control checkbox_address" name="download_address[]" onclick='check_checkbox(1)' value="<?php echo $row['booking_id']; ?>" />
+                                        </td>
+
+
+                                        <td>
+                                      <input type="checkbox" class="form-control checkbox_challan" name="generate_challan[<?php echo $row['service_center_id']; ?>][]" id="generate_challan_<?php echo $key; ?>" onclick='check_checkbox(2)' data-service_center_id="<?php echo $row['service_center_id']; ?>" value="<?php echo $row['booking_id']; ?>" />
+                                  </td>
                                     </tr>
                                     <?php
                                     $sn_no++;
@@ -173,7 +222,23 @@ if ($this->uri->segment(3)) {
             }
         });
     });
-    
+  
+
+    $(".challan_not_generated").click(function(){
+
+       swal("Not able to download challan", "Challan was not generated. Try to complete booking once again or contact 247Around.");
+
+    });
+
+    $(".nodn").click(function(){
+        swal("Not able to download GST declaration", "GST/Signature file file not available .");
+    })  ;
+
+$("#on_partner1").DataTable({
+    "pageLength": 500,
+    "lengthMenu": [[500, 1000,2000,5000,-1], [500, 1000,2000,5000, "All"]],
+});
+
     function downloadList(){
         $("#spareDownload").attr("disabled", true).html("Download In Progress");
         //$("#messageSpare").text("");
