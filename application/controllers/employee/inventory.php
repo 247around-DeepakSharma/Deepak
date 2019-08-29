@@ -6103,7 +6103,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         }
 
         $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
-
+        
         $this->load->dbutil();
         $this->load->helper('file');
 
