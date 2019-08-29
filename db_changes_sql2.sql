@@ -663,3 +663,25 @@ UPDATE `invoice_tags` SET `tag` = 'Out-of-Warranty' WHERE `invoice_tags`.`sub_ca
 
 -- Prity 26-08-2019
 ALTER TABLE warranty_plans add column `plan_depends_on` int(11) NOT NULL DEFAULT 1 COMMENT '1 => Model Specific (Plan Valid on Model Number), 2 => Service Specific (Plan Valid on Product eg : AC, WM)';
+--Gorakh 26-08-2019
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Master', NULL, NULL, 1, NULL, 'accountmanager,admin,closure,developer,inventory_manager,regionalmanager', 'main_nav', 1, '2017-12-29 06:08:44');
+
+UPDATE `header_navigation` SET `parent_ids` = '247',title ='Upload Model Master' WHERE `header_navigation`.`id` = 120;
+UPDATE `header_navigation` SET `parent_ids` = '247',title='Upload BOM Master'  WHERE `header_navigation`.`id` = 116;
+UPDATE `header_navigation` SET `parent_ids` = '247', title ='Upload Alternate Master' WHERE `header_navigation`.`id` = 225;
+UPDATE `header_navigation` SET `parent_ids` = '247', title='Upload Model vs Part Code Master' WHERE `header_navigation`.`id` = 121;
+UPDATE `header_navigation` SET `parent_ids` = '247',title='Create Part Type' WHERE `header_navigation`.`id` = 197;
+UPDATE `header_navigation` SET `parent_ids` = '190',title='Upload Symptom Master' WHERE `header_navigation`.`id` = 190;
+
+UPDATE `header_navigation` SET `parent_ids` = '247',title='Download Serviceable BOM By Appliance' WHERE `header_navigation`.`id` = 233;
+
+UPDATE `header_navigation` SET `is_active` = '0' WHERE `header_navigation`.`id` = 239;
+
+UPDATE `header_navigation` SET `parent_ids` = '247',title='Download Serviceable BOM By Model' WHERE `header_navigation`.`id` = 152;
+
+UPDATE `header_navigation` SET `parent_ids` = '247', WHERE `header_navigation`.`id` = 240;
+
+UPDATE `header_navigation` SET `parent_ids` = '247', WHERE `header_navigation`.`id` = 236;
+
+UPDATE `header_navigation` SET `parent_ids` = '247',title='Download Alternate Part Master' WHERE `header_navigation`.`id` = 238;
