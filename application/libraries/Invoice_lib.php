@@ -804,7 +804,7 @@ class Invoice_lib {
            
             $shipped_inventory_id ='';
             foreach ($spare_parts_details as $spare_key =>  $spare_parts_details_value) {
-                if (!empty($spare_parts_details_value[0]['shipped_inventory_id'])) {
+                if (!empty($spare_parts_details_value[0]['shipped_inventory_id']) && !empty($spare_parts_details_value['parts_shipped'])) {
                    $shipped_inventory_id = $spare_parts_details_value[0]['shipped_inventory_id'];
 
                   if (!empty($shipped_inventory_id)){
@@ -815,7 +815,15 @@ class Invoice_lib {
                  $spare_parts_details_value[$spare_key]['part_number']='-';    
                  }
                 }else{
-                    $spare_parts_details_value[$spare_key]['part_number']='-';
+                  $requested_inventory_id = $spare_parts_details_value[0]['requested_inventory_id'];
+                  $whereinventory = array('inventory_id'=>$requested_inventory_id);
+                  $inventory_master_data = $this->ci->inventory_model->get_inventory_master_list_data('part_number', $whereinventory);
+                  if(!empty($inventory_master_data)){
+                    $spare_parts_details_value[$spare_key]['part_number']=$inventory_master_data[0]['part_number'];
+                  }else{
+                     $spare_parts_details_value[$spare_key]['part_number']='-';
+                  }
+
                 }
   
             }
