@@ -660,3 +660,6 @@ ALTER TABLE `spare_parts_details` ADD `part_requested_by_engineer` BOOLEAN NOT N
 
 -- Kajal 22-08-2019
 UPDATE `invoice_tags` SET `tag` = 'Out-of-Warranty' WHERE `invoice_tags`.`sub_category` = 'Out-of-Warranty';
+
+-- Kajal 28-08-2019
+ALTER TABLE `inventory_master_list` ADD `is_invoice` INT(1) NOT NULL DEFAULT '0' AFTER `part_image`;

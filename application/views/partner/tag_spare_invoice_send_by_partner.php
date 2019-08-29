@@ -254,7 +254,7 @@
                                         <div class="col-xs-12 col-md-12">
                                             <div class="pull-right" style="margin-right:15px;">
                                                 <strong>
-                                                Total Price1 : <span id="total_spare_invoice_price">0</span>
+                                                Total Price : <span id="total_spare_invoice_price">0</span>
                                                 </strong>
                                             </div>
                                         </div>
@@ -336,6 +336,20 @@
                                         <label class="col-xs-2 control-label">Courier File</label>
                                         <div class="col-xs-4">
                                             <input type="file" class="form-control" name="courier_file" id="on_courier_file"/>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
+                                        <div class="col-xs-4">
+                                            <select class="form-control" name="from_gst_number" id="on_from_gst_number" required="">
+                                                <option value="" disabled="">Select From GST Number</option>
+                                            </select>
+                                        </div>
+                                        <label class="col-xs-4 col-sm-2 control-label">To GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="247around GST Number print on invoice"><i class="fa fa-info"></i></span></label>
+                                        <div class="col-xs-8 col-sm-4">
+                                            <select class="form-control" name="to_gst_number" id="on_to_gst_number" required="">
+                                                <option value="" disabled="">Select To GST Number</option>
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -491,15 +505,15 @@
         $('#partName_0').select2({
             placeholder:'Select Part Name'
         });
-        $('.part_name').select2({
+        $('#partNumber_0').select2({
             placeholder:'Select Part Number'
         });
         
-        $('#from_gst_number').select2({
+        $('#from_gst_number,on_from_gst_number').select2({
             placeholder:'Select From GST Number'
         });
         
-        $('#to_gst_number').select2({
+        $('#to_gst_number,on_to_gst_number').select2({
             placeholder:'Select To GST Number'
         });
         
@@ -782,6 +796,19 @@
                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                     $('#success_msg').html(obj.message);
                     $("#spareForm")[0].reset();
+                    $('#select2-from_gst_number-container').text('Select From GST Number');
+                    $('#select2-from_gst_number-container').attr('title','Select From GST Number');
+                    $('#select2-to_gst_number-container').text('Select To GST Number');
+                    $('#select2-to_gst_number-container').attr('title','Select To GST Number');
+                    $('#select2-wh_id-container').text('Select Warehouse');
+                    $('#select2-wh_id-container').attr('title','Select Warehouse');
+                    $('#select2-serviceId_0-container').text('Select Appliance');
+                    $('#select2-serviceId_0-container').attr('title','Select Appliance');
+                    $('#select2-partName_0-container').text('Select Part Name');
+                    $('#select2-partName_0-container').attr('title','Select Part Name');
+                    $('#select2-partNumber_0-container').text('Select Part Number');
+                    $('#select2-partNumber_0-container').attr('title','Select Part Number');
+                    $('#total_spare_invoice_price').html('0');
                     $(".warehouse_print_address").css({'display':'block'});
                     $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
                 }else{
@@ -1376,9 +1403,10 @@
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/inventory/get_partner_gst_number',
-                data:{partner_id:$("#partner_id").val()},
+                data:{partner_id:<?php echo $this->session->userdata('partner_id'); ?>},
                 success: function (response) {
                     $("#from_gst_number").html(response);
+                    $("#on_from_gst_number").html(response);
                 }
             });
        }
@@ -1387,9 +1415,10 @@
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url() ?>employee/inventory/get_247around_wh_gst_number',
-                data:{partner_id:$("#partner_id").val()},
+                data:{partner_id:<?php echo $this->session->userdata('partner_id'); ?>},
                 success: function (response) {
                     $("#to_gst_number").html(response);
+                    $("#on_to_gst_number").html(response);
                 }
             });
        }
