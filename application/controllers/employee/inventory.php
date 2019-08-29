@@ -7305,10 +7305,19 @@ class Inventory extends CI_Controller {
      */
     function mwh_invoice_ledger(){
         log_message('info', __METHOD__ . ' Processing...');
-        
+        $where = array();
         $select = "service_centres.company_name as 'SF Name', public_name as Partner, vendor_partner_invoices.invoice_id, invoice_date, inventory_master_list.part_number, inventory_master_list.part_name, qty, rate, invoice_details.taxable_value, (invoice_details.cgst_tax_rate + invoice_details.sgst_tax_rate + invoice_details.igst_tax_rate ) as gst_rate, (invoice_details.cgst_tax_amount + invoice_details.sgst_tax_amount +invoice_details.igst_tax_amount) as tax_amount, invoice_details.total_amount, CASE when (inventory_ledger.is_wh_ack = 1) THEN 'YES' ELSE 'NO' END AS 'Is Ack', inventory_ledger.wh_ack_date  FROM `vendor_partner_invoices` JOIN invoice_details ON `vendor_partner` LIKE 'vendor' AND `sub_category` LIKE 'MSL' AND invoice_details.invoice_id = vendor_partner_invoices.invoice_id JOIN  inventory_master_list ON   inventory_master_list.inventory_id = invoice_details.inventory_id JOIN service_centres ON  service_centres.id = vendor_partner_id JOIN  partners ON partners.id =  vendor_partner_invoices.third_party_entity_id LEFT JOIN inventory_ledger ON inventory_ledger.inventory_id = invoice_details.inventory_id AND inventory_ledger.invoice_id = invoice_details.invoice_id";
-        $invoice_details = $this->inventory_model->get_mwh_invoice_ledger_data($select, array());
-              
+        
+        if(!empty($this->session->userdata("partner_id"))){
+           $where = array('vendor_partner_invoices.third_party_entity_id' => $this->session->userdata("partner_id"),'vendor_partner_invoices.third_party_entity'=> _247AROUND_PARTNER_STRING );
+        }
+        
+        if(!empty($this->session->userdata("service_center_id"))){
+           $where = array('vendor_partner_invoices.third_party_entity_id' => $this->session->userdata("service_center_id"),'vendor_partner_invoices.third_party_entity'=> _247AROUND_SF_STRING );
+        }
+        
+        $invoice_details = $this->inventory_model->get_mwh_invoice_ledger_data($select, $where);
+                      
         if (!empty($invoice_details)) {
            
             $this->load->dbutil();
