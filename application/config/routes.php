@@ -115,7 +115,7 @@ $route['service_center/inventory/alternate_inventory_list/(:any)'] = 'employee/s
 $route['service_center/inventory/alternate_parts_inventory_list'] = 'employee/service_centers/alternate_parts_inventory_list';
 $route['service_center/inventory/inventory_list_by_model/(:any)'] = 'employee/service_centers/get_inventory_by_model/$1';
 $route['service_center/inventory/inventory_list_by_model/(:any)'] = 'employee/service_centers/get_inventory_by_model/$1/$2';
-
+$route['service_center/inventory/download_invoice_ledger'] = 'employee/inventory/mwh_invoice_ledger';
 
 
 
@@ -236,6 +236,7 @@ $route['inventory/msl_excel_upload']='employee/inventory/msl_excel_upload';
 $route['partner/inventory/download_missing_serviceable_bom'] = 'employee/partner/show_download_missing_serviceable_bom';
 $route['partner/inventory/download_part_master'] = 'employee/partner/show_download_part_master';
 $route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
+$route['partner/inventory/download_mwh_invoice_ledger'] = 'employee/inventory/mwh_invoice_ledger';
 
 //$route['service_center/inventory/appliance_model_list'] = 'employee/inventory/appliance_model_list';
 
