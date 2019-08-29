@@ -411,7 +411,7 @@
 
                         } else {
                             $('#partGstRate_'+i).addClass('text-danger');
-                            showConfirmDialougeBox('Please invalid Gst Number', 'warning');
+                            showConfirmDialougeBox('Invalid Gst Number', 'warning');
 
                             return false;
                         }
@@ -485,6 +485,19 @@
                                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                                     $('#success_msg').html(obj.message);
                                     $("#spareForm")[0].reset();
+                                    $('#select2-partner_id-container').text('Select Partner');
+                                    $('#select2-partner_id-container').attr('title','Select Partner');
+                                    $('#select2-from_gst_number-container').text('Select From GST Number');
+                                    $('#select2-from_gst_number-container').attr('title','Select From GST Number');
+                                    $('#select2-wh_id-container').text('Select Warehouse');
+                                    $('#select2-wh_id-container').attr('title','Select Warehouse');
+                                    $('#select2-serviceId_0-container').text('Select Appliance');
+                                    $('#select2-serviceId_0-container').attr('title','Select Appliance');
+                                    $('#select2-partName_0-container').text('Select Part Name');
+                                    $('#select2-partName_0-container').attr('title','Select Part Name');
+                                    $('#select2-partNumber_0-container').text('Select Part Number');
+                                    $('#select2-partNumber_0-container').attr('title','Select Part Number');
+                                    $('#total_spare_invoice_price').html('0');
                                     $(".warehouse_print_address").css({'display':'block'});
                                     $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
                                 }else{
@@ -665,6 +678,14 @@
         }else{
             alert("Please Select All Field");
         }
+    }
+    
+    function calculate_total_price(){
+        var total_spare_invoice_price = 0;
+         $(".part-total-price").each(function(i) {
+             total_spare_invoice_price += Number($('#partBasicPrice_'+i).val()) + (Number($('#partBasicPrice_'+i).val()) * Number($('#partGstRate_'+i).val())/100);
+         });
+         $('#total_spare_invoice_price').html(Number(Math.round(total_spare_invoice_price)));
     }
     
     function get_part_price(index){
@@ -913,6 +934,12 @@
            $row.remove();
        });
        
+        function booking_calculate_total_price(id){
+
+            var total_spare_invoice_price = Number($('#onpartBasicPrice_'+id).val()) + (Number($('#onpartBasicPrice_'+id).val()) * Number($('#onpartGstRate_'+id).val())/100);
+            $('#ontotal_amount_'+id).val(Number(Math.round(total_spare_invoice_price)));
+        }
+        
        function get_part_number_on_booking(index){
             var partner_id = $('#onpartnerId_'+index).val();
             var service_id = $('#onserviceId_'+index).val();
@@ -1102,7 +1129,7 @@
            $row.remove();
        });
        
-       function onBookingshowConfirmDialougeBox(title,type){
+    function onBookingshowConfirmDialougeBox(title,type){
         if(type === 'info'){
             swal({
             title: title,
@@ -1113,6 +1140,26 @@
         },
             function(){
                  submitBookingForm();
+            });
+        }else{
+            swal({
+                title: title,
+                type: type
+            });
+        }
+    }
+    
+    function showConfirmDialougeBox(title,type){
+        if(type === 'info'){
+            swal({
+            title: title,
+            type: type,
+            showCancelButton: true,
+            closeOnConfirm: false,
+            showLoaderOnConfirm: true
+        },
+            function(){
+                 $("#spareForm").submit();
             });
         }else{
             swal({
