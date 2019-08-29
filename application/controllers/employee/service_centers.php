@@ -468,6 +468,9 @@ class Service_centers extends CI_Controller {
             $data['technical_defect'][0] = array('defect_id' => 0, 'defect' => 'Default');
         }
 
+        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status',NULL, NULL, NULL, NULL, NULL, NULL);
+
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
     }
@@ -624,6 +627,7 @@ class Service_centers extends CI_Controller {
                         }
                     }
                     
+                    $this->update_spare_consumption_status($this->input->post());
                     if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
                         $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
                         if (!$rowsStatus) {
@@ -681,7 +685,22 @@ class Service_centers extends CI_Controller {
             }
         }
     }
+
+    /**
+     * 
+     * @param type $post_data
+     * @return boolean
+     */
+    public function update_spare_consumption_status($post_data) {
+        if(!empty($post_data['spare_consumption_status'])) {
+            foreach($post_data['spare_consumption_status'] as $spare_id => $status_id) {
+                $this->reusable_model->update_table('spare_parts_details', ['consumed_part_status_id' => $status_id], ['id' => $spare_id]);
+            }
+        }
         
+        return true;
+    }
+
     /**
      *  @desc : This function is used to upload the purchase invoice to s3 and save into database
      *  @param : string $booking_primary_contact_no
