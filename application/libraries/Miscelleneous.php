@@ -4393,7 +4393,7 @@ function generate_image($base64, $image_name,$directory){
             
             $requested_inventory = $booking['requested_inventory_id'];
             
-            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
+            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "",$booking['model_number']);
             if (!empty($data)) {
                  
                 if ($data['stock']>=$booking['quantity']) {
