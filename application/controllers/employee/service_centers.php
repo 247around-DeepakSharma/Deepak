@@ -3042,7 +3042,11 @@ class Service_centers extends CI_Controller {
 
      $sp_ids =  explode(',',$_POST['sp_ids']);
      $count_spare=  count($sp_ids);
-     $count_spare=$count_spare-1;
+
+     if (!empty($_POST['courier_boxes_weight_flag']>0)) {
+         
+       $_POST['courier_boxes_weight_flag']  = ($count_spare+$_POST['courier_boxes_weight_flag']); 
+     }
         $service_center_id=0;
         if ($this->session->userdata('userType')=='service_center') {
             $service_center_id = $this->session->userdata('service_center_id');
@@ -3061,6 +3065,7 @@ class Service_centers extends CI_Controller {
         if (!empty($spare_part)) {
             
         $_POST['sf_id'] = $spare_part[0]['service_center_id'];
+        $_POST['bulk_courier'] = TRUE;
         $_POST['booking_id'] = $spare_part[0]['booking_id'];
         $_POST['user_name'] = $spare_part[0]['name'];
         $_POST['mobile'] = $spare_part[0]['booking_primary_contact_no'];
@@ -3071,7 +3076,7 @@ class Service_centers extends CI_Controller {
         $_POST['defective_part_shipped']=array();
         $_POST['partner_challan_number']=array();
         $_POST['challan_approx_value']=array();
-        $_POST['parts_requested']=array(); 
+        $_POST['parts_requested']=array();
         $_POST['no_redirect_flag']=TRUE;
         $_POST['defective_part_shipped'][$value] = $spare_part[0]['parts_shipped'];
         $_POST['partner_challan_number'][$value] = $spare_part[0]['partner_challan_number'];
@@ -3079,9 +3084,9 @@ class Service_centers extends CI_Controller {
         $_POST['parts_requested'][$value] = $spare_part[0]['parts_requested'];
         if (!isset($_POST['courier_boxes_weight_flag']) || empty($_POST['courier_boxes_weight_flag'])) {
                $_POST['courier_boxes_weight_flag'] = $count_spare;
-             } 
-       
 
+             }
+ 
           $this->process_update_defective_parts($value); 
         }
 
@@ -3146,7 +3151,12 @@ class Service_centers extends CI_Controller {
                     $courier_boxes_weight_flag = $this->input->post('courier_boxes_weight_flag');
 
                     if ($courier_boxes_weight_flag > 0) {
-                        $pricecourier = round(($this->input->post('courier_charges_by_sf') / ($courier_boxes_weight_flag + 1)), 2);
+
+                        if (isset($_POST['bulk_courier']) && !empty($_POST['bulk_courier'])) {
+                             $pricecourier = round(($this->input->post('courier_charges_by_sf') / ($courier_boxes_weight_flag)), 2);
+                        }else{
+                            $pricecourier = round(($this->input->post('courier_charges_by_sf') / ($courier_boxes_weight_flag + 1)), 2);
+                        }                        
                         
                         $this->service_centers_model->update_spare_parts(array('awb_by_sf' => $awb, 'status != "'._247AROUND_CANCELLED.'" ' => NULL),
                             array('courier_charges_by_sf' => $pricecourier));
