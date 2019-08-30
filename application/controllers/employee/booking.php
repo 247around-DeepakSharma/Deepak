@@ -1473,7 +1473,7 @@ class Booking extends CI_Controller {
                 $checkboxClass = (($prices['service_category'] == REPEAT_BOOKING_TAG) ? "repeat_".$prices['product_or_services'] : $prices['product_or_services']);
                 $html .="<tr><td>" . $prices['service_category'] . "</td>";
                 $html .= "<td>" . $prices['customer_total'] . "</td>";
-                $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
+                $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/></td>";
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 if(!$is_saas){
                     $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
@@ -1628,7 +1628,7 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This function is to view details of any particular booking.
      *
-     * 	We get all the details like User's details, booking details, and also the appliance's unit details.
+     *  We get all the details like User's details, booking details, and also the appliance's unit details.
      *
      *  @param : booking id
      *  @return : booking details and load view
@@ -1801,7 +1801,7 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This function is to get add new brand page
      *
-     * 	Through this we add a new brand for selected service.
+     *  Through this we add a new brand for selected service.
      *
      *  @param : void
      *  @return : list of active services present
@@ -1815,7 +1815,7 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This function is to add new brand.
      *
-     * 	Enters the new brand to our existing brand list for a particular service
+     *  Enters the new brand to our existing brand list for a particular service
      *
      *  @param : void
      *  @return : add new brand and load view
@@ -1990,8 +1990,8 @@ class Booking extends CI_Controller {
         $callDetails['date_updated'] = (isset($_GET['DateUpdated'])) ? $_GET['DateUpdated'] : null;
 
         log_message('info', print_r($callDetails, true));
-//	//insert in database
-//	$this->apis->insertPassthruCall($callDetails);
+//  //insert in database
+//  $this->apis->insertPassthruCall($callDetails);
     }
 
     /**
