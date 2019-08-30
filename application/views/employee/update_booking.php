@@ -527,7 +527,7 @@
                                                                         echo $price['partner_net_payable'];
                                                                     } else {
                                                                         echo $partner_net_payable;
-                                                                    }?>" readonly  />
+                                                                    }?>" readonly  onblur='chkPrice($(this),<?php echo $ct ?>)'/>
                                                             </td>
                                                             <td>
                                                                 <?php  if(isset($unit_details[0]['quantity'])){
@@ -763,7 +763,7 @@
                                                                             echo $price['partner_net_payable'];
                                                                         } else {
                                                                             echo $partner_net_payable;
-                                                                        }?>" readonly />
+                                                                        }?>" readonly  onblur='chkPrice($(this),<?php echo $ct ?>)'/>
                                                                 </td>
                                                                 <td>
                                                                     <?php  if(isset($booking_unit_details['quantity'])){
@@ -1294,10 +1294,34 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         $('#repeat_booking_model').modal('hide');
     }
     
+    function chkPrice(curval,maxval){
+    //alert(curval.val());
+    let flg=true;
+        if(!isNaN(curval.val())){
+            if(parseFloat(curval.val())<0) {
+                alert('Cannot be less than 0.00');
+               flg=false;
+            } else if(parseFloat(curval.val())>parseFloat(maxval)) {
+               alert('Cannot be more than Std.Charges');
+               flg=false;
+            }
+        } else {
+            alert('Enter numeric value');
+            flg=false;
+        }
+        if(!flg)
+        {
+        window.setTimeout(function () { 
+            curval.focus();
+        }, 0);
+            
+           }
+        
+    }
     //get_symptom('<?php echo (!empty($symptom[0]['symptom'])?$symptom[0]['symptom']:'');?>');
     $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
     
-
+    
 </script>
 <style type="text/css">
     #errmsg1
