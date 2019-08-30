@@ -61,7 +61,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="Basic Price" class="col-md-4">Baisc Price</label>
+                        <label for="Basic Price" class="col-md-4">Basic Price</label>
                         <div class="col-md-6">
                             <input type="text" value="<?php echo $basic_price;?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control onpartBasicPrice" id="<?php echo "onpartBasicPrice_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][part_total_price]"  placeholder=""  required >
                             <input type="hidden" value="1" class="form-control" id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity]"  placeholder=""  required readonly="">
@@ -174,7 +174,7 @@
                                
                             </div>
                             <div class="form-group">
-                                <label for="Basic Price" class="col-md-4">Baisc Price</label>
+                                <label for="Basic Price" class="col-md-4">Basic Price</label>
                                 <div class="col-md-6">
                                     <input type="text"  class="form-control" id="onpartBasicPrice"  placeholder=""  required >
                                     <input type="hidden" value="1" class="form-control" id="onquantity" placeholder=""  required readonly="">

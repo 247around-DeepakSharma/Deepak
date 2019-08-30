@@ -17,6 +17,19 @@ class Employee_model extends CI_Model{
     return   $this->db->insert_id();
 
   }
+  
+  
+  /* @desc : this function for create employee relation
+   * @param : array(employee relation detail)
+   * @return :  id
+   */
+
+  function insertEmployeeRelation($insert){
+    $this->db->insert('employee_relation',$insert);
+    return   $this->db->insert_id();
+
+  }
+  
   /* @desc : this function for count total employee
    * @param : void
    * @return : no. of employee
@@ -115,6 +128,22 @@ class Employee_model extends CI_Model{
           $this->db->select('*');
           $this->db->where('groups','regionalmanager');
           $this->db->where('active','1');
+          $query = $this->db->get('employee');
+          return $query->result_array();
+      }
+      
+      
+      /**
+       * @Desc: This function is used to get RM's from employee table
+       * @params: void
+       * @return: Array
+       * 
+       */
+      function get_rm_details_by_id($id){
+          $this->db->select('*');
+          $this->db->where('groups','regionalmanager');
+          $this->db->where('active','1');
+          $this->db->where('id',$id);
           $query = $this->db->get('employee');
           return $query->result_array();
       }
@@ -298,6 +327,146 @@ class Employee_model extends CI_Model{
    	$query =  "SELECT GROUP_CONCAT(official_email) official_email FROM (`employee`) WHERE `id` IN (".$id.") ";
         $result=$this->db->query($query)->result_array();
         return $result;
+   }
+   
+    /**
+    * 
+    * @param type blank
+    * @return states
+    */
+   function get_states() {
+        $sql = "SELECT * FROM state_code";
+       return $this->db->query($sql)->result_array();
+   }
+   
+   /**
+    * @desc : This function is used to check existence of rm id in employee_relation
+    * @param type $id
+    * @return type
+    */
+   function chk_entry_in_employee_relation($id) {
+       $data=$this->db->query("select * from `employee_relation` where agent_id =".$id)->result_array();
+       if(count( $data) == 0 ){
+            $emp_rel["agent_id"] = $id;
+            $emp_rel["active"] = 1;
+            $emp_rel["create_date"] = date('Y-m-d H:i:s');
+           $this->insertEmployeeRelation($emp_rel);
+       }
+   }
+   /**
+    * @Desc: This function is used to get assigned states 
+    * @params: void
+    * @return: Array
+    * 
+    */
+    function get_rm_mapped_state($rmid){
+        $sql= "select `state_code`.`state` from state_code where `state_code`.state_code in (
+            SELECT
+  DISTINCT SUBSTRING_INDEX(SUBSTRING_INDEX(vals, ',', n.digit+1), ',', -1) val
+FROM
+  (select state_code as vals from employee_relation where agent_id=".$rmid.") tt1
+  INNER JOIN
+  (SELECT 0 digit UNION ALL SELECT 1 UNION ALL SELECT 2 UNION ALL SELECT 3  UNION ALL SELECT 4 UNION ALL SELECT 5 UNION ALL SELECT 6 UNION ALL SELECT 7 UNION ALL SELECT 8 UNION ALL SELECT 9 UNION ALL SELECT 10) n
+  ON LENGTH(REPLACE(vals, ',' , '')) <= LENGTH(vals)-n.digit)";
+        return $this->db->query($sql)->result_array();
+ }
+    
+   /**
+    * @desc : This function is used to update state mapping. New User added is RM and any ASM details are propagated to this RM 
+    * @param type $id,$state
+    * @return type
+    */
+   function update_new_rm_mapping($id) {
+       $sql="update `employee_relation`
+        left join 
+        (SELECT `manager_id` as `id`,  GROUP_CONCAT(`individual_service_centres_id` SEPARATOR ',')  as `center_id`, GROUP_CONCAT(`state_code` SEPARATOR ',') as `state_id` FROM `employee_relation` 
+        left JOIN `employee_hierarchy_mapping` on `employee_relation`.`agent_id`=`employee_hierarchy_mapping`.`employee_id`
+        where `employee_hierarchy_mapping`.`manager_id` = ".$id.") as a on (a.id=employee_relation.agent_id)
+        set `service_centres_id`=a.`center_id` , `state_code`=a.`state_id`
+        where `agent_id`=a.id";
+       return $this->db->query($sql);
+   }
+   
+   
+   /**
+    * @desc : This procedure is to update its manager mapping if he is a regionalmanager 
+    * @param type $id
+    * @return type
+    */
+   function update_asm_manager_mapping($id) {
+       $sql="update `employee_relation` "
+               . "Left Join ( select e1.id,`employee_relation`.`individual_service_centres_id`, `employee_relation`.`state_code` "
+               . "from `employee_hierarchy_mapping` join `employee` e1 on e1.`id` =`employee_hierarchy_mapping`.`manager_id` "
+               . "join `employee_relation` on `employee_relation`.`agent_id`=`employee_hierarchy_mapping`.`employee_id` "
+               . "where e1.`groups`='regionalmanager' and `employee_hierarchy_mapping`.`employee_id`=".$id.") a "
+               . "on a.id=`employee_relation`.agent_id "
+               . "set `employee_relation`.`state_code`= if((`employee_relation`.`state_code` is null or `employee_relation`.`state_code` =''),a.`state_code`,concat(`employee_relation`.`state_code`, concat(',',a.`state_code`) )), "
+               . "`employee_relation`.`service_centres_id`=if((`employee_relation`.`service_centres_id` is null or `employee_relation`.`service_centres_id` =''),a.`individual_service_centres_id`,concat(`employee_relation`.`service_centres_id`,concat(',',a.`individual_service_centres_id`)) ) "
+               . "where `employee_relation`.`agent_id`=a.id";
+       print_r($sql);
+       return $this->db->query($sql);
+   }
+   
+   /**
+    * @desc : This function is used to update rm/asm state mapping
+    * @param type $id,$state
+    * @return type
+    */
+   function update_rm_state_mapping($id,$state) {
+       //$data=$this->db->query("SELECT GROUP_CONCAT(id SEPARATOR ',') as 'service_center' FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL")->result_array();
+       $query="UPDATE `employee_relation` SET "
+                         ."   `service_centres_id`= if ((`service_centres_id` IS NULL OR  `service_centres_id` = ''), "
+                        ."(SELECT GROUP_CONCAT(id ORDER BY id SEPARATOR ',')  FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL),"
+                        ."concat(`service_centres_id`,concat(',',(SELECT GROUP_CONCAT(`id` ORDER BY id  SEPARATOR ',')  FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL)))),"
+ 
+                        ."`individual_service_centres_id` = if((`individual_service_centres_id` IS NULL OR  `individual_service_centres_id` = ''), " 
+                        ." (SELECT GROUP_CONCAT(id ORDER BY id  SEPARATOR ',')  FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL), "
+                        ."concat(`individual_service_centres_id`,concat( ',',(SELECT GROUP_CONCAT(id ORDER BY id  SEPARATOR ',')  FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL)))),"
+
+                        ."`state_code`= if( (`state_code` IS NULL OR  `state_code` = ''), (select `state_code` from `state_code` WHERE `state`='".$state."' LIMIT 1),"
+                        ." concat(`state_code`,(select concat(',',`state_code`) from `state_code` WHERE `state`='".$state."' LIMIT 1)))"
+                        ."   WHERE `agent_id`=".$id;
+      // print_r($query);
+       return $this->db->query($query);
+   }
+   
+   /**
+    * @desc : This function is used to remove all mapping of state in database
+    * @param type $state
+    * @return type
+    */
+   function remove_all_rm_state_map($state) {
+        $sql_individual_service_centres_id = "UPDATE `employee_relation` as a "
+                ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , a.`state_code`) "
+                ."LEFT JOIN `service_centres` on (`state_code`.`state` = `service_centres`.`state`) "
+                ."SET a.`individual_service_centres_id` = ( "
+                ."select TRIM(BOTH ',' FROM REPLACE(CONCAT(',',b.`individual_service_centres_id`, ','), "
+                ."CONCAT(\",\",GROUP_CONCAT(`service_centres`.`id` ORDER BY `service_centres`.`id` SEPARATOR ','),\",\"), ',')) from `employee_relation` b "
+                ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` ,b.`state_code`) "
+                ."LEFT JOIN `service_centres` on (`state_code`.`state` = `service_centres`.`state`) "
+                ."WHERE `state_code`.`state` = '".trim($state)."' and   b.`agent_id` = a.agent_id) " 
+                ."WHERE `state_code`.`state` = '".trim($state)."'";
+        
+        $sql_service_centres_id = "UPDATE `employee_relation` as a "
+                ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , a.`state_code`) "
+                ."LEFT JOIN `service_centres` on (`state_code`.`state` = `service_centres`.`state`) "
+                ."SET a.`service_centres_id` = ( "
+                ."select TRIM(BOTH ',' FROM REPLACE(CONCAT(',',b.`service_centres_id`, ','), "
+                ."CONCAT(\",\",GROUP_CONCAT(`service_centres`.`id` ORDER BY `service_centres`.`id` SEPARATOR ','),\",\"), ',')) from `employee_relation` b "
+                ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` ,b.`state_code`) "
+                ."LEFT JOIN `service_centres` on (`state_code`.`state` = `service_centres`.`state`) "
+                ."WHERE `state_code`.`state` = '".trim($state)."' and   b.`agent_id` = a.agent_id) "
+                ."WHERE `state_code`.`state` = '".trim($state)."'";
+        
+        $sql_state_code = "UPDATE `employee_relation` 
+                LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , `employee_relation`.`state_code`)
+                SET `employee_relation`.`state_code` =TRIM(BOTH ',' FROM REPLACE(CONCAT(',', `employee_relation`.`state_code`, ','), CONCAT(',',`state_code`.`id`,','), ','))
+                WHERE `state_code`.`state` = '".trim($state)."'";
+       
+        $res=$this->db->query($sql_individual_service_centres_id);
+        $res=$this->db->query($sql_service_centres_id);
+        $res= $this->db->query($sql_state_code);
+        return '';
    }
    
    /**

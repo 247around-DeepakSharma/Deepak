@@ -11,6 +11,7 @@ class File_upload extends CI_Controller {
     var $dataToInsert = array();
     var $not_exists_model = array();
     var $not_exists_parts = array();
+    var $remap_bom_array = array();
     
     function __Construct() {
         parent::__Construct();
@@ -39,11 +40,12 @@ class File_upload extends CI_Controller {
      * @return JSON
      */
     public function process_upload_file() {
+        ini_set('memory_limit', -1);
+
         log_message('info', __FUNCTION__ . "=> File Upload Process Begin " . print_r($_POST, true));
         //get file extension and file tmp name
         $file_status = $this->get_upload_file_type();
         $redirect_to = $this->input->post('redirect_url'); 
-       
         if ($file_status['file_name_lenth']) {
             if ($file_status['status']) {
                 //get file header
@@ -95,7 +97,8 @@ class File_upload extends CI_Controller {
                             $response['message'] = 'Something Went wrong!!!';
                     }
                    
-                    //save file into database send send response based on file upload status               
+                    //save file into database send send response based on file upload status  
+
                     if (isset($response['status']) && ($response['status'])) {
 
                         //save file and upload on s3
@@ -108,7 +111,6 @@ class File_upload extends CI_Controller {
 
                     //send email
                     $this->send_email($data, $response);
-                    
                     if (isset($response['status']) && ($response['status'])) {
                         redirect(base_url() . $redirect_to);
                     }
@@ -1100,7 +1102,6 @@ class File_upload extends CI_Controller {
      */
     function process_partner_bom_file_upload($data) {
         log_message("info", __METHOD__);
-
         $response = array();
         $partner_id = trim($this->input->post('partner_id'));
         $flag = false;
@@ -1128,12 +1129,17 @@ class File_upload extends CI_Controller {
                 for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                     $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                     $sanitizes_row_data = array_map('strtolower', array_map('trim', $rowData_array[0]));
+
+
                     //check if model number exist in our database
                     if (!empty(array_filter($sanitizes_row_data))) {
 
                         if (array_key_exists($sanitizes_row_data[0], $model_arr)) {
                             //check part exist in our database
-                            $response = $this->process_bom_mapping($model_arr[$sanitizes_row_data[0]], $part_number_arr, $sanitizes_row_data);
+                            //print_r($sanitizes_row_data[0]);
+                            $response = $this->process_bom_mapping($model_arr[$sanitizes_row_data[0]], $part_number_arr, $sanitizes_row_data,$rowData_array[0][0]);
+                            //array_push($remap_bom_array, end($this->dataToInsert));
+                           
                         } else {
                             array_push($this->not_exists_model, $sanitizes_row_data[0]);
                             $flag = true;
@@ -1168,10 +1174,11 @@ class File_upload extends CI_Controller {
                     $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
                     $not_exist_data_msg .= $this->table->generate();
                 }
-
+ 
                 if (!empty($this->dataToInsert)) {
                     $insert_data = $this->inventory_model->insert_batch_inventory_model_mapping($this->dataToInsert);
                     if ($insert_data) {
+                         $this->remap_in_bom_map($this->remap_bom_array);
                         log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
                         $response['status'] = TRUE;
                         $message = "<b>" . count($this->dataToInsert) . "</b> mapping created successfully.";
@@ -1200,6 +1207,46 @@ class File_upload extends CI_Controller {
         }
 
         return $response;
+    }
+
+
+function remap_in_bom_map($remap_bom_array){
+
+        $agentid='';
+        if ($this->session->userdata('userType') == 'employee') {
+          $agentid=$this->session->userdata('id');
+          $agent_name =$this->session->userdata('emp_name');
+          $login_partner_id = _247AROUND;
+          $login_service_center_id =NULL;
+        }else if($this->session->userdata('userType') == 'service_center'){
+          $agentid=$this->session->userdata('agent_id');
+          $agent_name =$this->session->userdata('service_center_name');
+          $login_service_center_id = $this->session->userdata('service_center_id');
+          $login_partner_id =NULL;
+
+        }else if($this->session->userdata('userType') == 'partner'){
+                 $agentid=$this->session->userdata('agent_id');
+          $agent_name =$this->session->userdata('partner_name');
+          $login_service_center_id = $this->session->userdata('partner_id');
+          $login_partner_id =NULL;
+        }
+
+        foreach ($remap_bom_array as $rowkey => $rowvalue) {
+                   
+                   $where = array(
+                        'spare_parts_details.status'=>SPARE_PARTS_REQUESTED,
+                        'spare_parts_details.entity_type'=>_247AROUND_PARTNER_STRING,
+                        'spare_parts_details.requested_inventory_id'=>$rowvalue['inventory_id'],
+                        'spare_parts_details.model_number'=>trim($rowvalue['model_name'])
+                   ); 
+                    $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id,spare_parts_details.model_number,spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
+                . " requested_inventory_id";
+                  $post['is_inventory'] = true;
+                  $spares = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
+                  $this->miscelleneous->spareTransfer($spares, $agentid, $agent_name, $login_partner_id, $login_service_center_id, ""); 
+
+        }
+
     }
 
     /**
@@ -1413,9 +1460,11 @@ class File_upload extends CI_Controller {
      * @param $uploaded_file_parts array()  //uploaded file parts details 
      * @return void
      */
-    function process_bom_mapping($model_number_id,$part_number_arr,$uploaded_file_parts){
+    function process_bom_mapping($model_number_id,$part_number_arr,$uploaded_file_parts,$model_name){
         //get only parts details from the uploaded file array. remove model number from first index of the array.
-        //here we assume that first index of the file is always model number       
+        //here we assume that first index of the file is always model number 
+       // $model = $uploaded_file_parts[0];
+        /// print_r($remap_bom_array);      
         unset($uploaded_file_parts[0]);
         foreach ($uploaded_file_parts as $value){
             //check if uploaded part exists in our database
@@ -1424,7 +1473,12 @@ class File_upload extends CI_Controller {
                     $tmp = array();
                     $tmp['inventory_id'] = $part_number_arr[str_replace(array('"',"'"), "", $value)];
                     $tmp['model_number_id'] = $model_number_id;
+                    $tmp2 = array();
+                    $tmp2['inventory_id'] = $part_number_arr[str_replace(array('"',"'"), "", $value)];
+                    $tmp2['model_number_id'] = $model_number_id;
+                    $tmp2['model_name'] = $model_name;
                     array_push($this->dataToInsert, $tmp);
+                    array_push($this->remap_bom_array, $tmp2);
                 }else{
                     array_push($this->not_exists_parts, $value);
                 }   
