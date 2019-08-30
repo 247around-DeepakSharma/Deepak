@@ -5554,7 +5554,7 @@ class Service_centers extends CI_Controller {
         $this->check_WH_UserSession();
         $where['length'] = -1;
         if ($wh) {
-          $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED,'wh_ack_received_part' => 1,'spare_parts_details.partner_id'=>_247AROUND_PARTNER_STRING,'requested_inventory_id > 0'=>NULL); 
+          $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED,'wh_ack_received_part' => 1,'spare_parts_details.entity_type'=>_247AROUND_PARTNER_STRING,'requested_inventory_id > 0'=>NULL); 
         }else{
             $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
         }
@@ -5564,7 +5564,9 @@ class Service_centers extends CI_Controller {
 
         if(!empty($booking_id)){
            $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where); 
-        }    
+        }   
+
+
                 
        if(!empty($data['spare_parts'])){
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
