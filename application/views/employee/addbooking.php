@@ -447,7 +447,30 @@
 
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
     //$(".purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
-
+   function chkPrice(curval,maxval){
+    //alert(curval.val());
+    let flg=true;
+        if(!isNaN(curval.val())){
+            if(parseFloat(curval.val())<0) {
+                alert('Cannot be less than 0.00');
+               flg=false;
+            } else if(parseFloat(curval.val())>parseFloat(maxval)) {
+               alert('Cannot be more than Std.Charges');
+               flg=false;
+            }
+        } else {
+            alert('Enter numeric value');
+            flg=false;
+        }
+        if(!flg)
+        {
+        window.setTimeout(function () { 
+            curval.focus();
+        }, 0);
+            
+           }
+        
+    }
 </script>
 <script type="text/javascript">
     var arr_warranty_status = <?php echo json_encode(['OW' => ['Repair - In Warranty'], 'IW' => ['Repair - Out Of Warranty'], 'EW' => ['Repair - In Warranty']]); ?>;
