@@ -700,3 +700,8 @@ ALTER TABLE spare_parts_details ADD COLUMN consumed_part_status_id int(11) NULL 
 
 -- Kajal 29-08-2019
 ALTER TABLE `inventory_master_list` ADD `is_invoice` INT(1) NOT NULL DEFAULT '0' AFTER `part_image`;
+
+
+--Pranjal 30-8-2019 - for adding link for RM Mapping
+insert into `header_navigation`(`entity_type`,`title`,`link`,`level`,`groups`,`nav_type`,`is_active`)
+values ('247Around','RM Mapping','employee/user/rm_state_mapping',1,'admin,developer','right_nav','1')
