@@ -29,6 +29,7 @@ class Miscelleneous {
         $this->My_CI->load->model('engineer_model');
         $this->My_CI->load->driver('cache');
         $this->My_CI->load->model('dashboard_model');
+        $this->My_CI->load->model('invoices_model');
     }
     function process_to_choose_sf_if_multiple_sf_available($data){
         $sfArray = array();
