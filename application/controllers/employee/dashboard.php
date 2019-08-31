@@ -1894,14 +1894,14 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                         $where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
                             . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
                             . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR '
-                            . 'OR booking_details.request_type LIKE "%AMC%")'] = NULL;              
+                            . 'booking_details.request_type LIKE "%AMC%")'] = NULL;              
                         $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
                     }
                     else if($request_type == 'Repair_without_part'){
                         $where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
                             . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
                             . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR '
-                            . 'OR booking_details.request_type LIKE "%AMC%")'] = NULL;
+                            . 'booking_details.request_type LIKE "%AMC%")'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                     else if($request_type == 'Installation'){
