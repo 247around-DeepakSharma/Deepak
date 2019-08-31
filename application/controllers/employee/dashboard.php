@@ -1894,19 +1894,22 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     if($request_type == 'Repair_with_part'){
                         $where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
                             . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
-                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%")'] = NULL;              
+                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR '
+                            . 'booking_details.request_type LIKE "%AMC%")'] = NULL;              
                         $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
                     }
                     else if($request_type == 'Repair_without_part'){
                         $where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
                             . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
-                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%")'] = NULL;
+                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR '
+                            . 'booking_details.request_type LIKE "%AMC%")'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                     else if($request_type == 'Installation'){
                         $where['(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
                             . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
-                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%")'] = NULL;
+                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%" AND ' 
+                            . 'booking_details.request_type NOT LIKE "%AMC%")'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
                     }
                 }
@@ -2026,7 +2029,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionsArray['join']['employee'] = "agent_filters.agent_id = employee.id";
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
-        function get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type){
+        function get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field){
              if($this->session->userdata('partner_id') ){
                 if($is_pending){
                     $select = "employee_relation.region as entity,employee_relation.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
@@ -2047,7 +2050,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                              . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
                 }
             }
-            $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.service_centres_id)";
+            $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.$service_centres_field)";
             $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
         }
@@ -2065,14 +2068,64 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $data = $this->get_booking_tat_report_by_AM($is_pending,$startDateField,$conditionsArray,$request_type);
         }
         else if($for == "RM"){
-            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type);
+            $rms = $this->get_top_level_rm_ids();
+            $wherein = array();
+            foreach($rms as $rm){
+                $wherein[]=$rm['id'];
+            }
+            $conditionsArray['where_in']['employee.id'] = $wherein;
+            $service_centres_field = 'service_centres_id';
+            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field);
+        }else if($for == "ARM"){
+            $rm = $this->input->post("rm");
+            $arms = $this->get_arm_ids_under_rm($rm);
+            $wherein = array();
+            foreach($arms as $arm){
+                $wherein[]=$arm['id'];
+            }
+            $conditionsArray['where_in']['employee.id'] = $wherein;
+            $service_centres_field = 'individual_service_centres_id';
+            $data = $this->get_booking_tat_report_by_RM($is_pending,$startDateField,$conditionsArray,$request_type,$service_centres_field);
         }
         if(!empty($data)){
-            $finalData = $this->get_tat_data_in_structured_format($data,$is_pending,$request_type);  
+            $finalData = $this->get_tat_data_in_structured_format($data,$is_pending,$request_type);
+            /*if($for == "ARM"){
+                array_pop($finalData['TAT']);       //if arm remove last total row
+            }*/
         }
         echo json_encode($finalData);
     }
     
+    /**
+     * get id's of rm's who don't report to other rms
+     */
+    private function get_top_level_rm_ids(){
+        $where = array(
+                'e1.groups '=>'regionalmanager',
+                'e2.groups !='=>'regionalmanager'
+            );
+        $join = array(
+            "employee_hierarchy_mapping ehm"=> "e1.id = ehm.employee_id",
+            "employee e2"=> "ehm.manager_id = e2.id"
+        );
+        $joinType = array("inner", "inner");
+        return $this->reusable_model->get_search_result_data("employee e1", "e1.id as 'id'", $where, $join, NULL, NULL, NULL, $joinType, NULL);
+    }
+    /**
+     * get arm ids under rm
+     */
+    private function get_arm_ids_under_rm($rm_id){
+        $where = array(
+                "(`e2`.`groups` = 'regionalmanager' AND `e2`.`id` = $rm_id) or `e1`.`id` = $rm_id"=>null
+            );
+        $join = array(
+            "employee_hierarchy_mapping ehm"=> "e1.id = ehm.employee_id",
+            "employee e2"=> "ehm.manager_id = e2.id"
+        );
+        $joinType = array("inner", "inner");
+        return $this->reusable_model->get_search_result_data("employee e1", "distinct(e1.id) as 'id'", $where, $join, NULL, NULL, NULL, $joinType, NULL);
+    }
+
    function get_data_for_sf_tat_filters($conditionsArray,$rmID,$is_am,$is_pending,$request_type){
         if($is_pending){
             $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as booking_count"

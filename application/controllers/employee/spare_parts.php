@@ -2102,7 +2102,7 @@ class Spare_parts extends CI_Controller {
                                 $spare_data['parts_requested_type'] = $warehouse_details['type'];
                                 $spare_data['quantity'] = $data['quantity'];
                                 $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
-                                $spare_data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
+                                // $spare_data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
 
                             } else {
                                 $spare_data['partner_id'] = $partner_id;

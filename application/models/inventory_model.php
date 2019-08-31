@@ -1634,7 +1634,7 @@ class Inventory_model extends CI_Model {
         $this->db->from('booking_details');
         $this->db->join('spare_parts_details','booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->join('partners','booking_details.partner_id = partners.id');
-        $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id');
+        $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id','left');
         $this->db->join('service_centres','booking_details.assigned_vendor_id = service_centres.id');
         $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='"._247AROUND_EMPLOYEE_STRING."' ", "left"); // new query for AM
         $this->db->join('employee',"employee.id = agent_filters.agent_id", "left"); // new query for AM
