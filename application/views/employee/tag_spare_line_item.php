@@ -63,15 +63,16 @@
                     <div class="form-group">
                         <label for="Basic Price" class="col-md-4">Basic Price</label>
                         <div class="col-md-6">
-                            <input type="text" value="<?php echo $basic_price;?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control onpartBasicPrice" id="<?php echo "onpartBasicPrice_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][part_total_price]"  placeholder=""  required >
+                            <input type="number" value="<?php echo $basic_price;?>" onkeyup="validateDecimal(this.id, this.value);booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control allowNumericWithDecimal onpartBasicPrice" id="<?php echo "onpartBasicPrice_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][part_total_price]"  placeholder=""  required >
+                            <label for="<?php echo "onpartBasicPrice_".($key + $count);?>" id="lbl_<?php echo "onpartBasicPrice_".($key + $count);?>" class="error"></label>
                             <input type="hidden" value="1" class="form-control" id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity]"  placeholder=""  required readonly="">
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="GST rate" class="col-md-4">GST Rate</label>
                         <div class="col-md-6">
-                            <input type="text" value="<?php echo $gst_rate;?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control onpartGstRate" id="<?php echo "onpartGstRate_".($key + $count);?>" 
-                                name="part[<?php echo ($key +$count); ?>][gst_rate]"  placeholder="Please Enter GST rate"  required >
+                            <input type="number" value="<?php echo $gst_rate;?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control allowNumericWithOutDecimal onpartGstRate" id="<?php echo "onpartGstRate_".($key + $count);?>" 
+                                name="part[<?php echo ($key +$count); ?>][gst_rate]"  placeholder="Please Enter GST rate" min="12" max="28"  required >
                         </div>
                     </div>
                 </div>
@@ -92,9 +93,9 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="awb" class="col-md-4">HSN Code</label>
+                        <label for="<?php echo "onpartHsnCode_".($key +$count);?>" class="col-md-4">HSN Code</label>
                         <div class="col-md-6">
-                            <input type="text" class="form-control onpartHsnCode" id="<?php echo "onpartHsnCode_".($key +$count);?>" 
+                            <input type="text" class="form-control onpartHsnCode allowNumericWithOutDecimal" id="<?php echo "onpartHsnCode_".($key +$count);?>" 
                                 name="part[<?php echo ($key +$count); ?>][hsn_code]" placeholder="Please Enter HSN Code" value="<?php echo $hsn_code;?>"  required >
                         </div>
                     </div>
@@ -117,7 +118,7 @@
                     <input type="hidden" value="<?php echo $value['id']; ?>" id="<?php echo "onspareID_".($key +$count);?>" 
                         name="part[<?php echo ($key +$count); ?>][spare_id]" />
                     <div class="form-group">
-                        <label for="awb" class="col-md-4">Total Amount</label>
+                        <label for="<?php echo "ontotal_amount_".($key +$count);?>" class="col-md-4">Total Amount</label>
                         <div class="col-md-6">
                             <input type="text" class="form-control total_spare_amount" id="<?php echo "ontotal_amount_".($key +$count);?>" 
                                 name="part[<?php echo ($key +$count); ?>][total]" value="<?php echo $total_amount; ?>"  required readonly="">
@@ -176,14 +177,15 @@
                             <div class="form-group">
                                 <label for="Basic Price" class="col-md-4">Basic Price</label>
                                 <div class="col-md-6">
-                                    <input type="text"  class="form-control" id="onpartBasicPrice"  placeholder=""  required >
+                                    <input type="text"  class="form-control allowNumericWithDecimal" id="onpartBasicPrice"  placeholder=""  required >
+                                    <label for="onpartBasicPrice" id="lbl_onpartBasicPrice" class="error"></label>
                                     <input type="hidden" value="1" class="form-control" id="onquantity" placeholder=""  required readonly="">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="GST rate" class="col-md-4">GST Rate</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="onpartGstRate" placeholder="Please Enter GST rate"  required >
+                                    <input type="text" class="form-control allowNumericWithOutDecimal" id="onpartGstRate" placeholder="Please Enter GST rate" min="12" max="28"  required >
                                 </div>
                             </div>
                         </div>
@@ -201,9 +203,9 @@
                                </div>
                             </div>
                             <div class="form-group">
-                                <label for="awb" class="col-md-4">HSN Code</label>
+                                <label for="onpartHsnCode" class="col-md-4">HSN Code</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control" id="onpartHsnCode" placeholder="Please Enter HSN Code"  required >
+                                    <input type="text" class="form-control allowNumericWithOutDecimal" id="onpartHsnCode" placeholder="Please Enter HSN Code"  required >
                                 </div>
                             </div>
                             <input type="hidden" value="<?php echo $data[0]['booking_id']; ?>" id="onbookingID" />
@@ -215,7 +217,7 @@
                             <input type="hidden" value="" id="oninventoryId" />
                             <input type="hidden" value="new_spare_id" id="onspareID"  />
                             <div class="form-group">
-                                <label for="awb" class="col-md-4">Total Amount</label>
+                                <label for="ontotal_amount" class="col-md-4">Total Amount</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control total_spare_amount" id="ontotal_amount" required readonly="">
                                 </div>
