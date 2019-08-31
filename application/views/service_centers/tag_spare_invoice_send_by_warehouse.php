@@ -365,24 +365,36 @@
             maxDate:'today',
         });
         
-        $(".allowNumericWithDecimal").keypress(function (e) {
-              if ((e.keyCode > 47 && e.keyCode < 58) || e.keyCode == 46 || e.keyCode == 13)
-              {
-                  return true;
-              }
-              else {
-                  e.preventDefault();
-              }
+        $(".allowNumericWithDecimal").keydown(function (e) {
+            // Allow: backspace, delete, tab, escape, enter and .
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+              // Allow: Ctrl+A,Ctrl+C,Ctrl+V, Command+A
+              ((e.keyCode == 65 || e.keyCode == 86 || e.keyCode == 67) && (e.ctrlKey === true || e.metaKey === true)) ||
+              // Allow: home, end, left, right, down, up
+              (e.keyCode >= 35 && e.keyCode <= 40)) {
+              // let it happen, don't do anything
+              return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+              e.preventDefault();
+            }
         });
     
-        $(".allowNumericWithOutDecimal").keypress(function (e) {
-              if ((e.keyCode > 47 && e.keyCode < 58) || e.keyCode == 13)
-              {
-                  return true;
-              }
-              else {
-                  e.preventDefault();
-              }
+        $(".allowNumericWithOutDecimal").keydown(function (e) {
+            // Allow: backspace, delete, tab, escape, enter
+            if ($.inArray(e.keyCode, [8, 9, 27, 13, 110, 190]) !== -1 ||
+              // Allow: Ctrl+A,Ctrl+C,Ctrl+V, Command+A
+              ((e.keyCode == 65 || e.keyCode == 86 || e.keyCode == 67) && (e.ctrlKey === true || e.metaKey === true)) ||
+              // Allow: home, end, left, right, down, up
+              (e.keyCode >= 35 && e.keyCode <= 40)) {
+              // let it happen, don't do anything
+              return;
+            }
+            // Ensure that it is a number and stop the keypress
+            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+              e.preventDefault();
+            }
         });
         
         //$("#spareForm").validate();    
@@ -414,12 +426,9 @@
                             return false;
                         }
 
-                        if(Number($('#partGstRate_'+i).val()) == 5 || Number($('#partGstRate_'+i).val()) == 12 || Number($('#partGstRate_'+i).val()) == 18 || Number($('#partGstRate_'+i).val())  == 28){
-
-                        } else {
-                            $('#partGstRate_'+i).addClass('text-danger');
-                            showConfirmDialougeBox('Invalid Gst Rate', 'warning');
-
+                        if(Number($('#partGstRate_'+i).val()) === ""){
+                            $('#partGstRate_'+i).addClass('text-danger', 'warning');
+                            showConfirmDialougeBox('Please enter Gst Rate');
                             return false;
                         }
                     });
@@ -1076,13 +1085,9 @@
                 
                 $(".onpartGstRate").each(function(i) {
     
-                     if(Number($('#onpartGstRate_'+i).val()) === 5 || Number($('#onpartGstRate_'+i).val()) === 12 || Number($('#onpartGstRate_'+i).val()) === 18 
-                             || Number($('#onpartGstRate_'+i).val())  == 28){
-
-                    } else {
-                        $('#onpartGstRate_'+i).addClass('text-danger');
-                        onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
-                       
+                    if(Number($('#onpartGstRate_'+i).val()) === ""){
+                        $('#onpartGstRate_'+i).addClass('text-danger', 'warning');
+                        onBookingshowConfirmDialougeBox('Please enter Gst Rate');
                         return false;
                     }
 
