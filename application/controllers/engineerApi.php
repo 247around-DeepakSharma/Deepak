@@ -3026,7 +3026,7 @@ class engineerApi extends CI_Controller {
                 foreach ($request_types as $request_typess){
                     foreach($request_typess as $request_type){
                         $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $request_type);
-                        if($response['warranty_flag'] == 1){
+                        if($response['warranty_flag'] != 0){
                             $warranty_status = false;
                             $warranty_status_holder = $response;
                             $edit_call_type = false;
@@ -3152,8 +3152,20 @@ class engineerApi extends CI_Controller {
                 $curl_data['purchase_date'] = $purchase_dates;
                 $curl_data['model_number'] = $model_numbers;
               
-                $editCallTypeUrl = base_url() . "employee/booking/getAllBookingInput/".$booking_details['booking_history'][0]['user_id']."/".$requestData["booking_id"];
-                $this->asynchronous_lib->do_background_process($editCallTypeUrl, $curl_data);
+                
+                
+                $url =base_url() . "employee/booking/getAllBookingInput/".$booking_details['booking_history'][0]['user_id']."/".$requestData["booking_id"];
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_HEADER, false);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($curl_data));
+                $curl_response = curl_exec($ch);
+                curl_close($ch);
+                $response = json_decode($curl_response);
+                
+                
+                //$this->asynchronous_lib->do_background_process($editCallTypeUrl, $curl_data);
                 $this->partner_cb->partner_callback($requestData["booking_id"]);
                 
                 log_message("info", "Booking Request type hase been updated successfully");
