@@ -17,6 +17,9 @@
     display: inline-block;
     text-decoration: none;
     }
+    .error {
+        color:red;
+    }
 </style>
 <!-- page content -->
 <div id="page-wrapper"  role="main">
@@ -69,12 +72,14 @@
                                             <label class="col-xs-4 col-sm-2 control-label">Partner *</label>
                                             <div class="col-xs-8 col-sm-4">
                                                 <select class="form-control" name="partner_id" id="partner_id" required=""></select>
+                                                <label for="partner_id" class="error"></label>
                                             </div>
                                             <label class="col-xs-4 col-sm-2 control-label"><?php if(!$saas){ ?>247around<?php }?> Warehouses *</label>
                                             <div class="col-xs-8 col-sm-4">
-                                                <select class="form-control" name="wh_id" id="wh_id">
+                                                <select class="form-control" name="wh_id" id="wh_id" required="" >
                                                     <option value="" disabled="">Select Warehouse</option>
                                                 </select>
+                                                <label for="wh_id" class="error"></label>
                                             </div>
                                         </div>
                                         
@@ -82,7 +87,8 @@
                                             
                                             <label class="col-xs-2 control-label">AWB Number *</label>
                                             <div class="col-xs-4">
-                                                <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required=""/>
+                                                <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
+                                                <label for="despatch_doc_no" class="error"></label>
                                             </div>
                                             <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
                                              <label class="col-xs-2 control-label">Courier Name *</label>
@@ -94,6 +100,7 @@
                                                         <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
                                                     <?php } ?>
                                                 </select>
+                                                <label for="courier_name" class="error"></label>
                                             <?php echo form_error('courier_name'); ?>
                                             </div>
                                         </div>
@@ -114,6 +121,7 @@
                                                 <select class="form-control" name="to_gst_number" id="from_gst_number" required="">
                                                     <option value="" disabled="">Select From GST Number</option>
                                                 </select>
+                                                <label for="from_gst_number" class="error"></label>
                                             </div>
                                         </div>
                                     </div>
@@ -149,27 +157,32 @@
                                             <div class="col-xs-12 col-sm-6 col-md-2">
                                                 <input type="hidden" name="part[0][shippingStatus]" id="shippingStatus_0" value="1">
                                                 <select class="form-control" name="part[0][service_id]" id="serviceId_0" required="" onchange="get_part_details(this.id)"></select>
+                                                <label for="serviceId_0" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <select class="form-control" name="part[0][part_name]" id="partName_0" required="" onchange="get_part_details(this.id)"></select>
+                                                <label for="partName_0" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <select class="form-control" name="part[0][part_number]" id="partNumber_0" ></select>
+                                                <label for="partNumber_0" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
                                                 <input type="text" class="form-control" name="part[0][booking_id]" id="booking_id_0" onblur="check_booking_id(this.id)"/>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="number" class="form-control" name="part[0][quantity]" id="quantity_0" min="1" required="" onblur="get_part_details(this.id)" />
+                                                <input type="number" class="form-control allowNumericWithOutDecimal" name="part[0][quantity]" id="quantity_0" min="1" required="" onblur="get_part_details(this.id)" />
+                                                <label for="quantity_0" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="text" class="form-control" name="part[0][part_total_price]" onkeyup="calculate_total_price()" id="partBasicPrice_0" value="0" />
+                                                <input type="number" class="form-control allowNumericWithDecimal" name="part[0][part_total_price]" onkeyup="validateDecimal(this.id, this.value);calculate_total_price()" id="partBasicPrice_0" value="0" />
+                                                <label for="partBasicPrice_0" id="lbl_partBasicPrice_0" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="text" class="form-control" name="part[0][hsn_code]" id="partHsnCode_0" value="" readonly=""/>
+                                                <input type="text" class="form-control allowNumericWithOutDecimal" name="part[0][hsn_code]" id="partHsnCode_0" value=""/>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="text" class="form-control" name="part[0][gst_rate]" onkeyup="calculate_total_price()" id="partGstRate_0" value="" />
+                                                <input type="number" class="form-control allowNumericWithOutDecimal" name="part[0][gst_rate]" onkeyup="calculate_total_price()" id="partGstRate_0" min="12" max="28" value="" />
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
                                                 <input type="hidden" class="form-control" name="part[0][inventory_id]" id="inventoryId_0" value=""/>
@@ -181,27 +194,32 @@
                                             <div class="col-xs-12 col-sm-6 col-md-2">
                                                 <input type="hidden" id="shippingStatus" value="1">
                                                 <select class="form-control" id="service_id"  required="" onchange="get_part_details(this.id)"></select>
+                                                <label for="service_id" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <select class="form-control" id="part_name"  required="" onchange="get_part_details(this.id)"></select>
+                                                <label for="part_name" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-3">
                                                 <select class="form-control" id="part_number"></select>
+                                                <label for="part_number" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
                                                 <input type="text" class="form-control" id="booking_id"  onblur="check_booking_id(this.id)"/>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="number" class="form-control" id="quantity" min="1" required="" onblur="get_part_details(this.id)" />
+                                                <input type="number" class="form-control allowNumericWithOutDecimal" id="quantity" min="1" required="" onblur="get_part_details(this.id)" />
+                                                <label for="quantity" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="text" class="form-control part-total-price" id="part_total_price"  value="0" />
+                                                <input type="number" class="form-control allowNumericWithDecimal part-total-price" id="part_total_price"  value="0" />
+                                                <label for="part_total_price" id="lbl_part_total_price" class="error"></label>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="text" class="form-control" id="partHsnCode" value="" />
+                                                <input type="text" class="form-control allowNumericWithOutDecimal" id="partHsnCode" value="" />
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="text" class="form-control" id="partGstRate" value="" />
+                                                <input type="number" class="form-control allowNumericWithOutDecimal" id="partGstRate" value="" min="12" max="28" />
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
                                                 <input type="hidden" class="form-control" id="inventory_id"  value=""/>
@@ -347,36 +365,24 @@
             maxDate:'today',
         });
         
-        $(".allowNumericWithDecimal").keydown(function (e) {
-            // Allow: backspace, delete, tab, escape, enter and .
-            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
-                // Allow: Ctrl+A, Command+A
-                (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) || 
-                // Allow: home, end, left, right, down, up
-                (e.keyCode >= 35 && e.keyCode <= 40) || e.ctrlKey) {
-                // let it happen, don't do anything
-                return;
-            }
-            // Ensure that it is a number and stop the keypress
-            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                e.preventDefault();
-            }
+        $(".allowNumericWithDecimal").keypress(function (e) {
+              if ((e.keyCode > 47 && e.keyCode < 58) || e.keyCode == 46 || e.keyCode == 13)
+              {
+                  return true;
+              }
+              else {
+                  e.preventDefault();
+              }
         });
     
-        $(".allowNumericWithOutDecimal").keydown(function (e) {
-            // Allow: backspace, delete, tab, escape, enter and .
-            if ($.inArray(e.keyCode, [46,8, 9, 27, 13, 190]) !== -1 ||
-                // Allow: Ctrl+A, Command+A
-                (e.keyCode === 65 && (e.ctrlKey === true || e.metaKey === true)) || 
-                // Allow: home, end, left, right, down, up
-                (e.keyCode >= 35 && e.keyCode <= 40) || e.ctrlKey) {
-                // let it happen, don't do anything
-                return;
-            }
-            // Ensure that it is a number and stop the keypress
-            if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                e.preventDefault();
-            }
+        $(".allowNumericWithOutDecimal").keypress(function (e) {
+              if ((e.keyCode > 47 && e.keyCode < 58) || e.keyCode == 13)
+              {
+                  return true;
+              }
+              else {
+                  e.preventDefault();
+              }
         });
         
         //$("#spareForm").validate();    
@@ -394,6 +400,7 @@
                 var our_invoice_amt = Number($('#total_spare_invoice_price').text());
                   
                     $(".part-total-price").each(function(i) {
+                        validateDecimal('partBasicPrice_'+i,$('#partBasicPrice_'+i).val());
     
                         if(Number($('#partBasicPrice_'+i).val()) == 0){
                             showConfirmDialougeBox('Please enter basic price', 'warning');
@@ -411,7 +418,7 @@
 
                         } else {
                             $('#partGstRate_'+i).addClass('text-danger');
-                            showConfirmDialougeBox('Invalid Gst Number', 'warning');
+                            showConfirmDialougeBox('Invalid Gst Rate', 'warning');
 
                             return false;
                         }
@@ -529,14 +536,19 @@
             $clone
                 .find('[id="shippingStatus"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('id','shippingStatus_'+partIndex).end()
                 .find('[id="service_id"]').attr('name', 'part[' + partIndex + '][service_id]').attr('id','serviceId_'+partIndex).select2({placeholder:'Select Appliance'}).end()
+                .find('[for="service_id"]').attr('for','serviceId_'+partIndex).end()
                 .find('[id="part_name"]').attr('name', 'part[' + partIndex + '][part_name]').attr('id','partName_'+partIndex).select2({placeholder:'Select Part Name'}).end()
+                .find('[for="part_name"]').attr('for','partName_'+partIndex).end()
                 .find('[id="part_number"]').attr('name', 'part[' + partIndex + '][part_number]').attr('id','partNumber_'+partIndex).select2({placeholder:'Select Part Number'}).end()
+                .find('[for="part_number"]').attr('for','partNumber_'+partIndex).end()
                 .find('[id="booking_id"]').attr('name', 'part[' + partIndex + '][booking_id]').attr('id','bookingId_'+partIndex).end()
                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity_'+partIndex).end()
+                .find('[for="quantity"]').attr('for','quantity_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventoryId_'+partIndex).end()
                 .find('[id="partGstRate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','partGstRate_'+partIndex).attr('onkeyup','calculate_total_price()').end()
                 .find('[id="partHsnCode"]').attr('name', 'part[' + partIndex + '][hsn_code]').attr('id','partHsnCode_'+partIndex).end()
-                .find('[id="part_total_price"]').attr('name', 'part[' + partIndex + '][part_total_price]').attr('id','partBasicPrice_'+partIndex).attr('onkeyup','calculate_total_price()').end();
+                .find('[id="part_total_price"]').attr('name', 'part[' + partIndex + '][part_total_price]').attr('id','partBasicPrice_'+partIndex).attr('onkeyup','validateDecimal(this.id, this.value);calculate_total_price()').end()
+                .find('[for="part_total_price"]').attr('for','partBasicPrice_'+partIndex).attr('id','lbl_partBasicPrice_'+partIndex).end();
             get_appliance(partIndex);
         })
     
@@ -922,6 +934,7 @@
            // Update the name attributes
            $clone
                .find('[id="onbookingid"]').attr('id','onbookingid_'+onBookingIndex).attr('onblur', 'bookingBlur("'+onBookingIndex+'")').end()
+               .find('[for="onbookingid"]').attr('for','onbookingid_'+onBookingIndex).end()
                .find('[id="sparelineitem"]').attr('id', 'sparelineitem_'+onBookingIndex).end()
                .find('[id="searchbookingid"]').attr('id', 'searchbookingid_'+onBookingIndex).attr('onclick','search_booking_details("'+ onBookingIndex+'")').end()
        })
@@ -1050,7 +1063,8 @@
                 }
                 
                 $(".onpartBasicPrice").each(function(i) {
-    
+                    validateDecimal('onpartBasicPrice_'+i,$('#onpartBasicPrice_'+i).val());
+                    
                     if(Number($('#onpartBasicPrice_'+i).val()) === 0){
                         onBookingshowConfirmDialougeBox('Please enter basic price', 'warning');
                         $('#onpartBasicPrice_'+i).addClass('text-danger');
@@ -1067,7 +1081,7 @@
 
                     } else {
                         $('#onpartGstRate_'+i).addClass('text-danger');
-                        onBookingshowConfirmDialougeBox('Please invalid Gst Number', 'warning');
+                        onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
                        
                         return false;
                     }
@@ -1103,7 +1117,8 @@
                .find('[id="shipping_status_2"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','n_shippingStatus_'+onBookingIndex).attr("required", true).end()
                .find('[id="shipping_status_3"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','l_shippingStatus_'+onBookingIndex).attr("required", true).end()
                .find('[id="onpartName"]').attr('name', 'part[' + onBookingIndex + '][part_name]').attr('id','onpartName_'+onBookingIndex).attr('onchange','get_part_number_on_booking("'+ onBookingIndex+'")').addClass('part_name').attr("required", true).end()
-               .find('[id="onpartBasicPrice"]').attr('name', 'part[' + onBookingIndex + '][part_total_price]').attr('id','onpartBasicPrice_'+onBookingIndex).attr('onkeyup','booking_calculate_total_price('+onBookingIndex+')').addClass('onpartBasicPrice').end()
+               .find('[id="onpartBasicPrice"]').attr('name', 'part[' + onBookingIndex + '][part_total_price]').attr('id','onpartBasicPrice_'+onBookingIndex).attr('onkeyup','validateDecimal(this.id, this.value);booking_calculate_total_price('+onBookingIndex+')').addClass('onpartBasicPrice').end()
+               .find('[for="onpartBasicPrice"]').attr('for','onpartBasicPrice_'+onBookingIndex).attr('id','lbl_onpartBasicPrice_'+onBookingIndex).end()
                .find('[id="onquantity"]').attr('name', 'part[' + onBookingIndex + '][quantity]').attr('id','onquantity_'+onBookingIndex).end()
                .find('[id="onpartGstRate"]').attr('name', 'part[' + onBookingIndex + '][gst_rate]').attr('id','onpartGstRate_'+onBookingIndex).addClass('onpartGstRate').attr('onkeyup','booking_calculate_total_price('+onBookingIndex+')').end()
                .find('[id="onpartNumber"]').attr('name', 'part[' + onBookingIndex + '][part_number]').attr('id','onpartNumber_'+onBookingIndex).attr('onchange', 'onchange_part_number("'+onBookingIndex+'")').end()
@@ -1183,7 +1198,7 @@
     
         //Declaring new Form Data Instance  
         var formData = new FormData();
-        var is_micro = $("on_wh_id").find(':selected').attr('data-warehose');
+        var is_micro = $("#on_wh_id").find(':selected').attr('data-warehose');
         formData.append("is_wh_micro", is_micro);
         //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
         for (var i = 0; i < invoice_files.length; i++) {
@@ -1234,5 +1249,18 @@
                 $("#from_gst_number").html(response);
             }
         });
+    }
+   
+    function validateDecimal(id,value) {
+        var RE = /^\d+(?:\.\d{1,2})?$/
+        if(($.trim(value) !== '') && !RE.test(value)){
+           $('#lbl_'+id).text("Enter value upto 2 decimal places");
+           $('#'+id).focus();
+           $('#submit_btn').attr('disabled',true);
+        }
+        else {
+            $('#lbl_'+id).text("");
+            $('#submit_btn').attr('disabled',false);
+        }
     }
 </script>
