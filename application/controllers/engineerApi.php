@@ -3026,13 +3026,17 @@ class engineerApi extends CI_Controller {
                 foreach ($request_types as $request_typess){
                     foreach($request_typess as $request_type){
                         $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $request_type);
-                        if($response['warranty_flag'] != 0){
+                        if($response['warranty_flag'] == 1){
                             $warranty_status = false;
                             $warranty_status_holder = $response;
                             $edit_call_type = false;
                             $warranty_checker = false;
-                            
-                            
+                        }
+                        else if($response['warranty_flag'] == 2){
+                            $warranty_status = false;
+                            $warranty_status_holder = $response;
+                            $edit_call_type = true;
+                            $warranty_checker = false;
                         }
                     }
                 }
@@ -3169,9 +3173,17 @@ class engineerApi extends CI_Controller {
                 $this->partner_cb->partner_callback($requestData["booking_id"]);
                 
                 log_message("info", "Booking Request type hase been updated successfully");
-                $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array('0000', 'success'));
-                            
+                
+                if(!empty($warranty_status_holder)){
+                     if($warranty_status_holder['warranty_flag'] != 2){
+                        $this->jsonResponseString['response'] = $response;
+                        $this->sendJsonResponse(array('0000', 'success'));
+                     }
+                }
+                else{
+                    $this->jsonResponseString['response'] = $response;
+                    $this->sendJsonResponse(array('0000', 'success'));
+                }            
             }
            
         }                   
