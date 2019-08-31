@@ -3531,7 +3531,7 @@ function generate_image($base64, $image_name,$directory){
         } else {
             $post['where']['service_centres.is_wh'] = 1;
         }
-        $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
+        $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id,inventory_master_list.type';
         $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
         
        
