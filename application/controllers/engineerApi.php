@@ -2782,23 +2782,32 @@ class engineerApi extends CI_Controller {
 
         $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];
         $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');  
-
         $db_warranty_status = $arrBookingsWarrantyStatus[$booking_id];
-
         foreach ($arr_warranty_status[$db_warranty_status] as $key => $value) {
             if(strpos($request_type, $value)){ 
                $matching_flag = true;
                break;
             }
-
         }
         if($matching_flag){
             $data['warranty_flag'] = 0;
             $data['message'] = "Warraranty status successfully varified";
         }
         else{
-            $data['warranty_flag'] = 1;
-            $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching current request type ".$request_type." to request part please change request type of the booking.";
+            if($db_warranty_status = "IW"){
+                if((strpos($request_type, 'Out Of Warranty')) || (strpos($request_type, 'Out Warranty'))){
+                    $data['warranty_flag'] = 2;
+                    $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching with current request type (".$request_type.") of booking, but if needed you may proceed with current request type.";
+                }
+                else{
+                    $data['warranty_flag'] = 1;
+                    $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching current request type ".$request_type." to request part please change request type of the booking.";
+                }
+            }
+            else{
+                $data['warranty_flag'] = 1;
+                $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching current request type ".$request_type." to request part please change request type of the booking.";
+            }
         }
         return $data;
     }
@@ -3019,11 +3028,13 @@ class engineerApi extends CI_Controller {
             if($warranty_status){
                 if(!$edit_call_type){
                     log_message("info", __METHOD__ . " Warraranty status successfully varified. ");
+                    $this->jsonResponseString['response'] = array("warranty_flag" => 0, "message" => "Warraranty status successfully varified");
                     $this->sendJsonResponse(array('0000', "Warraranty status successfully varified"));
                 }
             }
             else{ 
                 log_message("info", __METHOD__ . $warranty_status_holder['message']);
+                $this->jsonResponseString['response'] = array("warranty_flag" => $warranty_status_holder['warranty_flag'], "message" => $warranty_status_holder['message']);
                 $this->sendJsonResponse(array('0056', $warranty_status_holder['message']));
             }
             
@@ -3072,6 +3083,12 @@ class engineerApi extends CI_Controller {
                 $order_item_ids = array();
                 $purchase_dates = array();
                 $model_numbers = array();
+                $partner_paid_basic_charges = array();
+                $index = 1;
+                $price_arr = array();
+                $discount_arr = array();
+                $partner_paid_charges = array();
+                $discout_charges = array(); 
                 foreach($booking_details['unit_details'] as $unit_details){
                     array_push($appliance_ids, $unit_details['appliance_id']);
                     array_push($appliance_brands, $unit_details['brand']);
@@ -3081,7 +3098,35 @@ class engineerApi extends CI_Controller {
                     array_push($order_item_ids, $unit_details['sub_order_id']);
                     array_push($purchase_dates, $unit_details['purchase_date']); 
                     array_push($model_numbers, $unit_details['model_number']);
+                    
+                    foreach ($booking_details['prices'][0] as $price) {
+                        $partner_net_payable = NULL;
+                        $around_net_payable = NULL;
+                        foreach ($unit_details['quantity'] as  $tags) {
+                            if($tags['price_tags'] == $price['service_category'] ){
+                               $partner_net_payable = $tags['partner_net_payable'];
+                               $around_net_payable = $tags['around_net_payable'];
+                            }
+                        }
+                        if(is_null($partner_net_payable)){ 
+                            $partner_net_payable = $price['partner_net_payable'];
+                        }
+                        if(is_null($around_net_payable)){ 
+                            $around_net_payable = $price['around_net_payable'];
+                        }
+                        $partner_paid_charges[$price['id']] = array($partner_net_payable);
+                        $discout_charges[$price['id']] = array($around_net_payable);
+                    }
+                    $price_arr[$index] = $partner_paid_charges;
+                    $discount_arr[$index] = $discout_charges;
+                    $partner_paid_basic_charges = array($unit_details['brand_id'] => $price_arr);
+                    $discount = array($unit_details['brand_id'] => $discount_arr);
+                    $index++;
                 }
+               
+                $curl_data['partner_paid_basic_charges'] = $partner_paid_basic_charges;
+                $curl_data['discount'] = $discount;
+                $curl_data['prices'] = $requestData["prices"];
                 
                 $curl_data['appliance_id'] = $appliance_ids;
                 $curl_data['appliance_brand'] = $appliance_brands;
@@ -3092,10 +3137,6 @@ class engineerApi extends CI_Controller {
                 $curl_data['purchase_date'] = $purchase_dates;
                 $curl_data['model_number'] = $model_numbers;
               
-                $curl_data['partner_paid_basic_charges'] = $requestData["partner_paid_basic_charges"];
-                $curl_data['discount'] = $requestData["discount"];
-                $curl_data['prices'] = $requestData["prices"];
-                
                 $editCallTypeUrl = base_url() . "employee/booking/getAllBookingInput/".$booking_details['booking_history'][0]['user_id']."/".$requestData["booking_id"];
                 $this->asynchronous_lib->do_background_process($editCallTypeUrl, $curl_data);
                 $this->partner_cb->partner_callback($requestData["booking_id"]);
