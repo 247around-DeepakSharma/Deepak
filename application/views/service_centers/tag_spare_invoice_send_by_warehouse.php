@@ -414,12 +414,9 @@
                             return false;
                         }
 
-                        if(Number($('#partGstRate_'+i).val()) == 5 || Number($('#partGstRate_'+i).val()) == 12 || Number($('#partGstRate_'+i).val()) == 18 || Number($('#partGstRate_'+i).val())  == 28){
-
-                        } else {
-                            $('#partGstRate_'+i).addClass('text-danger');
-                            showConfirmDialougeBox('Invalid Gst Rate', 'warning');
-
+                        if(Number($('#partGstRate_'+i).val()) === ""){
+                            $('#partGstRate_'+i).addClass('text-danger', 'warning');
+                            showConfirmDialougeBox('Please enter Gst Rate');
                             return false;
                         }
                     });
@@ -1076,13 +1073,9 @@
                 
                 $(".onpartGstRate").each(function(i) {
     
-                     if(Number($('#onpartGstRate_'+i).val()) === 5 || Number($('#onpartGstRate_'+i).val()) === 12 || Number($('#onpartGstRate_'+i).val()) === 18 
-                             || Number($('#onpartGstRate_'+i).val())  == 28){
-
-                    } else {
-                        $('#onpartGstRate_'+i).addClass('text-danger');
-                        onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
-                       
+                    if(Number($('#onpartGstRate_'+i).val()) === ""){
+                        $('#onpartGstRate_'+i).addClass('text-danger', 'warning');
+                        onBookingshowConfirmDialougeBox('Please enter Gst Rate');
                         return false;
                     }
 
