@@ -29,6 +29,7 @@ class Miscelleneous {
         $this->My_CI->load->model('engineer_model');
         $this->My_CI->load->driver('cache');
         $this->My_CI->load->model('dashboard_model');
+        $this->My_CI->load->model('invoices_model');
     }
     function process_to_choose_sf_if_multiple_sf_available($data){
         $sfArray = array();
@@ -4417,7 +4418,7 @@ function generate_image($base64, $image_name,$directory){
             
             $requested_inventory = $booking['requested_inventory_id'];
             
-            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
+            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "",$booking['model_number']);
             if (!empty($data)) {
                  
                 if ($data['stock']>=$booking['quantity']) {
