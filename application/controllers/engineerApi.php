@@ -2947,10 +2947,21 @@ class engineerApi extends CI_Controller {
         }
     }
     
+    function is_spare_requested($booking){
+        if(array_key_exists('spare_parts',$booking['booking_history'])){
+            foreach($booking['booking_history']['spare_parts'] as $values){
+                if($values['status'] != _247AROUND_CANCELLED){
+                     return true;
+                }
+            }
+        }
+        return false;
+    }
+    
     function submitWarrantyCheckerAndEditCallType(){
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        
+       
         $missing_key = "";
         $check = true;
         $check_request_type = array();
@@ -2960,6 +2971,8 @@ class engineerApi extends CI_Controller {
         $warranty_status_holder = array();
         $curl_data = array();
         $validateKeys = array("booking_id", "prices", "request_types");
+        $request_types = json_decode($requestData['request_types'], true);
+        $requested_prices = json_decode($requestData['prices'], true);
         foreach ($validateKeys as $key){
             if (!array_key_exists($key, $requestData)){ 
                 $check = false;
@@ -2978,27 +2991,27 @@ class engineerApi extends CI_Controller {
             }
             
             sort($check_request_type);
-            sort($requestData['request_types']);
+            sort($request_types);
             
-            if($check_request_type == $requestData['request_types']){
+            if($check_request_type == $request_types){
                 $edit_call_type = false;
                 $warranty_checker = true;
             }
             else{
-                $is_spare_requested = $this->is_spare_requested($requestData['booking_id']);
+                $is_spare_requested = $this->is_spare_requested($booking_details);
                 if($is_spare_requested){ 
                     $edit_call_type = false;
                     $warranty_checker = false;
-                    
+                    $warranty_status = false;
                     log_message("info", __METHOD__ . " Spare is already requested, You can not Edit this Booking ");
                     $this->sendJsonResponse(array('0054', 'Spare is already requested, You can not Edit this Booking'));
                 }
                 else{
-                    $check_request = $this->booking_creation_lib->checkPriceTagValidation($requestData['request_types']);
+                    $check_request = $this->booking_creation_lib->checkPriceTagValidation($request_types);
                     if(!$check_request){
                         $edit_call_type = false;
                         $warranty_checker = false;
-                        
+                        $warranty_status = false;
                         log_message("info", __METHOD__ . " Not Allow to select multiple different type of service category ");
                         $this->sendJsonResponse(array('0055', 'Not Allow to select multiple different type of service category'));
                     }
@@ -3010,8 +3023,8 @@ class engineerApi extends CI_Controller {
             }
             
             if($warranty_checker){ 
-                foreach ($requestData['request_types'] as $request_types){
-                    foreach($request_types as $request_type){
+                foreach ($request_types as $request_typess){
+                    foreach($request_typess as $request_type){
                         $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $request_type);
                         if($response['warranty_flag'] == 1){
                             $warranty_status = false;
@@ -3033,9 +3046,11 @@ class engineerApi extends CI_Controller {
                 }
             }
             else{ 
+                if(!empty($warranty_status_holder)){
                 log_message("info", __METHOD__ . $warranty_status_holder['message']);
                 $this->jsonResponseString['response'] = array("warranty_flag" => $warranty_status_holder['warranty_flag'], "message" => $warranty_status_holder['message']);
                 $this->sendJsonResponse(array('0056', $warranty_status_holder['message']));
+                }
             }
             
             if($edit_call_type){ 
@@ -3126,7 +3141,7 @@ class engineerApi extends CI_Controller {
                
                 $curl_data['partner_paid_basic_charges'] = $partner_paid_basic_charges;
                 $curl_data['discount'] = $discount;
-                $curl_data['prices'] = $requestData["prices"];
+                $curl_data['prices'] = $requested_prices;
                 
                 $curl_data['appliance_id'] = $appliance_ids;
                 $curl_data['appliance_brand'] = $appliance_brands;
