@@ -3368,6 +3368,10 @@ class Inventory extends CI_Controller {
                                                 $invoice_annexure['from_gst_number'] = $this->input->post("from_gst_number");
                                                 $invoice_annexure['to_gst_number'] = $this->input->post("to_gst_number");
                                                
+                                                $inventory_master_data = $this->inventory_model->get_inventory_master_list_data("*", array('inventory_id' => $value['inventory_id']));
+                                                if(!empty($inventory_master_data) && ((floatval($inventory_master_data[0]['price']) != floatval($invoice_annexure['rate'])) || ($inventory_master_data[0]['hsn_code'] !== $value['hsn_code']) || ($inventory_master_data[0]['gst_rate'] !== $value['gst_rate'])) ) {
+                                                    $this->inventory_model->update_inventory_master_list_data(array('inventory_id' => $value['inventory_id']), array('price' => $invoice_annexure['rate'], 'hsn_code' => $value['hsn_code'], 'gst_rate' => $value['gst_rate'], 'is_invoice' => '1'));
+                                                }
                                                 $to_gst_number =  $invoice_annexure['to_gst_number'];
                                                 array_push($invoice, $invoice_annexure);
                                                 
@@ -3563,7 +3567,7 @@ class Inventory extends CI_Controller {
 
                 $a = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                     'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
-                    'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL,
+                    'sell_invoice_id' => (isset($ledger['micro_invoice_id'])? $ledger['micro_invoice_id'] : NULL),
                     'requested_inventory_id' => $ledger['inventory_id'],
                     'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
@@ -3617,7 +3621,7 @@ class Inventory extends CI_Controller {
                 foreach ($spare as $value) {
                     if ($ledger['quantity'] >= $qty) {
                         $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
-                            'wh_ack_received_part' => 0, 'inventory_invoice_on_booking' => 1, 'purchase_invoice_id' => $ledger['invoice_id'], 'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL);
+                            'wh_ack_received_part' => 0, 'inventory_invoice_on_booking' => 1, 'purchase_invoice_id' => $ledger['invoice_id'], 'sell_invoice_id' => (isset($ledger['micro_invoice_id'])? $ledger['micro_invoice_id'] : NULL));
                         if ($is_wh_micro == 2) {
                             log_message('info', 'is_micro 2 come means sending msl to warehouse.',true);
                             if ($ledger['is_defective_part_return_wh'] == 1) {
@@ -3651,7 +3655,7 @@ class Inventory extends CI_Controller {
                         } else {
                             $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                                 'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
-                                'sell_invoice_id' => (isset($ledger))? $ledger['micro_invoice_id'] : NULL,
+                                'sell_invoice_id' => (isset($ledger['micro_invoice_id'])? $ledger['micro_invoice_id'] : NULL),
                                 'requested_inventory_id' => $ledger['inventory_id'],
                                  'defective_return_to_entity_id' => $wh_id,
                                 'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => 2);

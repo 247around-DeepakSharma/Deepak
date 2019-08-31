@@ -391,6 +391,10 @@ class engineerApi extends CI_Controller {
                 $this->getWarrantyCheckerAndCallTypeData();
                 break;
             
+            case 'submitWarrantyCheckerAndEditCallType':
+                $this->submitWarrantyCheckerAndEditCallType();
+                break;
+            
             default:
                 break;
             
@@ -2753,14 +2757,67 @@ class engineerApi extends CI_Controller {
         }
     }
     
+    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $request_type){
+        $data = array();
+        $matching_flag = false;
+        $arrBookings[0] = array(
+            "booking_id" => $booking_id,
+            "partner_id" => $partner_id,
+            "booking_create_date" => $booking_create_date,
+            "purchase_date" => $purchase_date,
+            "model_number" => $model_number
+        );
+        $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);
+        $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData); 
+        foreach($arrBookings as $key => $arrBooking)
+        {
+            if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
+            {   
+                $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
+            }
+            $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
+            unset($arrBookings[$key]);
+        }
+        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings); 
+
+        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];
+        $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');  
+        $db_warranty_status = $arrBookingsWarrantyStatus[$booking_id];
+        foreach ($arr_warranty_status[$db_warranty_status] as $key => $value) {
+            if(strpos($request_type, $value)){ 
+               $matching_flag = true;
+               break;
+            }
+        }
+        if($matching_flag){
+            $data['warranty_flag'] = 0;
+            $data['message'] = "Warraranty status successfully varified";
+        }
+        else{
+            if($db_warranty_status = "IW"){
+                if((strpos($request_type, 'Out Of Warranty')) || (strpos($request_type, 'Out Warranty'))){
+                    $data['warranty_flag'] = 2;
+                    $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching with current request type (".$request_type.") of booking, but if needed you may proceed with current request type.";
+                }
+                else{
+                    $data['warranty_flag'] = 1;
+                    $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching current request type ".$request_type." to request part please change request type of the booking.";
+                }
+            }
+            else{
+                $data['warranty_flag'] = 1;
+                $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching current request type ".$request_type." to request part please change request type of the booking.";
+            }
+        }
+        return $data;
+    }
+    
     function getSparePartsWarrantyChecker(){
         log_message("info", __METHOD__. " Entering..");
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        
         $missing_key = "";
         $check = true;
-        $matching_flag = false;
         $validateKeys = array("booking_id", "partner_id", "booking_create_date", "model_number", "purchase_date", "request_type");
         foreach ($validateKeys as $key){
                 if (!array_key_exists($key, $requestData)){ 
@@ -2770,47 +2827,9 @@ class engineerApi extends CI_Controller {
                 }
         }
         if($check){
-            $arrBookings[0] = array(
-                "booking_id" => $requestData["booking_id"],
-                "partner_id" => $requestData["partner_id"],
-                "booking_create_date" => $requestData["booking_create_date"],
-                "purchase_date" => $requestData["purchase_date"],
-                "model_number" => $requestData["model_number"]
-            );
-            $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);
-            $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData); 
-            foreach($arrBookings as $key => $arrBooking)
-            {
-                if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
-                {   
-                    $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
-                }
-                $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
-                unset($arrBookings[$key]);
-            }
-            $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings); 
-
-            $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];
-            $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');  
-
-            $db_warranty_status = $arrBookingsWarrantyStatus[$requestData["booking_id"]];
-
-            foreach ($arr_warranty_status[$db_warranty_status] as $key => $value) {
-                if(strpos($requestData['request_type'], $value)){ 
-                   $matching_flag = true;
-                   break;
-                }
-
-            }
-            if($matching_flag){
-                $response['warranty_flag'] = 0;
-                $response['message'] = "Warraranty status successfully varified";
-            }
-            else{
-                $response['warranty_flag'] = 1;
-                $response['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching current request type ".$requestData["request_type"]." to request part please change request type of the booking.";
-            }
-
+            
+            $response = $this->warrantyChecker($requestData["booking_id"], $requestData["partner_id"], $requestData["booking_create_date"], $requestData["model_number"], $requestData["purchase_date"], $requestData["request_type"]);
+            
             log_message("info", "Warrenty plan found");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
@@ -2892,7 +2911,12 @@ class engineerApi extends CI_Controller {
         }
         if($check){
             $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'inventory_model_mapping.active' => 1);
-            $response['model_number_list'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
+            $model_numbers = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
+            if(empty($model_numbers)){
+                $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'active' => 1 );
+                $model_numbers =  $this->inventory_model->get_appliance_model_details('id, model_number', $where);
+            }
+            $response['model_number_list'] = $model_numbers;
             $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'],NULL,NULL);
             unset($booking_details['city']);
             unset($booking_details['sources']);
@@ -2920,6 +2944,213 @@ class engineerApi extends CI_Controller {
         else{
             log_message("info", __METHOD__ . "Request key missing - ".$missing_key);
             $this->sendJsonResponse(array("0053", "Request key missing - ".$missing_key));
+        }
+    }
+    
+    function submitWarrantyCheckerAndEditCallType(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        
+        $missing_key = "";
+        $check = true;
+        $check_request_type = array();
+        $edit_call_type = true;
+        $warranty_checker = true;
+        $warranty_status = true;
+        $warranty_status_holder = array();
+        $curl_data = array();
+        $validateKeys = array("booking_id", "prices", "request_types");
+        foreach ($validateKeys as $key){
+            if (!array_key_exists($key, $requestData)){ 
+                $check = false;
+                $missing_key = $key;
+                break;
+            }
+        }
+        if($check){
+            $booking_details = $this->booking_creation_lib->get_edit_booking_form_helper_data($requestData['booking_id'],NULL,NULL);
+            foreach ($booking_details['unit_details'] as $unit_key => $unit_value) {
+                $quan = array();
+                foreach ($unit_value['quantity'] as $quan_key => $quan_value) {
+                    array_push($quan, $quan_value['price_tags']);
+                }
+                array_push($check_request_type, $quan);
+            }
+            
+            sort($check_request_type);
+            sort($requestData['request_types']);
+            
+            if($check_request_type == $requestData['request_types']){
+                $edit_call_type = false;
+                $warranty_checker = true;
+            }
+            else{
+                $is_spare_requested = $this->is_spare_requested($requestData['booking_id']);
+                if($is_spare_requested){ 
+                    $edit_call_type = false;
+                    $warranty_checker = false;
+                    
+                    log_message("info", __METHOD__ . " Spare is already requested, You can not Edit this Booking ");
+                    $this->sendJsonResponse(array('0054', 'Spare is already requested, You can not Edit this Booking'));
+                }
+                else{
+                    $check_request = $this->booking_creation_lib->checkPriceTagValidation($requestData['request_types']);
+                    if(!$check_request){
+                        $edit_call_type = false;
+                        $warranty_checker = false;
+                        
+                        log_message("info", __METHOD__ . " Not Allow to select multiple different type of service category ");
+                        $this->sendJsonResponse(array('0055', 'Not Allow to select multiple different type of service category'));
+                    }
+                    else{
+                        $edit_call_type = true;
+                        $warranty_checker = true;
+                    }
+                }
+            }
+            
+            if($warranty_checker){ 
+                foreach ($requestData['request_types'] as $request_types){
+                    foreach($request_types as $request_type){
+                        $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $request_type);
+                        if($response['warranty_flag'] == 1){
+                            $warranty_status = false;
+                            $warranty_status_holder = $response;
+                            $edit_call_type = false;
+                            $warranty_checker = false;
+                            
+                            
+                        }
+                    }
+                }
+            } 
+           
+            if($warranty_status){
+                if(!$edit_call_type){
+                    log_message("info", __METHOD__ . " Warraranty status successfully varified. ");
+                    $this->jsonResponseString['response'] = array("warranty_flag" => 0, "message" => "Warraranty status successfully varified");
+                    $this->sendJsonResponse(array('0000', "Warraranty status successfully varified"));
+                }
+            }
+            else{ 
+                log_message("info", __METHOD__ . $warranty_status_holder['message']);
+                $this->jsonResponseString['response'] = array("warranty_flag" => $warranty_status_holder['warranty_flag'], "message" => $warranty_status_holder['message']);
+                $this->sendJsonResponse(array('0056', $warranty_status_holder['message']));
+            }
+            
+            if($edit_call_type){ 
+                $curl_data['is_repeat'] = $booking_details['is_repeat'];
+                $curl_data['upcountry_data'] = ""; //need to form
+                $curl_data['user_name'] = $booking_details['booking_history'][0]['name'];
+                $curl_data['is_repeat'] = $booking_details['partner_type'];
+                $curl_data['is_active'] = $booking_details['booking_history'][0]['is_active'];
+                $curl_data['booking_type'] = $booking_details['booking_history'][0]['type'];
+                $curl_data['partner_id'] = $booking_details['booking_history'][0]['partner_id'];
+                $curl_data['assigned_vendor_id'] = $booking_details['booking_history'][0]['assigned_vendor_id'];
+                $curl_data['booking_primary_contact_no'] = $booking_details['booking_history'][0]['booking_primary_contact_no']; 
+                $curl_data['booking_pincode'] = $booking_details['booking_history'][0]['booking_pincode'];
+                $curl_data['city'] = $booking_details['booking_history'][0]['city'];
+                $curl_data['service_id'] = $booking_details['booking_history'][0]['service_id'];
+                $curl_data['service_id'] = $booking_details['booking_history'][0]['service_id'];
+                $curl_data['service_id'] = $booking_details['booking_history'][0]['service_id'];
+                $curl_data['order_id'] = $booking_details['booking_history'][0]['order_id'];
+                $curl_data['dealer_phone_number'] = "";
+                $curl_data['dealer_id'] = $booking_details['booking_history'][0]['dealer_id'];
+                $curl_data['user_email'] = $booking_details['booking_history'][0]['user_email'];
+                $curl_data['booking_alternate_contact_no'] = $booking_details['booking_history'][0]['booking_alternate_contact_no'];
+                $curl_data['source_code'] = $booking_details['booking_history'][0]['partner_id'];
+                $curl_data['partner_source'] = $booking_details['booking_history'][0]['partner_source'];
+                $curl_data['parent_id'] = $booking_details['booking_history'][0]['parent_booking'];
+                $curl_data['dealer_name'] = "";
+                $curl_data['type'] = $booking_details['booking_history'][0]['type'];
+                $curl_data['dealer_name'] = "";
+                $curl_data['type'] = $booking_details['booking_history'][0]['type'];
+                $curl_data['booking_date'] = $booking_details['booking_history'][0]['booking_date']; 
+                $curl_data['home_address'] = $booking_details['booking_history'][0]['home_address']; 
+                $curl_data['upcountry_charges'] = 0;
+                $curl_data['grand_total_price'] = 0;
+                $curl_data['booking_timeslot'] = $booking_details['booking_history'][0]['booking_timeslot'];
+                $curl_data['booking_request_symptom'] = $booking_details['booking_history'][0]['booking_request_symptom']; 
+                $curl_data['query_remarks'] = $booking_details['booking_history'][0]['query_remarks']; 
+                $curl_data['repeat_reason'] = $booking_details['booking_history'][0]['repeat_reason'];
+                $curl_data['internal_status'] = $booking_details['booking_history'][0]['internal_status'];
+                
+                $appliance_ids = array();
+                $appliance_brands = array();
+                $appliance_categorys = array();
+                $appliance_capacitys = array();
+                $appliance_descriptions = array();
+                $order_item_ids = array();
+                $purchase_dates = array();
+                $model_numbers = array();
+                $partner_paid_basic_charges = array();
+                $index = 1;
+                $price_arr = array();
+                $discount_arr = array();
+                $partner_paid_charges = array();
+                $discout_charges = array(); 
+                foreach($booking_details['unit_details'] as $unit_details){
+                    array_push($appliance_ids, $unit_details['appliance_id']);
+                    array_push($appliance_brands, $unit_details['brand']);
+                    array_push($appliance_categorys, $unit_details['category']);
+                    array_push($appliance_capacitys, $unit_details['capacity']);
+                    array_push($appliance_descriptions, $unit_details['description']);
+                    array_push($order_item_ids, $unit_details['sub_order_id']);
+                    array_push($purchase_dates, $unit_details['purchase_date']); 
+                    array_push($model_numbers, $unit_details['model_number']);
+                    
+                    foreach ($booking_details['prices'][0] as $price) {
+                        $partner_net_payable = NULL;
+                        $around_net_payable = NULL;
+                        foreach ($unit_details['quantity'] as  $tags) {
+                            if($tags['price_tags'] == $price['service_category'] ){
+                               $partner_net_payable = $tags['partner_net_payable'];
+                               $around_net_payable = $tags['around_net_payable'];
+                            }
+                        }
+                        if(is_null($partner_net_payable)){ 
+                            $partner_net_payable = $price['partner_net_payable'];
+                        }
+                        if(is_null($around_net_payable)){ 
+                            $around_net_payable = $price['around_net_payable'];
+                        }
+                        $partner_paid_charges[$price['id']] = array($partner_net_payable);
+                        $discout_charges[$price['id']] = array($around_net_payable);
+                    }
+                    $price_arr[$index] = $partner_paid_charges;
+                    $discount_arr[$index] = $discout_charges;
+                    $partner_paid_basic_charges = array($unit_details['brand_id'] => $price_arr);
+                    $discount = array($unit_details['brand_id'] => $discount_arr);
+                    $index++;
+                }
+               
+                $curl_data['partner_paid_basic_charges'] = $partner_paid_basic_charges;
+                $curl_data['discount'] = $discount;
+                $curl_data['prices'] = $requestData["prices"];
+                
+                $curl_data['appliance_id'] = $appliance_ids;
+                $curl_data['appliance_brand'] = $appliance_brands;
+                $curl_data['appliance_category'] = $appliance_categorys;
+                $curl_data['appliance_capacity'] = $appliance_capacitys;
+                $curl_data['appliance_description'] = $appliance_descriptions;
+                $curl_data['order_item_id'] = $order_item_ids;
+                $curl_data['purchase_date'] = $purchase_dates;
+                $curl_data['model_number'] = $model_numbers;
+              
+                $editCallTypeUrl = base_url() . "employee/booking/getAllBookingInput/".$booking_details['booking_history'][0]['user_id']."/".$requestData["booking_id"];
+                $this->asynchronous_lib->do_background_process($editCallTypeUrl, $curl_data);
+                $this->partner_cb->partner_callback($requestData["booking_id"]);
+                
+                log_message("info", "Booking Request type hase been updated successfully");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));
+                            
+            }
+           
+        }                   
+        else{
+            log_message("info", __METHOD__ . "Request key missing - ".$missing_key);
+            $this->sendJsonResponse(array("0057", "Request key missing - ".$missing_key));
         }
     }
 }

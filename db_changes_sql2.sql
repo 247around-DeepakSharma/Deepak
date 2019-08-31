@@ -625,3 +625,6 @@ CREATE TABLE spare_consumption_status (
 INSERT INTO `spare_consumption_status` (`id`, `consumed_status`, `is_consumed`, `create_date`, `update_date`) VALUES (NULL, 'Product consumed', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Product not delivered', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Damage/Broken part received', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Wrong part received', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Part shipped but not used', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Part cancelled', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Part not NRN approved', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
 
 ALTER TABLE spare_parts_details ADD COLUMN consumed_part_status_id int(11) NULL DEFAULT NULL AFTER old_status;
+
+-- Kajal 29-08-2019
+ALTER TABLE `inventory_master_list` ADD `is_invoice` INT(1) NOT NULL DEFAULT '0' AFTER `part_image`;
