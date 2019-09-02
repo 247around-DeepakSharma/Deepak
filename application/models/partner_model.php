@@ -541,7 +541,7 @@ function get_data_for_partner_callback($booking_id) {
 
                 if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
                         strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
-                        || strpos($value->request_type, 'Inspection') !== false) {
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     $result['current_month_repair_booking_requested'] ++;
                     switch ($value->current_status) {
                         case _247AROUND_COMPLETED:
@@ -591,7 +591,9 @@ function get_data_for_partner_callback($booking_id) {
             }
 
             foreach ($today_booking as $value) {
-                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
+                        strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     $result['today_repair_booking_requested'] ++;
                     switch ($value->current_status) {
                         case _247AROUND_COMPLETED:
@@ -632,7 +634,9 @@ function get_data_for_partner_callback($booking_id) {
                 }
             }
             foreach ($yesterday_booking as $value) {
-                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
+                        strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     $result['yesterday_repair_booking_requested'] ++;
                     switch ($value->current_status) {
                         case _247AROUND_COMPLETED:
@@ -679,7 +683,9 @@ function get_data_for_partner_callback($booking_id) {
             $result['total_three_to_five_days_installation_booking_pending'] = 0;
             $result['total_greater_than_5_days_installation_booking_pending'] = 0;
             foreach ($totalPending as $key => $value) {
-                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
+                        strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                         $result['total_zero_to_two_days_repair_booking_pending'] ++;
                     } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {

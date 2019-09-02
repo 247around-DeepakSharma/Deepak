@@ -57,6 +57,7 @@ class Booking extends CI_Controller {
         $this->load->library("booking_creation_lib");
         $this->load->helper('file');
         $this->load->dbutil();
+        /*
         // Mention those functions whom you want to skip from employee specific validations
         $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details'];
         $arr_url_segments = $this->uri->segments; 
@@ -81,6 +82,7 @@ class Booking extends CI_Controller {
             redirect(base_url() . "service_center/login");
             }
         }
+        */
     }
 
     /**
@@ -137,13 +139,18 @@ class Booking extends CI_Controller {
             echo $error->show_error($heading, $message, 'custom_error');
         }
     }
+    
+    function Api_getAllBookingInput($user_id, $booking_id){
+        $_POST = json_decode(file_get_contents('php://input'), true);//
+        $this->getAllBookingInput($user_id, $booking_id);
+    }
 
     /**
      *  @desc : This function is used to insert or update data in booking unit details and appliance details table
      *  @param : user id, booking id (optional)
      *  @return : Array(booking details)
      */
-    function getAllBookingInput($user_id, $booking_id) {
+    function getAllBookingInput($user_id, $booking_id) { 
         log_message('info', __FUNCTION__);
         log_message('info', " Booking Insert " . $user_id . " Booking ID" . $booking_id . " Done By " . $this->session->userdata('employee_id'));
 
@@ -151,6 +158,7 @@ class Booking extends CI_Controller {
 
         // All brand comming in array eg-- array([0]=> LG, [1]=> BPL)
         $appliance_brand = $this->input->post('appliance_brand');
+        //print_r($appliance_brand); die();
         $upcountry_data_json = $this->input->post('upcountry_data');
         $upcountry_data = json_decode($upcountry_data_json, TRUE);
         $booking = $this->insert_data_in_booking_details($booking_id, $user_id, count($appliance_brand));
@@ -1472,7 +1480,7 @@ class Booking extends CI_Controller {
                 $checkboxClass = (($prices['service_category'] == REPEAT_BOOKING_TAG) ? "repeat_".$prices['product_or_services'] : $prices['product_or_services']);
                 $html .="<tr><td>" . $prices['service_category'] . "</td>";
                 $html .= "<td>" . $prices['customer_total'] . "</td>";
-                $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
+                $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/></td>";
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 if(!$is_saas){
                     $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";

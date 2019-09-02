@@ -8303,9 +8303,21 @@ class Partner extends CI_Controller {
             'remark'=>trim($remarks)
         );
 
- 
+ $where_shipped = array('booking_id' => trim($booking_id),'shipped_date IS  NULL'=>NULL);
+ $check_shipped_status = $this->partner_model->get_spare_parts_by_any("*",$where_shipped);
         $response = $this->partner_model->insert_nrn_approval($data_nrn);
-        if ($response) {
+        if ($response  && $check_shipped_status) {
+
+        	$select_invemtory = "partner_id,requested_inventory_id,quantity,booking_id,status,entity_type";
+        	$where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
+        	$spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
+
+        	foreach ($spare_inventory_update as  $update_pending) {
+        		 
+        		$this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
+        	}
+
+        
                 $where = array('booking_id' => trim($booking_id));
                 $data = array(
                     'status'=>NRN_APPROVED_BY_PARTNER,
