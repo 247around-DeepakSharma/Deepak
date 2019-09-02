@@ -2072,11 +2072,18 @@ class engineerApi extends CI_Controller {
             $model_detail = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
             if(!empty($model_detail)){
                 $response['sparePartsOrder']['modelNumberList'] = $model_detail;
+                $response['sparePartsOrder']['getPartOnModel'] = true;
             }
             else{
+                $where = array('entity_id' => $requestData['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $requestData['service_id'], 'active' => 1 );
+                $model_detail =  $this->inventory_model->get_appliance_model_details('id, model_number', $where);
+                $response['sparePartsOrder']['modelNumberList'] = $model_detail;
+                
                 $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type', array('service_id' => $requestData['service_id']), FALSE);
                 $response['sparePartsOrder']['partTypeList'] = $parts_type_details;
+                $response['sparePartsOrder']['getPartOnModel'] = false;
             }
+           
             log_message("info", __METHOD__ . "Model Number or Part Type found successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
