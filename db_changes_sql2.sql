@@ -705,3 +705,7 @@ ALTER TABLE `inventory_master_list` ADD `is_invoice` INT(1) NOT NULL DEFAULT '0'
 --Pranjal 30-8-2019 - for adding link for RM Mapping
 insert into `header_navigation`(`entity_type`,`title`,`link`,`level`,`groups`,`nav_type`,`is_active`)
 values ('247Around','RM Mapping','employee/user/rm_state_mapping',1,'admin,developer','right_nav','1')
+
+
+--Abhishek--2-sep-2019
+ALTER TABLE `spare_parts_details` ADD `shipped_to_partner_qty` INT(11) NOT NULL DEFAULT '1' AFTER `shipped_quantity`;
