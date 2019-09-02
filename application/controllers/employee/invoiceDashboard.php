@@ -187,8 +187,7 @@ class InvoiceDashboard extends CI_Controller {
         $date_range = $this->input->post("date_range"); 
         $explode_date_range = explode("-", $date_range);
         $template = array(
-        'table_open' => '<table  '
-            . ' class="table  table-striped table-bordered">'
+        'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
         );
 
         $this->table->set_template($template);
@@ -246,8 +245,17 @@ class InvoiceDashboard extends CI_Controller {
         $this->table->add_row("Total", "", "","<strong>".round($total_cash_charge,0)."<strong>", "", "","<strong>". $total_foc_charge."</strong>");
          
         $t_data['table_data'] = $this->table->generate();
-       
-        $this->load->view('employee/sf_invoice_summary', $t_data);
+        
+        // Send SF Invoice Summary mail
+        $email_template = $this->booking_model->get_booking_email_template(SF_INVOICE_SUMMARY);
+        
+        $email_from = $email_template[2];
+        $to = $email_template[1];
+        $cc = $email_template[3];
+        $subject = vsprintf($email_template[4], array(date('d-m-Y', strtotime($explode_date_range[0])),date('d-m-Y', strtotime($explode_date_range[1]))));
+        $message = vsprintf($email_template[0], array($t_data['table_data']));
+        $this->notify->sendEmail($email_from, $to, $cc, "", $subject, $message, "", SF_INVOICE_SUMMARY);
+//        $this->load->view('employee/sf_invoice_summary', $t_data);
         
     }
     /**
@@ -267,8 +275,7 @@ class InvoiceDashboard extends CI_Controller {
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
         $template = array(
-        'table_open' => '<table  '
-            . ' class="table  table-striped table-bordered">'
+        'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
         );
 
         $this->table->set_template($template);
@@ -291,7 +298,17 @@ class InvoiceDashboard extends CI_Controller {
             }
        }
        $this->table->add_row("Total","<strong>".$total_basic."<strong>", $total_gst,"<strong>". $sub_total."</strong>");
-       echo $this->table->generate();
+       $t_data['table_data'] = $this->table->generate();
+       
+        // Send Partner Invoice Summary mail
+        $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_SUMMARY);
+        
+        $email_from = $email_template[2];
+        $to = $email_template[1];
+        $cc = $email_template[3];
+        $subject = vsprintf($email_template[4], array(date('d-m-Y', strtotime($explode_date_range[0])),date('d-m-Y', strtotime($explode_date_range[1]))));
+        $message = vsprintf($email_template[0], array($t_data['table_data']));
+        $this->notify->sendEmail($email_from, $to, $cc, "", $subject, $message, "", PARTNER_INVOICE_SUMMARY);
     }
     
     
