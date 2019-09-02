@@ -250,7 +250,7 @@ class InvoiceDashboard extends CI_Controller {
         $email_template = $this->booking_model->get_booking_email_template(SF_INVOICE_SUMMARY);
         
         $email_from = $email_template[2];
-        $to = $email_template[1];
+        $to = $email_template[1]. ",". $this->session->userdata("official_email");
         $cc = $email_template[3];
         $subject = vsprintf($email_template[4], array(date('d-m-Y', strtotime($explode_date_range[0])),date('d-m-Y', strtotime($explode_date_range[1]))));
         $message = vsprintf($email_template[0], array($t_data['table_data']));
@@ -304,7 +304,7 @@ class InvoiceDashboard extends CI_Controller {
         $email_template = $this->booking_model->get_booking_email_template(PARTNER_INVOICE_SUMMARY);
         
         $email_from = $email_template[2];
-        $to = $email_template[1];
+        $to = $email_template[1]. ",". $this->session->userdata("official_email");
         $cc = $email_template[3];
         $subject = vsprintf($email_template[4], array(date('d-m-Y', strtotime($explode_date_range[0])),date('d-m-Y', strtotime($explode_date_range[1]))));
         $message = vsprintf($email_template[0], array($t_data['table_data']));
