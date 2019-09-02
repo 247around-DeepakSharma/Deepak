@@ -2961,7 +2961,7 @@ class engineerApi extends CI_Controller {
     function submitWarrantyCheckerAndEditCallType(){
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-       
+        
         $missing_key = "";
         $check = true;
         $check_request_type = array();
@@ -3031,8 +3031,12 @@ class engineerApi extends CI_Controller {
                             $warranty_status_holder = $response;
                             $edit_call_type = false;
                             $warranty_checker = false;
-                            
-                            
+                        }
+                        else if($response['warranty_flag'] == 2){
+                            $warranty_status = false;
+                            $warranty_status_holder = $response;
+                            $edit_call_type = true;
+                            $warranty_checker = false;
                         }
                     }
                 }
@@ -3047,13 +3051,15 @@ class engineerApi extends CI_Controller {
             }
             else{ 
                 if(!empty($warranty_status_holder)){
-                log_message("info", __METHOD__ . $warranty_status_holder['message']);
-                $this->jsonResponseString['response'] = array("warranty_flag" => $warranty_status_holder['warranty_flag'], "message" => $warranty_status_holder['message']);
-                $this->sendJsonResponse(array('0056', $warranty_status_holder['message']));
+                //if($warranty_status_holder['warranty_flag'] != 2){
+                    log_message("info", __METHOD__ . $warranty_status_holder['message']);
+                    $this->jsonResponseString['response'] = array("warranty_flag" => $warranty_status_holder['warranty_flag'], "message" => $warranty_status_holder['message']);
+                    $this->sendJsonResponse(array('0056', $warranty_status_holder['message']));
+                //}
                 }
             }
             
-            if($edit_call_type){ 
+            if($edit_call_type){  
                 $curl_data['is_repeat'] = $booking_details['is_repeat'];
                 $curl_data['upcountry_data'] = ""; //need to form
                 $curl_data['user_name'] = $booking_details['booking_history'][0]['name'];
@@ -3152,14 +3158,50 @@ class engineerApi extends CI_Controller {
                 $curl_data['purchase_date'] = $purchase_dates;
                 $curl_data['model_number'] = $model_numbers;
               
-                $editCallTypeUrl = base_url() . "employee/booking/getAllBookingInput/".$booking_details['booking_history'][0]['user_id']."/".$requestData["booking_id"];
-                $this->asynchronous_lib->do_background_process($editCallTypeUrl, $curl_data);
+                
+                
+                $url = base_url() . "employee/booking/Api_getAllBookingInput/".$booking_details['booking_history'][0]['user_id']."/".$requestData["booking_id"];
+                $ch = curl_init($url);
+               // curl_setopt($ch, CURLOPT_HEADER, false);
+              //  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+//                curl_setopt($ch, CURLOPT_POST, true);
+//                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($curl_data));
+//                $curl_response = curl_exec($ch);
+//                curl_close($ch);
+//                print_r($curl_data);
+//                $response = json_decode($curl_response);
+//                
+              //  print_r($curl_data);
+                
+                $postdata = json_encode($curl_data, true);
+                curl_setopt_array($ch, array(
+                    CURLOPT_POST => TRUE,
+                    CURLOPT_RETURNTRANSFER => TRUE,
+                    CURLOPT_HTTPHEADER => array(
+                        'Content-Type: application/json'
+                    ),
+                    CURLOPT_POSTFIELDS => $postdata
+                ));
+
+                // Send the request
+                $response = curl_exec($ch);
+                
+                
+                //$this->asynchronous_lib->do_background_process($url, $curl_data);
                 $this->partner_cb->partner_callback($requestData["booking_id"]);
                 
                 log_message("info", "Booking Request type hase been updated successfully");
-                $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array('0000', 'success'));
-                            
+                
+                if(!empty($warranty_status_holder)){ 
+                     if($warranty_status_holder['warranty_flag'] != 2){
+                        $this->jsonResponseString['response'] = $response;
+                        $this->sendJsonResponse(array('0000', 'success'));
+                     }
+                }
+                else{ 
+                    $this->jsonResponseString['response'] = $response;
+                    $this->sendJsonResponse(array('0000', 'success'));
+                }            
             }
            
         }                   
