@@ -6240,24 +6240,13 @@ class Partner extends CI_Controller {
         echo json_encode($res);
     }
     function download_real_time_summary_report($partnerID){
+        ini_set('memory_limit', '-1');
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0);
-        $delimiter = ",";
-        $newline = "\r\n";
-        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
-        log_message('info', __FUNCTION__ . ' => Rendered CSV');
-        write_file($csv, $new_report);
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/octet-stream');
-        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
-        header('Expires: 0');
-        header('Cache-Control: must-revalidate');
-        header('Pragma: public');
-        header('Content-Length: ' . filesize($csv));
-        readfile($csv);
-        exec("rm -rf " . escapeshellarg($csv));
-         unlink($csv);
+        $heading = ['Customer Remarks', 'Reschedule Remarks' ,'Brand Reference ID', '247around Booking ID', 'Service Center Name', 'Create Date',	'Brand', 'Date of Purchase', 'Model', 'SF Model', 'Product Serial Number', 'Product', 'Category', 'Capacity', 'Description', 'Customer Name', 'Address', 'Pincode', 'City', 'State', 'Phone', 'Email', 'Service Type',	'Customer Remarks', 'Reschedule Remarks', 'Closing Remarks', 'Cancellation Remarks', 'Current Booking Date',	'First Booking Date',	'Timeslot',	'Final Status Level 2',	'Final Status Level 1',	'Is Upcountry',	'Completion Date',	'TAT',	'Ageing',	'Rating',	'Rating Comments',	'Requested Part Code',	'Requested Part',	'Part Requested Date',	'Shipped Part Code',	'Shipped Part',	'Part Shipped Date',	'SF Acknowledged Date',	'Shipped Defective Part Code',	'Shipped Defective Part', 'Defective Part Shipped Date', 'Symptom', 'SF Symptom', 'Defect', 'Solution'];
+        $this->miscelleneous->downloadCSV($report->result_array(), $heading, $newCSVFileName);
+        return true;
     }
       function checked_complete_review_booking() {
         $requested_bookings = $this->input->post('approved_booking');
@@ -8303,19 +8292,19 @@ class Partner extends CI_Controller {
             'remark'=>trim($remarks)
         );
 
- $where_shipped = array('booking_id' => trim($booking_id),'shipped_date IS  NULL'=>NULL);
+ $where_shipped = array('booking_id' => trim($booking_id),'shipped_date IS NOT NULL'=>NULL);
  $check_shipped_status = $this->partner_model->get_spare_parts_by_any("*",$where_shipped);
         $response = $this->partner_model->insert_nrn_approval($data_nrn);
-        if ($response  && $check_shipped_status) {
+        if ($response  && empty($check_shipped_status)) {
 
-        	$select_invemtory = "partner_id,requested_inventory_id,quantity,booking_id,status,entity_type";
-        	$where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
-        	$spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
+            $select_invemtory = "partner_id,requested_inventory_id,quantity,booking_id,status,entity_type";
+            $where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
+            $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
 
-        	foreach ($spare_inventory_update as  $update_pending) {
-        		 
-        		$this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
-        	}
+            foreach ($spare_inventory_update as  $update_pending) {
+                 
+                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
+            }
 
         
                 $where = array('booking_id' => trim($booking_id));
@@ -8326,7 +8315,7 @@ class Partner extends CI_Controller {
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
 
                     $booking['internal_status'] =NRN_APPROVED_BY_PARTNER;
-                    $booking['current_status'] = 'InProcess';
+                    $booking['current_status'] = _247AROUND_PENDING;
                     $actor="";
                     $next_action="";
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING,NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);
@@ -8340,8 +8329,8 @@ class Partner extends CI_Controller {
                 $this->booking_model->update_booking($booking_id, $booking);
 
                $data_service_center=array(
-                		'current_status'=>_247AROUND_PENDING,
-                		'internal_status'=>NRN_APPROVED_BY_PARTNER
+                        'current_status'=>_247AROUND_PENDING,
+                        'internal_status'=>NRN_APPROVED_BY_PARTNER
                 );
                $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
 
@@ -8356,7 +8345,4 @@ class Partner extends CI_Controller {
 
 
 
-
-
-   
 }
