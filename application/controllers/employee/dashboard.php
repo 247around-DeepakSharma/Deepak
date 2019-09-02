@@ -1915,16 +1915,16 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $count = count($requestTypeArray);
                 if(array_key_exists('(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
                             . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
-                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%")', $where) 
+                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%" AND booking_details.request_type NOT LIKE "%AMC%")', $where) 
                         && array_key_exists('(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
                             . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
-                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%")', $where)){
+                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR booking_details.request_type LIKE "%AMC%")', $where)){
                     unset($where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
                             . 'OR booking_details.request_type  LIKE "%Gas%" OR booking_details.request_type  LIKE "%PDI%" OR booking_details.request_type  LIKE "%Technical%"  '
-                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%")']);
+                            . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR booking_details.request_type LIKE "%AMC%")']);
                     unset( $where['(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
                             . 'AND booking_details.request_type NOT LIKE "%Gas%" AND booking_details.request_type NOT LIKE "%PDI%" AND booking_details.request_type NOT LIKE "%Technical%"  '
-                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%")']);
+                            . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%" AND booking_details.request_type NOT LIKE "%AMC%")']);
 //                    unset($join['spare_parts_details']);
 //                    unset($joinType['spare_parts_details']);
                 }
