@@ -460,8 +460,8 @@
                     if(obj.status){
                         $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                         $('#success_msg').html(obj.message);
-                        //alert(obj.message);
-                        //window.location.reload();
+                        alert(obj.message);
+                        window.location.reload();
                     }else{
                         $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                         $('#error_msg').html(obj.message);
