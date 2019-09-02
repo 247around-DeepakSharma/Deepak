@@ -578,6 +578,43 @@
                         </div>
                     </div>
                     <?php } ?>
+                    <?php if(!empty($spare_parts_details) && !empty($spare_consumed_status)) { ?>
+                        <div class="panel panel-info">
+                            <div class="panel-heading">Spare Parts Detail</div>
+                            <div class="panel-body">
+                            <div class="col-md-12" style="padding-left:0px;">
+                                <table class="table table-bordered table-condensed">
+                                    <thead>
+                                        <th width="5%">S.No.</th>
+                                        <th width="15%">Part Name</th>
+                                        <th width="10%">Part Type</th>
+                                        <th width="20%">Part Number</th>
+                                        <th width="50%">Consumption Status</th>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach($spare_parts_details as $sno => $spare_part_detail) { ?>
+                                        <tr>
+                                            <td><?php echo $sno; ?></td>
+                                            <td><?php echo $spare_part_detail['parts_requested']; ?></td>
+                                            <td><?php echo $spare_part_detail['parts_requested_type']; ?></td>
+                                            <td><?php echo $spare_part_detail['part_number']; ?></td>
+                                            <td><select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
+                                                    <option value="" selected disabled>Select Status</option>
+                                                    <?php foreach($spare_consumed_status as $status) { ?>
+                                                        <option value="<?php echo $status['id']; ?>"><?php echo $status['consumed_status']; ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </td>
+                                        </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                            </div>
+                        </div>
+                        
+                    <?php } ?>
+                     
                     <div class="row">
                         <div class ="col-md-12">
                             <div class="form-group col-md-6" style=" margin-left:-29px;">
@@ -723,7 +760,7 @@
     $('#technical_solution').select2();
     $("#service_id").select2();
     $("#booking_city").select2();
-    
+    $(".spare_consumption_status").select2();
     
     $(document).ready(function() {
         //called when key is pressed in textbox
@@ -1074,6 +1111,14 @@
                 return false;
             }
         }
+
+        $('.spare_consumption_status').each(function(index, value) {
+            if($(this).val() == '' || $(this).val() == null) {
+                alert('Please select spare consumption status for all parts.');
+                flag = 1;
+                return false;                
+            }
+        });
 
         if (flag === 0) {
             $('#submitform').val("Please wait.....");
