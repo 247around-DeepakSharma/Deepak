@@ -1148,29 +1148,35 @@ class engineerApi extends CI_Controller {
     }
 
     function processEngineerLogin(){ 
-         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-         
-         $data = $this->dealer_model->entity_login(array("entity" => "engineer", 
-            "active" =>1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $data = $this->dealer_model->entity_login(array("entity" => "engineer", 
+            "active" =>1, "user_id" => $requestData["mobile"]));
         if(!empty($data)){ 
-            $engineer  = $this->engineer_model->get_engineers_details(array("id" => $data[0]['entity_id']), "service_center_id, name");
-            if(!empty($engineer)){
-                $sc_agent = $this->service_centers_model->get_sc_login_details_by_id($engineer[0]['service_center_id']);
-                $data[0]['service_center_id'] = $engineer[0]['service_center_id'];
-                $data[0]['sc_agent_id'] = $sc_agent[0]['id'];
-                $data[0]['agent_name'] = $engineer[0]['name'];
-                $device['deviceInfo'] = $requestData["deviceInfo"];
-                $device["device_id"] = $this->deviceId;
-                $device['app_version'] = $requestData["app_version"];
-                $this->partner_model->update_login_details($device, array("agent_id" => $data[0]['agent_id']));
-                $this->jsonResponseString['response'] = $data[0];
-                $this->sendJsonResponse(array('0000', 'success'));
-            } else {
-                $this->sendJsonResponse(array('0013', 'failure'));
+            $login = $this->dealer_model->entity_login(array("entity" => "engineer", 
+            "active" =>1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
+            if(!empty($login)){
+                $engineer  = $this->engineer_model->get_engineers_details(array("id" => $login[0]['entity_id']), "service_center_id, name");
+                if(!empty($engineer)){
+                    $sc_agent = $this->service_centers_model->get_sc_login_details_by_id($engineer[0]['service_center_id']);
+                    $data[0]['service_center_id'] = $engineer[0]['service_center_id'];
+                    $data[0]['sc_agent_id'] = $sc_agent[0]['id'];
+                    $data[0]['agent_name'] = $engineer[0]['name'];
+                    $device['deviceInfo'] = $requestData["deviceInfo"];
+                    $device["device_id"] = $this->deviceId;
+                    $device['app_version'] = $requestData["app_version"];
+                    $this->partner_model->update_login_details($device, array("agent_id" => $data[0]['agent_id']));
+                    $this->jsonResponseString['response'] = $data[0];
+                    $this->sendJsonResponse(array('0000', 'success'));
+                } else {
+                    $this->sendJsonResponse(array('0012', 'Engineer does not exist'));
+                }
             }
-            
-        } else {
-            $this->sendJsonResponse(array('0012', 'failure'));
+            else{
+                $this->sendJsonResponse(array('0013', 'Invalid User Id and Password'));
+            }
+        }
+        else{
+            $this->sendJsonResponse(array('0014', 'User Id does not exist'));
         }
     }
     
@@ -1761,7 +1767,7 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "count(distinct(booking_details.booking_id)) as bookings";
-            $slot_select = 'booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
+            $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date';
             $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $tommorow_bookings_count = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
@@ -1877,7 +1883,7 @@ class engineerApi extends CI_Controller {
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-            $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
+            $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date";
             $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($missed_bookings as $key => $value) {
@@ -1904,7 +1910,7 @@ class engineerApi extends CI_Controller {
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-            $select = "booking_details.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
+            $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date";
             $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($tomorrowBooking as $key => $value) {
