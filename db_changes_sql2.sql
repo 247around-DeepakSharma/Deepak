@@ -628,3 +628,17 @@ ALTER TABLE spare_parts_details ADD COLUMN consumed_part_status_id int(11) NULL 
 
 -- Kajal 29-08-2019
 ALTER TABLE `inventory_master_list` ADD `is_invoice` INT(1) NOT NULL DEFAULT '0' AFTER `part_image`;
+
+
+-- Kajal 02-09-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'sf_invoice_summary', 'SF Invoice Summary for period: %s to %s', 
+'Dear SF, Invoice Summary are as follows:- <br><br>%s<br>
+Please do <strong>Reply All</strong> for raising any query or concern regarding the invoices.
+<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s to %s', 
+'Dear Partner, Invoice Summary are as follows:- <br><br>%s<br>
+Please do <strong>Reply All</strong> for raising any query or concern regarding the invoices.
+<br/><br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
