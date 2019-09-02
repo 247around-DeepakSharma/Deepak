@@ -6240,6 +6240,7 @@ class Partner extends CI_Controller {
         echo json_encode($res);
     }
     function download_real_time_summary_report($partnerID){
+        ini_set('memory_limit', '-1');
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0);
@@ -6840,8 +6841,15 @@ class Partner extends CI_Controller {
       if($this->session->userdata('is_filter_applicable') == 1){
             $state = 1;
       }
-      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"parts_shipped",
-          "column_4"=>"courier_name_by_partner","column_5"=>"awb_by_partner","column_7"=>"shipped_date");    
+      $columnMappingArray = array(
+          "column_1"=>"spare_parts_details.booking_id",
+          "column_6"=>"parts_shipped",
+          "column_7"=>"part_number",
+          "column_8"=>"quantity",
+          "column_10"=>"courier_name_by_partner",
+          "column_13"=>"shipped_date",
+          "column_14"=>"remarks_by_partner"
+      );
      $order_by = "ORDER BY shipped_date DESC";
       if(array_key_exists("order", $postData)){
             $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
@@ -6865,9 +6873,12 @@ class Partner extends CI_Controller {
                     $tempArray[] = $sn;
                     $tempArray[] = ' <a style="color:blue;"  href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
                     $tempArray[] = $row['name'];
+                    $tempArray[] = $row['services'];
+                    $tempArray[] = $row['model_number'];
+                    $tempArray[] = $row['date_of_purchase'];
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['parts_shipped'] ."</span>";
-                    $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";     
-                    $tempArray[] = "<span>". $row['quantity'] ."</span>"; 
+                    $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";
+                    $tempArray[] = "<span>". $row['quantity'] ."</span>";
                     $tempArray[] = $row['shipped_quantity'];
                     $tempArray[] = $row['courier_name_by_partner'];
                     $tempArray[] = $row['awb_by_partner'];
@@ -6897,8 +6908,14 @@ class Partner extends CI_Controller {
         if($this->session->userdata('is_filter_applicable') == 1){
           $state = 1;
         }
-      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((parts_shipped ) ))",
-          "column_4"=>"courier_name_by_partner","column_5"=>"awb_by_partner","column_8"=>"DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date))");    
+      $columnMappingArray = array(
+            "column_1"=>"spare_parts_details.booking_id",
+            "column_5"=>"spare_parts_details.date_of_purchase",
+            "column_6"=>"defective_part_shipped",
+            "column_8"=>"spare_parts_details.quantity",
+            "column_11"=>"spare_parts_details.partner_challan_number",
+            "column_12"=>"DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date))"
+      );    
       $order_by = "spare_parts_details.defective_part_shipped_date DESC";
       if(array_key_exists("order", $postData)){
             $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
@@ -6915,9 +6932,15 @@ class Partner extends CI_Controller {
        if($this->input->post('booking_id')){
            $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
        }
-        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
-                . " spare_parts_details.booking_id,spare_parts_details.quantity, users.name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging,spare_parts_details.courier_name_by_partner, "
-                . "spare_parts_details.awb_by_partner,spare_parts_details.partner_challan_number, i.part_number";
+        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped,"
+                ." spare_parts_details.booking_id,"
+                ."spare_parts_details.date_of_purchase as 'dop',"
+                ." spare_parts_details.model_number as 'model',"
+                ."spare_parts_details.date_of_purchase as 'dop',"
+                ." spare_parts_details.quantity, services.services as 'product_name',"
+                ." users.name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging,"
+                ." spare_parts_details.courier_name_by_partner,"
+                ." spare_parts_details.awb_by_partner,spare_parts_details.partner_challan_number, i.part_number";
         $group_by = "spare_parts_details.booking_id";
         $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length'],$state);
         $bookingCount =  $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
@@ -6929,6 +6952,9 @@ class Partner extends CI_Controller {
                     $tempArray[] = $sn;
                     $tempArray[] = '<a  style="color:blue" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';  
                     $tempArray[] = $row['name'];
+                    $tempArray[] = $row['product_name'];
+                    $tempArray[] = $row['model'];
+                    $tempArray[] = $row['dop'];
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'].'</span>';
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'].'</span>';
                     $tempArray[] = $row['quantity'];
