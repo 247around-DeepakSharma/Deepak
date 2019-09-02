@@ -12,11 +12,11 @@
         background-color:#5997aa !important;
     }
     .sub-table{
-        width:80%;
+        width:98%;
         margin:auto;
     }
     table.sub-table thead{
-        background:#8ca9c6;
+        background:#8cc6ab;
     }
 </style>
 <!-- page content -->
