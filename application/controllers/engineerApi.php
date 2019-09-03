@@ -1172,7 +1172,7 @@ class engineerApi extends CI_Controller {
                 }
             }
             else{
-                $this->sendJsonResponse(array('0013', 'Invalid User Id and Password'));
+                $this->sendJsonResponse(array('0013', 'Invalid User Id or Password'));
             }
         }
         else{
@@ -2441,6 +2441,8 @@ class engineerApi extends CI_Controller {
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_is_broken'] = $en[0]['is_broken'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_internal_status'] = $en[0]['internal_status'];
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_purchase_date'] = $en[0]['sf_purchase_date'];
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_model_number'] =  $en[0]['model_number'];
                         if ($en[0]['is_broken'] == 1) {
                             $broken = 1;
                         }
@@ -2458,6 +2460,10 @@ class engineerApi extends CI_Controller {
                 $response['prices'] = $final_parices;
                 $bookng_unit_details[$key1]['is_broken'] = $broken;
                 $bookng_unit_details[$key1]['dop'] = $broken;
+            }
+            $spare_details = $this->partner_model->get_spare_parts_by_any('model_number, date_of_purchase', array('booking_id' => $requestData["booking_id"]));
+            if(!empty($spare_details)){
+                $response['spare_parts'] = $spare_details[0];
             }
             
             $response['booking_unit_details'] = $bookng_unit_details[0];
@@ -3074,7 +3080,7 @@ class engineerApi extends CI_Controller {
             
             if($edit_call_type){  
                 $curl_data['is_repeat'] = $booking_details['is_repeat'];
-                $curl_data['upcountry_data'] = ""; //need to form
+                $curl_data['upcountry_data'] = ""; 
                 $curl_data['user_name'] = $booking_details['booking_history'][0]['name'];
                 $curl_data['is_repeat'] = $booking_details['partner_type'];
                 $curl_data['is_active'] = $booking_details['booking_history'][0]['is_active'];
@@ -3171,21 +3177,9 @@ class engineerApi extends CI_Controller {
                 $curl_data['purchase_date'] = $purchase_dates;
                 $curl_data['model_number'] = $model_numbers;
               
-                
-                
                 $url = base_url() . "employee/booking/Api_getAllBookingInput/".$booking_details['booking_history'][0]['user_id']."/".$requestData["booking_id"];
                 $ch = curl_init($url);
-               // curl_setopt($ch, CURLOPT_HEADER, false);
-              //  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-//                curl_setopt($ch, CURLOPT_POST, true);
-//                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($curl_data));
-//                $curl_response = curl_exec($ch);
-//                curl_close($ch);
-//                print_r($curl_data);
-//                $response = json_decode($curl_response);
-//                
-              //  print_r($curl_data);
-                
+
                 $postdata = json_encode($curl_data, true);
                 curl_setopt_array($ch, array(
                     CURLOPT_POST => TRUE,
@@ -3196,10 +3190,8 @@ class engineerApi extends CI_Controller {
                     CURLOPT_POSTFIELDS => $postdata
                 ));
 
-                // Send the request
                 $response = curl_exec($ch);
-                
-                
+               
                 //$this->asynchronous_lib->do_background_process($url, $curl_data);
                 $this->partner_cb->partner_callback($requestData["booking_id"]);
                 
@@ -3216,7 +3208,6 @@ class engineerApi extends CI_Controller {
                     $this->sendJsonResponse(array('0000', 'success'));
                 }            
             }
-           
         }                   
         else{
             log_message("info", __METHOD__ . "Request key missing - ".$missing_key);
