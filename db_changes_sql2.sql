@@ -721,3 +721,5 @@ VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s
 'Dear Partner, Invoice Summary are as follows:- <br><br>%s<br>
 <br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
  
+-- Ankit 03-09-2019
+ALTER TABLE spare_consumption_status ADD COLUMN status_description text NULL DEFAULT NULL AFTER consumed_status; 
