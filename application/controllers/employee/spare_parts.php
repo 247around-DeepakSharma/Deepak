@@ -2094,7 +2094,7 @@ class Spare_parts extends CI_Controller {
                                 $spare_data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
                                 $spare_data['parts_requested'] = $warehouse_details['part_name'];
                                 $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
-                                $spare_data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
+                                // $spare_data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
 
                             } else {
                                 $spare_data['partner_id'] = $partner_id;

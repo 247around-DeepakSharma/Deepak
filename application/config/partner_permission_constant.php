@@ -21,4 +21,3 @@ define('AUTO_APPROVE_DEFECTIVE_PARTS_COURIER_CHARGES','auto_approve_defective_pa
 define('PARTNER_ON_STATE_APPLIANCE','partner_on_state_appliance');
 define('DO_NOT_CHECK_DUPLICATE_SERIAL_NUMBER','do_not_check_duplicate_serial_number');
 define('DO_NOT_PULL_SERVICE_CENTRE_CLOSED_DATE','do_not_pull_service_centre_closed_date');
-

@@ -51,7 +51,7 @@ function load_data(){
         data: postData,
         success: function (data) {
         console.log(data);
-             $("#load_data").html(data);
+             $("#load_data").html("Invoice Summary is sent on mail..");
          }
     });
 }

@@ -527,7 +527,7 @@ function get_data_for_partner_callback($booking_id) {
 
                 if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
                         strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
-                        || strpos($value->request_type, 'Inspection') !== false) {
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     $result['current_month_repair_booking_requested'] ++;
                     switch ($value->current_status) {
                         case _247AROUND_COMPLETED:
@@ -577,7 +577,9 @@ function get_data_for_partner_callback($booking_id) {
             }
 
             foreach ($today_booking as $value) {
-                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
+                        strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     $result['today_repair_booking_requested'] ++;
                     switch ($value->current_status) {
                         case _247AROUND_COMPLETED:
@@ -618,7 +620,9 @@ function get_data_for_partner_callback($booking_id) {
                 }
             }
             foreach ($yesterday_booking as $value) {
-                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
+                        strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     $result['yesterday_repair_booking_requested'] ++;
                     switch ($value->current_status) {
                         case _247AROUND_COMPLETED:
@@ -665,7 +669,9 @@ function get_data_for_partner_callback($booking_id) {
             $result['total_three_to_five_days_installation_booking_pending'] = 0;
             $result['total_greater_than_5_days_installation_booking_pending'] = 0;
             foreach ($totalPending as $key => $value) {
-                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
+                        strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                         $result['total_zero_to_two_days_repair_booking_pending'] ++;
                     } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
@@ -866,7 +872,7 @@ function get_data_for_partner_callback($booking_id) {
                     . "booking_details.amount_due,booking_details.state, booking_details.service_center_closed_date, booking_details.request_type, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state as sf_state, service_centres.gst_no, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
-                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name ";
+                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name, spare_consumption_status.is_consumed ";
             if($end){
                 $limit = "LIMIT $start, $end";
             }
@@ -893,6 +899,7 @@ function get_data_for_partner_callback($booking_id) {
                     . ' JOIN users ON users.user_id = booking_details.user_id '.$join
                     . ' LEFT JOIN inventory_stocks ON spare_parts_details.requested_inventory_id = inventory_stocks.inventory_id'
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
+                    . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
                     . " WHERE $where $group_by "
                     . " ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
         }else{
@@ -907,6 +914,7 @@ function get_data_for_partner_callback($booking_id) {
                 . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                 . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                 . ' LEFT JOIN services ON booking_details.service_id=services.id '
+                . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
                 . "  WHERE users.user_id = booking_details.user_id "
                 . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
             }
@@ -921,6 +929,7 @@ function get_data_for_partner_callback($booking_id) {
                     . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                     . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
+                    . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
                     . " WHERE booking_details.booking_id = spare_parts_details.booking_id"
                     . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
