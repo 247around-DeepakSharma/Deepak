@@ -7259,7 +7259,6 @@ class Service_centers extends CI_Controller {
         $headings = array("Booking ID", "Customer Name", "Mobile", "Product", "Request Type", "Closing Date", "Closing Remarks", "SF Earned", "Rating", "Consumed Parts", "Engineer", "TAT");
         $this->miscelleneous->downloadCSV($list, $headings,"SF_completed_bookings");
     }
-
     /**
      * Booking summary report for service center.
      */
@@ -7341,5 +7340,5 @@ class Service_centers extends CI_Controller {
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);   
         echo json_encode($arrBookingsWarrantyStatus);
     }
-    
+
 }

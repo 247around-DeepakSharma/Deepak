@@ -3980,7 +3980,7 @@ class Partner extends CI_Controller {
      * 
      */
     function download_sf_list_excel() {
-        $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1');
+        $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1',is_CP => '0');
         $select = "service_centres.id,service_centres.district,service_centres.state,service_centres.pincode,service_centres.appliances,service_centres.non_working_days,GROUP_CONCAT(sub_service_center_details.district) as upcountry_districts";
         //$vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
              $vendor =  $this->reusable_model->get_search_result_data("service_centres",$select,$where,array("sub_service_center_details"=>"sub_service_center_details.service_center_id = service_centres.id"),
@@ -8170,7 +8170,6 @@ class Partner extends CI_Controller {
 
 
 
-
     function do_partner_nrn_approval(){
 
         $booking_id = trim($this->input->post('booking_id'));
@@ -8197,9 +8196,21 @@ class Partner extends CI_Controller {
             'remark'=>trim($remarks)
         );
 
- 
+ $where_shipped = array('booking_id' => trim($booking_id),'shipped_date IS NOT NULL'=>NULL);
+ $check_shipped_status = $this->partner_model->get_spare_parts_by_any("*",$where_shipped);
         $response = $this->partner_model->insert_nrn_approval($data_nrn);
-        if ($response) {
+        if ($response  && empty($check_shipped_status)) {
+
+            $select_invemtory = "partner_id,requested_inventory_id,quantity,booking_id,status,entity_type";
+            $where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
+            $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
+
+            foreach ($spare_inventory_update as  $update_pending) {
+                 
+                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
+            }
+
+        
                 $where = array('booking_id' => trim($booking_id));
                 $data = array(
                     'status'=>NRN_APPROVED_BY_PARTNER,
@@ -8208,7 +8219,7 @@ class Partner extends CI_Controller {
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
 
                     $booking['internal_status'] =NRN_APPROVED_BY_PARTNER;
-                    $booking['current_status'] = 'InProcess';
+                    $booking['current_status'] = _247AROUND_PENDING;
                     $actor="";
                     $next_action="";
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING,NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);
@@ -8222,8 +8233,8 @@ class Partner extends CI_Controller {
                 $this->booking_model->update_booking($booking_id, $booking);
 
                $data_service_center=array(
-                		'current_status'=>_247AROUND_PENDING,
-                		'internal_status'=>NRN_APPROVED_BY_PARTNER
+                        'current_status'=>_247AROUND_PENDING,
+                        'internal_status'=>NRN_APPROVED_BY_PARTNER
                 );
                $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
 
@@ -8235,6 +8246,7 @@ class Partner extends CI_Controller {
         }
        
     }
+
 
 
 

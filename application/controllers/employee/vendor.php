@@ -3078,7 +3078,7 @@ class vendor extends CI_Controller {
     function download_sf_list_excel(){
         //Getting only Active Vendors List
         //$vendor  = $this->vendor_model->viewvendor('',1);
-        $where = array('active' => '1','on_off' => '1');
+        $where = array('active' => '1','on_off' => '1', 'is_CP' => '0');
         $select = "*";
         $whereIN = array();
         if($this->session->userdata('user_group') == 'regionalmanager'){

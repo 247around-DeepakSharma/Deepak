@@ -612,3 +612,14 @@ UPDATE `invoice_tags` SET `tag` = 'part_lost' WHERE `invoice_tags`.`sub_category
 
 -- Kajal 22-08-2019
 UPDATE `invoice_tags` SET `tag` = 'Out-of-Warranty' WHERE `invoice_tags`.`sub_category` = 'Out-of-Warranty';
+
+-- Kajal 02-09-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'sf_invoice_summary', 'SF Invoice Summary for period: %s to %s', 
+'Dear SF, Invoice Summary are as follows:- <br><br>%s<br>
+<br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s to %s', 
+'Dear Partner, Invoice Summary are as follows:- <br><br>%s<br>
+<br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
