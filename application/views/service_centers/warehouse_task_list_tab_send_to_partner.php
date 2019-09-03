@@ -67,6 +67,7 @@
                             <th class="text-center">AWB</th>
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">Remarks</th>
+                            <th class="text-center">Quantity</th>
                             <th class="text-center">
                                 Send To Partner
                                 <input type="checkbox" id="send_all">
@@ -111,10 +112,15 @@
                                     </td>
                                      <td>
                                         <?php echo $row['remarks_defective_part_by_sf']; ?>
-                                    </td>
+                                     </td>
+
+                                    <td>
+                                        <input type="number" min="1" value="<?php echo $row['shipped_quantity']?>" data-shipping_quantity="<?php echo $row['shipped_quantity']?>" id="spare<?php echo $row['id']?>" name="shipping_quantity">
+                                     </td>
                                     <td>
                                         
-                                        <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
+                                        <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>"  data-shipped
+                                        -quantity = "<?php echo $row['shipped_quantity']?>" >
                                     </td>
                             </tr>
                             <?php $sn_no++; } ?>
@@ -274,7 +280,7 @@
                 extend: 'excel',
                 text: 'Export',
                 exportOptions: {
-                    columns: [ 0, 1, 2,3,4, 5,6,7,8,9]
+                    columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10]
                 },
                 title: 'defective_parts_send_to_partner'
             }
@@ -375,6 +381,8 @@
             tmp_arr[key]['sent_entity_type'] = $(this).attr('data-entity_type');
             tmp_arr[key]['model'] = $(this).attr('data-model');
             tmp_arr[key]['booking_partner_id'] = $(this).attr('data-booking_partner_id');
+            tmp_arr[key]['shipped_quantity'] = $(this).attr('data-shipped_quantity');
+            tmp_arr[key]['shipping_quantity'] = $("#spare"+$(this).attr('data-spare_id')).val();
             flag = true;
         });
         
