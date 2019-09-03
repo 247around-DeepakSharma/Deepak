@@ -1892,7 +1892,7 @@ class vendor extends CI_Controller {
         if ($engineer_form_validation) {
             $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "name, phone");
             if (empty($is_phone)) {
-                $is_entity = $this->dealer_model->entity_login(array("user_id"=>$this->input->post('phone')));
+                $is_entity = $this->dealer_model->entity_login(array("user_id"=>$this->input->post('phone'), "entity" => _247AROUND_ENGINEER_STRING));
                 if($is_entity == false){
                     $data['name'] = $this->input->post('name');
                     $data['phone'] = $this->input->post('phone');
