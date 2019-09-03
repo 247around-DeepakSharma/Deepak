@@ -705,3 +705,19 @@ ALTER TABLE `inventory_master_list` ADD `is_invoice` INT(1) NOT NULL DEFAULT '0'
 --Pranjal 30-8-2019 - for adding link for RM Mapping
 insert into `header_navigation`(`entity_type`,`title`,`link`,`level`,`groups`,`nav_type`,`is_active`)
 values ('247Around','RM Mapping','employee/user/rm_state_mapping',1,'admin,developer','right_nav','1')
+
+ 
+--Abhishek--2-sep-2019
+ALTER TABLE `spare_parts_details` ADD `shipped_to_partner_qty` INT(11) NOT NULL DEFAULT '1' AFTER `shipped_quantity`;
+ 
+-- Kajal 02-09-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'sf_invoice_summary', 'SF Invoice Summary for period: %s to %s', 
+'Dear SF, Invoice Summary are as follows:- <br><br>%s<br>
+<br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s to %s', 
+'Dear Partner, Invoice Summary are as follows:- <br><br>%s<br>
+<br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
+ 
