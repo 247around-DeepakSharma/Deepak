@@ -1172,7 +1172,7 @@ class engineerApi extends CI_Controller {
                 }
             }
             else{
-                $this->sendJsonResponse(array('0013', 'Invalid User Id and Password'));
+                $this->sendJsonResponse(array('0013', 'Invalid User Id or Password'));
             }
         }
         else{
@@ -2460,6 +2460,10 @@ class engineerApi extends CI_Controller {
                 $response['prices'] = $final_parices;
                 $bookng_unit_details[$key1]['is_broken'] = $broken;
                 $bookng_unit_details[$key1]['dop'] = $broken;
+            }
+            $spare_details = $this->partner_model->get_spare_parts_by_any('model_number, date_of_purchase', array('booking_id' => $requestData["booking_id"]));
+            if(!empty($spare_details)){
+                $response['spare_parts'] = $spare_details[0];
             }
             
             $response['booking_unit_details'] = $bookng_unit_details[0];
