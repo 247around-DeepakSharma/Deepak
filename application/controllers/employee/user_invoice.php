@@ -72,7 +72,7 @@ class User_invoice extends CI_Controller {
                 $invoice = array();
                 $invoice[0]['description'] = $prod;
                 $tax_charge = $this->booking_model->get_calculated_tax_charge($data[0]->amount_paid, DEFAULT_TAX_RATE);
-                $invoice[0]['taxable_value'] = ($data[0]->amount_paid - $tax_charge);
+                $invoice[0]['taxable_value'] = sprintf("%.2f", ($data[0]->amount_paid - $tax_charge));
 
                 $invoice[0]['product_or_services'] = "Service";
                 $invoice[0]['gst_number'] = $data[0]->gst_no;
@@ -81,7 +81,7 @@ class User_invoice extends CI_Controller {
                 $invoice[0]['district'] = $data[0]->sf_district;
                 $invoice[0]['pincode'] = $data[0]->sf_pincode;
                 $invoice[0]['state'] = $data[0]->sf_state;
-                $invoice[0]['rate'] = 0;
+                $invoice[0]['rate'] = sprintf("%.2f", ($invoice[0]['taxable_value']/$data[0]->quantity));//0;
                 $invoice[0]['qty'] = $data[0]->quantity;
                 $invoice[0]['hsn_code'] = HSN_CODE;
                 $invoice[0]['gst_rate'] = DEFAULT_TAX_RATE;
@@ -308,7 +308,7 @@ class User_invoice extends CI_Controller {
                 $invoice_id = $txnID;
                 $prod = $data[0]->services . " (" . $data[0]->request_type . ") ";
                 $invoice[0]['description'] = $prod;
-                $invoice[0]['taxable_value'] = $amountPaid;
+                $invoice[0]['taxable_value'] = sprintf("%.2f", ($amountPaid));
 
                 $invoice[0]['product_or_services'] = "Service";
                 $invoice[0]['gst_number'] = "";
@@ -317,7 +317,7 @@ class User_invoice extends CI_Controller {
                 $invoice[0]['district'] = $data[0]->sf_district;
                 $invoice[0]['pincode'] = $data[0]->sf_pincode;
                 $invoice[0]['state'] = $data[0]->sf_state;
-                $invoice[0]['rate'] = 0;
+                $invoice[0]['rate'] = sprintf("%.2f", ($invoice[0]['taxable_value']/$data[0]->quantity));//0;
                 $invoice[0]['qty'] = $data[0]->quantity;
                 //As Aditya, No need to add hsn code
                 $invoice[0]['hsn_code'] = "";
@@ -387,7 +387,7 @@ class User_invoice extends CI_Controller {
             'from_date' => date("Y-m-d", strtotime($invoice_date)),
             'to_date' => date("Y-m-d", strtotime($invoice_date)),
             'due_date' => date("Y-m-d", strtotime($invoice_date . "+1 month")),
-            'num_bookings' => 1,
+            'num_bookings' => $invoice['meta']["total_qty"],//1,
             "parts_count" => 0,
             'total_service_charge' => $invoice['meta']['total_taxable_value'],
             'total_additional_service_charge' => 0,
@@ -409,6 +409,7 @@ class User_invoice extends CI_Controller {
             "accounting" => 0,
         );
         //Insert Invoice
+        $this->invoice_lib->insert_invoice_breackup($invoice);
         $this->invoices_model->insert_new_invoice($invoice_details);
         $this->reusable_model->update_table("paytm_transaction_callback", array('vendor_invoice_id' => $invoice['meta']['invoice_id']),array('txn_id' => $txnID));
     }
@@ -705,8 +706,8 @@ class User_invoice extends CI_Controller {
                             $booking['partner_internal_status'] = $partner_status[1];
                             $booking['actor'] = $partner_status[2];
                             $booking['next_action'] = $partner_status[3];
+                            $this->booking_model->update_booking($booking_id, $booking);
                         }
-                        $this->booking_model->update_booking($booking_id, $booking);
                     }
                 }
                 
@@ -1623,8 +1624,8 @@ class User_invoice extends CI_Controller {
                             $booking['partner_internal_status'] = $partner_status[1];
                             $booking['actor'] = $partner_status[2];
                             $booking['next_action'] = $partner_status[3];
+                            $this->booking_model->update_booking($booking_id, $booking);
                         }
-                        $this->booking_model->update_booking($booking_id, $booking);
                     }
                 }
             }

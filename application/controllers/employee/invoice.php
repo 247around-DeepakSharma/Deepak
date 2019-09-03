@@ -3815,7 +3815,7 @@ class Invoice extends CI_Controller {
     function generate_oow_parts_invoice($spare_id) {
         $req['where'] = array("spare_parts_details.id" => $spare_id);
         $req['length'] = -1;
-        $req['select'] = "spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type, spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id, booking_details.service_id";
+        $req['select'] = "spare_parts_details.requested_inventory_id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_requested_type,spare_parts_details.shipped_parts_type, spare_parts_details.purchase_price, spare_parts_details.sell_invoice_id, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id, booking_details.service_id, shipped_quantity";
         $sp_data = $this->inventory_model->get_spare_parts_query($req);
         if (!empty($sp_data) && empty($sp_data[0]->sell_invoice_id) && ($sp_data[0]->purchase_price > 0)) {
             $vendor_details = $this->vendor_model->getVendorDetails("gst_no, "
@@ -3843,6 +3843,7 @@ class Invoice extends CI_Controller {
             $data[0]['description'] = ucwords($sp_data[0]->parts_requested) . " (" . $sp_data[0]->booking_id . ") ";
             $amount = $sp_data[0]->purchase_price + $sp_data[0]->purchase_price * $repair_around_oow_percentage;
             $tax_charge = $this->booking_model->get_calculated_tax_charge($amount, $sp_data[0]->invoice_gst_rate);
+            $shipped_quantity = (!is_null($sp_data[0]->shipped_quantity) ? $sp_data[0]->shipped_quantity : 1);
             $data[0]['taxable_value'] = sprintf("%.2f", ($amount - $tax_charge));
             $data[0]['product_or_services'] = "Product";
             if(!empty($vendor_details[0]['gst_no'])){
@@ -3856,13 +3857,15 @@ class Invoice extends CI_Controller {
             $data[0]['district'] = $vendor_details[0]['district'];
             $data[0]['pincode'] = $vendor_details[0]['pincode'];
             $data[0]['state'] = $vendor_details[0]['state'];
-            $data[0]['rate'] = "0";
-            $data[0]['qty'] = 1;
+            $data[0]['rate'] = sprintf("%.2f", ($data[0]['taxable_value']/$shipped_quantity));//"0";
+            $data[0]['qty'] = $shipped_quantity;
             $data[0]['hsn_code'] = SPARE_HSN_CODE;
             $sd = $ed = $invoice_date = date("Y-m-d");
             $gst_rate = $sp_data[0]->invoice_gst_rate;
             $data[0]['gst_rate'] = $gst_rate;
-
+            $data[0]['inventory_id'] = $inventory_id;
+            $data[0]['spare_id'] = $spare_id;
+                
             $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
             $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
             $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
@@ -3958,7 +3961,7 @@ class Invoice extends CI_Controller {
         log_message('info', __METHOD__. " Spare ID ".$spare_id);
         $oow_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_unit_details_id, purchase_price, sell_price, sell_invoice_id, purchase_invoice_id, "
                 . "spare_parts_details.purchase_price, parts_requested,invoice_gst_rate, spare_parts_details.service_center_id, spare_parts_details.booking_id,"
-                . "reverse_sale_invoice_id, reverse_purchase_invoice_id, booking_details.partner_id as booking_partner_id, invoice_gst_rate", 
+                . "reverse_sale_invoice_id, reverse_purchase_invoice_id, booking_details.partner_id as booking_partner_id, invoice_gst_rate, shipped_quantity", 
                     array('spare_parts_details.id' => $spare_id, 
                         'booking_unit_details_id IS NOT NULL' => NULL,
                         'sell_price > 0 ' => NULL,
@@ -3999,8 +4002,9 @@ class Invoice extends CI_Controller {
                     . "company_name,address as company_address,district,"
                     . "state, pincode, owner_email, primary_contact_email, sc_code, owner_phone_1", array('id' => $invoice_details[0]['vendor_partner_id']));
         $data = array();
+        $shipped_quantity = (!is_null($spare_data['shipped_quantity']) ? $spare_data['shipped_quantity'] : 1);
         $data[0]['description'] = ucwords($spare_data['parts_requested']) . " (" . $spare_data['booking_id'] . ") ";
-        $data[0]['taxable_value'] = $invoice_details[0]['parts_cost'];
+        $data[0]['taxable_value'] = sprintf("%.2f", (($invoice_details[0]['parts_cost']/$invoice_details[0]['parts_count'])*$shipped_quantity));
         $data[0]['product_or_services'] = "Product";
         if(!empty($vendor_details[0]['gst_no'])){
             $data[0]['gst_number'] = $vendor_details[0]['gst_no'];
@@ -4014,8 +4018,8 @@ class Invoice extends CI_Controller {
         $data[0]['pincode'] = $vendor_details[0]['pincode'];
         $data[0]['state'] = $vendor_details[0]['state'];
         $data[0]['owner_phone_1'] = $vendor_details[0]['owner_phone_1'];
-        $data[0]['rate'] = "0";
-        $data[0]['qty'] = 1;
+        $data[0]['rate'] = sprintf("%.2f", ($invoice_details[0]['parts_cost']/$invoice_details[0]['parts_count']));
+        $data[0]['qty'] = $shipped_quantity;
         $data[0]['hsn_code'] = SPARE_HSN_CODE;
         $sd = $ed = $invoice_date = date("Y-m-d");
         $gst_rate = ($invoice_details[0]['cgst_tax_rate'] + $invoice_details[0]['sgst_tax_rate'] + $invoice_details[0]['igst_tax_rate']);
@@ -4073,7 +4077,7 @@ class Invoice extends CI_Controller {
                 
                                 foreach ($invoiceValue['data'] as $value) {
                                     $data[0]['description'] = ucwords($value['part_name']) . " (" . $spare[0]['booking_id'] . ") ";
-                                    $data[0]['taxable_value'] = $value['rate'];
+                                    $data[0]['taxable_value'] = $value['rate']*$value['qty'];
                                     $data[0]['product_or_services'] = "Product";
                                     $data[0]['gst_number'] = $spare[0]['gst_number'];
                                     $data[0]['main_gst_number'] = $value['from_gst_number'];
@@ -4087,7 +4091,7 @@ class Invoice extends CI_Controller {
                                     $data[0]['pincode'] = $spare[0]['pincode'];
                                     $data[0]['state'] = $spare[0]['state'];
                                     $data[0]['rate'] = $value['rate'];
-                                    $data[0]['qty'] = 1;
+                                    $data[0]['qty'] = $value['qty'];//1;
                                     $data[0]['hsn_code'] = $value['hsn_code'];
                                     $sd = $ed = $invoice_date = date("Y-m-d");
                                     $data[0]['gst_rate'] = $value['gst_rate'];
@@ -4172,7 +4176,7 @@ class Invoice extends CI_Controller {
                 'from_date' => date("Y-m-d", strtotime($sd)), //??? Check this next time, format should be YYYY-MM-DD
                 'to_date' => date("Y-m-d", strtotime($ed)),
                 'parts_cost' => $response['meta']['total_taxable_value'],
-                'parts_count' => 1,
+                'parts_count' => $response['meta']['total_qty'],//1,
                 'total_amount_collected' => $response['meta']['sub_total_amount'],
                 'invoice_date' => date("Y-m-d"),
                 'around_royalty' => 0,
@@ -4246,7 +4250,7 @@ class Invoice extends CI_Controller {
                                 foreach ($invoicevalue['data'] as $value) {
                                     $data = array();
                                     $data[0]['description'] = ucwords($value['part_name']) . " (" . $spare[0]['booking_id'] . ") ";
-                                    $data[0]['taxable_value'] = $value['rate'];
+                                    $data[0]['taxable_value'] = $value['rate']*$value['qty'];
                                     $data[0]['product_or_services'] = "Product";
                                     $data[0]['gst_number'] = $value['to_gst_number'];
                                     $data[0]['from_gst_number'] = $value['from_gst_number'];
@@ -4259,7 +4263,7 @@ class Invoice extends CI_Controller {
                                     $data[0]['pincode'] = $partner_details[0]['pincode'];
                                     $data[0]['state'] = $partner_details[0]['state'];
                                     $data[0]['rate'] = $value['rate'];
-                                    $data[0]['qty'] = 1;
+                                    $data[0]['qty'] = $value['qty'];//1;
                                     $data[0]['hsn_code'] = $value['hsn_code'];
                                     $sd = $ed = $invoice_date = date("Y-m-d");
                                     $data[0]['gst_rate'] = $value['gst_rate'];
@@ -4359,7 +4363,7 @@ class Invoice extends CI_Controller {
                     'from_date' => date("Y-m-d", strtotime($sd)), //??? Check this next time, format should be YYYY-MM-DD
                     'to_date' => date("Y-m-d", strtotime($ed)),
                     'parts_cost' => $response['meta']['total_taxable_value'],
-                    'parts_count' => 1,
+                    'parts_count' => $response['meta']['total_qty'],//1,
                     'total_amount_collected' => $response['meta']['sub_total_amount'],
                     'invoice_date' => date("Y-m-d"),
                     'around_royalty' => 0,
@@ -4427,7 +4431,7 @@ class Invoice extends CI_Controller {
                 $w['length'] = -1;
                 $w['where_in'] = array("spare_parts_details.id" => $is_validate['data']);
                 $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, booking_details.partner_id, "
-                        . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state, parts_shipped";
+                        . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state, parts_shipped, spare_parts_details.shipped_quantity, spare_parts_details.shipped_inventory_id";
                 $data = $this->inventory_model->get_spare_parts_query($w);
                 
                 $unique_partner = array_unique(array_map(function ($k) {
@@ -4463,31 +4467,34 @@ class Invoice extends CI_Controller {
                             array_push($booking_id_array, $value->booking_id);
                             $igst_rate = $cgst_rate = $sgst_rate = 0;
                             $igst_amount = $cgst_amount = $sgst_amount = 0;
+                            $shipped_quantity = (!is_null($value->shipped_quantity) ? $value->shipped_quantity : 1);
+                            $taxable_value = sprintf("%.2f", ($part_data[$value->id]['basic_amount']*$shipped_quantity));
                             if($c_s_gst){
                                 $cgst_rate = $sgst_rate = $part_data[$value->id]['gst_rate']/2;
-                                $cgst_amount = $sgst_amount = (($part_data[$value->id]['basic_amount'] * $part_data[$value->id]['gst_rate'])/100)/2;
+                                $cgst_amount = $sgst_amount = (($taxable_value * $part_data[$value->id]['gst_rate'])/100)/2;
                                 $total_cgst_amount += $cgst_amount;
                             } else {
                                 $igst_rate = $part_data[$value->id]['gst_rate'];
-                                $igst_amount = (($part_data[$value->id]['basic_amount'] * $part_data[$value->id]['gst_rate'])/100);
+                                $igst_amount = (($taxable_value * $part_data[$value->id]['gst_rate'])/100);
                                 $total_igst_ampount += $igst_amount;
                             }
-                            $total_amount = $part_data[$value->id]['basic_amount'] + $igst_amount +$cgst_amount + $sgst_amount;
+                            $total_amount = $taxable_value + $igst_amount +$cgst_amount + $sgst_amount;
                             $total_amount_collected += $total_amount;
-                            $total_part_basic += $part_data[$value->id]['basic_amount'];
+                            $total_part_basic += $taxable_value;
                             $invoice_details = array(
                                 "invoice_id" => $invoice_id,
                                 "description" => $value->parts_shipped,
-                                "qty" => 1,
+                                "qty" => $shipped_quantity,
                                 "product_or_services" => "Parts",
-                                "rate" => $part_data[$value->id]['basic_amount'],
-                                "taxable_value" => $part_data[$value->id]['basic_amount'],
+                                "rate" => sprintf("%.2f", ($taxable_value/$shipped_quantity)),
+                                "taxable_value" => $taxable_value,
                                 "cgst_tax_rate" => $cgst_rate,
                                 "sgst_tax_rate" => $sgst_rate,
                                 "igst_tax_rate" => $igst_rate,
                                 "cgst_tax_amount" => $cgst_amount,
                                 "sgst_tax_amount" => $sgst_amount,
                                 "spare_id" => $value->id,
+                                "inventory_id" => (isset($value->shipped_inventory_id) ? $value->shipped_inventory_id : NULL),
                                 "igst_tax_amount" => $igst_amount,
                                 "hsn_code" => $part_data[$value->id]['hsn_code'],
                                 "total_amount" => $total_amount,
@@ -4761,6 +4768,24 @@ class Invoice extends CI_Controller {
 
                         $status = $this->invoices_model->insert_new_invoice($data);
                         
+//                        $invoice_details = array(0 => array(
+//                                "invoice_id" => $data['invoice_id'],
+//                                "description" => $part_description,
+//                                "qty" => 1,
+//                                "product_or_services" => "Product",
+//                                "rate" => $parts_rate,
+//                                "taxable_value" => $parts_rate,
+//                                "cgst_tax_rate" => $data['cgst_tax_rate'],
+//                                "sgst_tax_rate" => $data['sgst_tax_rate'],
+//                                "igst_tax_rate" => $data['igst_tax_rate'],
+//                                "cgst_tax_amount" => $data['cgst_tax_amount'],
+//                                "sgst_tax_amount" => $data['sgst_tax_amount'],
+//                                "igst_tax_amount" => $data['igst_tax_amount'],
+//                                "hsn_code" => $data['hsn_code'],
+//                                "total_amount" => $data['total_amount_collected'],
+//                                "create_date" => date('Y-m-d H:i:s')
+//                            )
+//                        );
                         //Insert invoice Breakup
                         $this->insert_invoice_breakup($response);
                 
@@ -4955,6 +4980,8 @@ class Invoice extends CI_Controller {
             $invoice_details = array(
                 "invoice_id" => $invoice['meta']['invoice_id'],
                 "description" => $value['description'],
+                "inventory_id" => (isset($value['inventory_id']) ? $value['inventory_id'] : NULL),
+                "spare_id" => (isset($value['spare_id']) ? $value['spare_id'] : NULL),
                 "qty" => $value['qty'],
                 "product_or_services" => $value['product_or_services'],
                 "rate" => $value['rate'],
