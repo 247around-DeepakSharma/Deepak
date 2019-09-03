@@ -2441,6 +2441,8 @@ class engineerApi extends CI_Controller {
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_is_broken'] = $en[0]['is_broken'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_internal_status'] = $en[0]['internal_status'];
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_purchase_date'] = $en[0]['sf_purchase_date'];
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_model_number'] =  $en[0]['model_number'];
                         if ($en[0]['is_broken'] == 1) {
                             $broken = 1;
                         }
