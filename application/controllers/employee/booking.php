@@ -58,12 +58,13 @@ class Booking extends CI_Controller {
         $this->load->helper('file');
         $this->load->dbutil();
         // Mention those functions whom you want to skip from employee specific validations
-        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details'];
+        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput'];
         $arr_url_segments = $this->uri->segments; 
         $allowedForSF = 0;
         if(!empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){        
             $allowedForSF = 1;
         }
+        
         if(!$allowedForSF){
             if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
                 return TRUE;
@@ -71,14 +72,19 @@ class Booking extends CI_Controller {
                 redirect(base_url() . "employee/login");
             } 
         }
-        else{
-          if ((($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) || ($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
-            return TRUE;
-          } 
-          else {
-            log_message('info', __FUNCTION__. " Session Expire for Service Center");
-            $this->session->sess_destroy();
-            redirect(base_url() . "service_center/login");
+       else{
+            if(in_array("Api_getAllBookingInput", $arr_url_segments)){
+                return TRUE;
+            }
+            else{
+                if ((($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) || ($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+                    return TRUE;
+                } 
+                else {
+                    log_message('info', __FUNCTION__. " Session Expire for Service Center");
+                    $this->session->sess_destroy();
+                    redirect(base_url() . "service_center/login");
+                }
             }
         }
     }
@@ -137,6 +143,11 @@ class Booking extends CI_Controller {
             echo $error->show_error($heading, $message, 'custom_error');
         }
     }
+    
+    function Api_getAllBookingInput($user_id, $booking_id){
+        $_POST = json_decode(file_get_contents('php://input'), true);
+        $this->getAllBookingInput($user_id, $booking_id);
+    }
 
     /**
      *  @desc : This function is used to insert or update data in booking unit details and appliance details table
@@ -145,7 +156,7 @@ class Booking extends CI_Controller {
      */
     function getAllBookingInput($user_id, $booking_id) {
         log_message('info', __FUNCTION__);
-        log_message('info', " Booking Insert " . $user_id . " Booking ID" . $booking_id . " Done By " . $this->session->userdata('employee_id'));
+        //log_message('info', " Booking Insert " . $user_id . " Booking ID" . $booking_id . " Done By " . $this->session->userdata('employee_id'));
 
         $updated_unit_id = array();
 
