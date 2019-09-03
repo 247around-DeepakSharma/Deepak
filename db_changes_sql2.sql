@@ -649,3 +649,6 @@ values ('247Around','RM Mapping','employee/user/rm_state_mapping',1,'admin,devel
 --Abhishek--2-sep-2019
 ALTER TABLE `spare_parts_details` ADD `shipped_to_partner_qty` INT(11) NOT NULL DEFAULT '1' AFTER `shipped_quantity`;
  
+-- Ankit 03-09-2019
+ALTER TABLE spare_consumption_status ADD COLUMN status_description text NULL DEFAULT NULL AFTER consumed_status; 
+
