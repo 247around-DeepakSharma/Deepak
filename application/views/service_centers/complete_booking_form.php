@@ -593,7 +593,7 @@
                                     <th width="27%">
                                          <a href="javascript:void(0);" data-trigger="hover" data-html="true" data-toggle="popover" data-placement="left" title="Consumption Status Description" data-content="">
                                             <span class="glyphicon glyphicon-info-sign"></span>
-                                        </a> Consumption Status<span style="color:red;">*</span> 
+                                        </a> Consumption Reason<span style="color:red;">*</span> 
                                        
                                     </th>
                                 </thead>
@@ -606,7 +606,7 @@
                                         <td><?php echo $spare_part_detail['parts_requested_type']; ?></td>
                                         <td><?php echo $spare_part_detail['status']?></td>
                                         <td><select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
-                                                <option value="" selected disabled>Select Status</option>
+                                                <option value="" selected disabled>Select Reason</option>
                                                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
                                                     if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
                                                     <option value="<?php echo $status['id']; ?>"><?php echo $status['consumed_status']; ?></option>

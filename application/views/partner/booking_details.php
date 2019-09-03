@@ -321,6 +321,7 @@
                                                             <th >Remarks By SC </th>
                                                             <th >Current Status</th>
                                                             <th >Spare Cancellation Reason</th>
+                                                            <th>Consumption</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody> 
@@ -374,6 +375,7 @@
                                                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                                                 <td><?php echo $sp['status']; ?></td>
                                                                 <td><?php echo $sp['part_cancel_reason'];?></td>
+                                                                <td><?php if($sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
                                                             </tr>
                                                             <?php
                                                             if (!is_null($sp['parts_shipped'])) {
