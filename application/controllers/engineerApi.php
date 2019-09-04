@@ -3018,15 +3018,21 @@ class engineerApi extends CI_Controller {
             }
             else{
                 $is_spare_requested = $this->is_spare_requested($booking_details);
-                if($is_spare_requested){ 
+                if($is_spare_requested){
                     $edit_call_type = false;
                     $warranty_checker = false;
                     $warranty_status = false;
                     log_message("info", __METHOD__ . " Spare is already requested, You can not Edit this Booking ");
                     $this->sendJsonResponse(array('0054', 'Spare is already requested, You can not Edit this Booking'));
                 }
-                else{
-                    $check_request = $this->booking_creation_lib->checkPriceTagValidation($request_types);
+                else{ 
+                    foreach ($request_types as $request_type) {
+                        $check_request = $this->booking_creation_lib->checkPriceTagValidation($request_type);
+                        if(!$check_request){ 
+                            break;
+                        }
+                    }
+                    
                     if(!$check_request){
                         $edit_call_type = false;
                         $warranty_checker = false;
