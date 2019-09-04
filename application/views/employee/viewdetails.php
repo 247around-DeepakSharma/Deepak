@@ -599,6 +599,8 @@
                                         <th >Remarks By SC </th>
                                         <th >Current Status</th>
                                         <th >Spare Cancellation Reason</th>
+                                        <th>Consumption</th>
+                                        <th>Consumption Reason</th>
                                         <th>Move To Vendor</th>
                                         <th>Move To Partner</th>
                                         <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
@@ -648,7 +650,8 @@
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
                                         <td><?php echo $sp['part_cancel_reason'];?></td>
-
+                                        <td><?php if($sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
+                                        <td><?php echo $sp['consumed_status']; ?></td>
                                      <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <?php  if($sp['entity_type']==_247AROUND_PARTNER_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
                                             <td>
