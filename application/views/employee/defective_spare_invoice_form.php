@@ -135,7 +135,7 @@
                         html += "</tr>";
                         index++;
                     }
-                    html += "<tr><td colspan='9'><input type='text' id='remarks' style='height: 50px;' class='form-control' placeholder='Enter Remark for generating defective spare invoice for vendor'></td><td><input type='button' class='btn btn-primary' value='Submit' onclick='generate_spare_invoice()'></td></tr>";
+                    html += "<tr><td colspan='9'><input type='text' id='remarks' style='height: 50px;' class='form-control' placeholder='Enter Remark for generating defective spare invoice for vendor'></td><td><input type='button' id='btn_submit' class='btn btn-primary' value='Submit' onclick='generate_spare_invoice()'></td></tr>";
                     $("#defective_spare_detail").css("display", "inline-table");
                     $("#defective_spare_detail tbody").html(html);
                     $("select").select2();
@@ -158,6 +158,7 @@
     }
     
     function generate_spare_invoice(){
+        $('#btn_submit').attr("disabled",true);
         if($("input:checkbox[name=spare_checkbox]:checked").length !== 0){
             var booking_id = $("#booking_id").val();
             var flag = true;
@@ -208,6 +209,7 @@
                     $("#defective_spare_detail tbody").html("");
                     $("#booking_id").val(null);
                     $('body').loadingModal('destroy');
+                    $('#btn_submit').removeAttr("disabled");
                    if(response == true){
                        alert("Invoice generated successfully");
                    }
@@ -222,14 +224,17 @@
                 });
                }
                else{
+                $('#btn_submit').removeAttr("disabled");
                 alert("Please Enter Remark");
                }
             }
             else{
-               alert("Enter input fields for checked spare parts");
+                $('#btn_submit').removeAttr("disabled");
+                alert("Enter input fields for checked spare parts");
             }
         }
         else{
+            $('#btn_submit').removeAttr("disabled");
             alert("Please select atleast one checkbox");
         }
     }
