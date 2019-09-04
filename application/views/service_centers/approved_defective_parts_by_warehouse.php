@@ -61,6 +61,7 @@
                             <th class="text-center">AWB</th>
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">Remarks</th>
+                            <th class="text-center">Quantity</th>
                             <th class="text-center">
                                 Send To Partner
                                 <input type="checkbox" id="send_all">
@@ -97,6 +98,9 @@
                                     </td>
                                      <td>
                                         <?php echo $row['remarks_defective_part_by_sf']; ?>
+                                    </td>
+                                    <td>
+                                        <input type="number" min="1" value="<?php echo $row['shipped_quantity']?>" data-shipping_quantity="<?php echo $row['shipped_quantity']?>" id="spare<?php echo $row['id']?>" name="shipping_quantity">
                                     </td>
                                     <td>
                                         
@@ -229,7 +233,6 @@
             tmp_arr[key]['is_micro_wh'] = $(this).attr('data-is_micro_wh');
             tmp_arr[key]['defective_return_to_entity_id'] = $(this).attr('data-defective_return_to_entity_id');
             tmp_arr[key]['defective_return_to_entity_type'] = $(this).attr('data-defective_return_to_entity_type');
-            tmp_arr[key]['inventory_id'] = $(this).attr('data-shipped_inventory_id');
             tmp_arr[key]['booking_id'] = $(this).attr('data-booking_id');
             tmp_arr[key]['partner_id'] = $(this).attr('data-partner_id');
             tmp_arr[key]['spare_id'] = $(this).attr('data-spare_id');
@@ -238,6 +241,7 @@
             tmp_arr[key]['sent_entity_type'] = $(this).attr('data-entity_type');
             tmp_arr[key]['model'] = $(this).attr('data-model');
             tmp_arr[key]['booking_partner_id'] = $(this).attr('data-booking_partner_id');
+            tmp_arr[key]['shipping_quantity'] = $("#spare"+$(this).attr('data-spare_id')).val();
             flag = true;
         });
         

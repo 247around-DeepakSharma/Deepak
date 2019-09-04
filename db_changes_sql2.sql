@@ -1010,3 +1010,20 @@ UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =94051090;
 UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =94054090;
 UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =96121090;
 UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =99000000;
+
+--Abhishek--2-sep-2019
+ALTER TABLE `spare_parts_details` ADD `shipped_to_partner_qty` INT(11) NOT NULL DEFAULT '1' AFTER `shipped_quantity`;
+ 
+-- Kajal 02-09-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'sf_invoice_summary', 'SF Invoice Summary for period: %s to %s', 
+'Dear SF, Invoice Summary are as follows:- <br><br>%s<br>
+<br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s to %s', 
+'Dear Partner, Invoice Summary are as follows:- <br><br>%s<br>
+<br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
+ 
+-- Ankit 03-09-2019
+

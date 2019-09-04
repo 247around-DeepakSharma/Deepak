@@ -1003,7 +1003,7 @@ class Invoice_lib {
 
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
                 if (!empty($unsettle)) {
-                    $qty = 1;
+                    $qty = $value['shipping_quantity'];//1;
                     $inventory_details = $this->ci->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $value['inventory_id']));
                     $value['part_name'] = $inventory_details[0]['part_name'];
 
@@ -1161,6 +1161,7 @@ class Invoice_lib {
             "from_pincode" => $around_pincode,
             "from_city" => $around_city,
             "from_gst_number_id" => $b['to_gst_number'],
+            "shipping_quantity" => (!is_null($value['shipping_quantity']) ? $value['shipping_quantity'] : 1),
             );
         } else {
             return false;
