@@ -2915,6 +2915,13 @@ class engineerApi extends CI_Controller {
         }
     }
     
+    /*
+    @Auther - Kalyani Tekpure 
+    @Date - 30-Aug-2019
+    @Desc - This api is used to gather data for warranty checker screen which includes Model Number AND request type
+    @Param - $booking_id, $partner_id, $service_id
+    @Response - $model_number_list(Array), $booking_details(Array)
+    */
     function getWarrantyCheckerAndCallTypeData(){
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
@@ -2977,6 +2984,17 @@ class engineerApi extends CI_Controller {
         return false;
     }
     
+    
+    /*
+    @Auther - Kalyani Tekpure 
+    @Date - 03-Sept-2019
+    @Desc - This api is used to edit call type for booking and check warrenty status
+            in this we form the required data and call the existing function by curl which updates the booking call type.
+            also we includes some validations like -
+            1)If spare part already ordered on the booking than can't allow to edit call type.
+            2)We can not update same type of request type.
+            3)If warranty status is IW and booking request type is OW than we allow system to update call type.
+    */
     function submitWarrantyCheckerAndEditCallType(){
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
@@ -3023,6 +3041,7 @@ class engineerApi extends CI_Controller {
                     $warranty_checker = false;
                     $warranty_status = false;
                     log_message("info", __METHOD__ . " Spare is already requested, You can not Edit this Booking ");
+                    $this->jsonResponseString['response'] = array("warranty_flag" => 1, "message" => "Spare is already requested, You can not Edit this Booking");
                     $this->sendJsonResponse(array('0054', 'Spare is already requested, You can not Edit this Booking'));
                 }
                 else{ 
@@ -3038,6 +3057,7 @@ class engineerApi extends CI_Controller {
                         $warranty_checker = false;
                         $warranty_status = false;
                         log_message("info", __METHOD__ . " Not Allow to select multiple different type of service category ");
+                        $this->jsonResponseString['response'] = array("warranty_flag" => 1, "message" => "Not Allow to select multiple different type of service category");
                         $this->sendJsonResponse(array('0055', 'Not Allow to select multiple different type of service category'));
                     }
                     else{
@@ -3196,7 +3216,7 @@ class engineerApi extends CI_Controller {
                     CURLOPT_POSTFIELDS => $postdata
                 ));
 
-                $response = curl_exec($ch);
+                $curl_response = curl_exec($ch);
                
                 //$this->asynchronous_lib->do_background_process($url, $curl_data);
                 $this->partner_cb->partner_callback($requestData["booking_id"]);
