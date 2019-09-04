@@ -2051,6 +2051,7 @@ class Inventory extends CI_Controller {
     function spare_invoice_list() {
         log_message("info", __METHOD__);
         $w['length'] = -1;
+        $w['spare_invoice_flag'] = true;
         $w['where'] = array("spare_parts_details.part_warranty_status" => 2,
             "status != 'Cancelled'" => NULL,
             "spare_parts_details.create_date >= '2017-12-01'" => NULL,
@@ -2059,7 +2060,7 @@ class Inventory extends CI_Controller {
             "spare_parts_details.parts_shipped IS NOT NULL" => NULL,
             "spare_parts_details.is_micro_wh" => 0);
         $w['select'] = "spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.booking_id, purchase_price, public_name,"
-                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id,booking_details.request_type, spare_parts_details.status";
+                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id,booking_details.request_type, spare_parts_details.status,spare_invoice_details.invoice_id,spare_invoice_details.invoice_pdf";
         $data['spare'] = $this->inventory_model->get_spare_parts_query($w);
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/spare_invoice_list", $data);
@@ -3071,12 +3072,12 @@ class Inventory extends CI_Controller {
 
         $model_number_id = $this->input->post('model_number_id');
                 
-        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type', array('model_number_id' => $model_number_id,'inventory_model_mapping.active' =>1));
+        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type,inventory_master_list.service_id', array('model_number_id' => $model_number_id,'inventory_model_mapping.active' =>1));
   
         $option = '<option selected disabled>Select Part Type</option>';
 
         foreach ($inventory_type as $value) {
-            $option .= "<option value='" . $value['type'] . "'";
+            $option .= "<option data-service_id='" . $value['service_id'] . "' value='" . $value['type'] . "'";
             $option .=" > ";
             $option .= $value['type'] . "</option>";
         }
@@ -7351,4 +7352,42 @@ class Inventory extends CI_Controller {
          redirect(base_url() . "file_process/downloadFile/" . $file_name);
         
     }
+    
+    /**
+     *  @desc : This function is used to get HSN Code
+     *  @param : void
+     *  @return : $res array()
+     */
+    function get_hsn_code_list() {
+        
+        $service_id = $this->input->post("service_id");
+        $hsn_code_arr = $this->inventory_model->get_hsn_code_details('hsn_code_details.id,hsn_code_details.hsn_code,hsn_code_details.gst_rate', array('hsn_code_details.service_id'=> $service_id));
+        $option = '<option selected disabled>Select HSN Code </option>';
+
+        foreach ($hsn_code_arr as $value) {
+            $option .= "<option data-gst='" . $value['gst_rate'] . "' value='" . $value['hsn_code'] . "'>";
+            $option .= $value['hsn_code'] . "</option>";
+        }
+
+        echo $option;
+    }
+    /**
+     *  @desc : This function is used to Spare Invoice Details
+     *  @param : void
+     *  @return : $res array()
+     */
+    function get_spare_invoice_details(){
+        $spare_id_array = $this->input->post("spare_id_array");
+        if(!empty($spare_id_array)){
+          $spare_ids = implode(',',$spare_id_array);
+          $select = 'spare_parts_details.booking_id,spare_invoice_details.id,spare_invoice_details.invoice_id,spare_invoice_details.spare_id,spare_invoice_details.invoice_date,spare_invoice_details.hsn_code,spare_invoice_details.invoice_amount,spare_invoice_details.gst_rate,spare_invoice_details.invoice_pdf';
+          $where = array("spare_invoice_details.spare_id IN(".$spare_ids.")" => NULL); 
+          
+          $invoice_details = $this->inventory_model->get_spare_invoice_details($select, $where); 
+        }
+        
+        echo json_encode($invoice_details);
+        
+    }
+
 }
