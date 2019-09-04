@@ -6244,9 +6244,21 @@ class Partner extends CI_Controller {
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0);
-        $heading = ['Customer Remarks', 'Reschedule Remarks' ,'Brand Reference ID', '247around Booking ID', 'Service Center Name', 'Create Date',	'Brand', 'Date of Purchase', 'Model', 'SF Model', 'Product Serial Number', 'Product', 'Category', 'Capacity', 'Description', 'Customer Name', 'Address', 'Pincode', 'City', 'State', 'Phone', 'Email', 'Service Type',	'Customer Remarks', 'Reschedule Remarks', 'Closing Remarks', 'Cancellation Remarks', 'Current Booking Date',	'First Booking Date',	'Timeslot',	'Final Status Level 2',	'Final Status Level 1',	'Is Upcountry',	'Completion Date',	'TAT',	'Ageing',	'Rating',	'Rating Comments',	'Requested Part Code',	'Requested Part',	'Part Requested Date',	'Shipped Part Code',	'Shipped Part',	'Part Shipped Date',	'SF Acknowledged Date',	'Shipped Defective Part Code',	'Shipped Defective Part', 'Defective Part Shipped Date', 'Symptom', 'SF Symptom', 'Defect', 'Solution'];
-        $this->miscelleneous->downloadCSV($report->result_array(), $heading, $newCSVFileName);
-        return true;
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+         unlink($csv);
     }
       function checked_complete_review_booking() {
         $requested_bookings = $this->input->post('approved_booking');
