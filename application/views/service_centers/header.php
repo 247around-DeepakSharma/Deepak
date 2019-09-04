@@ -290,6 +290,8 @@
                                 <li class="divider" style="height: 1.5px;"></li>
                                 <li class=""><a href="<?php echo base_url(); ?>service_center/inventory/appliance_model_list"><strong>Inventory Model Detail  </strong></a></li>
                                 <li class="divider"></li>
+                                <li><a href="<?php echo base_url();?>service_center/inventory/download_invoice_ledger"><strong>Download MWH invoice ledger</strong></a></li>
+                                <li class="divider"></li>
                                 <?php if($this->session->userdata('is_micro_wh') == 1){ ?>
                                 <li><a href="<?php echo base_url();?>service_center/acknowledge_spares_send_by_partner"><strong>Acknowledge Spares Send By Partner </strong></a></li>
                                 <li class="divider" style="height: 1.5px;"></li>
