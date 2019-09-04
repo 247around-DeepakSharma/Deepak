@@ -1874,11 +1874,11 @@ class Inventory_model extends CI_Model {
                 foreach ($data_spare_part_detail as  $value){
                     if($value['awb_by_sf'] == $data['awb_number']){
                        $courier_company_update_data['pickup_from'] = _247AROUND_SF_STRING;
-                       $this->update_spare_courier_details($value['id'], array('courier_charges_by_sf'=>$courier_amount));
+                       $this->update_spare_courier_details($value['id'], array('courier_charges_by_sf'=>$courier_amount,'around_pickup_from_service_center'=>1));
                     }
                     else if($value['awb_by_partner'] == $data['awb_number']){
                        $courier_company_update_data['pickup_from'] = _247AROUND_PARTNER_STRING;
-                       $this->update_spare_courier_details($value['id'], array('courier_price_by_partner'=>$courier_amount)); 
+                       $this->update_spare_courier_details($value['id'], array('courier_price_by_partner'=>$courier_amount,'around_pickup_from_partner'=>1)); 
                     }
                     
                 }
