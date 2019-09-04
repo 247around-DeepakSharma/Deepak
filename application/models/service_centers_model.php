@@ -1154,4 +1154,19 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         
         return $this->db->query($sql)->result_array();     
     }
+
+    
+        /**
+     * @desc: Insert booking details for spare parts
+     * @param Array $data
+     * @return boolean
+     */
+    function insert_data_into_spare_invoice_details($data){
+        
+       if(!empty($data)){
+         $this->db->insert('spare_invoice_details', $data);  
+       }       
+        log_message('info', __FUNCTION__ . '=> Insert Spare Parts: ' .$this->db->last_query());
+        return $this->db->insert_id();  
+    }
 }
