@@ -505,7 +505,7 @@ $('body').on('click', '.approved_nrn_booking', function() {
                                     }
                             );  
                              }else{
-                                  swal({title: "Error !", text: "Your approval not processed . Try again !", type: "error"},
+                                  swal({title: "Error !", text: "Your approval not processed . Some parts may be already shipped !", type: "error"},
                               function(){ 
                               //  location.reload();
                              });

@@ -40,10 +40,13 @@
                         <tr>
                             <th class="text-center">S.N</th>
                             <th class="text-center">Booking ID</th>
-                            <th class="text-center">Name</th>
+                            <th class="text-center">Customer Name</th>
+                            <th class="text-center">Product Name</th>
+                            <th class="text-center">Model Number</th>
+                            <th class="text-center">Date Of Purchase</th>
                             <th class="text-center">Spare Details</th>
                             <th class="text-center">Parts Number</th>   
-                             <th class="text-center">Quantity</th> 
+                            <th class="text-center">Quantity</th> 
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">Challan</th>
@@ -82,7 +85,7 @@
             },
             "columnDefs": [
                 {
-                    "targets": [0,2,6,4,7], //first column / numbering column
+                    "targets": [0,2,3,4,7,9,10], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  
