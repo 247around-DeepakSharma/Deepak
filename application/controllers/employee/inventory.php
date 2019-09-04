@@ -3643,8 +3643,8 @@ class Inventory extends CI_Controller {
             
             log_message('info', __METHOD__ . " Spare Data " . json_encode($spare, true));
             if (!empty($spare)) {
-                $qty = $value['quantity'];
                 foreach ($spare as $value) {
+                    $qty = $value['quantity'];
                     if ($ledger['quantity'] >= $qty) {
                         $data = array('entity_type' => _247AROUND_SF_STRING, 'partner_id' => $wh_id,
                             'wh_ack_received_part' => 0, 'inventory_invoice_on_booking' => 1, 'purchase_invoice_id' => $ledger['invoice_id'], 'sell_invoice_id' => (isset($ledger['micro_invoice_id'])? $ledger['micro_invoice_id'] : NULL));
@@ -4792,7 +4792,7 @@ class Inventory extends CI_Controller {
 
 
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $value['part_number']." ".$value['part_name'] . "  Reference Invoice ID " . $value['incoming_invoice_id'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $value['rate'];
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $value['rate']*$value['qty'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['invoice_id'] = $invoice_id;
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['product_or_services'] = "Product";
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_number'] = $value['to_gst_number'];
@@ -4811,13 +4811,13 @@ class Inventory extends CI_Controller {
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state'] = $state;
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'] = $value['rate'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_rate'] = $value['gst_rate'];
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = 1;
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $value['qty'];//1;
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['hsn_code'] = $value['hsn_code'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['inventory_id'] = $value['inventory_id'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['partner_id'] = $value['booking_partner_id'];
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['part_number'] = $value['part_number'];
                     } else {
-                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] + 1;
+                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] + $value['qty'];//1;
                         if (strpos($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'], $value['incoming_invoice_id']) == false) {
                             $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] . " - " . $value['incoming_invoice_id'];
                         } else {
@@ -5011,7 +5011,7 @@ class Inventory extends CI_Controller {
         $ledger_data['sender_entity_id'] = $sender_entity_id;
         $ledger_data['sender_entity_type'] = $sender_entity_type;
         $ledger_data['inventory_id'] = $value['inventory_id'];
-        $ledger_data['quantity'] = 1;
+        $ledger_data['quantity'] = $value['qty'];//1;
         $ledger_data['agent_id'] = $this->session->userdata('service_center_id');
         $ledger_data['agent_type'] = _247AROUND_SF_STRING;
         $ledger_data['booking_id'] = $value['booking_id'];
@@ -7195,10 +7195,10 @@ class Inventory extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
         
-        $select = "invoice_details.invoice_id AS 'Invoice Id', invoice_details.create_date AS 'Invoice Date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', part_number AS 'Part Number', "
+        $select = "invoice_details.invoice_id AS 'Invoice Id', date_format(invoice_details.create_date, \"%d-%m-%Y %h:%i:%s\") AS 'Invoice Date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', part_number AS 'Part Number', "
                 . "invoice_details.description AS 'Description', invoice_details.hsn_code AS 'HSN Code', invoice_details.qty AS 'Quantity', rate AS 'Rate', invoice_details.taxable_value AS 'Taxable Value', (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS 'GST Rate',"
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS 'GST Tax Amount', total_amount AS 'Total Amount', vendor_partner_invoices.type AS Type, entt_gst_dtl.gst_number AS 'From GST Number',entity_gst_details.gst_number AS 'To GST Number',"
-                . "vendor_partner_invoices.sub_category AS 'Sub Category',courier_details.AWB_no AS 'Awb_Number',courier_details.courier_name AS 'Courier Name',courier_details.shipment_date AS 'Shipment Date'";
+                . "vendor_partner_invoices.sub_category AS 'Sub Category',courier_details.AWB_no AS 'Awb_Number',courier_details.courier_name AS 'Courier Name',date_format(courier_details.shipment_date, \"%d-%m-%Y %H:%i:%s\") AS 'Shipment Date'";
         
         $where = array("sub_category IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_NEW_PART_RETURN."')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
