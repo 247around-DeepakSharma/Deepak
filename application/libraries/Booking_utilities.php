@@ -959,5 +959,16 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
         }
         return $newRequest;
     }
+    
+    function is_spare_requested($booking){
+        if(array_key_exists('spare_parts',$booking['booking_history'])){
+            foreach($booking['booking_history']['spare_parts'] as $values){
+                if($values['status'] != _247AROUND_CANCELLED){
+                     return true;
+                }
+            }
+        }
+        return false;
+    }
 
 }

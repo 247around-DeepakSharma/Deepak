@@ -1,5 +1,8 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
+<?php
+$str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
+?>
 <style>
     #dealer_list{
         float:left;
@@ -34,8 +37,14 @@
     }  
     <?php } ?>
     
-    
+    <?php if(!empty($str_disabled)) { ?> 
+    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, .select2-selection, .select2-container--default{
+        pointer-events : none !important;
+        background : #eee !important;
+    }    
+    <?php } ?>
 </style>
+
 <div id="page-wrapper" >
     <div class="container" >
         <?php if(validation_errors()){?>
