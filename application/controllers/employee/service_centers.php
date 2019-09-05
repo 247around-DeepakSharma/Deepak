@@ -3499,7 +3499,7 @@ class Service_centers extends CI_Controller {
                             $spare_parts['parts_shipped'] = $value['parts_requested'];
                             $spare_parts['challan_approx_value'] = $value['challan_approx_value'];
                             $spare_parts['part_number'] = $value['part_number'];
-                            $spare_parts['quantity'] = $value['quantity'];
+                            $spare_parts['shipped_quantity'] = $value['quantity'];
                         }
                         $spare_details[][] = $spare_parts;
                     }
@@ -5507,7 +5507,7 @@ class Service_centers extends CI_Controller {
                 $status = false;
                 $can_status = false;                
 
-                foreach ($part as $key => $part_details) {
+                foreach ($part as $key => $part_details) {                  
                     if ($part_details['shippingStatus'] == 1) {
 
                         $is_shipped_stock_available = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $part_details['inventory_id'], 'inventory_stocks.stock > 0' => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();                                               
@@ -5596,6 +5596,19 @@ class Service_centers extends CI_Controller {
                                 $where = array('id' => $part_details['spare_id']);
                                 $response = $this->service_centers_model->update_spare_parts($where, $data);
                                 $spare_id = $part_details['spare_id'];
+                            }
+                            
+                            
+                            if (!empty($spare_id)) {
+                                $post = array();
+                                $where_clause = array("spare_parts_details.id" => $spare_id, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING, "spare_parts_details.partner_challan_number IS NULL" => NULL);
+                                $post['where_in'] = array();
+                                $post['is_inventory'] = true;
+                                $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
+                                $part_details = $this->partner_model->get_spare_parts_by_any($select, $where_clause, true, false, false, $post);
+                                if (!empty($part_details)) {
+                                    $this->generate_challan_to_sf($part_details);
+                                }
                             }
 
                             if ($response) {
@@ -5703,7 +5716,73 @@ class Service_centers extends CI_Controller {
         }
     }
 
+     /**
+     * @desc: This function is used to generate SF challan if partner challan not exist in spare_parts_details.
+     * @param array $part_details
+     * @return Void
+     */
+    
+    function generate_challan_to_sf($part_details) {
+        if (!empty($part_details)) {
+            $spare_details = array();
+            foreach ($part_details as $value) {
+                $spare_parts = array();
+                if ($value['part_warranty_status'] !== SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                    $spare_parts['spare_id'] = $value['id'];
+                    $spare_parts['booking_id'] = $value['booking_id'];
+                    $spare_parts['parts_shipped'] = $value['parts_requested'];
+                    $spare_parts['challan_approx_value'] = $value['challan_approx_value'];
+                    $spare_parts['part_number'] = $value['part_number'];
+                    $spare_parts['shipped_quantity'] = $value['quantity'];
+                }
+                $spare_details[][] = $spare_parts;
+            }
+            $assigned_vendor_id = $part_details[0]['partner_id'];
+            $service_center_id = $part_details[0]['assigned_vendor_id'];
+        }
 
+        $sf_details = $this->vendor_model->getVendorDetails('name as company_name,address,district, pincode, state,sc_code,is_gst_doc,owner_name,signature_file,gst_no,is_signature_doc,primary_contact_name as contact_person_name, primary_contact_phone_1 as contact_number, service_centres.gst_no as gst_number', array('id' => $service_center_id));
+
+        if (!empty($part_details)) {
+            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number,service_centres.gst_no as gst_number";
+
+            $where = array('contact_person.entity_id' => $part_details[0]['partner_id'],
+                'contact_person.entity_type' => $part_details[0]['entity_type']);
+            $wh_address_details = $this->inventory_model->get_warehouse_details($select, $where, false, true, true);
+
+            $partner_details = array();
+
+            if ($part_details[0]['entity_type'] == _247AROUND_PARTNER_STRING) {
+                $partner_details = $this->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number', array('partners.id' => $part_details[0]['partner_id']));
+            } else if ($part_details[0]['entity_type'] === _247AROUND_SF_STRING) {
+                $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $part_details[0]['partner_id']));
+            }
+
+            if (!empty($wh_address_details)) {
+                $partner_details[0]['address'] = $wh_address_details[0]['address'];
+                $partner_details[0]['contact_person_name'] = $wh_address_details[0]['contact_person_name'];
+                $partner_details[0]['contact_number'] = $wh_address_details[0]['contact_number'];
+            }
+        }
+
+
+        $data = array();
+        if (!empty($sf_details)) {
+            $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
+            $sf_details[0]['address'] = $sf_details[0]['address'] . ", " . $sf_details[0]['district'] . ", Pincode -" . $sf_details[0]['pincode'] . ", " . $sf_details[0]['state'];
+        }
+
+        if (!empty($spare_details)) {
+            $data['partner_challan_file'] = $this->invoice_lib->process_create_sf_challan_file($sf_details, $partner_details, $data['partner_challan_number'], $spare_details);
+            if (!empty($data['partner_challan_file'])) {
+                if (!empty($spare_details)) {
+                    foreach ($spare_details as $val) {
+                        $this->service_centers_model->update_spare_parts(array('id' => $val[0]['spare_id']), $data);
+                    }
+                }
+            }
+        }
+    }
     /**
      * @desc: This function is used to received the defective parts shipped by SF to 247around warehouse
      * @param String $booking_id
