@@ -337,7 +337,7 @@ class Spare_parts extends CI_Controller {
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
 
         . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.quantity,spare_parts_details.shipped_quantity,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number ";
-        $post['column_order'] = array( NULL, NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,NULL, 'age_of_request',NULL, NULL);
+        $post['column_order'] = array( NULL, NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,NULL, 'age_of_request',NULL,NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type');
         $list = $this->inventory_model->get_spare_parts_query($post);
@@ -1167,6 +1167,13 @@ class Spare_parts extends CI_Controller {
         if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
         $row[] =  $part_status_text;    
         $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
+
+
+          if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){  
+            $row[] = '<a  class="btn btn-primary" href="' . base_url() . 'employee/spare_parts/update_spare_parts_on_approval/' . urlencode(base64_encode($spare_list->id)) . '" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
+            }
+
+
         if ($spare_list->defective_part_required == '0') {
             $required_parts = 'REQUIRED_PARTS';
             $text = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>';
