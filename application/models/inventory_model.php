@@ -334,7 +334,7 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
-    public function _get_spare_parts_query($post) {
+    public function _get_spare_parts_query($post) {       
         $this->db->from('spare_parts_details');
         $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) AS age_of_shipped_date,"
@@ -359,6 +359,11 @@ class Inventory_model extends CI_Model {
         if(isset($post['spare_cancel_reason'])){
             $this->db->join('booking_cancellation_reasons','booking_cancellation_reasons.id = spare_parts_details.spare_cancellation_reason', "left");
         }
+        
+        if( isset($post['spare_invoice_flag']) && !empty($post['spare_invoice_flag'])){
+            $this->db->join('spare_invoice_details', 'spare_parts_details.id = spare_invoice_details.spare_id','left');  
+        }
+        
         $this->db->join('services', 'booking_details.service_id = services.id','left');
         
         if (!empty($post['where'])) {
@@ -1869,11 +1874,11 @@ class Inventory_model extends CI_Model {
                 foreach ($data_spare_part_detail as  $value){
                     if($value['awb_by_sf'] == $data['awb_number']){
                        $courier_company_update_data['pickup_from'] = _247AROUND_SF_STRING;
-                       $this->update_spare_courier_details($value['id'], array('courier_charges_by_sf'=>$courier_amount));
+                       $this->update_spare_courier_details($value['id'], array('courier_charges_by_sf'=>$courier_amount,'around_pickup_from_service_center'=>1));
                     }
                     else if($value['awb_by_partner'] == $data['awb_number']){
                        $courier_company_update_data['pickup_from'] = _247AROUND_PARTNER_STRING;
-                       $this->update_spare_courier_details($value['id'], array('courier_price_by_partner'=>$courier_amount)); 
+                       $this->update_spare_courier_details($value['id'], array('courier_price_by_partner'=>$courier_amount,'around_pickup_from_partner'=>1)); 
                     }
                     
                 }
@@ -2858,6 +2863,46 @@ class Inventory_model extends CI_Model {
         }
         $query = $this->db->get();
         return $query;
+    }
+    
+    
+     /**
+     * @Desc: This function is used to get HSN Code Details
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_hsn_code_details($select,$where){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where,false);
+        }
+        $this->db->from('hsn_code_details');        
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+     /**
+     * @Desc: This function is used to get HSN Code Details
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_spare_invoice_details($select, $where) {
+
+        $this->db->select($select, false);
+        $this->db->from('spare_parts_details');
+        $this->db->join('spare_invoice_details', 'spare_parts_details.id = spare_invoice_details.spare_id');
+
+        if (!empty($where)) {
+            $this->db->where($where, false);
+        }
+       
+        $query = $this->db->get();
+        
+        return $query->result_array();
     }
 
 }

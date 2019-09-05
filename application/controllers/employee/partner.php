@@ -1987,9 +1987,14 @@ class Partner extends CI_Controller {
                 . "spare_parts_details.model_number, spare_parts_details.quantity,spare_parts_details.serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, "
                 . "purchase_price, estimate_cost_given_date,booking_details.partner_id,"
-                . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status, requested_inventory_id";
+                . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status, requested_inventory_id,booking_details.service_id";
         $where['is_inventory'] = true;
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
+        
+        if(!empty($data['spare_parts'])){
+         $data['request_type'] =  $data['spare_parts'][0]->request_type; 
+        }
+        
         $where = array();
         if(!empty($data['spare_parts'])) {
             $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'inventory_model_mapping.active' => 1);
@@ -1997,8 +2002,10 @@ class Partner extends CI_Controller {
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
         if(!empty($data['spare_parts'])) {
         $where1 = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id);
-        }
+        
         $data['appliance_model_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where1);
+        }
+        
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         
         
@@ -2020,8 +2027,8 @@ class Partner extends CI_Controller {
         if (!empty($this->input->post('courier_status'))) {
             $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
             $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
-            $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
-            //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');  
+           //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
+           //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');  
             if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                 $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
             }
@@ -2068,14 +2075,19 @@ class Partner extends CI_Controller {
             $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
             }   
         }
-           
-        $shipped_part_details = $this->input->post("part");
+        
+        if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+            $is_file = $this->validate_invoice_data();
+        }
 
+        $shipped_part_details = $this->input->post("part");
+        
         if (!empty($shipped_part_details)) {
             $spare_id_array = array();
+            $invoide_data = array();
             $current_status = "";
             $internal_status = "";
-            foreach ($shipped_part_details as $key => $value) {
+            foreach ($shipped_part_details as $key => $value) {               
                 if ($value['shippingStatus'] == 1) {
                     //$data['status'] = SPARE_SHIPPED_BY_PARTNER;
                     /*
@@ -2109,7 +2121,16 @@ class Partner extends CI_Controller {
                     } else {
                         $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
                     }
+                    
+                    if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
+                        if (!empty($spare_id)) {
+                            $invoide_data = array("invoice_id" => $value['invoice_id'],
+                                "spare_id" => $spare_id, "invoice_date" => $value['invoice_date'], "hsn_code" => $value['hsn_code'],
+                                "gst_rate" => $value['gst_rate'], "invoice_amount" => $value['invoiceamount'], "invoice_pdf" => $value['incoming_invoice']);
+                            $this->service_centers_model->insert_data_into_spare_invoice_details($invoide_data);
+                        }
+                    }
                     array_push($spare_id_array, $spare_id);
                     $current_status = "InProcess";
                     /*
@@ -2255,6 +2276,57 @@ class Partner extends CI_Controller {
         } else {
             return true;
         }
+    }
+    
+    
+    
+    function validate_invoice_data(){
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $booking_id = $this->input->post("booking_id");
+        $incoming_invoice = array();
+        if(!empty($_FILES['incominginvoice'])){
+            foreach($_FILES['incominginvoice']['name'] as $key1 => $val){
+                $a = array();
+                $a['name'] = $_FILES['incominginvoice']['name'][$key1];
+                $a['type'] = $_FILES['incominginvoice']['type'][$key1];
+                $a['tmp_name'] = $_FILES['incominginvoice']['tmp_name'][$key1];
+                $a['error'] = $_FILES['incominginvoice']['error'][$key1];
+                $a['size'] = $_FILES['incominginvoice']['size'][$key1];
+                $incoming_invoice[$key1] = $a;
+                //array_push($defective_parts, $a);
+            }
+            
+        }
+       
+        $message['code'] = true;
+        if(!empty($incoming_invoice)){
+            foreach($incoming_invoice as $key => $value){
+                $d = $this->miscelleneous->upload_file_to_s3($value, 
+                    "sp_parts_invoice", $allowedExts, $booking_id, "invoices-excel", "incoming_invoice_pdf");
+                if(!empty($d)){
+                    $_POST['part'][$key]['incoming_invoice'] = $d;
+                } else {
+                    $message['code'] = false;
+                    $message['message'] = "Defective Front Parts Image is not supported. Allow maximum file size is 2 MB. It supported only PNG/JPG";
+                    break;
+                }
+            }
+        } else {
+            $message['code'] = false;
+            $message['message'] = "Please upload Defective Front Parts Image";
+        }
+        
+        if(!empty($message['code'])){
+                $template = $this->booking_model->get_booking_email_template("OOW_invoice_sent");
+                if (!empty($template)) {
+                    $attachment = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $d;
+                    $subject = vsprintf($template[4], $booking_id);
+                    $emailBody = vsprintf($template[0], $this->input->post("invoice_amount"));
+                    $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment,'OOW_invoice_sent', "", $booking_id);
+                } 
+        }
+       
+        return $message;
     }
 
     function download_spare_parts() {
@@ -6246,9 +6318,21 @@ class Partner extends CI_Controller {
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0);
-        $heading = ['Customer Remarks', 'Reschedule Remarks' ,'Brand Reference ID', '247around Booking ID', 'Service Center Name', 'Create Date',	'Brand', 'Date of Purchase', 'Model', 'SF Model', 'Product Serial Number', 'Product', 'Category', 'Capacity', 'Description', 'Customer Name', 'Address', 'Pincode', 'City', 'State', 'Phone', 'Email', 'Service Type',	'Customer Remarks', 'Reschedule Remarks', 'Closing Remarks', 'Cancellation Remarks', 'Current Booking Date',	'First Booking Date',	'Timeslot',	'Final Status Level 2',	'Final Status Level 1',	'Is Upcountry',	'Completion Date',	'TAT',	'Ageing',	'Rating',	'Rating Comments',	'Requested Part Code',	'Requested Part',	'Part Requested Date',	'Shipped Part Code',	'Shipped Part',	'Part Shipped Date',	'SF Acknowledged Date',	'Shipped Defective Part Code',	'Shipped Defective Part', 'Defective Part Shipped Date', 'Symptom', 'SF Symptom', 'Defect', 'Solution'];
-        $this->miscelleneous->downloadCSV($report->result_array(), $heading, $newCSVFileName);
-        return true;
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($report, $delimiter, $newline);
+        log_message('info', __FUNCTION__ . ' => Rendered CSV');
+        write_file($csv, $new_report);
+        header('Content-Description: File Transfer');
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . basename($csv) . '"');
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($csv));
+        readfile($csv);
+        exec("rm -rf " . escapeshellarg($csv));
+         unlink($csv);
     }
       function checked_complete_review_booking() {
         $requested_bookings = $this->input->post('approved_booking');
