@@ -4716,7 +4716,7 @@ class Inventory extends CI_Controller {
                     'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
                 );
                 $this->table->set_template($template1);
-                $this->table->set_heading(array('Part Name', 'Reference Invoice ID', 'Booking Id'));
+                $this->table->set_heading(array('Part Name', 'Invoice ID', 'Reference Invoice ID', 'Total Qty', 'Total Amount', 'Booking Id'));
                 
                 $tmp_k = explode('-', $key);
                 $tmp_invoice = "ARD-".$tmp_k[0];
@@ -4730,7 +4730,6 @@ class Inventory extends CI_Controller {
                 foreach ($invoiceValue['data'] as $value) {
                     //Push booking ID
                     array_push($booking_id_array, $value['booking_id']);
-                    $this->table->add_row($value['part_name'], $value['incoming_invoice_id'], $value['booking_id']);
 
                     if (!array_key_exists($value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0), $invoice)) {
 
@@ -4770,6 +4769,8 @@ class Inventory extends CI_Controller {
 
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] * $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'];
                     }
+                    
+                    $this->table->add_row($value['part_name'], $invoice_id, $value['incoming_invoice_id'], $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'], $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'], $value['booking_id']);
 
                     $l = $this->get_ledger_data($value, $sender_entity_id, $sender_entity_type, $invoice_id, $courier_id);
                     array_push($ledger_data, $l);
@@ -4923,7 +4924,7 @@ class Inventory extends CI_Controller {
 //                                    }
                 //generate courier details table
                 $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date'));
-                $this->table->add_row(array($courier_name_by_wh, $awb_by_wh, $defective_parts_shippped_date_by_wh));
+                $this->table->add_row(array($courier_name_by_wh, $awb_by_wh, date('d-m-Y', strtotime($defective_parts_shippped_date_by_wh))));
                 $courier_details_table = $this->table->generate();
                 $partner_details = $this->partner_model->getpartner_details('public_name', array('partners.id' => $booking_partner_id));
                 $partner_name = '';
@@ -4935,7 +4936,7 @@ class Inventory extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($wh_name, $partner_name));
                 $message = vsprintf($email_template[0], array($wh_name, $parts_table, $courier_details_table));
                 $bcc = $email_template[5];
-                $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $main_file, 'defective_spare_send_by_wh_to_partner', $detailed_file);
+                $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $main_file, MSL_SEND_BY_WH_TO_PARTNER, $detailed_file);
                 
                 unlink(TMP_FOLDER . $invoice_id."-detailed.xlsx");
                 unlink(TMP_FOLDER . $invoice_id.".pdf");

@@ -623,3 +623,7 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s to %s', 
 'Dear Partner, Invoice Summary are as follows:- <br><br>%s<br>
 <br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+-- Kajal 04-09-2019
+UPDATE `email_template` SET `subject` = 'Spare shipped by %s to %s' , `template` = 'Dear Partner,<br><br> <b>%s</b> shipped below spare to your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around' , `cc` = 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com' WHERE `email_template`.`tag` = 'msl_send_by_wh_to_partner';
+
