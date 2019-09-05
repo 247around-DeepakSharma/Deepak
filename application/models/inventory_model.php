@@ -658,25 +658,29 @@ class Inventory_model extends CI_Model {
 
         $inventory_stock_details = array();
         if (!empty($inventory_id)) {
-            $where_clause = "AND alternate_inventory_set.status = 1 AND alternate_inventory_set.inventory_id = ".$inventory_id;
-             $flag = true;
-            $inventory_id_sets = $this->get_group_wise_inventory_id_detail('alternate_inventory_set.inventory_id', $where_clause, $flag);
-            if(!empty($inventory_id_sets)){
-                $inventory_ids = implode(',', array_map(function ($entry) {
-                        return $entry['inventory_id'];
-                    }, $inventory_id_sets));
-                    
-                if (!empty($service_center_id)) {
-                    $where = "inventory_stocks.entity_id = " . $service_center_id;
-                } else {
-                    $where = "service_centres.is_wh = 1 ";
-                }
-                
-                $where .= " AND appliance_model_details.model_number ='".$model_number."' AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
-                if (!empty($inventory_ids)) {
-                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock - inventory_stocks.pending_request_count) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name, inventory_master_list.type', $where, $inventory_ids);
-                }
+            $model = $this->get_appliance_model_details("*", array('model_number' => $model_number, "appliance_model_details.active" => 1));
+            if(!empty($model)){
+                $where_clause = "AND alternate_inventory_set.status = 1 AND model_id = '".$model[0]['id']."' AND alternate_inventory_set.inventory_id = ".$inventory_id;
+                $flag = true;
+                $inventory_id_sets = $this->get_group_wise_inventory_id_detail('alternate_inventory_set.inventory_id', $where_clause, $flag);
+                if(!empty($inventory_id_sets)){
+                   $inventory_ids = implode(',', array_map(function ($entry) {
+                           return $entry['inventory_id'];
+                       }, $inventory_id_sets));
+
+                   if (!empty($service_center_id)) {
+                       $where = "inventory_stocks.entity_id = " . $service_center_id;
+                   } else {
+                       $where = "service_centres.is_wh = 1 ";
+                   }
+
+                   $where .= " AND appliance_model_details.id ='".$model[0]['id']."' AND appliance_model_details.active = 1 AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
+                   if (!empty($inventory_ids)) {
+                       $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock - inventory_stocks.pending_request_count) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name, inventory_master_list.type', $where, $inventory_ids);
+                   }
+               }
             }
+            
         }
 
         return $inventory_stock_details;
