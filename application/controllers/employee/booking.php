@@ -58,12 +58,13 @@ class Booking extends CI_Controller {
         $this->load->helper('file');
         $this->load->dbutil();
         // Mention those functions whom you want to skip from employee specific validations
-        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details'];
+        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput'];
         $arr_url_segments = $this->uri->segments; 
         $allowedForSF = 0;
         if(!empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){        
             $allowedForSF = 1;
         }
+        
         if(!$allowedForSF){
             if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
                 return TRUE;
@@ -71,14 +72,19 @@ class Booking extends CI_Controller {
                 redirect(base_url() . "employee/login");
             } 
         }
-        else{
-          if ((($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) || ($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
-            return TRUE;
-          } 
-          else {
-            log_message('info', __FUNCTION__. " Session Expire for Service Center");
-            $this->session->sess_destroy();
-            redirect(base_url() . "service_center/login");
+       else{
+            if(in_array("Api_getAllBookingInput", $arr_url_segments)){
+                return TRUE;
+            }
+            else{
+                if ((($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) || ($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+                    return TRUE;
+                } 
+                else {
+                    log_message('info', __FUNCTION__. " Session Expire for Service Center");
+                    $this->session->sess_destroy();
+                    redirect(base_url() . "service_center/login");
+                }
             }
         }
     }
@@ -137,6 +143,11 @@ class Booking extends CI_Controller {
             echo $error->show_error($heading, $message, 'custom_error');
         }
     }
+    
+    function Api_getAllBookingInput($user_id, $booking_id){
+        $_POST = json_decode(file_get_contents('php://input'), true);
+        $this->getAllBookingInput($user_id, $booking_id);
+    }
 
     /**
      *  @desc : This function is used to insert or update data in booking unit details and appliance details table
@@ -145,7 +156,7 @@ class Booking extends CI_Controller {
      */
     function getAllBookingInput($user_id, $booking_id) {
         log_message('info', __FUNCTION__);
-        log_message('info', " Booking Insert " . $user_id . " Booking ID" . $booking_id . " Done By " . $this->session->userdata('employee_id'));
+        //log_message('info', " Booking Insert " . $user_id . " Booking ID" . $booking_id . " Done By " . $this->session->userdata('employee_id'));
 
         $updated_unit_id = array();
 
@@ -1462,7 +1473,7 @@ class Booking extends CI_Controller {
                 $checkboxClass = (($prices['service_category'] == REPEAT_BOOKING_TAG) ? "repeat_".$prices['product_or_services'] : $prices['product_or_services']);
                 $html .="<tr><td>" . $prices['service_category'] . "</td>";
                 $html .= "<td>" . $prices['customer_total'] . "</td>";
-                $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly/></td>";
+                $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/></td>";
                 $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 if(!$is_saas){
                     $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
@@ -1617,7 +1628,7 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This function is to view details of any particular booking.
      *
-     * 	We get all the details like User's details, booking details, and also the appliance's unit details.
+     *  We get all the details like User's details, booking details, and also the appliance's unit details.
      *
      *  @param : booking id
      *  @return : booking details and load view
@@ -1790,7 +1801,7 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This function is to get add new brand page
      *
-     * 	Through this we add a new brand for selected service.
+     *  Through this we add a new brand for selected service.
      *
      *  @param : void
      *  @return : list of active services present
@@ -1804,7 +1815,7 @@ class Booking extends CI_Controller {
     /**
      *  @desc : This function is to add new brand.
      *
-     * 	Enters the new brand to our existing brand list for a particular service
+     *  Enters the new brand to our existing brand list for a particular service
      *
      *  @param : void
      *  @return : add new brand and load view
@@ -1979,8 +1990,8 @@ class Booking extends CI_Controller {
         $callDetails['date_updated'] = (isset($_GET['DateUpdated'])) ? $_GET['DateUpdated'] : null;
 
         log_message('info', print_r($callDetails, true));
-//	//insert in database
-//	$this->apis->insertPassthruCall($callDetails);
+//  //insert in database
+//  $this->apis->insertPassthruCall($callDetails);
     }
 
     /**
