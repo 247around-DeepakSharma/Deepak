@@ -5000,7 +5000,7 @@ class Inventory extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($wh_name, $partner_name));
                 $message = vsprintf($email_template[0], array($wh_name, $parts_table, $courier_details_table));
                 $bcc = $email_template[5];
-                $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $main_file, 'defective_spare_send_by_wh_to_partner', $detailed_file);
+                $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $main_file, MSL_SEND_BY_WH_TO_PARTNER, $detailed_file);
                 
                 unlink(TMP_FOLDER . $invoice_id."-detailed.xlsx");
                 unlink(TMP_FOLDER . $invoice_id.".pdf");
@@ -6359,7 +6359,7 @@ class Inventory extends CI_Controller {
      */
     function get_inventory_parts_type() {
 
-        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.service_id,inventory_parts_type.part_type,inventory_parts_type.hsn_code_details_id', array('service_id' => $this->input->post('service_id')), TRUE);
+        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.service_id,inventory_parts_type.part_type,inventory_parts_type.hsn_code_details_id', array('inventory_parts_type.service_id' => $this->input->post('service_id')), TRUE);
 
         $option = '<option selected disabled>Select Part Type</option>';
 
