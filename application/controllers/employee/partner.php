@@ -5343,6 +5343,7 @@ class Partner extends CI_Controller {
             "Requested Quantity",
             "Requested Part Type",
             "Requested Part Date",
+            "Date Of Purchase",
             "Parts Charge",
             "Dispatched Part Code (To SF)",
             "Dispatched Part Name (To SF)",
@@ -5391,6 +5392,7 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['quantity'];
             $tempArray[] = $sparePartBookings['type'];
             $tempArray[] = ((!empty($sparePartBookings['date_of_request']))?date("d-m-Y",strtotime($sparePartBookings['date_of_request'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['date_of_purchase']))?date("d-m-Y", strtotime($sparePartBookings['date_of_purchase'])):'');
             $tempArray[] = $sparePartBookings['challan_approx_value'];
             $tempArray[] = $sparePartBookings['shipped_part_number'];
             $tempArray[] = $sparePartBookings['shipped_part_name'];
