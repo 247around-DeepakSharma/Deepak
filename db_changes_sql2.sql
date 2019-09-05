@@ -633,6 +633,7 @@ ALTER TABLE `inventory_master_list` ADD `is_invoice` INT(1) NOT NULL DEFAULT '0'
 insert into `header_navigation`(`entity_type`,`title`,`link`,`level`,`groups`,`nav_type`,`is_active`)
 values ('247Around','RM Mapping','employee/user/rm_state_mapping',1,'admin,developer','right_nav','1')
 -- Gorakh 31-08-2019
+ALTER TABLE `hsn_code_details` ADD `service_id` INT NULL DEFAULT NULL AFTER `agent_id`;
 CREATE TABLE `spare_invoice_details` (
   `id` int(11) NOT NULL,
   `invoice_id` varchar(255) NOT NULL,
