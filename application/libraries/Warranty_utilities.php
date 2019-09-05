@@ -153,4 +153,30 @@ class Warranty_utilities {
         endif; 
         return $warrantyStatus;
     }
+    
+    /**
+     * this function is used to get the warranty status of booking
+     * @author Prity Sharma
+     * @date 20-08-2019
+     * @return JSON
+     */
+    public function get_warranty_status_of_bookings($arrBookings){  
+        $arrWarrantyData = $this->get_warranty_data($arrBookings);  
+        $arrModelWiseWarrantyData = $this->get_model_wise_warranty_data($arrWarrantyData);         
+        foreach($arrBookings as $key => $arrBooking)
+        {            
+            $model_number = trim($arrBooking['model_number']);
+            if(!empty($arrModelWiseWarrantyData[$model_number]))
+            {   
+                $arrBookings[$key] = $this->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$model_number]);
+            }
+            elseif (!empty($arrBooking['service_id']) && !empty($arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']])) {
+                $arrBookings[$key] = $this->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']]);
+            }
+            $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
+            unset($arrBookings[$key]);
+        }
+        $arrBookingsWarrantyStatus = $this->get_bookings_warranty_status($arrBookings);   
+        return $arrBookingsWarrantyStatus;
+    }
 }

@@ -59,7 +59,7 @@ class Booking extends CI_Controller {
         $this->load->dbutil();
         
         // Mention those functions whom you want to skip from employee specific validations
-        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput'];
+        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput', 'getCategoryCapacityForModel','get_posible_parent_id'];
         $arr_url_segments = $this->uri->segments; 
         $allowedForSF = 0;
         if(!empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){        
@@ -328,6 +328,10 @@ class Booking extends CI_Controller {
                         default:
 
                             log_message('info', __METHOD__ . " Update Booking Unit Details: " . " Previous booking id: " . $booking_id);
+                            // save model and DOP values in SF_ columns while updating booking.
+                            $services_details['sf_model_number'] = $services_details['model_number'];
+                            $services_details['sf_purchase_date'] = $services_details['purchase_date'];
+                            // --------------------------------------------------------
                             if(!empty($this->session->userdata('id'))){
                                 $agent_details['agent_id'] = $id =  $this->session->userdata('id');
                                 $agent_details['agent_type'] = $agentType = _247AROUND_EMPLOYEE_STRING;
@@ -1436,6 +1440,7 @@ class Booking extends CI_Controller {
         $partner_id =  $this->input->post('partner_id');
         $assigned_vendor_id = $this->input->post('assigned_vendor_id');
         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $is_sf_panel = (($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) ? true : false;
         if($this->input->post('add_booking')){
             $add_booking = $this->input->post('add_booking');
         }
@@ -1474,7 +1479,11 @@ class Booking extends CI_Controller {
         }
 
         if (!empty($result)) {
-            if(!$is_saas){
+            if($is_sf_panel)
+            {
+                $html = "<thead><tr><th>Service Category</th><th>Final Charges</th><th>Selected Services</th></tr></thead>";
+            }
+            elseif(!$is_saas){
                 $html = "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr></thead>";
             }
             else{
@@ -1485,14 +1494,20 @@ class Booking extends CI_Controller {
             foreach ($result as $prices) {
                 $checkboxClass = (($prices['service_category'] == REPEAT_BOOKING_TAG) ? "repeat_".$prices['product_or_services'] : $prices['product_or_services']);
                 $html .="<tr><td>" . $prices['service_category'] . "</td>";
-                $html .= "<td>" . $prices['customer_total'] . "</td>";
-                $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/></td>";
-                $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
-                if(!$is_saas){
-                    $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
+                if(!$is_sf_panel)
+                {
+                    $html .= "<td>" . $prices['customer_total'] . "</td>";
+                    $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/></td>";
                 }
-                else{
-                    $html .= "<td><input  type='hidden' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
+                $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
+                if(!$is_sf_panel)
+                {
+                    if(!$is_saas){
+                        $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
+                    }
+                    else{
+                        $html .= "<td><input  type='hidden' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
+                    }
                 }
                 $html .= "<td><input type='hidden'name ='is_up_val'  data-customer_price = '".$prices['upcountry_customer_price']."' data-flat_upcountry = '".$prices['flat_upcountry']."' id='is_up_val_" . $i . "_" . $clone_number . "' value ='" . $prices['is_upcountry'] . "' /><input class='price_checkbox $checkboxClass'";
                 if($is_repeat) {
@@ -1507,10 +1522,10 @@ class Booking extends CI_Controller {
                 }
                 $html .= " name='prices[$brand_id][$clone_number][]'";
                 if($prices['service_category'] == REPEAT_BOOKING_TAG){
-                    $html .= " onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."' ></td><tr>";
+                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."' ></td><tr>";
                 }
                 else{
-                    $html .= " onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-price_tag='".$prices['service_category']."' ></td><tr>";
+                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-price_tag='".$prices['service_category']."' ></td><tr>";
                 }
                 $i++;
             }
@@ -1906,6 +1921,7 @@ class Booking extends CI_Controller {
         log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
         $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);
         $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);        
         if($booking){
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
@@ -5636,7 +5652,8 @@ class Booking extends CI_Controller {
             $bookings = $this->booking_model->getbooking_history($booking_id);
         }
         if (!empty($bookings)) {
-            if ($this->input->post()) {
+            $arr_post = $this->input->post();
+            if ($arr_post) {
                 $checkValidation = $this->booking_creation_lib->validate_booking();
 
                 if ($checkValidation) {
@@ -5651,7 +5668,14 @@ class Booking extends CI_Controller {
                         //Redirect to Default Search Page
                         $userSession = array('success' => 'Booking Request type for '.$booking_id.' hase been updated successfully');
                         $this->session->set_userdata($userSession);
-                        redirect(base_url() . 'employee/service_centers/pending_booking');
+                        if(!empty($arr_post['redirect_url']))
+                        {
+                            redirect($arr_post['redirect_url']);
+                        }
+                        else
+                        {
+                            redirect(base_url() . 'employee/service_centers/pending_booking');
+                        }                        
                     } else {
                         //Redirect to edit booking page if validation err occurs
                         $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact 247around Team');
@@ -5792,5 +5816,14 @@ class Booking extends CI_Controller {
         }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);   
         echo json_encode($arrBookingsWarrantyStatus);
+    }
+    
+    public function getCategoryCapacityForModel()
+    {
+        $partner_id = $this->input->post('partner_id');
+        $model_number = $this->input->post('model_number');
+        $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $model_number,
+                        'appliance_model_details.entity_id' => $partner_id));
+        echo json_encode($model_details);
     }
 }
