@@ -2880,7 +2880,7 @@ class Spare_parts extends CI_Controller {
      * @desc This function is used to process spare transfer
      */
   function bulkConversion_process() {
-        if (!empty($this->session->userdata('userType'))) {
+        if (empty($this->session->userdata('userType'))) {
          redirect(base_url() . "employee/login");
         }
     
@@ -3313,7 +3313,7 @@ class Spare_parts extends CI_Controller {
 
     }
     function bulkPartnerConversion_process(){
-        if (!empty($this->session->userdata('userType'))) {
+        if (empty($this->session->userdata('userType'))) {
          redirect(base_url() . "employee/login");
         }
     
