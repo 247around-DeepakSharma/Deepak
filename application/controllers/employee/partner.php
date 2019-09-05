@@ -5346,6 +5346,7 @@ class Partner extends CI_Controller {
     }
     
     function download_spare_part_shipped_by_partner($isAdmin=0,$partner_post=0){
+        ini_set('memory_limit', '-1');
         ob_start();
         $where = '1';
         if($isAdmin == 0 && $partner_post==0) {
@@ -5415,6 +5416,7 @@ class Partner extends CI_Controller {
             "Requested Quantity",
             "Requested Part Type",
             "Requested Part Date",
+            "Date Of Purchase",
             "Parts Charge",
             "Dispatched Part Code (To SF)",
             "Dispatched Part Name (To SF)",
@@ -5463,6 +5465,7 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['quantity'];
             $tempArray[] = $sparePartBookings['type'];
             $tempArray[] = ((!empty($sparePartBookings['date_of_request']))?date("d-m-Y",strtotime($sparePartBookings['date_of_request'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['date_of_purchase']))?date("d-m-Y", strtotime($sparePartBookings['date_of_purchase'])):'');
             $tempArray[] = $sparePartBookings['challan_approx_value'];
             $tempArray[] = $sparePartBookings['shipped_part_number'];
             $tempArray[] = $sparePartBookings['shipped_part_name'];

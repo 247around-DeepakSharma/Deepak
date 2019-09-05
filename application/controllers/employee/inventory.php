@@ -2861,7 +2861,7 @@ class Inventory extends CI_Controller {
      *  @return : $res array() // consist response message and response status
      */
 
-    function get_parts_name() {
+    function get_parts_name($is_sf_request = false) {
 
  
         $model_number_id = $this->input->post('model_number_id');
@@ -2886,6 +2886,9 @@ class Inventory extends CI_Controller {
         }
         
         $where['inventory_model_mapping.active'] = 1;
+        if($is_sf_request){
+            $where['inventory_model_mapping.bom_main_part'] = 1;
+        }
         
         $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_name,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_image', $where);
 
@@ -3068,11 +3071,15 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return : $res array() // consist response message and response status
      */
-    function get_parts_type() {
+    function get_parts_type($is_sf_request = false) {
 
         $model_number_id = $this->input->post('model_number_id');
+        $where = array('model_number_id' => $model_number_id,'inventory_model_mapping.active' =>1);
+        if($is_sf_request){
+            $where['bom_main_part']= 1;
+        }
                 
-        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type,inventory_master_list.service_id', array('model_number_id' => $model_number_id,'inventory_model_mapping.active' =>1));
+        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type,inventory_master_list.service_id', $where);
   
         $option = '<option selected disabled>Select Part Type</option>';
 
@@ -4949,7 +4956,7 @@ class Inventory extends CI_Controller {
     function send_defective_return_mail($booking_partner_id, $parts_table, $main_file, $detailed_file, $invoice_id) {
 
         //send email to partner warehouse incharge
-        $email_template = $this->booking_model->get_booking_email_template(MSL_SEND_BY_WH_TO_PARTNER);
+        $email_template = $this->booking_model->get_booking_email_template(DEFECTIVE_SPARE_SEND_BY_WH_TO_PARTNER);
         $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
 
         if (!empty($wh_incharge_id)) {
@@ -4993,7 +5000,7 @@ class Inventory extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($wh_name, $partner_name));
                 $message = vsprintf($email_template[0], array($wh_name, $parts_table, $courier_details_table));
                 $bcc = $email_template[5];
-                $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $main_file, 'defective_spare_send_by_wh_to_partner', $detailed_file);
+                $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $main_file, DEFECTIVE_SPARE_SEND_BY_WH_TO_PARTNER, $detailed_file);
                 
                 unlink(TMP_FOLDER . $invoice_id."-detailed.xlsx");
                 unlink(TMP_FOLDER . $invoice_id.".pdf");
@@ -6352,7 +6359,7 @@ class Inventory extends CI_Controller {
      */
     function get_inventory_parts_type() {
 
-        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.service_id,inventory_parts_type.part_type,inventory_parts_type.hsn_code_details_id', array('service_id' => $this->input->post('service_id')), TRUE);
+        $inventory_parts_type = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id,inventory_parts_type.service_id,inventory_parts_type.part_type,inventory_parts_type.hsn_code_details_id', array('inventory_parts_type.service_id' => $this->input->post('service_id')), TRUE);
 
         $option = '<option selected disabled>Select Part Type</option>';
 
