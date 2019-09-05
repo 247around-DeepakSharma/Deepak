@@ -1114,7 +1114,7 @@ class Inventory extends CI_Controller {
                     $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id';
 
                     $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id, 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
-                        . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '") ' => NULL), TRUE, false, false);
+                        . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "'.SPARE_DELIVERED_TO_SF.'") ' => NULL), TRUE, false, false);
 
                     $line_items = count($spare_parts_details);
                     if ($requestType == "CANCEL_PARTS") {
@@ -1139,6 +1139,7 @@ class Inventory extends CI_Controller {
                     }
                     else if($requestType == 'DELIVERED_PART_CANCELLED'){
                         $old_state = SPARE_DELIVERED_TO_SF;
+                        $new_state = REMOVE_PART_CONSUMPTION;
                     }
                     
                     $sc_data['current_status'] = _247AROUND_PENDING;
@@ -7291,6 +7292,8 @@ class Inventory extends CI_Controller {
         $data = array(
             "receiver_entity_type" => _247AROUND_SF_STRING,
             "receiver_entity_id" => $this->session->userdata("service_center_id"),
+            "sender_entity_type" => _247AROUND_SF_STRING,
+            "sender_entity_id" => $this->session->userdata("service_center_id"),
             "stock" => 1,
             "booking_id" => $this->input->post("booking_id"),
             "inventory_id" => $this->input->post("inventory_id"),
@@ -7300,7 +7303,7 @@ class Inventory extends CI_Controller {
             "is_cancel_part" => TRUE
         );
         $this->miscelleneous->process_inventory_stocks($data);
-        echo $spare_action; 
+        echo $spare_action;
     }
 
     function get_rejected_from_review($booking_id) {
