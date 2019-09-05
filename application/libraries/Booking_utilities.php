@@ -938,5 +938,26 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
         return $c2c_enable;
         
     }
+    
+    function get_booking_request_type($price_tag)
+    {
+        $newRequest = "";
+        if (!empty($price_tag)) {
+            $results = array_filter($price_tag, function($value) {
+                if ((stripos($value, 'Installation') !== false) || (stripos($value, 'Repair') !== false) || (stripos($value, 'Extended') !== false) || (stripos($value, 'AMC') !== false)) {
+                    return $value;                    
+                } else {
+                    return false;
+                }
+            });
+
+            if (!empty($results)) {
+                $newRequest = array_values($results)[0];
+            } else {
+                $newRequest = $price_tag[0];
+            }
+        }
+        return $newRequest;
+    }
 
 }
