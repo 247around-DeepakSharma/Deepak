@@ -137,3 +137,4 @@ define('GATI_SPARE_PART_SHIPMENT_PENDING', 'gati_spare_part_shipment_pending');
 define('NOT_DELIVERED_BB_ORDERS', 'not_delivered_bb_orders');
 define('SF_INVOICE_SUMMARY', 'sf_invoice_summary');
 define('PARTNER_INVOICE_SUMMARY', 'partner_invoice_summary');
+define('DEFECTIVE_SPARE_SEND_BY_WH_TO_PARTNER','defective_spare_send_by_wh_to_partner');

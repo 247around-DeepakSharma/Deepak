@@ -4770,7 +4770,8 @@ class Inventory extends CI_Controller {
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] * $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'];
                     }
                     
-                    $this->table->add_row($value['part_name'], $invoice_id, $value['incoming_invoice_id'], $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'], $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'], $value['booking_id']);
+                    $total_amount = ($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] + ($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] * ($value['gst_rate']/100)) );
+                    $this->table->add_row($value['part_name'], $invoice_id, $value['incoming_invoice_id'], $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'], round($total_amount, 2), $value['booking_id']);
 
                     $l = $this->get_ledger_data($value, $sender_entity_id, $sender_entity_type, $invoice_id, $courier_id);
                     array_push($ledger_data, $l);
@@ -4892,7 +4893,7 @@ class Inventory extends CI_Controller {
     function send_defective_return_mail($booking_partner_id, $parts_table, $main_file, $detailed_file, $invoice_id) {
 
         //send email to partner warehouse incharge
-        $email_template = $this->booking_model->get_booking_email_template(MSL_SEND_BY_WH_TO_PARTNER);
+        $email_template = $this->booking_model->get_booking_email_template(DEFECTIVE_SPARE_SEND_BY_WH_TO_PARTNER);
         $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
 
         if (!empty($wh_incharge_id)) {
@@ -4936,7 +4937,7 @@ class Inventory extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($wh_name, $partner_name));
                 $message = vsprintf($email_template[0], array($wh_name, $parts_table, $courier_details_table));
                 $bcc = $email_template[5];
-                $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $main_file, MSL_SEND_BY_WH_TO_PARTNER, $detailed_file);
+                $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $main_file, DEFECTIVE_SPARE_SEND_BY_WH_TO_PARTNER, $detailed_file);
                 
                 unlink(TMP_FOLDER . $invoice_id."-detailed.xlsx");
                 unlink(TMP_FOLDER . $invoice_id.".pdf");
