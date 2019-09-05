@@ -5346,6 +5346,7 @@ class Partner extends CI_Controller {
     }
     
     function download_spare_part_shipped_by_partner($isAdmin=0,$partner_post=0){
+        ini_set('memory_limit', '-1');
         ob_start();
         $where = '1';
         if($isAdmin == 0 && $partner_post==0) {
