@@ -646,6 +646,7 @@ class User_invoice extends CI_Controller {
                 $response['meta']['sub_category'] = $invoice_tag_details[0]['sub_category'];
             }
             $response['meta']['accounting'] = 1;
+            $response['meta']['due_date'] = $response['meta']['invoice_date'];
             
             $this->invoice_lib->insert_invoice_breackup($response);
             $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_SF_STRING, $postData[0]->service_center_ids, $convert, $this->session->userdata('id'), $hsn_code);
@@ -1530,6 +1531,7 @@ class User_invoice extends CI_Controller {
                 $response['meta']['sub_category'] = $invoice_tag_details[0]['sub_category'];
             }
             $response['meta']['accounting'] = 1;
+            $response['meta']['due_date'] = $response['meta']['invoice_date'];
 
             $this->invoice_lib->insert_invoice_breackup($response);
             $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_SF_STRING, $postData[0]->service_center_ids, $convert, $this->session->userdata('id'), $hsn_code);
