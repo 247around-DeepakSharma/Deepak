@@ -6422,7 +6422,7 @@ class Inventory extends CI_Controller {
             $data['part_type'] = strtoupper($this->input->post('part_type'));
             $data['hsn_code_details_id'] = $this->input->post('hsn_code');
             if (!empty($this->input->post('service_id') && !empty($this->input->post('part_type')))) {
-                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('service_id' => $data['service_id'], 'part_type' => strtoupper($data['part_type'])), false);
+                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('*', array('inventory_parts_type.service_id' => $data['service_id'], 'part_type' => strtoupper($data['part_type'])), false);
                 if (empty($parts_type_details)) {
                     $last_inserted_id = $this->inventory_model->insert_inventory_parts_type($data);
                     if ($last_inserted_id) {
