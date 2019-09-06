@@ -1220,8 +1220,18 @@ class Service_centers extends CI_Controller {
                     $data['update_date'] = date('Y-m-d H:i:s');
                     $this->vendor_model->update_service_center_action($booking_id, $data);
                     $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
+                    
+                    $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$booking_id));
+                    if(!empty($engineer_action)){
+                        $eng_data = array(
+                            "internal_status" => _247AROUND_CANCELLED,
+                            "current_status" => _247AROUND_CANCELLED
+                        );
+                        $this->engineer_model->update_engineer_table($eng_data, array("booking_id"=>$booking_id));
+                    }
+                    
                     //$this->miscelleneous->process_booking_tat_on_completion($booking_id);
-                   //End Update Service Center Closed Date
+                    //End Update Service Center Closed Date
                     $this->update_booking_internal_status($booking_id, "InProcess_Cancelled",  $partner_id);
                     $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change,"not_define","not_define");
                     redirect(base_url() . "service_center/pending_booking");
