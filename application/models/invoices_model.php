@@ -1377,7 +1377,7 @@ class invoices_model extends CI_Model {
         // Calculate Upcountry booking details
         $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
         $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
-        $courier = $this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
+        $courier = array();//$this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
         $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, $to_date, "");
         $closed_date = "date_format(closed_date,'%d/%m/%Y') as closed_date";
         $misc_select = '"Misc" AS unit_id, "Completed" As internal_status,closed_date as closed_booking_date,"" As rating_stars,'
