@@ -4882,7 +4882,7 @@ class Invoice extends CI_Controller {
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $vendor_id,
             "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL,
-            "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > 15 " => NULL
+            "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".DEFECTIVE_PART_PENDING_OOT_DAYS."' " => NULL
             
         );
        
@@ -4905,6 +4905,66 @@ class Invoice extends CI_Controller {
             echo "DATA NOT FOUND";
         }
         
+    }
+    
+    function get_oot_shipped_defective_parts($service_center_id){
+        $select = "spare_parts_details.booking_id, shipped_parts_type, DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) as pending_age, challan_approx_value";
+        $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status" => DEFECTIVE_PARTS_SHIPPED,
+            "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".SHIPPED_DEFECTIVE_PARTS_AFTER_TAT_BREACH."' " => NULL
+            
+        );
+       
+        $data = $this->service_centers_model->get_spare_parts_booking($where, $select);
+        if(!empty($data)){
+            $html = "";
+            foreach ($data as $key => $value) {
+                $html .= "<tr>";
+                $html .= "<td>".($key +1)."</td>";
+                $html .= "<td>".$value['booking_id']."</td>";
+                $html .= "<td>".$value['shipped_parts_type']."</td>";
+                $html .= "<td>".$value['pending_age']." Days </td>";
+                $html .= "<td> Rs.".$value['challan_approx_value']."</td>";
+                $html .= "</tr>";
+                
+            }
+            
+            echo $html;
+        } else {
+            echo "DATA NOT FOUND";
+        }
+    }
+    
+    function get_intransit_defective_parts($service_center_id){
+        $select = "spare_parts_details.booking_id, shipped_parts_type, DATEDIFF(CURRENT_TIMESTAMP, defective_part_shipped_date) as pending_age, challan_approx_value";
+        $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status" => DEFECTIVE_PARTS_SHIPPED,
+            "DATEDIFF(CURRENT_TIMESTAMP, defective_part_shipped_date) > '".DEFECTIVE_PART_SHIPPED_OOT_DAYS."' " => NULL
+            
+        );
+       
+        $data = $this->service_centers_model->get_spare_parts_booking($where, $select);
+        if(!empty($data)){
+            $html = "";
+            foreach ($data as $key => $value) {
+                $html .= "<tr>";
+                $html .= "<td>".($key +1)."</td>";
+                $html .= "<td>".$value['booking_id']."</td>";
+                $html .= "<td>".$value['shipped_parts_type']."</td>";
+                $html .= "<td>".$value['pending_age']." Days </td>";
+                $html .= "<td> Rs.".$value['challan_approx_value']."</td>";
+                $html .= "</tr>";
+                
+            }
+            
+            echo $html;
+        } else {
+            echo "DATA NOT FOUND";
+        }
     }
     /**
      * @desc insert Invoice details(Break up if invoice)
