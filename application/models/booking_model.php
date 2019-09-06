@@ -1642,6 +1642,7 @@ class Booking_model extends CI_Model {
     }
     
     function _insert_data_in_booking_unit_details($result, $update_key, $default_tax_rate_flag){
+        $result['purchase_date'] = date("Y-m-d", strtotime($result['purchase_date']));
         $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
         $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
 
