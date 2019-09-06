@@ -712,7 +712,7 @@ class Invoice_lib {
         $excel_data['excel_data']['sf_challan_no'] = $sf_challan_number;
         $excel_data['excel_data']['date'] = "";
         
-        $booking_id = $spare_details[0]['booking_id'];
+        $booking_id = $spare_details[0][0]['booking_id'];
         $excel_data['excel_data_line_item'] = array();
 
 

@@ -4434,10 +4434,26 @@ function generate_image($base64, $image_name,$directory){
                         'parts_requested_type' => $data['type']
                     );
                     
+                    $spare_pending_on_to='';
+                    $wh_details_to = $this->vendor_model->getVendorContact($data['entity_id']);
+                    if(!empty($wh_details_to)){
+                    $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';   
+                    }else{
+                    $spare_pending_on_to = ' Warehouse'; 
+                    }
+
+                    $spare_pending_on='';
+                    $wh_details = $this->vendor_model->getVendorContact($partner_id);
+                    if(!empty($wh_details)){
+                    $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
+                    }else{
+                    $spare_pending_on= ' Warehouse'; 
+                    }
+
                     $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
                     $actor = 'Warehouse';
-                    $new_state = 'Spare Part Transferred to ' . $data['entity_id'];
-                    $old_state = 'Spare Part Transferred from ' . $partner_id;
+                    $new_state = 'Spare Part Transferred to ' . $spare_pending_on_to;
+                    $old_state = 'Spare Part Transferred from ' . $spare_pending_on;
                     $this->My_CI->inventory_model->update_spare_courier_details($spareid, $dataupdate);
                     if ($data['entity_type'] == _247AROUND_SF_STRING) {
                         $remarks = _247AROUND_TRANSFERED_TO_VENDOR;

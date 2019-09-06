@@ -6930,6 +6930,7 @@ class Partner extends CI_Controller {
       }
       $columnMappingArray = array(
           "column_1"=>"spare_parts_details.booking_id",
+          "column_5"=>"date_of_purchase",
           "column_6"=>"parts_shipped",
           "column_7"=>"part_number",
           "column_8"=>"quantity",
