@@ -794,7 +794,7 @@ class User_invoice extends CI_Controller {
             array_push($vendor_reference_invoice, $booking_unit_data[0]['vendor_foc_invoice_id']);
             if($booking_unit_data[0]['partner_invoice_id']){
                 /* If partner_invoice_id exist we create credit note for partner */
-                $description = $booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."(".$booking_unit_data[0]['appliance_capacity'].")";
+                $description = $booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."(".$booking_unit_data[0]['appliance_capacity'].") (". $booking_id.")";
                
                 $data[$key]['description'] =  $description;
                 $data[$key]['rate'] = sprintf("%.2f", ($booking_unit_data[0]['partner_net_payable']));
@@ -818,7 +818,7 @@ class User_invoice extends CI_Controller {
             }
             if($booking_unit_data[0]['vendor_foc_invoice_id']){ 
                 /* If vendor_foc_invoice_id exist we create Debit Note for vendor */
-                $description = $booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."(".$booking_unit_data[0]['appliance_capacity'].")";
+                $description = $booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."(".$booking_unit_data[0]['appliance_capacity'].") (".$booking_id.")";
                 $vendor_invoice_data[$key]['description'] =  $description;
                 $vendor_invoice_data[$key]['rate'] = $booking_unit_data[0]['vendor_basic_charges'];
                 $vendor_invoice_data[$key]['qty'] = 1;
@@ -915,6 +915,7 @@ class User_invoice extends CI_Controller {
             $vendor_invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN");
             $response = $this->invoices_model->_set_partner_excel_invoice_data($vendor_invoice_data, $sd, $ed, "Debit Note", $invoice_date);
             $response['meta']['invoice_id'] = $vendor_invoice_id;
+            $response['meta']['reference_number'] = $booking_id;
             $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final"); 
             if (!empty($status)) { 
                 $this->invoice_lib->send_request_to_convert_excel_to_pdf($vendor_invoice_id, "final");
@@ -954,6 +955,8 @@ class User_invoice extends CI_Controller {
                 $response['meta']['category'] = INSTALLATION_AND_REPAIR;
                 $response['meta']['sub_category'] = DEBIT_NOTE;
                 $response['meta']['accounting'] = 1;
+                $response['meta']['remarks'] = $booking_id;
+                
                 
                 $this->invoice_lib->insert_invoice_breackup($response);
                 $vendor_invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Debit Note", "vendor", $booking_data[0]['assigned_vendor_id'], $convert, $this->session->userdata('id'), HSN_CODE);
