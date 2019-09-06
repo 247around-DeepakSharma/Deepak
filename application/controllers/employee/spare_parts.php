@@ -1376,7 +1376,7 @@ class Spare_parts extends CI_Controller {
                 $entity_type = $spare_parts_list[0]['entity_type'];
                 $inventory_id = $spare_parts_list[0]['requested_inventory_id'];
                 $partner_id = $spare_parts_list[0]['booking_partner_id'];
-                $req_quantity = $spare_parts_list[0]['booking_partner_id'];
+                $req_quantity = $spare_parts_list[0]['quantity'];
 
                 if (!empty($spare_parts_list[0]) && !$spare_update_flag) {
                     unset($spare_parts_list[0]['booking_partner_id']);
