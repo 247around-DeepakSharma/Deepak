@@ -2062,12 +2062,30 @@ class Booking extends CI_Controller {
                 $actor = ACTOR_REJECT_FROM_REVIEW;
                 $next_action = REJECT_FROM_REVIEW_NEXT_ACTION;
                 $this->notify->insert_state_change($postArray['booking_id'], _247AROUND_COMPLETED_REJECTED, "InProcess_Completed", $reject_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+            
+                $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$postArray['booking_id'], "internal_status"=>_247AROUND_COMPLETED, "current_status" => _247AROUND_COMPLETED));
+                if(!empty($engineer_action)){
+                    $eng_data = array(
+                        "internal_status" => _247AROUND_PENDING,
+                        "current_status" => _247AROUND_PENDING
+                    );
+                    $this->engineer_model->update_engineer_table($eng_data, array("booking_id"=>$postArray['booking_id']));
+                }
             }
             else if($this->input->post("internal_booking_status") == _247AROUND_CANCELLED){
                 $reject_remarks = "Booking cancellation rejected by 247around";
                 $actor = ACTOR_REJECT_FROM_REVIEW;
                 $next_action = REJECT_FROM_REVIEW_NEXT_ACTION;
                 $this->notify->insert_state_change($postArray['booking_id'], _247AROUND_CANCELED_REJECTED, "InProcess_Completed", $reject_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+            
+                $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$postArray['booking_id'], "internal_status"=>_247AROUND_CANCELLED, "current_status" => _247AROUND_CANCELLED));
+                if(!empty($engineer_action)){
+                    $eng_data = array(
+                        "internal_status" => _247AROUND_PENDING,
+                        "current_status" => _247AROUND_PENDING
+                    );
+                    $this->engineer_model->update_engineer_table($eng_data, array("booking_id"=>$postArray['booking_id']));
+                }
             }
            
             echo "Booking Updated Successfully";

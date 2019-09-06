@@ -845,72 +845,72 @@ class User_invoice extends CI_Controller {
             $booking_state_remarks = $remarks." Booking unit id - ".$value->booking_unit_ids;
             $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
         }
-        if(!empty($data)){
-            $invoice_id = $this->invoice_lib->create_invoice_id("ARD-CN");
-            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Credit Note", $invoice_date);
-            $response['meta']['invoice_id'] = $invoice_id;
-            $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final"); 
-            if (!empty($status)) { 
-                $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice_id, "final");
-                $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
-                $output_pdf_file_name = $convert['main_pdf_file_name'];
-                $response['meta']['invoice_file_main'] = $output_pdf_file_name;
-                $response['meta']['copy_file'] = $convert['copy_file'];
-                $response['meta']['invoice_file_excel'] = $invoice_id . ".xlsx";
-
-                $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
-                
-                /* Send cn mail to partner */
-                $email_tag = CREDIT_NOTE_ON_REFUSE_TO_PAY;
-                $email_template = $this->booking_model->get_booking_email_template($email_tag);
-                $subject = vsprintf($email_template[4], array($booking_id));
-                $message = vsprintf($email_template[0], array($booking_id, $invoice_id));
-                $email_from = $email_template[2];
-                //$to = $partner_data[0]['invoice_email_to'].",".$email_template[1];
-                //$cc = $partner_data[0]['invoice_email_cc'].",".$email_template[3];
-                $to = $email_template[1];
-                $cc = $email_template[3];
-
-                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
-                
-                
-                unlink(TMP_FOLDER . $invoice_id . ".xlsx");
-                unlink(TMP_FOLDER . "copy_" . $invoice_id . ".xlsx");
-                
-                $partner_reference_invoice_id = "";
-                $partner_reference_array = array_unique($partner_reference_invoice);
-                if(count($partner_reference_array)=='1'){
-                    $partner_reference_invoice_id = $partner_reference_array[0];
-                }
-                
-                $response['meta']['invoice_id'] = $invoice_id;
-                $response['meta']['reference_invoice_id'] = $partner_reference_invoice_id;
-                $response['meta']['vertical'] = SERVICE;
-                $response['meta']['category'] = INSTALLATION_AND_REPAIR;
-                $response['meta']['sub_category'] = CREDIT_NOTE;
-                $response['meta']['accounting'] = 1;
-                
-                $this->invoice_lib->insert_invoice_breackup($response);
-                $invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "B", "Credit Note", "partner", $partner_id, $convert, $this->session->userdata('id'), HSN_CODE);
-                $last_invoice_id = $this->invoices_model->insert_new_invoice($invoice);
-                if($last_invoice_id){
-                    $i = 0;
-                    foreach ($postData as $key => $value){ 
-                        $booking_cn_dn_data = array(
-                            "entity_type" => "partner",
-                            "entity_id" => $partner_id,
-                            "booking_id" => $booking_id,
-                            "booking_unit_id" => $value->booking_unit_ids,
-                            "invoice_type" => "Credit Note",
-                            "invoice_id" => $invoice_id,
-                            "reference_invoice_id" => $partner_reference_invoice[$i]
-                        );
-                        $booking_cn_dn_id = $this->invoices_model->insert_into_booking_debit_credit_detils($booking_cn_dn_data);
-                        $i++;
-                    }
-                } 
-            }
-        }
+//        if(!empty($data)){
+//            $invoice_id = $this->invoice_lib->create_invoice_id("ARD-CN");
+//            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Credit Note", $invoice_date);
+//            $response['meta']['invoice_id'] = $invoice_id;
+//            $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final"); 
+//            if (!empty($status)) { 
+//                $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice_id, "final");
+//                $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+//                $output_pdf_file_name = $convert['main_pdf_file_name'];
+//                $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+//                $response['meta']['copy_file'] = $convert['copy_file'];
+//                $response['meta']['invoice_file_excel'] = $invoice_id . ".xlsx";
+//
+//                $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
+//                
+//                /* Send cn mail to partner */
+//                $email_tag = CREDIT_NOTE_ON_REFUSE_TO_PAY;
+//                $email_template = $this->booking_model->get_booking_email_template($email_tag);
+//                $subject = vsprintf($email_template[4], array($booking_id));
+//                $message = vsprintf($email_template[0], array($booking_id, $invoice_id));
+//                $email_from = $email_template[2];
+//                //$to = $partner_data[0]['invoice_email_to'].",".$email_template[1];
+//                //$cc = $partner_data[0]['invoice_email_cc'].",".$email_template[3];
+//                $to = $email_template[1];
+//                $cc = $email_template[3];
+//
+//                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
+//                
+//                
+//                unlink(TMP_FOLDER . $invoice_id . ".xlsx");
+//                unlink(TMP_FOLDER . "copy_" . $invoice_id . ".xlsx");
+//                
+//                $partner_reference_invoice_id = "";
+//                $partner_reference_array = array_unique($partner_reference_invoice);
+//                if(count($partner_reference_array)=='1'){
+//                    $partner_reference_invoice_id = $partner_reference_array[0];
+//                }
+//                
+//                $response['meta']['invoice_id'] = $invoice_id;
+//                $response['meta']['reference_invoice_id'] = $partner_reference_invoice_id;
+//                $response['meta']['vertical'] = SERVICE;
+//                $response['meta']['category'] = INSTALLATION_AND_REPAIR;
+//                $response['meta']['sub_category'] = CREDIT_NOTE;
+//                $response['meta']['accounting'] = 1;
+//                
+//                $this->invoice_lib->insert_invoice_breackup($response);
+//                $invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "B", "Credit Note", "partner", $partner_id, $convert, $this->session->userdata('id'), HSN_CODE);
+//                $last_invoice_id = $this->invoices_model->insert_new_invoice($invoice);
+//                if($last_invoice_id){
+//                    $i = 0;
+//                    foreach ($postData as $key => $value){ 
+//                        $booking_cn_dn_data = array(
+//                            "entity_type" => "partner",
+//                            "entity_id" => $partner_id,
+//                            "booking_id" => $booking_id,
+//                            "booking_unit_id" => $value->booking_unit_ids,
+//                            "invoice_type" => "Credit Note",
+//                            "invoice_id" => $invoice_id,
+//                            "reference_invoice_id" => $partner_reference_invoice[$i]
+//                        );
+//                        $booking_cn_dn_id = $this->invoices_model->insert_into_booking_debit_credit_detils($booking_cn_dn_data);
+//                        $i++;
+//                    }
+//                } 
+//            }
+//        }
         
         if(!empty($vendor_invoice_data)){
             $vendor_invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN");

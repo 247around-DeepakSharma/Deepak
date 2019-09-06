@@ -1778,7 +1778,7 @@ class engineerApi extends CI_Controller {
             $en_D0_data = $this->engineer_model->get_engineer_D0_closure($requestData["engineer_id"], $requestData["service_center_id"]);
             if(!empty($en_D0_data)){
                 if($en_D0_data[0]['total_closure']>0){
-                    $D0 = ($en_D0_data[0]['same_day_closure']*100)/$en_D0_data[0]['total_closure'];
+                    $D0 = round(($en_D0_data[0]['same_day_closure']*100)/$en_D0_data[0]['total_closure']);
                 }
                 else{
                     $D0 = 0;
