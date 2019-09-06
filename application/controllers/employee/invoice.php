@@ -4994,7 +4994,7 @@ class Invoice extends CI_Controller {
             
         );
        
-        $data = $this->service_centers_model->get_spare_parts_booking($where, $select);
+        $data = $this->service_centers_model->get_spare_parts_booking($where, $select, false, 'service_center_closed_date');
         if(!empty($data)){
             $html = "";
             foreach ($data as $key => $value) {
@@ -5025,7 +5025,7 @@ class Invoice extends CI_Controller {
             
         );
        
-        $data = $this->service_centers_model->get_spare_parts_booking($where, $select);
+        $data = $this->service_centers_model->get_spare_parts_booking($where, $select, false, 'service_center_closed_date');
         if(!empty($data)){
             $html = "";
             foreach ($data as $key => $value) {
@@ -5055,7 +5055,7 @@ class Invoice extends CI_Controller {
             
         );
        
-        $data = $this->service_centers_model->get_spare_parts_booking($where, $select);
+        $data = $this->service_centers_model->get_spare_parts_booking($where, $select, false, 'defective_part_shipped_date');
         if(!empty($data)){
             $html = "";
             foreach ($data as $key => $value) {
