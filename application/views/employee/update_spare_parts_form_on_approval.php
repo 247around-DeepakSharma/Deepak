@@ -303,7 +303,7 @@ $(document).ready(function(){
                 $.ajax({
                     method:'POST',
                     url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
-                    data: {model_number_id:model_number_id,entity_id: '<?php echo $spare_parts_details['partner_id']; ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts_details['service_id']; ?>', part_type:part_type},
+                    data: {model_number_id:model_number_id,entity_id: '<?php echo $spare_parts_details['booking_partner_id']; ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts_details['service_id']; ?>', part_type:part_type},
                     success:function(data){
                         $('#parts_name').html(data);  
                          var inventory_id =$("#parts_name").find('option:selected').attr("data-inventory"); 
