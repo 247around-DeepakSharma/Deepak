@@ -340,7 +340,10 @@ class Accounting extends CI_Controller {
             $data['payment_type'] = $payment_type;
             $data['report_type'] = $report_type;
             foreach($data['invoice_data'] as $key => $value) {
-                $data['invoice_details_data'][$key] = $this->invoices_model->get_breakup_invoice_details("invoice_id, product_or_services, rate, qty, taxable_value, cgst_tax_amount, sgst_tax_amount, igst_tax_amount, total_amount", array("invoice_id" => $value['invoice_id']));
+                $data['invoice_details_data'][$key] = $this->invoices_model->get_breakup_invoice_details("invoice_id, product_or_services, rate, qty, taxable_value, cgst_tax_amount, sgst_tax_amount, igst_tax_amount, total_amount , from_gst_number, to_gst_number", array("invoice_id" => $value['invoice_id']));
+                
+                $data['invoice_data'][$key]['to_gst_number'] = (!empty($data['invoice_details_data'][$key][0]['to_gst_number']) ? $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $data['invoice_details_data'][$key][0]['to_gst_number']))[0]['gst_number'] : '');
+                $data['invoice_data'][$key]['from_gst_number'] = (!empty($data['invoice_details_data'][$key][0]['from_gst_number']) ? $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $data['invoice_details_data'][$key][0]['from_gst_number']))[0]['gst_number'] : '');
             }
             echo $this->load->view('employee/paymnet_history_table_view', $data);
         } else {
