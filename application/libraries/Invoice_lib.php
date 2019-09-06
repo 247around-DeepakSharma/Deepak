@@ -796,37 +796,38 @@ class Invoice_lib {
         $where = array('spare_parts_details.id' => $spare_id, "status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1);
         $spare_parts_details[] = $this->ci->partner_model->get_spare_parts_by_any($select, $where); 
         }
-
+     
         if (!empty($spare_parts_details)) {
             $partner_challan_number = trim(implode(',', array_column($spare_parts_details, 'partner_challan_number')), ',');
 
-           
+          
             $shipped_inventory_id ='';
             foreach ($spare_parts_details as $spare_key =>  $spare_parts_details_value) {
-                if (!empty($spare_parts_details_value[0]['shipped_inventory_id']) && !empty($spare_parts_details_value['parts_shipped'])) {
+                
+                if (!empty($spare_parts_details_value[0]['shipped_inventory_id']) && !empty($spare_parts_details_value[0]['parts_shipped'])) {
                    $shipped_inventory_id = $spare_parts_details_value[0]['shipped_inventory_id'];
-
+        
                   if (!empty($shipped_inventory_id)){
                   $whereinventory = array('inventory_id'=>$shipped_inventory_id);
                   $inventory_master_data = $this->ci->inventory_model->get_inventory_master_list_data('part_number', $whereinventory);
-                   $spare_parts_details_value[$spare_key]['part_number']=$inventory_master_data[0]['part_number'];   
+                   $spare_parts_details[0][$spare_key]['part_number']=$inventory_master_data[0]['part_number'];   
                   }else{
-                 $spare_parts_details_value[$spare_key]['part_number']='-';    
+                 $spare_parts_details[0][$spare_key]['part_number']='-';    
                  }
                 }else{
                   $requested_inventory_id = $spare_parts_details_value[0]['requested_inventory_id'];
                   $whereinventory = array('inventory_id'=>$requested_inventory_id);
                   $inventory_master_data = $this->ci->inventory_model->get_inventory_master_list_data('part_number', $whereinventory);
                   if(!empty($inventory_master_data)){
-                    $spare_parts_details_value[$spare_key]['part_number']=$inventory_master_data[0]['part_number'];
+                    $spare_parts_details[0][$spare_key]['part_number']=$inventory_master_data[0]['part_number'];
                   }else{
-                     $spare_parts_details_value[$spare_key]['part_number']='-';
+                     $spare_parts_details[0][$spare_key]['part_number']='-';
                   }
 
                 }
   
             }
-
+            
 
             $sf_details = $this->ci->vendor_model->getVendorDetails('name as company_name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $service_center_id));
 
@@ -863,7 +864,7 @@ class Invoice_lib {
                 $sf_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
             }
 
-            
+                        
             $sf_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $sf_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
 
             $data['sf_challan_number'] = $sf_challan_number;
@@ -911,12 +912,12 @@ class Invoice_lib {
                   if (!empty($shipped_inventory_id)){
                   $whereinventory = array('inventory_id'=>$shipped_inventory_id);
                   $inventory_master_data = $this->ci->inventory_model->get_inventory_master_list_data('part_number', $whereinventory);
-                   $spare_parts_details_value[$spare_key]['part_number']=$inventory_master_data[0]['part_number'];   
+                   $spare_parts_details[0][$spare_key]['part_number']=$inventory_master_data[0]['part_number'];   
                   }else{
-                 $spare_parts_details_value[$spare_key]['part_number']='-';    
+                 $spare_parts_details[0][$spare_key]['part_number']='-';    
                  }
                 }else{
-                    $spare_parts_details_value[$spare_key]['part_number']='-';
+                    $spare_parts_details[0][$spare_key]['part_number']='-';
                 }
   
             }
