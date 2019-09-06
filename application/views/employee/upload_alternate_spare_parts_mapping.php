@@ -35,7 +35,9 @@
                 </h1>
                 <section>
                     <div class="col-md-6">
-                        <form class="form-horizontal" onsubmit="return submit_Form();" id="fileinfo" name="fileinfo"  method="POST" enctype="multipart/form-data" action="file_upload/process_upload_file">
+
+<!--                        <form class="form-horizontal" onsubmit="return submit_Form();" id="fileinfo" name="fileinfo"  method="POST" enctype="multipart/form-data" >-->
+                        <form class="form-horizontal" action="#" onsubmit="return submit_Form();"  id="fileinfo" name="fileinfo"  method="POST" enctype="multipart/form-data">
                             <div class="form-group <?php if( form_error('partner_id') ) { echo 'has-error';} ?>">
                                 <label for="partner_id" class="col-md-3">Select Partner</label>
                                 <div class="col-md-9">
@@ -56,9 +58,9 @@
                             </div>
                             <div class="form-group">
                                 <div class="col-md-4">     
-                                    <input type="text"  name="partner_id" value ="247133">
-                                    <input type="text"   name="file_type" value ="<?php echo ALTERNATE_SPARE_PARTS_MAPPING ;?>">
-                                    <input type="text"   name="redirect_url" value ="upload_alternate_spare_parts_file"> 
+<!--                                    <input type="text"  name="partner_id" value ="247133">-->
+<!--                                    <input type="text"   name="file_type" value ="<?php echo ALTERNATE_SPARE_PARTS_MAPPING ;?>">
+                                    <input type="text"   name="redirect_url" value ="upload_alternate_spare_parts_file"> -->
                                     <input type="submit"  class="btn btn-success btn-md" id="submit_btn" value ="Upload">
                                 </div>
                             </div>

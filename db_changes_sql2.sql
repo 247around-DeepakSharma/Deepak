@@ -706,6 +706,7 @@ ALTER TABLE `inventory_master_list` ADD `is_invoice` INT(1) NOT NULL DEFAULT '0'
 insert into `header_navigation`(`entity_type`,`title`,`link`,`level`,`groups`,`nav_type`,`is_active`)
 values ('247Around','RM Mapping','employee/user/rm_state_mapping',1,'admin,developer','right_nav','1')
 -- Gorakh 31-08-2019
+ALTER TABLE `hsn_code_details` ADD `service_id` INT NULL DEFAULT NULL AFTER `agent_id`;
 CREATE TABLE `spare_invoice_details` (
   `id` int(11) NOT NULL,
   `invoice_id` varchar(255) NOT NULL,
@@ -1023,7 +1024,17 @@ VALUES (NULL, 'sf_invoice_summary', 'SF Invoice Summary for period: %s to %s',
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
 VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s to %s', 
 'Dear Partner, Invoice Summary are as follows:- <br><br>%s<br>
+
 <br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
  
+--Abhay 03 Sept
+ALTER TABLE `inventory_alternate_spare_parts_mapping` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `alt_inventory_id`;
+ALTER TABLE `alternate_inventory_set` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `inventory_id`;
 -- Ankit 03-09-2019
+ALTER TABLE spare_consumption_status ADD COLUMN status_description text NULL DEFAULT NULL AFTER consumed_status; 
 
+-- Kajal 04-09-2019
+UPDATE `email_template` SET `subject` = 'Spare shipped by %s to %s' , `template` = 'Dear Partner,<br><br> <b>%s</b> shipped below spare to your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around' , `cc` = 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com' WHERE `email_template`.`tag` = 'msl_send_by_wh_to_partner';
+
+-- Kajal 05-09-2019
+UPDATE `email_template` SET `from` = 'defective-outward@247around.com', `cc` = 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com' WHERE `email_template`.`tag` = 'defective_spare_send_by_wh_to_partner';

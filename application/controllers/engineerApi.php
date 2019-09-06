@@ -2085,7 +2085,7 @@ class engineerApi extends CI_Controller {
                 $model_detail =  $this->inventory_model->get_appliance_model_details('id, model_number', $where);
                 $response['sparePartsOrder']['modelNumberList'] = $model_detail;
                 
-                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type', array('service_id' => $requestData['service_id']), FALSE);
+                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type', array('inventory_parts_type.service_id' => $requestData['service_id']), FALSE);
                 $response['sparePartsOrder']['partTypeList'] = $parts_type_details;
                 $response['sparePartsOrder']['getPartOnModel'] = false;
             }
@@ -2105,7 +2105,7 @@ class engineerApi extends CI_Controller {
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if(!empty($requestData["model_number_id"])) {
-            $response['partTypeList'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type as part_type', array('model_number_id' => $requestData["model_number_id"], 'inventory_model_mapping.active' => 1));
+            $response['partTypeList'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.type as part_type', array('model_number_id' => $requestData["model_number_id"], 'inventory_model_mapping.active' => 1, 'inventory_model_mapping.bom_main_part' => 1));
             log_message("info", __METHOD__ . "Part Type found successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
@@ -2134,6 +2134,7 @@ class engineerApi extends CI_Controller {
             $where['inventory_master_list.entity_id'] = $requestData['partner_id'];
             $where['inventory_master_list.entity_type'] = _247AROUND_PARTNER_STRING;
             $where['inventory_model_mapping.active'] = 1;
+            $where['inventory_model_mapping.bom_main_part'] = 1;
             $select = "inventory_master_list.part_name, inventory_master_list.inventory_id, inventory_model_mapping.max_quantity, inventory_master_list.part_number, CAST((price + (price*gst_rate/100) + (price*oow_around_margin/100) + (price*oow_vendor_margin/100)) as decimal(10,2)) as amount";
             $response = $this->inventory_model->get_inventory_model_mapping_data($select, $where);
             log_message("info", __METHOD__ . "Spare Part Name found successfully");
@@ -2586,9 +2587,11 @@ class engineerApi extends CI_Controller {
                 $spare_flag = "";
                 foreach ($unit_details as $value) { 
                     if (strcasecmp($value['price_tags'], REPAIR_OOW_TAG) == 0) {
+                        /*
                         if(!$is_est_approved){
                             $spare_flag = SPARE_OOW_EST_REQUESTED;
                         }
+                        */
                     }
 
                     if (stristr($value['price_tags'], "Service Center Visit")) {
@@ -3069,8 +3072,9 @@ class engineerApi extends CI_Controller {
             
             if($warranty_checker){ 
                 foreach ($request_types as $request_typess){
-                    foreach($request_typess as $request_type){
-                        $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $request_type);
+                    //foreach($request_typess as $request_type){
+                        $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
+                        $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type);
                         if($response['warranty_flag'] == 1){
                             $warranty_status = false;
                             $warranty_status_holder = $response;
@@ -3083,7 +3087,7 @@ class engineerApi extends CI_Controller {
                             $edit_call_type = true;
                             $warranty_checker = false;
                         }
-                    }
+                   // }
                 }
             } 
            

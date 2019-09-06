@@ -49,7 +49,7 @@
                                     <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_primary_contact_no'])) {echo $bookinghistory[0]['booking_primary_contact_no']; }?>"  disabled>
                                 </td>
                                 <?php if(isset($saas_module) && (!$saas_module)) { ?>
-                                       <td><center><a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="height: 29px;width: 36px;" class="btn btn-sm btn-success"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a></center></td>
+                                       <td><center><a target="_blank" id="change_request_type" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="height: 29px;width: 36px;" class="btn btn-sm btn-success"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a></center></td>
                                 <?php } ?>                                    
                                 <td>
                                         <?php 
@@ -154,7 +154,7 @@
                                         <label for="dop" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && !empty($purchase_date)){ echo $purchase_date; } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
+                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ echo date('Y-m-d', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -502,7 +502,7 @@ function alpha(e) {
                 $('#model_number').val(model_number);
                 $.ajax({
                     method:'POST',
-                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type',
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type/1',
                     data: { model_number_id:model_number_id},
                     success:function(data){
                         $('.parts_type').val('val', "");
@@ -543,7 +543,7 @@ function alpha(e) {
             if(model_number_id && part_type){
                 $.ajax({
                     method:'POST',
-                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_name/1',
                     data: {model_number_id:model_number_id,entity_id: '<?php echo $bookinghistory[0]['partner_id']?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $bookinghistory[0]['service_id']; ?>', part_type:part_type},
                     success:function(data){
                         console.log(data);
@@ -964,6 +964,7 @@ function alpha(e) {
                         'service_id' : service_id,
                         'model_number' : model_number,
                         'purchase_date' : dop, 
+                        'booking_request_type' : booking_request_type
                     }
                 },
                 success:function(response){

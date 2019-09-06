@@ -2076,9 +2076,10 @@ class Partner extends CI_Controller {
             }   
         }
         
-        
-        $is_file = $this->validate_invoice_data(); 
-        
+        if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+            $is_file = $this->validate_invoice_data();
+        }
+
         $shipped_part_details = $this->input->post("part");
         
         if (!empty($shipped_part_details)) {
@@ -2120,14 +2121,16 @@ class Partner extends CI_Controller {
                     } else {
                         $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
                     }
-                                       
-                    if (!empty($spare_id)) {
-                        $invoide_data = array("invoice_id" => $value['invoice_id'],
-                            "spare_id" => $spare_id, "invoice_date" => $value['invoice_date'], "hsn_code" => $value['hsn_code'],
-                            "gst_rate" => $value['gst_rate'], "invoice_amount" => $value['invoiceamount'], "invoice_pdf" => $value['incoming_invoice']);
-                        $this->service_centers_model->insert_data_into_spare_invoice_details($invoide_data);
-                    }
+                    
+                    if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
+                        if (!empty($spare_id)) {
+                            $invoide_data = array("invoice_id" => $value['invoice_id'],
+                                "spare_id" => $spare_id, "invoice_date" => $value['invoice_date'], "hsn_code" => $value['hsn_code'],
+                                "gst_rate" => $value['gst_rate'], "invoice_amount" => $value['invoiceamount'], "invoice_pdf" => $value['incoming_invoice']);
+                            $this->service_centers_model->insert_data_into_spare_invoice_details($invoide_data);
+                        }
+                    }
                     array_push($spare_id_array, $spare_id);
                     $current_status = "InProcess";
                     /*
@@ -5343,6 +5346,7 @@ class Partner extends CI_Controller {
     }
     
     function download_spare_part_shipped_by_partner($isAdmin=0,$partner_post=0){
+        ini_set('memory_limit', '-1');
         ob_start();
         $where = '1';
         if($isAdmin == 0 && $partner_post==0) {
@@ -5412,6 +5416,7 @@ class Partner extends CI_Controller {
             "Requested Quantity",
             "Requested Part Type",
             "Requested Part Date",
+            "Date Of Purchase",
             "Parts Charge",
             "Dispatched Part Code (To SF)",
             "Dispatched Part Name (To SF)",
@@ -5460,6 +5465,7 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['quantity'];
             $tempArray[] = $sparePartBookings['type'];
             $tempArray[] = ((!empty($sparePartBookings['date_of_request']))?date("d-m-Y",strtotime($sparePartBookings['date_of_request'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['date_of_purchase']))?date("d-m-Y", strtotime($sparePartBookings['date_of_purchase'])):'');
             $tempArray[] = $sparePartBookings['challan_approx_value'];
             $tempArray[] = $sparePartBookings['shipped_part_number'];
             $tempArray[] = $sparePartBookings['shipped_part_name'];
@@ -6924,6 +6930,7 @@ class Partner extends CI_Controller {
       }
       $columnMappingArray = array(
           "column_1"=>"spare_parts_details.booking_id",
+          "column_5"=>"date_of_purchase",
           "column_6"=>"parts_shipped",
           "column_7"=>"part_number",
           "column_8"=>"quantity",

@@ -337,7 +337,7 @@ class Spare_parts extends CI_Controller {
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
 
         . "defective_part_required, spare_parts_details.parts_requested_type,spare_parts_details.quantity,spare_parts_details.shipped_quantity,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number ";
-        $post['column_order'] = array( NULL, NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,NULL, 'age_of_request',NULL, NULL);
+        $post['column_order'] = array( NULL, NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,NULL, 'age_of_request',NULL,NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type');
         $list = $this->inventory_model->get_spare_parts_query($post);
@@ -1167,6 +1167,13 @@ class Spare_parts extends CI_Controller {
         if( $spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ){ $part_status_text = REPAIR_OOW_TAG;   }else{ $part_status_text = REPAIR_IN_WARRANTY_TAG; }
         $row[] =  $part_status_text;    
         $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
+
+
+          if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){  
+            $row[] = '<a  class="btn btn-primary" href="' . base_url() . 'employee/spare_parts/update_spare_parts_on_approval/' . urlencode(base64_encode($spare_list->id)) . '" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
+            }
+
+
         if ($spare_list->defective_part_required == '0') {
             $required_parts = 'REQUIRED_PARTS';
             $text = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>';
@@ -1369,7 +1376,7 @@ class Spare_parts extends CI_Controller {
                 $entity_type = $spare_parts_list[0]['entity_type'];
                 $inventory_id = $spare_parts_list[0]['requested_inventory_id'];
                 $partner_id = $spare_parts_list[0]['booking_partner_id'];
-                $req_quantity = $spare_parts_list[0]['booking_partner_id'];
+                $req_quantity = $spare_parts_list[0]['quantity'];
 
                 if (!empty($spare_parts_list[0]) && !$spare_update_flag) {
                     unset($spare_parts_list[0]['booking_partner_id']);
@@ -2873,14 +2880,21 @@ class Spare_parts extends CI_Controller {
      * @desc This function is used to process spare transfer
      */
   function bulkConversion_process() {
+        if (empty($this->session->userdata('userType'))) {
+         redirect(base_url() . "employee/login");
+        }
+    
         $agentid='';
+        $agent_name='';
+        $login_partner_id='';
+        $login_service_center_id='';
         if ($this->session->userdata('userType') == 'employee') {
-            $agentid=$this->session->userdata('id');
+            $agentid=$this->session->userdata('employee_id');
             $agent_name =$this->session->userdata('emp_name');
             $login_partner_id = _247AROUND;
             $login_service_center_id =NULL;
         }else if($this->session->userdata('userType') == 'service_center'){
-            $agentid=$this->session->userdata('agent_id');
+            $agentid=$this->session->userdata('service_center_id');
             $agent_name =$this->session->userdata('service_center_name');
             $login_service_center_id = $this->session->userdata('service_center_id');
             $login_partner_id =NULL;
@@ -2965,7 +2979,7 @@ class Spare_parts extends CI_Controller {
                 . 'booking_details.service_id,booking_details.partner_id as booking_partner_id';
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);            
         $data['spare_parts_details'] = $spare_parts_details[0];       
-        $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'active' => 1);
+        $where1 = array('entity_id' => $spare_parts_details[0]['booking_partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number', $where1);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_spare_parts_form_on_approval', $data);
@@ -3299,19 +3313,27 @@ class Spare_parts extends CI_Controller {
 
     }
     function bulkPartnerConversion_process(){
+        if (empty($this->session->userdata('userType'))) {
+         redirect(base_url() . "employee/login");
+        }
+    
         $agentid='';
+        $agent_name='';
+        $login_partner_id='';
+        $login_service_center_id='';
         if ($this->session->userdata('userType') == 'employee') {
-            $agentid=$this->session->userdata('id');
+            $agentid=$this->session->userdata('employee_id');
             $agent_name =$this->session->userdata('emp_name');
             $login_partner_id = _247AROUND;
             $login_service_center_id =NULL;
         }else if($this->session->userdata('userType') == 'service_center'){
-            $agentid=$this->session->userdata('agent_id');
+            $agentid=$this->session->userdata('service_center_id');
             $agent_name =$this->session->userdata('service_center_name');
             $login_service_center_id = $this->session->userdata('service_center_id');
             $login_partner_id =NULL;
            
         }
+
         $bookingidbulk = trim($this->input->post('bulk_input'));
         $bookingidbulk1 = str_replace("\r", "", $bookingidbulk);
         $bookingids = explode("\n", $bookingidbulk1);
@@ -3353,16 +3375,25 @@ class Spare_parts extends CI_Controller {
                     );                              
                 $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
 
-                $spare_pending_on='';
+                    $spare_pending_on='';
                     $wh_details = $this->vendor_model->getVendorContact($data['entity_id']);
                     if(!empty($wh_details)){
                     $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
                     }else{
                     $spare_pending_on = ' Warehouse'; 
                     }
+
+                    $spare_pending_on2='';
+                    $wh_details = $this->vendor_model->getVendorContact($booking['partner_id']);
+                    if(!empty($wh_details)){
+                    $spare_pending_on2 = $wh_details[0]['district'] . ' Warehouse';   
+                    }else{
+                    $spare_pending_on2= ' Warehouse'; 
+                    }
+
                     $actor = 'Warehouse';
                     $new_state = 'Spare Part Transferred to ' . $spare_pending_on;
-                    $old_state = 'Spare Part Transferred from ' . $booking['partner_id'];
+                    $old_state = 'Spare Part Transferred from ' . $spare_pending_on2;
                     
                 if($data['entity_type'] == _247AROUND_SF_STRING){
                     if($data['inventory_id'] != $booking['requested_inventory_id']){
