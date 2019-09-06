@@ -12,7 +12,7 @@ var LOW_CREDIT_MSG = "Low Balance, Please Inform Brand To Recharge Account Immed
 
 var modelServiceUrl = baseUrl + '/employee/booking/getModelForService/';
 var partnerChannelServiceUrl = baseUrl + '/employee/partner/get_partner_channel/';
-
+var CategoryCapacityForModelUrl =  baseUrl + '/employee/booking/getCategoryCapacityForModel/';
 
 function getAppliance(service_id) {
 
@@ -109,9 +109,13 @@ function getCapacityForCategory(category, div_id, add_booking) {
     add_booking = add_booking || false;
     var postData = {};
     var div_no = div_id.split('_');
-
+    var source_code = $("#source_code").find(':selected').attr('data-id');
+    if(source_code === undefined)
+    {
+        source_code = $("#source_code").val();
+    }
     postData['service_id'] = $("#service_id").val();
-    postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
+    postData['partner_id'] = source_code;
     postData['category'] = category;
     postData['partner_type'] = $("#partner_type").val();
     postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
@@ -133,7 +137,7 @@ function getCapacityForCategory(category, div_id, add_booking) {
             $("#priceList_" + div_no[2]).html("");
 
             if(category){
-                getModelForServiceCategoryCapacity(div_id,);
+                getModelForServiceCategoryCapacity(div_id);
                 getPricesForCategoryCapacity(div_id,add_booking);
             }
 
@@ -153,6 +157,12 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
     add_booking = add_booking || 0;
     var postData = {};
     var div_no = div_id.split('_');
+    var source_code = $("#source_code").find(':selected').attr('data-id');
+    if(source_code === undefined)
+    {
+        source_code = $("#source_code").val();
+    }
+    
     $("#priceList_" + div_no[2]).html('<div class="text-center"><img src= "'+ baseUrl+'/images/loadring.gif" /></div>').delay(1200).queue(function () {
         
         postData['service_id'] = $("#service_id").val();
@@ -164,7 +174,7 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         postData['booking_pincode'] = $("#booking_pincode").val();
         postData['clone_number'] = div_no[2];
         postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
-        postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
+        postData['partner_id'] = source_code;
         postData['add_booking'] = add_booking;
         postData['is_repeat'] = (($("#is_repeat").val()) ? $("#is_repeat").val(): 0);
         if(postData['is_repeat'] !== 1) {
@@ -1068,9 +1078,14 @@ function getModelForServiceCategoryCapacity(div_id) {
    
     var postData = {};
     var div_no = div_id.split('_');
+    var source_code = $("#source_code").find(':selected').attr('data-id');
+    if(source_code === undefined)
+    {
+        source_code = $("#source_code").val();
+    }
     
     postData['service_id'] = $("#service_id").val();
-    postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
+    postData['partner_id'] = source_code;
     postData['partner_type'] = $("#partner_type").val();
     postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
     postData['category'] = $("#appliance_category_" + div_no[2]).val();
@@ -1139,6 +1154,18 @@ function get_symptom(symptom_id = ""){
    
 }
 
+function getCapacityCategoryForModel(model_number, div_id) {
+    var postData = {};
+    var div_no = div_id.split('_');
+    postData['model_number'] = model_number;
+    postData['partner_id'] = $("#source_code").val();
+    sendAjaxRequest(postData, CategoryCapacityForModelUrl).done(function (data) {
+        var obj = JSON.parse(data);
+        $("#appliance_category_" + div_no[2]).val(obj[0]['category']);
+        $("#appliance_capacity_" + div_no[2]).val(obj[0]['capacity']);
+        getPricesForCategoryCapacity(div_id,false);
+    });
+}
 
 
 
