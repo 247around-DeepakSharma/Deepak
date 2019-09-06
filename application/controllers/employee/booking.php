@@ -329,6 +329,7 @@ class Booking extends CI_Controller {
 
                             log_message('info', __METHOD__ . " Update Booking Unit Details: " . " Previous booking id: " . $booking_id);
                             // save model and DOP values in SF_ columns while updating booking.
+                            $services_details['purchase_date'] = date('Y-m-d', strtotime($services_details['purchase_date']));
                             $services_details['sf_model_number'] = $services_details['model_number'];
                             $services_details['sf_purchase_date'] = $services_details['purchase_date'];
                             // --------------------------------------------------------
