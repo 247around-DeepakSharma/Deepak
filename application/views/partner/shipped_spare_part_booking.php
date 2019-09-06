@@ -79,7 +79,7 @@ if ($this->uri->segment(3)) {
             },
             "columnDefs": [
                 {
-                    "targets": [0,2,3,4,5,9,11,12], //first column / numbering column
+                    "targets": [0,2,3,4,9,11,12,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  
