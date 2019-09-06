@@ -1968,7 +1968,8 @@ class Service_centers extends CI_Controller {
                 array_push($delivered_sp, $data);
             }
         $where = array('id' => $this->input->post('spare_id'));
-        if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager'){
+        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
+
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
 
              $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
