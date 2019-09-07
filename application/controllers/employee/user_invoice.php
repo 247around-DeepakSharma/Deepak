@@ -1109,6 +1109,9 @@ class User_invoice extends CI_Controller {
                         $courier_details_table = $this->table->generate();
                         
                         if ($courier_id) {
+                            if ($wh_type == 2) {
+                                $response = $this->generate_new_return_inventory_purchase_invoice($invoices, $wh_id, $ed, $invoiceValue, $entity_details[0]['public_name'], $p, $courier_details_table, $receiver_entity_type, $receiver_entity_id, $entity_details);
+                            }
                             if ($receiver_entity_type == _247AROUND_PARTNER_STRING) {
                                 list($response,$output_file,$output_file_main) = $this->generate_new_return_inventory($invoices, $wh_id, $sd, $ed, $invoice_date, $key, $invoiceValue, $partner_id, $p, $courier_details_table);
                                 $pdf_attachement = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_file_main;
@@ -1141,9 +1144,6 @@ class User_invoice extends CI_Controller {
                                 unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
                                 unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
                                 unlink(TMP_FOLDER . "copy_" . $output_file_main);
-                            }
-                            if ($wh_type == 2) {
-                                $response = $this->generate_new_return_inventory_purchase_invoice($invoices, $wh_id, $ed, $invoiceValue, $entity_details[0]['public_name'], $p, $courier_details_table, $receiver_entity_type, $receiver_entity_id, $entity_details);
                             }
                             foreach ($invoices as $value) {
                                 $ledger_data = array();
