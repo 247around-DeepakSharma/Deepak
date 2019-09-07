@@ -1286,6 +1286,7 @@ class User_invoice extends CI_Controller {
         $response['meta']["sub_category"] = MSL_NEW_PART_RETURN;
 
         $response['meta']['owner_phone_1'] = $entity_details[0]['owner_phone_1'];
+        $response['meta']['due_date'] = $response['meta']['invoice_date'];
         
         if($receiver_entity_type == _247AROUND_PARTNER_STRING) { 
             $response['meta']['third_party_entity'] = _247AROUND_PARTNER_STRING;
