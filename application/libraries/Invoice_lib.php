@@ -1365,7 +1365,8 @@ class Invoice_lib {
                 'vertical' => $response['meta']['vertical'],
                 'category' => $response['meta']['category'],
                 'sub_category' => $response['meta']['sub_category'],
-                'accounting' => $response['meta']['accounting']
+                'accounting' => $response['meta']['accounting'],
+                'remarks' => (isset($response['meta']['remarks']))?$response['meta']['remarks']:''
             );
         
             return $invoice_details;
