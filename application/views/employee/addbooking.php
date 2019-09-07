@@ -478,7 +478,7 @@
                 if ($(this).hasClass('hasDatepicker')) {
                     $(this).removeClass('hasDatepicker');
                 } 
-                 $(this).datepicker({dateFormat: 'yy-mm-dd', maxDate: 0});
+                 $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
             });
            
        cloneIndex++;
@@ -543,7 +543,7 @@
    
    
 });
-$("#purchase_date_1").datepicker({dateFormat: 'yy-mm-dd', maxDate: 0});
+$("#purchase_date_1").datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
 
 // function to cross check request type of booking with warranty status of booking 
 function check_booking_request()
