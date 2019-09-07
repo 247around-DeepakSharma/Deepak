@@ -329,6 +329,7 @@ class Booking extends CI_Controller {
 
                             log_message('info', __METHOD__ . " Update Booking Unit Details: " . " Previous booking id: " . $booking_id);
                             // save model and DOP values in SF_ columns while updating booking.
+                            $services_details['purchase_date'] = date('Y-m-d', strtotime($services_details['purchase_date']));
                             $services_details['sf_model_number'] = $services_details['model_number'];
                             $services_details['sf_purchase_date'] = $services_details['purchase_date'];
                             // --------------------------------------------------------
@@ -1674,6 +1675,23 @@ class Booking extends CI_Controller {
                     $data['booking_history']['spare_parts'] = $query1;
                 }
             }
+            if(!empty($data['booking_history']['spare_parts'])){
+                $query1=$data['booking_history']['spare_parts'];
+               
+                    foreach($query1 as $key1 => $sp){
+                        
+                        $query1[$key1]['btn']='';
+                        if($data['booking_history'][0]["internal_status"] == "Completed"){
+                        if($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager"  || $this->session->userdata('user_group') == "accountant" ){  
+                            if($sp["defective_part_required"] == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>'; $cl ="btn-primary";} else{ $text = '<i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i>'; $required_parts =  'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'; $cl = "btn-danger"; }
+                            $query1[$key1]['btn'] = '<button type="button" data-booking_id="'.$sp["booking_id"].'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$sp["id"].'/'.$sp["booking_id"].'/'.$required_parts.'" class="btn btn-sm '.$cl.' open-adminremarks" data-toggle="modal" data-target="#myModal2">'.$text.'</button>';
+
+                        }
+                        }
+                    }
+                   $data['booking_history']['spare_parts'] = $query1; 
+                    
+            }
             $engineer_action_not_exit = false;
             $unit_where = array('booking_id' => $booking_id);
             $booking_unit_details = $this->booking_model->get_unit_details($unit_where);
@@ -2061,12 +2079,30 @@ class Booking extends CI_Controller {
                 $actor = ACTOR_REJECT_FROM_REVIEW;
                 $next_action = REJECT_FROM_REVIEW_NEXT_ACTION;
                 $this->notify->insert_state_change($postArray['booking_id'], _247AROUND_COMPLETED_REJECTED, "InProcess_Completed", $reject_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+            
+                $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$postArray['booking_id'], "internal_status"=>_247AROUND_COMPLETED, "current_status" => _247AROUND_COMPLETED));
+                if(!empty($engineer_action)){
+                    $eng_data = array(
+                        "internal_status" => _247AROUND_PENDING,
+                        "current_status" => _247AROUND_PENDING
+                    );
+                    $this->engineer_model->update_engineer_table($eng_data, array("booking_id"=>$postArray['booking_id']));
+                }
             }
             else if($this->input->post("internal_booking_status") == _247AROUND_CANCELLED){
                 $reject_remarks = "Booking cancellation rejected by 247around";
                 $actor = ACTOR_REJECT_FROM_REVIEW;
                 $next_action = REJECT_FROM_REVIEW_NEXT_ACTION;
                 $this->notify->insert_state_change($postArray['booking_id'], _247AROUND_CANCELED_REJECTED, "InProcess_Completed", $reject_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), $actor,$next_action,_247AROUND);
+            
+                $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$postArray['booking_id'], "internal_status"=>_247AROUND_CANCELLED, "current_status" => _247AROUND_CANCELLED));
+                if(!empty($engineer_action)){
+                    $eng_data = array(
+                        "internal_status" => _247AROUND_PENDING,
+                        "current_status" => _247AROUND_PENDING
+                    );
+                    $this->engineer_model->update_engineer_table($eng_data, array("booking_id"=>$postArray['booking_id']));
+                }
             }
            
             echo "Booking Updated Successfully";

@@ -199,7 +199,12 @@
                         <input type="hidden" name="booking_id" value="<?php echo $spare_parts_details['booking_id']; ?>">
                         <input type="hidden" name="previous_inventory_id" value="<?php echo $spare_parts_details['requested_inventory_id']; ?>"> 
                         <input type="hidden" name="current_inventory_id" id="current_inventory_id" value="">
+                        <?php 
+                          if($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer"   ){  ?>
                         <input type="submit"  value="Update" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return submitForm();"   class="btn btn-danger btn-large">
+
+                       <?php } ?>
+
                     </div>
                 </form>
             </div>
@@ -302,8 +307,8 @@ $(document).ready(function(){
             if(model_number_id && part_type){
                 $.ajax({
                     method:'POST',
-                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_name/1',
-                    data: {model_number_id:model_number_id,entity_id: '<?php echo $spare_parts_details['partner_id']; ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts_details['service_id']; ?>', part_type:part_type},
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
+                    data: {model_number_id:model_number_id,entity_id: '<?php echo $spare_parts_details['booking_partner_id']; ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts_details['service_id']; ?>', part_type:part_type},
                     success:function(data){
                         $('#parts_name').html(data);  
                          var inventory_id =$("#parts_name").find('option:selected').attr("data-inventory"); 

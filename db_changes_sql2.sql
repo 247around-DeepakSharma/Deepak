@@ -1014,7 +1014,7 @@ UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =99000000;
 
 --Abhishek--2-sep-2019
 ALTER TABLE `spare_parts_details` ADD `shipped_to_partner_qty` INT(11) NOT NULL DEFAULT '1' AFTER `shipped_quantity`;
- 
+
 -- Kajal 02-09-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
 VALUES (NULL, 'sf_invoice_summary', 'SF Invoice Summary for period: %s to %s', 

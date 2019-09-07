@@ -1220,8 +1220,18 @@ class Service_centers extends CI_Controller {
                     $data['update_date'] = date('Y-m-d H:i:s');
                     $this->vendor_model->update_service_center_action($booking_id, $data);
                     $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
+                    
+                    $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$booking_id));
+                    if(!empty($engineer_action)){
+                        $eng_data = array(
+                            "internal_status" => _247AROUND_CANCELLED,
+                            "current_status" => _247AROUND_CANCELLED
+                        );
+                        $this->engineer_model->update_engineer_table($eng_data, array("booking_id"=>$booking_id));
+                    }
+                    
                     //$this->miscelleneous->process_booking_tat_on_completion($booking_id);
-                   //End Update Service Center Closed Date
+                    //End Update Service Center Closed Date
                     $this->update_booking_internal_status($booking_id, "InProcess_Cancelled",  $partner_id);
                     $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change,"not_define","not_define");
                     redirect(base_url() . "service_center/pending_booking");
@@ -1823,10 +1833,11 @@ class Service_centers extends CI_Controller {
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
                 . 'booking_details.service_id,booking_details.partner_id as booking_partner_id';
-        $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);            
-        $data['spare_parts_details'] = $spare_parts_details[0];       
-        $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'active' => 1);
-        $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number', $where1);
+
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);
+        $data['spare_parts_details'] = $spare_parts_details[0];
+        $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1);
+        $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where1);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/get_update_spare_parts_required_form', $data);
        
@@ -1958,7 +1969,8 @@ class Service_centers extends CI_Controller {
                 array_push($delivered_sp, $data);
             }
         $where = array('id' => $this->input->post('spare_id'));
-        if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager'){
+        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
+
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
 
              $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);

@@ -1169,10 +1169,7 @@ class Spare_parts extends CI_Controller {
         $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
 
 
-          if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){  
-            $row[] = '<a  class="btn btn-primary" href="' . base_url() . 'employee/spare_parts/update_spare_parts_on_approval/' . urlencode(base64_encode($spare_list->id)) . '" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
-            }
-
+        $row[] = '<a  class="btn btn-primary" href="' . base_url() . 'employee/spare_parts/update_spare_parts_on_approval/' . urlencode(base64_encode($spare_list->id)) . '" target="_blank"><i class="fa fa-edit" aria-hidden="true"></i></a>';
 
         if ($spare_list->defective_part_required == '0') {
             $required_parts = 'REQUIRED_PARTS';
@@ -1376,7 +1373,7 @@ class Spare_parts extends CI_Controller {
                 $entity_type = $spare_parts_list[0]['entity_type'];
                 $inventory_id = $spare_parts_list[0]['requested_inventory_id'];
                 $partner_id = $spare_parts_list[0]['booking_partner_id'];
-                $req_quantity = $spare_parts_list[0]['booking_partner_id'];
+                $req_quantity = $spare_parts_list[0]['quantity'];
 
                 if (!empty($spare_parts_list[0]) && !$spare_update_flag) {
                     unset($spare_parts_list[0]['booking_partner_id']);
@@ -2979,7 +2976,7 @@ class Spare_parts extends CI_Controller {
                 . 'booking_details.service_id,booking_details.partner_id as booking_partner_id';
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);            
         $data['spare_parts_details'] = $spare_parts_details[0];       
-        $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'active' => 1);
+        $where1 = array('entity_id' => $spare_parts_details[0]['booking_partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number', $where1);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_spare_parts_form_on_approval', $data);
