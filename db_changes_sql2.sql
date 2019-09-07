@@ -1038,3 +1038,6 @@ UPDATE `email_template` SET `subject` = 'Spare shipped by %s to %s' , `template`
 
 -- Kajal 05-09-2019
 UPDATE `email_template` SET `from` = 'defective-outward@247around.com', `cc` = 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com' WHERE `email_template`.`tag` = 'defective_spare_send_by_wh_to_partner';
+
+-- Kajal 06-09-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_wh', 'New Spare shipped by %s to %s', 'Dear SF,<br><br> <b>%s</b> shipped below new spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', NULL, 'defective-outward@247around.com', '', 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com', '', '1', CURRENT_TIMESTAMP);
