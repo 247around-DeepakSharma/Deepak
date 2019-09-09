@@ -1031,6 +1031,7 @@ VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s
 ALTER TABLE `inventory_alternate_spare_parts_mapping` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `alt_inventory_id`;
 ALTER TABLE `alternate_inventory_set` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `inventory_id`;
 -- Ankit 03-09-2019
+
 ALTER TABLE spare_consumption_status ADD COLUMN status_description text NULL DEFAULT NULL AFTER consumed_status; 
 
 -- Kajal 04-09-2019
@@ -1038,3 +1039,8 @@ UPDATE `email_template` SET `subject` = 'Spare shipped by %s to %s' , `template`
 
 -- Kajal 05-09-2019
 UPDATE `email_template` SET `from` = 'defective-outward@247around.com', `cc` = 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com' WHERE `email_template`.`tag` = 'defective_spare_send_by_wh_to_partner';
+
+ALTER TABLE spare_consumption_status ADD COLUMN status_description text NULL DEFAULT NULL AFTER consumed_status; 
+
+--Kalyani 04-Aug-2019
+ALTER TABLE `entity_gst_details` ADD `state_stamp_picture` VARCHAR(256) NULL AFTER `phone_number`;
