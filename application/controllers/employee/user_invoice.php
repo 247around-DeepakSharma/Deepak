@@ -1214,6 +1214,11 @@ class User_invoice extends CI_Controller {
             $output_file_main = $convert['main_pdf_file_name'];
             
             $ftemplate = "partner_inventory_invoice_annexure-v1.xlsx";
+            
+            unset($response['meta']['main_company_logo_cell']);
+            unset($response['meta']['main_company_seal_cell']);
+            unset($response['meta']['main_company_sign_cell']);
+            
             $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
             $this->invoice_lib->generate_invoice_excel($ftemplate, $response['meta'], $invoiceValue['data'], TMP_FOLDER . $output_file);//$invoiceData['processData']
 
@@ -1313,6 +1318,11 @@ class User_invoice extends CI_Controller {
             $output_file_main = $convert['main_pdf_file_name'];
             $pdf_attachement = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_file_main;
             $template = "warehouse_inventory_invoice_annexure-v1.xlsx";
+            
+            unset($response['meta']['main_company_logo_cell']);
+            unset($response['meta']['main_company_seal_cell']);
+            unset($response['meta']['main_company_sign_cell']);
+            
             $output_file = $response['meta']['invoice_id'] . "-detailed.xlsx";
             $this->invoice_lib->generate_invoice_excel($template, $response['meta'], $invoiceValue['data'], TMP_FOLDER . $output_file);//$invoiceData['processData']
 
