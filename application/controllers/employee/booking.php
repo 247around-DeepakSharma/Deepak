@@ -1057,6 +1057,9 @@ class Booking extends CI_Controller {
         }
         
         $data['upcountry_charges'] = $upcountry_price;
+        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description',NULL, NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
     }
@@ -2429,6 +2432,10 @@ class Booking extends CI_Controller {
             $this->miscelleneous->update_appliance_details($unit_id);
             $k = $k + 1;
         }
+        
+        // update spare parts.
+        $this->update_spare_consumption_status($this->input->post(), $booking_id);
+        
         // insert in booking files.
         $booking_file = [];
         $booking_file['booking_id'] = $booking_id;
@@ -2567,6 +2574,64 @@ class Booking extends CI_Controller {
         }
         }
     }
+
+    /**
+     * 
+     * @param type $post_data
+     * @return boolean
+     */
+    public function update_spare_consumption_status($post_data, $booking_id) {
+        if(!empty($post_data['spare_consumption_status'])) {
+            foreach($post_data['spare_consumption_status'] as $spare_id => $status_id) {
+                
+                $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details','*',['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+                $status = $spare_part_detail['status'];
+                
+                if($status_id == PART_CONSUMED_STATUS_ID && $spare_part_detail['defective_part_required'] == 1 && !empty($spare_part_detail['parts_shipped'])) {
+                    $status = DEFECTIVE_PARTS_PENDING;
+                    
+                    // save defective part.
+                    $defective_part_data = [];
+                    $defective_part_data['booking_id'] = $booking_id;
+                    $defective_part_data['spare_id'] = $spare_id;
+                    $defective_part_data['qty'] = $spare_part_detail['quantity'];
+                    $defective_part_data['qty_status'] = DEFECTIVE_PARTS_PENDING;
+                    
+                    $this->inventory_model->insert_defective_ledger_data($defective_part_data);
+                }
+                
+                if($status_id == PART_NOT_RECEIVED_STATUS_ID) {
+                    $status = COURIER_LOST;
+                }
+                
+                if($status_id == PART_CANCELLED_STATUS_ID && empty($spare_part_detail['parts_shipped'])) {
+                    $status = _247AROUND_CANCELLED;
+                }
+                
+                if($status_id == PART_SHIPPED_BUT_NOT_USED_STATUS_ID) {
+                    $status = OK_PART_TO_BE_SHIPPED;
+                }
+                
+                if($status_id == WRONG_PART_RECEIVED_STATUS_ID && !empty($post_data['wrong_part'])) {
+                    $status = OK_PART_TO_BE_SHIPPED;
+                    $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
+                    $this->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
+                }
+                
+                if($status_id == DAMAGE_BROKEN_PART_RECEIVED_STATUS_ID) {
+                    $status = DAMAGE_PART_TO_BE_SHIPPED;
+                }
+                
+                $this->reusable_model->update_table('spare_parts_details', [
+                    'consumed_part_status_id' => $status_id,
+                    'status' => $status,
+                ], ['id' => $spare_id]);
+            }
+        }
+        
+        return true;
+    }
+    
     
 /**
      *  @desc : This function is used to upload the support file for order id to s3 and save into database
@@ -5862,4 +5927,35 @@ class Booking extends CI_Controller {
                         'appliance_model_details.entity_id' => $partner_id));
         echo json_encode($model_details);
     }
+
+    /**
+     * 
+     * @param type $booking_id
+     * @param type $service_center_id
+     * @param type $id
+     * @param type $partner_id
+     */
+    function wrong_spare_part($booking_id, $spare_part_detail_id, $part_name) {
+        
+        $post_data = $this->input->post();
+        $data['booking_id'] = $booking_id;
+        $data['spare_part_detail_id'] = $spare_part_detail_id;
+        $data['part_name'] = $post_data['part_name'];
+        $data['service_id'] = $post_data['service_id'];
+        $data['parts'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name', ['service_id' => $data['service_id'], 'inventory_id not in (1,2)' => NULL]);
+        
+        if(!empty($post_data['wrong_flag'])) {
+
+            $wrong_part_detail = [];
+            $wrong_part_detail['spare_id'] = $data['spare_part_detail_id'];
+            $wrong_part_detail['part_name'] = $post_data['part_name'];
+            $wrong_part_detail['inventory_id'] = $post_data['wrong_part'];
+            $wrong_part_detail['remarks'] = $post_data['remarks'];
+            echo json_encode($wrong_part_detail);exit;
+            
+        }
+        
+        $this->load->view('employee/wrong_spare_part', $data);
+    }    
+
 }
