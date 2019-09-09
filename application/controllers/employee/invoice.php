@@ -4077,15 +4077,15 @@ class Invoice extends CI_Controller {
      * @desc This function is used to generate Micro Spare purchase invoice  
      * @param int $spare_id
      */
-    function generate_micro_reverse_sale_invoice($spare_id) {
+    function generate_micro_reverse_sale_invoice($spare_id) { 
         log_message('info', __METHOD__ . " Spare ID " . $spare_id);
 
-        if (!empty($spare_id)) {
+        if (!empty($spare_id)) { 
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
                     . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1 ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
             if (!empty($spare)) {
-                if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) {
+                if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) { 
                     if (!empty($spare[0]['shipped_inventory_id'])) {
                         if (empty($spare[0]['gst_number'])) {
                             $spare[0]['gst_number'] = TRUE;
@@ -4129,6 +4129,7 @@ class Invoice extends CI_Controller {
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
                                     $data[0]['from_pincode'] = $value['to_city'];
+                                    $data[0]['state_stamp_pic'] = $value['state_stamp_pic'];
                                     $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare);
                                     if ($a) {
                                         
@@ -4171,6 +4172,7 @@ class Invoice extends CI_Controller {
                         . $data[0]['from_pincode'];
 
             $response['meta']['main_company_pincode'] = $data[0]['from_pincode'];
+            $response['meta']['main_company_seal'] = $data[0]['state_stamp_pic'];
         }
         $response['meta']['invoice_id'] = $invoice_id;
         

@@ -75,7 +75,8 @@ function addInArray(inventory_id, qty, index){
             'total_amount':$("#total_amount_"+inventory_id).text(),
             'sub_total_amount': Number(qty) * Number($("#total_amount_"+inventory_id).text()),
             'warehouse_id': $("#wh_id").val(),
-            'is_micro': $("#wh_id").find(':selected').attr('data-id')
+            'is_micro': $("#wh_id").find(':selected').attr('data-id'),
+            'shipping_quantity':qty,
         };
         
     $("#sellItem").val("Return new Parts ("+ getSellItemQty() +")");
@@ -143,7 +144,9 @@ function crate_table(){
 }
 
 function open_selected_parts_to_return(){
+    $('#radio_partner').prop('checked',true).change();
     if(returnItemArray.length > 0){
+        $("#return_new_parts_data").show();
         crate_table();
         $('#myModal').modal('toggle');
     } else
@@ -216,7 +219,9 @@ function return_new_parts(){
     formData.append("partner_id", $('#partner_id').val());
     formData.append("wh_type", $("#wh_id").find(':selected').attr('data-warehose'));
     formData.append("warehouse_id", $("#wh_id").val());
+    formData.append("warehouse_name", $("#wh_id").find(':selected').text().split("-")[0]);
     formData.append("from_gst_number", $("#from_gst_number").val());
+    formData.append("receiver_id", $("#to_wh_id").val());
    // console.log(JSON.stringify(returnItemArray));
 
     $.ajax({
