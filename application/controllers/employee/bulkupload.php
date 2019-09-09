@@ -58,13 +58,14 @@ class Bulkupload extends CI_Controller {
             $excelArray = array_chunk($excelArray, 200);
             foreach ($excelArray as $key => $arrBookings) {                
                 $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);            
-                $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);                 
+                $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
                 foreach($arrBookings as $key => $arrBooking)
                 {
                     // Calculate Purchase Date
                     // Used in case data is read from excel
-                    if (DateTime::createFromFormat('Y-m-d', $arrBooking['purchase_date']) === FALSE) {
-                        $arrBooking['purchase_date'] = (double) $arrBooking['purchase_date'];
+                    $arrBookings[$key]['purchase_date'] = date('Y-m-d', strtotime($arrBooking['purchase_date']));
+                    if (DateTime::createFromFormat('d-m-Y', $arrBooking['purchase_date']) === FALSE) {
+                        $arrBooking['purchase_date'] = (double) trim($arrBooking['purchase_date']);
                         $unix_date = ($arrBooking['purchase_date'] - 25569) * 86400;
                         $excel_date = (25569) + ($unix_date / 86400);
                         $unix_date = ($excel_date - 25569) * 86400;
@@ -74,15 +75,16 @@ class Bulkupload extends CI_Controller {
                     
                     // Calculate Booking Create Date
                     // Used in case data is read from excel
-                    if (DateTime::createFromFormat('Y-m-d', $arrBooking['booking_create_date']) === FALSE) {
-                        $arrBooking['booking_create_date'] = (double) $arrBooking['booking_create_date'];
+                    $arrBookings[$key]['booking_create_date'] = date('Y-m-d', strtotime($arrBooking['booking_create_date']));
+                    if (DateTime::createFromFormat('d-m-Y', $arrBooking['booking_create_date']) === FALSE) {
+                        $arrBooking['booking_create_date'] = (double) trim($arrBooking['booking_create_date']);
                         $unix_date = ($arrBooking['booking_create_date'] - 25569) * 86400;
                         $excel_date = (25569) + ($unix_date / 86400);
                         $unix_date = ($excel_date - 25569) * 86400;
                         $arrBooking['booking_create_date'] = date('Y-m-d', $unix_date);
                         $arrBookings[$key]['booking_create_date'] = date('Y-m-d', $unix_date);
                     }
-
+                
                     if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
                     {   
                         $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
