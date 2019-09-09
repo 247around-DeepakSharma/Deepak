@@ -431,9 +431,9 @@ class Service_centers extends CI_Controller {
             }
             array_push($data['prices'], $prices);
             $bookng_unit_details[$key1]['is_broken'] = $broken;
-            $bookng_unit_details[$key1]['dop'] = $b['purchase_date'];;
-            $bookng_unit_details[$key1]['sf_dop'] = $b['sf_purchase_date'];;
-            $bookng_unit_details[$key1]['sf_model_number'] = $b['sf_model_number'];;
+            $bookng_unit_details[$key1]['dop'] = $b['purchase_date'];
+            $bookng_unit_details[$key1]['sf_dop'] = $b['sf_purchase_date'];
+            $bookng_unit_details[$key1]['sf_model_number'] = $b['sf_model_number'];
         }
         if ($this->session->userdata('is_engineer_app') == 1) {
             $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
@@ -7529,7 +7529,7 @@ class Service_centers extends CI_Controller {
             break;
             case 2:
                 $booking_id = $arrBookings[0]['booking_id'];
-                $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC'], 'EW' => ['Extended', 'AMC']];
+                $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
                 $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
                 $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
                 $warranty_mismatch = 0;
