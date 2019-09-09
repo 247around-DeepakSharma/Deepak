@@ -142,3 +142,18 @@ define('NRN_TO_BE_SHIPPED_BY_PARTNER', 'NRN To Be Shipped By Partner');
 define('COURIER_STATUS_FILE_MSG', 'Auto Acknowledged BY Courier Status File');
 define('COURIER_STATUS_FILE_STATUS_DESCRIPTION', 'Delivered at destination city');
 define('SPARE_RECIEVED_NOT_USED', 'Spare recieved but not used');
+//MWH auto deliver consumption remove
+define('REMOVE_PART_CONSUMPTION', 'Consumed MSL Part Removed');
+
+// spare consumption status ids
+define('PART_CONSUMED_STATUS_ID', 1);
+define('PART_NOT_RECEIVED_STATUS_ID', 2);
+define('DAMAGE_BROKEN_PART_RECEIVED_STATUS_ID', 3);
+define('WRONG_PART_RECEIVED_STATUS_ID', 4);
+define('PART_SHIPPED_BUT_NOT_USED_STATUS_ID', 5);
+define('PART_CANCELLED_STATUS_ID', 6);
+define('PART_NRN_APPROVED_STATUS_ID', 7);
+
+define('OK_PART_TO_BE_SHIPPED', 'Ok Part To Be Shipped');
+define('DAMAGE_PART_TO_BE_SHIPPED', 'Damage Part To Be Shipped');
+

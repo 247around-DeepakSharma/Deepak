@@ -58,13 +58,14 @@ class Bulkupload extends CI_Controller {
             $excelArray = array_chunk($excelArray, 200);
             foreach ($excelArray as $key => $arrBookings) {                
                 $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);            
-                $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);                 
+                $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
                 foreach($arrBookings as $key => $arrBooking)
                 {
                     // Calculate Purchase Date
                     // Used in case data is read from excel
-                    if (DateTime::createFromFormat('Y-m-d', $arrBooking['purchase_date']) === FALSE) {
-                        $arrBooking['purchase_date'] = (double) $arrBooking['purchase_date'];
+                    $arrBookings[$key]['purchase_date'] = date('Y-m-d', strtotime($arrBooking['purchase_date']));
+                    if (DateTime::createFromFormat('d-m-Y', $arrBooking['purchase_date']) === FALSE) {
+                        $arrBooking['purchase_date'] = (double) trim($arrBooking['purchase_date']);
                         $unix_date = ($arrBooking['purchase_date'] - 25569) * 86400;
                         $excel_date = (25569) + ($unix_date / 86400);
                         $unix_date = ($excel_date - 25569) * 86400;
@@ -74,15 +75,16 @@ class Bulkupload extends CI_Controller {
                     
                     // Calculate Booking Create Date
                     // Used in case data is read from excel
-                    if (DateTime::createFromFormat('Y-m-d', $arrBooking['booking_create_date']) === FALSE) {
-                        $arrBooking['booking_create_date'] = (double) $arrBooking['booking_create_date'];
+                    $arrBookings[$key]['booking_create_date'] = date('Y-m-d', strtotime($arrBooking['booking_create_date']));
+                    if (DateTime::createFromFormat('d-m-Y', $arrBooking['booking_create_date']) === FALSE) {
+                        $arrBooking['booking_create_date'] = (double) trim($arrBooking['booking_create_date']);
                         $unix_date = ($arrBooking['booking_create_date'] - 25569) * 86400;
                         $excel_date = (25569) + ($unix_date / 86400);
                         $unix_date = ($excel_date - 25569) * 86400;
                         $arrBooking['booking_create_date'] = date('Y-m-d', $unix_date);
                         $arrBookings[$key]['booking_create_date'] = date('Y-m-d', $unix_date);
                     }
-
+                
                     if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
                     {   
                         $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
@@ -287,12 +289,11 @@ class Bulkupload extends CI_Controller {
                     $arr_parts = array_flip($arr_parts);
 
                     // Store all Products data in Array
-                    $arr_services = ["W/M" => "28", "REF" => "37", "LCDP" => "46", "A/C" => "50", "LCD" => "46", "CTV" => "46", "MO" => "54"];
-
+                    $arr_services = ["AC Service" => "1","Washing Machine" => "28","Geyser" => "32","Refrigerator" => "37","Water Purifier" => "38","Microwave" => "42","Chimney" => "44","Audio System" => "45","Television" => "46","Air Conditioner" => "50","Other" => "52","Air Cooler" => "53","Mobile" => "54","SHA" => "55","Smart Speaker" => "56","Handled Devices" => "57","Air Purifier" => "58","Gas Stove" => "59","Stabilizer" => "60","Mosquito Racquet" => "61"];
                     // apply loop for validation.
                     for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                         $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                        $sanitizes_row_data = $rowData_array[0];                        
+                        $sanitizes_row_data = $rowData_array[0];   
                         $is_data_validated = true;
 
                         // Check If Product exists or not
@@ -303,7 +304,7 @@ class Bulkupload extends CI_Controller {
                             $returnMsg[$row][4] = "Product ".$sanitizes_row_data[4]." Not Found";
                             continue;
                         }
-                        $service_id = $arr_services[$sanitizes_row_data[4]];
+                        $service_id = $arr_services[trim($sanitizes_row_data[4])];
 
                         // Calculate Plan Start End Date
                         $date_period_start = date('Y-m-d 00:00:00', strtotime($sanitizes_row_data[2]));
@@ -331,13 +332,13 @@ class Bulkupload extends CI_Controller {
                             $returnMsg[$row][3] = date("d-M-Y", strtotime($date_period_end));
                             $arr_data['period_start'] = $date_period_start;
                             $arr_data['period_end'] = $date_period_end;
-                            $arr_data['warranty_type'] = 2;
+                            $arr_data['warranty_type'] = (trim(strtoupper($sanitizes_row_data[13])) == 'IW') ? 1 : 2;
                             $arr_data['partner_id'] = $post_data['partner_id'];
                             $arr_data['service_id'] = $service_id;
                             $arr_data['inclusive_svc_charge'] = (trim(strtoupper($sanitizes_row_data[5])) == 'YES') ? 1 : 0;
                             $arr_data['inclusive_gas_charge'] = (trim(strtoupper($sanitizes_row_data[6])) == 'YES') ? 1 : 0;
                             $arr_data['inclusive_transport_charge'] = (trim(strtoupper($sanitizes_row_data[7])) == 'YES') ? 1 : 0;
-                            $arr_data['warranty_period'] = (int) $sanitizes_row_data[8];
+                            $arr_data['warranty_period'] = (int) ($sanitizes_row_data[8]*12);
                             $arr_data['warranty_grace_period'] = (int) $sanitizes_row_data[9];
                             $arr_data['is_active'] = (trim(strtoupper($sanitizes_row_data[12])) == 'YES') ? 1 : 0;
                             $arr_data['create_date'] = date('Y-m-d H:i:s');
@@ -471,7 +472,7 @@ class Bulkupload extends CI_Controller {
                             $arr_model_mapping_result[$row] = "Success";
                             if(empty($plan_model_mapping_id))
                             {
-                                $arr_model_mapping_result[$row] = "Fail";
+                                $arr_model_mapping_result[$row] = "Fail``".$this->db->last_query();
                             }
                         }
                     }

@@ -1,5 +1,5 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
-<script src="<?php echo base_url();?>js/return_new_parts.js"></script>
+<script src="<?php echo base_url();?>js/return_new_parts.js?v=<?=mt_rand()?>"></script>
 <style>
     #inventory_stock_table_filter{
         text-align: right;
@@ -176,6 +176,23 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="from_gst_number" class="col-md-4">From GST Number *</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="from_gst_number" required>
+                                            <option selected disabled value="">Select from GST number</option>
+                                            <?php
+                                            foreach ($from_gst_number as $gst_numbers => $gst_number) {
+                                            ?>
+                                            <option value="<?php echo $gst_number['id']  ?>"><?php echo $gst_number['state']." - ".$gst_number['gst_number'] ?></option>
+                                            <?php    
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
 <!--                            <div class="col-md-6">
                                 <div class='form-group'>
                                     <label for="shippped_courier_pic" class="col-md-4">Courier Address </label>
@@ -184,6 +201,27 @@
                                     </div>
                                 </div>
                             </div>-->
+                        </div>
+                        <div class='row' id='receiver_entity' style='display:none;'>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="courier" class="col-md-4">Partner/Warehouse *</label>
+                                    <div class="col-md-8">
+                                        <input type="radio" class='receiver_type' id="radio_partner" name="receiver_type" value='0' checked>
+                                        <input type="radio" class='receiver_type' id="radio_wh" name="receiver_type" value='1'>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id='to_wh' style='display:none;'>
+                                <div class='form-group'>
+                                    <label for="to_wh_id" class="col-md-4">Warehouse *</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="to_wh_id">
+                                            <option value="" disabled="">Select Warehouse</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         
                     </form>
@@ -225,7 +263,7 @@
     var is_admin_crm = false;
     var time = moment().format('D-MMM-YYYY');
     $(document).ready(function () {
-        $('#wh_id').select2({
+        $('#wh_id,#to_wh_id').select2({
             placeholder:"Select Warehouse"
         });
         $('#service_id').select2({
@@ -242,6 +280,8 @@
         var partner_id = $('#partner_id').val();
         if(wh_id && partner_id){
             is_admin_crm = true;
+            returnItemArray = [];
+            $("#sellItem").val("Return new Parts (0)");
             inventory_stock_table.ajax.reload( function ( json ) { 
             $("#total_stock").html('Total Stock (<i>'+json.stock+'</i>)').css({"font-size": "14px;", "color": "#288004;"});
         } );
@@ -338,13 +378,49 @@
         });
     }
     
+    function get_wh(partner_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
+            data:{is_wh:1,partner_id:partner_id},
+            success: function (response) {               
+                $('#to_wh_id').html(response);
+            }
+        });
+    }
+    
     $('#partner_id').on('change',function(){
         var partner_id = $('#partner_id').val();
         if(partner_id){
             get_appliance(partner_id);
             get_vendor(partner_id);
+            get_wh(partner_id);
         }else{
             alert('Please Select Partner');
+        }
+    });
+    
+    $('#wh_id').on('change',function(){
+        var wh_type = $("#wh_id").find(':selected').attr('data-warehose');
+        if(wh_type){
+            $('#receiver_entity').css('display','block');
+            if(wh_type == 1) {
+                $('#receiver_entity').css('display','none');
+            }
+        }else{
+            alert('Please Select Warehouse');
+        }
+    });
+    
+    $('.receiver_type').on('change',function(){
+        var receiver = $('input[type=radio]:checked').attr('id');
+        if(receiver){
+            $('#to_wh').css('display','none');
+            if(receiver == 'radio_wh') {
+                $('#to_wh').css('display','block');
+            }
+        }else{
+            alert('Please Select Partner or Warehouse');
         }
     });
     

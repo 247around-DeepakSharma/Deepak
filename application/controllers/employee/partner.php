@@ -2571,6 +2571,9 @@ class Partner extends CI_Controller {
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED,
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
+        
+        
+        
         if ($response) {
 
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
@@ -2651,7 +2654,7 @@ class Partner extends CI_Controller {
      * @param int $partner_id
      * @param int $is_cron
      */
-    function acknowledge_defective_parts_sent_by_wh($spare_id, $booking_id, $partner_id, $is_cron = ""){
+    function acknowledge_defective_parts_sent_by_wh($spare_id, $booking_id, $partner_id, $is_cron = "", $spare_qty_mgmt_id = ''){
         log_message('info', __METHOD__ . " Spare ID ".$spare_id);
         if (empty($is_cron)) {
             $this->checkUserSession();
@@ -2660,6 +2663,11 @@ class Partner extends CI_Controller {
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH,
             
             'received_defective_part_date' => date("Y-m-d H:i:s")));
+        
+        if(!empty($spare_qty_mgmt_id)) {
+            $this->inventory_model->update_qty_ledger_mgmt(['status' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH], ['id' => $spare_qty_mgmt_id, 'spare_id' => $spare_id]);
+        }
+        
         if($response){
             
             $psendUrl = base_url().'employee/invoice/generate_reverse_micro_purchase_invoice/'.$spare_id;
@@ -2682,7 +2690,7 @@ class Partner extends CI_Controller {
      * @param Sting $booking_id
      * @param Urlencoded $status (Rejection Reason)
      */
-    function reject_defective_part_sent_by_wh($spare_id, $booking_id, $status){
+    function reject_defective_part_sent_by_wh($spare_id, $booking_id, $status, $spare_qty_mgmt_id = ''){
         log_message('info', __METHOD__ . " Spare ID ".$spare_id);
         $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
@@ -2690,6 +2698,11 @@ class Partner extends CI_Controller {
             'remarks_defective_part_by_partner' => $rejection_reason,
             'defective_part_rejected_by_partner'=>1,
             'approved_defective_parts_by_partner' => '0'));
+        
+        if(!empty($spare_qty_mgmt_id)) {
+            $this->inventory_model->update_qty_ledger_mgmt(['status' => DEFECTIVE_PARTS_REJECTED], ['id' => $spare_qty_mgmt_id, 'spare_id' => $spare_id]);
+        }
+        
         if ($response) {
            
             $actor = ACTOR_NOT_DEFINE;
@@ -6624,12 +6637,12 @@ class Partner extends CI_Controller {
        if($this->input->post('booking_id')){
            $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
        }
-        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, "
+        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, spare_qty_mgmt.qty, spare_qty_mgmt.id as spare_qty_mgmt_id, "
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
                 . ",spare_parts_details.sf_challan_file,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number";
         $group_by = "spare_parts_details.id";
-        $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length']);
+        $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length'],0,NULL,true);
          $bookingCount = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
          $sn = $postData['start'];
          foreach ($bookingData as  $row) {
@@ -6642,6 +6655,7 @@ class Partner extends CI_Controller {
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'] ."</span>";
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";
                     $tempArray[] = "<span>". $row['quantity'] ."</span>";
+                    $tempArray[] = "<span>". $row['qty'] ."</span>";
                     $tempArray[] = $row['courier_name_by_sf'];
                     $courier_name_by_sf = "'".$row['courier_name_by_sf']."'";
                     $awb_by_sf = "'".$row['awb_by_sf']."'";
@@ -6681,12 +6695,12 @@ class Partner extends CI_Controller {
                             
                         if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH){
                             $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
-                                               href='.base_url().'partner/acknowledge_defective_parts_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
+                                               href='.base_url().'partner/acknowledge_defective_parts_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").'/0/'.$row['spare_qty_mgmt_id'].' '.$tempString5.'>Receive</a>';
                     
                             
                         } else {
                             $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
-                                               href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
+                                               href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").'/0/'.$row['spare_qty_mgmt_id'].' '.$tempString5.'>Receive</a>';
                     
                         }
                     }
@@ -6694,10 +6708,10 @@ class Partner extends CI_Controller {
                      if (!empty($row['defective_part_shipped'])) {
                             foreach ($internal_status as $value) {
                                 if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH){
-                                  $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'</a></li>';
+                                  $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'/'.$row['spare_qty_mgmt_id'].'</a></li>';
                                   $tempString7 = $tempString7.'<li class="divider"></li>';
                                 } else {
-                                    $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'</a></li>';
+                                    $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'/'.$row['spare_qty_mgmt_id'].'</a></li>';
                                   $tempString7 = $tempString7.'<li class="divider"></li>';
                                 }
                              } 

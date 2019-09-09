@@ -38,7 +38,7 @@
                         </form>
                     </div>
                     <div class="col-md-6">
-                        <p style="font-size: 18px;"><b>Download Sample File. Use this file to check Warranty Data.</b></p>
+                        <p style="font-size: 18px;"><b>Download Sample File. Use this file to check Warranty Data.</b><br/><font color="red">* Upload date(s) in dd-mm-yyyy format</font></p>
                         <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/warranty-docs/check_warranty_sample_sheet.xlsx" class="btn btn-info" target="_blank">Download Sample File</a>
                     </div>
                 </section>
