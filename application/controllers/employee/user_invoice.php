@@ -757,94 +757,95 @@ class User_invoice extends CI_Controller {
      * @param - booking_id, booking_unit_ids
      * @return - boolean
     */
-    function process_refuse_to_pay(){
+   function process_refuse_to_pay() {
         $booking_id = $this->input->post('booking_id');
         $postData = json_decode($this->input->post('postData'));
         $remarks = $this->input->post('remarks');
         $unit_bookings = array();
-        $data = array();
-        $invoice = array();
+        //$data = array();
+        //$invoice = array();
         $vendor_invoice_data = array();
         $vendor_invoice = array();
         $partner_reference_invoice = array();
         $vendor_reference_invoice = array();
-        $invoice_id = "";
+        //$invoice_id = "";
         $sd = $ed = $invoice_date = date("Y-m-d");
-        $booking_data = $this->booking_model->get_bookings_count_by_any('assigned_vendor_id, partner_id', array('booking_id'=>$booking_id));
-        
-        $partner_data = $this->partner_model->getpartner_details("gst_number,"
-                        . "company_name, state, address as company_address, district, pincode, "
-                        . "invoice_email_to,invoice_email_cc", array('partners.id' => $booking_data[0]['partner_id']));
-        
-        $partner_id = $booking_data[0]['partner_id'];
-        
-        $vendor_data = $this->vendor_model->getVendorDetails("gst_no as gst_number,"
-                        . "company_name, state, address as company_address, district, pincode, "
-                        . "primary_contact_email as invoice_email_to,owner_email as invoice_email_cc", array('id' => $booking_data[0]['assigned_vendor_id']));
-         
-        foreach ($postData as $key => $value){
-            array_push($unit_bookings, $value->booking_unit_ids);
+        $booking_data = $this->booking_model->get_bookings_count_by_any('assigned_vendor_id, partner_id', array('booking_id' => $booking_id));
+
+        if (!empty($booking_data) & !empty($booking_data[0]['assigned_vendor_id'])) {
            
-           $select = 'booking_unit_details.partner_net_payable, services.services as service'
-                   . ', booking_unit_details.price_tags, booking_unit_details.appliance_category,booking_unit_details.appliance_capacity'
-                   . ',booking_unit_details.partner_invoice_id, booking_unit_details.tax_rate, booking_unit_details.product_or_services, vendor_foc_invoice_id, vendor_basic_charges';
-           $where = array('booking_unit_details.id'=>$value->booking_unit_ids);
-           $joinDataArray["services"] = "services.id=booking_unit_details.service_id";
-           $booking_unit_data = $this->reusable_model->get_search_query('booking_unit_details', $select, $where, $joinDataArray, "", "", "", "", "")->result_array();
-            array_push($partner_reference_invoice, $booking_unit_data[0]['partner_invoice_id']);
-            array_push($vendor_reference_invoice, $booking_unit_data[0]['vendor_foc_invoice_id']);
-            if($booking_unit_data[0]['partner_invoice_id']){
-                /* If partner_invoice_id exist we create credit note for partner */
-                $description = $booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."(".$booking_unit_data[0]['appliance_capacity'].") (". $booking_id.")";
-               
-                $data[$key]['description'] =  $description;
-                $data[$key]['rate'] = sprintf("%.2f", ($booking_unit_data[0]['partner_net_payable']));
-                $data[$key]['qty'] = 1;
-                $data[$key]['taxable_value'] = sprintf("%.2f", ($booking_unit_data[0]['partner_net_payable']));
-                $data[$key]['product_or_services'] = $booking_unit_data[0]['product_or_services'];
-                if(!empty($partner_data[0]['gst_number'])){
-                     $data[$key]['gst_number'] = $partner_data[0]['gst_number'];
-                } 
-                else{
-                    $data[$key]['gst_number'] = TRUE;
+            $partner_data = $this->partner_model->getpartner_details("gst_number,"
+                    . "company_name, state, address as company_address, district, pincode, "
+                    . "invoice_email_to,invoice_email_cc", array('partners.id' => $booking_data[0]['partner_id']));
+
+            // $partner_id = $booking_data[0]['partner_id'];
+
+            $vendor_data = $this->vendor_model->getVendorDetails("gst_no as gst_number,"
+                    . "company_name, state, address as company_address, district, pincode, "
+                    . "primary_contact_email as invoice_email_to,owner_email as invoice_email_cc", array('id' => $booking_data[0]['assigned_vendor_id']));
+
+            foreach ($postData as $key => $value) {
+                array_push($unit_bookings, $value->booking_unit_ids);
+
+                $select = 'booking_unit_details.partner_net_payable, services.services as service'
+                        . ', booking_unit_details.price_tags, booking_unit_details.appliance_category,booking_unit_details.appliance_capacity'
+                        . ',booking_unit_details.partner_invoice_id, booking_unit_details.tax_rate, booking_unit_details.product_or_services, vendor_foc_invoice_id, vendor_basic_charges';
+                $where = array('booking_unit_details.id' => $value->booking_unit_ids);
+                $joinDataArray["services"] = "services.id=booking_unit_details.service_id";
+                $booking_unit_data = $this->reusable_model->get_search_query('booking_unit_details', $select, $where, $joinDataArray, "", "", "", "", "")->result_array();
+                array_push($partner_reference_invoice, $booking_unit_data[0]['partner_invoice_id']);
+                array_push($vendor_reference_invoice, $booking_unit_data[0]['vendor_foc_invoice_id']);
+                if ($booking_unit_data[0]['partner_invoice_id']) {
+                    /* If partner_invoice_id exist we create credit note for partner */
+//                $description = $booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."(".$booking_unit_data[0]['appliance_capacity'].") (". $booking_id.")";
+//               
+//                $data[$key]['description'] =  $description;
+//                $data[$key]['rate'] = sprintf("%.2f", ($booking_unit_data[0]['partner_net_payable']));
+//                $data[$key]['qty'] = 1;
+//                $data[$key]['taxable_value'] = sprintf("%.2f", ($booking_unit_data[0]['partner_net_payable']));
+//                $data[$key]['product_or_services'] = $booking_unit_data[0]['product_or_services'];
+//                if(!empty($partner_data[0]['gst_number'])){
+//                     $data[$key]['gst_number'] = $partner_data[0]['gst_number'];
+//                } 
+//                else{
+//                    $data[$key]['gst_number'] = TRUE;
+//                }
+//                
+//                $data[$key]['company_name'] = $partner_data[0]['company_name'];
+//                $data[$key]['company_address'] = $partner_data[0]['company_address'];
+//                $data[$key]['district'] = $partner_data[0]['district'];
+//                $data[$key]['pincode'] = $partner_data[0]['pincode'];
+//                $data[$key]['state'] = $partner_data[0]['state'];
+//                $data[$key]['hsn_code'] = HSN_CODE;
+//                $data[$key]['gst_rate'] = $booking_unit_data[0]['tax_rate'];
                 }
-                
-                $data[$key]['company_name'] = $partner_data[0]['company_name'];
-                $data[$key]['company_address'] = $partner_data[0]['company_address'];
-                $data[$key]['district'] = $partner_data[0]['district'];
-                $data[$key]['pincode'] = $partner_data[0]['pincode'];
-                $data[$key]['state'] = $partner_data[0]['state'];
-                $data[$key]['hsn_code'] = HSN_CODE;
-                $data[$key]['gst_rate'] = $booking_unit_data[0]['tax_rate'];
+                if ($booking_unit_data[0]['vendor_foc_invoice_id']) {
+                    /* If vendor_foc_invoice_id exist we create Debit Note for vendor */
+                    $description = $booking_unit_data[0]['service'] . " " . $booking_unit_data[0]['appliance_category'] . "(" . $booking_unit_data[0]['appliance_capacity'] . ") (" . $booking_id . ")";
+                    $vendor_invoice_data[$key]['description'] = $description;
+                    $vendor_invoice_data[$key]['rate'] = $booking_unit_data[0]['vendor_basic_charges'];
+                    $vendor_invoice_data[$key]['qty'] = 1;
+                    $vendor_invoice_data[$key]['taxable_value'] = $booking_unit_data[0]['vendor_basic_charges'];
+                    $vendor_invoice_data[$key]['product_or_services'] = $booking_unit_data[0]['product_or_services'];
+                    if (!empty($vendor_data[0]['gst_number'])) {
+                        $vendor_invoice_data[$key]['gst_number'] = $vendor_data[0]['gst_number'];
+                    } else {
+                        $vendor_invoice_data[$key]['gst_number'] = TRUE;
+                    }
+
+                    $vendor_invoice_data[$key]['company_name'] = $vendor_data[0]['company_name'];
+                    $vendor_invoice_data[$key]['company_address'] = $vendor_data[0]['company_address'];
+                    $vendor_invoice_data[$key]['district'] = $vendor_data[0]['district'];
+                    $vendor_invoice_data[$key]['pincode'] = $vendor_data[0]['pincode'];
+                    $vendor_invoice_data[$key]['state'] = $vendor_data[0]['state'];
+                    $vendor_invoice_data[$key]['hsn_code'] = HSN_CODE;
+                    $vendor_invoice_data[$key]['gst_rate'] = $booking_unit_data[0]['tax_rate'];
+                }
+
+                //insert entry into booking state change
+                $booking_state_remarks = $remarks . " Booking unit id - " . $value->booking_unit_ids;
+                $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
             }
-            if($booking_unit_data[0]['vendor_foc_invoice_id']){ 
-                /* If vendor_foc_invoice_id exist we create Debit Note for vendor */
-                $description = $booking_unit_data[0]['service']." ".$booking_unit_data[0]['appliance_category']."(".$booking_unit_data[0]['appliance_capacity'].") (".$booking_id.")";
-                $vendor_invoice_data[$key]['description'] =  $description;
-                $vendor_invoice_data[$key]['rate'] = $booking_unit_data[0]['vendor_basic_charges'];
-                $vendor_invoice_data[$key]['qty'] = 1;
-                $vendor_invoice_data[$key]['taxable_value'] = $booking_unit_data[0]['vendor_basic_charges'];
-                $vendor_invoice_data[$key]['product_or_services'] = $booking_unit_data[0]['product_or_services'];
-                if(!empty($partner_data[0]['gst_number'])){
-                     $vendor_invoice_data[$key]['gst_number'] = $vendor_data[0]['gst_number'];
-                }
-                else {
-                    $vendor_invoice_data[$key]['gst_number'] = TRUE;
-                }
-                
-                $vendor_invoice_data[$key]['company_name'] = $vendor_data[0]['company_name'];
-                $vendor_invoice_data[$key]['company_address'] = $vendor_data[0]['company_address'];
-                $vendor_invoice_data[$key]['district'] = $vendor_data[0]['district'];
-                $vendor_invoice_data[$key]['pincode'] = $vendor_data[0]['pincode'];
-                $vendor_invoice_data[$key]['state'] = $vendor_data[0]['state'];
-                $vendor_invoice_data[$key]['hsn_code'] = HSN_CODE;
-                $vendor_invoice_data[$key]['gst_rate'] = $booking_unit_data[0]['tax_rate'];
-            }
-            
-            //insert entry into booking state change
-            $booking_state_remarks = $remarks." Booking unit id - ".$value->booking_unit_ids;
-            $this->notify->insert_state_change($booking_id, $value->reasons, "", $booking_state_remarks, $this->session->userdata('id'), $this->session->userdata('employee_id'), ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, _247AROUND);
-        }
 //        if(!empty($data)){
 //            $invoice_id = $this->invoice_lib->create_invoice_id("ARD-CN");
 //            $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Credit Note", $invoice_date);
@@ -911,85 +912,88 @@ class User_invoice extends CI_Controller {
 //                } 
 //            }
 //        }
-        
-        if(!empty($vendor_invoice_data)){
-            $vendor_invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN");
-            $response = $this->invoices_model->_set_partner_excel_invoice_data($vendor_invoice_data, $sd, $ed, "Debit Note", $invoice_date);
-            $response['meta']['invoice_id'] = $vendor_invoice_id;
-            $response['meta']['reference_number'] = $booking_id;
-            $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final"); 
-            if (!empty($status)) { 
-                $this->invoice_lib->send_request_to_convert_excel_to_pdf($vendor_invoice_id, "final");
-                $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
-                $output_pdf_file_name = $convert['main_pdf_file_name'];
-                $response['meta']['invoice_file_main'] = $output_pdf_file_name;
-                $response['meta']['copy_file'] = $convert['copy_file'];
-                $response['meta']['invoice_file_excel'] = $vendor_invoice_id . ".xlsx";
 
-                $this->invoice_lib->upload_invoice_to_S3($vendor_invoice_id, false);
-                
-                 /* Send DN mail to vendor */
-                $email_tag = DEBIT_NOTE_ON_REFUSE_TO_PAY;
-                $email_template = $this->booking_model->get_booking_email_template($email_tag);
-                $subject = vsprintf($email_template[4], array($booking_id));
-                $message = vsprintf($email_template[0], array($booking_id, $vendor_invoice_id));
-                $email_from = $email_template[2];
-                //$to = $vendor_data[0]['invoice_email_to'].",".$email_template[1];
-                //$cc = $vendor_data[0]['invoice_email_cc'].",".$email_template[3];
-                $to = $email_template[1];
-                $cc = $email_template[3];
-
-                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
-                
-                unlink(TMP_FOLDER . $vendor_invoice_id . ".xlsx");
-                unlink(TMP_FOLDER . "copy_" . $vendor_invoice_id . ".xlsx");
-                
-                $vendor_reference_invoice_id = "";
-                $vendor_reference_array = array_unique($vendor_reference_invoice);
-                if(count($vendor_reference_array)=='1'){
-                    $vendor_reference_invoice_id = $vendor_reference_array[0];
-                }
-                
+            if (!empty($vendor_invoice_data)) {
+                $vendor_invoice_id = $this->invoice_lib->create_invoice_id("ARD-DN");
+                $response = $this->invoices_model->_set_partner_excel_invoice_data($vendor_invoice_data, $sd, $ed, "Debit Note", $invoice_date);
                 $response['meta']['invoice_id'] = $vendor_invoice_id;
-                $response['meta']['reference_invoice_id'] = $vendor_reference_invoice_id;
-                $response['meta']['vertical'] = SERVICE;
-                $response['meta']['category'] = INSTALLATION_AND_REPAIR;
-                $response['meta']['sub_category'] = DEBIT_NOTE;
-                $response['meta']['accounting'] = 1;
-                $response['meta']['remarks'] = $booking_id;
-                
-                
-                $this->invoice_lib->insert_invoice_breackup($response);
-                $vendor_invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Debit Note", "vendor", $booking_data[0]['assigned_vendor_id'], $convert, $this->session->userdata('id'), HSN_CODE);
-                $last_invoice_id = $this->invoices_model->insert_new_invoice($vendor_invoice);
-                if($last_invoice_id){
-                    $i = 0;
-                    foreach ($postData as $key => $value){ 
-                        $booking_cn_dn_data = array(
-                            "entity_type" => "vendor",
-                            "entity_id" => $booking_data[0]['assigned_vendor_id'],
-                            "booking_id" => $booking_id,
-                            "booking_unit_id" => $value->booking_unit_ids,
-                            "invoice_type" => "Debit Note",
-                            "invoice_id" => $vendor_invoice_id,
-                            "reference_invoice_id" => $vendor_reference_invoice[$i]
-                        );
-                        $booking_cn_dn_id = $this->invoices_model->insert_into_booking_debit_credit_detils($booking_cn_dn_data);
-                        $i++;
+                $response['meta']['reference_number'] = $booking_id;
+                $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
+                if (!empty($status)) {
+                    $this->invoice_lib->send_request_to_convert_excel_to_pdf($vendor_invoice_id, "final");
+                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+                    $output_pdf_file_name = $convert['main_pdf_file_name'];
+                    $response['meta']['invoice_file_main'] = $output_pdf_file_name;
+                    $response['meta']['copy_file'] = $convert['copy_file'];
+                    $response['meta']['invoice_file_excel'] = $vendor_invoice_id . ".xlsx";
+
+                    $this->invoice_lib->upload_invoice_to_S3($vendor_invoice_id, false);
+
+                    /* Send DN mail to vendor */
+                    $email_tag = DEBIT_NOTE_ON_REFUSE_TO_PAY;
+                    $email_template = $this->booking_model->get_booking_email_template($email_tag);
+                    if(!empty($email_template)){
+                         $message = vsprintf($email_template[0], array($booking_id, $vendor_invoice_id));
+                         $email_from = $email_template[2];
+                         $subject = vsprintf($email_template[4], array($booking_id));
+                        //$to = $vendor_data[0]['invoice_email_to'].",".$email_template[1];
+                        //$cc = $vendor_data[0]['invoice_email_cc'].",".$email_template[3];
+                        $to = $email_template[1];
+                        $cc = $email_template[3];
+
+                        $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER . $output_pdf_file_name, $email_tag, "", $booking_id);
                     }
-                } 
+                   
+                   
+
+                    unlink(TMP_FOLDER . $vendor_invoice_id . ".xlsx");
+                    unlink(TMP_FOLDER . "copy_" . $vendor_invoice_id . ".xlsx");
+
+                    $vendor_reference_invoice_id = "";
+                    $vendor_reference_array = array_unique($vendor_reference_invoice);
+                    if (count($vendor_reference_array) == '1') {
+                        $vendor_reference_invoice_id = $vendor_reference_array[0];
+                    }
+
+                    $response['meta']['invoice_id'] = $vendor_invoice_id;
+                    $response['meta']['reference_invoice_id'] = $vendor_reference_invoice_id;
+                    $response['meta']['vertical'] = SERVICE;
+                    $response['meta']['category'] = INSTALLATION_AND_REPAIR;
+                    $response['meta']['sub_category'] = DEBIT_NOTE;
+                    $response['meta']['accounting'] = 1;
+                    $response['meta']['remarks'] = $remarks . " - " . $booking_id;
+
+
+                    $this->invoice_lib->insert_invoice_breackup($response);
+                    $vendor_invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Debit Note", "vendor", $booking_data[0]['assigned_vendor_id'], $convert, $this->session->userdata('id'), HSN_CODE);
+                    $last_invoice_id = $this->invoices_model->insert_new_invoice($vendor_invoice);
+                    if ($last_invoice_id) {
+                        $i = 0;
+                        foreach ($postData as $key => $value) {
+                            $booking_cn_dn_data = array(
+                                "entity_type" => "vendor",
+                                "entity_id" => $booking_data[0]['assigned_vendor_id'],
+                                "booking_id" => $booking_id,
+                                "booking_unit_id" => $value->booking_unit_ids,
+                                "invoice_type" => "Debit Note",
+                                "invoice_id" => $vendor_invoice_id,
+                                "reference_invoice_id" => $vendor_reference_invoice[$i]
+                            );
+                            $this->invoices_model->insert_into_booking_debit_credit_detils($booking_cn_dn_data);
+                            $i++;
+                        }
+                    }
+                }
+            }
+
+            $last_id = $this->reusable_model->update_table_where_in('booking_unit_details', array("pay_to_sf" => 0, "partner_refuse_to_pay" => 1), array('id' => $unit_bookings));
+            if ($last_id) {
+                echo true;
+            } else {
+                echo false;
             }
         }
-        
-        $last_id = $this->reusable_model->update_table_where_in('booking_unit_details', array("pay_to_sf"=>0, "partner_refuse_to_pay"=>1), array('id'=>$unit_bookings));
-        if($last_id){
-            echo true;
-        }
-        else{
-            echo false;
-        }
     }
-
 
     /**
      * @desc This function is used to return new part to Partner/Warehouse
