@@ -2555,7 +2555,7 @@ class Inventory_model extends CI_Model {
      */
     function get_msl_data($date, $inventory_id = ""){
        
-        $this->db->select('public_name as company_name,ss.services, im.inventory_id,  part_name, part_number, '
+        $this->db->select('public_name as company_name,sc.name as Warehouse_name, ss.services, im.inventory_id,  part_name, part_number, '
                 . 'im.type, price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
         $this->db->from('spare_parts_details as s');
         $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
