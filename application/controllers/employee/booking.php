@@ -329,6 +329,7 @@ class Booking extends CI_Controller {
 
                             log_message('info', __METHOD__ . " Update Booking Unit Details: " . " Previous booking id: " . $booking_id);
                             // save model and DOP values in SF_ columns while updating booking.
+                            $services_details['purchase_date'] = date('Y-m-d', strtotime($services_details['purchase_date']));
                             $services_details['sf_model_number'] = $services_details['model_number'];
                             $services_details['sf_purchase_date'] = $services_details['purchase_date'];
                             // --------------------------------------------------------
@@ -1058,7 +1059,7 @@ class Booking extends CI_Controller {
         $data['upcountry_charges'] = $upcountry_price;
         $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description',NULL, NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
-        
+
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
     }
@@ -5765,13 +5766,13 @@ class Booking extends CI_Controller {
                         //Redirect to edit booking page if validation err occurs
                         $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact 247around Team');
                         $this->session->set_userdata($userSession);
-                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.$booking_id);
+                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
                     }
                 } else {
                     //Redirect to edit booking page if validation err occurs
                     $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact 247around Team');
                     $this->session->set_userdata($userSession);
-                    redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.$booking_id);
+                    redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
                 }
             } else {
                 //Logging error if No input is provided
@@ -5881,26 +5882,64 @@ class Booking extends CI_Controller {
         exit;
     }
     
-    public function get_warranty_data(){
+    /**
+     * this function is used to get the warranty status of booking, called from AJAX
+     * function returns output in two formats : 
+     * CASE 1 => return warranty status against booking 
+     * CASE 2 => returns true/false after matching booking request type with warranty status and a response Message 
+     * @author Prity Sharma
+     * @date 20-08-2019
+     * @return JSON
+     */
+    public function get_warranty_data($case = 1){
         $post_data = $this->input->post();
         $arrBookings = $post_data['bookings_data'];  
-        $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);  
-        $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);         
-        foreach($arrBookings as $key => $arrBooking)
-        {
-            $model_number = trim($arrBooking['model_number']);
-            if(!empty($arrModelWiseWarrantyData[$model_number]))
-            {   
-                $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$model_number]);
-            }
-            elseif (!empty($arrBooking['service_id']) && !empty($arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']])) {
-                $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']]);
-            }
-            $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
-            unset($arrBookings[$key]);
-        }
-        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);   
-        echo json_encode($arrBookingsWarrantyStatus);
+        $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings);   
+            
+        switch ($case) {
+            case 1:
+                echo json_encode($arrBookingsWarrantyStatus);
+            break;
+            case 2:                
+                $selected_booking_request_types = $arrBookings[0]['booking_request_types'];
+                $booking_request_type = $this->booking_utilities->get_booking_request_type($selected_booking_request_types); 
+                $booking_id = $arrBookings[0]['booking_id'];
+                $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
+                $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
+                $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
+                $warranty_mismatch = 0;
+                $returnMessage = "";
+                
+                if(!empty($arr_warranty_status[$warranty_checker_status]))
+                {
+                    $warranty_mismatch = 1;
+                    foreach($arr_warranty_status[$warranty_checker_status] as $request_types)
+                    {
+                        if(strpos($booking_request_type, $request_types) !== false)
+                        {
+                            $warranty_mismatch = 0;
+                            break;
+                        }
+                    }
+                }
+                
+                if(!empty($warranty_mismatch))
+                {
+                    if((strpos($booking_request_type, 'Out Of Warranty') !== false) || (strpos($booking_request_type, 'Out Warranty') !== false))
+                    {
+                        $warranty_mismatch = 0;
+                        $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";
+                    }
+                    else
+                    { 
+                        $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
+                    }   
+                }
+                $arrReturn['status'] = $warranty_mismatch;
+                $arrReturn['message'] = $returnMessage;
+                echo json_encode($arrReturn);
+            break;
+        }        
     }
     
     public function getCategoryCapacityForModel()

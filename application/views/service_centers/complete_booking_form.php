@@ -190,7 +190,7 @@
                                             <div class="input-group input-append date">
                                                 <input  autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php 
                                                 if($this->session->userdata('is_engineer_app') == 1){
-                                                    if(isset($unit_details['quantity'][0]['en_purchase_date'])){ echo $unit_details['quantity'][0]['en_purchase_date']; } 
+                                                    if(!empty($unit_details['quantity'][0]['en_purchase_date'])){ echo $unit_details['quantity'][0]['en_purchase_date']; } elseif(isset($unit_details['sf_purchase_date'])){  echo $unit_details['sf_purchase_date']; }
                                                 }
                                                 else{
                                                     if(isset($unit_details['sf_purchase_date'])){  echo $unit_details['sf_purchase_date']; } elseif(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } 
@@ -279,7 +279,7 @@
                                                             <input type="hidden" name="is_model_dropdown" value="1" />
                                                            <?php } else { ?>
                                                              <input type="hidden" name="is_model_dropdown" value="0" />
-                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
+                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php echo $unit_details['sf_model_number'];?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
                                                           <?php } ?>
                                                             <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_dop_".$key1."_".$key;?>" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>" />
