@@ -2561,7 +2561,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
         $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_wh =1 ');
         $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id', 'left');
-        $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND sc.is_wh = 1 ', 'left');
+        $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND sc.is_wh = 1 ');
         $this->db->join('services as ss', 'ss.id = im.service_id', 'left');
 
         if(!empty($inventory_id)){
@@ -2569,6 +2569,7 @@ class Inventory_model extends CI_Model {
         }
         $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
         $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
+        $this->db->where('s.is_micro_wh', 2);
         $this->db->order_by('p.public_name, sc.name');
         $this->db->group_by('im.inventory_id, sc.id');
         $query = $this->db->get();
