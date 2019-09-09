@@ -972,3 +972,12 @@ UPDATE `email_template` SET `from` = 'defective-outward@247around.com', `cc` = '
 
 -- Kajal 06-09-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_wh', 'New Spare shipped by %s to %s', 'Dear SF,<br><br> <b>%s</b> shipped below new spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', NULL, 'defective-outward@247around.com', '', 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+-- Ankit 09-09-2019
+CREATE TABLE wrong_part_shipped_details (
+    id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    spare_id int(11) NOT NULL,
+    part_name varchar(255) NOT NULL,
+    inventory_id int(11) NOT NULL,
+    remarks text NULL DEFAULT NULL
+);
