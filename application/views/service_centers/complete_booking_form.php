@@ -1219,7 +1219,7 @@
             data: {spare_part_detail_id:spare_part_detail_id, booking_id:booking_id, part_name:part_name, service_id:service_id},
             success: function (data) {
                 $("#wrong_spare_part_model").children('.modal-content').children('.modal-body').html(data);   
-                $('#WrongSparePartsModal').modal('toggle');
+                $('#WrongSparePartsModal').modal({backdrop: 'static', keyboard: false});
             }
         });
     }
