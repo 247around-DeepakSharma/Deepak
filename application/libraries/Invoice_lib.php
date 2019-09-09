@@ -1007,6 +1007,7 @@ class Invoice_lib {
                 if (!empty($unsettle)) {
                     $qty = (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1);//1;
                     $inventory_details = $this->ci->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $value['inventory_id']));
+                    $value['part_name'] = $inventory_details[0]['part_name'];
 
                     foreach ($unsettle as $key => $b) {
 
@@ -1126,12 +1127,12 @@ class Invoice_lib {
         $partner_gst = $this->ci->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $b['from_gst_number']));
         $around_gst = $this->ci->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $b['to_gst_number']));
         
-        if(!empty($around_gst) && !empty($partner_gst)){
-            $around_gst_number = $around_gst[0]['gst_number'];
-            $around_state_code = $around_gst[0]['state'];
-            $around_address = $around_gst[0]['address'];
-            $around_pincode = $around_gst[0]['pincode'];
-            $around_city = $around_gst[0]['city'];
+        if((!empty($around_gst) && !empty($partner_gst)) || (!empty($partner_gst) && $value['is_micro_wh'] ==  1)){
+            $around_gst_number = !empty($around_gst[0]['gst_number'])? $around_gst[0]['gst_number']: "";
+            $around_state_code = !empty($around_gst[0]['state'])? $around_gst[0]['state']: "";
+            $around_address = !empty($around_gst[0]['address'])? $around_gst[0]['address']: "";
+            $around_pincode = !empty($around_gst[0]['pincode'])? $around_gst[0]['pincode']: "";
+            $around_city = !empty($around_gst[0]['city'])? $around_gst[0]['city']: "";
             
             $partner_state_code = $partner_gst[0]['state'];
             $partner_gst_number = $partner_gst[0]['gst_number'];
@@ -1242,8 +1243,11 @@ class Invoice_lib {
             if(isset($value['spare_id'])){
                 $invoice['spare_id'] = $value['spare_id'];
             }
-            if(isset($value['from_gst_number'])){
-                $invoice['from_gst_number'] = $value['from_gst_number'];
+            if(isset($value['from_gst_number_id'])){
+                $invoice['from_gst_number'] = $value['from_gst_number_id'];
+            }
+            if(isset($value['to_gst_number_id'])){
+                $invoice['to_gst_number'] = $value['to_gst_number_id'];
             }
             $invoice['total_amount'] = $value['total_amount'];
             $invoice['create_date'] = date('Y-m-d H:i:s');
@@ -1365,7 +1369,8 @@ class Invoice_lib {
                 'vertical' => $response['meta']['vertical'],
                 'category' => $response['meta']['category'],
                 'sub_category' => $response['meta']['sub_category'],
-                'accounting' => $response['meta']['accounting']
+                'accounting' => $response['meta']['accounting'],
+                'remarks' => (isset($response['meta']['remarks']))?$response['meta']['remarks']:''
             );
         
             return $invoice_details;
