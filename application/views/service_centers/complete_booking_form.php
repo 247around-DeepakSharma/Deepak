@@ -1,7 +1,7 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
  <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
- <?php $dop_mendatory = 0; ?>
+ <?php $dop_mendatory = 0;?>
 <div id="page-wrapper" >
     <div class="" >
         <?php if(validation_errors()){?>
@@ -189,12 +189,7 @@
                                             <label> Purchase Date</label>
                                             <div class="input-group input-append date">
                                                 <input  autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php 
-                                                if($this->session->userdata('is_engineer_app') == 1){
-                                                    if(isset($unit_details['quantity'][0]['en_purchase_date'])){ echo $unit_details['quantity'][0]['en_purchase_date']; } 
-                                                }
-                                                else{
-                                                    if(isset($unit_details['sf_purchase_date'])){  echo $unit_details['sf_purchase_date']; } elseif(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } 
-                                                }
+                                                if(isset($unit_details['sf_purchase_date'])){ echo $unit_details['sf_purchase_date']; } 
                                                 ?>" style="background: #eee">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$key1?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                              </div>
@@ -272,14 +267,14 @@
                                                                 <option value="" selected disabled>Please Select Model Number</option>
                                                                 <?php foreach ($model_data as $m) { ?>
                                                                 <option value="<?php echo $m['model_number'];?>"
-                                                                        <?php if($this->session->userdata('is_engineer_app') == 1){ if(isset($unit_details['en_model_number']) && $unit_details['en_model_number'] == $m['model_number']){ echo 'selected'; } } elseif($unit_details['model_number'] == $m['model_number']) { echo 'selected'; } else { echo 'disabled'; }  ?>
+                                                                        <?php if($unit_details['sf_model_number'] == $m['model_number']) { echo 'selected'; } else { echo 'disabled'; }  ?>
                                                                 ><?php echo $m['model_number'];?></option>
                                                                 <?php }?>
                                                             </select>
                                                             <input type="hidden" name="is_model_dropdown" value="1" />
                                                            <?php } else { ?>
                                                              <input type="hidden" name="is_model_dropdown" value="0" />
-                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
+                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php echo $unit_details['sf_model_number'];?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>">
                                                           <?php } ?>
                                                             <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_dop_".$key1."_".$key;?>" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>" />
@@ -512,11 +507,14 @@
                                         <td><?php echo $spare_part_detail['parts_requested']; ?></td>
                                         <td><?php echo $spare_part_detail['parts_requested_type']; ?></td>
                                         <td><?php echo $spare_part_detail['status']?></td>
-                                        <td><select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
+                                        <td>
+                                            <input type="hidden" name="spare_qty[<?php echo $spare_part_detail['id']; ?>]" value="<?php echo $spare_part_detail['quantity']; ?>">
+                                            <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" value="" id="wrong_part_<?php echo $spare_part_detail['id']; ?>">
+                                            <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
                                                 <option value="" selected disabled>Select Reason</option>
                                                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
                                                     if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
-                                                    <option value="<?php echo $status['id']; ?>"><?php echo $status['consumed_status']; ?></option>
+                                                    <option value="<?php echo $status['id']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
                                                 <?php $description_no++; } ?>
                                             </select>
                                         </td>
@@ -565,6 +563,7 @@
                             </div>
                         </div>
                     </div>
+                    
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group col-md-6" style=" margin-left:-29px;">
@@ -668,6 +667,21 @@
     </div>
 </div>
 </div>
+
+<!-- Wrong spare parts modal -->
+<div id="WrongSparePartsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="wrong_spare_part_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Wrong Part</h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+        </div>
+    </div>
+</div>
 <script>
 
 //    $(".model_number").select2();
@@ -704,6 +718,13 @@
         $('.serialNumberPic').on('change', function(){
             $('#'+$(this).attr('id').replace("upload_", "")).val($(this).val());
         });
+        
+        $('.spare_consumption_status').on('change', function() {
+            if($(this).val() == <?php echo WRONG_PART_RECEIVED_STATUS_ID; ?>) {
+                open_wrong_spare_part_model($(this).children("option:selected").data('spare_id'), '<?php echo $booking_history[0]['booking_id']; ?>', $(this).children("option:selected").data('part_number'), '<?php echo $booking_history[0]['service_id']; ?>');
+            }
+        })
+        
     });
     
     $(document).on('keyup', '.cost', function(e) {
@@ -1186,6 +1207,17 @@
     });
     
     })(jQuery, window, document);
+    function open_wrong_spare_part_model(spare_part_detail_id, booking_id, part_name, service_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/service_centers/wrong_spare_part/' + booking_id + "/" +spare_part_detail_id+'/'+part_name,
+            data: {spare_part_detail_id:spare_part_detail_id, booking_id:booking_id, part_name:part_name, service_id:service_id},
+            success: function (data) {
+                $("#wrong_spare_part_model").children('.modal-content').children('.modal-body').html(data);   
+                $('#WrongSparePartsModal').modal({backdrop: 'static', keyboard: false});
+            }
+        });
+    }
     
     function update_dop_for_unit(div){
           var div_item_count = $("#count_line_item_"+div).val();

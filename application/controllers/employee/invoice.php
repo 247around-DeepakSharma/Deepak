@@ -4077,15 +4077,15 @@ class Invoice extends CI_Controller {
      * @desc This function is used to generate Micro Spare purchase invoice  
      * @param int $spare_id
      */
-    function generate_micro_reverse_sale_invoice($spare_id) {
+    function generate_micro_reverse_sale_invoice($spare_id) { 
         log_message('info', __METHOD__ . " Spare ID " . $spare_id);
 
-        if (!empty($spare_id)) {
+        if (!empty($spare_id)) { 
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
                     . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1 ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
             if (!empty($spare)) {
-                if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) {
+                if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) { 
                     if (!empty($spare[0]['shipped_inventory_id'])) {
                         if (empty($spare[0]['gst_number'])) {
                             $spare[0]['gst_number'] = TRUE;
@@ -4129,6 +4129,7 @@ class Invoice extends CI_Controller {
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
                                     $data[0]['from_pincode'] = $value['to_city'];
+                                    $data[0]['state_stamp_pic'] = $value['state_stamp_pic'];
                                     $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare);
                                     if ($a) {
                                         
@@ -4171,6 +4172,7 @@ class Invoice extends CI_Controller {
                         . $data[0]['from_pincode'];
 
             $response['meta']['main_company_pincode'] = $data[0]['from_pincode'];
+            $response['meta']['main_company_seal'] = $data[0]['state_stamp_pic'];
         }
         $response['meta']['invoice_id'] = $invoice_id;
         
@@ -4990,11 +4992,11 @@ class Invoice extends CI_Controller {
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $vendor_id,
             "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL,
-            "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > 15 " => NULL
+            "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".DEFECTIVE_PART_PENDING_OOT_DAYS."' " => NULL
             
         );
        
-        $data = $this->service_centers_model->get_spare_parts_booking($where, $select);
+        $data = $this->service_centers_model->get_spare_parts_booking($where, $select, false, 'service_center_closed_date');
         if(!empty($data)){
             $html = "";
             foreach ($data as $key => $value) {
@@ -5013,6 +5015,66 @@ class Invoice extends CI_Controller {
             echo "DATA NOT FOUND";
         }
         
+    }
+    
+    function get_oot_shipped_defective_parts($service_center_id){
+        $select = "spare_parts_details.booking_id, shipped_parts_type, DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) as pending_age, challan_approx_value";
+        $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status" => DEFECTIVE_PARTS_SHIPPED,
+            "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".SHIPPED_DEFECTIVE_PARTS_AFTER_TAT_BREACH."' " => NULL
+            
+        );
+       
+        $data = $this->service_centers_model->get_spare_parts_booking($where, $select, false, 'service_center_closed_date');
+        if(!empty($data)){
+            $html = "";
+            foreach ($data as $key => $value) {
+                $html .= "<tr>";
+                $html .= "<td>".($key +1)."</td>";
+                $html .= "<td>".$value['booking_id']."</td>";
+                $html .= "<td>".$value['shipped_parts_type']."</td>";
+                $html .= "<td>".$value['pending_age']." Days </td>";
+                $html .= "<td> Rs.".$value['challan_approx_value']."</td>";
+                $html .= "</tr>";
+                
+            }
+            
+            echo $html;
+        } else {
+            echo "DATA NOT FOUND";
+        }
+    }
+    
+    function get_intransit_defective_parts($service_center_id){
+        $select = "spare_parts_details.booking_id, shipped_parts_type, DATEDIFF(CURRENT_TIMESTAMP, defective_part_shipped_date) as pending_age, challan_approx_value";
+        $where = array(
+            "spare_parts_details.defective_part_required"=>1,
+            "spare_parts_details.service_center_id" => $service_center_id,
+            "status" => DEFECTIVE_PARTS_SHIPPED,
+            "DATEDIFF(CURRENT_TIMESTAMP, defective_part_shipped_date) > '".DEFECTIVE_PART_SHIPPED_OOT_DAYS."' " => NULL
+            
+        );
+       
+        $data = $this->service_centers_model->get_spare_parts_booking($where, $select, false, 'defective_part_shipped_date');
+        if(!empty($data)){
+            $html = "";
+            foreach ($data as $key => $value) {
+                $html .= "<tr>";
+                $html .= "<td>".($key +1)."</td>";
+                $html .= "<td>".$value['booking_id']."</td>";
+                $html .= "<td>".$value['shipped_parts_type']."</td>";
+                $html .= "<td>".$value['pending_age']." Days </td>";
+                $html .= "<td> Rs.".$value['challan_approx_value']."</td>";
+                $html .= "</tr>";
+                
+            }
+            
+            echo $html;
+        } else {
+            echo "DATA NOT FOUND";
+        }
     }
     /**
      * @desc insert Invoice details(Break up if invoice)

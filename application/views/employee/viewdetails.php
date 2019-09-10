@@ -763,7 +763,9 @@
                                         <th>Challan approx Value </th>
                                         <th>Challan File</th>
                                         <th>Courier File</th>
-                                        
+                                        <?php if($booking_history[0]['internal_status'] == 'Completed'){?>
+                                        <th>IS Defective Parts Required</th>
+                                        <?php } ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -810,6 +812,11 @@
                                             <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank">Click Here to view</a>
                                             <?php } ?>
                                         </td>
+                                        <?php if($booking_history[0]['internal_status'] == 'Completed'){?>
+                                        <td>
+                                            <?php echo $sp['btn'] ?>
+                                        </td>
+                                        <?php } ?>
                                     </tr>
                                     <?php } } ?>
                                 </tbody>
@@ -1114,9 +1121,9 @@
                         </div>
                         <div style="background: #5bc0de;margin-bottom: 20px;">
                             <?php if($booking_history[0]['current_status'] != 'Cancelled' && $booking_history[0]['current_status'] != 'Completed'){ ?>
-                        <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/1" class="btn btn-success action_buton" 
+                        <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/1/<?php echo $booking_history[0]['partner_id']?>" class="btn btn-success action_buton" 
                            >Regenerate and send QR Code</a>
-                               <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0" class="btn btn-success action_buton">
+                               <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0/<?php echo $booking_history[0]['partner_id']?>" class="btn btn-success action_buton">
                                    Resend Same QR Code</a>
                             
 
@@ -1358,7 +1365,25 @@
         
     </div>
 <!-- end Invoice Payment History Modal -->
-
+<div id="myModal2" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="modal-title">Reject Parts</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
+                </div>
+                <input type="hidden" id="url">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="reject_btn">Send</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 <script>
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex = "<?=((isset($booking_files) && !empty($booking_files))?(count($booking_files)+1):1);?>";//$(".clonedInput").length;
@@ -2199,6 +2224,101 @@ background-color: #f5f5f5;
       getcommentbox(type_val);        
     }   
     
+    $(document).on("click", ".open-adminremarks", function () {
+        
+        var booking_id = $(this).data('booking_id');
+        var url = $(this).data('url');
+        //var keys = $(this).data('keys'); 
+        var split_url = url.split('/');
+        if(split_url[8]=='NOT_REQUIRED_PARTS' || split_url[8]=='NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'){
+            button_txt = 'Move To Not Required';
+        }else{
+            button_txt = 'Move To Required';
+        }
+        
+        $("#reject_btn").html(button_txt);  
+        $("#status_label").css({'display':'none'});
+        $("#reject_btn").attr("onclick","not_required_parts()");   
+    
+        
+        $('#modal-title').text(booking_id);
+        $('#textarea').val("");
+        $("#url").val(url);
+        
+
+    });
+    
+    function approve_spare_part(){
+      var remarks =  $('#textarea').val();
+      var warranty_status = $('#part_warranty_status').val();
+      
+      if(warranty_status==''){
+          alert('Please Select Part Warranty Status');
+          return false;
+      }
+      
+      if(remarks==''){
+          alert('Please Enter Remarks');
+          return false;
+      }
+                 
+      if(remarks !== "" && warranty_status !=''){
+       $('#reject_btn').attr('disabled',true);
+        var url =  $('#url').val();
+        $.ajax({
+            type:'POST',
+            url:url,
+            data:{remarks:remarks,part_warranty_status:warranty_status},
+            success: function(data){
+                 var obj = JSON.parse(data); 
+                $('#reject_btn').attr('disabled',false);
+                if(obj['status']){
+                  //  $("#"+booking_id+"_1").hide()
+                    $("#reject_btn").html("Send");             
+                    $("#reject_btn").attr("onclick","reject_parts()");
+                    $('#myModal2').modal('hide');
+                    alert("Approved Successfully");
+                    spare_parts_requested_table.ajax.reload( function ( json ) { 
+                      $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+                    },false );
+                    
+                } else {
+                    alert("Spare Parts Cancellation Failed!");
+                }
+            }
+        });
+      } 
+    }
+    
+    
+    function not_required_parts(){
+      var remarks =  $('#textarea').val();
+      //var booking_id = $('#modal-title').text();
+      
+      if(remarks !== ""){
+        $('#reject_btn').attr('disabled',true);
+        var url =  $('#url').val();
+        $.ajax({
+            type:'POST',
+            url:url,
+            data:{ remarks:remarks },
+            success: function(data){
+                $('#reject_btn').attr('disabled',false);
+                console.log(data);
+                if(data === "Success"){
+                  //  $("#"+booking_id+"_1").hide()
+                    $('#myModal2').modal('hide');
+                    alert("Updated Successfully");
+                    load_table(table_type);
+                } else {
+                    alert("Spare Parts Cancellation Failed!");
+                }
+            }
+        });
+      } else {
+          alert("Please Enter Remarks");
+      }
+    }
     
     function getcommentbox(type_val){
         $.ajax({

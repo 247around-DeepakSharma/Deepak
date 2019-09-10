@@ -450,9 +450,9 @@ class Service_centers extends CI_Controller {
             }
             array_push($data['prices'], $prices);
             $bookng_unit_details[$key1]['is_broken'] = $broken;
-            $bookng_unit_details[$key1]['dop'] = $b['purchase_date'];;
-            $bookng_unit_details[$key1]['sf_dop'] = $b['sf_purchase_date'];;
-            $bookng_unit_details[$key1]['sf_model_number'] = $b['sf_model_number'];;
+            $bookng_unit_details[$key1]['dop'] = $b['purchase_date'];
+            $bookng_unit_details[$key1]['sf_dop'] = $b['sf_purchase_date'];
+            $bookng_unit_details[$key1]['sf_model_number'] = $b['sf_model_number'];
         }
         if ($this->session->userdata('is_engineer_app') == 1) {
             $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
@@ -650,7 +650,6 @@ class Service_centers extends CI_Controller {
                         }
                     }
                     
-                    $this->update_spare_consumption_status($this->input->post());
                     if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
                         $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
                         if (!$rowsStatus) {
@@ -677,6 +676,9 @@ class Service_centers extends CI_Controller {
                     // Insert data into booking state change
                     $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, $closing_remarks, "247Around", "Review the Booking");
 
+                    // update spare parts.
+                    $this->update_spare_consumption_status($this->input->post(), $booking_id);
+                    
                     //This is used to cancel those spare parts who has not shipped by partner.        
                     $this->cancel_spare_parts($partner_id, $booking_id);
 
@@ -710,22 +712,63 @@ class Service_centers extends CI_Controller {
     }
     
  
-      /**
+    /**
      * 
      * @param type $post_data
      * @return boolean
      */
-    public function update_spare_consumption_status($post_data) {
+    public function update_spare_consumption_status($post_data, $booking_id) {
         if(!empty($post_data['spare_consumption_status'])) {
             foreach($post_data['spare_consumption_status'] as $spare_id => $status_id) {
-                $this->reusable_model->update_table('spare_parts_details', ['consumed_part_status_id' => $status_id], ['id' => $spare_id]);
+                
+                $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details','*',['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+                $status = $spare_part_detail['status'];
+                
+                if($status_id == PART_CONSUMED_STATUS_ID && $spare_part_detail['defective_part_required'] == 1 && !empty($spare_part_detail['parts_shipped'])) {
+                    $status = DEFECTIVE_PARTS_PENDING;
+                    
+                    // save defective part.
+                    $defective_part_data = [];
+                    $defective_part_data['booking_id'] = $booking_id;
+                    $defective_part_data['spare_id'] = $spare_id;
+                    $defective_part_data['qty'] = $spare_part_detail['quantity'];
+                    $defective_part_data['qty_status'] = DEFECTIVE_PARTS_PENDING;
+                    
+                    $this->inventory_model->insert_defective_ledger_data($defective_part_data);
+                }
+                
+                if($status_id == PART_NOT_RECEIVED_STATUS_ID) {
+                    $status = COURIER_LOST;
+                }
+                
+                if($status_id == PART_CANCELLED_STATUS_ID && empty($spare_part_detail['parts_shipped'])) {
+                    $status = _247AROUND_CANCELLED;
+                }
+                
+                if($status_id == PART_SHIPPED_BUT_NOT_USED_STATUS_ID) {
+                    $status = OK_PART_TO_BE_SHIPPED;
+                }
+                
+                if($status_id == WRONG_PART_RECEIVED_STATUS_ID && !empty($post_data['wrong_part'])) {
+                    $status = OK_PART_TO_BE_SHIPPED;
+                    $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
+                    $this->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
+                }
+                
+                if($status_id == DAMAGE_BROKEN_PART_RECEIVED_STATUS_ID) {
+                    $status = DAMAGE_PART_TO_BE_SHIPPED;
+                }
+                
+                $this->reusable_model->update_table('spare_parts_details', [
+                    'consumed_part_status_id' => $status_id,
+                    'status' => $status,
+                ], ['id' => $spare_id]);
             }
         }
         
         return true;
     }
-
- 
+    
     /**
      *  @desc : This function is used to upload the purchase invoice to s3 and save into database
      *  @param : string $booking_primary_contact_no
@@ -1220,8 +1263,18 @@ class Service_centers extends CI_Controller {
                     $data['update_date'] = date('Y-m-d H:i:s');
                     $this->vendor_model->update_service_center_action($booking_id, $data);
                     $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
+                    
+                    $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$booking_id));
+                    if(!empty($engineer_action)){
+                        $eng_data = array(
+                            "internal_status" => _247AROUND_CANCELLED,
+                            "current_status" => _247AROUND_CANCELLED
+                        );
+                        $this->engineer_model->update_engineer_table($eng_data, array("booking_id"=>$booking_id));
+                    }
+                    
                     //$this->miscelleneous->process_booking_tat_on_completion($booking_id);
-                   //End Update Service Center Closed Date
+                    //End Update Service Center Closed Date
                     $this->update_booking_internal_status($booking_id, "InProcess_Cancelled",  $partner_id);
                     $this->insert_details_in_state_change($booking_id, 'InProcess_Cancelled', $can_state_change,"not_define","not_define");
                     redirect(base_url() . "service_center/pending_booking");
@@ -1823,10 +1876,11 @@ class Service_centers extends CI_Controller {
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
                 . 'booking_details.service_id,booking_details.partner_id as booking_partner_id';
-        $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);            
-        $data['spare_parts_details'] = $spare_parts_details[0];       
-        $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'active' => 1);
-        $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number', $where1);
+
+        $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);
+        $data['spare_parts_details'] = $spare_parts_details[0];
+        $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1);
+        $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where1);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/get_update_spare_parts_required_form', $data);
        
@@ -1842,7 +1896,7 @@ class Service_centers extends CI_Controller {
         if (!empty($_FILES['defective_parts_pic']['name'][0]) || !empty($_FILES['defective_back_parts_pic']['name'][0])) {
             $is_file = $this->validate_part_data();
         }
-
+       
         if (!empty($_FILES['serial_number_pic']['name'])) {
             $this->validate_serial_number_pic_upload_file();
             $data['serial_number_pic'] = $this->input->post('serial_number_pic');
@@ -1884,11 +1938,12 @@ class Service_centers extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
         $entity_type = $this->input->post('entity_type');
-        $booking_partner_id = $this->input->post('booking_partner_id');
         $previous_inventory_id = $this->input->post('previous_inventory_id');
-        $data['requested_inventory_id']= $current_inventory_id = $this->input->post('current_inventory_id');
-        $booking_id = $this->input->post('booking_id');     
-        
+
+        $data['requested_inventory_id'] = $current_inventory_id = $this->input->post('current_inventory_id');
+        $booking_id = $this->input->post('booking_id');
+        $service_center_id = $this->input->post('service_center_id');
+
         $change_inventory_id = '';
         if (isset($previous_inventory_id) && !empty($current_inventory_id)) {
             if ($previous_inventory_id != $current_inventory_id) {
@@ -1903,10 +1958,11 @@ class Service_centers extends CI_Controller {
             $data['requested_inventory_id'] = $previous_inventory_id;
         }
 
-        $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
-        if(!empty($change_inventory_id)){
-            
-            $warehouse_details = $this->miscelleneous->check_inventory_stock($data['requested_inventory_id'], $booking_partner_id, $sf_state[0]['state'], $this->session->userdata('service_center_id'), $data['model_number']);
+
+        $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $service_center_id));
+        if (!empty($change_inventory_id)) {
+
+            $warehouse_details = $this->miscelleneous->check_inventory_stock($data['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $service_center_id, $data['model_number']);
 
             if (!empty($warehouse_details)) {
                 $data['partner_id'] = $warehouse_details['entity_id'];
@@ -1949,7 +2005,7 @@ class Service_centers extends CI_Controller {
 //                $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
 //                $data['defective_return_to_entity_id'] = $partner_id;
 //            }
-//        }
+//        }    
         $delivered_sp =array();
         if($data['is_micro_wh']==1){
 
@@ -1958,14 +2014,15 @@ class Service_centers extends CI_Controller {
                 array_push($delivered_sp, $data);
             }
         $where = array('id' => $this->input->post('spare_id'));
-        if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager'){
-            $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
+        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
 
+            $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
+            
              $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
 
 
             if ($affected_row == TRUE) {
-                $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "", $data['remarks_by_sc'], $this->session->userdata('id'), $this->session->userdata('emp_name'), NULL, NULL, $partner_id, NULL);
+                $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "", $data['remarks_by_sc'], $this->session->userdata('id'), $this->session->userdata('emp_name'), NULL, NULL, _247AROUND, NULL);
                 $userSession = array('success' => 'Spare Parts Updated');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "employee/inventory/get_spare_parts");
@@ -2276,6 +2333,7 @@ class Service_centers extends CI_Controller {
                 
                 $dataunit_details =array(
                     'sf_model_number'=>trim($data['model_number']),
+                    'sf_purchase_date'=>trim($data['date_of_purchase']),
                     'serial_number_pic'=>$data['serial_number_pic'],
                     'serial_number'=>$data['serial_number']
                 );
@@ -5484,6 +5542,7 @@ class Service_centers extends CI_Controller {
      * @return void
      */
     function get_defective_parts_shipped_by_sf($page = 0, $offset = 0){
+        
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
@@ -5496,13 +5555,13 @@ class Service_centers extends CI_Controller {
             "status " => DEFECTIVE_PARTS_SHIPPED
         );
 
-        $select = "defective_part_shipped, spare_parts_details.id, "
+        $select = "defective_part_shipped, spare_parts_details.id, spare_qty_mgmt.id as spare_qty_mgmt_id, spare_qty_mgmt.qty, "
                 . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',i.part_number ";
 
         $group_by = "spare_parts_details.id";
         $order_by = "spare_parts_details.defective_part_shipped_date DESC, spare_parts_details.booking_id";
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
+        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, false, false, 0, NULL, true);
         $where_internal_status = array("page" => "defective_parts", "active" => '1');
         $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
         $data['is_ajax'] = $this->input->post('is_ajax');
@@ -5904,7 +5963,7 @@ class Service_centers extends CI_Controller {
      * @param String $is_cron
      * @return Void
      */
-    function acknowledge_received_defective_parts($spare_id, $booking_id, $partner_id, $is_cron = "") {
+    function acknowledge_received_defective_parts($spare_id, $booking_id, $partner_id, $is_cron = "", $spare_qty_mgmt_id = '') {
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Booking Id " . $booking_id);
 
         if (empty($is_cron)) {
@@ -5914,6 +5973,10 @@ class Service_centers extends CI_Controller {
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED,
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
+        
+        if(!empty($spare_qty_mgmt_id)) {
+            $this->inventory_model->update_qty_ledger_mgmt(['status' => DEFECTIVE_PARTS_RECEIVED], ['id' => $spare_qty_mgmt_id, 'spare_id' => $spare_id]);
+        }
         if ($response) {
 
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
@@ -5993,7 +6056,7 @@ class Service_centers extends CI_Controller {
      * @param String $status
      * @return void
      */
-    function reject_defective_part($spare_id, $booking_id, $partner_id,$status) {
+    function reject_defective_part($spare_id, $booking_id, $partner_id,$status, $spare_qty_mgmt_id) {
         log_message('info', __FUNCTION__ . " Spare ID ". $spare_id ." SF ID: " . $this->session->userdata('service_center_id') . " Booking Id " . $booking_id . ' status: ' . $status);
         $this->check_WH_UserSession();
         $rejection_reason = base64_decode(urldecode($status));
@@ -6002,6 +6065,11 @@ class Service_centers extends CI_Controller {
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_REJECTED,
             'remarks_defective_part_by_partner' => $rejection_reason,
             'approved_defective_parts_by_partner' => '0'));
+        
+        if(!empty($spare_qty_mgmt_id)) {
+            $this->inventory_model->update_qty_ledger_mgmt(['status' => DEFECTIVE_PARTS_REJECTED], ['spare_id' => $spare_id]);
+        }
+
         if ($response) {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " SF Id" . $this->session->userdata('service_center_id'));
@@ -7619,7 +7687,7 @@ class Service_centers extends CI_Controller {
             break;
             case 2:
                 $booking_id = $arrBookings[0]['booking_id'];
-                $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC'], 'EW' => ['Extended', 'AMC']];
+                $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
                 $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
                 $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
                 $warranty_mismatch = 0;
@@ -7656,5 +7724,37 @@ class Service_centers extends CI_Controller {
             break;
         }        
     }
-    
+
+    /**
+     * 
+     * @param type $booking_id
+     * @param type $service_center_id
+     * @param type $id
+     * @param type $partner_id
+     */
+    function wrong_spare_part($booking_id, $spare_part_detail_id, $part_name) {
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
+        $service_center_id  = $this->session->userdata('service_center_id');
+        
+        $post_data = $this->input->post();
+        $data['booking_id'] = $booking_id;
+        $data['spare_part_detail_id'] = $spare_part_detail_id;
+        $data['part_name'] = $post_data['part_name'];
+        $data['service_id'] = $post_data['service_id'];
+        $data['parts'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name', ['service_id' => $data['service_id'], 'inventory_id not in (1,2)' => NULL]);
+        
+        if(!empty($post_data['wrong_flag'])) {
+
+            $wrong_part_detail = [];
+            $wrong_part_detail['spare_id'] = $data['spare_part_detail_id'];
+            $wrong_part_detail['part_name'] = $post_data['part_name'];
+            $wrong_part_detail['inventory_id'] = $post_data['wrong_part'];
+            $wrong_part_detail['remarks'] = $post_data['remarks'];
+            echo json_encode($wrong_part_detail);exit;
+            
+        }
+        
+        $this->load->view('service_centers/wrong_spare_part', $data);
+    }
 }

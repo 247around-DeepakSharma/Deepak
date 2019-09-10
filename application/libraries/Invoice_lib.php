@@ -145,7 +145,7 @@ class Invoice_lib {
        
         if(isset($meta['main_company_seal_cell'])){
           if($meta['main_company_seal']){
-            $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_seal'];
+            $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/brand-logo/".$meta['main_company_seal'];
             if($this->remote_file_exists($main_seal_path)){
                 if(copy($main_seal_path, TMP_FOLDER . $meta['main_company_seal'])){
                     $seal_cell = $meta['main_company_seal_cell'];
@@ -1003,17 +1003,15 @@ class Invoice_lib {
                 $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
 
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
+
                 if (!empty($unsettle)) {
-                    $qty = $value['shipping_quantity'];//1;
+                    $qty = (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1);//1;
                     $inventory_details = $this->ci->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $value['inventory_id']));
                     $value['part_name'] = $inventory_details[0]['part_name'];
 
                     foreach ($unsettle as $key => $b) {
-
                         $restQty = $b['qty'] - $b['settle_qty'];
                         if ($restQty == $qty) {
-
-
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             if (!empty($s)) {
@@ -1037,12 +1035,10 @@ class Invoice_lib {
                                 break;
                             } else {
                                 $this->invoices_not_found($value);
-                                array_push($not_updated, $value['booking_id']);
-                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . $value['booking_id'] . " Inventory id " . $value['inventory_id']);
+                                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                             }
                         } else if ($restQty < $qty) {
-
-
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             if (!empty($s)) {
@@ -1063,8 +1059,8 @@ class Invoice_lib {
                                 $qty = $qty - $restQty;
                             } else {
                                 $this->invoices_not_found($value);
-                                array_push($not_updated, $value['booking_id']);
-                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . $value['booking_id'] . " Inventory id " . $value['inventory_id']);
+                                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                             }
                         } else if ($restQty > $qty) {
 
@@ -1091,26 +1087,26 @@ class Invoice_lib {
                                 break;
                             } else {
                                 $this->invoices_not_found($value);
-                                array_push($not_updated, $value['booking_id']);
-                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . $value['booking_id'] . " Inventory id " . $value['inventory_id']);
+                                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                             }
-                        } else {
+                        } else { 
                             if ($qty > 0) {
                                 $this->invoices_not_found($value);
-                                array_push($not_updated, $value['booking_id']);
-                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . $value['booking_id'] . " Inventory id " . $value['inventory_id']);
+                                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                             }
                         }
                     }
                 } else {
                     $this->invoices_not_found($value);
-                    array_push($not_updated, $value['booking_id']);
-                    log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . $value['booking_id'] . " Inventory id " . $value['inventory_id']);
+                    array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+                    log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                 }
             } else {
                 $this->invoices_not_found($value);
-                array_push($not_updated, $value['booking_id']);
-                log_message('info', __METHOD__ . " Inventory ID Missing. Spare Invoice is not generating for booking id " . $value['booking_id'] . " Inventory id " . $value['inventory_id']);
+                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+                log_message('info', __METHOD__ . " Inventory ID Missing. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
             }
         }
 
@@ -1131,6 +1127,7 @@ class Invoice_lib {
             $around_address = !empty($around_gst[0]['address'])? $around_gst[0]['address']: "";
             $around_pincode = !empty($around_gst[0]['pincode'])? $around_gst[0]['pincode']: "";
             $around_city = !empty($around_gst[0]['city'])? $around_gst[0]['city']: "";
+            $around_seal_img = !empty($around_gst[0]['state_stamp_picture'])? $around_gst[0]['state_stamp_picture']: "";
             
             $partner_state_code = $partner_gst[0]['state'];
             $partner_gst_number = $partner_gst[0]['gst_number'];
@@ -1161,8 +1158,9 @@ class Invoice_lib {
             "from_address" => $around_address,
             "from_pincode" => $around_pincode,
             "from_city" => $around_city,
+            "state_stamp_pic" => $around_seal_img,
             "from_gst_number_id" => $b['to_gst_number'],
-            "shipping_quantity" => (!is_null($value['shipping_quantity']) ? $value['shipping_quantity'] : 1),
+            "shipping_quantity" => (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1),
             );
         } else {
             return false;
@@ -1185,7 +1183,7 @@ class Invoice_lib {
 
         $this->ci->table->set_heading(array('Part Name', 'Booking ID', "Inventory ID "));
         
-        $this->ci->table->add_row(isset($data['part_name'])?$data['part_name']:$data['description'], $data['booking_id'], $data['inventory_id']);
+        $this->ci->table->add_row((isset($data['part_name'])?$data['part_name']:$data['description']), (isset($data['booking_id'])?$data['booking_id']:''), $data['inventory_id']);
         
 
         $this->ci->table->set_template($template1);
@@ -1367,7 +1365,8 @@ class Invoice_lib {
                 'vertical' => $response['meta']['vertical'],
                 'category' => $response['meta']['category'],
                 'sub_category' => $response['meta']['sub_category'],
-                'accounting' => $response['meta']['accounting']
+                'accounting' => $response['meta']['accounting'],
+                'remarks' => (isset($response['meta']['remarks']))?$response['meta']['remarks']:''
             );
         
             return $invoice_details;

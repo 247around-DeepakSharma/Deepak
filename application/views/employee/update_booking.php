@@ -446,11 +446,11 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
-                                                <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]">
+                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['sf_model_number'])) { echo $unit_details[0]['sf_model_number']; } elseif(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> onfocusout="check_booking_request()">
+                                                <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
                                                     <option selected disabled>Select Appliance Model</option>
                                                     <?php foreach ($model[0] as $value) { ?>
-                                                    <option <?php if(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
+                                                    <option <?php if(isset($unit_details[0]['sf_model_number'])) {if($value['model'] == $unit_details[0]['sf_model_number']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
                                                         ><?php echo $value['model']; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -484,13 +484,16 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                             <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                             <div class="col-md-6">
                                             <div class="input-group date">
-                                                <input <?php if($is_repeat && (isset($unit_details[0]['purchase_date']) && ($unit_details[0]['purchase_date'] != '0000-00-00'))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
+                                                <input <?php if($is_repeat && (isset($unit_details[0]['purchase_date']) && ($unit_details[0]['purchase_date'] != '0000-00-00'))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(isset($unit_details[0]['sf_purchase_date']) && $unit_details[0]['sf_purchase_date'] != '0000-00-00'){ echo $unit_details[0]['sf_purchase_date']; } elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo $unit_details[0]['purchase_date']; }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
+                                        <div class="col-md-12" style="margin-bottom:10px;">
+                                            <span style="color:red;text-align: center;font-size: 16px;font-weight:bold;" class="errorMsg"></span>
+                                        </div>
                                         <div class="form-group">
                                             <div  class="col-md-12">
                                                 <table class="table priceList table-striped table-bordered" name="priceList" id="priceList_1">
@@ -589,7 +592,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                             } ?>
                                                             <td>
                                                                 <?php
-                                                                 $onclick = "onclick='final_price(), get_symptom(), enable_discount(this.id), set_upcountry()'";
+                                                                 $onclick = "onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()'";
                                                                 ?>
                                                                 <input type='hidden'name ='is_up_val'   data-customer_price = '<?php echo $price['upcountry_customer_price'];?>' data-flat_upcountry = '<?php echo $price['flat_upcountry'];?>' id="<?php echo "is_up_val_".$div."_1" ?>" value="<?php echo $price['is_upcountry']; ?>" />
                                                                 <input <?php if ($price['service_category'] == REPEAT_BOOKING_TAG){ echo "class='price_checkbox repeat_".$price['product_or_services']."'"; } else { ?>
@@ -609,14 +612,14 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                                                 if($price['service_category'] ==  REPEAT_BOOKING_TAG){
                                                                                     $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,true";
                                                                                     //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
-                                                                                    $onclick = 'onclick="final_price(), get_symptom(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
+                                                                                    $onclick = 'onclick="check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
                                                                                 }
                                                                             }
                                                                             else{ 
                                                                                 if($price['service_category'] ==  REPEAT_BOOKING_TAG){
                                                                                    $tempString = "'".$booking_history[0]['booking_primary_contact_no']."','".$booking_history[0]['service_id']."','".$booking_history[0]['partner_id']."',this.checked,false";
                                                                                    //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
-                                                                                    $onclick = 'onclick="final_price(), get_symptom(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
+                                                                                    $onclick = 'onclick="check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry(),get_parent_booking('.$tempString.')"';
                                                                                 }
                                                                             }
                                                                         }
@@ -690,7 +693,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                             <div class="form-group ">
                                                 <label for="type" class="col-md-4">Appliance Model </label>
                                                 <div class="col-md-6">
-                                                    <input  type="text" class="form-control"  name="model_number[]" id="<?php echo "model_number_".$number;?>" value = "<?php echo $booking_unit_details['model_number']; ?>" placeholder="Enter Model" >
+                                                    <input  type="text" class="form-control"  name="model_number[]" id="<?php echo "model_number_".$number;?>" value = "<?php echo (!empty($booking_unit_details['sf_model_number']) ? $booking_unit_details['sf_model_number'] : $booking_unit_details['model_number']); ?>" placeholder="Enter Model" onfocusout="check_booking_request()">
                                                 </div>
                                             </div>
 <!--                                            <div class="form-group ">
@@ -721,7 +724,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                 <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group date">
-                                    <input class="form-control purchase_date" name= "purchase_date[]" type="text" value = "<?php if(isset($booking_unit_details['purchase_date'])) { echo $booking_unit_details['purchase_date']; } ?>" id="<?php echo "purchase_date_".$number ;?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" />
+                                    <input class="form-control purchase_date" name= "purchase_date[]" type="text" value = "<?php if(isset($booking_unit_details['sf_purchase_date']) && $booking_unit_details['sf_purchase_date'] != '0000-00-00') { echo $booking_unit_details['purchase_date']; } elseif(isset($booking_unit_details['purchase_date']) && $booking_unit_details['purchase_date'] != '0000-00-00') { echo $booking_unit_details['purchase_date']; } ?>" id="<?php echo "purchase_date_".$number ;?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()"/>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -818,7 +821,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                                         }
                                                                         
                                                                         ?>
-                                                                        type='checkbox' id="<?php echo "checkbox_" . $div . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand_id']; ?>][<?php echo $clone_number;?>][]'  onclick='final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_".$number ?>">
+                                                                        type='checkbox' id="<?php echo "checkbox_" . $div . "_".$number ; ?>" name='prices[<?php echo $booking_unit_details['brand_id']; ?>][<?php echo $clone_number;?>][]'  onclick='check_booking_request(), final_price(), enable_discount(this.id), set_upcountry()' value = "<?php echo $price['id']. "_" .intval($ct)."_".$div."_".$number ?>">
                                                                 </td>
                                                             </tr>
                                                             <?php  $i++; $div++; if(count($booking_unit_details['quantity']) > $k){ $k++;} }} ?>
@@ -1330,7 +1333,58 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     //get_symptom('<?php echo (!empty($symptom[0]['symptom'])?$symptom[0]['symptom']:'');?>');
     $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
     
-    
+    // function to cross check request type of booking with warranty status of booking 
+    function check_booking_request()
+    {
+        $(".price_checkbox").attr("disabled", false);
+        if($(".input-model").is(":hidden"))
+        {
+            var model_number = $(".select-model").val();
+        }
+        else
+        {
+            var model_number = $(".input-model").val();
+        } 
+        var dop = $("#purchase_date_1").val();
+        var partner_id = $("#source_code").val();
+        var service_id = $("#service_id").val();
+        var booking_id = 1;
+        var booking_create_date = "<?= date('Y-m-d')?>";
+        var booking_request_types = []; 
+        $(".price_checkbox:checked").each(function(){
+            var price_tag = $(this).attr('data-price_tag');
+            booking_request_types.push(price_tag);
+        });
+        $("#submitform").attr("disabled", false);
+        $('.errorMsg').html("");
+
+        if(model_number !== "" && model_number !== null && model_number !== undefined && dop !== "" && booking_request_types.length > 0){                               
+            $.ajax({
+                method:'POST',
+                url:"<?php echo base_url(); ?>employee/booking/get_warranty_data/2",
+                data:{
+                    'bookings_data[0]' : {
+                        'partner_id' : partner_id,
+                        'booking_id' : booking_id,
+                        'booking_create_date' : booking_create_date,
+                        'service_id' : service_id,
+                        'model_number' : model_number,
+                        'purchase_date' : dop, 
+                        'booking_request_types' : booking_request_types
+                    }
+                },
+                success:function(response){
+                    var returnData = JSON.parse(response);
+                    $('.errorMsg').html(returnData['message']);
+                    if(returnData['status'] == 1)
+                    {
+                        $("#submitform").attr("disabled", true);                        
+                    }
+                }                           
+            });
+        }
+    }
+// function ends here ---------------------------------------------------------------- 
 </script>
 <style type="text/css">
     #errmsg1
