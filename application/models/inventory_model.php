@@ -1642,8 +1642,9 @@ class Inventory_model extends CI_Model {
         $this->db->join('service_centres sc', 'spare_parts_details.partner_id=sc.id', 'left');
         $this->db->join('services', 'services.id=booking_details.service_id', 'left');
 
-        if (!empty($where)) {
-            $this->db->where($where, false);
+        $this->db->join('service_centres sc','spare_parts_details.partner_id=sc.id','left');
+        if(!empty($where)){
+           $this->db->where($where,false);
         }
 
         if (!empty($group_by)) {
