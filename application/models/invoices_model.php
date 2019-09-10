@@ -1130,6 +1130,10 @@ class invoices_model extends CI_Model {
                  return "Customer_Tax_Invoice_Inter_State.xlsx";  
             }
             
+        } else if(empty($gst_number)){
+            
+            return "247around_bill_of_supply.xlsx";
+            
         }else if(!empty($c_s_gst)){
             
             return  "247around_Tax_Invoice_Intra_State.xlsx";
