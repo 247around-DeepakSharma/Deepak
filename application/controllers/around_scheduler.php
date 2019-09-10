@@ -1553,10 +1553,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      */
     function send_qrCode_sms_to_customer() {
         log_message("info", __METHOD__ . " Entering.....");
-        $booking = $this->booking_model->get_bookings_count_by_any("services, assigned_vendor_id, booking_id, "
+        $booking = $this->booking_model->get_bookings_count_by_any("services, assigned_vendor_id, booking_id, partner_id,"
                 . "user_id, booking_primary_contact_no", array('current_status IN ("' . _247AROUND_PENDING . '", "' . _247AROUND_RESCHEDULED . '") ' => NULL,
             'amount_due > 0' => NULL, 'assigned_vendor_id IS NOT NULL' => NULL));
-
         if (!empty($booking)) {
             foreach ($booking as $value) {
                 $sf = $this->vendor_model->getVendorContact($value['assigned_vendor_id']);
@@ -1575,6 +1574,13 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                         $sms['tag'] = "customer_qr_download";
                         $sms['smsData']['services'] = $value['services'];
                         $sms['smsData']['url'] = $tinyUrl;
+                        
+                        if($value['partner_id'] == VIDEOCON_ID){
+                            $sms['smsData']['cc_number'] = "0120-4500600";
+                        }
+                        else{
+                           $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
+                        }
 
                         $sms['phone_no'] = $value['booking_primary_contact_no'];
                         $sms['booking_id'] = $value['booking_id'];
