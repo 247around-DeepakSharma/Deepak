@@ -1719,7 +1719,7 @@ class DatabaseTesting extends CI_Controller {
 
       foreach ($bookings as   $booking) {
         echo $booking['booking_id']; 
-          $this->do_partner_nrn_approval($booking);
+          $this->do_partner_nrn_approval($booking['booking_id']);
                          // $url = base_url() . "employee/partner/do_partner_nrn_approval";
                          // $async_data['remarks'] = 'Appproved By Sudhir';
                          // $async_data['partner_id'] = 247130;
