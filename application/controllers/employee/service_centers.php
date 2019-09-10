@@ -2317,7 +2317,7 @@ class Service_centers extends CI_Controller {
                             $data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
                             $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
                             $data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
-                            $data['shipped_quantity'] = $data['quantity'];
+                            //$data['shipped_quantity'] = $data['quantity'];
                             
 
                         } else {
