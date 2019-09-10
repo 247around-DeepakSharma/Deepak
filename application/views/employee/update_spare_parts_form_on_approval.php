@@ -236,6 +236,7 @@ $(document).ready(function(){
 <?php if(!empty($inventory_details)){ ?>
 <script>
 $('#model_number_id').select2();
+//$('#parts_name').select2();
 $(document).ready(function(){    
     
         $('#model_number_id').on('change', function() {        
@@ -293,7 +294,8 @@ $(document).ready(function(){
                     data: { model_number_id:model_number_id},
                     success:function(data){                       
                         $('#parts_type').html(data);
-                        $('#parts_type option[value="<?php echo $spare_parts_details['parts_requested_type']; ?>"]').attr('selected','selected');
+                        //$('#parts_type option[value="<?php echo $spare_parts_details['parts_requested_type']; ?>"]').attr('selected','selected');
+                        $("#parts_type").val("<?php echo $spare_parts_details['parts_requested_type']; ?>").change();
                         $('#spinner').removeClass('fa fa-spinner').hide();
                     }
                 });
@@ -334,7 +336,7 @@ function get_inventory_id(id){
 </script>
 <?php } ?>
 <script>
-    
+    $("#parts_type").select2();
     $(document).ready(function(){
         var array = [];
         var postData = {};
