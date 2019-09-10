@@ -361,13 +361,13 @@
                                                                         <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" style="width:266px;">
                                                                             <option value="" selected="" disabled="">Model Number</option>
                                                                             <?php foreach ($unit_details['model_dropdown'] as $m) { ?>
-                                                                            <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $unit_details['model_number'] ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
+                                                                            <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $unit_details['sf_model_number'] ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
                                                                             <?php }?>
                                                                         </select>
                                                                         <?php }  else { 
                                                                             $isModelMandatory =1 ;
                                                                         ?>
-                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($unit_details['model_number'])){ echo $unit_details['model_number'];} ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
+                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($unit_details['sf_model_number'])){ echo $unit_details['sf_model_number'];} ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
                                                                         <?php } 
                                                                         if(!empty($price['serial_number_pic'])) {
                                                                             $price_unit=$price['unit_id'];

@@ -189,12 +189,7 @@
                                             <label> Purchase Date</label>
                                             <div class="input-group input-append date">
                                                 <input  autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $key1?>')"  id="<?php echo "dop_".$key1?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php 
-                                                if($this->session->userdata('is_engineer_app') == 1){
-                                                    if(!empty($unit_details['quantity'][0]['en_purchase_date'])){ echo $unit_details['quantity'][0]['en_purchase_date']; } elseif(isset($unit_details['sf_purchase_date'])){  echo $unit_details['sf_purchase_date']; }
-                                                }
-                                                else{
-                                                    if(isset($unit_details['sf_purchase_date'])){  echo $unit_details['sf_purchase_date']; } elseif(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } 
-                                                }
+                                                if(isset($unit_details['sf_purchase_date'])){ echo $unit_details['sf_purchase_date']; } 
                                                 ?>" style="background: #eee">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$key1?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                              </div>
@@ -272,7 +267,7 @@
                                                                 <option value="" selected disabled>Please Select Model Number</option>
                                                                 <?php foreach ($model_data as $m) { ?>
                                                                 <option value="<?php echo $m['model_number'];?>"
-                                                                        <?php if($this->session->userdata('is_engineer_app') == 1){ if(isset($unit_details['en_model_number']) && $unit_details['en_model_number'] == $m['model_number']){ echo 'selected'; } } elseif($unit_details['model_number'] == $m['model_number']) { echo 'selected'; } else { echo 'disabled'; }  ?>
+                                                                        <?php if($unit_details['sf_model_number'] == $m['model_number']) { echo 'selected'; } else { echo 'disabled'; }  ?>
                                                                 ><?php echo $m['model_number'];?></option>
                                                                 <?php }?>
                                                             </select>

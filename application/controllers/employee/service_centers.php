@@ -2264,6 +2264,7 @@ class Service_centers extends CI_Controller {
                 
                 $dataunit_details =array(
                     'sf_model_number'=>trim($data['model_number']),
+                    'sf_purchase_date'=>trim($data['date_of_purchase']),
                     'serial_number_pic'=>$data['serial_number_pic'],
                     'serial_number'=>$data['serial_number']
                 );

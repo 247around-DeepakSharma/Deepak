@@ -464,14 +464,14 @@
     // function to cross check request type of booking with warranty status of booking 
     function check_booking_request()
     {
-        if($(".input-model").is(":hidden"))
+        if(!$(".input-model").length)
         {
             var model_number = $(".select-model").val();
         }
         else
         {
             var model_number = $(".input-model").val();
-        } 
+        }
         var dop = $("#purchase_date_1").val();
         var partner_id = $("#source_code").val();
         var service_id = $("#service_id").val();

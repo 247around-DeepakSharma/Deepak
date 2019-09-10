@@ -38,8 +38,7 @@
                    <strong>' . $this->session->userdata('error') . '</strong>
                </div>';
                 }
-                ?>
-        <h3 style="color:red;text-align: center;font-size: 16px;margin-bottom: -39px;font-weight:bold;" class="errorMsg"></h3>
+                ?>        
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Add Booking</div>
             <div class="panel-body">
@@ -309,6 +308,9 @@
                                         
                                 </div>
                                     <div class="col-md-6">
+                                        <div class="col-md-12" style="margin-bottom:10px;">
+                                            <span style="color:red;text-align: center;font-size: 16px;font-weight:bold;" class="errorMsg"></span>
+                                        </div>
                                         <div class="form-group">
                                             <div  class="col-md-12">
                                                 <table class="table priceList table-striped table-bordered" name="priceList" id="priceList_1">
