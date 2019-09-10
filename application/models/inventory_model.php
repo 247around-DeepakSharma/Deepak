@@ -2560,8 +2560,8 @@ class Inventory_model extends CI_Model {
         $this->db->from('spare_parts_details as s');
         $this->db->join('inventory_master_list as im', 's.shipped_inventory_id = im.inventory_id');
         $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_wh =1 ');
-        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id', 'left');
-        $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND sc.is_wh = 1 ');
+        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id AND s.partner_id = i.entity_id');
+        $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND sc.is_wh = 1 AND sc.id = s.partner_id');
         $this->db->join('services as ss', 'ss.id = im.service_id', 'left');
 
         if(!empty($inventory_id)){
