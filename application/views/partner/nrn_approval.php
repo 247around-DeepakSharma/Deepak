@@ -73,9 +73,9 @@
             "language":{ 
                 "processing": "<center><img id='loader_gif_title' src='<?php echo base_url(); ?>images/loadring.gif'></center>",
             },
-            "serverSide": true, 
+            "serverSide": false, 
             "order": [], 
-            "pageLength": 50,
+            "pageLength": 100,
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/partner/get_nrn_approval_table",
                 "type": "POST",
