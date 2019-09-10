@@ -8239,8 +8239,9 @@ class Partner extends CI_Controller {
                $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
 
                 $new_state=NRN_APPROVED_BY_PARTNER;
-                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor,$next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
+                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor,$next_action, NRN_TO_BE_APPROVED_BY_PARTNER,$partner_id);
                 echo "1";   
+                log_message('info', __FUNCTION__ . " New State: " . NRN_APPROVED_BY_PARTNER . " Booking id: " . $booking_id);
         }else{
            echo "0";
         }
