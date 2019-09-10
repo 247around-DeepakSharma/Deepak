@@ -361,13 +361,13 @@
                                                                         <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" style="width:266px;">
                                                                             <option value="" selected="" disabled="">Model Number</option>
                                                                             <?php foreach ($unit_details['model_dropdown'] as $m) { ?>
-                                                                            <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $unit_details['model_number'] ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
+                                                                            <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $unit_details['sf_model_number'] ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
                                                                             <?php }?>
                                                                         </select>
                                                                         <?php }  else { 
                                                                             $isModelMandatory =1 ;
                                                                         ?>
-                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($unit_details['model_number'])){ echo $unit_details['model_number'];} ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
+                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($unit_details['sf_model_number'])){ echo $unit_details['sf_model_number'];} ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
                                                                         <?php } 
                                                                         if(!empty($price['serial_number_pic'])) {
                                                                             $price_unit=$price['unit_id'];
@@ -521,6 +521,55 @@
                         </div>
                     </div>
                     <?php } ?>
+                    <?php if(!empty($spare_parts_details) && !empty($spare_consumed_status)) { ?>
+                        <div class="panel panel-info">
+                            <div class="panel-heading">Spare Parts Detail</div>
+                            <div class="panel-body">
+<div class="col-md-12" style="padding-left:0px;">
+                            <table class="table table-bordered table-condensed">
+                                <thead>
+                                    <th width="3%">S.No.</th>
+                                    <th width="25%">Part Number</th>
+                                    <th width="15%">Part Name</th>
+                                    <th width="10%">Part Type</th>
+                                    <th width="20">Spare Status</th>
+                                    <th width="27%">
+                                         <a href="javascript:void(0);" data-trigger="hover" data-html="true" data-toggle="popover" data-placement="left" title="Consumption Status Description" data-content="">
+                                            <span class="glyphicon glyphicon-info-sign"></span>
+                                        </a> Consumption Reason<span style="color:red;">*</span> 
+                                       
+                                    </th>
+                                </thead>
+                                <tbody style="font-size: 14px;">
+                                    <?php foreach($spare_parts_details as $sno => $spare_part_detail) { $consumption_status_description = ''; ?>
+                                    <tr>
+                                        <td><?php echo ++$sno; ?></td>
+                                        <td><?php echo $spare_part_detail['part_number']; ?></td>
+                                        <td><?php echo $spare_part_detail['parts_requested']; ?></td>
+                                        <td><?php echo $spare_part_detail['parts_requested_type']; ?></td>
+                                        <td><?php echo $spare_part_detail['status']?></td>
+                                        <td>
+                                            <input type="hidden" name="spare_qty[<?php echo $spare_part_detail['id']; ?>]" value="<?php echo $spare_part_detail['quantity']; ?>">
+                                            <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" value="" id="wrong_part_<?php echo $spare_part_detail['id']; ?>">
+                                            <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
+                                                <option value="" selected disabled>Select Reason</option>
+                                                <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
+                                                    if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
+                                                    <option value="<?php echo $status['id']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
+                                                <?php $description_no++; } ?>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                            <span hidden id="status_consumption_status"><?php echo $consumption_status_description; ?></span>
+                        </div>
+                            </div>
+                        </div>
+                        
+                    <?php } ?>
+                    
                     <div class="row">
                         <div class ="col-md-12">
                             <div class="form-group col-md-6">
@@ -666,12 +715,28 @@
     </div>
 </div>
 </div>
+<!-- Wrong spare parts modal -->
+<div id="WrongSparePartsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="wrong_spare_part_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Wrong Part</h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     $("#technical_problem").select2();
     $('#technical_defect').select2();
     $('#technical_solution').select2();
     $(".booking_source").select2();
     $(".model_number").select2();
+    $(".spare_consumption_status").select2();
+    $('[data-toggle="popover"]').attr('data-content', $('#status_consumption_status').html());
 </script>
 <script>
     
@@ -683,7 +748,7 @@
     
     var solution_id = "";
     $(document).ready(function () {
-        
+        $('[data-toggle="popover"]').popover(); 
     //called when key is pressed in textbox
     $(".cost").keypress(function (e) {
      //if the letter is not digit then display error and don't type anything
@@ -706,6 +771,13 @@
         $(":radio").each(function() {
             $("#"+this.id).prop("checked",false);
         });
+        
+        $('.spare_consumption_status').on('change', function() {
+            if($(this).val() == <?php echo WRONG_PART_RECEIVED_STATUS_ID; ?>) {
+                open_wrong_spare_part_model($(this).children("option:selected").data('spare_id'), '<?php echo $booking_history[0]['booking_id']; ?>', $(this).children("option:selected").data('part_number'), '<?php echo $booking_history[0]['service_id']; ?>');
+            }
+        })
+        
     });
     
     
@@ -1044,6 +1116,15 @@
 //        }
 //    }
 
+    $('.spare_consumption_status').each(function(index, value) {
+        if($(this).val() == '' || $(this).val() == null) {
+            alert('Please select spare consumption status for all parts.');
+            flag = 1;
+            return false;                
+        }
+    });
+
+
     if (flag === 0) {
         return true;
     
@@ -1298,4 +1379,17 @@
              maxDate:0
          }).datepicker('show');
     }
+    
+    function open_wrong_spare_part_model(spare_part_detail_id, booking_id, part_name, service_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/booking/wrong_spare_part/' + booking_id + "/" +spare_part_detail_id+'/'+part_name,
+            data: {spare_part_detail_id:spare_part_detail_id, booking_id:booking_id, part_name:part_name, service_id:service_id},
+            success: function (data) {
+                $("#wrong_spare_part_model").children('.modal-content').children('.modal-body').html(data);   
+                $('#WrongSparePartsModal').modal({backdrop: 'static', keyboard: false});
+            }
+        });
+    }
+
 </script>

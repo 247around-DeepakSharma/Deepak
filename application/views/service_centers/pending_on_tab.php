@@ -785,6 +785,7 @@
                                     <th class="text-center" data-orderable="false">Serial Number</th>
                                     <th class="text-center" data-orderable="false">Parts</th>                                
                                     <th class="text-center" data-orderable="false">Shipped Date</th>
+                                    <th class="text-center" data-orderable="false">Shipped Quantity</th>
                                     <th class="text-center" data-orderable="false">Age</th>
                                     <th class="text-center" data-orderable="false">View</th>
                                     <th class="text-center" data-orderable="false">Receive</th>
@@ -827,7 +828,8 @@
                                     </td>
                                     <td>
                                         <?php if($row['shipped_date'] != "0000-00-00"){echo $row['shipped_date'];} ?>
-                                    </td>                                    
+                                    </td>     
+                                    <td><?php echo $row['shipped_quantity']; ?></td>
                                     <td>
                                         <?php
                                                 if (!empty($row['age_of_request'] > 1)) {

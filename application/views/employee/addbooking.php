@@ -38,7 +38,7 @@
                    <strong>' . $this->session->userdata('error') . '</strong>
                </div>';
                 }
-                ?>
+                ?>        
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Add Booking</div>
             <div class="panel-body">
@@ -308,6 +308,9 @@
                                         
                                 </div>
                                     <div class="col-md-6">
+                                        <div class="col-md-12" style="margin-bottom:10px;">
+                                            <span style="color:red;text-align: center;font-size: 16px;font-weight:bold;" class="errorMsg"></span>
+                                        </div>
                                         <div class="form-group">
                                             <div  class="col-md-12">
                                                 <table class="table priceList table-striped table-bordered" name="priceList" id="priceList_1">
@@ -450,7 +453,6 @@
 
 </script>
 <script type="text/javascript">
-    var arr_warranty_status = <?php echo json_encode(['OW' => ['Repair - In Warranty'], 'IW' => ['Repair - Out Of Warranty'], 'EW' => ['Repair - In Warranty']]); ?>;
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex = $(".clonedInput").length +1;
 
@@ -557,54 +559,42 @@ function check_booking_request()
     {
         var model_number = $(".input-model").val();
     } 
-    var dop = $(".purchase_date").val();
-    var partner_id = $('#source_code').find(':selected').attr('data-id');
-    var booking_create_date = "<?= date('Y-m-d')?>";
-    var booking_id = 1;
+    var dop = $("#purchase_date_1").val();
+    var partner_id = $("#source_code").val();
     var service_id = $("#service_id").val();
-    
-    if(((model_number !== "" && model_number !== null && model_number != 'undefined') || (service_id != "")) && dop !== "" && partner_id != ""){                               
+    var booking_id = 1;
+    var booking_create_date = "<?= date('Y-m-d')?>";
+    var booking_request_types = []; 
+    $(".price_checkbox:checked").each(function(){
+        var price_tag = $(this).attr('data-price_tag');
+        booking_request_types.push(price_tag);
+    });
+    $("#submitform").attr("disabled", false);
+    $('.errorMsg').html("");
+
+    if(model_number !== "" && model_number !== null && model_number !== undefined && dop !== "" && booking_request_types.length > 0){                               
         $.ajax({
             method:'POST',
-            url:"<?php echo base_url(); ?>employee/booking/get_warranty_data",
+            url:"<?php echo base_url(); ?>employee/booking/get_warranty_data/2",
             data:{
                 'bookings_data[0]' : {
                     'partner_id' : partner_id,
                     'booking_id' : booking_id,
                     'booking_create_date' : booking_create_date,
+                    'service_id' : service_id,
                     'model_number' : model_number,
-                    'purchase_date' : dop,
-                    'service_id' : service_id
+                    'purchase_date' : dop, 
+                    'booking_request_types' : booking_request_types
                 }
             },
             success:function(response){
-                var warrantyData = JSON.parse(response);
-                if((warrantyData[1]!== 'undefined') && (typeof arr_warranty_status[warrantyData[1]] !== 'undefined')) {
-                    var wrong_booking = false;
-                    var wrong_booking_types = "";
-                    $(".price_checkbox").each(function(){
-                        var price_tag = $(this).attr('data-price_tag');
-                        for(var index in arr_warranty_status[warrantyData[1]])
-                        {
-                            if(price_tag.indexOf(arr_warranty_status[warrantyData[1]][index]) !== -1){
-                                if($(this).prop("checked") == true)
-                                {
-                                    $(this).prop("checked", false);
-                                    wrong_booking = true;
-                                    wrong_booking_types = price_tag+",";
-                                }
-                                $(this).prop("disabled", true);
-                            }
-                        }
-                    });                    
-                       
-                    wrong_booking_types = wrong_booking_types.slice(0,-1);
-                    if(wrong_booking)
-                    {
-                        alert("Bookings type ("+wrong_booking_types+") are not allowed with this Purchase Date, will be auto unselected");
-                    }
+                var returnData = JSON.parse(response);
+                $('.errorMsg').html(returnData['message']);
+                if(returnData['status'] == 1)
+                {
+                    $("#submitform").attr("disabled", true);                        
                 }
-            }                            
+            }                           
         });
     }
 }

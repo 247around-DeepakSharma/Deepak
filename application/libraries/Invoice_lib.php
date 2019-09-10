@@ -1005,8 +1005,9 @@ class Invoice_lib {
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
 
                 if (!empty($unsettle)) {
-                    $qty = 1;
+                    $qty = (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1);//1;
                     $inventory_details = $this->ci->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $value['inventory_id']));
+                    $value['part_name'] = $inventory_details[0]['part_name'];
 
                     foreach ($unsettle as $key => $b) {
 
@@ -1037,8 +1038,8 @@ class Invoice_lib {
                                 break;
                             } else {
                                 $this->invoices_not_found($value);
-                                array_push($not_updated, $value['booking_id']);
-                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . $value['booking_id'] . " Inventory id " . $value['inventory_id']);
+                                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                             }
                         } else if ($restQty < $qty) {
 
@@ -1064,8 +1065,8 @@ class Invoice_lib {
                                 $qty = $qty - $restQty;
                             } else {
                                 $this->invoices_not_found($value);
-                                array_push($not_updated, $value['booking_id']);
-                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . $value['booking_id'] . " Inventory id " . $value['inventory_id']);
+                                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                             }
                         } else if ($restQty > $qty) {
 
@@ -1092,26 +1093,26 @@ class Invoice_lib {
                                 break;
                             } else {
                                 $this->invoices_not_found($value);
-                                array_push($not_updated, $value['booking_id']);
-                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . $value['booking_id'] . " Inventory id " . $value['inventory_id']);
+                                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                             }
                         } else {
                             if ($qty > 0) {
                                 $this->invoices_not_found($value);
-                                array_push($not_updated, $value['booking_id']);
-                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . $value['booking_id'] . " Inventory id " . $value['inventory_id']);
+                                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+                                log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                             }
                         }
                     }
                 } else {
                     $this->invoices_not_found($value);
-                    array_push($not_updated, $value['booking_id']);
-                    log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . $value['booking_id'] . " Inventory id " . $value['inventory_id']);
+                    array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+                    log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                 }
             } else {
                 $this->invoices_not_found($value);
-                array_push($not_updated, $value['booking_id']);
-                log_message('info', __METHOD__ . " Inventory ID Missing. Spare Invoice is not generating for booking id " . $value['booking_id'] . " Inventory id " . $value['inventory_id']);
+                array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
+                log_message('info', __METHOD__ . " Inventory ID Missing. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
             }
         }
 
@@ -1126,12 +1127,12 @@ class Invoice_lib {
         $partner_gst = $this->ci->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $b['from_gst_number']));
         $around_gst = $this->ci->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $b['to_gst_number']));
         
-        if(!empty($around_gst) && !empty($partner_gst)){
-            $around_gst_number = $around_gst[0]['gst_number'];
-            $around_state_code = $around_gst[0]['state'];
-            $around_address = $around_gst[0]['address'];
-            $around_pincode = $around_gst[0]['pincode'];
-            $around_city = $around_gst[0]['city'];
+        if((!empty($around_gst) && !empty($partner_gst)) || (!empty($partner_gst) && $value['is_micro_wh'] ==  1)){
+            $around_gst_number = !empty($around_gst[0]['gst_number'])? $around_gst[0]['gst_number']: "";
+            $around_state_code = !empty($around_gst[0]['state'])? $around_gst[0]['state']: "";
+            $around_address = !empty($around_gst[0]['address'])? $around_gst[0]['address']: "";
+            $around_pincode = !empty($around_gst[0]['pincode'])? $around_gst[0]['pincode']: "";
+            $around_city = !empty($around_gst[0]['city'])? $around_gst[0]['city']: "";
             
             $partner_state_code = $partner_gst[0]['state'];
             $partner_gst_number = $partner_gst[0]['gst_number'];
@@ -1163,6 +1164,7 @@ class Invoice_lib {
             "from_pincode" => $around_pincode,
             "from_city" => $around_city,
             "from_gst_number_id" => $b['to_gst_number'],
+            "shipping_quantity" => (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1),
             );
         } else {
             return false;
@@ -1185,7 +1187,7 @@ class Invoice_lib {
 
         $this->ci->table->set_heading(array('Part Name', 'Booking ID', "Inventory ID "));
         
-        $this->ci->table->add_row($data['part_name'], $data['booking_id'], $data['inventory_id']);
+        $this->ci->table->add_row($data['part_name'], (isset($data['booking_id'])?$data['booking_id']:''), $data['inventory_id']);
         
 
         $this->ci->table->set_template($template1);
@@ -1241,8 +1243,11 @@ class Invoice_lib {
             if(isset($value['spare_id'])){
                 $invoice['spare_id'] = $value['spare_id'];
             }
-            if(isset($value['from_gst_number'])){
-                $invoice['from_gst_number'] = $value['from_gst_number'];
+            if(isset($value['from_gst_number_id'])){
+                $invoice['from_gst_number'] = $value['from_gst_number_id'];
+            }
+            if(isset($value['to_gst_number_id'])){
+                $invoice['to_gst_number'] = $value['to_gst_number_id'];
             }
             $invoice['total_amount'] = $value['total_amount'];
             $invoice['create_date'] = date('Y-m-d H:i:s');
@@ -1364,7 +1369,8 @@ class Invoice_lib {
                 'vertical' => $response['meta']['vertical'],
                 'category' => $response['meta']['category'],
                 'sub_category' => $response['meta']['sub_category'],
-                'accounting' => $response['meta']['accounting']
+                'accounting' => $response['meta']['accounting'],
+                'remarks' => (isset($response['meta']['remarks']))?$response['meta']['remarks']:''
             );
         
             return $invoice_details;
