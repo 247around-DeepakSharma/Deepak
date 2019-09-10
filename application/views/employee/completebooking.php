@@ -264,40 +264,37 @@
                             <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
                         <div class="panel-body">
                             <div class="row">
+                                <div class="col-md-3" style="margin-left:15px;">
+                                    <div class="form-group">
+                                        <label >Category</label>
+                                        <select type="text" class="form-control appliance_category appliance_change" onChange="getCapacityForCategory(this.value, this.id);" disabled="disabled" id="<?php echo "appliance_category_".($keys + 1);?>"  name="appliance_category[<?php echo $keys;?>]"  >
+                                            <option selected><?php echo $unit_details['category']; ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <?php if (!empty($unit_details['capacity'])) { ?>
+                                <div class="col-md-3" style="margin-left:15px;">
+                                    <div class="form-group">
+                                        <label style="margin-left:8%;">Capacity</label>
+                                        <select type="text" class="form-control appliance_capacity appliance_change" disabled="disabled"  id="<?php echo "appliance_capacity_".($keys + 1);?>"  name="appliance_capacity[<?php echo $keys;?>]" >
+                                            <option selected><?php echo $unit_details['capacity']; ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <?php } ?>
                                 <div class="col-md-3">
-                                    <div class="form-group ">
-                                        <div class="col-md-12 ">
-                                            <select type="text" class="form-control appliance_brand appliance_change" onChange="getCategoryForService(this.id)"   disabled="disabled"   name="appliance_brand[<?php echo $keys;?>]" id="<?php echo "appliance_brand_".($keys + 1);?>" >
-                                                <option selected><?php echo $unit_details['brand']; ?></option>
-                                            </select>
-                                        </div>
-                                    </div>
                                     <div class="form-group">
-                                        <div class="col-md-12 ">
-                                            <select type="text" class="form-control appliance_category appliance_change" onChange="getCapacityForCategory(this.value, this.id);" disabled="disabled" id="<?php echo "appliance_category_".($keys + 1);?>"  name="appliance_category[<?php echo $keys;?>]"  >
-                                                <option selected><?php echo $unit_details['category']; ?></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <?php if (!empty($unit_details['capacity'])) { ?>
-                                    <div class="form-group">
-                                        <div class="col-md-12">
-                                            <select type="text" class="form-control appliance_capacity appliance_change" disabled="disabled"  id="<?php echo "appliance_capacity_".($keys + 1);?>"  name="appliance_capacity[<?php echo $keys;?>]" >
-                                                <option selected><?php echo $unit_details['capacity']; ?></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <?php } ?>
-                                     <div class="form-group">
                                          <label style="margin-left:8%;">Purchase Date</label>
-                                         <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
+                                         <div class="input-group input-append date" style="margin-left: 14px;">
                                                 <input autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$keys?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                          </div>
                                     </div>
+                                </div>
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <label style="margin-left:8%;">Purchase Invoice</label>
-                                        <div class="input-group input-append" style="width: 150px;margin-left: 14px;">
+                                        <div class="input-group input-append" style="margin-left: 14px;">
                                             <input type="file" name="sf_purchase_invoice" class="form-control purchase-invoice"
                                                    onchange="update_purchase_invoice_for_unit('<?php echo $keys?>')"
                                                    id="<?php echo "purchase_invoice_".$keys?>" value="<?= (!empty($unit_details['quantity'][0]['sf_purchase_invoice']) ? $unit_details['quantity'][0]['sf_purchase_invoice'] : ""); ?>">
@@ -314,16 +311,18 @@
                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-9">
-                                    <table class="table priceList table-striped table-bordered" name="priceList" >
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table class="table priceList table-striped table-bordered" name="priceList" width="100%">
                                         <tr>
-                                            <th style="width: 292px;">Serial Number</th>
-                                            <th>Service Category</th>
-                                            <th>Amount Due</th>
-                                            <th>Customer Basic Charge</th>
-                                            <th>Additional Charge</th>
-                                            <th style="width: 121px;">Parts Cost</th>
-                                            <th style="width:265px;">Status</th>
+                                            <th width="20%">Serial Number</th>
+                                            <th width="14%">Service Category</th>
+                                            <th width="12%">Amount Due</th>
+                                            <th width="12%">Customer Basic Charge</th>
+                                            <th width="12%">Additional Charge</th>
+                                            <th width="13%">Parts Cost</th>
+                                            <th width="17%">Status</th>
                                         </tr>
                                         <tbody>
                                             <?php
