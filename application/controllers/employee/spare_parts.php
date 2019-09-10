@@ -2968,7 +2968,7 @@ class Spare_parts extends CI_Controller {
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
-                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id';
+                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id,booking_details.assigned_vendor_id';
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);            
         $data['spare_parts_details'] = $spare_parts_details[0];   
         $where1 = array('entity_id' => $spare_parts_details[0]['booking_partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1);
