@@ -1,4 +1,5 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<?php $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";?>
 <div id="page-wrapper" >
     <div class="container" >
         <?php if(validation_errors()){?>
@@ -288,10 +289,10 @@
                                         </div>
                                     </div>
                                     <?php } ?>
-                                     <div class="form-group">
+                                    <div class="form-group">
                                          <label style="margin-left:8%;">Purchase Date</label>
                                          <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
-                                                <input autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>">
+                                                <input autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($unit_details['sf_purchase_date'])){  echo $unit_details['sf_purchase_date']; } ?>">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$keys?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                          </div>
                                     </div>
@@ -367,7 +368,7 @@
                                                                         <?php }  else { 
                                                                             $isModelMandatory =1 ;
                                                                         ?>
-                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($unit_details['sf_model_number'])){ echo $unit_details['sf_model_number'];} ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
+                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($unit_details['sf_model_number'])){ echo $unit_details['sf_model_number'];} ?>" class="form-control model_number" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
                                                                         <?php } 
                                                                         if(!empty($price['serial_number_pic'])) {
                                                                             $price_unit=$price['unit_id'];
@@ -474,43 +475,6 @@
                                             <?php
                                                 $count++;
                                                 $k_count++;
-                                                }
-                                                ?>
-                                            <?php foreach ($prices[$keys] as $index => $value) { ?>
-                                            <tr style="background-color:   #bce8f1; color: #222222;">
-                                                <td> <?php //if ($value['pod'] == "1") { ?>
-                                                    <input type="text" class="form-control" onblur="validateSerialNo('<?php echo $count;?>')"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
-                                                    <input type="hidden"  id="<?php echo "model_number" . $count; ?>" class="form-control" value="<?php echo $unit_details['model_number']; ?>"   />
-                                                    <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" />
-                                                    <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
-                                                    <?php //} ?>
-                                                </td>
-                                                <td> <?php echo $value['service_category']; ?> </td>
-                                                <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" value="<?php echo $price['price_tags'];?>">
-                                                <td><input  type="hidden" class="form-control"   name="<?php echo "customer_net_payable[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "<?php echo $value['customer_net_payable']; ?>"><?php echo $value['customer_net_payable']; ?>  </td>
-                                                <td>  <input  type="text" class="form-control cost"  id="<?php echo "basic_charge".$count; ?>"   name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0.00">
-                                                <td>  <input  type="text" class="form-control cost"  id="<?php echo "extra_charge".$count; ?>"  name="<?php echo "additional_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"   value = " <?php echo "0.00"; ?>">
-                                                </td>
-                                                <td>  <input  type="text" class="form-control cost"  id="<?php echo "parts_cost".$count; ?>"   name="<?php echo "parts_cost[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "<?php echo "0.00"; ?>"></td>
-                                                <td>
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <div class="form-group ">
-                                                                <div class="col-md-10">
-                                                                    <div class="radio">
-                                                                        <label>
-                                                                        <input class="<?php echo "completed_".$count."_".$keys;?>" type="radio" onclick="return change_status('<?php echo $count;?>');" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="Completed" id="<?php echo "completed_" . $value['pod'] . "_" . $count; ?>" > Completed<br/>
-                                                                        <input class="<?php echo "cancelled_".$count."_".$keys;?>" type="radio" onclick="return change_status('<?php echo $count;?>');" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="Cancelled" id="<?php echo "cancelled_" . $value['pod'] . "_" . $count; ?>" > Not Completed
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <?php
-                                                $count++;
                                                 }
                                                 ?>
                                         </tbody>
@@ -733,13 +697,14 @@
     $("#technical_problem").select2();
     $('#technical_defect').select2();
     $('#technical_solution').select2();
-    $(".booking_source").select2();
-    $(".model_number").select2();
+    $(".booking_source").select2();  
     $(".spare_consumption_status").select2();
     $('[data-toggle="popover"]').attr('data-content', $('#status_consumption_status').html());
 </script>
 <script>
-    
+    <?php if(empty($str_disabled)) { ?> 
+        $(".model_number").select2();
+    <?php } ?>  
     $("#service_id").select2();
     $("#booking_city").select2();
     var brandServiceUrl =  '<?php echo base_url();?>/employee/booking/getBrandForService/';
@@ -1393,3 +1358,11 @@
     }
 
 </script>
+<style>
+    <?php if(!empty($str_disabled)) { ?> 
+        .dop , .model_number{
+            pointer-events : none !important;
+            background : #eee !important;
+        }    
+    <?php } ?>
+</style>

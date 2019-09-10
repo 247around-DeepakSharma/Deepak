@@ -154,7 +154,6 @@ class Booking_model extends CI_Model {
             $this->db->where('id', $data['id']);
             $query = $this->db->get('booking_unit_details');
             $unit_details = $query->result_array();
-            
             $this->update_price_in_unit_details($data, $unit_details);
 
         } else if($data['booking_status'] == "Cancelled") {

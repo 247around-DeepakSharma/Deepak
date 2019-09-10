@@ -105,7 +105,7 @@
                                                     <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" required onchange="getCapacityCategoryForModel(this.value, this.id);check_booking_request();" style="<?= $str_disabled?>">
                                                         <option selected disabled value="">Select Appliance Model</option>
                                                         <?php foreach ($model[0] as $value) { ?>
-                                                        <option <?php if(isset($unit_details[0]['sf_model_number'])) {if($value['model'] == $unit_details[0]['sf_model_number']) { echo "selected"; }} elseif(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; }} if(!empty($str_disabled)){ echo " disabled";}?>
+                                                        <option <?php if(isset($unit_details[0]['sf_model_number'])) {if($value['model'] == $unit_details[0]['sf_model_number']) { echo "selected"; }} elseif(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; }}?>
                                                             ><?php echo $value['model']; ?></option>
                                                         <?php } ?>
                                                     </select>
@@ -587,6 +587,7 @@
     if($('div.uploaded_support_file').length == 1) {
         $("#btn_addSupportFile").click();
     }
+    check_booking_request();
     });
     
     function outbound_call(phone_number){
