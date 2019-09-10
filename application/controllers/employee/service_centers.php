@@ -1896,7 +1896,7 @@ class Service_centers extends CI_Controller {
         if (!empty($_FILES['defective_parts_pic']['name'][0]) || !empty($_FILES['defective_back_parts_pic']['name'][0])) {
             $is_file = $this->validate_part_data();
         }
-
+       
         if (!empty($_FILES['serial_number_pic']['name'])) {
             $this->validate_serial_number_pic_upload_file();
             $data['serial_number_pic'] = $this->input->post('serial_number_pic');
@@ -1938,11 +1938,12 @@ class Service_centers extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
         $entity_type = $this->input->post('entity_type');
-        $booking_partner_id = $this->input->post('booking_partner_id');
         $previous_inventory_id = $this->input->post('previous_inventory_id');
-        $data['requested_inventory_id']= $current_inventory_id = $this->input->post('current_inventory_id');
-        $booking_id = $this->input->post('booking_id');     
-        
+
+        $data['requested_inventory_id'] = $current_inventory_id = $this->input->post('current_inventory_id');
+        $booking_id = $this->input->post('booking_id');
+        $service_center_id = $this->input->post('service_center_id');
+
         $change_inventory_id = '';
         if (isset($previous_inventory_id) && !empty($current_inventory_id)) {
             if ($previous_inventory_id != $current_inventory_id) {
@@ -1957,10 +1958,11 @@ class Service_centers extends CI_Controller {
             $data['requested_inventory_id'] = $previous_inventory_id;
         }
 
-        $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $this->session->userdata('service_center_id')));
-        if(!empty($change_inventory_id)){
-            
-            $warehouse_details = $this->miscelleneous->check_inventory_stock($data['requested_inventory_id'], $booking_partner_id, $sf_state[0]['state'], $this->session->userdata('service_center_id'), $data['model_number']);
+
+        $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $service_center_id));
+        if (!empty($change_inventory_id)) {
+
+            $warehouse_details = $this->miscelleneous->check_inventory_stock($data['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $service_center_id, $data['model_number']);
 
             if (!empty($warehouse_details)) {
                 $data['partner_id'] = $warehouse_details['entity_id'];
@@ -2003,7 +2005,7 @@ class Service_centers extends CI_Controller {
 //                $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
 //                $data['defective_return_to_entity_id'] = $partner_id;
 //            }
-//        }
+//        }    
         $delivered_sp =array();
         if($data['is_micro_wh']==1){
 
@@ -2015,12 +2017,12 @@ class Service_centers extends CI_Controller {
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
 
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
-
+            
              $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
 
 
             if ($affected_row == TRUE) {
-                $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "", $data['remarks_by_sc'], $this->session->userdata('id'), $this->session->userdata('emp_name'), NULL, NULL, $partner_id, NULL);
+                $this->notify->insert_state_change($booking_id, SPARE_PART_UPDATED, "", $data['remarks_by_sc'], $this->session->userdata('id'), $this->session->userdata('emp_name'), NULL, NULL, _247AROUND, NULL);
                 $userSession = array('success' => 'Spare Parts Updated');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "employee/inventory/get_spare_parts");
