@@ -1053,35 +1053,51 @@ class Miscelleneous {
             return $result;
         } else {
             
-            $pathinfo = pathinfo($excel_file);
-            $output_pdf_file_name = explode('.', $pathinfo['basename'])[0];
-        
-            $result1 = $this->My_CI->booking_utilities->convert_excel_to_pdf_paidApi($pathinfo['extension'], 'pdf', $excel_file);
-            if(isset($result1->Files[0]->FileData) && $result1->Files[0]->FileSize > 0){
-               
-                $output_pdf_file = $pathinfo['dirname']."/".$output_pdf_file_name . ".pdf";
-                
-                $binary = base64_decode($result1->Files[0]->FileData);
-                $file = fopen($output_pdf_file, 'wb');
-                fwrite($file, $binary);
-                fclose($file);
-                
-                $directory_pdf = $s3_folder_name."/" . $output_pdf_file_name . '.pdf';
-                $this->My_CI->s3->putObjectFile($output_pdf_file, BITBUCKET_DIRECTORY, $directory_pdf, S3::ACL_PUBLIC_READ);
-                
-                exec("rm -rf " . escapeshellarg($output_pdf_file));
-                if(file_exists($output_pdf_file)){
-                    unlink($output_pdf_file);
-                }
-                
-                return json_encode(array(
-                    'response' => 'Success',
-                    'response_msg' => 'PDF generated Successfully and uploaded on S3',
-                    'output_pdf_file' => $output_pdf_file_name.'.pdf',
-                    'bucket_dir' => BITBUCKET_DIRECTORY,
-                    'id' => $id
-                ));
-               
+//            $pathinfo = pathinfo($excel_file);
+//            $output_pdf_file_name = explode('.', $pathinfo['basename'])[0];
+//        
+//            $result1 = $this->My_CI->booking_utilities->convert_excel_to_pdf_paidApi($pathinfo['extension'], 'pdf', $excel_file);
+//            if(isset($result1->Files[0]->FileData) && $result1->Files[0]->FileSize > 0){
+//               
+//                $output_pdf_file = $pathinfo['dirname']."/".$output_pdf_file_name . ".pdf";
+//                
+//                $binary = base64_decode($result1->Files[0]->FileData);
+//                $file = fopen($output_pdf_file, 'wb');
+//                fwrite($file, $binary);
+//                fclose($file);
+//                
+//                $directory_pdf = $s3_folder_name."/" . $output_pdf_file_name . '.pdf';
+//                $this->My_CI->s3->putObjectFile($output_pdf_file, BITBUCKET_DIRECTORY, $directory_pdf, S3::ACL_PUBLIC_READ);
+//                
+//                exec("rm -rf " . escapeshellarg($output_pdf_file));
+//                if(file_exists($output_pdf_file)){
+//                    unlink($output_pdf_file);
+//                }
+//                
+//                return json_encode(array(
+//                    'response' => 'Success',
+//                    'response_msg' => 'PDF generated Successfully and uploaded on S3',
+//                    'output_pdf_file' => $output_pdf_file_name.'.pdf',
+//                    'bucket_dir' => BITBUCKET_DIRECTORY,
+//                    'id' => $id
+//                ));
+//               
+//            }
+            
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, $target_url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+
+            $result = curl_exec($ch);
+            // get HTTP response code
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpcode >= 200 && $httpcode < 300) {
+                return $result;
             } else {
                 $to = DEVELOPER_EMAIL;
 
