@@ -4414,7 +4414,7 @@ function generate_image($base64, $image_name,$directory){
                     
                     $spare_pending_on_to='';
 
-                    if ($data['entity_type']==_247AROUND_SF_STRING && !empty($data['entity_id'])) {
+                    if ($data['entity_type']==_247AROUND_SF_STRING && $data['entity_id']>0) {
                     $wh_details_to = $this->vendor_model->getVendorContact($data['entity_id']);
                     if(!empty($wh_details_to)){
                     $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';   
