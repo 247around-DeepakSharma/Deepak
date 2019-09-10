@@ -1059,7 +1059,7 @@ class Booking extends CI_Controller {
         $data['upcountry_charges'] = $upcountry_price;
         $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description',NULL, NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
-
+        $data['is_spare_requested'] = $this->booking_utilities->is_spare_requested($data);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/completebooking', $data);
     }
@@ -1678,6 +1678,23 @@ class Booking extends CI_Controller {
                     $data['booking_history']['spare_parts'] = $query1;
                 }
             }
+            if(!empty($data['booking_history']['spare_parts'])){
+                $query1=$data['booking_history']['spare_parts'];
+               
+                    foreach($query1 as $key1 => $sp){
+                        
+                        $query1[$key1]['btn']='';
+                        if($data['booking_history'][0]["internal_status"] == "Completed"){
+                        if($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager"  || $this->session->userdata('user_group') == "accountant" ){  
+                            if($sp["defective_part_required"] == '0'){ $required_parts =  'REQUIRED_PARTS'; $text = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>'; $cl ="btn-primary";} else{ $text = '<i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i>'; $required_parts =  'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'; $cl = "btn-danger"; }
+                            $query1[$key1]['btn'] = '<button type="button" data-booking_id="'.$sp["booking_id"].'" data-url="'.base_url().'employee/inventory/update_action_on_spare_parts/'.$sp["id"].'/'.$sp["booking_id"].'/'.$required_parts.'" class="btn btn-sm '.$cl.' open-adminremarks" data-toggle="modal" data-target="#myModal2">'.$text.'</button>';
+
+                        }
+                        }
+                    }
+                   $data['booking_history']['spare_parts'] = $query1; 
+                    
+            }
             $engineer_action_not_exit = false;
             $unit_where = array('booking_id' => $booking_id);
             $booking_unit_details = $this->booking_model->get_unit_details($unit_where);
@@ -2207,7 +2224,7 @@ class Booking extends CI_Controller {
         }
         $serial_number = $this->input->post('serial_number');
         $serial_number_pic = $this->input->post('serial_number_pic');
-        $purchase_date = $this->input->post('appliance_dop');
+        $purchase_date = $this->input->post('dop');
         $purchase_invoice = $this->input->post('appliance_purchase_invoice');
         $upcountry_charges = $this->input->post("upcountry_charges");
         $internal_status = _247AROUND_CANCELLED;
@@ -2258,8 +2275,8 @@ class Booking extends CI_Controller {
                 $data['sf_model_number'] = $model_number[$unit_id];
             }
             $data['sf_purchase_date'] = NULL;
-            if (!empty($purchase_date[$unit_id])) {
-                $data['sf_purchase_date'] = $purchase_date[$unit_id];
+            if (!empty($purchase_date[0])) {
+                $data['sf_purchase_date'] = $purchase_date[0];
             }
             
             if (!empty($purchase_invoice[$unit_id]) || !empty($purchase_invoice_file_name)) {
@@ -2417,7 +2434,7 @@ class Booking extends CI_Controller {
         }
         
         // update spare parts.
-        $this->update_spare_consumption_status($this->input->post(), $booking_id);        
+        $this->update_spare_consumption_status($this->input->post(), $booking_id);
         
         // insert in booking files.
         $booking_file = [];
@@ -2558,7 +2575,6 @@ class Booking extends CI_Controller {
         }
     }
 
-
     /**
      * 
      * @param type $post_data
@@ -2615,7 +2631,6 @@ class Booking extends CI_Controller {
         
         return true;
     }
-        
     
     
 /**
@@ -5741,7 +5756,6 @@ class Booking extends CI_Controller {
             $arr_post = $this->input->post();
             if ($arr_post) {
                 $checkValidation = $this->booking_creation_lib->validate_booking();
-
                 if ($checkValidation) {
                     log_message('info', __FUNCTION__ . " Booking ID  " . $booking_id . " User ID: " . $user_id);
 
@@ -5950,7 +5964,6 @@ class Booking extends CI_Controller {
                         'appliance_model_details.entity_id' => $partner_id));
         echo json_encode($model_details);
     }
-    
 
     /**
      * 
@@ -5981,5 +5994,5 @@ class Booking extends CI_Controller {
         
         $this->load->view('employee/wrong_spare_part', $data);
     }    
-    
+
 }
