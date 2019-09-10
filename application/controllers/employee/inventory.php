@@ -1096,7 +1096,7 @@ class Inventory extends CI_Controller {
                     $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id';
 
                     $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.booking_id' => $booking_id, 'status IN ("' . SPARE_PARTS_SHIPPED . '", "'
-                        . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '") ' => NULL), TRUE, false, false);
+                        . SPARE_PARTS_REQUESTED . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_REQUESTED . '", "' . SPARE_PARTS_SHIPPED_BY_WAREHOUSE . '", "'.SPARE_DELIVERED_TO_SF.'") ' => NULL), TRUE, false, false);
 
                     $line_items = count($spare_parts_details);
                     if ($requestType == "CANCEL_PARTS") {
@@ -1121,6 +1121,7 @@ class Inventory extends CI_Controller {
                     }
                     else if($requestType == 'DELIVERED_PART_CANCELLED'){
                         $old_state = SPARE_DELIVERED_TO_SF;
+                        $new_state = REMOVE_PART_CONSUMPTION;
                     }
                     
                     $sc_data['current_status'] = _247AROUND_PENDING;
@@ -4716,7 +4717,7 @@ class Inventory extends CI_Controller {
                     'table_open' => '<table border="1" cellpadding="2" cellspacing="0" class="mytable">'
                 );
                 $this->table->set_template($template1);
-                $this->table->set_heading(array('Part Name', 'Reference Invoice ID', 'Booking Id'));
+                $this->table->set_heading(array('Part Name', 'Invoice ID', 'Reference Invoice ID', 'Total Qty', 'Total Amount', 'Booking Id'));
                 
                 $tmp_k = explode('-', $key);
                 $tmp_invoice = "ARD-".$tmp_k[0];
@@ -4730,7 +4731,6 @@ class Inventory extends CI_Controller {
                 foreach ($invoiceValue['data'] as $value) {
                     //Push booking ID
                     array_push($booking_id_array, $value['booking_id']);
-                    $this->table->add_row($value['part_name'], $value['incoming_invoice_id'], $value['booking_id']);
 
                     if (!array_key_exists($value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0), $invoice)) {
 
@@ -4770,6 +4770,9 @@ class Inventory extends CI_Controller {
 
                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] * $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'];
                     }
+                    
+                    $total_amount = ($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] + ($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] * ($value['gst_rate']/100)) );
+                    $this->table->add_row($value['part_name'], $invoice_id, $value['incoming_invoice_id'], $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'], round($total_amount, 2), $value['booking_id']);
 
                     $l = $this->get_ledger_data($value, $sender_entity_id, $sender_entity_type, $invoice_id, $courier_id);
                     array_push($ledger_data, $l);
@@ -4891,7 +4894,7 @@ class Inventory extends CI_Controller {
     function send_defective_return_mail($booking_partner_id, $parts_table, $main_file, $detailed_file, $invoice_id) {
 
         //send email to partner warehouse incharge
-        $email_template = $this->booking_model->get_booking_email_template(MSL_SEND_BY_WH_TO_PARTNER);
+        $email_template = $this->booking_model->get_booking_email_template(DEFECTIVE_SPARE_SEND_BY_WH_TO_PARTNER);
         $wh_incharge_id = $this->reusable_model->get_search_result_data("entity_role", "id", array("entity_type" => _247AROUND_PARTNER_STRING, 'role' => WAREHOUSE_INCHARCGE_CONSTANT), NULL, NULL, NULL, NULL, NULL, array());
 
         if (!empty($wh_incharge_id)) {
@@ -4923,7 +4926,7 @@ class Inventory extends CI_Controller {
 //                                    }
                 //generate courier details table
                 $this->table->set_heading(array('Courier Name', 'AWB Number', 'Shipment Date'));
-                $this->table->add_row(array($courier_name_by_wh, $awb_by_wh, $defective_parts_shippped_date_by_wh));
+                $this->table->add_row(array($courier_name_by_wh, $awb_by_wh, date('d-m-Y', strtotime($defective_parts_shippped_date_by_wh))));
                 $courier_details_table = $this->table->generate();
                 $partner_details = $this->partner_model->getpartner_details('public_name', array('partners.id' => $booking_partner_id));
                 $partner_name = '';
@@ -4935,7 +4938,7 @@ class Inventory extends CI_Controller {
                 $subject = vsprintf($email_template[4], array($wh_name, $partner_name));
                 $message = vsprintf($email_template[0], array($wh_name, $parts_table, $courier_details_table));
                 $bcc = $email_template[5];
-                $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $main_file, 'defective_spare_send_by_wh_to_partner', $detailed_file);
+                $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $message, $main_file, DEFECTIVE_SPARE_SEND_BY_WH_TO_PARTNER, $detailed_file);
                 
                 unlink(TMP_FOLDER . $invoice_id."-detailed.xlsx");
                 unlink(TMP_FOLDER . $invoice_id.".pdf");
@@ -7185,6 +7188,8 @@ class Inventory extends CI_Controller {
         $data = array(
             "receiver_entity_type" => _247AROUND_SF_STRING,
             "receiver_entity_id" => $this->session->userdata("service_center_id"),
+            "sender_entity_type" => _247AROUND_SF_STRING,
+            "sender_entity_id" => $this->session->userdata("service_center_id"),
             "stock" => 1,
             "booking_id" => $this->input->post("booking_id"),
             "inventory_id" => $this->input->post("inventory_id"),

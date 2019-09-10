@@ -1109,9 +1109,9 @@
                         </div>
                         <div style="background: #5bc0de;margin-bottom: 20px;">
                             <?php if($booking_history[0]['current_status'] != 'Cancelled' && $booking_history[0]['current_status'] != 'Completed'){ ?>
-                        <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/1" class="btn btn-success action_buton" 
+                        <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/1/<?php echo $booking_history[0]['partner_id']?>" class="btn btn-success action_buton" 
                            >Regenerate and send QR Code</a>
-                               <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0" class="btn btn-success action_buton">
+                               <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0/<?php echo $booking_history[0]['partner_id']?>" class="btn btn-success action_buton">
                                    Resend Same QR Code</a>
                             
 

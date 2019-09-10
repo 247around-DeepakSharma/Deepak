@@ -30,6 +30,7 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <th class="text-center" data-orderable="true">Edit Model No.</th>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
 
@@ -110,6 +111,7 @@
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <th class="text-center" data-orderable="true">Edit Model No.</th>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
                                 
@@ -222,6 +224,9 @@
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="false">Age Of Requested</th>
                                     <!-- <th class="text-center" data-orderable="false">Update</th>-->
+                                    <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
+                                    <th class="text-center" data-orderable="false">Edit Model No.</th>
+                                    <?php } ?>
                                     <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                     <th class="text-center" data-orderable="false">Cancel Part</th>
  
@@ -702,7 +707,7 @@
                     "orderable": true //set not orderable
                 },
                 {
-                    "targets": [0,1,2,3,4,9,10,11,13], //first column / numbering column
+                    "targets": [0,1,2,3,4,9,10,11,13,15], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -739,7 +744,7 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                    "targets": [0,1,2,3,4,5], //first column / numbering column
+                    "targets": [0,1,2,3,4,5,15], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -853,7 +858,7 @@
                     "orderable": true //set not orderable
                 },
                 {
-                    "targets": [0,1,2,3,4,11,12], //first column / numbering column
+                    "targets": [0,1,2,3,4,11,12,15], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],

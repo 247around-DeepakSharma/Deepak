@@ -86,7 +86,7 @@
                                         
                                         <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value = "<?php if ((set_value("courier_charges_by_sf"))) {
                                             echo set_value("courier_charges_by_sf");
-                                            } ?>" placeholder="Please Enter Courier Charges"  required>
+                                            } ?>" placeholder="Please Enter Courier Charges"  required onblur="chkPrice($(this),2000)">
                                     </div>
                                     <?php echo form_error('courier_charges_by_sf'); ?>
                                 </div>

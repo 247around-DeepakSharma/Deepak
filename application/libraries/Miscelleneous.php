@@ -29,6 +29,7 @@ class Miscelleneous {
         $this->My_CI->load->model('engineer_model');
         $this->My_CI->load->driver('cache');
         $this->My_CI->load->model('dashboard_model');
+        $this->My_CI->load->model('invoices_model');
     }
     function process_to_choose_sf_if_multiple_sf_available($data){
         $sfArray = array();
@@ -4383,7 +4384,7 @@ function generate_image($base64, $image_name,$directory){
     /**
      * @desc This function is used to process spare transfer
      */
-    function spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id) {
+   function spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id) {
         $tcount = 0;
         $booking_error_array = array();
         $add_row = array();
@@ -4395,10 +4396,10 @@ function generate_image($base64, $image_name,$directory){
             
             $requested_inventory = $booking['requested_inventory_id'];
             
-            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
+            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "",$booking['model_number']);
             if (!empty($data)) {
                  
-                if ($data['stock']) {
+                if ($data['stock']>=$booking['quantity']) {
                     $dataupdate = array(
                         'is_micro_wh' => $data['is_micro_wh'],
                         'entity_type' => $data['entity_type'],
@@ -4408,21 +4409,47 @@ function generate_image($base64, $image_name,$directory){
                         'challan_approx_value' => $data['challan_approx_value'],
                         'requested_inventory_id' => $data['inventory_id'],
                         'parts_requested' => $data['part_name']
+                        //'parts_requested_type' => $data['type']
                     );
+                    
+                    $spare_pending_on_to='';
+
+                    if ($data['entity_type']==_247AROUND_SF_STRING && $data['entity_id']>0) {
+                    $wh_details_to = $this->vendor_model->getVendorContact($data['entity_id']);
+                    if(!empty($wh_details_to)){
+                    $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';   
+                    }else{
+                    $spare_pending_on_to = ' Warehouse'; 
+                    }   
+                    }else{
+                        $spare_pending_on_to=$data['entity_id'];
+                    }
+
+                    $spare_pending_on='';
+                    if ($booking['entity_type']==_247AROUND_SF_STRING && !empty($partner_id)) {
+                    $wh_details = $this->vendor_model->getVendorContact($partner_id);
+                    if(!empty($wh_details)){
+                    $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
+                    }else{
+                    $spare_pending_on= ' Warehouse'; 
+                    }
+                    }else{
+                       $spare_pending_on=_247AROUND_PARTNER_STRING; 
+                    }
                     $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
                     $actor = 'Warehouse';
-                    $new_state = 'Spare Part Transferred to ' . $data['entity_id'];
-                    $old_state = 'Spare Part Transferred from ' . $partner_id;
+                    $new_state = 'Spare Part Transferred to ' . $spare_pending_on_to;
+                    $old_state = 'Spare Part Transferred from ' . $spare_pending_on;
                     $this->My_CI->inventory_model->update_spare_courier_details($spareid, $dataupdate);
                     if ($data['entity_type'] == _247AROUND_SF_STRING) {
                         $remarks = _247AROUND_TRANSFERED_TO_VENDOR;
                         $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
-                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], 1);
-                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -1);
+                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], $booking['quantity']);
+                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -$booking['quantity']);
                     } else if ($data['entity_type'] == _247AROUND_PARTNER_STRING && $booking['entity_type'] != _247AROUND_PARTNER_STRING) {
                         $remarks = _247AROUND_TRANSFERED_TO_PARTNER;
                         $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
-                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -1);
+                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -$booking['quantity']);
                     }
                     $tcount++;
                 } else {

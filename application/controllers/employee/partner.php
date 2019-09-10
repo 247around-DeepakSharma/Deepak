@@ -3980,7 +3980,7 @@ class Partner extends CI_Controller {
      * 
      */
     function download_sf_list_excel() {
-        $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1');
+        $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1',is_CP => '0');
         $select = "service_centres.id,service_centres.district,service_centres.state,service_centres.pincode,service_centres.appliances,service_centres.non_working_days,GROUP_CONCAT(sub_service_center_details.district) as upcountry_districts";
         //$vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
              $vendor =  $this->reusable_model->get_search_result_data("service_centres",$select,$where,array("sub_service_center_details"=>"sub_service_center_details.service_center_id = service_centres.id"),
@@ -8233,14 +8233,15 @@ class Partner extends CI_Controller {
                 $this->booking_model->update_booking($booking_id, $booking);
 
                $data_service_center=array(
-                        'current_status'=>_247AROUND_PENDING,
+                        'current_status'=>'InProcess',
                         'internal_status'=>NRN_APPROVED_BY_PARTNER
                 );
                $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
 
                 $new_state=NRN_APPROVED_BY_PARTNER;
-                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor,$next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
+                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor,$next_action, NRN_TO_BE_APPROVED_BY_PARTNER,$partner_id);
                 echo "1";   
+                log_message('info', __FUNCTION__ . " New State: " . NRN_APPROVED_BY_PARTNER . " Booking id: " . $booking_id);
         }else{
            echo "0";
         }
