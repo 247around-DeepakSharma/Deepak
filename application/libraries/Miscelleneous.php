@@ -4396,7 +4396,8 @@ function generate_image($base64, $image_name,$directory){
             
             $requested_inventory = $booking['requested_inventory_id'];
             
-            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "",$booking['model_number']);
+            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
+           // print_r($data); exit;
             if (!empty($data)) {
                  
                 if ($data['stock']>=$booking['quantity']) {
@@ -4415,7 +4416,7 @@ function generate_image($base64, $image_name,$directory){
                     $spare_pending_on_to='';
 
                     if ($data['entity_type']==_247AROUND_SF_STRING && $data['entity_id']>0) {
-                    $wh_details_to = $this->vendor_model->getVendorContact($data['entity_id']);
+                    $wh_details_to = $this->My_CI->vendor_model->getVendorContact($data['entity_id']);
                     if(!empty($wh_details_to)){
                     $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';   
                     }else{
@@ -4424,10 +4425,10 @@ function generate_image($base64, $image_name,$directory){
                     }else{
                         $spare_pending_on_to=$data['entity_id'];
                     }
-
+                    
                     $spare_pending_on='';
                     if ($booking['entity_type']==_247AROUND_SF_STRING && !empty($partner_id)) {
-                    $wh_details = $this->vendor_model->getVendorContact($partner_id);
+                    $wh_details = $this->My_CI->vendor_model->getVendorContact($partner_id);
                     if(!empty($wh_details)){
                     $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
                     }else{
