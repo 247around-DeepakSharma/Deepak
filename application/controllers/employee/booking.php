@@ -1502,8 +1502,13 @@ class Booking extends CI_Controller {
                 {
                     $html .= "<td>" . $prices['customer_total'] . "</td>";
                     $html .= "<td><input  type='text' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/></td>";
+                    $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
                 }
-                $html .= "<td>" . $prices['customer_net_payable'] . "</td>";
+                else
+                {
+                    $html .= "<td>" . $prices['customer_net_payable'] . "<input  type='hidden' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/></td>";
+                }
+                
                 if(!$is_sf_panel)
                 {
                     if(!$is_saas){
@@ -1668,6 +1673,7 @@ class Booking extends CI_Controller {
     function viewdetails($booking_id) {
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
+        $data['defective_history'] = $this->inventory_model->getDefecvtive_history($booking_id);
         $data['file_type'] = $this->booking_model->get_file_type();
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
         if(!empty($data['booking_history'])){
