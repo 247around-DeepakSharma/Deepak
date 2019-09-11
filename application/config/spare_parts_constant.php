@@ -161,7 +161,6 @@ define('DAMAGE_PART_TO_BE_SHIPPED', 'Damage Part To Be Shipped');
 
  
 //MWH auto deliver consumption remove
-define('REMOVE_PART_CONSUMPTION', 'Consumed MSL Part Removed');
- 
+
 define('DEFECTIVE_PARTS_SHIPPED_PENDING', 'All Defective Parts Not Shipped');
  
