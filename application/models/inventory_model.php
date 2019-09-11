@@ -1649,6 +1649,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('employee',"employee.id = agent_filters.agent_id", "left"); // new query for AM
         //$this->db->join('employee','partners.account_manager_id = employee.id'); // old query for AM
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
+        $this->db->join('service_centres sc','spare_parts_details.partner_id=sc.id','left');
         if(!empty($where)){
            $this->db->where($where,false); 
         }

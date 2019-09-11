@@ -1056,3 +1056,6 @@ CREATE TABLE wrong_part_shipped_details (
     inventory_id int(11) NOT NULL,
     remarks text NULL DEFAULT NULL
 );
+
+--Kalyani 10-09-2019
+UPDATE `sms_template` SET `template` = 'Get 5 Percent Cashback On Your %s Booking. Download QR Code from %s Or Engineer Job Card & Pay On Paytm App. Use Paytm even if technician refuses and asks for Cash. 5 Percent Discount ONLY available on Payments made through Paytm. %s 247around' WHERE `sms_template`.`tag` = "customer_qr_download";
