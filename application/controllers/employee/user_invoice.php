@@ -774,9 +774,9 @@ class User_invoice extends CI_Controller {
 
         if (!empty($booking_data) & !empty($booking_data[0]['assigned_vendor_id'])) {
            
-            $partner_data = $this->partner_model->getpartner_details("gst_number,"
-                    . "company_name, state, address as company_address, district, pincode, "
-                    . "invoice_email_to,invoice_email_cc", array('partners.id' => $booking_data[0]['partner_id']));
+//            $partner_data = $this->partner_model->getpartner_details("gst_number,"
+//                    . "company_name, state, address as company_address, district, pincode, "
+//                    . "invoice_email_to,invoice_email_cc", array('partners.id' => $booking_data[0]['partner_id']));
 
             // $partner_id = $booking_data[0]['partner_id'];
 
@@ -829,10 +829,9 @@ class User_invoice extends CI_Controller {
                     $vendor_invoice_data[$key]['product_or_services'] = $booking_unit_data[0]['product_or_services'];
                     if (!empty($vendor_data[0]['gst_number'])) {
                         $vendor_invoice_data[$key]['gst_number'] = $vendor_data[0]['gst_number'];
-                    } else {
-                        $vendor_invoice_data[$key]['gst_number'] = TRUE;
+                    } else{
+                        $vendor_invoice_data[$key]['gst_number'] = "";
                     }
-
                     $vendor_invoice_data[$key]['company_name'] = $vendor_data[0]['company_name'];
                     $vendor_invoice_data[$key]['company_address'] = $vendor_data[0]['company_address'];
                     $vendor_invoice_data[$key]['district'] = $vendor_data[0]['district'];
@@ -920,13 +919,14 @@ class User_invoice extends CI_Controller {
                 $response['meta']['reference_number'] = $booking_id;
                 $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
                 if (!empty($status)) {
-                    $this->invoice_lib->send_request_to_convert_excel_to_pdf($vendor_invoice_id, "final");
+                   // $this->invoice_lib->send_request_to_convert_excel_to_pdf($vendor_invoice_id, "final");
                     $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
+                    
+                    
                     $output_pdf_file_name = $convert['main_pdf_file_name'];
                     $response['meta']['invoice_file_main'] = $output_pdf_file_name;
                     $response['meta']['copy_file'] = $convert['copy_file'];
                     $response['meta']['invoice_file_excel'] = $vendor_invoice_id . ".xlsx";
-
                     $this->invoice_lib->upload_invoice_to_S3($vendor_invoice_id, false);
 
                     /* Send DN mail to vendor */
