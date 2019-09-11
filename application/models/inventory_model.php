@@ -2604,7 +2604,7 @@ class Inventory_model extends CI_Model {
      */
     function get_microwarehouse_msl_data($date, $inventory_id = ""){
         $this->db->select('public_name as company_name, sc.name as warehouse_name,ss.services, im.inventory_id,  part_name, part_number, '
-                . 'im.type, ( (price + price *gst_rate/100)+ ((price + price *gst_rate/100) * oow_around_margin/100)) as price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
+                . 'im.type, im.price, im.gst_rate, im.oow_around_margin,im.oow_vendor_margin,count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
         $this->db->from('spare_parts_details as s');
         $this->db->join('service_centres as sc', 'sc.id = s.service_center_id AND sc.is_micro_wh = 1 ');
         $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
