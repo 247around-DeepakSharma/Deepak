@@ -2120,6 +2120,8 @@ class Partner extends CI_Controller {
                         $where = array('id' => $spare_id, 'partner_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING);
                         $response = $this->service_centers_model->update_spare_parts($where, $data);
                     } else {
+                        $data['defective_return_to_entity_id'] = $this->session->userdata('partner_id');
+                        $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                         $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
                     }
                     
