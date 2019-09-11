@@ -226,7 +226,7 @@
                                         } ?>">
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Quantity *</label>
                                         <div class="col-md-6">
-                                            <input class="form-control" value="<?php echo $sp->quantity; ?>" id="<?php echo "shippedquantity_".$skey;?>" name="part[<?php echo $skey;?>][shipped_quantity]" readonly="readonly" required />
+                                            <input class="form-control quantity" type="number" min="1" value="<?php echo $sp->quantity; ?>" id="<?php echo "shippedquantity_".$skey;?>" name="part[<?php echo $skey;?>][shipped_quantity]" required />
                                            
                                             <?php echo form_error('quantity'); ?>
                                         </div>
@@ -296,7 +296,7 @@
                                         <div class="form-group ">
                                             <label for="shippedquantity" class="col-md-4">Shipped Quantity *</label>
                                             <div class="col-md-6">
-                                                <input  class="form-control shippedquantity "  id="shippedquantity"  />
+                                                <input type="number" min="1" class="form-control shippedquantity " value="1" id="shippedquantity"  />
                                               
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
@@ -504,6 +504,28 @@
         placeholder:'Select Part Type',
         allowClear:true
     });
+
+
+     $(document).on('keyup', ".quantity", function()
+       {
+        var id = $(this).attr("id");
+        var str_arr =id.split("_");
+        var indexId = str_arr[1]; 
+
+        var val = parseInt($(this).val());
+        if (val>0) {
+        var max = parseInt($("#shippedpartsname_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
+        if(val>max){
+         $(this).val("1");
+        swal("Error !", "Maximum quantity'allowed to ship is : "+max);
+        } 
+        }else{
+        $(this).val("1");
+        swal("Error !", "Quantity can only be positive value");
+        }
+
+       });
+    
     
     
     function change_shipped_model(sp_id){

@@ -237,7 +237,7 @@
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Requested Quantity</label>
                                         <div class="col-md-7">
-                                            <input class="form-control" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]"   value="<?php echo $value->quantity; ?>" readonly="readonly" required /> 
+                                            <input class="form-control" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]" readonly=""  value="<?php echo $value->quantity; ?>"  required /> 
                                         </div>
                                     </div>
                                      </div>
@@ -263,7 +263,7 @@
                                    <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Shipped Quantity</label>
                                         <div class="col-md-7">
-                                            <input class="form-control" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][shipped_quantity]" value="<?php echo $value->quantity; ?>" readonly="readonly"  required  />
+                                            <input type="number" min="1" class="form-control quantity" data-id="<?php echo $key; ?>" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][shipped_quantity]" value="<?php echo $value->quantity; ?>"    required  />
                                         </div>
                                     </div>
                                     </div>
@@ -686,6 +686,29 @@
         placeholder:'Select HSN Code',
         allowClear:true
     });
+
+
+
+    $(document).on('keyup', ".quantity", function()
+       {
+        //alert();
+        var id = $(this).attr("id");
+        var str_arr =id.split("_");
+        var indexId = str_arr[1]; 
+        var val = parseInt($(this).val());
+        if (val>0) {
+        var max = parseInt($("#shippedpartsname_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
+        if(val>max){
+         $(this).val("1");
+         swal("Error !", "Maximum quantity'allowed to ship is : "+max);
+        }
+        }else{
+        $(this).val("1");
+        swal("Error !", "Quantity can only be positive value.");
+
+        }
+ 
+       });
     
     
     function change_shipped_model(key){
