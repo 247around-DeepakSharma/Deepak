@@ -446,7 +446,7 @@
                                     
                               </div>
                             </div>
-                            <input type="text"  id="inventoryid">
+                            <input type="hidden"  id="inventoryid">
                             <input type="hidden" id="spare_id">
                         </div>
                     </div>
