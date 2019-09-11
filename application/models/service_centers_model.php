@@ -459,9 +459,10 @@ class Service_centers_model extends CI_Model {
          //echo $this->db->last_query();
         return $query->result_array();
     }
-    
+
     function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL, $is_defective_required = false){
         $this->_spare_parts_booking_query($where, $select,$state, $is_defective_required);
+
         if($group_by){
             $this->db->group_by($group_by);
         }
@@ -473,6 +474,7 @@ class Service_centers_model extends CI_Model {
             $this->db->limit($limit, $offset);
         }
         $query = $this->db->get();
+        // print_r($this->db->last_query());  exit;
         if($download){
           return $query;
         }
@@ -481,6 +483,7 @@ class Service_centers_model extends CI_Model {
     }
     }
     
+
     function _spare_parts_booking_query($where, $select,$state=0, $is_defective_required = false){
         $this->db->select($select, false);
         $this->db->from('spare_parts_details');
@@ -489,6 +492,7 @@ class Service_centers_model extends CI_Model {
         $this->db->join('service_centres', 'spare_parts_details.service_center_id =  service_centres.id');
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
         $this->db->join("services","booking_details.service_id = services.id", "left");
+
         if(!empty($is_defective_required)) {
             $this->db->join('spare_qty_mgmt', 'spare_parts_details.id =  spare_qty_mgmt.spare_id', 'left');
         }
@@ -501,9 +505,9 @@ class Service_centers_model extends CI_Model {
         }
     }
     
-    function count_spare_parts_booking($where, $select, $group_by = false,$state=0){
+    function count_spare_parts_booking($where, $select, $group_by = false,$state=0,$qty_check=FALSE){
         $this->db->distinct();
-        $this->_spare_parts_booking_query($where, $select,$state);
+        $this->_spare_parts_booking_query($where, $select,$state,$qty_check);
         if($group_by){
             $this->db->group_by($group_by);
         }

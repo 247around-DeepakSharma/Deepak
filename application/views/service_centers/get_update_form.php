@@ -295,7 +295,7 @@
                                         <div class="form-group">
                                             <label for="quantity" class="col-md-4">Quantity *</label>
                                             <div class="col-md-6">
-                                                <input type="text"    value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                                <input type="number" min="1"   value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
                                             </div>
                                         </div>
                                     </div>
@@ -395,7 +395,7 @@
                                             <div class="form-group">
                                                 <label for="quantity" class="col-md-4">Quantity *</label>
                                                 <div class="col-md-6">
-                                                    <input type="text"   value="1" class="form-control  spare_parts" id="quantity" >
+                                                    <input type="number" min="1"  value="1" class="form-control  spare_parts" id="quantity" >
                                                 </div>
                                             </div>
                                         </div>
@@ -921,13 +921,20 @@ function alpha(e) {
        {
         var id = $(this).attr("id");
         var str_arr =id.split("_");
-        indexId = str_arr[2]; 
+        var indexId = str_arr[2]; 
         var val = parseInt($(this).val());
-        var max = parseInt($("#parts_name_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
+        if (val>0) {
+         var max = parseInt($("#parts_name_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
         if(val>max){
          $(this).val("1");
-         alert("Please enter less than or equal to  " +max);
-        } 
+         swal("Error !", "Maximum quantity'allowed to ship is : "+max);
+        }
+        }else{
+        $(this).val("1");
+        swal("Error !", "Quantity can only be positive value");
+
+        }
+
        });
     
     

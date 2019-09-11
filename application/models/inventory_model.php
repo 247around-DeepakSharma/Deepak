@@ -1236,6 +1236,7 @@ class Inventory_model extends CI_Model {
         }
         $this->db->order_by('model_number','ASC');
         $query = $this->db->get('appliance_model_details');
+      //  print_r($this->db->last_query());  exit;
         return $query->result_array();
     }
     
@@ -2636,7 +2637,7 @@ class Inventory_model extends CI_Model {
      */
     function get_microwarehouse_msl_data($date, $inventory_id = ""){
         $this->db->select('public_name as company_name, sc.name as warehouse_name,ss.services, im.inventory_id,  part_name, part_number, '
-                . 'im.type, ( (price + price *gst_rate/100)+ ((price + price *gst_rate/100) * oow_around_margin/100)) as price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
+                . 'im.type, im.price, im.gst_rate, im.oow_around_margin,im.oow_vendor_margin,count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
         $this->db->from('spare_parts_details as s');
         $this->db->join('service_centres as sc', 'sc.id = s.service_center_id AND sc.is_micro_wh = 1 ');
         $this->db->join('inventory_master_list as im', 's.shipped_inventory_id = im.inventory_id');
@@ -2913,6 +2914,64 @@ class Inventory_model extends CI_Model {
 
 
     function insert_defective_ledger_data($data){
+
+        $this->db->insert('spare_qty_mgmt',$data);
+        if($this->db->affected_rows() > 0){
+            $res = TRUE;
+        }else{
+            $res = FALSE;
+        }
+        
+        return $res;
+
+    }
+
+    function get_qty_mgmt_data($select,$where,$group_by=FALSE){
+
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where,false);
+        }
+        $this->db->from('spare_qty_mgmt');
+        if ($group_by) {
+         $this->db->group_by('spare_qty_mgmt.spare_id');     
+        }
+              
+        $query = $this->db->get();
+       //  print_r($this->db->last_query());
+        return $query->result_array();
+
+    }
+
+
+    function update_qty_ledger_mgmt($data,$where){
+
+        $this->db->where($where);
+        $this->db->update('spare_qty_mgmt',$data);
+        if($this->db->affected_rows() > 0){
+            $res = TRUE;
+        }else{
+            $res = FALSE;
+        }
+        
+        return $res;
+    }
+
+    function getDefecvtive_history($booking_id){
+
+        $select=",spare_qty_mgmt.qty,spare_qty_mgmt.qty_status,spare_qty_mgmt.created_on as qty_def_shipped_date,spare_qty_mgmt.awb_by_sf_defective,spare_qty_mgmt.def_courier_price_by_sf,def_courier_name,spare_parts_details.*";
+        $where=array('spare_qty_mgmt.is_defective_qty'=>1,'spare_parts_details.booking_id'=>$booking_id);
+        $this->db->select($select);
+       // $this->db->from('spare_parts_details');
+        $this->db->join('spare_qty_mgmt','spare_parts_details.id=spare_qty_mgmt.spare_id');
+        $this->db->where($where);
+        $query = $this->db->get('spare_parts_details');
+       // print_r($this->db->last_query());  exit;
+        return $query->result_array();
+
+
+    }
+
 
        $this->db->insert('spare_qty_mgmt',$data);
        if($this->db->affected_rows() > 0){
