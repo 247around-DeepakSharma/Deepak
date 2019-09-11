@@ -1350,7 +1350,6 @@
     $(document).ready(function(){
         
         var rm_id = '<?php if(!empty($rm) && !empty($rm[0]['agent_id'])) { echo $rm[0]['agent_id']; } else { echo ''; }; ?>'
-        alert(rm_id);
         getRMs(rm_id);
         get_brands();
     });
