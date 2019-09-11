@@ -96,6 +96,16 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <?php 
+                                        if(!empty($unit_details[0]['sf_model_number']) && !empty($model[0]) && $booking_history['is_spare_requested']){
+                                            $arrModels = array_column($model[0], 'model');
+                                            if(!in_array($unit_details[0]['sf_model_number'], $arrModels)){ ?>
+                                                <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
+                                                    <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number filled during Spare Request is not mapped with the partner! Please Contact 247 around team.</span>
+                                                </div>
+                                            <?php }
+                                        }
+                                        ?>
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model* </label>
                                             <div class="col-md-6">
