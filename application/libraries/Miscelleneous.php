@@ -3462,11 +3462,12 @@ function generate_image($base64, $image_name,$directory){
 
             return false;
         }
-
+        
         if (empty($response) && !empty($inventory_part_number)) {
             $response['stock'] = false;
             $response['entity_id'] = $partner_id;
             $response['part_name'] = $inventory_part_number[0]['part_name'];
+            $response['type'] = $inventory_part_number[0]['type'];
             $response['entity_type'] = _247AROUND_PARTNER_STRING;
             $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
             $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
@@ -3517,7 +3518,7 @@ function generate_image($base64, $image_name,$directory){
                 $inventory_stock_details = $alternate_inventory_stock_details;
             }
         }
-                    
+              
         if(!empty($inventory_stock_details)){
             if(!empty($service_center_id)){
                 if($inventory_part_number[0]['inventory_id'] != $inventory_stock_details[0]['inventory_id'] ){
