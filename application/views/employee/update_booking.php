@@ -1003,7 +1003,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
 
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
        getPartnerChannel();
-     
+       
 
 </script>
 
@@ -1088,6 +1088,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     if($('div.uploaded_support_file').length == 1) {
         $("#btn_addSupportFile").click();
     }
+    check_booking_request();    
     });
     
     function outbound_call(phone_number){
@@ -1357,7 +1358,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         });
         $("#submitform").attr("disabled", false);
         $('.errorMsg').html("");
-
+        
         if(model_number !== "" && model_number !== null && model_number !== undefined && dop !== "" && booking_request_types.length > 0){                               
             $.ajax({
                 method:'POST',
