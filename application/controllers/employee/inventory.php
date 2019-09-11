@@ -7145,13 +7145,16 @@ class Inventory extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         
         $select = "service_centres.name AS Warehouse, partners.public_name AS 'Partner', inventory_master_list.part_number AS 'Part Number', inventory_master_list.part_name AS 'Part Name', inventory_stocks.stock AS Stock";
-        
-        $select .= ", ROUND(inventory_master_list.price * ( 1 + inventory_master_list.oow_around_margin/100) + (inventory_master_list.price * ( 1 + inventory_master_list.oow_around_margin/100) * (inventory_master_list.gst_rate / 100)), 2) AS 'Price'"; 
-       
-        
+      
         if ($request_type == 'warehouse') {
+            
+            $select .= ", inventory_master_list.price AS 'Basic Price',inventory_master_list.gst_rate as 'GST Rate'"; 
+            
             $post['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         } else {
+            
+            $select .= ", inventory_master_list.price AS 'Basic Price',inventory_master_list.gst_rate as 'GST Rate',inventory_master_list.oow_around_margin as 'Around Margin', inventory_master_list.oow_vendor_margin as 'Vendor Margin'"; 
+            
             $post['where'] = array("service_centres.is_micro_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         }
 
