@@ -281,6 +281,9 @@
                                             <option selected><?php echo $unit_details['capacity']; ?></option>
                                         </select>
                                     </div>
+                                </div>
+                                <?php } ?>
+                                <div class="col-md-3">
                                     <div class="form-group">
                                          <label style="margin-left:8%;">Purchase Date</label>
                                          <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
