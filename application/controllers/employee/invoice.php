@@ -513,16 +513,8 @@ class Invoice extends CI_Controller {
 
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
 
-        $this->invoice_lib->generate_invoice_excel($template, $misc_data['Completed']['meta'], $misc_data['Completed']['annexure'], $output_file_excel);
-        
-        // Generate Pending Bookings Excel
-        if (!empty($misc_data['Pending'])) {
-            $pending_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-Spare_Not_Shipped-detailed.xlsx";
-            $this->invoice_lib->generate_invoice_excel($template, $misc_data['Pending']['meta'], $misc_data['Pending']['annexure'], $pending_file_excel);
-            array_push($files, $pending_file_excel);
-            log_message('info', __METHOD__ . "=> File created " . $pending_file_excel);
-        }
-        
+        $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
+
         // Generate Upcountry Excel
         if (!empty($misc_data['upcountry'])) {
             $meta['total_upcountry_price'] = $misc_data['upcountry'][0]['total_upcountry_price'];
@@ -2013,17 +2005,7 @@ class Invoice extends CI_Controller {
         log_message('info', __FUNCTION__ . ' Entering....... Partner_id:'.$partner_id.' invoice_type:'.$invoice_type.' from_date: '.$from_date.' to_date: '.$to_date);
         $invoices = $this->invoices_model->generate_partner_invoice($partner_id, $from_date, $to_date);
         if (!empty($invoices)) {
-            $invoices['booking'] = (isset($invoices['Pending']['booking']) ? array_merge($invoices['Pending']['booking'],$invoices['Completed']['booking']) : $invoices['Completed']['booking']);
-            $invoices['annexure'] = (isset($invoices['Pending']['annexure']) ? array_merge($invoices['Pending']['annexure'],$invoices['Completed']['annexure']) : $invoices['Completed']['annexure']);
 
-            foreach ($invoices['Completed']['meta'] as $key => $value) {
-                if ((strpos($key, 'company') !== false) || (strpos($key, 'state') !== false) || ((strpos($key, 'rate') !== false) && ($key != 'total_rate'))) {
-                    $invoices['meta'][$key] = $value;
-                }
-                else {
-                    $invoices['meta'][$key] = (is_numeric($value) ? ($value + (isset($invoices['Pending']['meta'][$key]) ? $invoices['Pending']['meta'][$key] : 0)) : (($key == 'price_inword') ? convert_number_to_words(round($invoices['meta']['sub_total_amount'],0)):$value));
-                }
-            }
             $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
             //Send Push Notification
             $receiverArray['partner'] = array($partner_id);
@@ -2038,12 +2020,9 @@ class Invoice extends CI_Controller {
             if($status){
                 
                 log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
-                unset($invoices['Pending']['meta']['main_company_logo_cell']);
-                unset($invoices['Pending']['meta']['main_company_seal_cell']);
-                unset($invoices['Pending']['meta']['main_company_sign_cell']);
-                unset($invoices['Completed']['meta']['main_company_logo_cell']);
-                unset($invoices['Completed']['meta']['main_company_seal_cell']);
-                unset($invoices['Completed']['meta']['main_company_sign_cell']);
+                unset($invoices['meta']['main_company_logo_cell']);
+                unset($invoices['meta']['main_company_seal_cell']);
+                unset($invoices['meta']['main_company_sign_cell']);
                 //unset($invoices['booking']);
                 $this->create_partner_invoices_detailed($partner_id, $from_date, $to_date, $invoice_type, $invoices,$agent_id, $hsn_code);
                 return true;
@@ -3337,19 +3316,12 @@ class Invoice extends CI_Controller {
 
             // Copy worksheets from $objPHPExcel2 to $objPHPExcel1
             foreach ($objPHPExcel2->getAllSheets() as $sheet) {
-                if(strpos($file_path, 'Spare_Not_Shipped') !== false) {
-                    $objPHPExcel1->getActiveSheet()->setTitle("Completed");
-                }
                 $objPHPExcel1->addExternalSheet($sheet);
-                if(strpos($file_path, 'Spare_Not_Shipped') !== false) {
-                    $objPHPExcel1->setActiveSheetIndex($objPHPExcel1->getActiveSheetIndex()+1);
-                    $objPHPExcel1->getActiveSheet()->setTitle("Spare Not Shipped");
-                }
             }
             
             
         }
-        $objPHPExcel1->setActiveSheetIndex(0);
+        
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, "Excel2007");
         // Save $objPHPExcel1 to browser as an .xls file
         $objWriter->save($details_excel);
@@ -4077,15 +4049,15 @@ class Invoice extends CI_Controller {
      * @desc This function is used to generate Micro Spare purchase invoice  
      * @param int $spare_id
      */
-    function generate_micro_reverse_sale_invoice($spare_id) {
+    function generate_micro_reverse_sale_invoice($spare_id) { 
         log_message('info', __METHOD__ . " Spare ID " . $spare_id);
 
-        if (!empty($spare_id)) {
+        if (!empty($spare_id)) { 
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
                     . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1 ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
             if (!empty($spare)) {
-                if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) {
+                if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) { 
                     if (!empty($spare[0]['shipped_inventory_id'])) {
                         if (empty($spare[0]['gst_number'])) {
                             $spare[0]['gst_number'] = TRUE;
@@ -4129,6 +4101,7 @@ class Invoice extends CI_Controller {
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
                                     $data[0]['from_pincode'] = $value['to_city'];
+                                    $data[0]['state_stamp_pic'] = $value['state_stamp_pic'];
                                     $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare);
                                     if ($a) {
                                         
@@ -4171,6 +4144,7 @@ class Invoice extends CI_Controller {
                         . $data[0]['from_pincode'];
 
             $response['meta']['main_company_pincode'] = $data[0]['from_pincode'];
+            $response['meta']['main_company_seal'] = $data[0]['state_stamp_pic'];
         }
         $response['meta']['invoice_id'] = $invoice_id;
         

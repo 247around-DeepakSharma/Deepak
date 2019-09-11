@@ -1649,6 +1649,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('employee',"employee.id = agent_filters.agent_id", "left"); // new query for AM
         //$this->db->join('employee','partners.account_manager_id = employee.id'); // old query for AM
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
+        $this->db->join('service_centres sc','spare_parts_details.partner_id=sc.id','left');
         if(!empty($where)){
            $this->db->where($where,false); 
         }
@@ -2607,13 +2608,13 @@ class Inventory_model extends CI_Model {
      */
     function get_msl_data($date, $inventory_id = ""){
        
-        $this->db->select('public_name as company_name,ss.services, im.inventory_id,  part_name, part_number, '
+        $this->db->select('public_name as company_name,sc.name as Warehouse_name, ss.services, im.inventory_id,  part_name, part_number, '
                 . 'im.type, price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
         $this->db->from('spare_parts_details as s');
-        $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
+        $this->db->join('inventory_master_list as im', 's.shipped_inventory_id = im.inventory_id');
         $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_wh =1 ');
-        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id', 'left');
-        $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND sc.is_wh = 1 ', 'left');
+        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id AND s.partner_id = i.entity_id');
+        $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND sc.is_wh = 1 AND sc.id = s.partner_id');
         $this->db->join('services as ss', 'ss.id = im.service_id', 'left');
 
         if(!empty($inventory_id)){
@@ -2621,6 +2622,7 @@ class Inventory_model extends CI_Model {
         }
         $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
         $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
+        $this->db->where('s.is_micro_wh', 2);
         $this->db->order_by('p.public_name, sc.name');
         $this->db->group_by('im.inventory_id, sc.id');
         $query = $this->db->get();
@@ -2637,7 +2639,7 @@ class Inventory_model extends CI_Model {
                 . 'im.type, ( (price + price *gst_rate/100)+ ((price + price *gst_rate/100) * oow_around_margin/100)) as price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
         $this->db->from('spare_parts_details as s');
         $this->db->join('service_centres as sc', 'sc.id = s.service_center_id AND sc.is_micro_wh = 1 ');
-        $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
+        $this->db->join('inventory_master_list as im', 's.shipped_inventory_id = im.inventory_id');
         $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_micro_wh =1 ');
         $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id AND sc.id = i.entity_id');
         $this->db->join('micro_warehouse_state_mapping as ms', 'ms.partner_id = p.id AND sc.id = ms.vendor_id AND ms.active = 1');
@@ -2909,4 +2911,30 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
 
+
+    function insert_defective_ledger_data($data){
+
+       $this->db->insert('spare_qty_mgmt',$data);
+       if($this->db->affected_rows() > 0){
+           $res = TRUE;
+       }else{
+           $res = FALSE;
+       }
+       
+       return $res;
+
+   }    
+   
+    function update_qty_ledger_mgmt($data,$where){
+
+       $this->db->where($where);
+       $this->db->update('spare_qty_mgmt',$data);
+       if($this->db->affected_rows() > 0){
+           $res = TRUE;
+       }else{
+           $res = FALSE;
+       }
+       
+       return $res;
+   }   
 }
