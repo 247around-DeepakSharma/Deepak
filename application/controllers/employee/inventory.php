@@ -7289,4 +7289,70 @@ class Inventory extends CI_Controller {
         echo $spare_action; 
     }
 
+
+    function view_part_type_return_mapping($action){
+        $this->miscelleneous->load_nav_header();
+        $data['action'] = $action;
+        $this->load->view('employee/view_part_type_return_mapping',$data);
+    }
+
+    function get_parttype_data($action){
+        log_message('info', __METHOD__.' Entering...');
+
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('appliance_id');
+
+        if($action == 'add'){
+            if($partner_id && $service_id){
+                $partner = $this->partner_model->getpartner($partner_id);
+                if($partner[0]['is_wh']){
+                    $part_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.inventory_id as id,inventory_master_list.type as part_type', array('inventory_master_list.service_id' => $service_id,'inventory_model_mapping.active' => 1));
+                }else{
+                    $x = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id as id,inventory_parts_type.part_type as part_type', array('service_id' => $service_id), TRUE);;
+                }
+
+                echo json_encode($part_type);
+            }else{
+                echo 'Both Partner And Appliance Need to be present';
+            }
+        }else if($action == 'edit'){
+            $part_type = $this->inventory_model->get_return_part_type_data('*',array('partner_id' => $partner_id, 'appliance_id' => $service_id));
+
+            echo json_encode($part_type);
+        }else{
+            echo 'Invalid Request';
+        }
+    }
+
+
+    function add_part_type_mapping(){
+        log_message('info', __METHOD__.' Entering...');
+
+        $data = $this->input->post('dataToAdd');
+
+        
+        $insert_batch = $this->inventory_model->insert_part_type_mapping_batch($data);
+
+        if($insert_batch){
+            echo 'success';
+        }else{
+            echo 'failed';
+        }
+    }
+
+    function update_part_type_mapping() {
+        log_message('info', __METHOD__.' Entering...');
+
+         $data = $this->input->post('dataToEdit');
+
+         foreach ($data as $key => $value) {
+             $data = array("is_return" => $value['is_return']);
+             $where = array('id' => $value['id']);
+             $update = $this->inventory_model->update_part_type_mapping($data,$where);
+         }
+
+         echo 'success';
+
+    }
+
 }

@@ -2836,6 +2836,57 @@ class Inventory_model extends CI_Model {
         
         return $res;
     }
+
+
+    function insert_part_type_mapping_batch($data){
+        log_message('info', __METHOD__. ' inserting part type mapping data in batch...');
+        log_message('info',__METHOD__. " data =  ".print_r($data,true));
+
+        $this->db->insert_ignore_duplicate_batch('part_type_return_mapping', $data);
+        
+        if($this->db->affected_rows() > 0){
+            $res = TRUE;
+        }else{
+            $res = FALSE;
+        }
+        
+        return $res;
+    }
+
+    /**
+     * @Desc: This function is used to get data from the return part_type mapping table
+     * @params: $post array
+     * @params: $select string
+     * @return: Object 
+     */
+    function get_return_part_type_data($select,$where) {
+
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->distinct();
+        $this->db->select($select, FALSE);
+        $this->db->from('part_type_return_mapping');
+        
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $query = $this->db->get();
+
+        return $query->result_array();
+    }
+
+    function update_part_type_mapping($data,$where){
+        $this->db->where($where);
+        
+        $this->db->update('part_type_return_mapping', $data);
+        
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+    }
     
 
 }
