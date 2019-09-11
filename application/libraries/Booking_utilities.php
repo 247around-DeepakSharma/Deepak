@@ -314,7 +314,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
         log_message("info", __METHOD__. " Booking id ". $booking_id. " Due ".$amount_due);
         $response = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_JOB_CARD, 0, $pocNumber);
         if($amount_due > 0){
-            $this->send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services, $partner_id);
+            $this->send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services, 0, $partner_id);
         }
         log_message("info", __METHOD__. " Booking id ". $booking_id. " Job QR Response ".print_r($response, true));
         $result = json_decode($response, TRUE);
