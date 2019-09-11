@@ -961,6 +961,7 @@ class User_invoice extends CI_Controller {
                     $response['meta']['sub_category'] = DEBIT_NOTE;
                     $response['meta']['accounting'] = 1;
                     $response['meta']['remarks'] = $remarks . " - " . $booking_id;
+                    $response['meta']['due_date'] = $response['meta']['invoice_date'];
 
 
                     $this->invoice_lib->insert_invoice_breackup($response);
