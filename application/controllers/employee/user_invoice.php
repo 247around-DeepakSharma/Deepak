@@ -954,6 +954,7 @@ class User_invoice extends CI_Controller {
                 $response['meta']['category'] = INSTALLATION_AND_REPAIR;
                 $response['meta']['sub_category'] = DEBIT_NOTE;
                 $response['meta']['accounting'] = 1;
+                $response['meta']['due_date'] = $response['meta']['invoice_date'];
                 
                 $this->invoice_lib->insert_invoice_breackup($response);
                 $vendor_invoice = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Debit Note", "vendor", $booking_data[0]['assigned_vendor_id'], $convert, $this->session->userdata('id'), HSN_CODE);
