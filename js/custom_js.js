@@ -636,6 +636,7 @@ function checkPriceTagValidation(delivered_price_tags){
         var repair_flag = false;
         var repair_out_flag = false;
         var installation_flag = false;
+        var amc_flag = false;
         var pdi = false;
         var extended_warranty = false;
         var pre_sales = false;
@@ -682,6 +683,11 @@ function checkPriceTagValidation(delivered_price_tags){
                     pdi = true;
                     array.push(pdi);
                 }
+                
+         if(findInArray(delivered_price_tags, 'AMC (Annual Maintenance Contract)') > -1 ){
+             amc_flag = true;
+             array.push(amc_flag);
+         }
                 
          if(array.length > 1){
              return false;
