@@ -1288,7 +1288,7 @@ class engineerApi extends CI_Controller {
                 $this->engineer_model->insert_engineer_action_sign($en);
             }
             $actor = $next_action = 'not_define';
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data["current_status"] , $data['internal_status'], "", $booking_id);
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data["current_status"] , $data['internal_status'], $requestData['partner_id'], $booking_id);
             if (!empty($partner_status)) {
                 $booking['partner_current_status'] = $partner_status[0];
                 $booking['partner_internal_status'] = $partner_status[1];
