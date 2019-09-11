@@ -161,7 +161,8 @@
             alert("Please Select Partner ");
             return false;
         }
-
+        
+        return false;
     }
 
     $(document).ready(function () {
