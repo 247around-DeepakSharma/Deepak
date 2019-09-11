@@ -248,11 +248,12 @@ class Engineer_model extends CI_Model {
     }
     
     function engineer_profile_data($enginner_id){
-        $sql = "SELECT engineer_details.*, GROUP_CONCAT(services SEPARATOR ', ') as appliances, entity_identity_proof.identity_proof_type, entity_identity_proof.identity_proof_number 
+        $sql = "SELECT engineer_details.*, GROUP_CONCAT(services SEPARATOR ', ') as appliances, entity_identity_proof.identity_proof_type, entity_identity_proof.identity_proof_number, service_centres.company_name, district 
                 FROM engineer_details 
                 JOIN entity_identity_proof on entity_identity_proof.entity_id = engineer_details.id AND entity_identity_proof.entity_type = 'engineer' 
                 JOIN engineer_appliance_mapping on engineer_appliance_mapping.engineer_id = engineer_details.id
                 JOIN services on services.id = engineer_appliance_mapping.service_id
+                JOIN service_centres on service_centres.id = engineer_details.service_center_id
                 WHERE engineer_details.id = '".$enginner_id."' GROUP BY engineer_appliance_mapping.engineer_id";
         $query = $this->db->query($sql);
         return $query->result_array();
