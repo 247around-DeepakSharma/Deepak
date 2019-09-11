@@ -40,8 +40,9 @@
                                     <th>S.No</th>
                                     <th>Appliance</th>
                                     <th>Model Number</th>
-                                    <th>Status</th>
-                                    <th style="width:250px;">Action</th>
+                                    <th>Part Number</th>
+                                    <th>BOM Status</th>
+                                    <th style="width:250px;">BOM Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -50,6 +51,7 @@
                                     <td><?php echo $sn; ?></td>
                                     <td><?php echo $value['services']; ?></td>
                                     <td><?php echo $value['model_number']; ?></td>
+                                    <td><?php echo $value['part_number']; ?></td>
                                     <td><?php if($value['active'] == 1 ){ echo 'Active'; } else { echo ' Inactive'; } ?></td>
                                     <td><?php 
                                     if($value['active'] == 1){ ?>
@@ -97,9 +99,9 @@
                     extend: 'excel',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 0, 1, 2]
+                        columns: [ 0, 1, 2,3,4]
                     },
-                    title: 'model_used_in_part_'+part_name+time
+                    title: 'bom_mapping_list_'+part_name+time
                 },
             ],
     });
@@ -113,11 +115,11 @@
                 var active_status = ''
                 if(is_active == 1){
                     status = '0';
-                   button_content = 'Activate';
+                   button_content = 'Deactivate';
                 }
                 if(is_active == '0'){
                    status = '1';
-                   button_content = 'Deactivate';
+                   button_content = 'Activate';
                 }
             
                 if(confirm("Are you sure you want to "+button_content+" ?")){
@@ -129,7 +131,10 @@
                      success:function(response){
                            if(response.status == true){
                                $("#success_message").html('Model Number ('+model_number+') Successfully '+button_content+' !');
-                                window.location.reload();
+                               setTimeout(function(){
+                                  window.location.reload();  
+                               },1500);
+                               
                            }     
                     }
                     }); 

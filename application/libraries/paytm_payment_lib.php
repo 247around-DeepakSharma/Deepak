@@ -327,7 +327,7 @@ class paytm_payment_lib {
         $to = QR_FAILURE_TO; 
         $subject = "QR code not generated For ".$bookingID;
         $message = "response - ".print_r($outputArray,true);
-        $this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",QR_NOT_GENERATED);
+        //$this->P_P->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",QR_NOT_GENERATED);
             log_message('error', __FUNCTION__ . "Function End With Failure ".$bookingID.print_r($outputArray,true));
               return array('is_success'=>0,'msg'=>QR_CODE_FAILURE,'data'=>array());
         }

@@ -167,6 +167,7 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
+        $data['defective_history'] = $this->inventory_model->getDefecvtive_history($booking_id);
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
         if($data['booking_history'][0]['dealer_id']){ 
             $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
@@ -1987,15 +1988,25 @@ class Partner extends CI_Controller {
                 . "spare_parts_details.model_number, spare_parts_details.quantity,spare_parts_details.serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id, booking_details.request_type, "
                 . "purchase_price, estimate_cost_given_date,booking_details.partner_id,"
-                . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status, requested_inventory_id";
+                . "booking_details.assigned_vendor_id,booking_details.service_id,spare_parts_details.parts_requested_type,spare_parts_details.part_warranty_status, requested_inventory_id,booking_details.service_id";
         $where['is_inventory'] = true;
         $data['spare_parts'] = $this->inventory_model->get_spare_parts_query($where);
+        
+        if(!empty($data['spare_parts'])){
+         $data['request_type'] =  $data['spare_parts'][0]->request_type; 
+        }
+        
         $where = array();
         if(!empty($data['spare_parts'])) {
             $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'inventory_model_mapping.active' => 1);
         }
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
-        $data['appliance_model_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
+        if(!empty($data['spare_parts'])) {
+        $where1 = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id);
+        
+        $data['appliance_model_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where1);
+        }
+        
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         
         
@@ -2017,8 +2028,8 @@ class Partner extends CI_Controller {
         if (!empty($this->input->post('courier_status'))) {
             $this->form_validation->set_rules('courier_name', 'Courier Name', 'trim|required');
             $this->form_validation->set_rules('awb', 'AWB', 'trim|required');
-            $this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
-            //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');  
+           //$this->form_validation->set_rules('incoming_invoice', 'Invoice', 'callback_spare_incoming_invoice');
+           //$this->form_validation->set_rules('partner_challan_number', 'Partner Challan Number', 'trim|required');  
             if ($part_warranty_status != SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                 $this->form_validation->set_rules('approx_value', 'Approx Value', 'trim|required|numeric|less_than[100000]|greater_than[0]');
             }
@@ -2065,14 +2076,19 @@ class Partner extends CI_Controller {
             $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
             }   
         }
-           
-        $shipped_part_details = $this->input->post("part");
+        
+        if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+            $is_file = $this->validate_invoice_data();
+        }
 
+        $shipped_part_details = $this->input->post("part");
+        
         if (!empty($shipped_part_details)) {
             $spare_id_array = array();
+            $invoide_data = array();
             $current_status = "";
             $internal_status = "";
-            foreach ($shipped_part_details as $key => $value) {
+            foreach ($shipped_part_details as $key => $value) {               
                 if ($value['shippingStatus'] == 1) {
                     //$data['status'] = SPARE_SHIPPED_BY_PARTNER;
                     /*
@@ -2096,17 +2112,29 @@ class Partner extends CI_Controller {
                     $data['shipped_quantity']=$value['shipped_quantity'];  
                     }
                     $data['remarks_by_partner'] = $value['remarks_by_partner'];
-                    if (!empty($value['inventory_id'])) {
-                        $data['shipped_inventory_id'] = $value['inventory_id'];
+                    if (!empty($value['requested_inventory_id'])) {
+                        $data['shipped_inventory_id'] = $value['requested_inventory_id'];
                     }
+                    
                     if (!empty($value['spare_id'])) {
                         $spare_id = $value['spare_id'];
                         $where = array('id' => $spare_id, 'partner_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING);
                         $response = $this->service_centers_model->update_spare_parts($where, $data);
                     } else {
+                        $data['defective_return_to_entity_id'] = $this->session->userdata('partner_id');
+                        $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                         $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
                     }
+                    
+                    if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
 
+                        if (!empty($spare_id)) {
+                            $invoide_data = array("invoice_id" => $value['invoice_id'],
+                                "spare_id" => $spare_id, "invoice_date" => $value['invoice_date'], "hsn_code" => $value['hsn_code'],
+                                "gst_rate" => $value['gst_rate'], "invoice_amount" => $value['invoiceamount'], "invoice_pdf" => $value['incoming_invoice']);
+                            $this->service_centers_model->insert_data_into_spare_invoice_details($invoide_data);
+                        }
+                    }
                     array_push($spare_id_array, $spare_id);
                     $current_status = "InProcess";
                     /*
@@ -2252,6 +2280,57 @@ class Partner extends CI_Controller {
         } else {
             return true;
         }
+    }
+    
+    
+    
+    function validate_invoice_data(){
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $booking_id = $this->input->post("booking_id");
+        $incoming_invoice = array();
+        if(!empty($_FILES['incominginvoice'])){
+            foreach($_FILES['incominginvoice']['name'] as $key1 => $val){
+                $a = array();
+                $a['name'] = $_FILES['incominginvoice']['name'][$key1];
+                $a['type'] = $_FILES['incominginvoice']['type'][$key1];
+                $a['tmp_name'] = $_FILES['incominginvoice']['tmp_name'][$key1];
+                $a['error'] = $_FILES['incominginvoice']['error'][$key1];
+                $a['size'] = $_FILES['incominginvoice']['size'][$key1];
+                $incoming_invoice[$key1] = $a;
+                //array_push($defective_parts, $a);
+            }
+            
+        }
+       
+        $message['code'] = true;
+        if(!empty($incoming_invoice)){
+            foreach($incoming_invoice as $key => $value){
+                $d = $this->miscelleneous->upload_file_to_s3($value, 
+                    "sp_parts_invoice", $allowedExts, $booking_id, "invoices-excel", "incoming_invoice_pdf");
+                if(!empty($d)){
+                    $_POST['part'][$key]['incoming_invoice'] = $d;
+                } else {
+                    $message['code'] = false;
+                    $message['message'] = "Defective Front Parts Image is not supported. Allow maximum file size is 2 MB. It supported only PNG/JPG";
+                    break;
+                }
+            }
+        } else {
+            $message['code'] = false;
+            $message['message'] = "Please upload Defective Front Parts Image";
+        }
+        
+        if(!empty($message['code'])){
+                $template = $this->booking_model->get_booking_email_template("OOW_invoice_sent");
+                if (!empty($template)) {
+                    $attachment = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $d;
+                    $subject = vsprintf($template[4], $booking_id);
+                    $emailBody = vsprintf($template[0], $this->input->post("invoice_amount"));
+                    $this->notify->sendEmail($template[2], $template[1], $template[3], '', $subject, $emailBody, $attachment,'OOW_invoice_sent', "", $booking_id);
+                } 
+        }
+       
+        return $message;
     }
 
     function download_spare_parts() {
@@ -2496,6 +2575,9 @@ class Partner extends CI_Controller {
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED,
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
+        
+        
+        
         if ($response) {
 
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
@@ -2576,7 +2658,7 @@ class Partner extends CI_Controller {
      * @param int $partner_id
      * @param int $is_cron
      */
-    function acknowledge_defective_parts_sent_by_wh($spare_id, $booking_id, $partner_id, $is_cron = ""){
+    function acknowledge_defective_parts_sent_by_wh($spare_id, $booking_id, $partner_id, $is_cron = "", $spare_qty_mgmt_id = ''){
         log_message('info', __METHOD__ . " Spare ID ".$spare_id);
         if (empty($is_cron)) {
             $this->checkUserSession();
@@ -2585,6 +2667,11 @@ class Partner extends CI_Controller {
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH,
             
             'received_defective_part_date' => date("Y-m-d H:i:s")));
+        
+        if(!empty($spare_qty_mgmt_id)) {
+            $this->inventory_model->update_qty_ledger_mgmt(['status' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH], ['id' => $spare_qty_mgmt_id, 'spare_id' => $spare_id]);
+        }
+        
         if($response){
             
             $psendUrl = base_url().'employee/invoice/generate_reverse_micro_purchase_invoice/'.$spare_id;
@@ -2607,7 +2694,7 @@ class Partner extends CI_Controller {
      * @param Sting $booking_id
      * @param Urlencoded $status (Rejection Reason)
      */
-    function reject_defective_part_sent_by_wh($spare_id, $booking_id, $status){
+    function reject_defective_part_sent_by_wh($spare_id, $booking_id, $status, $spare_qty_mgmt_id = ''){
         log_message('info', __METHOD__ . " Spare ID ".$spare_id);
         $this->checkUserSession();
         $rejection_reason = base64_decode(urldecode($status));
@@ -2615,6 +2702,11 @@ class Partner extends CI_Controller {
             'remarks_defective_part_by_partner' => $rejection_reason,
             'defective_part_rejected_by_partner'=>1,
             'approved_defective_parts_by_partner' => '0'));
+        
+        if(!empty($spare_qty_mgmt_id)) {
+            $this->inventory_model->update_qty_ledger_mgmt(['status' => DEFECTIVE_PARTS_REJECTED], ['id' => $spare_qty_mgmt_id, 'spare_id' => $spare_id]);
+        }
+        
         if ($response) {
            
             $actor = ACTOR_NOT_DEFINE;
@@ -5269,7 +5361,9 @@ class Partner extends CI_Controller {
         }
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Waiting_Upcountry_Bookings_".date("Y-m-d"));
     }
+    
     function download_spare_part_shipped_by_partner($isAdmin=0,$partner_post=0){
+        ini_set('memory_limit', '-1');
         ob_start();
         $where = '1';
         if($isAdmin == 0 && $partner_post==0) {
@@ -5285,10 +5379,37 @@ class Partner extends CI_Controller {
              $where = "booking_details.partner_id = '" . $partner_id . "' ";
             
          }
+         
+          $where .= " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
+          
+          $this->gotToDownloadCSV($where);
+         
+    }
+    
+    function download_all_spare_parts($isAdmin = 0, $partner_post = 0) {
+           
+        ob_start();
+        $where = '1';
+        if ($isAdmin == 0 && $partner_post == 0) {
+            log_message('info', __FUNCTION__ . ' Function Start For Partner ' . $this->session->userdata('partner_id'));
+            $this->checkUserSession();
+            $partner_id = $this->session->userdata('partner_id');
+            $where = "booking_details.partner_id = '" . $partner_id . "' ";
+        } else {
+            $this->checkEmployeeUserSession();
+            $partner_id = $partner_post;
+            $where = "booking_details.partner_id = '" . $partner_id . "' ";
+        }
+
+        //$where .= " AND status != 'Cancelled'";
+                
+        $this->gotToDownloadCSV($where);
+    }
+
+    function gotToDownloadCSV($where){
+        ini_set('memory_limit', '-1');
         $CSVData = array();
-        
-        $where .= " AND status != 'Cancelled' AND parts_shipped IS NOT NULL  ";
-        
+                
         $data= $this->partner_model->get_spare_parts_booking_list($where, NULL, NULL, true);
         $headings = array("Booking ID",
             "Booking Create Date",
@@ -5308,12 +5429,15 @@ class Partner extends CI_Controller {
             "SF Remarks",
             "Requested Part Code",
             "Requested Part Name",
+            "Requested Model Number",
             "Requested Quantity",
             "Requested Part Type",
             "Requested Part Date",
+            "Date Of Purchase",
             "Parts Charge",
             "Dispatched Part Code (To SF)",
             "Dispatched Part Name (To SF)",
+            "Dispatched Model Number (To SF)",
             "Dispatched Quantity (To SF)",
             "Dispatched Part Type (To SF)",
             "Dispatched Part Date (To SF)",
@@ -5331,6 +5455,7 @@ class Partner extends CI_Controller {
             "SF Challan Number",
             "SF AWB Number (Defective Shipped)",
             "Is Spare Auto Acknowledge By SF",
+            "Consumption"
             );
         
         foreach($data as $sparePartBookings){
@@ -5353,12 +5478,15 @@ class Partner extends CI_Controller {
             $tempArray[] = $sparePartBookings['remarks_by_sc'];
             $tempArray[] = $sparePartBookings['part_number'];
             $tempArray[] = $sparePartBookings['part_name'];
+            $tempArray[] = $sparePartBookings['model_number'];
             $tempArray[] = $sparePartBookings['quantity'];
             $tempArray[] = $sparePartBookings['type'];
             $tempArray[] = ((!empty($sparePartBookings['date_of_request']))?date("d-m-Y",strtotime($sparePartBookings['date_of_request'])):'');
+            $tempArray[] = ((!empty($sparePartBookings['date_of_purchase']))?date("d-m-Y", strtotime($sparePartBookings['date_of_purchase'])):'');
             $tempArray[] = $sparePartBookings['challan_approx_value'];
             $tempArray[] = $sparePartBookings['shipped_part_number'];
             $tempArray[] = $sparePartBookings['shipped_part_name'];
+            $tempArray[] = $sparePartBookings['model_number_shipped'];
             $tempArray[] = $sparePartBookings['shipped_quantity'];
             $tempArray[] = $sparePartBookings['shipped_part_type'];
             $tempArray[] = ((!empty($sparePartBookings['shipped_date']))?date("d-m-Y",strtotime($sparePartBookings['shipped_date'])):'');
@@ -5380,11 +5508,19 @@ class Partner extends CI_Controller {
              }else{
             $tempArray[] = "No";   
              }
+            
+             if($sparePartBookings['consumption']==1){
+            $tempArray[] = "Yes";   
+             }else{
+            $tempArray[] = "No";   
+             }
+             
             $CSVData[]  = $tempArray;            
         }  
 
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Shipped_By_Partner_".date("Y-m-d"));
     }
+    
     function download_spare_part_shipped_by_partner_not_acknowledged(){
         ob_start();
         log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
@@ -6196,6 +6332,7 @@ class Partner extends CI_Controller {
         echo json_encode($res);
     }
     function download_real_time_summary_report($partnerID){
+        ini_set('memory_limit', '-1');
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0);
@@ -6463,7 +6600,7 @@ class Partner extends CI_Controller {
             $state = 1;
             $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
         }
-        $select = "spare_parts_details.booking_id,spare_parts_details.quantity,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
+        $select = "spare_parts_details.booking_id,GROUP_CONCAT(spare_parts_details.quantity) as quantity,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "
@@ -6556,24 +6693,28 @@ class Partner extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
-            . ' AND status = "'.DEFECTIVE_PARTS_SHIPPED.'" ) OR '
+            . ' AND status IN("'.DEFECTIVE_PARTS_SHIPPED.'","'.DEFECTIVE_PARTS_SHIPPED_PENDING.'")  ) OR '
             . '(booking_details.current_status ="'._247AROUND_COMPLETED.'" AND '
             . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
             . 'AND spare_parts_details.status = "'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'"))' => NULL
         );
+
+       // print_r($where);  exit;
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
        }
        if($this->input->post('booking_id')){
            $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
        }
-        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, "
+        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, spare_qty_mgmt.qty, spare_qty_mgmt.id as spare_qty_mgmt_id, "
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
-                . ",spare_parts_details.sf_challan_file,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number";
-        $group_by = "spare_parts_details.id";
-        $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length']);
+                . ",spare_parts_details.sf_challan_file,IFNULL(spare_qty_mgmt.qty,1) as qty,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number";
+        //$group_by = "spare_qty_mgmt.spare_id";
+                $group_by =FALSE;
+        $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length'],0,NULL,TRUE);
+
          $bookingCount = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
          $sn = $postData['start'];
          foreach ($bookingData as  $row) {
@@ -6586,6 +6727,8 @@ class Partner extends CI_Controller {
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'] ."</span>";
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";
                     $tempArray[] = "<span>". $row['quantity'] ."</span>";
+
+                    $tempArray[] = "<span>". $row['qty'] ."</span>";
                     $tempArray[] = $row['courier_name_by_sf'];
                     $courier_name_by_sf = "'".$row['courier_name_by_sf']."'";
                     $awb_by_sf = "'".$row['awb_by_sf']."'";
@@ -6625,12 +6768,12 @@ class Partner extends CI_Controller {
                             
                         if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH){
                             $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
-                                               href='.base_url().'partner/acknowledge_defective_parts_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
+                                               href='.base_url().'partner/acknowledge_defective_parts_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").'/0/'.$row['spare_qty_mgmt_id'].' '.$tempString5.'>Receive</a>';
                     
                             
                         } else {
                             $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
-                                               href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
+                                               href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").'/0/'.$row['spare_qty_mgmt_id'].' '.$tempString5.'>Receive</a>';
                     
                         }
                     }
@@ -6638,10 +6781,10 @@ class Partner extends CI_Controller {
                      if (!empty($row['defective_part_shipped'])) {
                             foreach ($internal_status as $value) {
                                 if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH){
-                                  $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'</a></li>';
+                                  $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'/'.$row['spare_qty_mgmt_id'].'</a></li>';
                                   $tempString7 = $tempString7.'<li class="divider"></li>';
                                 } else {
-                                    $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'</a></li>';
+                                    $tempString7 = $tempString7.'<li><a href='.base_url().'partner/reject_defective_part/'.$row['id'].'/'.$row['booking_id'].'/'.urlencode(base64_encode($value->status)).'>'.$value->status.'/'.$row['spare_qty_mgmt_id'].'</a></li>';
                                   $tempString7 = $tempString7.'<li class="divider"></li>';
                                 }
                              } 
@@ -6808,8 +6951,16 @@ class Partner extends CI_Controller {
       if($this->session->userdata('is_filter_applicable') == 1){
             $state = 1;
       }
-      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"parts_shipped",
-          "column_4"=>"courier_name_by_partner","column_5"=>"awb_by_partner","column_7"=>"shipped_date");    
+      $columnMappingArray = array(
+          "column_1"=>"spare_parts_details.booking_id",
+          "column_5"=>"date_of_purchase",
+          "column_6"=>"parts_shipped",
+          "column_7"=>"part_number",
+          "column_8"=>"quantity",
+          "column_10"=>"courier_name_by_partner",
+          "column_13"=>"shipped_date",
+          "column_14"=>"remarks_by_partner"
+      );
      $order_by = "ORDER BY shipped_date DESC";
       if(array_key_exists("order", $postData)){
             $order_by = "ORDER BY ".$columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
@@ -6833,9 +6984,12 @@ class Partner extends CI_Controller {
                     $tempArray[] = $sn;
                     $tempArray[] = ' <a style="color:blue;"  href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
                     $tempArray[] = $row['name'];
+                    $tempArray[] = $row['services'];
+                    $tempArray[] = $row['model_number'];
+                    $tempArray[] = $row['date_of_purchase'];
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['parts_shipped'] ."</span>";
-                    $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";     
-                    $tempArray[] = "<span>". $row['quantity'] ."</span>"; 
+                    $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";
+                    $tempArray[] = "<span>". $row['quantity'] ."</span>";
                     $tempArray[] = $row['shipped_quantity'];
                     $tempArray[] = $row['courier_name_by_partner'];
                     $tempArray[] = $row['awb_by_partner'];
@@ -6865,8 +7019,14 @@ class Partner extends CI_Controller {
         if($this->session->userdata('is_filter_applicable') == 1){
           $state = 1;
         }
-      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"CONCAT('',GROUP_CONCAT((parts_shipped ) ))",
-          "column_4"=>"courier_name_by_partner","column_5"=>"awb_by_partner","column_8"=>"DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date))");    
+      $columnMappingArray = array(
+            "column_1"=>"spare_parts_details.booking_id",
+            "column_5"=>"spare_parts_details.date_of_purchase",
+            "column_6"=>"defective_part_shipped",
+            "column_8"=>"spare_parts_details.quantity",
+            "column_11"=>"spare_parts_details.partner_challan_number",
+            "column_12"=>"DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date))"
+      );    
       $order_by = "spare_parts_details.defective_part_shipped_date DESC";
       if(array_key_exists("order", $postData)){
             $order_by = $columnMappingArray["column_".$postData['order'][0]['column']] ." ". $postData['order'][0]['dir'];
@@ -6875,7 +7035,7 @@ class Partner extends CI_Controller {
                $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "booking_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "','".DEFECTIVE_PARTS_SHIPPED_PENDING."' ,'".DEFECTIVE_PARTS_REJECTED."')  " => NULL
         );
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
@@ -6883,9 +7043,15 @@ class Partner extends CI_Controller {
        if($this->input->post('booking_id')){
            $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
        }
-        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, "
-                . " spare_parts_details.booking_id,spare_parts_details.quantity, users.name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging,spare_parts_details.courier_name_by_partner, "
-                . "spare_parts_details.awb_by_partner,spare_parts_details.partner_challan_number, i.part_number";
+        $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped,"
+                ." spare_parts_details.booking_id,"
+                ."spare_parts_details.date_of_purchase as 'dop',"
+                ." spare_parts_details.model_number as 'model',"
+                ."spare_parts_details.date_of_purchase as 'dop',"
+                ." spare_parts_details.shipped_quantity, services.services as 'product_name',"
+                ." users.name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging,"
+                ." spare_parts_details.courier_name_by_partner,"
+                ." spare_parts_details.awb_by_partner,spare_parts_details.partner_challan_number, i.part_number";
         $group_by = "spare_parts_details.booking_id";
         $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length'],$state);
         $bookingCount =  $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
@@ -6897,9 +7063,12 @@ class Partner extends CI_Controller {
                     $tempArray[] = $sn;
                     $tempArray[] = '<a  style="color:blue" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';  
                     $tempArray[] = $row['name'];
+                    $tempArray[] = $row['product_name'];
+                    $tempArray[] = $row['model'];
+                    $tempArray[] = $row['dop'];
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'].'</span>';
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'].'</span>';
-                    $tempArray[] = $row['quantity'];
+                    $tempArray[] = $row['shipped_quantity'];
                     $tempArray[] = $row['courier_name_by_partner'];
                     $tempArray[] = $row['awb_by_partner'];
                     if(!empty($row['partner_challan_file'])) {
@@ -8259,9 +8428,21 @@ class Partner extends CI_Controller {
             'remark'=>trim($remarks)
         );
 
- 
+ $where_shipped = array('booking_id' => trim($booking_id),'shipped_date IS NOT NULL'=>NULL);
+ $check_shipped_status = $this->partner_model->get_spare_parts_by_any("*",$where_shipped);
         $response = $this->partner_model->insert_nrn_approval($data_nrn);
-        if ($response) {
+        if ($response  && empty($check_shipped_status)) {
+
+            $select_invemtory = "partner_id,requested_inventory_id,quantity,booking_id,status,entity_type";
+            $where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
+            $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
+
+            foreach ($spare_inventory_update as  $update_pending) {
+                 
+                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
+            }
+
+        
                 $where = array('booking_id' => trim($booking_id));
                 $data = array(
                     'status'=>NRN_APPROVED_BY_PARTNER,
@@ -8284,8 +8465,8 @@ class Partner extends CI_Controller {
                 $this->booking_model->update_booking($booking_id, $booking);
 
                $data_service_center=array(
-                		'current_status'=>_247AROUND_PENDING,
-                		'internal_status'=>NRN_APPROVED_BY_PARTNER
+                        'current_status'=>_247AROUND_PENDING,
+                        'internal_status'=>NRN_APPROVED_BY_PARTNER
                 );
                $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
 
@@ -8300,7 +8481,4 @@ class Partner extends CI_Controller {
 
 
 
-
-
-   
 }

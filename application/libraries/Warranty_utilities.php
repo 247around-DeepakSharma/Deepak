@@ -30,9 +30,27 @@ class Warranty_utilities {
         }
         
         foreach ($arrBookings as $booking_id => $rec_data) {
-            $arrWhere["(appliance_model_details.model_number = '".$rec_data['model_number']."' and date(warranty_plans.period_start) <= '".$rec_data['purchase_date']."' and date(warranty_plans.period_end) >= '".$rec_data['purchase_date']."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
-        }   
-        $arrWarrantyData = $this->My_CI->warranty_model->get_warranty_data($arrWhere);
+            // Calculate Purchase Date
+            // Used in case data is read from excel
+            if (DateTime::createFromFormat('Y-m-d', $rec_data['purchase_date']) === FALSE) {
+                $rec_data['purchase_date'] = (double) $rec_data['purchase_date'];
+                $unix_date = ($rec_data['purchase_date'] - 25569) * 86400;
+                $excel_date = (25569) + ($unix_date / 86400);
+                $unix_date = ($excel_date - 25569) * 86400;
+                $rec_data['purchase_date'] = date('Y-m-d', $unix_date);
+            }
+            
+            // if Service Id is there, get service specific plans also
+            if(!empty($rec_data['service_id']))
+            {
+                $arrOrWhere["((appliance_model_details.model_number = '".trim($rec_data['model_number'])."' OR (warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL)) and date(warranty_plans.period_start) <= '".$rec_data['purchase_date']."' and date(warranty_plans.period_end) >= '".$rec_data['purchase_date']."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+            }
+            else
+            {
+                $arrOrWhere["(appliance_model_details.model_number = '".$rec_data['model_number']."' and date(warranty_plans.period_start) <= '".$rec_data['purchase_date']."' and date(warranty_plans.period_end) >= '".$rec_data['purchase_date']."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+            }            
+        }    
+        $arrWarrantyData = $this->My_CI->warranty_model->get_warranty_data($arrOrWhere);        
         return $arrWarrantyData;
     }
     
@@ -134,5 +152,31 @@ class Warranty_utilities {
             $warrantyStatus = 'EW';      
         endif; 
         return $warrantyStatus;
+    }
+    
+    /**
+     * this function is used to get the warranty status of booking
+     * @author Prity Sharma
+     * @date 20-08-2019
+     * @return JSON
+     */
+    public function get_warranty_status_of_bookings($arrBookings){  
+        $arrWarrantyData = $this->get_warranty_data($arrBookings);  
+        $arrModelWiseWarrantyData = $this->get_model_wise_warranty_data($arrWarrantyData);         
+        foreach($arrBookings as $key => $arrBooking)
+        {            
+            $model_number = trim($arrBooking['model_number']);
+            if(!empty($arrModelWiseWarrantyData[$model_number]))
+            {   
+                $arrBookings[$key] = $this->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$model_number]);
+            }
+            elseif (!empty($arrBooking['service_id']) && !empty($arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']])) {
+                $arrBookings[$key] = $this->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData['ALL'.$arrBooking['service_id']]);
+            }
+            $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
+            unset($arrBookings[$key]);
+        }
+        $arrBookingsWarrantyStatus = $this->get_bookings_warranty_status($arrBookings);   
+        return $arrBookingsWarrantyStatus;
     }
 }

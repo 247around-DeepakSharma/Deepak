@@ -58,7 +58,7 @@ class Booking_utilities {
 
             $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
             $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
-            $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services']);
+            $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services'], $booking_details[0]['partner_id']);
             $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1', 'booking_status != "Cancelled" ' => NULL);
             
             $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
@@ -183,7 +183,7 @@ class Booking_utilities {
             else{
                 $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
                 $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
-                $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services']);
+                $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services'], $booking_details[0]['partner_id']);
             }
             $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1', 'booking_status != "Cancelled" ' => NULL);
             $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
@@ -274,7 +274,7 @@ class Booking_utilities {
         }
         log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
     }
-    function send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services,$regenrate_flag=0){
+    function send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services,$regenrate_flag=0, $partner_id = false){
         $userDownload = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_SMS, 0, $pocNumber,$regenrate_flag);
             log_message("info", __METHOD__. " Booking id ". $booking_id. " User QR Response ".print_r($userDownload, true));
             $user = json_decode($userDownload, TRUE);
@@ -286,6 +286,17 @@ class Booking_utilities {
                     $sms['tag'] = "customer_qr_download";   
                     $sms['smsData']['services'] = $services;
                     $sms['smsData']['url'] = $tinyUrl;
+                    if($partner_id){
+                        if($partner_id == VIDEOCON_ID){
+                            $sms['smsData']['cc_number'] = "0120-4500600";
+                        }
+                        else{
+                           $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
+                        }
+                    }
+                    else{
+                        $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
+                    }
                     $sms['phone_no'] = $userPhone;
                     $sms['booking_id'] = $booking_id;
                     $this->My_CI->notify->send_sms_msg91($sms);
@@ -303,11 +314,11 @@ class Booking_utilities {
      * @param String $pocNumber
      * @return boolean
      */
-function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $userPhone, $services){
+function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $userPhone, $services, $partner_id){
         log_message("info", __METHOD__. " Booking id ". $booking_id. " Due ".$amount_due);
         $response = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_JOB_CARD, 0, $pocNumber);
         if($amount_due > 0){
-            $this->send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services);
+            $this->send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services, 0, $partner_id);
         }
         log_message("info", __METHOD__. " Booking id ". $booking_id. " Job QR Response ".print_r($response, true));
         $result = json_decode($response, TRUE);
@@ -412,7 +423,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
 
    function get_booking_report_by_service_center_data($sf_list, $interval_in_days, $sf_closed_date = NULL) {
 
-       $data = $this->My_CI->reporting_utils->get_booking_by_service_center($sf_list, $interval_in_days, $sf_closed_date);
+       $data = $this->My_CI->reporting_utils->get_booking_by_service_center($sf_list, $interval_in_days);
        
        foreach ($data['service_center_id'] as $key => $val) {
            
@@ -982,6 +993,38 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
         } 
         return $c2c_enable;
         
+    }
+    
+    function get_booking_request_type($price_tag)
+    {
+        $newRequest = "";
+        if (!empty($price_tag)) {
+            $results = array_filter($price_tag, function($value) {
+                if ((stripos($value, 'Installation') !== false) || (stripos($value, 'Repair') !== false) || (stripos($value, 'Extended') !== false) || (stripos($value, 'AMC') !== false)) {
+                    return $value;                    
+                } else {
+                    return false;
+                }
+            });
+
+            if (!empty($results)) {
+                $newRequest = array_values($results)[0];
+            } else {
+                $newRequest = $price_tag[0];
+            }
+        }
+        return $newRequest;
+    }
+    
+    function is_spare_requested($booking){
+        if(array_key_exists('spare_parts',$booking['booking_history'])){
+            foreach($booking['booking_history']['spare_parts'] as $values){
+                if($values['status'] != _247AROUND_CANCELLED){
+                     return true;
+                }
+            }
+        }
+        return false;
     }
 
 }

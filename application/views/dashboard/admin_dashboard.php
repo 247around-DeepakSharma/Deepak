@@ -8,6 +8,16 @@
         color: #4b5561 !important;
         float:right;
     }
+    tr[id^='arm_table_']{
+        background-color:#5997aa !important;
+    }
+    .sub-table{
+        width:98%;
+        margin:auto;
+    }
+    table.sub-table thead{
+        background:#8cc6ab;
+    }
 </style>
 <!-- page content -->
 <div class="right_col ngCloak" role="main" ng-app="admin_dashboard">
@@ -125,6 +135,7 @@
                             <th>D5 - D7</th>
                              <th>D8 - D15</th>
                              <th>> D15</th>
+                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -166,8 +177,9 @@
                            <td style="padding: 4px 12px;">{{completedBookingByRM.leg_1[$index].TAT_16}} ({{completedBookingByRM.leg_1[$index].TAT_16_per}}%)<br>
                                {{completedBookingByRM.leg_2[$index].TAT_16}} ({{completedBookingByRM.leg_2[$index].TAT_16_per}}%)<br>
                                {{completedBookingByRM.TAT[$index].TAT_16}} ({{completedBookingByRM.TAT[$index].TAT_16_per}}%) </td>
+                               <td></td>
                         </tr>
-                        <tr ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 == undefined'>
+                        <tr data-rm-row-id="{{x.id}}" ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 == undefined'>
                            <td>{{$index+1}}</td>
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">{{x.entity}}</button></td>
@@ -179,6 +191,12 @@
                            <td>{{x.TAT_5}}  ({{x.TAT_5_per}}%) </td>
                            <td>{{x.TAT_8}}  ({{x.TAT_8_per}}%)</td>
                            <td>{{x.TAT_16}}  ({{x.TAT_16_per}}%)</td>
+                           <td ng-if="x.id == '00'"></td>
+                           <td ng-if="x.id != '00'"e>
+                                <span class="collape_icon toggle-arm-details" data-rm-id="{{x.id}}" onclick="get_arm_details_for_rm($(this).data('rm-id'))">
+                                    <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>
+                                </span>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -1715,6 +1733,80 @@
          $('#missing_am_booking_loader').hide();
         $("#am_report").html(response);
         });
+    }
+    function get_arm_details_for_rm(rm_id){
+        if($("#arm_table_"+ rm_id).length>0){
+            if($("#arm_table_"+ rm_id).is(":hidden")){
+                $("span[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-up");
+            }else{
+                $("span[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-up").addClass("fa-chevron-circle-down");
+            }
+            $("#arm_table_"+ rm_id).slideToggle();
+            return false;
+        }
+        $("span[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-up");
+        var html = "<tr id='arm_table_"+ rm_id +"'><td class='text-center' colspan=11><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
+        $("tr[data-rm-row-id='"+ rm_id+ "']").after(html);
+        dateRange = $("#completed_daterange_id").val();
+        dateArray = dateRange.split(" - ");
+        startDate = dateArray[0];
+        endDate = dateArray[1];
+        status = $("#completed_status").val();
+        service_id = $("#service_id").val();
+        partner_id = $("#partner_id").val();
+        request_type = getMultipleSelectedValues("request_type");
+        free_paid = $("#free_paid").val();
+        upcountry = $("#upcountry").val();
+        if(!status){
+            status = "not_set";
+        }
+        if(!service_id){
+            service_id = "not_set";
+        }
+        if(!request_type){
+            request_type = "not_set";
+        }
+        if(!free_paid){
+            free_paid = "not_set";
+        }
+         if(!upcountry){
+            upcountry = "not_set";
+        }
+        if(!partner_id){
+            partner_id = "not_set";
+        }
+        
+        url =  baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/ARM/0/"+partner_id;
+        var data = {rm:rm_id};
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_arm_tat_report_table(rm_id, JSON.parse(response));
+        });
+    }
+    function create_arm_tat_report_table(tableRow,data){
+        if(!!data.TAT && data.TAT.length>0){
+            html='<table class="table table-striped table-bordered sub-table">'
+                    +'<thead><tr><th>S.no</th><th>RM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
+            for(var i in data.TAT){
+                html += '<tr>';
+                html += "<td>"+ (parseInt(i)+1)+ "</td>";
+                html += "<td><button type='button' id='vendor_"+ data.TAT[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')\">"+ data.TAT[i].entity+ "</button></td>";
+                html += "<td>"+ data.TAT[i].TAT_0+ "("+ data.TAT[i].TAT_0_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_1+ "("+ data.TAT[i].TAT_1_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_2+ "("+ data.TAT[i].TAT_2_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_3+ "("+ data.TAT[i].TAT_3_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_4+ "("+ data.TAT[i].TAT_4_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_5+ "("+ data.TAT[i].TAT_5_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_8+ "("+ data.TAT[i].TAT_8_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_16+ "("+ data.TAT[i].TAT_16_per+ "%)</td>";
+                html += '</tr>';
+            }
+            html = "<td colspan=11>"+ html+ "</td>"
+            $("#arm_table_"+ tableRow).empty().html(html);
+        }else{
+            $("#arm_table_"+ tableRow).remove();
+            $("span[data-rm-id='"+ tableRow+ "']").find("i").removeClass("fa-chevron-circle-up").addClass("fa-chevron-circle-down");
+            alert("No/Invalid data recieved from server. Please try again.");
+        }
     }
     
     function partner_booking_status(startDate,endDate){ 

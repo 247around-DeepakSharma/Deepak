@@ -49,7 +49,7 @@
                                     <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_primary_contact_no'])) {echo $bookinghistory[0]['booking_primary_contact_no']; }?>"  disabled>
                                 </td>
                                 <?php if(isset($saas_module) && (!$saas_module)) { ?>
-                                       <td><center><a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="height: 29px;width: 36px;" class="btn btn-sm btn-success"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a></center></td>
+                                       <td><center><a target="_blank" id="change_request_type" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="height: 29px;width: 36px;" class="btn btn-sm btn-success"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a></center></td>
                                 <?php } ?>                                    
                                 <td>
                                         <?php 
@@ -121,9 +121,10 @@
                             <?php } ?>
                         </div>
                     </div>
-                    <input type="hidden" name="days" value="<?php echo $days; ?>" />                     
-                    <div class="panel panel-default col-md-offset-2" id="hide_spare" >
-                        <div class="panel-body" >
+                    <input type="hidden" name="days" value="<?php echo $days; ?>" />    
+                    <div class="row"><div class='col-md-2'></div><div class="col-md-10 errorMsg" style="font-weight:bold;padding:15px;"></div></div>
+                    <div class="panel panel-default col-md-offset-2" id="hide_spare" >                        
+                        <div class="panel-body">
                             <div class="row">
                                 <div class = 'col-md-6'>
                                     <div class="form-group">
@@ -137,7 +138,7 @@
                                                 <?php } ?>
                                             </select>
                                             
-                                            <input type="hidden" id="model_number" name="model_number" value="<?php echo $unit_model_number; ?>">
+                                            <input type="hidden" id="model_number" name="model_number" value="<?php echo trim($unit_model_number); ?>">
                                             
                                         </div>
                                         <?php } else { ?> 
@@ -153,7 +154,7 @@
                                         <label for="dop" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && !empty($purchase_date)){ echo $purchase_date; } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
+                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ echo date('Y-m-d', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -294,7 +295,7 @@
                                         <div class="form-group">
                                             <label for="quantity" class="col-md-4">Quantity *</label>
                                             <div class="col-md-6">
-                                                <input type="text"    value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                                <input type="number" min="1"   value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
                                             </div>
                                         </div>
                                     </div>
@@ -394,7 +395,7 @@
                                             <div class="form-group">
                                                 <label for="quantity" class="col-md-4">Quantity *</label>
                                                 <div class="col-md-6">
-                                                    <input type="text"   value="1" class="form-control  spare_parts" id="quantity" >
+                                                    <input type="number" min="1"  value="1" class="form-control  spare_parts" id="quantity" >
                                                 </div>
                                             </div>
                                         </div>
@@ -439,10 +440,10 @@
         </div>
     </div>
 </div>
-<?php $arr_warranty_status = ['IW' => ['In Warranty'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];?>
+<?php $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];?>
 <script type="text/javascript">
 var arr_warranty_status = <?php echo json_encode($arr_warranty_status); ?>;    
-    
+var arr_warranty_status_full_names = <?php echo json_encode(['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty']) ?>;    
     
 function alpha(e) {
    var k;
@@ -501,7 +502,7 @@ function alpha(e) {
                 $('#model_number').val(model_number);
                 $.ajax({
                     method:'POST',
-                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type',
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type/1',
                     data: { model_number_id:model_number_id},
                     success:function(data){
                         $('.parts_type').val('val', "");
@@ -542,7 +543,7 @@ function alpha(e) {
             if(model_number_id && part_type){
                 $.ajax({
                     method:'POST',
-                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_name',
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_name/1',
                     data: {model_number_id:model_number_id,entity_id: '<?php echo $bookinghistory[0]['partner_id']?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $bookinghistory[0]['service_id']; ?>', part_type:part_type},
                     success:function(data){
                         console.log(data);
@@ -564,7 +565,7 @@ function alpha(e) {
             success:function(data){
                 if(data){
                     $("#appliance_model_div").empty();
-                    var html = "<select class='form-control spare_parts' id='model_number_id' name='model_number_id' onchange='model_number_text()'>";
+                    var html = "<select class='form-control spare_parts' id='model_number_id' name='model_number_id' onchange='model_number_text();check_booking_request()'>";
                         html += data;
                         html += "</select>";
                         html += "<input type='hidden' id='model_number' name='model_number'>";
@@ -920,13 +921,20 @@ function alpha(e) {
        {
         var id = $(this).attr("id");
         var str_arr =id.split("_");
-        indexId = str_arr[2]; 
+        var indexId = str_arr[2]; 
         var val = parseInt($(this).val());
-        var max = parseInt($("#parts_name_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
+        if (val>0) {
+         var max = parseInt($("#parts_name_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
         if(val>max){
          $(this).val("1");
-         alert("Please enter less than or equal to  " +max);
-        } 
+         swal("Error !", "Maximum quantity'allowed to ship is : "+max);
+        }
+        }else{
+        $(this).val("1");
+        swal("Error !", "Quantity can only be positive value");
+
+        }
+
        });
     
     
@@ -947,10 +955,11 @@ function alpha(e) {
     {
         var model_number = $('#model_number').val();
         var dop = $("#dop").val();
-        if(model_number !== "" && model_number !== null && dop !== ""){                  
-            var booking_id = "<?= $bookinghistory[0]['booking_id']?>";
-            var booking_request_type = "<?= $bookinghistory[0]['request_type']?>";  
-            var warranty_mismatch_flag = false;
+        var partner_id = "<?= $bookinghistory[0]['partner_id']?>";
+        var service_id = "<?= $bookinghistory[0]['service_id']?>";
+        var booking_id = "<?= $bookinghistory[0]['booking_id']?>";
+        var booking_request_type = "<?= $bookinghistory[0]['request_type']?>"; 
+        if(model_number !== "" && model_number !== null && dop !== "" && booking_request_type != "<?php echo REPEAT_BOOKING_TAG;?>" && booking_request_type != "<?php echo WARRANTY_TYPE_AMC;?>"){                               
             $.ajax({
                 method:'POST',
                 url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data",
@@ -959,15 +968,17 @@ function alpha(e) {
                         'partner_id' : "<?= $bookinghistory[0]['partner_id']?>",
                         'booking_id' : booking_id,
                         'booking_create_date' : "<?= $bookinghistory[0]['create_date']?>",
+                        'service_id' : service_id,
                         'model_number' : model_number,
                         'purchase_date' : dop, 
+                        'booking_request_type' : booking_request_type
                     }
                 },
                 success:function(response){
                     var warrantyData = JSON.parse(response);
                     var warranty_status = warrantyData[booking_id];      
-                    var warranty_mismatch = true;
-                    if(typeof arr_warranty_status[warranty_status] !== 'undefined') {                        
+                    var warranty_mismatch = false;
+                    if(typeof arr_warranty_status[warranty_status] !== 'undefined') {                         
                         warranty_mismatch = true;
                         for(var index in arr_warranty_status[warranty_status])
                         {
@@ -976,14 +987,22 @@ function alpha(e) {
                                 warranty_mismatch = false;
                                 break;
                             }
-                        }           
+                        }
                    }
                    
                    $("#submitform").attr("disabled", false);
+                   $(".errorMsg").html("");
                    if(warranty_mismatch)
                    {
-                       $("#submitform").attr("disabled", true);
-                       alert("Booking Request type '"+booking_request_type+"' mismatches with warranty status '"+warranty_status+"'");
+                       if((booking_request_type.indexOf('Out Of Warranty')) !== -1 || (booking_request_type.indexOf('Out Warranty') !== -1))
+                       {
+                           $(".errorMsg").html("<span style='color:orange'>Booking Warranty Status ("+arr_warranty_status_full_names[warranty_status]+") is not matching with current request type ("+booking_request_type+") of booking, but if needed you may proceed with current request type.</span>");
+                       }
+                       else
+                       {
+                            $("#submitform").attr("disabled", true);
+                            $(".errorMsg").html("<span style='color:red;'><i class='fa fa-warning'></i>&nbsp;Booking Warranty Status ("+arr_warranty_status_full_names[warranty_status]+") is not matching with current request type ("+booking_request_type+"), to request part please change request type of the Booking.</span>");
+                       }
                    }
                 }                            
             });

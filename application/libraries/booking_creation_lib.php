@@ -81,6 +81,14 @@ class booking_creation_lib {
                     $select = 'brand As brand_name';
                     $brand = $this->My_CI->partner_model->get_partner_specific_details($where, $select, "brand");
                     $where['brand'] = $value['brand'];
+                    
+//                    $model_where = array(
+//                        'appliance_model_details.entity_id' => $booking_history[0]['partner_id'],
+//                        'appliance_model_details.entity_type' => _247AROUND_PARTNER_STRING,
+//                        'appliance_model_details.service_id' => $booking_history[0]['service_id'],
+//                        'inventory_model_mapping.active' => 1);
+//                    $model = $this->My_CI->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.model_number as model', $model_where);
+                
                     $model_where = array(
                        "appliance_model_details.entity_id" =>  $booking_history[0]['partner_id'],
                        "appliance_model_details.entity_type" => _247AROUND_PARTNER_STRING,
@@ -177,5 +185,72 @@ class booking_creation_lib {
         } else {
             return TRUE;
         }
+    }
+    
+    function findInArray($ar, $val) {
+        for ($i = 0,$len = count($ar); $i < $len; $i++) {
+            if ( $ar[$i] === $val ) { // strict equality test
+                return $i;
+            }
+        }
+        return -1;
+    }
+    
+    function checkPriceTagValidation($delivered_price_tags){
+        $repair_flag = false;
+        $repair_out_flag = false;
+        $installation_flag = false;
+        $pdi = false;
+        $extended_warranty = false;
+        $pre_sales = false;
+        $array =[];
+
+        if(($this->findInArray($delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
+                || $this->findInArray($delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
+                || $this->findInArray($delivered_price_tags, 'Repair - In Warranty (Customer Location)') > -1 
+                )){
+            
+            $repair_flag = true;
+            array_push($array, $repair_flag);
+         } 
+         
+         if(($this->findInArray($delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 
+                || $this->findInArray($delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1
+                || $this->findInArray($delivered_price_tags, 'Repair - Out Of Warranty (Customer Location)') > -1
+                || $this->findInArray($delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1)){
+            
+            $repair_out_flag = true;
+            array_push($array, $repair_out_flag);
+         }
+         
+         if($this->findInArray($delivered_price_tags, 'Extended Warranty') > -1 ){
+            $extended_warranty = true;
+            array_push($array, $extended_warranty);
+         }
+         
+         if($this->findInArray($delivered_price_tags, 'Presale Repair') > -1 ){
+            $pre_sales = true;
+            array_push($array, $pre_sales);
+         }
+         
+         if($this->findInArray($delivered_price_tags, 'Installation & Demo (Free)') > -1 
+                || $this->findInArray($delivered_price_tags, 'Installation & Demo (Paid)') > -1){
+                   $installation_flag = true;
+                   array_push($array, $installation_flag);
+         }
+         
+         if($this->findInArray($delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || $this->findInArray($delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1
+                || $this->findInArray($delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1
+                || $this->findInArray($delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1){
+                    $pdi = true;
+                    array_push($array, $pdi);
+                }
+                
+         if(count($array) > 1){
+             return false;
+         } else {
+             return true;
+         }
     }
 }

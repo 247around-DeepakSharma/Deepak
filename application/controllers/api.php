@@ -3164,7 +3164,7 @@ class Api extends CI_Controller {
                 $this->engineer_model->insert_engineer_action_sign($en);
             }
             $actor = $next_action = 'not_define';
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data["current_status"] , $data['internal_status'], "", $booking_id);
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data["current_status"] , $data['internal_status'], $requestData['partner_id'], $booking_id);
             if (!empty($partner_status)) {
                 $booking['partner_current_status'] = $partner_status[0];
                 $booking['partner_internal_status'] = $partner_status[1];
@@ -4866,7 +4866,7 @@ class Api extends CI_Controller {
                 $response['sparePartsOrder']['modelNumberList'] = $model_detail;
             }
             else{
-                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type', array('service_id' => $requestData['service_id']), FALSE);
+                $parts_type_details = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.part_type', array('inventory_parts_type.service_id' => $requestData['service_id']), FALSE);
                 $response['sparePartsOrder']['partTypeList'] = $parts_type_details;
             }
             log_message("info", __METHOD__ . "Model Number or Part Type found successfully");

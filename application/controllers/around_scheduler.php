@@ -860,33 +860,33 @@ class Around_scheduler extends CI_Controller {
      * @return void()
      */
     function get_non_verified_appliance_description_data() {
-        $data = $this->around_scheduler_model->get_non_verified_appliance_description_data();
-        if (!empty($data)) {
-            $this->table->set_heading('Product Description', 'Service Id', 'Category', 'Capacity', 'Brand', 'Is Verified');
-            $template = array(
-                'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
-            );
-
-            foreach ($data as $val) {
-                $this->table->add_row($val['product_description'], $val['service_id'], $val['category'], $val['capacity'], $val['brand'], $val['is_verified']);
-            }
-
-            $this->table->set_template($template);
-            $html_table = $this->table->generate();
-
-            //send email
-            $email_template = $this->booking_model->get_booking_email_template("non_verified_appliance_mail");
-            $to = DEVELOPER_EMAIL;
-            $subject = $email_template[4];
-            $message = vsprintf($email_template[0], $html_table);
-
-            $sendmail = $this->notify->sendEmail($email_template[2], $to, '', "", $subject, $message, "",'non_verified_appliance_mail');
-            if ($sendmail) {
-                log_message('info', __FUNCTION__ . ' Report Mail has been send successfully');
-            } else {
-                log_message('info', __FUNCTION__ . ' Error in Sending Mail to partner ');
-            }
-        }
+//        $data = $this->around_scheduler_model->get_non_verified_appliance_description_data();
+//        if (!empty($data)) {
+//            $this->table->set_heading('Product Description', 'Service Id', 'Category', 'Capacity', 'Brand', 'Is Verified');
+//            $template = array(
+//                'table_open' => '<table border="1" cellpadding="4" cellspacing="0">'
+//            );
+//
+//            foreach ($data as $val) {
+//                $this->table->add_row($val['product_description'], $val['service_id'], $val['category'], $val['capacity'], $val['brand'], $val['is_verified']);
+//            }
+//
+//            $this->table->set_template($template);
+//            $html_table = $this->table->generate();
+//
+//            //send email
+//            $email_template = $this->booking_model->get_booking_email_template("non_verified_appliance_mail");
+//            $to = DEVELOPER_EMAIL;
+//            $subject = $email_template[4];
+//            $message = vsprintf($email_template[0], $html_table);
+//
+//            $sendmail = $this->notify->sendEmail($email_template[2], $to, '', "", $subject, $message, "",'non_verified_appliance_mail');
+//            if ($sendmail) {
+//                log_message('info', __FUNCTION__ . ' Report Mail has been send successfully');
+//            } else {
+//                log_message('info', __FUNCTION__ . ' Error in Sending Mail to partner ');
+//            }
+//        }
     }
 
     /**
@@ -1553,10 +1553,9 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      */
     function send_qrCode_sms_to_customer() {
         log_message("info", __METHOD__ . " Entering.....");
-        $booking = $this->booking_model->get_bookings_count_by_any("services, assigned_vendor_id, booking_id, "
+        $booking = $this->booking_model->get_bookings_count_by_any("services, assigned_vendor_id, booking_id, partner_id,"
                 . "user_id, booking_primary_contact_no", array('current_status IN ("' . _247AROUND_PENDING . '", "' . _247AROUND_RESCHEDULED . '") ' => NULL,
             'amount_due > 0' => NULL, 'assigned_vendor_id IS NOT NULL' => NULL));
-
         if (!empty($booking)) {
             foreach ($booking as $value) {
                 $sf = $this->vendor_model->getVendorContact($value['assigned_vendor_id']);
@@ -1575,6 +1574,13 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                         $sms['tag'] = "customer_qr_download";
                         $sms['smsData']['services'] = $value['services'];
                         $sms['smsData']['url'] = $tinyUrl;
+                        
+                        if($value['partner_id'] == VIDEOCON_ID){
+                            $sms['smsData']['cc_number'] = "0120-4500600";
+                        }
+                        else{
+                           $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
+                        }
 
                         $sms['phone_no'] = $value['booking_primary_contact_no'];
                         $sms['booking_id'] = $value['booking_id'];

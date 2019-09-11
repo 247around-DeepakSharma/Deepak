@@ -15,7 +15,7 @@
                 <select type="text" class="form-control"  id="state_completed" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
                     <option value=""></option>
                     <?php foreach($states as $state) { ?>
-                    <option value="<?= $state['state_code']; ?>"><?= $state['state']; ?></option>
+                    <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>
                   
                     <?php } ?>
                 </select>
@@ -28,7 +28,7 @@
                 <select type="text" class="form-control"  id="partner_completed" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
                     <option value=""></option>
                     <?php foreach($partners as $partner) { ?>
-                    <option value="<?= $partner['id']; ?>"><?= $partner['public_name']; ?></option>
+                    <option value="<?= $partner['id']; ?>" <?php if(!empty($partner_selected) && $partner['id'] == $partner_selected) { echo 'selected';}?>><?= $partner['public_name']; ?></option>
                   
                     <?php } ?>
                 </select>
@@ -46,7 +46,7 @@
                 <select type="text" class="form-control"  id="cancellation_reason" name="cancellation_reason" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
                     <option value=""></option>
                     <?php foreach($cancellation_reason as $reason) { ?>
-                    <option value="<?= $reason['id']; ?>"><?= $reason['reason']; ?></option>
+                    <option value="<?= $reason['id']; ?>" <?php if(!empty($cancellation_reason_selected) && $reason['id'] == $cancellation_reason_selected) { echo 'selected';}?>><?= $reason['reason']; ?></option>
                   
                     <?php } ?>
                 </select>
@@ -59,7 +59,7 @@
                 <select type="text" class="form-control"  id="state_cancelled" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
                     <option value=""></option>
                     <?php foreach($states as $state) { ?>
-                    <option value="<?= $state['state_code']; ?>"><?= $state['state']; ?></option>
+                    <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>
                   
                     <?php } ?>
                 </select>
@@ -72,7 +72,7 @@
                 <select type="text" class="form-control"  id="partner_cancelled" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
                     <option value=""></option>
                     <?php foreach($partners as $partner) { ?>
-                    <option value="<?= $partner['id']; ?>"><?= $partner['public_name']; ?></option>
+                    <option value="<?= $partner['id']; ?>" <?php if(!empty($partner_selected) && $partner['id'] == $partner_selected) { echo 'selected';}?>><?= $partner['public_name']; ?></option>
                   
                     <?php } ?>
                 </select>
@@ -268,7 +268,7 @@
              for($i=0;$i<=$total_pages;$i++){
                  $offset = $per_page*$i;
                  ?>
-    <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $review_status?>/<?php echo $offset;?>/0/0/<?php echo $cancellation_reason_selected; ?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
+    <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $review_status?>/<?php echo $offset;?>/0/0/<?php echo $cancellation_reason_selected; ?>/<?php echo $partner_selected;?>/<?php echo $state_selected; ?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
                  <?php
              }
              ?>

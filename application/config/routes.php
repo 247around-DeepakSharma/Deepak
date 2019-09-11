@@ -115,7 +115,7 @@ $route['service_center/inventory/alternate_inventory_list/(:any)'] = 'employee/s
 $route['service_center/inventory/alternate_parts_inventory_list'] = 'employee/service_centers/alternate_parts_inventory_list';
 $route['service_center/inventory/inventory_list_by_model/(:any)'] = 'employee/service_centers/get_inventory_by_model/$1';
 $route['service_center/inventory/inventory_list_by_model/(:any)'] = 'employee/service_centers/get_inventory_by_model/$1/$2';
-
+$route['service_center/inventory/download_invoice_ledger'] = 'employee/inventory/mwh_invoice_ledger';
 
 
 
@@ -218,6 +218,7 @@ $route['partner/contact_us'] = 'employee/partner/get_contact_us_page';
 $route['partner/upcountry_report'] = 'employee/partner/download_upcountry_report';
 $route['partner/download_waiting_defective_parts'] = 'employee/partner/download_waiting_defective_parts';
 $route['partner/download_waiting_upcountry_bookings'] = 'employee/partner/download_waiting_upcountry_bookings';
+$route['partner/download_all_spare_parts'] = 'employee/partner/download_all_spare_parts';
 $route['partner/download_spare_part_shipped_by_partner'] = 'employee/partner/download_spare_part_shipped_by_partner';
 $route['partner/download_sf_needs_to_send_parts'] = 'employee/partner/download_sf_needs_to_send_parts';
 $route['partner/download_received_spare_by_partner'] = 'employee/partner/download_received_spare_by_partner';
@@ -235,6 +236,7 @@ $route['partner/inventory/download_serviceable_bom'] = 'employee/partner/show_do
 $route['partner/inventory/download_missing_serviceable_bom'] = 'employee/partner/show_download_missing_serviceable_bom';
 $route['partner/inventory/download_part_master'] = 'employee/partner/show_download_part_master';
 $route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
+$route['partner/inventory/download_mwh_invoice_ledger'] = 'employee/inventory/mwh_invoice_ledger';
 
 
 
@@ -280,6 +282,7 @@ $route['upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alter
 
 $route['service_center/update_booking_by_sf/(:any)/(:any)'] = 'employee/booking/update_booking_by_sf/$1/$2';
 $route['service_center/get_sf_edit_booking_form/(:any)'] = 'employee/service_centers/get_sf_edit_booking_form/$1';
+$route['service_center/get_sf_edit_booking_form/(:any)/(:any)'] = 'employee/service_centers/get_sf_edit_booking_form/$1/$2';
 $route['service_center/warranty'] = 'employee/service_centers/check_warranty';
 $route['service_center/warranty/(:any)/(:any)'] = 'employee/service_centers/check_warranty/$1/$2';
 $route['service_center/warranty/(:any)/(:any)/(:any)'] = 'employee/service_centers/check_warranty/$1/$2/$3';

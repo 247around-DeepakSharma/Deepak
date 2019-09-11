@@ -510,7 +510,7 @@ span.stars span {
                    document.getElementById("spare_"+ block+ key).src="<?php echo base_url();?>images/spare_cancelled.png";
                }  else {
                     
-                    $("#spare_"+block + key).css("display", "none");
+                    $(".spare_"+block + key).css("display", "none");
                }
                //console.log(response);
 
@@ -531,7 +531,7 @@ span.stars span {
                }  else if(obj[0].status=='Spare Parts Delivered to SF') {
                     document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/spare_parts_delivered.png";
                }else{
-                $("#spare_delivered_"+block + key).css("display", "none");
+                $(".spare_delivered_"+block + key).css("display", "none");
                }
                
           }
@@ -549,7 +549,25 @@ span.stars span {
                    document.getElementById("spare_cost_given_"+ block+ key).src="<?php echo base_url();?>images/spare_estimate_arrived.png";
                }  else {
                     
-                    $("#spare_cost_given_"+block + key).css("display", "none");
+                    $(".spare_cost_given_"+block + key).css("display", "none");
+               }
+               //console.log(response);
+
+          }
+       });
+   }
+   
+    function load_rejected_from_review(booking_id, key, block){
+       $.ajax({
+           type: 'post',
+           url: '<?php echo base_url()  ?>employee/inventory/get_rejected_from_review/' + booking_id,
+           success: function (response) {
+               var obj  = JSON.parse(response);
+               if($.trim(obj[0].internal_status) == '<?php echo REJECTED_FROM_REVIEW_STATUS; ?>'){
+                   document.getElementById("rejected_from_review_"+ block+ key).src="<?php echo base_url();?>images/rejected_from_review.png";
+               }  else {
+                    
+                    $("#rejected_from_review_"+block + key).css("display", "none");
                }
                //console.log(response);
 

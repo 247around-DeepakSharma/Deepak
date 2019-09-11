@@ -599,6 +599,8 @@
                                         <th >Remarks By SC </th>
                                         <th >Current Status</th>
                                         <th >Spare Cancellation Reason</th>
+                                        <th>Consumption</th>
+                                        <th>Consumption Reason</th>
                                         <th>Move To Vendor</th>
                                         <th>Move To Partner</th>
                                         <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
@@ -648,7 +650,8 @@
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
                                         <td><?php echo $sp['part_cancel_reason'];?></td>
-
+                                        <td><?php if($sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
+                                        <td><?php echo $sp['consumed_status']; ?></td>
                                      <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
                                         <?php  if($sp['entity_type']==_247AROUND_PARTNER_STRING && $sp['status'] == SPARE_PARTS_REQUESTED){?>
                                             <td>
@@ -760,7 +763,9 @@
                                         <th>Challan approx Value </th>
                                         <th>Challan File</th>
                                         <th>Courier File</th>
-                                        
+                                        <?php if($booking_history[0]['internal_status'] == 'Completed'){?>
+                                        <th>IS Defective Parts Required</th>
+                                        <?php } ?>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -807,6 +812,11 @@
                                             <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY?>/vendor-partner-docs/<?php echo $sp['courier_pic_by_partner']; ?>" target="_blank">Click Here to view</a>
                                             <?php } ?>
                                         </td>
+                                        <?php if($booking_history[0]['internal_status'] == 'Completed'){?>
+                                        <td>
+                                            <?php echo $sp['btn'] ?>
+                                        </td>
+                                        <?php } ?>
                                     </tr>
                                     <?php } } ?>
                                 </tbody>
@@ -824,7 +834,7 @@
                                     <tr>
                                         <th >Shipped Parts </th>
                                         <th >Shipped Parts Number</th>
-                                        <th >Shipped Quantity</th>
+                                        <th >Quantity</th>
                                         <th >Courier Name </th>
                                         <th>AWB </th>
                                         <th> No. Of Boxes </th>
@@ -840,23 +850,23 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
+                                    <?php foreach ($defective_history as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                     <tr>
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                         <td><?php if(!empty($sp['part_number'])){ echo $sp['part_number'];}else{echo 'Not Available';} ?></td>
-                                        <td><?php echo $sp['shipped_quantity']; ?></td>
-                                        <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
+                                        <td><?php echo $sp['qty']; ?></td>
+                                        <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['def_courier_name'])); ?></td>
                                         <?php
                                         $spareStatus = DELIVERED_SPARE_STATUS;
                                         if(!$sp['defactive_part_received_date_by_courier_api']){
                                             $spareStatus = $sp['status'];
                                         }
                                         ?>
-                                        <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
-                                            <span id="<?php echo "awb_loader_".$sp['awb_by_sf'];?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                        <td><?php if(!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['box_count'])){ echo $courier_boxes_weight_details['box_count']; } ?></td>
+                                        <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['def_courier_name']; ?>','<?php echo $sp['awb_by_sf_defective']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf_defective']; ?>')"><?php echo $sp['awb_by_sf_defective']; ?></a> 
+                                            <span id="<?php echo "awb_loader_".$sp['awb_by_sf_defective'];?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
+                                        <td><?php if(!empty($sp['awb_by_sf_defective']) && !empty($courier_boxes_weight_details['box_count'])){ echo $courier_boxes_weight_details['box_count']; } ?></td>
                                         <td><?php
-                                                    if (!empty($sp['awb_by_sf'])) {
+                                                    if (!empty($sp['awb_by_sf_defective'])) {
                                                         if (!empty($courier_boxes_weight_details['billable_weight'])) {
                                                             $expl_data = explode('.', $courier_boxes_weight_details['billable_weight']);
                                                             if (!empty($expl_data[0])) {
@@ -868,9 +878,9 @@
                                                         }
                                                     }
                                                                 ?></td>
-                                       <td><?php echo $sp['courier_charges_by_sf']; ?></td>
+                                       <td><?php echo $sp['def_courier_price_by_sf']; ?></td>
                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
-                                        <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
+                                        <td><?php echo date('Y-m-d', strtotime($sp['qty_def_shipped_date'])); ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                         <td><?php echo $sp['sf_challan_number']; ?></td>
@@ -926,8 +936,8 @@
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
                                         <td><?php echo $sp['purchase_invoice_id']; ?></td>
                                         <td><?php echo $sp['sell_invoice_id']; ?></td>  
-                                        <td><?php echo $sp['reverse_sale_invoice_id']; ?></td>
                                         <td><?php echo $sp['reverse_purchase_invoice_id']; ?></td>  
+                                        <td><?php echo $sp['reverse_sale_invoice_id']; ?></td>
                                         <td><?php echo $sp['warehouse_courier_invoice_id']; ?></td> 
                                         <td><?php echo $sp['partner_courier_invoice_id']; ?></td> 
                                         <td><?php echo $sp['vendor_courier_invoice_id']; ?></td> 
@@ -1111,9 +1121,9 @@
                         </div>
                         <div style="background: #5bc0de;margin-bottom: 20px;">
                             <?php if($booking_history[0]['current_status'] != 'Cancelled' && $booking_history[0]['current_status'] != 'Completed'){ ?>
-                        <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/1" class="btn btn-success action_buton" 
+                        <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/1/<?php echo $booking_history[0]['partner_id']?>" class="btn btn-success action_buton" 
                            >Regenerate and send QR Code</a>
-                               <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0" class="btn btn-success action_buton">
+                               <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0/<?php echo $booking_history[0]['partner_id']?>" class="btn btn-success action_buton">
                                    Resend Same QR Code</a>
                             
 
@@ -1355,7 +1365,25 @@
         
     </div>
 <!-- end Invoice Payment History Modal -->
-
+<div id="myModal2" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title" id="modal-title">Reject Parts</h4>
+                </div>
+                <div class="modal-body">
+                    <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
+                </div>
+                <input type="hidden" id="url">
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="reject_btn">Send</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 <script>
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex = "<?=((isset($booking_files) && !empty($booking_files))?(count($booking_files)+1):1);?>";//$(".clonedInput").length;
@@ -2196,6 +2224,101 @@ background-color: #f5f5f5;
       getcommentbox(type_val);        
     }   
     
+    $(document).on("click", ".open-adminremarks", function () {
+        
+        var booking_id = $(this).data('booking_id');
+        var url = $(this).data('url');
+        //var keys = $(this).data('keys'); 
+        var split_url = url.split('/');
+        if(split_url[8]=='NOT_REQUIRED_PARTS' || split_url[8]=='NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING'){
+            button_txt = 'Move To Not Required';
+        }else{
+            button_txt = 'Move To Required';
+        }
+        
+        $("#reject_btn").html(button_txt);  
+        $("#status_label").css({'display':'none'});
+        $("#reject_btn").attr("onclick","not_required_parts()");   
+    
+        
+        $('#modal-title').text(booking_id);
+        $('#textarea').val("");
+        $("#url").val(url);
+        
+
+    });
+    
+    function approve_spare_part(){
+      var remarks =  $('#textarea').val();
+      var warranty_status = $('#part_warranty_status').val();
+      
+      if(warranty_status==''){
+          alert('Please Select Part Warranty Status');
+          return false;
+      }
+      
+      if(remarks==''){
+          alert('Please Enter Remarks');
+          return false;
+      }
+                 
+      if(remarks !== "" && warranty_status !=''){
+       $('#reject_btn').attr('disabled',true);
+        var url =  $('#url').val();
+        $.ajax({
+            type:'POST',
+            url:url,
+            data:{remarks:remarks,part_warranty_status:warranty_status},
+            success: function(data){
+                 var obj = JSON.parse(data); 
+                $('#reject_btn').attr('disabled',false);
+                if(obj['status']){
+                  //  $("#"+booking_id+"_1").hide()
+                    $("#reject_btn").html("Send");             
+                    $("#reject_btn").attr("onclick","reject_parts()");
+                    $('#myModal2').modal('hide');
+                    alert("Approved Successfully");
+                    spare_parts_requested_table.ajax.reload( function ( json ) { 
+                      $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+                    },false );
+                    
+                } else {
+                    alert("Spare Parts Cancellation Failed!");
+                }
+            }
+        });
+      } 
+    }
+    
+    
+    function not_required_parts(){
+      var remarks =  $('#textarea').val();
+      //var booking_id = $('#modal-title').text();
+      
+      if(remarks !== ""){
+        $('#reject_btn').attr('disabled',true);
+        var url =  $('#url').val();
+        $.ajax({
+            type:'POST',
+            url:url,
+            data:{ remarks:remarks },
+            success: function(data){
+                $('#reject_btn').attr('disabled',false);
+                console.log(data);
+                if(data === "Success"){
+                  //  $("#"+booking_id+"_1").hide()
+                    $('#myModal2').modal('hide');
+                    alert("Updated Successfully");
+                    load_table(table_type);
+                } else {
+                    alert("Spare Parts Cancellation Failed!");
+                }
+            }
+        });
+      } else {
+          alert("Please Enter Remarks");
+      }
+    }
     
     function getcommentbox(type_val){
         $.ajax({

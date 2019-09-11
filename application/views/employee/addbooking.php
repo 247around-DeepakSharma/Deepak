@@ -38,7 +38,7 @@
                    <strong>' . $this->session->userdata('error') . '</strong>
                </div>';
                 }
-                ?>
+                ?>        
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Add Booking</div>
             <div class="panel-body">
@@ -262,8 +262,8 @@
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
                                                 <?php echo form_error('model_number'); ?>
-                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" disabled="">
-                                                <select class="form-control select-model"   id="model_number_1" name="model_number[]" style="display:none;">
+                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" disabled=""  onfocusout="check_booking_request()">
+                                                <select class="form-control select-model"   id="model_number_1" name="model_number[]" style="display:none;" onchange="check_booking_request()">
                                                     <option selected disabled>Select Appliance Model</option>
                                                 </select>
 
@@ -300,7 +300,7 @@
                                 <label for="booking_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group input-append date">
-                                    <input id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
+                                    <input id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()" required>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -308,6 +308,9 @@
                                         
                                 </div>
                                     <div class="col-md-6">
+                                        <div class="col-md-12" style="margin-bottom:10px;">
+                                            <span style="color:red;text-align: center;font-size: 16px;font-weight:bold;" class="errorMsg"></span>
+                                        </div>
                                         <div class="form-group">
                                             <div  class="col-md-12">
                                                 <table class="table priceList table-striped table-bordered" name="priceList" id="priceList_1">
@@ -447,7 +450,30 @@
 
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
     //$(".purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
-
+   function chkPrice(curval,maxval){
+    //alert(curval.val());
+    let flg=true;
+        if(!isNaN(curval.val())){
+            if(parseFloat(curval.val())<0) {
+                alert('Cannot be less than 0.00');
+               flg=false;
+            } else if(parseFloat(curval.val())>parseFloat(maxval)) {
+               alert('Cannot be more than Std.Charges');
+               flg=false;
+            }
+        } else {
+            alert('Enter numeric value');
+            flg=false;
+        }
+        if(!flg)
+        {
+        window.setTimeout(function () { 
+            curval.focus();
+        }, 0);
+            
+           }
+        
+    }
 </script>
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
@@ -477,7 +503,7 @@
                 if ($(this).hasClass('hasDatepicker')) {
                     $(this).removeClass('hasDatepicker');
                 } 
-                 $(this).datepicker({dateFormat: 'yy-mm-dd', maxDate: 0});
+                 $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
             });
            
        cloneIndex++;
@@ -542,7 +568,60 @@
    
    
 });
-$("#purchase_date_1").datepicker({dateFormat: 'yy-mm-dd', maxDate: 0});
+$("#purchase_date_1").datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
+
+// function to cross check request type of booking with warranty status of booking 
+function check_booking_request()
+{
+    $(".price_checkbox").attr("disabled", false);
+    if($(".input-model").is(":hidden"))
+    {
+        var model_number = $(".select-model").val();
+    }
+    else
+    {
+        var model_number = $(".input-model").val();
+    } 
+    var dop = $("#purchase_date_1").val();
+    var partner_id = $("#source_code").val();
+    var service_id = $("#service_id").val();
+    var booking_id = 1;
+    var booking_create_date = "<?= date('Y-m-d')?>";
+    var booking_request_types = []; 
+    $(".price_checkbox:checked").each(function(){
+        var price_tag = $(this).attr('data-price_tag');
+        booking_request_types.push(price_tag);
+    });
+    $("#submitform").attr("disabled", false);
+    $('.errorMsg').html("");
+
+    if(model_number !== "" && model_number !== null && model_number !== undefined && dop !== "" && booking_request_types.length > 0){                               
+        $.ajax({
+            method:'POST',
+            url:"<?php echo base_url(); ?>employee/booking/get_warranty_data/2",
+            data:{
+                'bookings_data[0]' : {
+                    'partner_id' : partner_id,
+                    'booking_id' : booking_id,
+                    'booking_create_date' : booking_create_date,
+                    'service_id' : service_id,
+                    'model_number' : model_number,
+                    'purchase_date' : dop, 
+                    'booking_request_types' : booking_request_types
+                }
+            },
+            success:function(response){
+                var returnData = JSON.parse(response);
+                $('.errorMsg').html(returnData['message']);
+                if(returnData['status'] == 1)
+                {
+                    $("#submitform").attr("disabled", true);                        
+                }
+            }                           
+        });
+    }
+}
+// function ends here ---------------------------------------------------------------- 
 </script>
 <style type="text/css">
 #errmsg1

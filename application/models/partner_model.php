@@ -428,14 +428,14 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
             LEFT JOIN service_centres ON service_center_booking_action.service_center_id = service_centres.id";
         
-        $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        if($is_saas) {
+        //$is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        //if($is_saas) {
             $sql .= " LEFT JOIN booking_symptom_defect_details ON booking_details.booking_id = booking_symptom_defect_details.booking_id
                     LEFT JOIN symptom creation_symptom ON booking_symptom_defect_details.symptom_id_booking_creation_time = creation_symptom.id
                     LEFT JOIN symptom completion_symptom ON booking_symptom_defect_details.symptom_id_booking_completion_time = completion_symptom.id
                     LEFT JOIN defect ON booking_symptom_defect_details.defect_id_completion = defect.id
                     LEFT JOIN symptom_completion_solution ON booking_symptom_defect_details.solution_id = symptom_completion_solution.id";
-        }
+        //}
         
         $sql .= " WHERE product_or_services != 'Product' AND $where GROUP BY ud.booking_id";
         
@@ -541,7 +541,7 @@ function get_data_for_partner_callback($booking_id) {
 
                 if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
                         strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
-                        || strpos($value->request_type, 'Inspection') !== false) {
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     $result['current_month_repair_booking_requested'] ++;
                     switch ($value->current_status) {
                         case _247AROUND_COMPLETED:
@@ -591,7 +591,9 @@ function get_data_for_partner_callback($booking_id) {
             }
 
             foreach ($today_booking as $value) {
-                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
+                        strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     $result['today_repair_booking_requested'] ++;
                     switch ($value->current_status) {
                         case _247AROUND_COMPLETED:
@@ -632,7 +634,9 @@ function get_data_for_partner_callback($booking_id) {
                 }
             }
             foreach ($yesterday_booking as $value) {
-                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
+                        strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     $result['yesterday_repair_booking_requested'] ++;
                     switch ($value->current_status) {
                         case _247AROUND_COMPLETED:
@@ -679,7 +683,9 @@ function get_data_for_partner_callback($booking_id) {
             $result['total_three_to_five_days_installation_booking_pending'] = 0;
             $result['total_greater_than_5_days_installation_booking_pending'] = 0;
             foreach ($totalPending as $key => $value) {
-                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false) {
+                if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
+                        strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     if (date('Y-m-d', strtotime($value->initial_booking_date)) <= date('Y-m-d') && (date('Y-m-d', strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-2 days"))) || date('Y-m-d', strtotime($value->initial_booking_date)) >= date('Y-m-d')) {
                         $result['total_zero_to_two_days_repair_booking_pending'] ++;
                     } else if ((date("Y-m-d", strtotime($value->initial_booking_date)) < date("Y-m-d", strtotime("-2 days"))) && (date("Y-m-d", strtotime($value->initial_booking_date)) >= date("Y-m-d", strtotime("-5 days")))) {
@@ -847,11 +853,11 @@ function get_data_for_partner_callback($booking_id) {
      */
     function get_spare_parts_booking($where){
         $sql = "SELECT spare_parts_details.*, users.name, booking_details.booking_primary_contact_no, "
-                . " booking_details.booking_address,booking_details.initial_booking_date,booking_details.request_type, "
-                . " service_centres.name as vendor_name, service_centres.address, service_centres.state, "
+                . "  IFNULL((spare_parts_details.shipped_quantity-IFNULL(SUM(IFNULL(spare_qty_mgmt.qty,0)),0)),0) AS defevtive_shipped_qty_remaining,booking_details.booking_address,booking_details.initial_booking_date,booking_details.request_type, "
+                . " service_centres.name as vendor_name, service_centres.address, service_centres.state,spare_parts_details.shipped_quantity, "
                 . " service_centres.pincode, service_centres.district,booking_details.partner_id as booking_partner_id"
                 . " FROM spare_parts_details,booking_details,users, "
-                . " service_centres WHERE booking_details.booking_id = spare_parts_details.booking_id"
+                . " service_centres,spare_qty_mgmt   WHERE booking_details.booking_id = spare_parts_details.booking_id AND spare_parts_details.id=spare_qty_mgmt.spare_id"
                 . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
                 . " AND ".$where . "  ORDER BY spare_parts_details.create_date ASC";
         $query = $this->db->query($sql);
@@ -875,19 +881,19 @@ function get_data_for_partner_callback($booking_id) {
         $join = "";
         $group_by = "";
         if($flag_select){
-            $select = "SELECT spare_parts_details.*, services.services, i.part_number, i.part_name, i.type, shipped_inventory.part_number as shipped_part_number, shipped_inventory.part_name as shipped_part_name, shipped_inventory.type as shipped_part_type, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
+            $select = "SELECT spare_parts_details.*,spare_qty_mgmt.id as qty_id,IFNULL(spare_qty_mgmt.qty,1) as qty,is_defective_qty,awb_by_sf_defective,def_courier_name,services.services, i.part_number, i.part_name, i.type, shipped_inventory.part_number as shipped_part_number, shipped_inventory.part_name as shipped_part_name, shipped_inventory.type as shipped_part_type, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
                 . " booking_details.booking_address,booking_details.create_date,booking_details.booking_date,booking_details.closed_date,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
                     . "booking_details.amount_due,booking_details.state, booking_details.service_center_closed_date, booking_details.request_type, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state as sf_state, service_centres.gst_no, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
-                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name ";
+                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name,(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as nrn_status,(CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as spare_warranty_status";
             if($end){
                 $limit = "LIMIT $start, $end";
             }
             if($is_unit_details){
                 $select = $select.", GROUP_CONCAT(DISTINCT booking_unit_details.appliance_brand) as brands";
                 $join = "JOIN booking_unit_details ON booking_unit_details.booking_id =  spare_parts_details.booking_id";
-                $group_by = " GROUP BY spare_parts_details.id";
+                $group_by = " GROUP BY spare_qty_mgmt.id";
             }
         } else {
             $select = "SELECT count(spare_parts_details.id) as total_rows ";
@@ -907,6 +913,7 @@ function get_data_for_partner_callback($booking_id) {
                     . ' JOIN users ON users.user_id = booking_details.user_id '.$join
                     . ' LEFT JOIN inventory_stocks ON spare_parts_details.requested_inventory_id = inventory_stocks.inventory_id'
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
+                    . ' LEFT JOIN spare_qty_mgmt ON spare_parts_details.id=spare_qty_mgmt.spare_id'
                     . " WHERE $where $group_by "
                     . " ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
         }else{
@@ -921,6 +928,7 @@ function get_data_for_partner_callback($booking_id) {
                 . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                 . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                 . ' LEFT JOIN services ON booking_details.service_id=services.id '
+                . ' LEFT JOIN spare_qty_mgmt ON spare_qty_mgmt.spare_id=spare_parts_details.id '
                 . "  WHERE users.user_id = booking_details.user_id "
                 . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
             }
@@ -935,12 +943,14 @@ function get_data_for_partner_callback($booking_id) {
                     . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                     . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
+                    . ' LEFT JOIN spare_qty_mgmt ON spare_qty_mgmt.spare_id=spare_parts_details.id '
                     . " WHERE booking_details.booking_id = spare_parts_details.booking_id"
                     . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
             }
             }
-        $query = $this->db->query($sql);        
+        $query = $this->db->query($sql); 
+       // print_r($this->db->last_query());       
         return $query->result_array();
     }
 
@@ -1509,6 +1519,7 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->where($where,false);
         //$this->db->where('status',)
         $this->db->from('spare_parts_details');
+        $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
         //$this->db->join('symptom_spare_request', 'symptom_spare_request.id = spare_parts_details.spare_request_symptom', 'left');
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');

@@ -29,6 +29,7 @@ class Miscelleneous {
         $this->My_CI->load->model('engineer_model');
         $this->My_CI->load->driver('cache');
         $this->My_CI->load->model('dashboard_model');
+        $this->My_CI->load->model('invoices_model');
     }
     function process_to_choose_sf_if_multiple_sf_available($data){
         $sfArray = array();
@@ -1052,35 +1053,51 @@ class Miscelleneous {
             return $result;
         } else {
             
-            $pathinfo = pathinfo($excel_file);
-            $output_pdf_file_name = explode('.', $pathinfo['basename'])[0];
-        
-            $result1 = $this->My_CI->booking_utilities->convert_excel_to_pdf_paidApi($pathinfo['extension'], 'pdf', $excel_file);
-            if(isset($result1->Files[0]->FileData) && $result1->Files[0]->FileSize > 0){
-               
-                $output_pdf_file = $pathinfo['dirname']."/".$output_pdf_file_name . ".pdf";
-                
-                $binary = base64_decode($result1->Files[0]->FileData);
-                $file = fopen($output_pdf_file, 'wb');
-                fwrite($file, $binary);
-                fclose($file);
-                
-                $directory_pdf = $s3_folder_name."/" . $output_pdf_file_name . '.pdf';
-                $this->My_CI->s3->putObjectFile($output_pdf_file, BITBUCKET_DIRECTORY, $directory_pdf, S3::ACL_PUBLIC_READ);
-                
-                exec("rm -rf " . escapeshellarg($output_pdf_file));
-                if(file_exists($output_pdf_file)){
-                    unlink($output_pdf_file);
-                }
-                
-                return json_encode(array(
-                    'response' => 'Success',
-                    'response_msg' => 'PDF generated Successfully and uploaded on S3',
-                    'output_pdf_file' => $output_pdf_file_name.'.pdf',
-                    'bucket_dir' => BITBUCKET_DIRECTORY,
-                    'id' => $id
-                ));
-               
+//            $pathinfo = pathinfo($excel_file);
+//            $output_pdf_file_name = explode('.', $pathinfo['basename'])[0];
+//        
+//            $result1 = $this->My_CI->booking_utilities->convert_excel_to_pdf_paidApi($pathinfo['extension'], 'pdf', $excel_file);
+//            if(isset($result1->Files[0]->FileData) && $result1->Files[0]->FileSize > 0){
+//               
+//                $output_pdf_file = $pathinfo['dirname']."/".$output_pdf_file_name . ".pdf";
+//                
+//                $binary = base64_decode($result1->Files[0]->FileData);
+//                $file = fopen($output_pdf_file, 'wb');
+//                fwrite($file, $binary);
+//                fclose($file);
+//                
+//                $directory_pdf = $s3_folder_name."/" . $output_pdf_file_name . '.pdf';
+//                $this->My_CI->s3->putObjectFile($output_pdf_file, BITBUCKET_DIRECTORY, $directory_pdf, S3::ACL_PUBLIC_READ);
+//                
+//                exec("rm -rf " . escapeshellarg($output_pdf_file));
+//                if(file_exists($output_pdf_file)){
+//                    unlink($output_pdf_file);
+//                }
+//                
+//                return json_encode(array(
+//                    'response' => 'Success',
+//                    'response_msg' => 'PDF generated Successfully and uploaded on S3',
+//                    'output_pdf_file' => $output_pdf_file_name.'.pdf',
+//                    'bucket_dir' => BITBUCKET_DIRECTORY,
+//                    'id' => $id
+//                ));
+//               
+//            }
+            
+            $ch = curl_init();
+
+            curl_setopt($ch, CURLOPT_URL, $target_url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
+
+            $result = curl_exec($ch);
+            // get HTTP response code
+            $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+            
+            if ($httpcode >= 200 && $httpcode < 300) {
+                return $result;
             } else {
                 $to = DEVELOPER_EMAIL;
 
@@ -2231,7 +2248,32 @@ class Miscelleneous {
         }
         return $finalData;
     }
+    /**
+     * Model to get on/off history
+     * @param  [[number]] $vendor_id
+     */
+    function service_centre_on_off_history_view($vendor_id){
 
+        $finalData =array();
+        $table = "trigger_service_centres";
+        $select = "$table.name, employee.full_name as 'agent', $table.on_off, $table.update_date as 'date',$table.active";
+        $where = "$table.id = $vendor_id";
+        $join = array("employee"=> "$table.agent_id = employee.id");
+        $joinType = array("employee"=>"left");
+        $orderBy = array("date"=>"desc");
+        $finalData = $this->My_CI->reusable_model->get_search_result_data($table, $select, $where, $join, null, $orderBy, null, $joinType, null);
+
+
+        $table = "service_centres";
+        $select = "$table.name, employee.full_name as 'agent', $table.on_off, $table.update_date as 'date',$table.active";
+        $where = "$table.id = $vendor_id";
+        $join = array("employee"=> "$table.agent_id = employee.id");
+        $originalTable = $this->My_CI->reusable_model->get_search_result_data($table, $select, $where, $join, null, null, null, $joinType, null);
+
+
+        array_unshift($finalData,$originalTable[0]);
+        return $finalData;
+    }
 // function send_completed_booking_email_to_customer($completedBookingsID){
 //      log_message('info', __FUNCTION__ . ' => Completed booking Email Send Function Entry');
 //        $completedBookingsData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,users.name,users.user_email,partners.public_name as partner,booking_details.booking_date as booking_date",NULL,array('partners'=>'partners.id=booking_details.partner_id','users'=>'booking_details.user_id=users.user_id'),NULL,NULL,array('booking_id'=>$completedBookingsID),NULL);
@@ -3396,12 +3438,12 @@ function generate_image($base64, $image_name,$directory){
         return $data;
     }
     
-    function check_inventory_stock($inventory_id, $partner_id, $state, $assigned_vendor_id) {
+    function check_inventory_stock($inventory_id, $partner_id, $state, $assigned_vendor_id, $model_number) {
         log_message('info', __METHOD__. " Inventory ID ". $inventory_id. " Partner ID ".$partner_id. "  Assigned vendor ID ". $assigned_vendor_id. " State ".$state);
         $response = array(); 
 
-        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,entity_id, inventory_master_list.entity_id, inventory_master_list.part_name, inventory_master_list.inventory_id, price, gst_rate,inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
-
+        $inventory_part_number = $this->My_CI->inventory_model->get_inventory_master_list_data('inventory_master_list.part_number,inventory_master_list.entity_id, inventory_master_list.part_name, inventory_master_list.type, inventory_master_list.inventory_id, price, gst_rate,inventory_master_list.oow_around_margin', array('inventory_id' => $inventory_id));
+        
         $partner_details = $this->My_CI->partner_model->getpartner_details("is_micro_wh,is_wh, is_defective_part_return_wh", array('partners.id' => $partner_id));
         $is_partner_wh = '';
         $is_micro_wh = '';
@@ -3409,13 +3451,13 @@ function generate_image($base64, $image_name,$directory){
           $is_partner_wh = $partner_details[0]['is_wh'];
           $is_micro_wh = $partner_details[0]['is_micro_wh'];  
         }
-
+      
         if (!empty($inventory_part_number)) {
             //Check Partner Works Micro
             if ($is_micro_wh == 1) {
 
                 //check SF inventory stock
-                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id);
+                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, $assigned_vendor_id, $model_number);              
                 if (!empty($response)) {
                     //Defective Parts Return To
                     if($response['is_micro_wh'] == 2){
@@ -3441,7 +3483,7 @@ function generate_image($base64, $image_name,$directory){
                 
                 if (empty($response) && $is_partner_wh == 1) {
                     
-                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                    $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, '', $model_number);
                     if(!empty($response)){
                         $response['defective_return_to_entity_type'] = $response['entity_type'];
                         $response['defective_return_to_entity_id'] = $response['entity_id'];
@@ -3451,7 +3493,7 @@ function generate_image($base64, $image_name,$directory){
                 
             } else if ($is_partner_wh == 1) {
                 
-                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state);
+                $response = $this->_check_inventory_stock_with_micro($inventory_part_number, $state, '', $model_number);
                 if(!empty($response)){
 
                     $response['defective_return_to_entity_type'] = $response['entity_type'];
@@ -3463,11 +3505,12 @@ function generate_image($base64, $image_name,$directory){
 
             return false;
         }
-
+        
         if (empty($response) && !empty($inventory_part_number)) {
             $response['stock'] = false;
             $response['entity_id'] = $partner_id;
             $response['part_name'] = $inventory_part_number[0]['part_name'];
+            $response['type'] = $inventory_part_number[0]['type'];
             $response['entity_type'] = _247AROUND_PARTNER_STRING;
             $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
             $response['estimate_cost'] = round($inventory_part_number[0]['price'] * ( 1 + $inventory_part_number[0]['gst_rate'] / 100), 0);
@@ -3496,28 +3539,28 @@ function generate_image($base64, $image_name,$directory){
         return $this->My_CI->inventory_model->get_warehouse_details($select,$where1,true);
     }
 
-     function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id= ""){
+     function _check_inventory_stock_with_micro($inventory_part_number, $state, $service_center_id= "" ,$model_number){
         $response = array();
         $post['length'] = -1;
-               
+                       
         $post['where'] = array('inventory_stocks.inventory_id' => $inventory_part_number[0]['inventory_id'],'inventory_stocks.entity_type' => _247AROUND_SF_STRING,'(inventory_stocks.stock - inventory_stocks.pending_request_count) > 0'=>NULL);
         if (!empty($service_center_id)) {
             $post['where']['inventory_stocks.entity_id'] = $service_center_id;
         } else {
             $post['where']['service_centres.is_wh'] = 1;
         }
-        $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id';
+        $select = '(inventory_stocks.stock - pending_request_count) As stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id,inventory_master_list.type';
         $inventory_stock_details = $this->My_CI->inventory_model->get_inventory_stock_list($post,$select,array(),FALSE);
         
        
         if (empty($inventory_stock_details)) {
-            $alternate_inventory_stock_details = $this->My_CI->inventory_model->get_alternate_inventory_stock_list($inventory_part_number[0]['inventory_id'], $service_center_id);
-           
+            $alternate_inventory_stock_details = $this->My_CI->inventory_model->get_alternate_inventory_stock_list($inventory_part_number[0]['inventory_id'], $service_center_id,$model_number);
+            
             if (!empty($alternate_inventory_stock_details)) {
                 $inventory_stock_details = $alternate_inventory_stock_details;
             }
         }
-        
+              
         if(!empty($inventory_stock_details)){
             if(!empty($service_center_id)){
                 if($inventory_part_number[0]['inventory_id'] != $inventory_stock_details[0]['inventory_id'] ){
@@ -3530,6 +3573,7 @@ function generate_image($base64, $image_name,$directory){
                 $response['entity_id'] = $service_center_id;
                 $response['entity_type'] = _247AROUND_SF_STRING;
                 $response['part_name'] = $inventory_part_number[0]['part_name'];
+                $response['type'] = $inventory_stock_details[0]['type'];
                 $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
                 $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                 $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
@@ -3555,6 +3599,7 @@ function generate_image($base64, $image_name,$directory){
                         $response['entity_id'] = $value['entity_id'];
                         $response['entity_type'] = _247AROUND_SF_STRING;
                         $response['part_name'] = $inventory_part_number[0]['part_name'];
+                        $response['type'] = $value['type'];
                         $response['gst_rate'] = $inventory_part_number[0]['gst_rate'];
                         $response['estimate_cost'] =round($inventory_part_number[0]['price'] *( 1 + $inventory_part_number[0]['gst_rate']/100), 0);
                         $response['inventory_id'] = $inventory_part_number[0]['inventory_id'];
@@ -4034,14 +4079,14 @@ function generate_image($base64, $image_name,$directory){
 
                 $this->My_CI->booking_model->update_booking_unit_details($booking_id, $unit_details);
 
-                $spare = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.old_status, requested_inventory_id, "
+                $spare = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.model_number, spare_parts_details.old_status, requested_inventory_id, "
                         . "shipped_inventory_id", array('booking_id' => $booking_id), false);
                 foreach ($spare as $sp) {
                     if($sp['old_status'] == SPARE_PARTS_REQUESTED ){
                         
                         if(!empty($sp['requested_inventory_id'])){
                             $sf_state = $this->My_CI->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $assigned_vendor_id));
-                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $assigned_vendor_id);
+                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $assigned_vendor_id,$spare['model_number']);
                             if(!empty($stock)){
 
                                 $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), 
@@ -4390,10 +4435,10 @@ function generate_image($base64, $image_name,$directory){
             
             $requested_inventory = $booking['requested_inventory_id'];
             
-            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "");
+            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "",$booking['model_number']);
             if (!empty($data)) {
                  
-                if ($data['stock']) {
+                if ($data['stock']>=$booking['quantity']) {
                     $dataupdate = array(
                         'is_micro_wh' => $data['is_micro_wh'],
                         'entity_type' => $data['entity_type'],
@@ -4402,22 +4447,51 @@ function generate_image($base64, $image_name,$directory){
                         'defective_return_to_entity_type' => $data['defective_return_to_entity_type'],
                         'challan_approx_value' => $data['challan_approx_value'],
                         'requested_inventory_id' => $data['inventory_id'],
-                        'parts_requested' => $data['part_name']
+                        'parts_requested' => $data['part_name'],
+                        'parts_requested_type' => $data['type']
                     );
+                    
+                    $spare_pending_on_to='';
+
+                    if ($data['entity_id']==_247AROUND_SF_STRING) {
+                    $wh_details_to = $this->vendor_model->getVendorContact($data['entity_id']);
+                    if(!empty($wh_details_to)){
+                    $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';   
+                    }else{
+                    $spare_pending_on_to = ' Warehouse'; 
+                    }   
+                    }else{
+                        $spare_pending_on=$data['entity_id'];
+                    }
+
+  
+
+                    $spare_pending_on='';
+                    if ($data['entity_id']==_247AROUND_SF_STRING) {
+                    $wh_details = $this->vendor_model->getVendorContact($partner_id);
+                    if(!empty($wh_details)){
+                    $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
+                    }else{
+                    $spare_pending_on= ' Warehouse'; 
+                    }
+                    }else{
+
+                       $spare_pending_on=$data['entity_id']; 
+                    }
                     $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
                     $actor = 'Warehouse';
-                    $new_state = 'Spare Part Transferred to ' . $data['entity_id'];
-                    $old_state = 'Spare Part Transferred from ' . $partner_id;
+                    $new_state = 'Spare Part Transferred to ' . $spare_pending_on_to;
+                    $old_state = 'Spare Part Transferred from ' . $spare_pending_on;
                     $this->My_CI->inventory_model->update_spare_courier_details($spareid, $dataupdate);
                     if ($data['entity_type'] == _247AROUND_SF_STRING) {
                         $remarks = _247AROUND_TRANSFERED_TO_VENDOR;
                         $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
-                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], 1);
-                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -1);
+                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], $booking['quantity']);
+                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -$booking['quantity']);
                     } else if ($data['entity_type'] == _247AROUND_PARTNER_STRING && $booking['entity_type'] != _247AROUND_PARTNER_STRING) {
                         $remarks = _247AROUND_TRANSFERED_TO_PARTNER;
                         $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
-                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -1);
+                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -$booking['quantity']);
                     }
                     $tcount++;
                 } else {

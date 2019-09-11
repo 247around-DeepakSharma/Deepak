@@ -1,4 +1,5 @@
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
+<?php $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";?>
 <div id="page-wrapper" >
     <div class="container" >
         <?php if(validation_errors()){?>
@@ -264,40 +265,37 @@
                             <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
                         <div class="panel-body">
                             <div class="row">
+                                <div class="col-md-3" style="margin-left:15px;">
+                                    <div class="form-group">
+                                        <label >Category</label>
+                                        <select type="text" class="form-control appliance_category appliance_change" onChange="getCapacityForCategory(this.value, this.id);" disabled="disabled" id="<?php echo "appliance_category_".($keys + 1);?>"  name="appliance_category[<?php echo $keys;?>]"  >
+                                            <option selected><?php echo $unit_details['category']; ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <?php if (!empty($unit_details['capacity'])) { ?>
+                                <div class="col-md-3" style="margin-left:15px;">
+                                    <div class="form-group">
+                                        <label style="margin-left:8%;">Capacity</label>
+                                        <select type="text" class="form-control appliance_capacity appliance_change" disabled="disabled"  id="<?php echo "appliance_capacity_".($keys + 1);?>"  name="appliance_capacity[<?php echo $keys;?>]" >
+                                            <option selected><?php echo $unit_details['capacity']; ?></option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <?php } ?>
                                 <div class="col-md-3">
-                                    <div class="form-group ">
-                                        <div class="col-md-12 ">
-                                            <select type="text" class="form-control appliance_brand appliance_change" onChange="getCategoryForService(this.id)"   disabled="disabled"   name="appliance_brand[<?php echo $keys;?>]" id="<?php echo "appliance_brand_".($keys + 1);?>" >
-                                                <option selected><?php echo $unit_details['brand']; ?></option>
-                                            </select>
-                                        </div>
-                                    </div>
                                     <div class="form-group">
-                                        <div class="col-md-12 ">
-                                            <select type="text" class="form-control appliance_category appliance_change" onChange="getCapacityForCategory(this.value, this.id);" disabled="disabled" id="<?php echo "appliance_category_".($keys + 1);?>"  name="appliance_category[<?php echo $keys;?>]"  >
-                                                <option selected><?php echo $unit_details['category']; ?></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <?php if (!empty($unit_details['capacity'])) { ?>
-                                    <div class="form-group">
-                                        <div class="col-md-12">
-                                            <select type="text" class="form-control appliance_capacity appliance_change" disabled="disabled"  id="<?php echo "appliance_capacity_".($keys + 1);?>"  name="appliance_capacity[<?php echo $keys;?>]" >
-                                                <option selected><?php echo $unit_details['capacity']; ?></option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <?php } ?>
-                                     <div class="form-group">
                                          <label style="margin-left:8%;">Purchase Date</label>
                                          <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
-                                                <input autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($unit_details['quantity'][0]['sf_purchase_date'])){  echo $unit_details['quantity'][0]['sf_purchase_date']; } ?>">
+                                                <input autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($unit_details['sf_purchase_date'])){  echo $unit_details['sf_purchase_date']; } ?>">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$keys?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                          </div>
                                     </div>
+                                </div>
+                                <div class="col-md-3">
                                     <div class="form-group">
                                         <label style="margin-left:8%;">Purchase Invoice</label>
-                                        <div class="input-group input-append" style="width: 150px;margin-left: 14px;">
+                                        <div class="input-group input-append" style="margin-left: 14px;">
                                             <input type="file" name="sf_purchase_invoice" class="form-control purchase-invoice"
                                                    onchange="update_purchase_invoice_for_unit('<?php echo $keys?>')"
                                                    id="<?php echo "purchase_invoice_".$keys?>" value="<?= (!empty($unit_details['quantity'][0]['sf_purchase_invoice']) ? $unit_details['quantity'][0]['sf_purchase_invoice'] : ""); ?>">
@@ -314,16 +312,18 @@
                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-9">
-                                    <table class="table priceList table-striped table-bordered" name="priceList" >
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table class="table priceList table-striped table-bordered" name="priceList" width="100%">
                                         <tr>
-                                            <th style="width: 292px;">Serial Number</th>
-                                            <th>Service Category</th>
-                                            <th>Amount Due</th>
-                                            <th>Customer Basic Charge</th>
-                                            <th>Additional Charge</th>
-                                            <th style="width: 121px;">Parts Cost</th>
-                                            <th style="width:265px;">Status</th>
+                                            <th width="20%">Serial Number</th>
+                                            <th width="14%">Service Category</th>
+                                            <th width="12%">Amount Due</th>
+                                            <th width="12%">Customer Basic Charge</th>
+                                            <th width="12%">Additional Charge</th>
+                                            <th width="13%">Parts Cost</th>
+                                            <th width="17%">Status</th>
                                         </tr>
                                         <tbody>
                                             <?php
@@ -361,13 +361,13 @@
                                                                         <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" style="width:266px;">
                                                                             <option value="" selected="" disabled="">Model Number</option>
                                                                             <?php foreach ($unit_details['model_dropdown'] as $m) { ?>
-                                                                            <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $unit_details['model_number'] ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
+                                                                            <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $unit_details['sf_model_number'] ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
                                                                             <?php }?>
                                                                         </select>
                                                                         <?php }  else { 
                                                                             $isModelMandatory =1 ;
                                                                         ?>
-                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($unit_details['model_number'])){ echo $unit_details['model_number'];} ?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
+                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($unit_details['sf_model_number'])){ echo $unit_details['sf_model_number'];} ?>" class="form-control model_number" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
                                                                         <?php } 
                                                                         if(!empty($price['serial_number_pic'])) {
                                                                             $price_unit=$price['unit_id'];
@@ -476,43 +476,6 @@
                                                 $k_count++;
                                                 }
                                                 ?>
-                                            <?php foreach ($prices[$keys] as $index => $value) { ?>
-                                            <tr style="background-color:   #bce8f1; color: #222222;">
-                                                <td> <?php //if ($value['pod'] == "1") { ?>
-                                                    <input type="text" class="form-control" onblur="validateSerialNo('<?php echo $count;?>')"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
-                                                    <input type="hidden"  id="<?php echo "model_number" . $count; ?>" class="form-control" value="<?php echo $unit_details['model_number']; ?>"   />
-                                                    <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" />
-                                                    <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
-                                                    <?php //} ?>
-                                                </td>
-                                                <td> <?php echo $value['service_category']; ?> </td>
-                                                <input type="hidden" name="<?php echo "price_tags[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" value="<?php echo $price['price_tags'];?>">
-                                                <td><input  type="hidden" class="form-control"   name="<?php echo "customer_net_payable[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "<?php echo $value['customer_net_payable']; ?>"><?php echo $value['customer_net_payable']; ?>  </td>
-                                                <td>  <input  type="text" class="form-control cost"  id="<?php echo "basic_charge".$count; ?>"   name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "0.00">
-                                                <td>  <input  type="text" class="form-control cost"  id="<?php echo "extra_charge".$count; ?>"  name="<?php echo "additional_charge[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"   value = " <?php echo "0.00"; ?>">
-                                                </td>
-                                                <td>  <input  type="text" class="form-control cost"  id="<?php echo "parts_cost".$count; ?>"   name="<?php echo "parts_cost[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value = "<?php echo "0.00"; ?>"></td>
-                                                <td>
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <div class="form-group ">
-                                                                <div class="col-md-10">
-                                                                    <div class="radio">
-                                                                        <label>
-                                                                        <input class="<?php echo "completed_".$count."_".$keys;?>" type="radio" onclick="return change_status('<?php echo $count;?>');" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="Completed" id="<?php echo "completed_" . $value['pod'] . "_" . $count; ?>" > Completed<br/>
-                                                                        <input class="<?php echo "cancelled_".$count."_".$keys;?>" type="radio" onclick="return change_status('<?php echo $count;?>');" name="<?php echo "booking_status[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="Cancelled" id="<?php echo "cancelled_" . $value['pod'] . "_" . $count; ?>" > Not Completed
-                                                                        </label>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <?php
-                                                $count++;
-                                                }
-                                                ?>
                                         </tbody>
                                     </table>
                                     <span class="error_msg" style="color: red"></span>
@@ -521,6 +484,55 @@
                         </div>
                     </div>
                     <?php } ?>
+                    <?php if(!empty($spare_parts_details) && !empty($spare_consumed_status)) { ?>
+                        <div class="panel panel-info">
+                            <div class="panel-heading">Spare Parts Detail</div>
+                            <div class="panel-body">
+<div class="col-md-12" style="padding-left:0px;">
+                            <table class="table table-bordered table-condensed">
+                                <thead>
+                                    <th width="3%">S.No.</th>
+                                    <th width="25%">Part Number</th>
+                                    <th width="15%">Part Name</th>
+                                    <th width="10%">Part Type</th>
+                                    <th width="20">Spare Status</th>
+                                    <th width="27%">
+                                         <a href="javascript:void(0);" data-trigger="hover" data-html="true" data-toggle="popover" data-placement="left" title="Consumption Status Description" data-content="">
+                                            <span class="glyphicon glyphicon-info-sign"></span>
+                                        </a> Consumption Reason<span style="color:red;">*</span> 
+                                       
+                                    </th>
+                                </thead>
+                                <tbody style="font-size: 14px;">
+                                    <?php foreach($spare_parts_details as $sno => $spare_part_detail) { $consumption_status_description = ''; ?>
+                                    <tr>
+                                        <td><?php echo ++$sno; ?></td>
+                                        <td><?php echo $spare_part_detail['part_number']; ?></td>
+                                        <td><?php echo $spare_part_detail['parts_requested']; ?></td>
+                                        <td><?php echo $spare_part_detail['parts_requested_type']; ?></td>
+                                        <td><?php echo $spare_part_detail['status']?></td>
+                                        <td>
+                                            <input type="hidden" name="spare_qty[<?php echo $spare_part_detail['id']; ?>]" value="<?php echo $spare_part_detail['quantity']; ?>">
+                                            <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" value="" id="wrong_part_<?php echo $spare_part_detail['id']; ?>">
+                                            <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
+                                                <option value="" selected disabled>Select Reason</option>
+                                                <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
+                                                    if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
+                                                    <option value="<?php echo $status['id']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
+                                                <?php $description_no++; } ?>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                            <span hidden id="status_consumption_status"><?php echo $consumption_status_description; ?></span>
+                        </div>
+                            </div>
+                        </div>
+                        
+                    <?php } ?>
+                    
                     <div class="row">
                         <div class ="col-md-12">
                             <div class="form-group col-md-6">
@@ -666,15 +678,32 @@
     </div>
 </div>
 </div>
+<!-- Wrong spare parts modal -->
+<div id="WrongSparePartsModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="wrong_spare_part_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Wrong Part</h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+        </div>
+    </div>
+</div>
 <script>
     $("#technical_problem").select2();
     $('#technical_defect').select2();
     $('#technical_solution').select2();
-    $(".booking_source").select2();
-    $(".model_number").select2();
+    $(".booking_source").select2();  
+    $(".spare_consumption_status").select2();
+    $('[data-toggle="popover"]').attr('data-content', $('#status_consumption_status').html());
 </script>
 <script>
-    
+    <?php if(empty($str_disabled)) { ?> 
+        $(".model_number").select2();
+    <?php } ?>  
     $("#service_id").select2();
     $("#booking_city").select2();
     var brandServiceUrl =  '<?php echo base_url();?>/employee/booking/getBrandForService/';
@@ -683,7 +712,7 @@
     
     var solution_id = "";
     $(document).ready(function () {
-        
+        $('[data-toggle="popover"]').popover(); 
     //called when key is pressed in textbox
     $(".cost").keypress(function (e) {
      //if the letter is not digit then display error and don't type anything
@@ -706,6 +735,13 @@
         $(":radio").each(function() {
             $("#"+this.id).prop("checked",false);
         });
+        
+        $('.spare_consumption_status').on('change', function() {
+            if($(this).val() == <?php echo WRONG_PART_RECEIVED_STATUS_ID; ?>) {
+                open_wrong_spare_part_model($(this).children("option:selected").data('spare_id'), '<?php echo $booking_history[0]['booking_id']; ?>', $(this).children("option:selected").data('part_number'), '<?php echo $booking_history[0]['service_id']; ?>');
+            }
+        })
+        
     });
     
     
@@ -802,7 +838,10 @@
                 if(service_category_pod_required.includes($.trim($('#price_tags'+price_tag_row_number).text()))) {
                     var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required_'+div_class).val();
                     if(is_sf_purchase_invoice_required == '1') {
-                        var sf_purchase_invoice = $('#purchase_invoice_'+div_class).attr('value');
+                        var sf_purchase_invoice = $('#purchase_invoice_'+div_class).val();
+                        if(sf_purchase_invoice == '') {
+                            var sf_purchase_invoice = $('#purchase_invoice_'+div_class).attr('value');
+                        }
                         if(sf_purchase_invoice == '') {
                             alert("Please upload sf purchase invoice document.");
                             flag = 1;
@@ -1041,15 +1080,14 @@
 //        }
 //    }
 
-
-        var is_sf_purchase_invoice_required = $('#is_sf_purchase_invoice_required').val();
-        if(is_sf_purchase_invoice_required == '1') {
-            var sf_purchase_invoice = $('#sf_purchase_invoice').val();
-            if(sf_purchase_invoice == '') {
-                alert("Please upload sf purchase invoice document.");
-                return false;
-            }
+    $('.spare_consumption_status').each(function(index, value) {
+        if($(this).val() == '' || $(this).val() == null) {
+            alert('Please select spare consumption status for all parts.');
+            flag = 1;
+            return false;                
         }
+    });
+
 
     if (flag === 0) {
         return true;
@@ -1305,4 +1343,25 @@
              maxDate:0
          }).datepicker('show');
     }
+    
+    function open_wrong_spare_part_model(spare_part_detail_id, booking_id, part_name, service_id) {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/booking/wrong_spare_part/' + booking_id + "/" +spare_part_detail_id+'/'+part_name,
+            data: {spare_part_detail_id:spare_part_detail_id, booking_id:booking_id, part_name:part_name, service_id:service_id},
+            success: function (data) {
+                $("#wrong_spare_part_model").children('.modal-content').children('.modal-body').html(data);   
+                $('#WrongSparePartsModal').modal({backdrop: 'static', keyboard: false});
+            }
+        });
+    }
+
 </script>
+<style>
+    <?php if(!empty($str_disabled)) { ?> 
+        .dop , .model_number{
+            pointer-events : none !important;
+            background : #eee !important;
+        }    
+    <?php } ?>
+</style>

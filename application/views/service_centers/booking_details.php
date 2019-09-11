@@ -398,6 +398,8 @@
                                 <th >Remarks By SC </th>
                                 <th>Current Status</th>
                                 <th>Spare Cancellation Reason</th>
+                                <th>Consumption</th>
+                                <th>Consumption Reason</th>
                                 <?php if($this->session->userdata("is_micro_wh") == 1){ ?>
                                 <th>Remove MSL Consumption</th>
                                 <?php } ?>
@@ -435,6 +437,8 @@
                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                 <td><?php echo $sp['status'];?></td>
                                 <td><?php echo $sp['part_cancel_reason'];?></td>
+                                <td><?php if($sp['is_consumed'] == 1) { echo 'Yes';} else { echo 'No';} ?></td>
+                                <td><?php echo $sp['consumed_status']; ?></td>
                                 <?php if($this->session->userdata("is_micro_wh") == 1){ 
                                     if($sp['status'] == SPARE_DELIVERED_TO_SF && $sp['entity_type'] == _247AROUND_SF_STRING && $sp['partner_id'] == $this->session->userdata("service_center_id") && $sp['service_center_id'] == $this->session->userdata("service_center_id")){ ?>
                                 <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>)">Remove</button></td>
@@ -536,6 +540,7 @@
                             <tr>
                                 <th >Shipped Parts </th>
                                 <th >Shipped Parts Number </th>
+                                <th >Quantity</th>
                                 <th >Courier Name </th>
                                 <th>AWB </th>
                                 <th> No. Of Boxes </th>
@@ -549,25 +554,28 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
+
+                            <?php //print_r($defective_history); //exit;  ?>
+                            <?php foreach ($defective_history as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                             <tr>
                                 <td><?php echo $sp['defective_part_shipped']; ?></td>
                                 <td><?php if(!empty($sp['shipped_part_number'])){echo $sp['shipped_part_number'];}else{ echo 'Not Available';}  ?></td>
-                                <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
+                                <td><?php echo $sp['qty']; ?></td>
+                                <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['def_courier_name'])); ?></td>
                                  <?php
                                         $spareStatus = DELIVERED_SPARE_STATUS;
                                         if(!$sp['defactive_part_received_date_by_courier_api']){
                                             $spareStatus = $sp['status'];
                                         }
                                         ?>
-                                <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
-                                            <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
+                                <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['def_courier_name']; ?>','<?php echo $sp['awb_by_sf_defective']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf_defective']; ?>')"><?php echo $sp['awb_by_sf_defective']; ?></a> 
+                                            <span id=<?php echo "awb_loader_".$sp['awb_by_sf_defective'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                
-                                <td><?php if (!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['box_count'])) {
+                                <td><?php if (!empty($sp['awb_by_sf_defective']) && !empty($courier_boxes_weight_details['box_count'])) {
                                     echo $courier_boxes_weight_details['box_count'];
                                 } ?></td>
                                 <td><?php
-                                        if (!empty($sp['awb_by_sf'])) {
+                                        if (!empty($sp['awb_by_sf_defective'])) {
                                             if (!empty($courier_boxes_weight_details['billable_weight'])) {
                                                 $expl_data = explode('.', $courier_boxes_weight_details['billable_weight']);
                                                 if (!empty($expl_data[0])) {
@@ -579,8 +587,8 @@
                                             }
                                         }
                                    ?></td>
-                                <td><?php echo $sp['courier_charges_by_sf']; ?></td>
-                                <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
+                                <td><?php echo $sp['def_courier_price_by_sf']; ?></td>
+                                <td><?php echo date('Y-m-d', strtotime($sp['qty_def_shipped_date'])); ?></td>
                                 <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                 <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                 <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
@@ -859,8 +867,8 @@
                     <h4 class="modal-title" id="modal-title">Remove MSL Consumption</h4>
                 </div>
                 <div class="modal-body">
-                    <h4 style="padding: 3px;font-size: 1em;" id="status_label" class="modal-title">Cancellation Reason *</h4>
-                    <select id="msl_remove_reason" class="form-control"></select>
+<!--                    <h4 style="padding: 3px;font-size: 1em;" id="status_label" class="modal-title">Cancellation Reason *</h4>
+                    <select id="msl_remove_reason" class="form-control"></select>-->
                     <h4 style="padding: 3px;font-size: 1em; margin-top: 10px;" id="remarks_label" class="modal-title">Remarks *</h4>
                     <textarea rows="3" class="form-control" id="msl_remove_remark" placeholder="Enter Remarks"></textarea>
                     <input type="hidden" id="model_spare_id">
@@ -999,11 +1007,12 @@
             });
         }
         
-    function open_model_for_remove_msl(spare_id, booking_id, inventory_id){ 
+    function open_model_for_remove_msl(spare_id, booking_id, inventory_id){
+        /*
         $.ajax({
             method:"POST",
             data : {},
-            url:'<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons',
+            url:'<?php //echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons',
             success: function(response){
                 $("#model_spare_id").val(spare_id);
                 $("#model_booking_id").val(booking_id);
@@ -1012,24 +1021,32 @@
                 $("#msl_remove_reason").select2();
             }
         });
+        */
+           
+        $("#model_spare_id").val(spare_id);
+        $("#model_booking_id").val(booking_id);
+        $("#model_inventory_id").val(inventory_id);
+        $("#msl_remove_reason").select2();
         $("#remove_msl_model").modal('show');
     }    
         
     function cancelAutoDeliveredPart(){ 
         var spare_id = $("#model_spare_id").val();
         var booking_id = $("#model_booking_id").val();
+        /*
         var spare_cancel_id = $("#msl_remove_reason").val();
         if(!spare_cancel_id){
             alert("Please select cancellation reason");
         }
-        else if(!$("#msl_remove_remark").val()){
+        */
+        if(!$("#msl_remove_remark").val()){
             alert("Please fill remarks");
         }
         else{
             $.ajax({
                 method:"POST",
                 url:'<?php echo base_url(); ?>employee/inventory/remove_msl_consumption',
-                data:{'spare_parts_id':spare_id, 'booking_id':booking_id, 'spare_cancel_id':spare_cancel_id, 'spare_cancel_reason': $("#msl_remove_reason option:selected").text(), 'remarks':$("#msl_remove_remark").val(), 'inventory_id':$("#model_inventory_id").val()},
+                data:{'spare_parts_id':spare_id, 'booking_id':booking_id, 'spare_cancel_reason': '<?php echo SPARE_RECIEVED_NOT_USED; ?>', 'remarks':$("#msl_remove_remark").val(), 'inventory_id':$("#model_inventory_id").val()},
                 success: function(response){
                     if(response){
                         alert("MSL removed successfully");

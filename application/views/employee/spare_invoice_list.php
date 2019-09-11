@@ -1,7 +1,12 @@
 
 <div id="page-wrapper" >
-    <div class="col-md-12">
-        <h2 class="page-header">Spare Invoice List</h2>
+    <div class="col-md-12" style="border-bottom: 1px solid #ccc; margin-bottom: 30px;">
+        <div class="col-md-6">
+            <h2 class="page-header" style="border: none;">Spare Invoice List</h2>
+        </div>
+        <div class="col-md-6">
+            <button onclick="open_create_invoice_form()" style="margin-top: 45px;float: right;" class="btn btn-md btn-primary">create</button>
+        </div>
     </div>
     <div class="col-md-12">
         <table class="table table-bordered table-hover table-striped data" id="invoice_table">
@@ -32,26 +37,23 @@
                     <td><?php  echo $value->public_name; ?></td>
                     <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $value->purchase_price; ?></td>
                     <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $value->sell_price; ?></td>
-                    <td><?php echo $value->purchase_invoice_id; ?></td>
+                    <td><?php echo $value->invoice_id; ?></td>
                     <td class="text-center">
-                        <?php if(!empty($value->incoming_invoice_pdf)){ ?>
-                        <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $value->incoming_invoice_pdf;  ?>">
+                        <?php if(!empty($value->invoice_pdf)){ ?>
+                        <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $value->invoice_pdf;  ?>">
                             <img style="width:27px;" src="<?php echo base_url();?>images/invoice_icon.png"; /></a>
                     <?php } ?>
                     </td>
                     <td><?php if(!empty($value->sell_invoice_id)){ echo $value->sell_invoice_id; } else { ?>
                         <a href="<?php echo base_url();?>employee/invoice/generate_oow_parts_invoice/<?php echo $value->id; ?>" class="btn btn-md btn-success">Generate Sale Invoice</a>
                     <?php } ?></td>
-                    <td><input type="checkbox" class="form-control spare_id" name="spare_id[]" data-partner_id="<?php echo $value->booking_partner_id; ?>" data-booking_id ="<?php echo $value->booking_id?>" value="<?php echo $value->id; ?>" /></td>
+                    <td><input type="checkbox" class="form-control spare_id" name="spare_id[]" data-partner_id="<?php echo $value->booking_partner_id; ?>" data-invoice_id ="<?php echo $value->invoice_id?>" data-spare_id="<?php echo $value->id; ?>" value="<?php echo $value->id; ?>" /></td>
                 </tr>
                 <?php }?>
             </tbody>
             
         </table>
-        <div class="col-md-12 col-md-offset-6">
-            <button onclick="open_create_invoice_form()" class="btn btn-md btn-primary">create</button>
-        </div>
-        
+                
     </div>
 <div id="purchase_invoice" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -103,55 +105,75 @@
  function open_create_invoice_form(){
         var spare_id = [];
         var partner_id_array = [];
+        var invoice_id_array = [];
         var data = [];
         $('.spare_id:checked').each(function (i) {
             spare_id[i] = $(this).val();
             var partner_id  = $(this).attr('data-partner_id');
-            var booking_id  = $(this).attr('data-booking_id');
+            var invoice_id  = $(this).attr('data-invoice_id');
             partner_id_array.push(partner_id);
+            invoice_id_array.push(invoice_id);
             data[i] =[];
             data[i]['spare_id'] = spare_id[i];
             data[i]['partner_id'] = partner_id;
-            data[i]['booking_id'] = booking_id;
          
         });
-    
-        if(spare_id.length > 0){
-            var unique_partner = ArrayNoDuplicate(partner_id_array);
-            if(unique_partner.length > 1){
-                alert("You Can not select multiple partner booking");
-            } else {
-                var html  = '<input type="hidden" name="partner_id" value="'+unique_partner[0]+'" />';
-                for(k =0; k < data.length; k++){
-                    html +='<div class="col-md-12" >';
-                    html += '<div class="col-md-4 "> <div class="form-group col-md-12  "><label for="remarks">Booking ID *</label>';
-                    html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="bookingid_'+k+'" placeholder="Enter Booking ID" name="part['+data[k]["spare_id"]+'][booking_id]" value = "'+data[k]['booking_id']+'" >';
-                    html += '</div></div>';
-                    
-                    html += '<div class="col-md-3 " style="width: 18%"><div class="form-group col-md-12  ">';
-                    html += ' <label for="remarks">HSN Code *</label>';
-                    html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="hsncode_'+k+'" placeholder="HSN Code" name="part['+data[k]["spare_id"]+'][hsn_code]" value = "" >';
-                    html += '</div></div>';
-                    
-                    html += '<div class="col-md-3 " style="width: 17%"><div class="form-group col-md-12  ">';
-                    html += ' <label for="remarks">GST Rate *</label>';
-                    html += '<input required type="number" class="form-control" style="font-size: 13px;"  id="gstrate'+k+'" placeholder="GST Rate" name="part['+data[k]["spare_id"]+'][gst_rate]" value = "" >';
-                    html += '</div></div>';
-                    
-                    html += '<div class="col-md-4 " style="width: 30%"><div class="form-group col-md-12  ">';
-                    html += ' <label for="remarks">Basic Amount *</label>';
-                    html += '<input required type="number" step=".01" class="form-control" style="font-size: 13px;"  id="basic_amount'+k+'" placeholder="Enter Amount" name="part['+data[k]["spare_id"]+'][basic_amount]" value = "" >';
-                    html += '</div></div>';
-                    
-                    html += '</div>';
-                }
-                $("#spare_inner_html").html(html);
-                $('#purchase_invoice').modal('toggle'); 
-            }
-        } else {
-            alert("Please Select Atleast One Checkbox");
+        var unique_partner = ArrayNoDuplicate(partner_id_array);
+        var unique_invoice = ArrayNoDuplicate(invoice_id_array);
+        var flag = true;
+        if(unique_invoice.length > 1){
+          flag = false;
+          alert("You Can not select different invoice id.");  
+          return false;
         }
-    
+        
+        if(unique_partner.length > 1){
+             flag = false;
+             alert("You Can not sel ect multiple partner booking");
+             return false;
+         } 
+          if(flag){
+            $.ajax({
+                 method:'POST',
+                 dataType: "json",
+                 url:'<?php echo base_url(); ?>employee/inventory/get_spare_invoice_details',
+                 data: { spare_id_array : spare_id },
+                 success:function(data){ 
+                     if(data.length > 0){
+                         $("#invoice_id").val(data[0]['invoice_id']);
+                         $("#invoice_date").val(data[0]['invoice_date']);
+                       var html  = '<input type="hidden" name="partner_id" value="'+unique_partner[0]+'" />';
+                       for(k =0; k < data.length; k++){
+                            html +='<div class="col-md-12" >';
+                            html += '<div class="col-md-4 "> <div class="form-group col-md-12  "><label for="remarks">Booking ID *</label>';
+                            html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="bookingid_'+k+'" placeholder="Enter Booking ID" name="part['+data[k]["spare_id"]+'][booking_id]" value = "'+data[k]['booking_id']+'" >';
+                            html += '</div></div>';
+
+                            html += '<div class="col-md-3 " style="width: 18%"><div class="form-group col-md-12  ">';
+                            html += ' <label for="remarks">HSN Code *</label>';
+                            html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="hsncode_'+k+'" placeholder="HSN Code" name="part['+data[k]["spare_id"]+'][hsn_code]" value = "'+data[k]["hsn_code"]+'" >';
+                            html += '</div></div>';
+
+                            html += '<div class="col-md-3 " style="width: 17%"><div class="form-group col-md-12  ">';
+                            html += ' <label for="remarks">GST Rate *</label>';
+                            html += '<input required type="number" class="form-control" style="font-size: 13px;"  id="gstrate'+k+'" placeholder="GST Rate" name="part['+data[k]["spare_id"]+'][gst_rate]" value = "'+data[k]["gst_rate"]+'" >';
+                            html += '</div></div>';
+
+                            html += '<div class="col-md-4 " style="width: 30%"><div class="form-group col-md-12  ">';
+                            html += ' <label for="remarks">Basic Amount *</label>';
+                            html += '<input required type="number" step=".01" class="form-control" style="font-size: 13px;"  id="basic_amount'+k+'" placeholder="Enter Amount" name="part['+data[k]["spare_id"]+'][basic_amount]" value = "'+data[k]["invoice_amount"]+'" >';
+                            html += '</div></div>';
+                            html += '</div>';
+                       }  
+                       
+                    $("#spare_inner_html").html(html);
+                    $('#purchase_invoice').modal('toggle'); 
+                    }
+                     
+                 }
+            });  
+        }
+            
     }
     
     function ArrayNoDuplicate(a) {

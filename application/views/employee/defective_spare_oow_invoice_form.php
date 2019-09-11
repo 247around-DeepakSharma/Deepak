@@ -56,12 +56,11 @@
                                 <th>S.No.</th>
                                 <th>Booking Id</th>
                                 <th>Part Name</th>
+                                <th>Part Qty</th>
                                 <th>Part Type</th>
                                 <th>Challan Approx Value</th>
                                 <th>Status</th>
-                                <th>HSN Code</th>
-                                <th>GST Rate</th>
-                                <th>Purchase Amount</th>
+                                <th>Purchase Amount<small> (Including Tax) </small></th>
                                 <th>Reason</th>
                                 <th>Action</th>
                             </tr>
@@ -86,11 +85,10 @@
             $.ajax({
                 url:'<?php echo base_url(); ?>employee/spare_parts/get_defective_spare_parts',
                 type:'POST',
-                data:{booking_id:booking_id, page : "<?php echo BILL_DEFECTIVE_OOW_SPARE_PART_PAGE; ?>"}
+                data:{booking_id:booking_id, part_warranty_status: "<?php echo SPARE_PART_IN_OUT_OF_WARRANTY_STATUS; ?>", page : "<?php echo BILL_DEFECTIVE_OOW_SPARE_PART_PAGE; ?>"}
             }).done(function(response){
                 response = JSON.parse(response);
                 var remarks = response.remarks;
-                var hsn_code = response.hsn_code;
                 response = response.data;
                 if(response.length == '0'){
                    alert("No data found for this booking id.");
@@ -106,14 +104,13 @@
                         }
                         html += "<tr>";
                             html += "<td>"+ index +"</td>";
-                            html += "<td>"+ response[i]['booking_id'] +"</td>";
+                            html += "<td><a href ='<?php echo base_url()?>employee/booking/viewdetails/"+ response[i]['booking_id']+ "' target='_blank'>"+ response[i]['booking_id']+ "</a></td>";
                             html += "<td>"+ response[i]['parts_shipped'] +"</td>";
+                            html += "<td><input type='text' class='form-control' id='shipped_qty_"+i+"' value='"+ response[i]['shipped_quantity'] +"' readonly ></td>";
                             html += "<td>"+ response[i]['shipped_parts_type'] +"</td>";
-                            html += "<td><a "+href+" target='_blank'>"+ response[i]['challan_approx_value'] +"</td></a>";
+                            html += "<td><a "+href+" target='_blank' id='challan_value_"+i+"' >"+ response[i]['challan_approx_value'] +"</td></a>";
                             html += "<td>"+ response[i]['status'] +"</td>";
-                            html += '<td><input type="hidden" id="spare_product_name_'+i+'" value="'+response[i]['parts_shipped']+'"><select class="form-control" onchange="get_gst_rate(this, '+i+')" id="hsn_code_'+i+'">'+hsn_code+'</select></td>';
-                            html += '<td><input type="text" placeholder="GST Rate" class="form-control" id="gst_rate_'+i+'" readonly></td>';
-                            html += '<td><input type="number" class="form-control" placeholder="Enter Confirm Value" id="confirm_value_'+i+'"></td>';
+                            html += '<td><input type="hidden" id="spare_product_name_'+i+'" value="'+response[i]['parts_shipped']+'"><input type="hidden" id="hsn_code_'+i+'" value="'+response[i]['hsn_code']+'"><input type="hidden" id="gst_rate_'+i+'" value="'+response[i]['gst_rate']+'"><input type="hidden" id="price_val_'+i+'" value="'+response[i]['price']+'"><input type="number" class="form-control part_value" placeholder="Enter Confirm Value" id="confirm_value_'+i+'" onchange="checkPartVal(this.id)"></td>';
                             html += '<td>';
                             html += '<select id="reason_'+i+'"><option  disabled selected>Select Reason</option>';
                             for(var k=0; k<remarks.length; k++){
@@ -125,12 +122,21 @@
                         html += "</tr>";
                         index++;
                     }
-                    html += "<tr><td colspan='10'><input type='text' id='remarks' style='height: 50px;' class='form-control' placeholder='Enter Remark for generating defective spare invoice for vendor'></td><td><input type='button' class='btn btn-primary' value='Submit' onclick='generate_spare_invoice()'></td></tr>";
+                    html += "<tr><td colspan='9'><input type='text' id='remarks' style='height: 50px;' class='form-control' placeholder='Enter Remark for generating defective spare invoice for vendor'></td><td><input type='button' id='btn_submit' class='btn btn-primary' value='Submit' onclick='generate_spare_invoice()'></td></tr>";
                     $("#defective_spare_detail").css("display", "inline-table");
                     $("#defective_spare_detail tbody").html(html);
                     $("select").select2();
                 }
-               
+
+                $('.part_value').each(function(){
+                    var id = $(this).attr('id').split('_');
+                    var part_val = $('#confirm_value_'+id[2]).val();
+                    if($('#price_val_'+id[2]).val() !== 'null') {
+                        var invoice_value = parseFloat($('#price_val_'+id[2]).val()) + (parseFloat($('#price_val_'+id[2]).val())*(parseFloat($('#gst_rate_'+id[2]).val())/100));
+                        var tot_invoice_value = parseFloat(invoice_value) * parseFloat($('#shipped_qty_'+id[2]).val());
+                        $('#confirm_value_'+id[2]).val(tot_invoice_value.toFixed(2));
+                    }
+                });
             });
         }
         else{
@@ -139,6 +145,7 @@
     }
     
     function generate_spare_invoice(){
+        $('#btn_submit').attr("disabled",true);
         if($("input:checkbox[name=spare_checkbox]:checked").length !== 0){
             var booking_id = $("#booking_id").val();
             var flag = true;
@@ -189,6 +196,7 @@
                     $("#defective_spare_detail tbody").html("");
                     $("#booking_id").val(null);
                     $('body').loadingModal('destroy');
+                    $('#btn_submit').removeAttr("disabled");
                    if(response == true){
                        alert("Invoice generated successfully");
                    }
@@ -198,21 +206,28 @@
                 });
                }
                else{
+                $('#btn_submit').removeAttr("disabled");
                 alert("Please Enter Remark");
                }
             }
             else{
+               $('#btn_submit').removeAttr("disabled");
                alert("Enter input fields for checked spare parts");
             }
         }
         else{
+            $('#btn_submit').removeAttr("disabled");
             alert("Please select atleast one checkbox");
         }
     }
     
     
-    function get_gst_rate(select, index){
-        $("#gst_rate_"+index).val($(select).select2().find(":selected").attr("gst_rate"));
+    function checkPartVal(id) {
+        var id1 = id.split('_');
+        if(parseFloat($('#confirm_value_'+id1[2]).val()) < parseFloat($('#challan_value_'+id1[2]).text())) {
+            alert("Purchase Amount is Less Than Challan Approx Value!!");
+            $('#confirm_value_'+id1[2]).focus();
+        }
     }
 
 </script> 

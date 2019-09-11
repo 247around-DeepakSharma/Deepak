@@ -34,6 +34,9 @@ if ($this->uri->segment(3)) {
                                 <th class="text-center">S.N</th>
                                 <th class="text-center">Booking ID</th>
                                 <th class="text-center">Customer Name</th>
+                                <th class="text-center">Product Name</th>
+                                <th class="text-center">Model Number</th>
+                                <th class="text-center">Date Of Purchase</th>
                                 <th class="text-center">Shipped Parts</th>
                                 <th class="text-center">Parts Number</th>
                                 <th class="text-center">Requested Quantity</th>
@@ -76,7 +79,7 @@ if ($this->uri->segment(3)) {
             },
             "columnDefs": [
                 {
-                    "targets": [0,2,6,8,9], //first column / numbering column
+                    "targets": [0,2,3,4,9,11,12,14], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  

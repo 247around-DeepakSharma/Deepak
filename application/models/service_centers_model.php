@@ -250,7 +250,7 @@ class Service_centers_model extends CI_Model {
         }
         if(!empty($whereIN)){
              foreach ($whereIN as $fieldName=>$conditionArray){
-                     $where_in = " AND ".$fieldName." IN ('".implode("','",$conditionArray)."')";
+                     $where_in .= " AND ".$fieldName." IN ('".implode("','",$conditionArray)."')";
              }
          }
          if(!empty($where)){
@@ -459,9 +459,10 @@ class Service_centers_model extends CI_Model {
          //echo $this->db->last_query();
         return $query->result_array();
     }
-    
-    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL){
-        $this->_spare_parts_booking_query($where, $select,$state);
+
+    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL, $is_defective_required = false){
+        $this->_spare_parts_booking_query($where, $select,$state, $is_defective_required);
+
         if($group_by){
             $this->db->group_by($group_by);
         }
@@ -473,6 +474,7 @@ class Service_centers_model extends CI_Model {
             $this->db->limit($limit, $offset);
         }
         $query = $this->db->get();
+        // print_r($this->db->last_query());  exit;
         if($download){
           return $query;
         }
@@ -481,13 +483,19 @@ class Service_centers_model extends CI_Model {
     }
     }
     
-    function _spare_parts_booking_query($where, $select,$state=0){
+
+    function _spare_parts_booking_query($where, $select,$state=0, $is_defective_required = false){
         $this->db->select($select, false);
         $this->db->from('spare_parts_details');
         $this->db->join('booking_details','booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->join('users', 'users.user_id =  booking_details.user_id');
         $this->db->join('service_centres', 'spare_parts_details.service_center_id =  service_centres.id');
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
+        $this->db->join("services","booking_details.service_id = services.id", "left");
+
+        if(!empty($is_defective_required)) {
+            $this->db->join('spare_qty_mgmt', 'spare_parts_details.id =  spare_qty_mgmt.spare_id', 'left');
+        }
         $this->db->where($where, false);  
         if($state == 1){
             $stateWhere['agent_filters.agent_id'] = $this->session->userdata('agent_id');
@@ -497,9 +505,9 @@ class Service_centers_model extends CI_Model {
         }
     }
     
-    function count_spare_parts_booking($where, $select, $group_by = false,$state=0){
+    function count_spare_parts_booking($where, $select, $group_by = false,$state=0,$qty_check=FALSE){
         $this->db->distinct();
-        $this->_spare_parts_booking_query($where, $select,$state);
+        $this->_spare_parts_booking_query($where, $select,$state,$qty_check);
         if($group_by){
             $this->db->group_by($group_by);
         }
@@ -1157,5 +1165,19 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
                       `closed_date` DESC";
         
         return $this->db->query($sql)->result_array();     
+    }
+    
+        /**
+     * @desc: Insert booking details for spare parts
+     * @param Array $data
+     * @return boolean
+     */
+    function insert_data_into_spare_invoice_details($data){
+        
+       if(!empty($data)){
+         $this->db->insert('spare_invoice_details', $data);  
+       }       
+        log_message('info', __FUNCTION__ . '=> Insert Spare Parts: ' .$this->db->last_query());
+        return $this->db->insert_id();  
     }
 }

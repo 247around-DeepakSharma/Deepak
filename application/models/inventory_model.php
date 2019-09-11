@@ -334,7 +334,7 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
-    public function _get_spare_parts_query($post) {
+    public function _get_spare_parts_query($post) {       
         $this->db->from('spare_parts_details');
         $this->db->select($post['select'].", DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) AS age_of_shipped_date,"
@@ -359,6 +359,11 @@ class Inventory_model extends CI_Model {
         if(isset($post['spare_cancel_reason'])){
             $this->db->join('booking_cancellation_reasons','booking_cancellation_reasons.id = spare_parts_details.spare_cancellation_reason', "left");
         }
+        
+        if( isset($post['spare_invoice_flag']) && !empty($post['spare_invoice_flag'])){
+            $this->db->join('spare_invoice_details', 'spare_parts_details.id = spare_invoice_details.spare_id','left');  
+        }
+        
         $this->db->join('services', 'booking_details.service_id = services.id','left');
         
         if (!empty($post['where'])) {
@@ -649,29 +654,33 @@ class Inventory_model extends CI_Model {
     *  @return : $res array
     */
     
-   function get_alternate_inventory_stock_list($inventory_id, $service_center_id) {
+   function get_alternate_inventory_stock_list($inventory_id, $service_center_id, $model_number) {
 
         $inventory_stock_details = array();
         if (!empty($inventory_id)) {
-            $where_clause = "AND alternate_inventory_set.status = 1 AND alternate_inventory_set.inventory_id = ".$inventory_id;
-             $flag = true;
-            $inventory_id_sets = $this->get_group_wise_inventory_id_detail('alternate_inventory_set.inventory_id', $where_clause, $flag);
-            if(!empty($inventory_id_sets)){
-                $inventory_ids = implode(',', array_map(function ($entry) {
-                        return $entry['inventory_id'];
-                    }, $inventory_id_sets));
-                    
-                if (!empty($service_center_id)) {
-                    $where = "inventory_stocks.entity_id = " . $service_center_id;
-                } else {
-                    $where = "service_centres.is_wh = 1 ";
-                }
-                
-                $where .= " AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
-                if (!empty($inventory_ids)) {
-                    $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock - inventory_stocks.pending_request_count) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name', $where, $inventory_ids);
-                }
+            $model = $this->get_appliance_model_details("*", array('model_number' => $model_number, "appliance_model_details.active" => 1));
+            if(!empty($model)){
+                $where_clause = "AND alternate_inventory_set.status = 1 AND model_id = '".$model[0]['id']."' AND alternate_inventory_set.inventory_id = ".$inventory_id;
+                $flag = true;
+                $inventory_id_sets = $this->get_group_wise_inventory_id_detail('alternate_inventory_set.inventory_id', $where_clause, $flag);
+                if(!empty($inventory_id_sets)){
+                   $inventory_ids = implode(',', array_map(function ($entry) {
+                           return $entry['inventory_id'];
+                       }, $inventory_id_sets));
+
+                   if (!empty($service_center_id)) {
+                       $where = "inventory_stocks.entity_id = " . $service_center_id;
+                   } else {
+                       $where = "service_centres.is_wh = 1 ";
+                   }
+
+                   $where .= " AND appliance_model_details.id ='".$model[0]['id']."' AND appliance_model_details.active = 1 AND inventory_stocks.entity_type ='" . _247AROUND_SF_STRING . "' AND (inventory_stocks.stock - inventory_stocks.pending_request_count) > 0 ";
+                   if (!empty($inventory_ids)) {
+                       $inventory_stock_details = $this->get_inventory_stock_details('inventory_stocks.stock as stocks,(inventory_stocks.stock - inventory_stocks.pending_request_count) as stock,inventory_stocks.entity_id,inventory_stocks.entity_type,inventory_stocks.inventory_id, inventory_master_list.part_name, inventory_master_list.type', $where, $inventory_ids);
+                   }
+               }
             }
+            
         }
 
         return $inventory_stock_details;
@@ -1227,6 +1236,7 @@ class Inventory_model extends CI_Model {
         }
         $this->db->order_by('model_number','ASC');
         $query = $this->db->get('appliance_model_details');
+      //  print_r($this->db->last_query());  exit;
         return $query->result_array();
     }
     
@@ -1634,12 +1644,17 @@ class Inventory_model extends CI_Model {
         $this->db->from('booking_details');
         $this->db->join('spare_parts_details','booking_details.booking_id = spare_parts_details.booking_id');
         $this->db->join('partners','booking_details.partner_id = partners.id');
+        $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id','left');
         $this->db->join('service_centres','booking_details.assigned_vendor_id = service_centres.id');
         $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='"._247AROUND_EMPLOYEE_STRING."' ", "left"); // new query for AM
         $this->db->join('employee',"employee.id = agent_filters.agent_id", "left"); // new query for AM
         //$this->db->join('employee','partners.account_manager_id = employee.id'); // old query for AM
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
-        $this->db->where($where,false);
+        $this->db->join('service_centres sc','spare_parts_details.partner_id=sc.id','left');
+        if(!empty($where)){
+           $this->db->where($where,false); 
+        }
+        
         if(!empty($group_by)) {
             $this->db->group_by($group_by,false);
         }
@@ -1865,11 +1880,11 @@ class Inventory_model extends CI_Model {
                 foreach ($data_spare_part_detail as  $value){
                     if($value['awb_by_sf'] == $data['awb_number']){
                        $courier_company_update_data['pickup_from'] = _247AROUND_SF_STRING;
-                       $this->update_spare_courier_details($value['id'], array('courier_charges_by_sf'=>$courier_amount));
+                       $this->update_spare_courier_details($value['id'], array('courier_charges_by_sf'=>$courier_amount,'around_pickup_from_service_center'=>1));
                     }
                     else if($value['awb_by_partner'] == $data['awb_number']){
                        $courier_company_update_data['pickup_from'] = _247AROUND_PARTNER_STRING;
-                       $this->update_spare_courier_details($value['id'], array('courier_price_by_partner'=>$courier_amount)); 
+                       $this->update_spare_courier_details($value['id'], array('courier_price_by_partner'=>$courier_amount,'around_pickup_from_partner'=>1)); 
                     }
                     
                 }
@@ -2554,14 +2569,16 @@ class Inventory_model extends CI_Model {
         if (!empty($where_in)) {
             $this->db->where('inventory_stocks.inventory_id IN (' . $where_in . ') ', NULL);
         }
-               
+                       
         $this->db->from('inventory_stocks');
         $this->db->join('inventory_master_list','inventory_master_list.inventory_id = inventory_stocks.inventory_id','left');
+        $this->db->join('inventory_model_mapping','inventory_model_mapping.inventory_id = inventory_master_list.inventory_id');
+        $this->db->join('appliance_model_details','appliance_model_details.id = inventory_model_mapping.model_number_id');
         $this->db->join('service_centres', 'inventory_stocks.entity_id = service_centres.id','left');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         $this->db->order_by('inventory_stocks.stock', 'desc');
                 
-        $query = $this->db->get();
+        $query = $this->db->get();        
         return $query->result_array();
     }
     
@@ -2592,23 +2609,23 @@ class Inventory_model extends CI_Model {
      */
     function get_msl_data($date, $inventory_id = ""){
        
-        $this->db->select('public_name as company_name, im.inventory_id,  part_name, part_number, '
+        $this->db->select('public_name as company_name,sc.name as Warehouse_name, ss.services, im.inventory_id,  part_name, part_number, '
                 . 'im.type, price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
         $this->db->from('spare_parts_details as s');
-        $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
+        $this->db->join('inventory_master_list as im', 's.shipped_inventory_id = im.inventory_id');
         $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_wh =1 ');
-        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id', 'left');
-        $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND sc.is_wh = 1 ', 'left');
+        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id AND s.partner_id = i.entity_id');
+        $this->db->join('service_centres as sc', 'sc.id = i.entity_id AND sc.is_wh = 1 AND sc.id = s.partner_id');
+        $this->db->join('services as ss', 'ss.id = im.service_id', 'left');
 
         if(!empty($inventory_id)){
             $this->db->where('im.inventory_id', $inventory_id);
         }
         $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
         $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
+        $this->db->where('s.is_micro_wh', 2);
         $this->db->order_by('p.public_name, sc.name');
-        
         $this->db->group_by('im.inventory_id, sc.id');
-        
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -2619,24 +2636,24 @@ class Inventory_model extends CI_Model {
      * @return Array
      */
     function get_microwarehouse_msl_data($date, $inventory_id = ""){
-        $this->db->select('public_name as company_name, sc.name as warehouse_name, im.inventory_id,  part_name, part_number, '
-                . 'im.type, ( (price + price *gst_rate/100)+ ((price + price *gst_rate/100) * oow_around_margin/100)) as price, im.gst_rate, count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
+        $this->db->select('public_name as company_name, sc.name as warehouse_name,ss.services, im.inventory_id,  part_name, part_number, '
+                . 'im.type, im.price, im.gst_rate, im.oow_around_margin,im.oow_vendor_margin,count(s.id) as consumption, IFNULL(stock, 0) as stock ', FALSE);
         $this->db->from('spare_parts_details as s');
         $this->db->join('service_centres as sc', 'sc.id = s.service_center_id AND sc.is_micro_wh = 1 ');
-        $this->db->join('inventory_master_list as im', 's.requested_inventory_id = im.inventory_id');
+        $this->db->join('inventory_master_list as im', 's.shipped_inventory_id = im.inventory_id');
         $this->db->join('partners as p', 'p.id = im.entity_id AND p.is_micro_wh =1 ');
-        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id AND sc.id = i.entity_id', 'left');
+        $this->db->join('inventory_stocks as i', 'im.inventory_id = i.inventory_id AND sc.id = i.entity_id');
         $this->db->join('micro_warehouse_state_mapping as ms', 'ms.partner_id = p.id AND sc.id = ms.vendor_id AND ms.active = 1');
+        $this->db->join('services as ss', 'ss.id = im.service_id', 'left');
 
         if(!empty($inventory_id)){
             $this->db->where('im.inventory_id', $inventory_id);
         }
         $this->db->where('s.status != "'._247AROUND_CANCELLED.'" ', NULL);
+        $this->db->where('s.is_micro_wh','1');
         $this->db->where('s.date_of_request >= "'.$date.'" ', NULL);
         $this->db->order_by('p.public_name, sc.name, part_name');
-        
         $this->db->group_by('im.inventory_id, sc.id');
-        
         $query = $this->db->get();
         return $query->result_array();
     }
@@ -2888,5 +2905,124 @@ class Inventory_model extends CI_Model {
         }
     }
     
+    /**
+     * @Desc: This function is used to get inventory ledger details.
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_mwh_invoice_ledger_data($select, $where) {
 
+        $this->db->select($select, FALSE);
+
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $query = $this->db->get();
+        return $query;
+    }
+    
+    
+     /**
+     * @Desc: This function is used to get HSN Code Details
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_hsn_code_details($select,$where){
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where,false);
+        }
+        $this->db->from('hsn_code_details');        
+        $query = $this->db->get();
+        return $query->result_array();
+    }
+
+     /**
+     * @Desc: This function is used to get HSN Code Details
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_spare_invoice_details($select, $where) {
+
+        $this->db->select($select, false);
+        $this->db->from('spare_parts_details');
+        $this->db->join('spare_invoice_details', 'spare_parts_details.id = spare_invoice_details.spare_id');
+
+        if (!empty($where)) {
+            $this->db->where($where, false);
+        }
+       
+        $query = $this->db->get();
+        
+        return $query->result_array();
+    }
+
+
+    function insert_defective_ledger_data($data){
+
+        $this->db->insert('spare_qty_mgmt',$data);
+        if($this->db->affected_rows() > 0){
+            $res = TRUE;
+        }else{
+            $res = FALSE;
+        }
+        
+        return $res;
+
+    }
+
+    function get_qty_mgmt_data($select,$where,$group_by=FALSE){
+
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where,false);
+        }
+        $this->db->from('spare_qty_mgmt');
+        if ($group_by) {
+         $this->db->group_by('spare_qty_mgmt.spare_id');     
+        }
+              
+        $query = $this->db->get();
+       //  print_r($this->db->last_query());
+        return $query->result_array();
+
+    }
+
+
+    function update_qty_ledger_mgmt($data,$where){
+
+        $this->db->where($where);
+        $this->db->update('spare_qty_mgmt',$data);
+        if($this->db->affected_rows() > 0){
+            $res = TRUE;
+        }else{
+            $res = FALSE;
+        }
+        
+        return $res;
+    }
+
+    function getDefecvtive_history($booking_id){
+
+        $select=",spare_qty_mgmt.qty,spare_qty_mgmt.qty_status,spare_qty_mgmt.created_on as qty_def_shipped_date,spare_qty_mgmt.awb_by_sf_defective,spare_qty_mgmt.def_courier_price_by_sf,def_courier_name,spare_parts_details.*";
+        $where=array('spare_qty_mgmt.is_defective_qty'=>1,'spare_parts_details.booking_id'=>$booking_id);
+        $this->db->select($select);
+       // $this->db->from('spare_parts_details');
+        $this->db->join('spare_qty_mgmt','spare_parts_details.id=spare_qty_mgmt.spare_id');
+        $this->db->where($where);
+        $query = $this->db->get('spare_parts_details');
+       // print_r($this->db->last_query());  exit;
+        return $query->result_array();
+
+
+    }
+   
+   
+   
 }
