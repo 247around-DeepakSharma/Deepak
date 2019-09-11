@@ -1475,12 +1475,37 @@ class Spare_parts extends CI_Controller {
 
                     $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUESTED, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, $partner_id, NULL);
 
-		    if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 ) {
-                        $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
-                        unset($data['spare_id']);
+		  
+                    
+                    $actor = _247AROUND_PARTNER_STRING;
+                    $next_action = PARTNER_WILL_SEND_NEW_PARTS;
+                    $booking['internal_status'] = SPARE_PARTS_REQUIRED;
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
+                    }
+
+                    //$this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, $reason_text, $reason, $agent_id, $agent_name, $actor, $next_action, _247AROUND, NULL);
+                    if (!empty($booking_id)) {
+                        $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
+			  if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 ) {
+                               $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                               unset($data['spare_id']);
+                          }
+                           $sc_data['current_status'] = "InProcess";
+                    $sc_data['internal_status'] = SPARE_PARTS_REQUIRED;
+                    $sc_data['service_center_remarks'] = date("F j") . ":- " . $reason;
+                    $sc_data['update_date'] = date("Y-m-d H:i:s");
+                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                                        
+
                     }
 
                     if ($affected_id) {
+                        
                         echo 'success';
                     } else {
                         echo 'fail';
@@ -2973,11 +2998,11 @@ class Spare_parts extends CI_Controller {
                 . 'spare_parts_details.serial_number,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic,'
                 . 'spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.invoice_pic,spare_parts_details.part_warranty_status,'
                 . 'spare_parts_details.defective_parts_pic,spare_parts_details.defective_back_parts_pic,spare_parts_details.requested_inventory_id,spare_parts_details.serial_number_pic,spare_parts_details.remarks_by_sc,'
-                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id';
+                . 'booking_details.service_id,booking_details.partner_id as booking_partner_id,booking_details.assigned_vendor_id';
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);            
-        $data['spare_parts_details'] = $spare_parts_details[0];       
-        $where1 = array('entity_id' => $spare_parts_details[0]['booking_partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'active' => 1);
-        $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number', $where1);
+        $data['spare_parts_details'] = $spare_parts_details[0];   
+        $where1 = array('entity_id' => $spare_parts_details[0]['booking_partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1);
+        $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where1);
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/update_spare_parts_form_on_approval', $data);
     }

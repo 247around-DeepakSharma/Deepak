@@ -219,6 +219,7 @@ function return_new_parts(){
     formData.append("partner_id", $('#partner_id').val());
     formData.append("wh_type", $("#wh_id").find(':selected').attr('data-warehose'));
     formData.append("warehouse_id", $("#wh_id").val());
+    formData.append("warehouse_name", $("#wh_id").find(':selected').text().split("-")[0]);
     formData.append("from_gst_number", $("#from_gst_number").val());
     formData.append("receiver_id", $("#to_wh_id").val());
    // console.log(JSON.stringify(returnItemArray));

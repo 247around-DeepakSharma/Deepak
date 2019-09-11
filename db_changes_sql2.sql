@@ -1033,6 +1033,7 @@ ALTER TABLE `inventory_alternate_spare_parts_mapping` ADD `model_id` INT(11) NUL
 ALTER TABLE `alternate_inventory_set` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `inventory_id`;
  
 -- Ankit 03-09-2019
+
 ALTER TABLE spare_consumption_status ADD COLUMN status_description text NULL DEFAULT NULL AFTER consumed_status; 
 
 -- Kajal 04-09-2019
@@ -1041,10 +1042,13 @@ UPDATE `email_template` SET `subject` = 'Spare shipped by %s to %s' , `template`
 -- Kajal 05-09-2019
 UPDATE `email_template` SET `from` = 'defective-outward@247around.com', `cc` = 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com' WHERE `email_template`.`tag` = 'defective_spare_send_by_wh_to_partner';
 
+ALTER TABLE spare_consumption_status ADD COLUMN status_description text NULL DEFAULT NULL AFTER consumed_status; 
+
+--Kalyani 04-Aug-2019
+ALTER TABLE `entity_gst_details` ADD `state_stamp_picture` VARCHAR(256) NULL AFTER `phone_number`;
+
 -- Kajal 06-09-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_wh', 'New Spare shipped by %s to %s', 'Dear SF,<br><br> <b>%s</b> shipped below new spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', NULL, 'defective-outward@247around.com', '', 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com', '', '1', CURRENT_TIMESTAMP);
- 
- 
 
  --Abhishek---
  CREATE TABLE spare_qty_mgm ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `spare_id` INT(11) NOT NULL ,  `booking_id` VARCHAR(60) NOT NULL ,  `qty` INT(11) NOT NULL DEFAULT '1' ,  `sf_id` INT NOT NULL ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
@@ -1060,4 +1064,14 @@ ALTER TABLE `courier_company_invoice_details` ADD `courier_invoice_file` VARCHAR
 ALTER TABLE `courier_company_invoice_details` ADD `shippment_date` DATE NULL DEFAULT NULL AFTER `courier_invoice_file`;
 ALTER TABLE `courier_company_invoice_details` ADD `created_by` VARCHAR(50) NULL DEFAULT NULL AFTER `shippment_date`, ADD `is_exist` TINYINT(5) NOT NULL DEFAULT '0' AFTER `created_by`;
  
- 
+-- Ankit 09-09-2019
+CREATE TABLE wrong_part_shipped_details (
+    id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    spare_id int(11) NOT NULL,
+    part_name varchar(255) NOT NULL,
+    inventory_id int(11) NOT NULL,
+    remarks text NULL DEFAULT NULL
+);
+
+--Kalyani 10-09-2019
+UPDATE `sms_template` SET `template` = 'Get 5 Percent Cashback On Your %s Booking. Download QR Code from %s Or Engineer Job Card & Pay On Paytm App. Use Paytm even if technician refuses and asks for Cash. 5 Percent Discount ONLY available on Payments made through Paytm. %s 247around' WHERE `sms_template`.`tag` = "customer_qr_download";

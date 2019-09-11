@@ -60,6 +60,7 @@
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">Shipped Date</th>
+                            <th class="text-center">Defective Quantity</th>
                             <th class="text-center">Remarks</th>
                             <th class="text-center">Received</th>
                             <th class="text-center">Reject</th>
@@ -104,13 +105,13 @@
                                         echo date("d-m-Y", strtotime($row['defective_part_shipped_date']));
                                     } ?>
                                 </td>
-
+                                <td><?php echo $row['qty']; ?></td>
                                 <td>
                                 <?php echo $row['remarks_defective_part_by_sf']; ?>
                                 </td>
                                 <td>
                                 <?php if (!empty($row['defective_part_shipped'])) { ?> 
-                                    <a  onclick="return confirm_received()"  class="btn btn-sm btn-primary recieve_defective" id="defective_parts" href="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a> <input type="checkbox" class="checkbox_revieve_class" name="revieve_checkbox"  data-url="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/1"  />
+                                    <a  onclick="return confirm_received()"  class="btn btn-sm btn-primary recieve_defective" id="defective_parts" href="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/0/<?php echo $row['spare_qty_mgmt_id']; ?>" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a> <input type="checkbox" class="checkbox_revieve_class" name="revieve_checkbox"  data-url="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/1"  />
                                 <?php } ?>
                                 </td>
                                 <td>
@@ -120,7 +121,7 @@
                                                 <span class="caret"></span></a>
                                             <ul class="dropdown-menu" style="right: 0px;left: auto;">
                                                 <?php foreach ($internal_status as $value) { ?>
-                                                    <li><a href="<?php echo base_url(); ?>service_center/reject_defective_part/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo urlencode(base64_encode($row['partner_id'])); ?>/<?php echo urlencode(base64_encode($value->status)); ?>"><?php echo $value->status; ?></a></li>
+                                                    <li><a href="<?php echo base_url(); ?>service_center/reject_defective_part/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo urlencode(base64_encode($row['partner_id'])); ?>/<?php echo urlencode(base64_encode($value->status)); ?>/<?php echo $row['spare_qty_mgmt_id']; ?>"><?php echo $value->status; ?></a></li>
                                                     <li class="divider"></li>
                                                 <?php } ?>
 

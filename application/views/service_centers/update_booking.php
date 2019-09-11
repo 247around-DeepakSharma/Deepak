@@ -96,23 +96,36 @@
                                                 </select>
                                             </div>
                                         </div>
+                                        <?php 
+                                        if(!empty($unit_details[0]['sf_model_number']) && !empty($model[0]) && $booking_history['is_spare_requested']){
+                                            $arrModels = array_column($model[0], 'model');
+                                            if(!in_array($unit_details[0]['sf_model_number'], $arrModels)){ ?>
+                                                <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
+                                                    <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number filled during Spare Request is not mapped with the partner! Please Contact 247 around team.</span>
+                                                </div>
+                                            <?php }
+                                        }
+                                        ?>
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model* </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" style="display:none;<?= $str_disabled?>" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> required onfocusout="check_booking_request()">
-                                                <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" required onchange="getCapacityCategoryForModel(this.value, this.id);check_booking_request();" style="<?= $str_disabled?>">
-                                                    <option selected disabled value="">Select Appliance Model</option>
-                                                    <?php foreach ($model[0] as $value) { ?>
-                                                    <option <?php if(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; }} ?>
-                                                        ><?php echo $value['model']; ?></option>
-                                                    <?php } ?>
-                                                </select>
+                                                <?php if(empty($model[0])) { ?>
+                                                    <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" style="<?= $str_disabled?>" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> required onfocusout="check_booking_request()">
+                                                <?php } else { ?>
+                                                    <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" required onchange="getCapacityCategoryForModel(this.value, this.id);check_booking_request();" style="<?= $str_disabled?>">
+                                                        <option selected disabled value="">Select Appliance Model</option>
+                                                        <?php foreach ($model[0] as $value) { ?>
+                                                        <option <?php if(isset($unit_details[0]['sf_model_number'])) {if($value['model'] == $unit_details[0]['sf_model_number']) { echo "selected"; }} elseif(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; }}?>
+                                                            ><?php echo $value['model']; ?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                <?php } ?>                                                                                                
                                             </div>
                                         </div>
                                         <div class="form-group ">
                                             <label for="dop" class="col-md-4">Purchase Date* </label>
                                             <div class="col-md-6">
-                                                <input <?php if($is_repeat && (isset($unit_details[0]['purchase_date']) && ($unit_details[0]['purchase_date'] != '0000-00-00'))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(isset($unit_details[0]['purchase_date'])){ echo $unit_details[0]['purchase_date']; }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" required onchange="check_booking_request()" style="<?= $str_disabled?>">
+                                                <input <?php if($is_repeat && (isset($unit_details[0]['sf_purchase_date']) && ($unit_details[0]['sf_purchase_date'] != '0000-00-00'))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(isset($unit_details[0]['sf_purchase_date']) && $unit_details[0]['sf_purchase_date'] != '0000-00-00'){ echo $unit_details[0]['sf_purchase_date']; }elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo $unit_details[0]['purchase_date']; }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" required onchange="check_booking_request()" style="<?= $str_disabled?>">
                                             </div>
                                         </div>                                        
                                         <div class="form-group">
@@ -281,7 +294,7 @@
                                             <div class="form-group ">
                                                 <label for="type" class="col-md-4">Appliance Model </label>
                                                 <div class="col-md-6">
-                                                    <input  type="text" class="form-control"  name="model_number[]" id="<?php echo "model_number_".$number;?>" value = "<?php echo $booking_unit_details['model_number']; ?>" placeholder="Enter Model" style="<?= $str_disabled?>">
+                                                    <input  type="text" class="form-control"  name="model_number[]" id="<?php echo "model_number_".$number;?>" value = "<?php echo $booking_unit_details['sf_model_number']; ?>" placeholder="Enter Model" style="<?= $str_disabled?>">
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -309,7 +322,7 @@
                                             </div>
                                     <input  type="hidden" class="form-control"  name="appliance_description[]" id="<?php echo "description".$number;?>"  value = "<?php if(isset($booking_unit_details['description'])) { echo $booking_unit_details['description']; } ?>"  placeholder="Enter Description"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> >
                                     <input type="hidden" class="form-control" name= "order_item_id[]" placeholder="Enter Order Item Id" value = "<?php if(isset($booking_unit_details['sub_order_id'])) { echo $booking_unit_details['sub_order_id']; } ?>" id="<?php echo "order_item_id_".$number ;?>"/>
-                                    <input class="form-control purchase_date" name= "purchase_date[]" type="hidden" value = "<?php if(isset($booking_unit_details['purchase_date'])) { echo $booking_unit_details['purchase_date']; } ?>" id="<?php echo "purchase_date_".$number ;?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" style="<?= $str_disabled?>"/>
+                                    <input class="form-control purchase_date" name= "purchase_date[]" type="hidden" value = "<?php if(isset($booking_unit_details['sf_purchase_date']) && $booking_unit_details['sf_purchase_date'] != '0000-00-00') { echo $booking_unit_details['sf_purchase_date']; } elseif(isset($booking_unit_details['purchase_date'])  && $booking_unit_details['purchase_date'] != '0000-00-00') { echo $booking_unit_details['purchase_date']; } ?>" id="<?php echo "purchase_date_".$number ;?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" style="<?= $str_disabled?>"/>
                                     </div>
                                     <div class="col-md-6" style="width: 60%;">
                                             <div class="form-group">
@@ -461,14 +474,14 @@
     // function to cross check request type of booking with warranty status of booking 
     function check_booking_request()
     {
-        if($(".input-model").is(":hidden"))
+        if(!$(".input-model").length)
         {
             var model_number = $(".select-model").val();
         }
         else
         {
             var model_number = $(".input-model").val();
-        } 
+        }
         var dop = $("#purchase_date_1").val();
         var partner_id = $("#source_code").val();
         var service_id = $("#service_id").val();
@@ -480,7 +493,7 @@
         });
         $("#submitform").attr("disabled", false);
         $('.errorMsg').html("");
-        if(model_number !== "" && model_number !== null && dop !== "" && booking_request_types.length > 0){                               
+        if(model_number !== "" && model_number !== null && model_number !== undefined && dop !== "" && booking_request_types.length > 0){                               
             $.ajax({
                 method:'POST',
                 url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2",
@@ -584,6 +597,7 @@
     if($('div.uploaded_support_file').length == 1) {
         $("#btn_addSupportFile").click();
     }
+    check_booking_request();
     });
     
     function outbound_call(phone_number){
