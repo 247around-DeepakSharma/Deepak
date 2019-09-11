@@ -632,7 +632,7 @@
 
         var service_id =  $('#shippedparttype_' +key).find(':selected').attr('data-service_id');
         $('#inventoryid_'+key).val(inventory);
-        get_hsn_code_list(key,service_id);
+        //get_hsn_code_list(key,service_id);
         if(model_number_id && part_name){
             $.ajax({
                 method:'POST',
