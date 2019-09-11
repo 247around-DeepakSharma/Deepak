@@ -343,15 +343,50 @@ class File_upload extends CI_Controller {
 
                     if ($is_file_contains_unique_data['status']) {
                         if(!empty($this->dataToInsert)){
-                            foreach ($this->dataToInsert as $key=>$val){                            
+                            foreach ($this->dataToInsert as $key=>$val){
+                                $part_type_return_val = null;
+                                $is_part_type_exists = false;
+
+                                if(isset($val['is_return'])){
+                                    $is_part_type_exists = true;
+                                    $part_type_return_val = $val['is_return'];
+                                    unset($val['is_return']);
+                                }
+
                                 $where = array('inventory_master_list.entity_id' => $partner_id, 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING , 'part_number' => $val['part_number']);//, 'service_id' => $val['service_id']
                                 $select = 'inventory_master_list.type, inventory_master_list.service_id, inventory_master_list.part_name, inventory_master_list.part_number';
                                 $inventory_details = $this->inventory_model->get_inventory_master_list_data($select, $where);
                                                                               
                                 if(empty($inventory_details)) {
                                     $insert_id = $this->inventory_model->insert_inventory_master_list_data($val);
+                                    log_message("info", __METHOD__. " safdsf ". $insert_id);
                                     if ($insert_id) {
                                         log_message("info", __METHOD__ . " inventory file data inserted succcessfully");
+                                        if($is_part_type_exists){
+                                            log_message("info", __METHOD__. " adding part type return mapping for the part type ", $val['type']);
+
+                                            $part_type_mapping_data = array();
+                                            $tmp_mapping_data = array();
+
+                                            $tmp_mapping_data['partner_id'] = $partner_id;
+                                            $tmp_mapping_data['appliance_id'] = $val['service_id'];
+                                            $tmp_mapping_data['inventory_id'] = $insert_id;
+                                            $tmp_mapping_data['part_type'] = $val['type'];
+                                            $tmp_mapping_data['is_return'] = $part_type_return_val;
+
+                                            array_push($part_type_mapping_data,$tmp_mapping_data);
+
+                                            $part_type_mapping_id = $this->inventory_model->insert_part_type_mapping_batch($part_type_mapping_data);
+
+                                            if($part_type_mapping_id){
+                                                log_message("info", __METHOD__ . " part type mapping added succcessfully for ". $val['type'] . " with mapping id ". $part_type_mapping_id);
+                                            }else{
+                                                log_message("info", __METHOD__ . " part type mapping not added succcessfully for ". $val['type'] . " with mapping id ". $part_type_mapping_id);
+                                            }
+                                        }else{
+                                            log_message("info", __METHOD__. " no value provided for part type return for part type ". $val['type']);
+                                        }
+                                        
                                     }
                                 } else {
                                     $rows_affected = 0;
@@ -742,6 +777,10 @@ class File_upload extends CI_Controller {
 
         $tmp_data['entity_id'] = $this->input->post('partner_id');
         $tmp_data['entity_type'] = _247AROUND_PARTNER_STRING;
+
+        if(isset($data['is_part_return'])){
+            $tmp_data['is_return'] = (strtolower($data['is_part_return']) == PART_TYPE_RETURN_MAPPING_FILE_VALUE) ? 1 : 0;
+        }
         
         array_push($this->dataToInsert, $tmp_data);
         

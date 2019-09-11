@@ -1034,3 +1034,10 @@ ALTER TABLE `courier_status_file_details` CHANGE `assured_dly_dt` `assured_dly_d
 ALTER TABLE `courier_status_file_details` CHANGE `delivery_date` `delivery_date` DATE NULL DEFAULT NULL;
 
 INSERT INTO `courier_file_upload_header_mapping` (`id`, `courier_partner_id`, `docket_number`, `booking_station`, `delivery_station`, `consignee_name`, `courier_booking_date`, `assured_delivery_date`, `delivery_date`, `docket_status`, `docket_current_status`, `create_date`, `update_date`) VALUES ('10000', '10002', 'docket_no', 'booking_stn', 'delivery_stn', 'consignee_name', 'bkg_dt', 'assured_dly_dt', 'delivery_date', 'docket_status', 'docket_curr_status', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+
+--sachin 02-09-2019
+
+CREATE TABLE `boloaaka`.`part_type_return_mapping` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `partner_id` INT(11) NOT NULL , `appliance_id` INT(11) NOT NULL , `part_type` VARCHAR(128) NOT NULL , `is_return` BOOLEAN NULL DEFAULT NULL , `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `part_type_return_mapping` ADD `inventory_id` INT(11) NOT NULL AFTER `appliance_id`;
