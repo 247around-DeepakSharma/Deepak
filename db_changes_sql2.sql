@@ -981,3 +981,11 @@ CREATE TABLE wrong_part_shipped_details (
     inventory_id int(11) NOT NULL,
     remarks text NULL DEFAULT NULL
 );
+
+--Kalyani 10-09-2019
+UPDATE `sms_template` SET `template` = 'Get 5 Percent Cashback On Your %s Booking. Download QR Code from %s Or Engineer Job Card & Pay On Paytm App. Use Paytm even if technician refuses and asks for Cash. 5 Percent Discount ONLY available on Payments made through Paytm. %s 247around' WHERE `sms_template`.`tag` = "customer_qr_download";
+
+--Kalyani 11-09-2019
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Total Bookings Closed By Engineer', 'Completed', 'Cancelled', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= \"2019-08-01\" AND internal_status = \"Completed\"', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= \"2019-08-01\" AND internal_status = \"Cancelled\"', 'developer', '1', 'service', '1', NULL, CURRENT_TIMESTAMP);
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Todays Bookings Closed By Engineer', 'Completed', 'Cancelled', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND DATE(closed_date) = CURDATE() AND internal_status = \"Completed\"', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND DATE(closed_date) = CURDATE() AND internal_status = \"Cancelled\"', 'developer', '1', 'service', '1', NULL, CURRENT_TIMESTAMP);
+
