@@ -210,18 +210,17 @@ class Service_centers extends CI_Controller {
     function booking_details($code) {
         log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode(urldecode($code)));
         $this->checkUserSession();
-        $booking_id = base64_decode(urldecode($code));
+        $booking_id =base64_decode(urldecode($code));
         $data['booking_history'] = $this->booking_model->getbooking_history($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $data['defective_history'] = $this->inventory_model->getDefecvtive_history($booking_id);
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id, 'file_description_id' => SF_PURCHASE_INVOICE_FILE_TYPE));
-
-       if($data['booking_history'][0]['dealer_id']){ 
+        if($data['booking_history'][0]['dealer_id']){ 
             $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
             $data['booking_history'][0]['dealer_name'] = $dealer_detail[0]['dealer_name'];
             $data['booking_history'][0]['dealer_phone_number_1'] = $dealer_detail[0]['dealer_phone_number_1'];
         }
-        $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1');
+        $unit_where = array('booking_id'=>$booking_id, 'pay_to_sf' => '1');
         $booking_unit_details = $this->booking_model->get_unit_details($unit_where);
         $data['booking_state_change_data'] = $this->booking_model->get_booking_state_change_by_id($booking_id);
         $data['sms_sent_details'] = $this->booking_model->get_sms_sent_details($booking_id);
@@ -230,73 +229,73 @@ class Service_centers extends CI_Controller {
             $data['dhq'] = $this->upcountry_model->get_sub_service_center_details(array('id' => $data['booking_history'][0]['sub_vendor_id']));
         }
         $engineer_action_not_exit = false;
-        if ($this->session->userdata('is_engineer_app') == 1) {
-            foreach ($booking_unit_details as $key1 => $b) {
+        if($this->session->userdata('is_engineer_app') == 1){
+            foreach($booking_unit_details as $key1 => $b){
 
-                $unitWhere = array("engineer_booking_action.booking_id" => $booking_id,
-                    "engineer_booking_action.unit_details_id" => $b['id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
-                $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
-                if (!empty($en)) {
-                    $booking_unit_details[$key1]['en_serial_number'] = $en[0]['serial_number'];
-                    $booking_unit_details[$key1]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
-                    $booking_unit_details[$key1]['en_is_broken'] = $en[0]['is_broken'];
-                    $booking_unit_details[$key1]['en_internal_status'] = $en[0]['internal_status'];
-                    $booking_unit_details[$key1]['en_current_status'] = $en[0]['current_status'];
+                    $unitWhere = array("engineer_booking_action.booking_id" => $booking_id, 
+                        "engineer_booking_action.unit_details_id" => $b['id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
+                    $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
+                    if(!empty($en)){
+                        $booking_unit_details[$key1]['en_serial_number'] = $en[0]['serial_number'];
+                        $booking_unit_details[$key1]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
+                        $booking_unit_details[$key1]['en_is_broken'] = $en[0]['is_broken'];
+                        $booking_unit_details[$key1]['en_internal_status'] = $en[0]['internal_status'];
+                        $booking_unit_details[$key1]['en_current_status'] = $en[0]['current_status'];
 
-                    $engineer_action_not_exit = true;
-                }
+                        $engineer_action_not_exit = true;
+                    } 
             }
-            if (isset($engineer_action_not_exit)) {
+            if(isset($engineer_action_not_exit)){
                 $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
-                    "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
+                "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']));
                 $data['signature_details'] = $sig_table;
             }
         }
-
+        
         $isPaytmTxn = $this->paytm_payment_lib->get_paytm_transaction_data($booking_id);
-        if (!empty($isPaytmTxn)) {
-            if ($isPaytmTxn['status']) {
+        if(!empty($isPaytmTxn)){
+            if($isPaytmTxn['status']){
                 $data['booking_history'][0]['onlinePaymentAmount'] = $isPaytmTxn['total_amount'];
             }
         }
-
+        
         //get engineer name
-        if ($data['booking_history'][0]['assigned_engineer_id']) {
-            $engineer_name = $this->engineer_model->get_engineers_details(array("id" => $data['booking_history'][0]['assigned_engineer_id']), "name");
-            if (!empty($engineer_name)) {
-                $data['booking_history'][0]['assigned_engineer_name'] = $engineer_name[0]['name'];
+        if($data['booking_history'][0]['assigned_engineer_id']){
+            $engineer_name = $this->engineer_model->get_engineers_details(array("id"=>$data['booking_history'][0]['assigned_engineer_id']), "name");
+            if(!empty($engineer_name)){
+               $data['booking_history'][0]['assigned_engineer_name'] = $engineer_name[0]['name'];
             }
         }
-
+        
         $data['engineer_action_not_exit'] = $engineer_action_not_exit;
-        $data['symptom'] = $data['completion_symptom'] = $data['technical_defect'] = $data['technical_solution'] = array();
-        if (count($data['booking_symptom']) > 0) {
-            if (!is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])) {
+        $data['symptom'] = $data['completion_symptom'] =  $data['technical_defect'] = $data['technical_solution'] = array();
+        if(count($data['booking_symptom'])>0) {
+            if(!is_null($data['booking_symptom'][0]['symptom_id_booking_creation_time'])){
                 $data['symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_creation_time']));
-
-                if (count($data['symptom']) <= 0) {
+                
+                if(count($data['symptom'])<=0) {
                     $data['symptom'][0] = array("symptom" => "Default");
                 }
-            }
-            if (!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])) {
+            } 
+            if(!is_null($data['booking_symptom'][0]['symptom_id_booking_completion_time'])){
                 $data['completion_symptom'] = $this->booking_request_model->get_booking_request_symptom('symptom', array('symptom.id' => $data['booking_symptom'][0]['symptom_id_booking_completion_time']));
-
-                if (count($data['completion_symptom']) <= 0) {
+                
+                if(count($data['completion_symptom'])<=0) {
                     $data['completion_symptom'][0] = array("symptom" => "Default");
                 }
             }
-            if (!is_null($data['booking_symptom'][0]['defect_id_completion'])) {
+            if(!is_null($data['booking_symptom'][0]['defect_id_completion'])){
                 $cond['where'] = array('defect.id' => $data['booking_symptom'][0]['defect_id_completion']);
                 $data['technical_defect'] = $this->booking_request_model->get_defects('defect', $cond);
-
-                if (count($data['technical_defect']) <= 0) {
+                
+                if(count($data['technical_defect'])<=0) {
                     $data['technical_defect'][0] = array("defect" => "Default");
                 }
             }
-            if (!is_null($data['booking_symptom'][0]['solution_id'])) {
+            if(!is_null($data['booking_symptom'][0]['solution_id'])){
                 $data['technical_solution'] = $this->booking_request_model->symptom_completion_solution('technical_solution', array('symptom_completion_solution.id' => $data['booking_symptom'][0]['solution_id']));
-
-                if (count($data['technical_solution']) <= 0) {
+                
+                if(count($data['technical_solution'])<=0) {
                     $data['technical_solution'][0] = array("technical_solution" => "Default");
                 }
             }
@@ -314,7 +313,7 @@ class Service_centers extends CI_Controller {
         $data['unit_details'] = $booking_unit_details;
         $data['penalty'] = $this->penalty_model->get_penalty_on_booking_by_booking_id($booking_id, $data['booking_history'][0]['assigned_vendor_id']);
         $data['paytm_transaction'] = $this->paytm_payment_model->get_paytm_transaction_and_cashback($booking_id);
-
+        
         if (!empty($data['booking_history']['spare_parts'])) {
             $spare_parts_list = array();
             foreach ($data['booking_history']['spare_parts'] as $key => $val) {
@@ -332,18 +331,21 @@ class Service_centers extends CI_Controller {
         }
 
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
+        
         if (!empty($spare_parts_details)) {
-            $awb = $spare_parts_details[0]['awb_by_sf'];
+            $awb=$spare_parts_details[0]['awb_by_sf'];
             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb), array());
-            if (!empty($courier_boxes_weight)) {
-                $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
+            if(!empty($courier_boxes_weight)){
+               $data['courier_boxes_weight_details'] = $courier_boxes_weight[0]; 
             }
+            
         }
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-
+       
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/booking_details', $data);
     }
+
 
     /**
      * @desc: This is used to get complete booking form.
