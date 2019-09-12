@@ -85,6 +85,7 @@
                                     <th>Type</th>
                                     <th>Name</th>
                                     <th>Parts Number</th>
+                                    <th>Model Number</th>
                                     <th>Description</th>
                                     <th>Size</th>
                                     <th>HSN</th>
@@ -152,7 +153,8 @@
                     d.entity_id = '<?php echo $partner_id; ?>',
                     d.entity_type = '<?php echo _247AROUND_PARTNER_STRING; ?>',
                     d.inventory_id = '<?php echo $inventory_id; ?>',
-                    d.service_id = '<?php echo $service_id; ?>'
+                    d.service_id = '<?php echo $service_id; ?>',
+                    d.request_type = '1'
                 }
             },
             "deferRender": true       
