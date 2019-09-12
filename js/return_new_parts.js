@@ -64,7 +64,7 @@ function addInArray(inventory_id, qty, index){
         returnItemArray[index] = {
             'inventory_id': inventory_id,
             'quantity':qty,
-            'booking_partner_id':$('#partner_id').val(),
+            'booking_partner_id':$("#wh_id").val(),
             'services':$("#services_"+inventory_id).text(),
             'service_id':$("#serviceid_"+inventory_id).text(),
             'type':$("#type_"+inventory_id).text(),
