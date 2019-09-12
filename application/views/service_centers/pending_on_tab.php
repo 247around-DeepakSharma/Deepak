@@ -991,8 +991,7 @@
         } 
     });
     
-    // below line commented, As discussed with kalyani and abhay sir.
-    //setInterval(function(){ getBookingEngineers(); }, 30000);
+    setInterval(function(){ getBookingEngineers(); }, 30000);
     
     $(document).on("click", ".open-adminremarks", function () {
         
