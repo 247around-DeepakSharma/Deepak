@@ -5784,8 +5784,9 @@ class Booking extends CI_Controller {
                         redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
                     }
                 } else {
+                    $errors = json_encode(validation_errors());
                     //Redirect to edit booking page if validation err occurs
-                    $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact 247around Team');
+                    $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact 247around Team'.$errors);
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
                 }
