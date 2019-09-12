@@ -1173,14 +1173,21 @@ class User_invoice extends CI_Controller {
                                 $this->inventory_model->insert_inventory_ledger($ledger_data);
                                 $stock = "stock - '" . $value['qty'] . "'";
                                 $this->inventory_model->update_inventory_stock(array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $wh_id, 'inventory_id' => $value['inventory_id']), $stock);
+                                if($receiver_entity_type == _247AROUND_SF_STRING) {
+                                    $stock1 = "stock + '" . $value['qty'] . "'";
+                                    $this->inventory_model->update_inventory_stock(array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $receiver_entity_id, 'inventory_id' => $value['inventory_id']), $stock1);
+                                }
                             }
                         }
                     }
-                    }
-
+                    
                     echo json_encode(array('status' => true, 'message' => 'Invoice generated successfully'), true);
+                    }
+                    else {
+                        echo json_encode(array('status' => false, 'message' => 'There is no inventory invoice to tag with your selected inventory, Please contact to 247Around Team'), true);
+                    }
                 } else {
-                    echo json_encode(array('status' => false, 'message' => 'There is no inventory invoice to tag with you selected inventory, Please contact to 247Around Team'), true);
+                    echo json_encode(array('status' => false, 'message' => 'There is no inventory invoice to tag with your selected inventory, Please contact to 247Around Team'), true);
                 }
             } else {
                 echo json_encode(array('status' => false, 'message' => 'Please Upload Courier Receipt less than 2 MB'), true);
