@@ -992,7 +992,7 @@ CREATE TABLE wrong_part_shipped_details (
 
 
  --Abhishek---
- CREATE TABLE spare_qty_mgm ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `spare_id` INT(11) NOT NULL ,  `booking_id` VARCHAR(60) NOT NULL ,  `qty` INT(11) NOT NULL DEFAULT '1' ,  `sf_id` INT NOT NULL ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+ CREATE TABLE spare_qty_mgmt ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `spare_id` INT(11) NOT NULL ,  `booking_id` VARCHAR(60) NOT NULL ,  `qty` INT(11) NOT NULL DEFAULT '1' ,  `sf_id` INT NOT NULL ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
  ALTER TABLE `spare_qty_mgmt` ADD `awb_by_sf_defective` VARCHAR(50) NOT NULL AFTER `created_on`, ADD `def_courier_price_by_sf` INT(11) NOT NULL AFTER `awb_by_sf_defective`, ADD `def_courier_name` VARCHAR(50) NOT NULL AFTER `def_courier_price_by_sf`;
 
  ALTER TABLE `spare_qty_mgmt` ADD `qty_status` INT(11) NOT NULL DEFAULT '1' AFTER `qty`;
