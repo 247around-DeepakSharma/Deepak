@@ -63,7 +63,7 @@
                         <th></th>
                         <th></th>
                         <th></th>
-                        <th><b><?php if(isset($total_spare) && !empty($total_spare)) { echo $total_spare[0]['total_spare_from_ledger']; }?></b></th>
+                        <th><b><?php //if(isset($total_spare) && !empty($total_spare)) { echo $total_spare[0]['total_spare_from_ledger']; }?></b></th>
                         <th></th>
                         <th></th>
                         <th></th>
@@ -71,7 +71,7 @@
                     </tr>-->
                 </tbody>
             </table>
-            <?php if(!empty($links)){ ?><div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;"> <?php if(isset($links)){echo $links;} ?></div> <?php } ?>
+            <?php //if(!empty($links)){ ?><!--<div class="custom_pagination" style="float:left;margin-top: 20px;margin-bottom: 20px;">--><?php //if(isset($links)){echo $links;} ?> <!--</div>--> <?php //} ?>
         </div>
     </div>
     
