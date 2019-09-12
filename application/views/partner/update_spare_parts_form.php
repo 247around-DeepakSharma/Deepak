@@ -691,13 +691,17 @@
 
 
 
-    $(document).on('keyup', ".quantity", function()
+    $(document).on('keyup', ".quantity", function(e)
        {
         //alert();
         var id = $(this).attr("id");
         var str_arr =id.split("_");
         var indexId = str_arr[1]; 
         var val = parseInt($(this).val());
+
+         var charCode = (e.which) ? e.which : e.keyCode;
+        if ((charCode > 47 && charCode < 58) || (charCode > 95 && charCode < 105) || charCode == 8) {
+
         if (val>0) {
         var max = parseInt($("#shippedpartsname_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
         if(val>max){
@@ -705,11 +709,15 @@
          swal("Error !", "Maximum quantity'allowed to ship is : "+max);
         }
         }else{
-        $(this).val("1");
-        swal("Error !", "Quantity can only be positive value.");
+        $(this).val("");
+        swal("Error !", "0 quantity or negative value not allowed"); 
 
         }
- 
+        }else{
+
+        $(this).val("");
+        swal("Error !", "Special chars not allowed");
+        }
        });
     
     
