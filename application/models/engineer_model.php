@@ -311,4 +311,29 @@ class Engineer_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    
+     /*
+    *@Desc - This function is used to download booking details closed by engineer
+    */
+    function get_engineer_closed_bookings($vendors, $start_date, $end_date){
+        $vendor_ids = "";
+        if(!in_array("All", $vendors)){
+            $vendor_ids = "service_centres.id IN (";
+            foreach ($vendors as $value) {
+                $vendor_ids .= "'".$value."',";
+            }
+            $vendor_ids = rtrim($vendor_ids, ",");
+            $vendor_ids .= ") AND";
+        }
+        
+        $sql = 'SELECT DISTINCT(eb.booking_id), s.name as service_center_name, e.name as engineer_name, 
+            eb.`current_status`, eb.`internal_status`, eb.`cancellation_reason`, eb.`cancellation_remark`,
+            eb.`closing_remark`, eb.closed_date, if(et.mismatch_pincode = 1, "No", "Yes") as pincode_matched
+            FROM `engineer_booking_action` as eb JOIN service_centres as s on s.id = eb.`service_center_id`
+            JOIN engineer_details as e on e.id = eb.`engineer_id` LEFT JOIN engineer_table_sign as et on et.booking_id = eb.booking_id
+            WHERE eb.closed_date IS NOT NULL AND eb.closed_date >= "'.$start_date.'" AND eb.closed_date <= "'.$end_date.'" ORDER BY `eb`.`closed_date` DESC';
+       
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
 }
