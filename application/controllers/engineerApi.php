@@ -1208,6 +1208,13 @@ class engineerApi extends CI_Controller {
                         $data["is_broken"] = 1;
                     }
                     
+                    if(isset($value["purchase_invoice"])){
+                        $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".rand(10,100).".png";
+
+                        $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "engineer-uploads");
+
+                        $data["purchase_invoice"] = $purchase_inv_url;
+                    }
 
                     if($value['pod'] == "1"){
                         if(isset($value["serial_number"])){
