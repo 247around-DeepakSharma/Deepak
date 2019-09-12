@@ -207,8 +207,8 @@
                                 <div class='form-group'>
                                     <label for="courier" class="col-md-4">Partner/Warehouse *</label>
                                     <div class="col-md-8">
-                                        <input type="radio" class='receiver_type' id="radio_partner" name="receiver_type" value='0' checked>
-                                        <input type="radio" class='receiver_type' id="radio_wh" name="receiver_type" value='1'>
+                                        <input type="radio" class='receiver_type' id="radio_partner" name="receiver_type" value='0' checked>&nbsp;&nbsp;Partner
+                                        <input type="radio" class='receiver_type' id="radio_wh" name="receiver_type" value='1' style="margin-left:10px;">&nbsp;&nbsp;Warehouse
                                     </div>
                                 </div>
                             </div>
