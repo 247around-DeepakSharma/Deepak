@@ -1051,7 +1051,7 @@ ALTER TABLE `entity_gst_details` ADD `state_stamp_picture` VARCHAR(256) NULL AFT
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_wh', 'New Spare shipped by %s to %s', 'Dear SF,<br><br> <b>%s</b> shipped below new spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', NULL, 'defective-outward@247around.com', '', 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com', '', '1', CURRENT_TIMESTAMP);
 
  --Abhishek---
- CREATE TABLE spare_qty_mgm ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `spare_id` INT(11) NOT NULL ,  `booking_id` VARCHAR(60) NOT NULL ,  `qty` INT(11) NOT NULL DEFAULT '1' ,  `sf_id` INT NOT NULL ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+ CREATE TABLE `spare_qty_mgmt` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `spare_id` INT(11) NOT NULL ,  `booking_id` VARCHAR(60) NOT NULL ,  `qty` INT(11) NOT NULL DEFAULT '1' ,  `sf_id` INT NOT NULL ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
  ALTER TABLE `spare_qty_mgmt` ADD `awb_by_sf_defective` VARCHAR(50) NOT NULL AFTER `created_on`, ADD `def_courier_price_by_sf` INT(11) NOT NULL AFTER `awb_by_sf_defective`, ADD `def_courier_name` VARCHAR(50) NOT NULL AFTER `def_courier_price_by_sf`;
 
  ALTER TABLE `spare_qty_mgmt` ADD `qty_status` INT(11) NOT NULL DEFAULT '1' AFTER `qty`;
@@ -1080,3 +1080,8 @@ UPDATE `sms_template` SET `template` = 'Get 5 Percent Cashback On Your %s Bookin
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Total Bookings Closed By Engineer', 'Completed', 'Cancelled', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= \"2019-08-01\" AND internal_status = \"Completed\"', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= \"2019-08-01\" AND internal_status = \"Cancelled\"', 'developer', '1', 'service', '1', NULL, CURRENT_TIMESTAMP);
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Todays Bookings Closed By Engineer', 'Completed', 'Cancelled', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND DATE(closed_date) = CURDATE() AND internal_status = \"Completed\"', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND DATE(closed_date) = CURDATE() AND internal_status = \"Cancelled\"', 'developer', '1', 'service', '1', NULL, CURRENT_TIMESTAMP);
 
+--sachin 11-09-2019
+
+CREATE TABLE `boloaaka`.`part_type_return_mapping` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `partner_id` INT(11) NOT NULL , `appliance_id` INT(11) NOT NULL , `part_type` VARCHAR(128) NOT NULL , `is_return` BOOLEAN NULL DEFAULT NULL , `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `part_type_return_mapping` ADD `inventory_id` INT(11) NOT NULL AFTER `appliance_id`;
