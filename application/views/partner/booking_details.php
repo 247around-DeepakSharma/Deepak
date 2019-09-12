@@ -500,7 +500,7 @@
                                                         <thead>
                                                             <tr>
                                                                 <th >Shipped Parts </th>
-                                                                <th >Shipped Quantity </th>
+                                                                <th >Quantity </th>
                                                                 <th >Courier Name </th>
                                                                 <th >AWB </th>
                                                                 <th> No. Of Boxes </th>
@@ -514,27 +514,27 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
+                                                            <?php foreach ($defective_history as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                                                 <tr>
                                                                     <td><?php echo $sp['defective_part_shipped']; ?></td>
-                                                                    <td><?php echo $sp['shipped_quantity']; ?></td>
-                                                                    <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
+                                                                    <td><?php echo $sp['qty']; ?></td>
+                                                                    <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['def_courier_name'])); ?></td>
                                                                             <?php
                                                                             $spareStatus = DELIVERED_SPARE_STATUS;
                                                                             if (!$sp['defactive_part_received_date_by_courier_api']) {
                                                                                 $spareStatus = $sp['status'];
                                                                             }
                                                                             ?>
-                                                                    <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_sf']; ?>','<?php echo $sp['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf']; ?>')"><?php echo $sp['awb_by_sf']; ?></a> 
-                                            <span id=<?php echo "awb_loader_".$sp['awb_by_sf'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
+                                                                    <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['def_courier_name']; ?>','<?php echo $sp['awb_by_sf_defective']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_sf_defective']; ?>')"><?php echo $sp['awb_by_sf_defective']; ?></a> 
+                                            <span id=<?php echo "awb_loader_".$sp['awb_by_sf_defective'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
                                                                     
                                                                     <td><?php
-                                                                                if (!empty($sp['awb_by_sf']) && !empty($courier_boxes_weight_details['box_count'])) {
+                                                                                if (!empty($sp['awb_by_sf_defective']) && !empty($courier_boxes_weight_details['box_count'])) {
                                                                                     echo $courier_boxes_weight_details['box_count'];
                                                                                 }
                                                                           ?></td>
                                                                     <td><?php
-                                                                            if (!empty($sp['awb_by_sf'])) {
+                                                                            if (!empty($sp['awb_by_sf_defective'])) {
                                                                                 if (!empty($courier_boxes_weight_details['billable_weight'])) {
                                                                                     $expl_data = explode('.', $courier_boxes_weight_details['billable_weight']);
                                                                                     if (!empty($expl_data[0])) {
@@ -546,7 +546,7 @@
                                                                                 }
                                                                             }
                                                                                     ?></td>
-                                                                    <td><?php echo $sp['courier_charges_by_sf']; ?></td>
+                                                                    <td><?php echo $sp['def_courier_price_by_sf']; ?></td>
                                                                     <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                                                     <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                                                     <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>

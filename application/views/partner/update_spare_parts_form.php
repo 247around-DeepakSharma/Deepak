@@ -237,7 +237,7 @@
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Requested Quantity</label>
                                         <div class="col-md-7">
-                                            <input class="form-control" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]"   value="<?php echo $value->quantity; ?>" readonly="readonly" required /> 
+                                            <input class="form-control" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]" readonly=""  value="<?php echo $value->quantity; ?>"  required /> 
                                         </div>
                                     </div>
                                      </div>
@@ -263,7 +263,7 @@
                                    <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Shipped Quantity</label>
                                         <div class="col-md-7">
-                                            <input class="form-control" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][shipped_quantity]" value="<?php echo $value->quantity; ?>" readonly="readonly"  required  />
+                                            <input type="number" min="1" class="form-control quantity" data-id="<?php echo $key; ?>" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][shipped_quantity]" value="<?php echo $value->quantity; ?>"    required  />
                                         </div>
                                     </div>
                                     </div>
@@ -304,7 +304,7 @@
                         </div>
                     </div>
                     <input type="hidden" name="part[<?php echo $key;?>][spare_id]"  id="<?php echo "spare_id_".$key; ?>" value="<?php echo $value->id;?>">
-                    <input type="hidden" name="part[<?php echo $key;?>][inventory_id]" id="<?php echo "inventoryid_". $key;?>">
+<!--                    <input type="hidden" name="part[<?php echo $key;?>][inventory_id]" id="<?php echo "inventoryid_". $key;?>">-->
                     <input type="hidden" id="<?php echo "estimatecostgivendate_".$key ?>" name= "part[<?php echo $key;?>][estimate_cost_given_date_h]" value="<?php echo $value->estimate_cost_given_date; ?>">
                     <?php } ?>
                     
@@ -686,6 +686,29 @@
         placeholder:'Select HSN Code',
         allowClear:true
     });
+
+
+
+    $(document).on('keyup', ".quantity", function()
+       {
+        //alert();
+        var id = $(this).attr("id");
+        var str_arr =id.split("_");
+        var indexId = str_arr[1]; 
+        var val = parseInt($(this).val());
+        if (val>0) {
+        var max = parseInt($("#shippedpartsname_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
+        if(val>max){
+         $(this).val("1");
+         swal("Error !", "Maximum quantity'allowed to ship is : "+max);
+        }
+        }else{
+        $(this).val("1");
+        swal("Error !", "Quantity can only be positive value.");
+
+        }
+ 
+       });
     
     
     function change_shipped_model(key){
@@ -751,12 +774,13 @@
 //    });
      
     function change_parts_name(key){
+    
         var model_number_id = $('#shipped_model_number_id').val();
         var part_name = $('#shippedpartsname_' + key).val();
         var inventory=  $('#shippedpartsname_' +key).find(':selected').attr('data-inventory');
         var service_id =  $('#shippedparttype_' +key).find(':selected').attr('data-service_id');
+        $('#inventoryid_'+key).val(inventory);
         get_hsn_code_list(key,service_id);
-        
         if(model_number_id && part_name){
             $.ajax({
                 method:'POST',
@@ -766,7 +790,6 @@
                     //console.log(data);
                     var obj = JSON.parse(data);
                     if(obj.inventory_id){
-                        $('#inventory_id').val(inventory);
                         $('#submit_form').attr('disabled',false);
                     }else{
                         alert("Inventory Details not found for the selected combination.");
@@ -798,7 +821,7 @@
                 $clone
                 .find('[id="shipping_status_1"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('class','courier_shipping').attr("required", true).end()
                 .find('[id="shippedmodelnumberid"]').attr('name', 'part[' + partIndex + '][shipped_model_number_id]').attr("onchange", "change_shipped_model('"+partIndex+"')").attr('id','shippedmodelnumberid_'+partIndex).select2({placeholder:'Select Model Number'}).attr('id','shippedmodelnumberid_'+partIndex).attr("required", true).end()
-                .find('[id="inventoryid"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventoryid_'+partIndex).end()
+                .find('[id="inventoryid"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','inventoryid_'+partIndex).end()
                 .find('[id="shippedmodelnumber"]').attr('name', 'part[' + partIndex + '][shipped_model_number]').attr('id','shippedmodelnumber_'+partIndex).end()
                 .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][shipped_parts_name]').attr("onchange", "change_parts_name('"+partIndex+"')").attr('id','shippedpartsname_'+partIndex).attr("required", true).select2({placeholder:'Select Part Name'}).end()
                 .find('[id="shippedparttype"]').attr('name', 'part[' + partIndex + '][shipped_part_type]').attr("onchange", "change_shipped_part_type('"+partIndex+"')").attr('id','shippedparttype_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
@@ -819,7 +842,7 @@
                  $clone
                 .find('[id="shipping_status_1"]').attr('name', 'part[' + partIndex + '][shippingStatus]').attr('id','shippingStatus_'+partIndex).attr('class','courier_shipping').attr("required", true).end()
                 .find('[id="shippedmodelnumberid"]').attr('name', 'part[' + partIndex + '][shipped_model_number_id]').attr("onchange", "change_shipped_model('"+partIndex+"')").attr('id','shippedmodelnumberid_'+partIndex).attr("required", true).end()
-                .find('[id="inventoryid"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventoryid_'+partIndex).end()
+                .find('[id="inventoryid"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','inventoryid_'+partIndex).end()
                 .find('[id="shippedmodelnumber"]').attr('name', 'part[' + partIndex + '][shipped_model_number]').attr('id','shippedmodelnumber_'+partIndex).end()
                 .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][shipped_parts_name]').attr('id','shippedpartsname_'+partIndex).attr("required", true).end()
                 .find('[id="shippedparttype"]').attr('name', 'part[' + partIndex + '][shipped_part_type]').attr('id','shippedparttype_'+partIndex).attr("required", true).end()
