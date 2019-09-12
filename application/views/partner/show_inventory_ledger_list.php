@@ -69,6 +69,7 @@
            $('#inventory_ledger').DataTable( {
                "processing": true,
                "serverSide": false,
+               "pageLength": 50,
                dom: 'lBfrtip',
                "buttons": [
                {
