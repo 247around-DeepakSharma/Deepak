@@ -1085,3 +1085,16 @@ INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `que
 CREATE TABLE `boloaaka`.`part_type_return_mapping` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `partner_id` INT(11) NOT NULL , `appliance_id` INT(11) NOT NULL , `part_type` VARCHAR(128) NOT NULL , `is_return` BOOLEAN NULL DEFAULT NULL , `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
 ALTER TABLE `part_type_return_mapping` ADD `inventory_id` INT(11) NOT NULL AFTER `appliance_id`;
+
+-- Ankit 12-SEP-2019
+ALTER TABLE spare_consumption_status ADD COLUMN tag varchar(100) NULL DEFAULT NULL AFTER id;
+
+UPDATE `spare_consumption_status` SET `tag` = 'part_consumed' WHERE `spare_consumption_status`.`id` = 1;
+UPDATE `spare_consumption_status` SET `tag` = 'part_not_received_courier_lost' WHERE `spare_consumption_status`.`id` = 2;
+UPDATE `spare_consumption_status` SET `tag` = 'damage_broken_part_received' WHERE `spare_consumption_status`.`id` = 3;
+UPDATE `spare_consumption_status` SET `tag` = 'wrong_part_received' WHERE `spare_consumption_status`.`id` = 4;
+UPDATE `spare_consumption_status` SET `tag` = 'ok_part_received_but_not_used' WHERE `spare_consumption_status`.`id` = 5;
+UPDATE `spare_consumption_status` SET `tag` = 'part_cancelled' WHERE `spare_consumption_status`.`id` = 6;
+UPDATE `spare_consumption_status` SET `tag` = 'nrn_approved' WHERE `spare_consumption_status`.`id` = 7;
+
+ALTER TABLE wrong_part_shipped_details ADD COLUMN create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ;
