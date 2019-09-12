@@ -1013,4 +1013,15 @@ UPDATE `sms_template` SET `template` = 'Get 5 Percent Cashback On Your %s Bookin
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Total Bookings Closed By Engineer', 'Completed', 'Cancelled', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= \"2019-08-01\" AND internal_status = \"Completed\"', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= \"2019-08-01\" AND internal_status = \"Cancelled\"', 'developer', '1', 'service', '1', NULL, CURRENT_TIMESTAMP);
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Todays Bookings Closed By Engineer', 'Completed', 'Cancelled', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND DATE(closed_date) = CURDATE() AND internal_status = \"Completed\"', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND DATE(closed_date) = CURDATE() AND internal_status = \"Cancelled\"', 'developer', '1', 'service', '1', NULL, CURRENT_TIMESTAMP);
 
- 
+ -- Ankit 12-SEP-2019
+ALTER TABLE spare_consumption_status ADD COLUMN tag varchar(100) NULL DEFAULT NULL AFTER id;
+
+UPDATE `spare_consumption_status` SET `tag` = 'part_consumed' WHERE `spare_consumption_status`.`id` = 1;
+UPDATE `spare_consumption_status` SET `tag` = 'part_not_received_courier_lost' WHERE `spare_consumption_status`.`id` = 2;
+UPDATE `spare_consumption_status` SET `tag` = 'damage_broken_part_received' WHERE `spare_consumption_status`.`id` = 3;
+UPDATE `spare_consumption_status` SET `tag` = 'wrong_part_received' WHERE `spare_consumption_status`.`id` = 4;
+UPDATE `spare_consumption_status` SET `tag` = 'ok_part_received_but_not_used' WHERE `spare_consumption_status`.`id` = 5;
+UPDATE `spare_consumption_status` SET `tag` = 'part_cancelled' WHERE `spare_consumption_status`.`id` = 6;
+UPDATE `spare_consumption_status` SET `tag` = 'nrn_approved' WHERE `spare_consumption_status`.`id` = 7;
+
+ALTER TABLE wrong_part_shipped_details ADD COLUMN create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ;
