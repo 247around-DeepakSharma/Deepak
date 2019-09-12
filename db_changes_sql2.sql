@@ -1051,7 +1051,7 @@ ALTER TABLE `entity_gst_details` ADD `state_stamp_picture` VARCHAR(256) NULL AFT
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_wh', 'New Spare shipped by %s to %s', 'Dear SF,<br><br> <b>%s</b> shipped below new spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', NULL, 'defective-outward@247around.com', '', 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com', '', '1', CURRENT_TIMESTAMP);
 
  --Abhishek---
- CREATE TABLE spare_qty_mgm ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `spare_id` INT(11) NOT NULL ,  `booking_id` VARCHAR(60) NOT NULL ,  `qty` INT(11) NOT NULL DEFAULT '1' ,  `sf_id` INT NOT NULL ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+ CREATE TABLE `spare_qty_mgmt` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `spare_id` INT(11) NOT NULL ,  `booking_id` VARCHAR(60) NOT NULL ,  `qty` INT(11) NOT NULL DEFAULT '1' ,  `sf_id` INT NOT NULL ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
  ALTER TABLE `spare_qty_mgmt` ADD `awb_by_sf_defective` VARCHAR(50) NOT NULL AFTER `created_on`, ADD `def_courier_price_by_sf` INT(11) NOT NULL AFTER `awb_by_sf_defective`, ADD `def_courier_name` VARCHAR(50) NOT NULL AFTER `def_courier_price_by_sf`;
 
  ALTER TABLE `spare_qty_mgmt` ADD `qty_status` INT(11) NOT NULL DEFAULT '1' AFTER `qty`;
