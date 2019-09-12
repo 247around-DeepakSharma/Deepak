@@ -493,7 +493,7 @@ class Service_centers extends CI_Controller {
         }
 
         $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
-        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description',NULL, NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',NULL, NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
     }
@@ -725,39 +725,36 @@ class Service_centers extends CI_Controller {
                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details','*',['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
                 $status = $spare_part_detail['status'];
                 
-                if($status_id == PART_CONSUMED_STATUS_ID && $spare_part_detail['defective_part_required'] == 1 && !empty($spare_part_detail['parts_shipped'])) {
+                $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status','tag',['id' => $status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
+                
+                if($consumption_status_tag == PART_CONSUMED_TAG && !empty($spare_part_detail['parts_shipped'])) {
                     $status = DEFECTIVE_PARTS_PENDING;
-                    
-                    // save defective part.
-                    $defective_part_data = [];
-                    $defective_part_data['booking_id'] = $booking_id;
-                    $defective_part_data['spare_id'] = $spare_id;
-                    $defective_part_data['qty'] = $spare_part_detail['quantity'];
-                    $defective_part_data['qty_status'] = DEFECTIVE_PARTS_PENDING;
-                    
-                    $this->inventory_model->insert_defective_ledger_data($defective_part_data);
                 }
                 
-                if($status_id == PART_NOT_RECEIVED_STATUS_ID) {
+                if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
                     $status = COURIER_LOST;
                 }
                 
-                if($status_id == PART_CANCELLED_STATUS_ID && empty($spare_part_detail['parts_shipped'])) {
+                if($consumption_status_tag == PART_CANCELLED_STATUS_TAG && empty($spare_part_detail['parts_shipped'])) {
                     $status = _247AROUND_CANCELLED;
                 }
                 
-                if($status_id == PART_SHIPPED_BUT_NOT_USED_STATUS_ID) {
+                if($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG) {
                     $status = OK_PART_TO_BE_SHIPPED;
                 }
                 
-                if($status_id == WRONG_PART_RECEIVED_STATUS_ID && !empty($post_data['wrong_part'])) {
+                if($consumption_status_tag == WRONG_PART_RECEIVED_TAG && !empty($post_data['wrong_part'])) {
                     $status = OK_PART_TO_BE_SHIPPED;
                     $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
                     $this->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
                 }
                 
-                if($status_id == DAMAGE_BROKEN_PART_RECEIVED_STATUS_ID) {
+                if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
                     $status = DAMAGE_PART_TO_BE_SHIPPED;
+                }
+
+                if($consumption_status_tag == PART_NRN_APPROVED_STATUS_TAG) {
+                    $status = NRN_APPROVED_BY_PARTNER;
                 }
                 
                 $this->reusable_model->update_table('spare_parts_details', [
@@ -3036,7 +3033,7 @@ class Service_centers extends CI_Controller {
        
         $qty_check=TRUE; 
         $config['base_url'] = base_url() . 'service_center/get_defective_parts_booking';
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select,FALSE,FALSE,FALSE,FALSE,0,NULL,$qty_check);
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select,0,NULL,$qty_check);
 
                 
         $config['per_page'] = 50;

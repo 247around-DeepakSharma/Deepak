@@ -295,7 +295,7 @@
                                         <div class="form-group">
                                             <label for="quantity" class="col-md-4">Quantity *</label>
                                             <div class="col-md-6">
-                                                <input type="number" min="1"   value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                                <input type="number" pattern="[1-9]{3}" min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
                                             </div>
                                         </div>
                                     </div>
@@ -395,7 +395,7 @@
                                             <div class="form-group">
                                                 <label for="quantity" class="col-md-4">Quantity *</label>
                                                 <div class="col-md-6">
-                                                    <input type="number" min="1"  value="1" class="form-control  spare_parts" id="quantity" >
+                                                    <input type="number" pattern="[1-9]{3}" min="1" readonly="" value="1" class="form-control  spare_parts" id="quantity" >
                                                 </div>
                                             </div>
                                         </div>
@@ -537,7 +537,7 @@ function alpha(e) {
         
         function part_type_changes(count){
             var model_number_id = $('#model_number_id').val();
-           
+           $("#parts_quantity_"+count).removeAttr("readonly");
             var part_type = $('#parts_type_' + count).val();
             $('#spinner').addClass('fa fa-spinner').show();
             if(model_number_id && part_type){
@@ -917,12 +917,18 @@ function alpha(e) {
     }
     
 
-     $(document).on('keyup', ".quantity", function()
+     $(document).on('keyup', ".quantity", function(e)
        {
+
+        var charCode = (e.which) ? e.which : e.keyCode;
+        if ((charCode > 47 && charCode < 58) || (charCode > 95 && charCode < 105) || charCode == 8) {
+     
         var id = $(this).attr("id");
         var str_arr =id.split("_");
         var indexId = str_arr[2]; 
-        var val = parseInt($(this).val());
+        var val =$(this).val(); 
+        val = Math.floor(parseInt(val));
+        $(this).val(val);
         if (val>0) {
          var max = parseInt($("#parts_name_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
         if(val>max){
@@ -930,11 +936,13 @@ function alpha(e) {
          swal("Error !", "Maximum quantity'allowed to ship is : "+max);
         }
         }else{
-        $(this).val("1");
-        swal("Error !", "Quantity can only be positive value");
-
+          $(this).val("");
+          swal("Error !", "0 quantity or negative value not allowed");  
         }
-
+        }else{
+          $(this).val("");
+          swal("Error !", "Special chars not allowed");
+        }
        });
     
     

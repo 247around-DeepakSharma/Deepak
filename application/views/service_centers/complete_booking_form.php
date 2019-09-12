@@ -514,7 +514,7 @@
                                                 <option value="" selected disabled>Select Reason</option>
                                                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
                                                     if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
-                                                    <option value="<?php echo $status['id']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
+                                                    <option value="<?php echo $status['id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
                                                 <?php $description_no++; } ?>
                                             </select>
                                         </td>
@@ -720,7 +720,7 @@
         });
         
         $('.spare_consumption_status').on('change', function() {
-            if($(this).val() == <?php echo WRONG_PART_RECEIVED_STATUS_ID; ?>) {
+            if($(this).children("option:selected").data('tag') == '<?php echo WRONG_PART_RECEIVED_TAG; ?>') {
                 open_wrong_spare_part_model($(this).children("option:selected").data('spare_id'), '<?php echo $booking_history[0]['booking_id']; ?>', $(this).children("option:selected").data('part_number'), '<?php echo $booking_history[0]['service_id']; ?>');
             }
         })

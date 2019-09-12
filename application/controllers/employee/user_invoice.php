@@ -1041,11 +1041,12 @@ class User_invoice extends CI_Controller {
                     $receiver_entity_id = (($receiver_id !== 'null')?$receiver_id:$partner_id);
                     $receiver_entity_type = ((!empty($receiver_type) && ($receiver_type == 1))?_247AROUND_SF_STRING:_247AROUND_PARTNER_STRING);
 
-                    $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id);
                     if($receiver_entity_type == _247AROUND_PARTNER_STRING) {
+                        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id);
                         $entity_details = $this->partner_model->getpartner_details("gst_number, primary_contact_email,state, company_name, address, district, pincode,public_name", array('partners.id' => $receiver_entity_id));
                     }
                     else {
+                        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData);
                         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,state,address,company_name,name as public_name,district, pincode, owner_phone_1, primary_contact_email, owner_email", array("service_centres.id" => $receiver_entity_id));
                     }
                     $gst_number = $entity_details[0]['gst_number'];
@@ -1092,7 +1093,7 @@ class User_invoice extends CI_Controller {
                                 $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['part_number'] = $value['part_number'];
                             } else {
                                 $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] + $value['qty'];//1;
-                                if (strpos($invoice[$value['inventory_id']]['description'], $value['incoming_invoice_id']) == false) {
+                                if (strpos($invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'], $value['incoming_invoice_id']) == false) {
                                     $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] . " - " . $value['incoming_invoice_id'];
                                 } else {
                                     $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'] = $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['description'];
@@ -1173,14 +1174,21 @@ class User_invoice extends CI_Controller {
                                 $this->inventory_model->insert_inventory_ledger($ledger_data);
                                 $stock = "stock - '" . $value['qty'] . "'";
                                 $this->inventory_model->update_inventory_stock(array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $wh_id, 'inventory_id' => $value['inventory_id']), $stock);
+                                if($receiver_entity_type == _247AROUND_SF_STRING) {
+                                    $stock1 = "stock + '" . $value['qty'] . "'";
+                                    $this->inventory_model->update_inventory_stock(array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $receiver_entity_id, 'inventory_id' => $value['inventory_id']), $stock1);
+                                }
                             }
                         }
                     }
-                    }
-
+                    
                     echo json_encode(array('status' => true, 'message' => 'Invoice generated successfully'), true);
+                    }
+                    else {
+                        echo json_encode(array('status' => false, 'message' => 'There is no inventory invoice to tag with your selected inventory, Please contact to 247Around Team'), true);
+                    }
                 } else {
-                    echo json_encode(array('status' => false, 'message' => 'There is no inventory invoice to tag with you selected inventory, Please contact to 247Around Team'), true);
+                    echo json_encode(array('status' => false, 'message' => 'There is no inventory invoice to tag with your selected inventory, Please contact to 247Around Team'), true);
                 }
             } else {
                 echo json_encode(array('status' => false, 'message' => 'Please Upload Courier Receipt less than 2 MB'), true);

@@ -289,5 +289,6 @@ $route['service_center/warranty/(:any)/(:any)/(:any)'] = 'employee/service_cente
 $route['partner/inventory/upload_inventory_details_file'] = 'employee/inventory/upload_inventory_details_file/0';
 $route['partner/inventory/upload_bom_file'] = 'employee/inventory/upload_bom_file/0';
 $route['partner/inventory/upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alternate_spare_parts_file/0';
+$route['engineer/download_engineer_bookings'] = 'employee/engineer/download_engineer_bookings';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

@@ -7153,8 +7153,10 @@ class Inventory extends CI_Controller {
             $post['where'] = array("service_centres.is_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         } else {
             
-            $select .= ", inventory_master_list.price AS 'Basic Price',inventory_master_list.gst_rate as 'GST Rate',inventory_master_list.oow_around_margin as 'Around Margin', inventory_master_list.oow_vendor_margin as 'Vendor Margin'"; 
-            
+            $select .= ", inventory_master_list.price AS 'Basic Price',inventory_master_list.gst_rate as 'GST Rate'"; 
+            if (empty($partner_id)) {
+                $select .= ",inventory_master_list.oow_around_margin as 'Around Margin', inventory_master_list.oow_vendor_margin as 'Vendor Margin'";
+            }
             $post['where'] = array("service_centres.is_micro_wh" => 1, "inventory_stocks.entity_type" => _247AROUND_SF_STRING, "inventory_master_list.inventory_id NOT IN (1,2)" => NULL);
         }
 
