@@ -2965,7 +2965,7 @@ class Service_centers extends CI_Controller {
         $order_by = "status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.booking_id ASC";
         $qty_check=TRUE; 
         $config['base_url'] = base_url() . 'service_center/get_defective_parts_booking';
-        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select,FALSE,FALSE,FALSE,FALSE,0,NULL,$qty_check);
+        $config['total_rows'] = $this->service_centers_model->count_spare_parts_booking($where, $select,0,NULL,$qty_check);
 
 
         $config['per_page'] = 50;
