@@ -2911,12 +2911,12 @@ class Spare_parts extends CI_Controller {
         $login_partner_id='';
         $login_service_center_id='';
         if ($this->session->userdata('userType') == 'employee') {
-            $agentid=$this->session->userdata('employee_id');
+            $agentid=$this->session->userdata('id');
             $agent_name =$this->session->userdata('emp_name');
             $login_partner_id = _247AROUND;
             $login_service_center_id =NULL;
         }else if($this->session->userdata('userType') == 'service_center'){
-            $agentid=$this->session->userdata('service_center_id');
+            $agentid=$this->session->userdata('service_center_agent_id');
             $agent_name =$this->session->userdata('service_center_name');
             $login_service_center_id = $this->session->userdata('service_center_id');
             $login_partner_id =NULL;
