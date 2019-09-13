@@ -178,7 +178,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class='form-group'>
-                                    <label for="from_gst_number" class="col-md-4">From GST Number *</label>
+                                    <label for="from_gst_number" class="col-md-4">To GST Number *</label>
                                     <div class="col-md-8">
                                         <select class="form-control" id="from_gst_number" required>
                                             <option selected disabled value="">Select from GST number</option>
