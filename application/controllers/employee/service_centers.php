@@ -7627,7 +7627,7 @@ class Service_centers extends CI_Controller {
             break;
             case 2:
                 $booking_id = $arrBookings[0]['booking_id'];
-                $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
+                $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'Out of Warranty'], 'EW' => ['Extended', 'AMC', 'Repeat']];
                 $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
                 $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
                 $warranty_mismatch = 0;
@@ -7638,7 +7638,7 @@ class Service_centers extends CI_Controller {
                     $warranty_mismatch = 1;
                     foreach($arr_warranty_status[$warranty_checker_status] as $request_types)
                     {
-                        if(strpos($booking_request_type, $request_types) !== false)
+                        if(strpos(strtoupper(str_replace(" ","",$booking_request_type)), strtoupper(str_replace(" ","",$request_types))) !== false)
                         {
                             $warranty_mismatch = 0;
                             break;
@@ -7648,7 +7648,7 @@ class Service_centers extends CI_Controller {
                 
                 if(!empty($warranty_mismatch))
                 {
-                    if((strpos($booking_request_type, 'Out Of Warranty') !== false) || (strpos($booking_request_type, 'Out Warranty') !== false))
+                    if((strpos(strtoupper(str_replace(" ","",$booking_request_type)), 'OUTOFWARRANTY') !== false))
                     {
                         $warranty_mismatch = 0;
                         $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";
