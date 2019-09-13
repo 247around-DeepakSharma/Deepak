@@ -1801,9 +1801,12 @@ class Inventory extends CI_Controller {
      * 
      */
     function show_inventory_ledger_list($page = 0, $entity_type = "", $entity_id = "", $inventory_id = "", $offset = 0) {
-        if ($page == 0) {
-            $page = 50;
-        }
+        //if ($page == 0) {
+        //Pranjal: updated as per discussion with ABhay
+            $page =10000;
+            $offset = 0;
+          //End
+        //}
         $where = "";
         if (!empty($entity_id) && !empty($entity_type)) {
             $where .= " where (i.receiver_entity_id = $entity_id AND i.receiver_entity_type = '" . $entity_type . "' OR i.sender_entity_id = $entity_id AND i.sender_entity_type = '" . $entity_type . "')";

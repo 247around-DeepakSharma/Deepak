@@ -688,6 +688,36 @@ function checkPriceTagValidation(delivered_price_tags){
              amc_flag = true;
              array.push(amc_flag);
          }
+         
+         // ----------------------------------------------------------------------------------------
+         // DO NOT ALLOW SAME REQUEST TYPE COMBINATIONS IN BOOKING         
+         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1) ||
+            (findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - In Warranty (Customer Location)') > -1)|| 
+            (findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - In Warranty (Customer Location)') > -1)
+            ){            
+            repair_flag = true;
+            array.push(repair_flag);
+         } 
+         
+         if((findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Customer Location)') > -1) ||
+            (findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1) ||
+            (findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Customer Location)') > -1)            
+           ){            
+            repair_out_flag = true;
+            array.push(repair_out_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 && findInArray(delivered_price_tags, 'Installation & Demo (Paid)') > -1){
+                   installation_flag = true;
+                   array.push(installation_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1 && findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1){
+                    pdi = true;
+                    array.push(pdi);
+         }
+         // ---------------------------------------------------------------------------------------------------------
+         
                 
          if(array.length > 1){
              return false;
