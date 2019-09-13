@@ -149,11 +149,11 @@
                         <div class="col-md-4 col-sm-4 col-xs-12">
                              <div class="well profile_view" style="width:100%!important;display: inline-block;background: #fff;padding: 5px;height:135px;">
                                 <div class="left col-xs-12">
-                                    <h2><b>Mr. Aditya Gupta</b></h2>
+                                    <h2><b>Ms. Nupur Baranwal</b></h2>
                                     <p><strong>About: </strong> Spare Part Reconciliation </p>
                                     <ul class="list-unstyled">
-                                       <li><i class="fa fa-phone"></i> Phone: 8745050887</li>
-                                       <li><i class="fa fa-envelope"></i> Email: adityag@247around.com </li>
+                                       <li><i class="fa fa-phone"></i> Phone: 9899917444</li>
+                                       <li><i class="fa fa-envelope"></i> Email: nupurb@247around.com </li>
                                     </ul>
                                 </div>
                              </div>
