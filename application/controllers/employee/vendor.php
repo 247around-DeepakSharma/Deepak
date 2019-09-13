@@ -2019,11 +2019,16 @@ class vendor extends CI_Controller {
             $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "id, name, phone");
             if (empty($is_phone) || $is_phone[0]['id'] == $engineer_id) {
                 $login_entity = $this->dealer_model->entity_login(array("entity" => _247AROUND_ENGINEER_STRING, "user_id" => $this->input->post('phone')));
-                if(empty($login_entity) || $login_entity[0]['entity_id'] == $engineer_id){
+                if(empty($login_entity) || $login_entity[0]['user_id'] == $this->input->post('phone')){
                     $data['name'] = $this->input->post('name');
                     $data['phone'] = $this->input->post('phone');
-                    $data['alternate_phone'] = $this->input->post('alternate_phone');             
-                    $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
+                    $data['alternate_phone'] = $this->input->post('alternate_phone');  
+                    if($this->input->post('identity_proof')){
+                        $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
+                    }
+                    else{
+                        $data_identity['identity_proof_type'] = "";
+                    }
                     $data_identity['identity_proof_number'] = $this->input->post('identity_id_number');
 
                     if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
@@ -2056,14 +2061,15 @@ class vendor extends CI_Controller {
                     $engineer_update_id = $this->vendor_model->update_engineer($where, $data);
                     
                     //Update user id and password in entity login table
-                    $entity_data = array(
-                        "entity_name" => $this->input->post('name'),
-                        "user_id" => $this->input->post('phone'),
-                        "password" => md5($this->input->post('phone')),
-                        "clear_password" => $this->input->post('phone')
-                    );
-                    $this->partner_model->update_login_details($entity_data, array("entity" => _247AROUND_ENGINEER_STRING, "entity_id" => $engineer_id));
-                    
+                    if($login_entity[0]['user_id'] != $this->input->post('phone')){
+                        $entity_data = array(
+                            "entity_name" => $this->input->post('name'),
+                            "user_id" => $this->input->post('phone'),
+                            "password" => md5($this->input->post('phone')),
+                            "clear_password" => $this->input->post('phone')
+                        );
+                        $this->partner_model->update_login_details($entity_data, array("entity" => _247AROUND_ENGINEER_STRING, "entity_id" => $engineer_id));
+                    }
                     $where_identity = array("entity_type" => "engineer", "entity_id" => $engineer_id);
                     $this->vendor_model->update_entity_identity_proof($where_identity, $data_identity);
 
