@@ -1086,6 +1086,9 @@ CREATE TABLE `boloaaka`.`part_type_return_mapping` ( `id` INT(11) NOT NULL AUTO_
 
 ALTER TABLE `part_type_return_mapping` ADD `inventory_id` INT(11) NOT NULL AFTER `appliance_id`;
 
+--Kalyani 12-09-2019
+ALTER TABLE `engineer_booking_action` ADD `purchase_invoice` VARCHAR(255) NULL DEFAULT NULL AFTER `serial_number_pic`;
+
 -- Ankit 12-SEP-2019
 ALTER TABLE spare_consumption_status ADD COLUMN tag varchar(100) NULL DEFAULT NULL AFTER id;
 
@@ -1098,3 +1101,4 @@ UPDATE `spare_consumption_status` SET `tag` = 'part_cancelled' WHERE `spare_cons
 UPDATE `spare_consumption_status` SET `tag` = 'nrn_approved' WHERE `spare_consumption_status`.`id` = 7;
 
 ALTER TABLE wrong_part_shipped_details ADD COLUMN create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ;
+

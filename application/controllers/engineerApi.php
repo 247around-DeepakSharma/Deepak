@@ -1204,6 +1204,13 @@ class engineerApi extends CI_Controller {
                         $data["is_broken"] = 1;
                     }
                     
+                    if(isset($value["purchase_invoice"])){
+                        $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".rand(10,100).".png";
+
+                        $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "engineer-uploads");
+
+                        $data["purchase_invoice"] = $purchase_inv_url;
+                    }
 
                     if($value['pod'] == "1"){
                         if(isset($value["serial_number"])){
@@ -1779,10 +1786,10 @@ class engineerApi extends CI_Controller {
             $missed_slots = $this->apis->getMissedBookingSlots();
             if($missed_slots){
                 if(count($missed_slots) == "1"){
-                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND booking_details.booking_timeslot = '".$missed_slots[0]."')"] = NULL;
+                    $missed_where["((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND booking_details.booking_timeslot = '".$missed_slots[0]."'))"] = NULL;
                 }
                 if(count($missed_slots) == "2"){
-                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND (booking_details.booking_timeslot = '".$missed_slots[0]."' OR booking_details.booking_timeslot = '".$missed_slots[1]."'))"] = NULL;
+                    $missed_where["((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND (booking_details.booking_timeslot = '".$missed_slots[0]."' OR booking_details.booking_timeslot = '".$missed_slots[1]."')))"] = NULL;
                 }
             }
             else{
