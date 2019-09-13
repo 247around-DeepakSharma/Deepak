@@ -2843,6 +2843,7 @@ class Spare_parts extends CI_Controller {
                 )
         );
 
+        ob_end_clean();
         $res1 = 0;
         if (file_exists(TMP_FOLDER . $output_file_excel)) {
 

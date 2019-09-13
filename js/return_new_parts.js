@@ -59,7 +59,7 @@ function remove_inventory(inventory_id, index){
 }
 
 function addInArray(inventory_id, qty, index){
-    var is_micro = Number($("#wh_id").find(':selected').attr('data-warehouse'));
+    var is_micro = Number($("#wh_id").find(':selected').attr('data-warehose'));
     var is_micro_wh = 2;
     if(is_micro === 2){
         is_micro_wh = 1;
