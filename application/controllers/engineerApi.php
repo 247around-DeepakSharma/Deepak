@@ -1906,12 +1906,17 @@ class engineerApi extends CI_Controller {
 
                 if($requestData["booking_status"] == _247AROUND_CANCELLED){
                     $where["engineer_booking_action.internal_status = '"._247AROUND_CANCELLED."'"] = NULL;
+                    $select .= ", engineer_booking_action.cancellation_reason, engineer_booking_action.cancellation_remark";
                 }
                 else{
                     $where["engineer_booking_action.internal_status = '"._247AROUND_COMPLETED."'"] = NULL;
+                    $select .= ", engineer_booking_action.is_broken, engineer_booking_action.model_number, engineer_booking_action.sf_purchase_date, engineer_booking_action.serial_number,"
+                            . " engineer_booking_action.purchase_invoice, booking_details.request_type, engineer_booking_action.additional_service_charge, engineer_booking_action.parts_cost,"
+                            . " engineer_booking_action.booking_status, engineer_booking_action.symptom, engineer_booking_action.defect, engineer_booking_action.solution,"
+                            . " engineer_booking_action.closing_remark, engineer_table_sign.signature";
                 }
                
-                $response['cancelledBookings'] = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false);
+                $response['cancelledBookings'] = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false, true);
                 
                 if(!empty($response['cancelledBookings'])){
                     log_message("info", __METHOD__ . "Bookings Found Successfully");

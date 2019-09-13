@@ -118,7 +118,7 @@
         $('#datatable1').DataTable({
             dom: 'Bfrtip',
             buttons: [
-               'csv'
+                { extend: 'csv', text: 'Export', title: 'Add Warranty'}               
             ]
         });
         
@@ -141,6 +141,7 @@
             alert("Please Select Partner");
             return false;
         }
+        $("#submit_btn").attr("disabled", true);        
     }
 </script>
 <?php if ($this->session->flashdata('file_error')) {

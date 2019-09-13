@@ -5780,7 +5780,7 @@ class Service_centers extends CI_Controller {
                             $status = SPARE_PARTS_SHIPPED;
 
                             $data = array();
-                            $data['courier_pic_by_partner'] = (isset($courier_image['message']))?$courier_image['message']: NULL;
+                            $data['courier_pic_by_partner'] = (!empty($courier_image['status']))?$courier_image['message']: NULL;
                             $data['shipped_inventory_id'] = $part_details['inventory_id'];
                             $data['model_number_shipped'] = $part_details['shipped_model_number'];
                             $data['shipped_parts_type'] = $part_details['shipped_part_type'];
@@ -7774,8 +7774,6 @@ class Service_centers extends CI_Controller {
     public function get_warranty_data($case = 1){
         $post_data = $this->input->post();
         $arrBookings = $post_data['bookings_data'];  
-        $selected_booking_request_types = $arrBookings[0]['booking_request_types'];
-        $booking_request_type = $this->booking_utilities->get_booking_request_type($selected_booking_request_types);  
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings);   
             
         switch ($case) {
@@ -7783,6 +7781,8 @@ class Service_centers extends CI_Controller {
                 echo json_encode($arrBookingsWarrantyStatus);
             break;
             case 2:
+                $selected_booking_request_types = $arrBookings[0]['booking_request_types'];
+                $booking_request_type = $this->booking_utilities->get_booking_request_type($selected_booking_request_types);        
                 $booking_id = $arrBookings[0]['booking_id'];
                 $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'Out of Warranty'], 'EW' => ['Extended', 'AMC', 'Repeat']];
                 $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];

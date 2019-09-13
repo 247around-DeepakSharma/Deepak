@@ -1175,8 +1175,20 @@ class User_invoice extends CI_Controller {
                                 $stock = "stock - '" . $value['qty'] . "'";
                                 $this->inventory_model->update_inventory_stock(array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $wh_id, 'inventory_id' => $value['inventory_id']), $stock);
                                 if($receiver_entity_type == _247AROUND_SF_STRING) {
-                                    $stock1 = "stock + '" . $value['qty'] . "'";
-                                    $this->inventory_model->update_inventory_stock(array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $receiver_entity_id, 'inventory_id' => $value['inventory_id']), $stock1);
+                                    $inventory_stock_count = $this->inventory_model->get_inventory_stock_count_details("count(*) as numrow",array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $receiver_entity_id, 'inventory_id' => $value['inventory_id']));
+                                    if($inventory_stock_count[0]['numrow']) { 
+                                        $stock1 = "stock + '" . $value['qty'] . "'";
+                                        $this->inventory_model->update_inventory_stock(array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $receiver_entity_id, 'inventory_id' => $value['inventory_id']), $stock1);
+                                    }
+                                    else {
+                                        $insert_data['entity_id'] = $receiver_entity_id;
+                                        $insert_data['entity_type'] = _247AROUND_SF_STRING;
+                                        $insert_data['inventory_id'] = $value['inventory_id'];
+                                        $insert_data['stock'] = $value['qty'];
+                                        $insert_data['create_date'] = date('Y-m-d H:i:s');
+
+                                        $this->inventory_model->insert_inventory_stock($insert_data);
+                                    }
                                 }
                             }
                         }
