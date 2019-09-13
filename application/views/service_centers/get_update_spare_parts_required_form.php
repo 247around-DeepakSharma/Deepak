@@ -162,6 +162,25 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
+                                            <label for="parts_number" class="col-md-4">Part Number</label>
+                                            <?php if (isset($inventory_details) && !empty($inventory_details)) { ?>
+                                            <div class="col-md-6">
+                                                <select class="form-control spare_parts parts_number" id="parts_number" disabled>
+                                                    <option selected disabled>Select Part Number</option>
+                                                </select>
+                                            </div>
+                                            <?php } else { ?>
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control spare_parts parts_number" id="parts_number" placeholder="Part Number" disabled>
+                                            </div>
+                                            <?php } ?>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Front Part Picture *</label>
                                             <div class="col-md-6">
                                                 <input type="file" class="form-control defective_parts_pic spare_parts" id="defective_parts_pic" name="defective_parts_pic[0]">
@@ -171,9 +190,7 @@
                                             <img src="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $spare_parts_details['defective_parts_pic']; ?>" id="display_defective_parts_pic" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;">
                                            <?php } ?>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="row">
+                                    </div>  
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
@@ -321,12 +338,34 @@ $(document).ready(function(){
                          var inventory_id =$("#parts_name").find('option:selected').attr("data-inventory"); 
                         $("#current_inventory_id").val(inventory_id);
                         $('#spinner').removeClass('fa fa-spinner').hide();
+                        change_parts_number(part_type);
                     }
                 });
             }else{
                 console.log("Please Select Model Number");
             }
-      } 
+      }
+      function change_parts_number(part_type){
+        var model_number_id = $('#model_number_id').val();
+        if(model_number_id && part_type){
+            $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/get_part_number',
+                data: { model_number_id:model_number_id,requested_inventory_id:'<?php echo $spare_parts_details['requested_inventory_id']; ?>', entity_id: '<?php echo $spare_parts_details['booking_partner_id']; ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts_details['service_id']; ?>',part_type:part_type,is_option_selected:true },
+                success:function(data){
+                    //console.log(data);
+                    $('#parts_number').val("");
+                    $('#parts_number').val('Select Part Number').change();
+                    $('#parts_number').html(data).change();
+                    //$('#spinner_'+ sp_id).removeClass('fa fa-spinner').hide();
+                    //$('#parts_number').select2();
+
+                }
+            });
+        }else{
+          //  alert("Please Select Model Number");
+        }
+    }
             
 });
 
