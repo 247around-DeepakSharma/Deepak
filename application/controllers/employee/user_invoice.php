@@ -1119,10 +1119,10 @@ class User_invoice extends CI_Controller {
                         $courier_details_table = $this->table->generate();
                         
                         if ($courier_id) {
-                            if ($wh_type == 2) {
+                            if ($wh_type == 2) { // to generate invoice when stock return from micro-warehouse to warehouse
                                 $response = $this->generate_new_return_inventory_purchase_invoice($invoices, $wh_id, $ed, $invoiceValue, $entity_details[0]['public_name'], $p, $courier_details_table, $receiver_entity_type, $receiver_entity_id, $entity_details);
                             }
-                            if ($receiver_entity_type == _247AROUND_PARTNER_STRING) {
+                            if ($receiver_entity_type == _247AROUND_PARTNER_STRING) { // to generate invoice when stock return from warehouse to partner
                                 list($response,$output_file,$output_file_main) = $this->generate_new_return_inventory($invoices, $wh_id, $sd, $ed, $invoice_date, $key, $invoiceValue, $partner_id, $p, $courier_details_table);
                                 $pdf_attachement = "https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $output_file_main;
                                 
@@ -1265,7 +1265,10 @@ class User_invoice extends CI_Controller {
             $gst_number = TRUE;
         }
         $invoice_id = $this->invoice_lib->create_invoice_id($entity_details[0]['sc_code']);
-
+        foreach ($invoiceValue['mapping'] as $m) {
+            $m['outgoing_invoice_id'] = $invoice_id;
+            $this->invoices_model->insert_inventory_invoice($m);
+        }
         foreach ($invoice as $key => $value) {
             $select = "oow_vendor_margin, oow_around_margin";
             $post = array();

@@ -228,7 +228,7 @@ class Booking extends CI_Controller {
                 $appliances_details['model_number'] = $services_details['model_number'] = $model_number[$key];
                 // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0].
                 //$appliances_details['tag']  = $appliance_tags[$key];
-                $appliances_details['purchase_date'] = $services_details['purchase_date'] =  $purchase_date[$key];
+                $appliances_details['purchase_date'] = $services_details['purchase_date'] =  date("Y-m-d", strtotime($purchase_date[$key]));
                 $services_details['booking_id'] = $booking['booking_id'];
                 //$appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
                 $appliances_details['description'] = $services_details['appliance_description'] = $appliance_description[$key];
