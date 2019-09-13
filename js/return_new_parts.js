@@ -59,7 +59,11 @@ function remove_inventory(inventory_id, index){
 }
 
 function addInArray(inventory_id, qty, index){
-    
+    var is_micro = Number($("#wh_id").find(':selected').attr('data-warehose'));
+    var is_micro_wh = 2;
+    if(is_micro === 2){
+        is_micro_wh = 1;
+    }
     returnItemArray[index] = [];
         returnItemArray[index] = {
             'inventory_id': inventory_id,
@@ -75,7 +79,7 @@ function addInArray(inventory_id, qty, index){
             'total_amount':$("#total_amount_"+inventory_id).text(),
             'sub_total_amount': Number(qty) * Number($("#total_amount_"+inventory_id).text()),
             'warehouse_id': $("#wh_id").val(),
-            'is_micro': $("#wh_id").find(':selected').attr('data-id'),
+            'is_micro_wh': is_micro_wh,
             'shipping_quantity':qty,
         };
         
