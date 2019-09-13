@@ -443,14 +443,24 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                 </select>
                                             </div>
                                         </div>
+                                        <?php
+                                            $booking_model_number = !empty($unit_details[0]['sf_model_number']) ?  $unit_details[0]['sf_model_number'] : "";
+                                            $booking_model_purchase_date = (!empty($unit_details[0]['sf_purchase_date']) && $unit_details[0]['sf_purchase_date'] != '0000-00-00') ?  $unit_details[0]['sf_purchase_date'] : "";
+                                            if(empty($booking_model_number) && !empty($booking_history['spare_parts'][0]['model_number'])){
+                                                $booking_model_number = $booking_history['spare_parts'][0]['model_number'];
+                                            }
+                                            if(empty($booking_model_purchase_date) && !empty($booking_history['spare_parts'][0]['date_of_purchase'])){
+                                                $booking_model_purchase_date = $booking_history['spare_parts'][0]['date_of_purchase'];
+                                            }
+                                        ?>
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(isset($unit_details[0]['sf_model_number'])) { echo $unit_details[0]['sf_model_number']; } elseif(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> onfocusout="check_booking_request()">
+                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(!empty($booking_model_number)) { echo $booking_model_number; } elseif(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> onfocusout="check_booking_request()">
                                                 <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
                                                     <option selected disabled>Select Appliance Model</option>
                                                     <?php foreach ($model[0] as $value) { ?>
-                                                    <option <?php if(isset($unit_details[0]['sf_model_number'])) {if($value['model'] == $unit_details[0]['sf_model_number']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
+                                                    <option <?php if(!empty($booking_model_number)) {if($value['model'] == $booking_model_number) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
                                                         ><?php echo $value['model']; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -484,7 +494,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                             <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                             <div class="col-md-6">
                                             <div class="input-group date">
-                                                <input <?php if($is_repeat && (isset($unit_details[0]['purchase_date']) && ($unit_details[0]['purchase_date'] != '0000-00-00'))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(isset($unit_details[0]['sf_purchase_date']) && $unit_details[0]['sf_purchase_date'] != '0000-00-00'){ echo $unit_details[0]['sf_purchase_date']; } elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo $unit_details[0]['purchase_date']; }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()">
+                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo $booking_model_purchase_date; } elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo $unit_details[0]['purchase_date']; }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                             </div>
@@ -693,7 +703,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                             <div class="form-group ">
                                                 <label for="type" class="col-md-4">Appliance Model </label>
                                                 <div class="col-md-6">
-                                                    <input  type="text" class="form-control"  name="model_number[]" id="<?php echo "model_number_".$number;?>" value = "<?php echo (!empty($booking_unit_details['sf_model_number']) ? $booking_unit_details['sf_model_number'] : $booking_unit_details['model_number']); ?>" placeholder="Enter Model" onfocusout="check_booking_request()">
+                                                    <input  type="text" class="form-control"  name="model_number[]" id="<?php echo "model_number_".$number;?>" value = "<?php echo (!empty($booking_model_number) ? $booking_model_number : $booking_unit_details['model_number']); ?>" placeholder="Enter Model" onfocusout="check_booking_request()">
                                                 </div>
                                             </div>
 <!--                                            <div class="form-group ">
@@ -724,7 +734,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                 <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group date">
-                                    <input class="form-control purchase_date" name= "purchase_date[]" type="text" value = "<?php if(isset($booking_unit_details['sf_purchase_date']) && $booking_unit_details['sf_purchase_date'] != '0000-00-00') { echo $booking_unit_details['purchase_date']; } elseif(isset($booking_unit_details['purchase_date']) && $booking_unit_details['purchase_date'] != '0000-00-00') { echo $booking_unit_details['purchase_date']; } ?>" id="<?php echo "purchase_date_".$number ;?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()"/>
+                                    <input class="form-control purchase_date" name= "purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)) { echo $booking_model_purchase_date; } elseif(isset($booking_unit_details['purchase_date']) && $booking_unit_details['purchase_date'] != '0000-00-00') { echo $booking_unit_details['purchase_date']; } ?>" id="<?php echo "purchase_date_".$number ;?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()"/>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -1161,12 +1171,12 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     }
    
 });
-  $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
+  $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd', changeYear: true, changeMonth: true});
   $('.purchase_date').each(function () {
     if ($(this).hasClass('hasDatepicker')) {
         $(this).removeClass('hasDatepicker');
     } 
-    $(this).datepicker({dateFormat: 'yy-mm-dd', maxDate: 0});
+    $(this).datepicker({dateFormat: 'yy-mm-dd', maxDate: 0, changeYear: true, changeMonth: true});
  });
   
   function readonly_select(objs, action) {
