@@ -317,4 +317,30 @@ class Engineer extends CI_Controller {
         //$row[] = "<a onClick=\"javascript: return confirm('Delete Engineer?');\" id='edit' class='btn btn-small btn-danger' href=" . base_url() . "employee/vendor/delete_engineer/".$engineer_list->id.">Delete</a>";
         return $row;
     }
+    
+    /*This function is used to load view for download booking details closed by engineer*/
+    function download_engineer_bookings(){
+        $where['is_sf'] = 1;
+        $where['active'] = 1;
+        $where['isEngineerApp'] = 1;
+        $data['vendor'] = $this->vendor_model->getVendorDetails("service_centres.name, service_centres.id", $where);
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/download_bookings_closed_by_engineer', $data);
+    }
+    
+    function download_engineer_closed_bookings(){
+        $vendors = $this->input->post("service_center");
+        $daterange = explode("-", $this->input->post("daterange"));
+        $startDate = date("Y-m-d", strtotime(trim($daterange[0])));
+        $endDate = date("Y-m-d", strtotime(trim($daterange[1]))); 
+        $list = $this->engineer_model->get_engineer_closed_bookings($vendors, $startDate, $endDate);
+        if(!empty($list)){
+            $headings = array("Booking Id", "Service Center Name", "Engineer Name", "Current Status", "Internal Status", "Cancellation Reason", "Cancellation Remark", "Closing Remark", "Closed Date", "PinCode Matched");
+            $this->miscelleneous->downloadCSV($list, $headings,"SF_penalty_summary");
+        }
+        else{
+            $this->session->set_userdata("error", "No data found");
+        }
+        redirect(base_url() . 'employee/engineer/download_engineer_bookings');
+    }
 }

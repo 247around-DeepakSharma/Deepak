@@ -248,11 +248,12 @@ class Engineer_model extends CI_Model {
     }
     
     function engineer_profile_data($enginner_id){
-        $sql = "SELECT engineer_details.*, GROUP_CONCAT(services SEPARATOR ', ') as appliances, entity_identity_proof.identity_proof_type, entity_identity_proof.identity_proof_number 
+        $sql = "SELECT engineer_details.*, GROUP_CONCAT(services SEPARATOR ', ') as appliances, entity_identity_proof.identity_proof_type, entity_identity_proof.identity_proof_number, service_centres.company_name, district 
                 FROM engineer_details 
                 JOIN entity_identity_proof on entity_identity_proof.entity_id = engineer_details.id AND entity_identity_proof.entity_type = 'engineer' 
                 JOIN engineer_appliance_mapping on engineer_appliance_mapping.engineer_id = engineer_details.id
                 JOIN services on services.id = engineer_appliance_mapping.service_id
+                JOIN service_centres on service_centres.id = engineer_details.service_center_id
                 WHERE engineer_details.id = '".$enginner_id."' GROUP BY engineer_appliance_mapping.engineer_id";
         $query = $this->db->query($sql);
         return $query->result_array();
@@ -308,6 +309,31 @@ class Engineer_model extends CI_Model {
     function get_engineer_D0_closure($engineer_id, $sf_id){
         $sql = "SELECT (select count(id) FROM booking_details WHERE DATEDIFF(STR_TO_DATE(initial_booking_date,'%d-%m-%Y'), CAST(service_center_closed_date AS date)) = 0 AND assigned_vendor_id=$sf_id AND assigned_engineer_id=$engineer_id AND current_status='Completed') as same_day_closure,"
                 . " (Select Count(id) From booking_details WHERE assigned_vendor_id=$sf_id AND assigned_engineer_id=$engineer_id AND current_status='Completed') as total_closure from booking_details limit 1";
+        $query = $this->db->query($sql);
+        return $query->result_array();
+    }
+    
+     /*
+    *@Desc - This function is used to download booking details closed by engineer
+    */
+    function get_engineer_closed_bookings($vendors, $start_date, $end_date){
+        $vendor_ids = "";
+        if(!in_array("All", $vendors)){
+            $vendor_ids = "service_centres.id IN (";
+            foreach ($vendors as $value) {
+                $vendor_ids .= "'".$value."',";
+            }
+            $vendor_ids = rtrim($vendor_ids, ",");
+            $vendor_ids .= ") AND";
+        }
+        
+        $sql = 'SELECT DISTINCT(eb.booking_id), s.name as service_center_name, e.name as engineer_name, 
+            eb.`current_status`, eb.`internal_status`, eb.`cancellation_reason`, eb.`cancellation_remark`,
+            eb.`closing_remark`, eb.closed_date, if(et.mismatch_pincode = 1, "No", "Yes") as pincode_matched
+            FROM `engineer_booking_action` as eb JOIN service_centres as s on s.id = eb.`service_center_id`
+            JOIN engineer_details as e on e.id = eb.`engineer_id` LEFT JOIN engineer_table_sign as et on et.booking_id = eb.booking_id
+            WHERE eb.closed_date IS NOT NULL AND eb.closed_date >= "'.$start_date.'" AND eb.closed_date <= "'.$end_date.'" ORDER BY `eb`.`closed_date` DESC';
+       
         $query = $this->db->query($sql);
         return $query->result_array();
     }

@@ -129,7 +129,7 @@
     </div>
 </div>
 <!-- Modal -->
-<div id="myModal1" class="modal fade" role="dialog">
+<div id="UpcountryModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" id="open_model">
         <!-- Modal content-->
         <div class="modal-content" >
@@ -392,7 +392,7 @@ span.stars span {
       url: '<?php echo base_url(); ?>service_center/pending_booking_upcountry_price/' + booking_id+"/"+is_customer_paid +"/"+flat_upcountry,
       success: function (data) {
        $("#open_model").html(data);   
-       $('#myModal1').modal('toggle');
+       $('#UpcountryModal').modal('toggle');
     
       }
     });

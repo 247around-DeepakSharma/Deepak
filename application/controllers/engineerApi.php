@@ -1204,6 +1204,13 @@ class engineerApi extends CI_Controller {
                         $data["is_broken"] = 1;
                     }
                     
+                    if(isset($value["purchase_invoice"])){
+                        $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".rand(10,100).".png";
+
+                        $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "engineer-uploads");
+
+                        $data["purchase_invoice"] = $purchase_inv_url;
+                    }
 
                     if($value['pod'] == "1"){
                         if(isset($value["serial_number"])){
@@ -1221,7 +1228,6 @@ class engineerApi extends CI_Controller {
 
                     }
                     $data["closed_date"] = date("Y-m-d H:i:s");
-                    $data["engineer_id"] = $requestData['engineer_id'];
                     $data["sf_purchase_date"] = $requestData['purchase_date'];
                     if(isset( $unitDetails[0]['model_number'])){
                          $data["model_number"] = $unitDetails[0]['model_number'];
@@ -1286,7 +1292,7 @@ class engineerApi extends CI_Controller {
                 $this->engineer_model->insert_engineer_action_sign($en);
             }
             $actor = $next_action = 'not_define';
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data["current_status"] , $data['internal_status'], "", $booking_id);
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data["current_status"] , $data['internal_status'], $requestData['partner_id'], $booking_id);
             if (!empty($partner_status)) {
                 $booking['partner_current_status'] = $partner_status[0];
                 $booking['partner_internal_status'] = $partner_status[1];
@@ -1315,8 +1321,6 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if(!empty($requestData["bookingID"]) && !empty($requestData["cancellationReason"])){
             
-            $data["booking_id"] = $requestData["bookingID"];
-            $data['engineer_id'] = $requestData["engineer_id"];
             $data['current_status'] = "InProcess";
             $data['internal_status'] = _247AROUND_CANCELLED;
             $data['cancellation_reason'] = $requestData["cancellationReason"];
@@ -1779,16 +1783,15 @@ class engineerApi extends CI_Controller {
             $missed_slots = $this->apis->getMissedBookingSlots();
             if($missed_slots){
                 if(count($missed_slots) == "1"){
-                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND booking_details.booking_timeslot = '".$missed_slots[0]."')"] = NULL;
+                    $missed_where["((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND booking_details.booking_timeslot = '".$missed_slots[0]."'))"] = NULL;
                 }
                 if(count($missed_slots) == "2"){
-                    $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND (booking_details.booking_timeslot = '".$missed_slots[0]."' OR booking_details.booking_timeslot = '".$missed_slots[1]."'))"] = NULL;
+                    $missed_where["((DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0) OR  ( (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = 0) AND (booking_details.booking_timeslot = '".$missed_slots[0]."' OR booking_details.booking_timeslot = '".$missed_slots[1]."')))"] = NULL;
                 }
             }
             else{
                 $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0)"] = NULL;
             }
-            
             $missed_bookings = $this->engineer_model->get_engineer_booking_details($select, $missed_where, true, true, true, false, false);
             return $missed_bookings;
     }
