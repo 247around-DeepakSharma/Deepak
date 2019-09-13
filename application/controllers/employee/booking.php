@@ -5769,7 +5769,7 @@ class Booking extends CI_Controller {
                         $this->partner_cb->partner_callback($booking_id);
 
                         //Redirect to Default Search Page
-                        $userSession = array('success' => 'Booking Request type for '.$booking_id.' hase been updated successfully');
+                        $userSession = array('success' => 'Booking Request type for '.$booking_id.' has been updated successfully');
                         $this->session->set_userdata($userSession);
                         if(!empty($arr_post['redirect_url']))
                         {
@@ -5932,7 +5932,7 @@ class Booking extends CI_Controller {
                     $warranty_mismatch = 1;
                     foreach($arr_warranty_status[$warranty_checker_status] as $request_types)
                     {
-                        if(strpos($booking_request_type, $request_types) !== false)
+                        if(strpos(strtoupper(str_replace(" ","",$booking_request_type)), strtoupper(str_replace(" ","",$request_types))) !== false)
                         {
                             $warranty_mismatch = 0;
                             break;
@@ -5942,7 +5942,7 @@ class Booking extends CI_Controller {
                 
                 if(!empty($warranty_mismatch))
                 {
-                    if((strpos($booking_request_type, 'Out Of Warranty') !== false) || (strpos($booking_request_type, 'Out Warranty') !== false))
+                    if((strpos(strtoupper(str_replace(" ","",$booking_request_type)), 'OUTOFWARRANTY') !== false))
                     {
                         $warranty_mismatch = 0;
                         $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";
