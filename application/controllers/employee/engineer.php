@@ -333,7 +333,7 @@ class Engineer extends CI_Controller {
         $list = $this->engineer_model->get_engineer_closed_bookings($vendors, $startDate, $endDate);
         if(!empty($list)){
             $headings = array("Booking Id", "Service Center Name", "Engineer Name", "Current Status", "Internal Status", "Cancellation Reason", "Cancellation Remark", "Closing Remark", "Closed Date", "PinCode Matched");
-            $this->miscelleneous->downloadCSV($list, $headings,"SF_penalty_summary");
+            $this->miscelleneous->downloadCSV($list, $headings,"engineer_bookings");
         }
         else{
             $this->session->set_userdata("error", "No data found");
