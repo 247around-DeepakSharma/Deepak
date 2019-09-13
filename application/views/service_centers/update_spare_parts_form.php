@@ -248,6 +248,19 @@
                                             <?php echo form_error('shipped_parts_name'); ?>
                                         </div>
                                     </div>
+                                    <div class="form-group <?php
+                                        if (form_error('shipped_parts_number')) {
+                                            echo 'has-error';
+                                        } ?>">
+                                        <label for="<?php echo "shippedpartsnumber_".$skey;?>" class="col-md-4">Shipped Parts Number</label>
+                                        <div class="col-md-6">
+                                            <select class="form-control spare_parts shipped_parts_number" id="<?php echo "shippedpartsnumber_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_parts_number]" disabled="true">
+                                                <!--                                        <option selected disabled >Select Part Name</option>-->
+                                            </select>
+                                            <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
+                                            <?php echo form_error('shipped_parts_number'); ?>
+                                        </div>
+                                    </div>
  
                                 </div>
                             </div>
@@ -289,6 +302,16 @@
                                             <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
                                             <div class="col-md-6">
                                                 <select class="form-control spare_parts "  id="shippedpartsname" >
+                                                </select>
+                                                <span id="spinner" style="display:none"></span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="shipped_parts_number" class="col-md-4">Shipped Parts Number</label>
+                                            <div class="col-md-6">
+                                                <select class="form-control spare_parts" id="shippedpartsnumber" disabled="true">
+                                                    <!-- <option selected disabled >Select Part Name</option>-->
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
@@ -585,6 +608,31 @@
                     $('#shippedpartsname_' + sp_id).val('Select Part Name').change();
                     $('#shippedpartsname_' +sp_id).html(data).change();
                     $('#spinner_'+ sp_id).removeClass('fa fa-spinner').hide();
+                        change_shipped_part_number(sp_id);
+                    }
+            });
+        }else{
+            //alert("Please Select Model Number && Part Type");
+        }
+    }
+    
+    function change_shipped_part_number(sp_id){
+        var model_number_id = $('#shippedmodelnumberid_' + sp_id).val();
+        var part_type = $('#shippedparttype_' + sp_id).val();
+        var requested_inventory_id = $("#requested_inventory_id_"+sp_id).val();
+        $('#spinner_' + sp_id).addClass('fa fa-spinner').show();
+        if(model_number_id && part_type){
+            $.ajax({
+                method:'POST',
+                url:'<?php echo base_url(); ?>employee/inventory/get_part_number',
+                data: { model_number_id:model_number_id,requested_inventory_id:requested_inventory_id, entity_id: '<?php echo $spare_parts[0]->partner_id ;?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts[0]->service_id; ?>',part_type:part_type,is_option_selected:true },
+                success:function(data){
+                    console.log(data);
+                    $('#shippedpartsnumber_' + sp_id).val('val', "");
+                    $('#shippedpartsnumber_' + sp_id).val('Select Part Number').change();
+                    $('#shippedpartsnumber_' +sp_id).html(data).change();
+                    $('#spinner_'+ sp_id).removeClass('fa fa-spinner').hide();
+                    $('#shippedpartsnumber_' + sp_id).select2();
                     
                     }
             });
@@ -637,6 +685,7 @@
                 .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                 .find('[id="shippedmodelnumber"]').attr('name', 'part[' + partIndex + '][shipped_model_number]').attr('id','shippedmodelnumber_'+partIndex).end()
                 .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][shipped_parts_name]').attr("onchange", "change_parts_name('"+partIndex+"')").attr('id','shippedpartsname_'+partIndex).attr("required", true).select2({placeholder:'Select Part Name'}).end()
+                .find('[id="shippedpartsnumber"]').attr('id','shippedpartsnumber_'+partIndex).attr("required", false).select2({placeholder:'Select Part Number'}).end()
                 .find('[id="shippedparttype"]').attr('name', 'part[' + partIndex + '][shipped_part_type]').attr("onchange", "change_shipped_part_type('"+partIndex+"')").attr('id','shippedparttype_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
                 .find('[id="remarks"]').attr('name', 'part[' + partIndex + '][remarks_by_partner]').attr('id','remarks_'+partIndex).end()
                 .find('[id="approx_value"]').attr('name', 'part[' + partIndex + '][approx_value]').attr('id','approx_value_'+partIndex).end()
