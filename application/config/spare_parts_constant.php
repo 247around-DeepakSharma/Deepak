@@ -161,9 +161,3 @@ define('PART_NRN_APPROVED_STATUS_TAG', 'nrn_approved');
 define('OK_PART_TO_BE_SHIPPED', 'Ok Part To Be Shipped');
 define('DAMAGE_PART_TO_BE_SHIPPED', 'Damage Part To Be Shipped');
 
-
- 
-//MWH auto deliver consumption remove
-
-define('DEFECTIVE_PARTS_SHIPPED_PENDING', 'All Defective Parts Not Shipped');
- 
