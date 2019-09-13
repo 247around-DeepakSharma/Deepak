@@ -2911,6 +2911,55 @@ class Inventory extends CI_Controller {
 
         echo $option;
     }
+    
+    /*
+     *  @desc : This function is used to get inventory part number
+     *  @param : void
+     *  @return : echo string 
+     */
+
+    function get_part_number($is_sf_request = false) {
+
+ 
+        $model_number_id = $this->input->post('model_number_id');
+        $part_type = $this->input->post('part_type');
+        $requested_inventory_id = $this->input->post('requested_inventory_id');
+        $where = array();
+        if (!empty($model_number_id)) {
+            $where['model_number_id'] = $model_number_id;
+        }
+
+        if (!empty($part_type)) {
+            $where['type'] = $part_type;
+        }
+
+        if ($this->input->post('service_id')) {
+            $where['inventory_master_list.service_id'] = $this->input->post('service_id');
+        }
+
+        if (!empty($this->input->post('entity_id'))) {
+            $where['inventory_master_list.entity_id'] = $this->input->post('entity_id');
+            $where['inventory_master_list.entity_type'] = $this->input->post('entity_type');
+        }
+        
+        $where['inventory_model_mapping.active'] = 1;
+        if($is_sf_request){
+            $where['inventory_model_mapping.bom_main_part'] = 1;
+        }
+        
+        $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_image', $where);
+        $option = '';
+        foreach ($inventory_type as $value) {
+            $option .= "<option  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' data-partimage='" . $value['part_image'] . "' value='" . $value['part_number'] . "'";
+            if($requested_inventory_id == $value['inventory_id']){
+                $option .= " selected ";
+            }
+            $option .=" > ";
+            $option .= $value['part_number'] . "</option>";
+        }
+
+        echo $option;
+    }
 
     /*
      *  @desc : This function is used to get inventory part name without using model mapping
