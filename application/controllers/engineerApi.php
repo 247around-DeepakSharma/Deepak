@@ -1221,7 +1221,6 @@ class engineerApi extends CI_Controller {
 
                     }
                     $data["closed_date"] = date("Y-m-d H:i:s");
-                    $data["engineer_id"] = $requestData['engineer_id'];
                     $data["sf_purchase_date"] = $requestData['purchase_date'];
                     if(isset( $unitDetails[0]['model_number'])){
                          $data["model_number"] = $unitDetails[0]['model_number'];
@@ -1315,8 +1314,6 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if(!empty($requestData["bookingID"]) && !empty($requestData["cancellationReason"])){
             
-            $data["booking_id"] = $requestData["bookingID"];
-            $data['engineer_id'] = $requestData["engineer_id"];
             $data['current_status'] = "InProcess";
             $data['internal_status'] = _247AROUND_CANCELLED;
             $data['cancellation_reason'] = $requestData["cancellationReason"];
@@ -1788,7 +1785,6 @@ class engineerApi extends CI_Controller {
             else{
                 $missed_where["(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) > 0)"] = NULL;
             }
-            
             $missed_bookings = $this->engineer_model->get_engineer_booking_details($select, $missed_where, true, true, true, false, false);
             return $missed_bookings;
     }

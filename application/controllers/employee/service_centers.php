@@ -5597,10 +5597,10 @@ class Service_centers extends CI_Controller {
         if ($wh) {
           $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED,'wh_ack_received_part' => 1,'spare_parts_details.entity_type'=>_247AROUND_PARTNER_STRING,'requested_inventory_id > 0'=>NULL); 
         }else{
-            $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
+            $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "spare_parts_details.entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
         }
         
-        $where['select'] = "booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
+        $where['select'] = "booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested,iml.part_number, model_number,serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type,spare_parts_details.part_warranty_status, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,booking_details.amount_due,parts_requested_type, inventory_invoice_on_booking";
 
         if(!empty($booking_id)){
@@ -7617,8 +7617,6 @@ class Service_centers extends CI_Controller {
     public function get_warranty_data($case = 1){
         $post_data = $this->input->post();
         $arrBookings = $post_data['bookings_data'];  
-        $selected_booking_request_types = $arrBookings[0]['booking_request_types'];
-        $booking_request_type = $this->booking_utilities->get_booking_request_type($selected_booking_request_types);  
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings);   
             
         switch ($case) {
@@ -7626,8 +7624,10 @@ class Service_centers extends CI_Controller {
                 echo json_encode($arrBookingsWarrantyStatus);
             break;
             case 2:
+                $selected_booking_request_types = $arrBookings[0]['booking_request_types'];
+                $booking_request_type = $this->booking_utilities->get_booking_request_type($selected_booking_request_types);        
                 $booking_id = $arrBookings[0]['booking_id'];
-                $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
+                $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'Out of Warranty'], 'EW' => ['Extended', 'AMC', 'Repeat']];
                 $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
                 $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
                 $warranty_mismatch = 0;
@@ -7638,7 +7638,7 @@ class Service_centers extends CI_Controller {
                     $warranty_mismatch = 1;
                     foreach($arr_warranty_status[$warranty_checker_status] as $request_types)
                     {
-                        if(strpos($booking_request_type, $request_types) !== false)
+                        if(strpos(strtoupper(str_replace(" ","",$booking_request_type)), strtoupper(str_replace(" ","",$request_types))) !== false)
                         {
                             $warranty_mismatch = 0;
                             break;
@@ -7648,7 +7648,7 @@ class Service_centers extends CI_Controller {
                 
                 if(!empty($warranty_mismatch))
                 {
-                    if((strpos($booking_request_type, 'Out Of Warranty') !== false) || (strpos($booking_request_type, 'Out Warranty') !== false))
+                    if((strpos(strtoupper(str_replace(" ","",$booking_request_type)), 'OUTOFWARRANTY') !== false))
                     {
                         $warranty_mismatch = 0;
                         $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";

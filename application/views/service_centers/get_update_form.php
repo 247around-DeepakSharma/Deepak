@@ -268,6 +268,24 @@
                                                 <a target="_blank"  href="#" id="parts_image_0" class="disable_link"><i style="font-size: 25px;" class="glyphicon glyphicon-picture"></i></a>
                                         </div>
                                     </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group">
+                                            <label for="parts_number_0" class="col-md-4">Part Number</label>
+                                            <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+                                                <div class="col-md-6">
+                                                    <select class="form-control spare_parts parts_number" id="parts_number_0" name="part[0][parts_number]" disabled>
+                                                        <option>Please select part type first</option>
+                                                    </select>
+                                                    <span id="spinner_part_number" style="display:none"></span>
+                                                </div>
+                                            <?php } else { ?> 
+                                                <div class="col-md-6">
+                                                    <input type="text" class="form-control spare_parts parts_number" id="parts_number_0" name="part[0][parts_number]" value = "" placeholder="Part Number" disabled>
+                                                </div>
+                                            <?php } ?> 
+                                                <a target="_blank"  href="#" id="parts_image_1" class="disable_link"><i style="font-size: 25px;" class="glyphicon glyphicon-picture"></i></a>
+                                        </div>
+                                    </div>
 
 
 
@@ -369,6 +387,24 @@
                                                 <button type="button" id="remove_section" style="display: inline-block;margin-bottom: 14px; padding: 3px 8px;" class="btn btn-default removeButton"><i class="fa fa-minus"></i></button>
                                             </div>
 
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="parts_number" class="col-md-4">Part Number</label>
+                                                <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+                                                    <div class="col-md-6">
+                                                        <select class="form-control spare_parts parts_number" id="parts_number" disabled="true">
+                                                            <option>Please select part type first</option>
+                                                        </select>
+                                                        <span id="spinner_part_number" style="display:none"></span>
+                                                    </div>
+                                                <?php } else { ?> 
+                                                    <div class="col-md-6">
+                                                        <input type="text" class="form-control spare_parts parts_number" id="parts_number" value = "" placeholder="Part Number" disabled="true">
+                                                    </div>
+                                                <?php } ?> 
+                                                    <a target="_blank"  href="#" id="parts_image" class="disable_link"><i style="font-size: 25px;" class="glyphicon glyphicon-picture"></i></a>
+                                            </div>
                                         </div>
 
 
@@ -556,10 +592,39 @@ function alpha(e) {
                         $('#spinner').removeClass('fa fa-spinner').hide();
                     }
                 });
+                //change part number too with above ajax
             }else{
                 console.log("Please Select Model Number");
             }
         }
+        $(document).ready(function(){
+            $(document).on("change",".parts_name",function(){
+                var id = $(this)[0].id;
+                if(!!id){
+                    var count = id.split("_")[2];
+                    if(!!count){
+                        var model_number_id = $('#model_number_id').val();
+           
+                        var part_type = $('#parts_type_' + count).val();
+                        $('#spinner').addClass('fa fa-spinner').show();
+                        if(model_number_id && part_type){
+                            $.ajax({
+                                method:'POST',
+                                url:'<?php echo base_url(); ?>employee/inventory/get_part_number/1',
+                                data: {model_number_id:model_number_id,entity_id: '<?php echo $bookinghistory[0]['partner_id']?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $bookinghistory[0]['service_id']; ?>', part_type:part_type},
+                                success:function(data){
+                                    $('#parts_number_' + count).val('val', "");
+                                    $('#parts_number_' +count).html(data).change();
+                                    $('#spinner_part_number').removeClass('fa fa-spinner').hide();
+                                    $('#parts_number_' + count).select2();
+                                }
+                            });
+                        }
+                    }
+                }
+            });
+        });
+        
         
     <?php } else { ?>
         $.ajax({
@@ -791,6 +856,7 @@ function alpha(e) {
         if(id ==="spare_parts"){
             $('#hide_spare').show();
             $(".spare_parts").removeAttr("disabled");
+            $(".parts_number").prop("disabled","true");
             $(".rescheduled_form").attr("disabled", "true");
             $('#hide_rescheduled').hide();
             $(".remarks").attr("disabled", "true");
@@ -861,6 +927,7 @@ function alpha(e) {
             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                     $clone
                         .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).select2({placeholder:'Select Part Type'}).attr("required", true).end()
+                        .find('[id="parts_number"]').attr('name', 'part[' + partIndex + '][parts_number]').addClass('parts_number').attr('id','parts_number_'+partIndex).select2().end()
                         .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
                         .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                         .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
