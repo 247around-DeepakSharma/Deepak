@@ -687,7 +687,7 @@ class partner_sd_cb {
             $purchase_date = "";
             $customer_net_payable = 0;
             $warranty_status = 1;
-            $symptom = "Default"; 
+            $symptom = ""; 
             
             if (!empty($unit)) {
                 foreach ($unit as $unit_details) {
