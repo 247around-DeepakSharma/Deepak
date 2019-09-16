@@ -1212,7 +1212,7 @@ class engineerApi extends CI_Controller {
                             $data['serial_number'] = $unitDetails[0]["serial_number"];
                             $sn_pic_url = $requestData['booking_id']."_" . $unit_id ."_serialNO_".rand(10,100).".png";
 
-                            $this->miscelleneous->generate_image($unitDetails[0]["serial_number_pic"],$sn_pic_url,"engineer-uploads");
+                            $this->miscelleneous->generate_image($unitDetails[0]["serial_number_pic"],$sn_pic_url, SERIAL_NUMBER_PIC_DIR);
 
                             $data["serial_number_pic"] = $sn_pic_url;
 
