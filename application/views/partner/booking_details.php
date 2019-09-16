@@ -311,7 +311,7 @@
                                                             <th >Requested Parts type </th>
                                                             <th>Requested Quantity</th>
                                                             <th >Requested Date</th>
-                                                            <th >Date Of Request</th>
+                                                            <th >Date Of Purchase</th>
                                                             <th >Invoice Image </th>
                                                             <th >Serial Number Image </th>
                                                             <th >Defective Front Part Image </th>

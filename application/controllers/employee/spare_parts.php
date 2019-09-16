@@ -2119,7 +2119,7 @@ class Spare_parts extends CI_Controller {
                         
                             $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $spare_parts_details[0]['requested_inventory_id'], 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$data['model_number']), $partner_id);
                             
-                            if (!empty($warehouse_details) && $warehouse_details >= $data['quantity']) {
+                            if (!empty($warehouse_details) && $warehouse_details['stock'] >= $data['quantity']) {
                                 $spare_data['partner_id'] = $warehouse_details['entity_id'];
                                 $spare_data['entity_type'] = $warehouse_details['entity_type'];
                                 $spare_data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
