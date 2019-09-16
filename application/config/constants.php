@@ -676,5 +676,6 @@ define('PARTNER_DEFAULT_CONTACT_PERSON_ID', '1002706');
 define('REJECTED_FROM_REVIEW_STATUS','Rejected From Review');
 
 define('WARRANTY_TYPE_AMC', 'AMC (Annual Maintenance Contract)');
+define('DEFAULT_IN_WARRANTY_PERIOD', 12);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
