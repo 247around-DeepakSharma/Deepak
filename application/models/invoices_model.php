@@ -2170,7 +2170,7 @@ class invoices_model extends CI_Model {
                 JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id 
                 LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_sf 
                 WHERE
-                ud.booking_status =  '"._247AROUND_COMPLETED."'
+                bd.current_status =  '"._247AROUND_COMPLETED."'
                 AND bd.partner_id = '$partner_id'
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
                 AND bd.closed_date >=  '$from_date'
@@ -2203,7 +2203,7 @@ class invoices_model extends CI_Model {
                 JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id 
                 LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_partner
                 WHERE
-                 ud.booking_status =  '"._247AROUND_COMPLETED."'
+                 bd.current_status =  '"._247AROUND_COMPLETED."'
                 AND bd.partner_id = '$partner_id'
                 AND sp.partner_id = '$partner_id'
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
