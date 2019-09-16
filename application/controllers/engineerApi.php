@@ -2981,7 +2981,7 @@ class engineerApi extends CI_Controller {
         $curl_data = array();
         $validateKeys = array("booking_id", "prices", "request_types");
         $request_types =  json_decode($requestData['request_types'], true);
-        $requested_prices = $requestData['prices'];
+        $requested_prices = json_decode($requestData['prices'], true);
         foreach ($validateKeys as $key){
             if (!array_key_exists($key, $requestData)){ 
                 $check = false;
