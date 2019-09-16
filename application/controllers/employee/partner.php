@@ -222,15 +222,6 @@ class Partner extends CI_Controller {
                 }
             }
         }
-        else {
-            $data['symptom'][0] = array("symptom" => "Default");
-            
-            if(in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
-                $data['completion_symptom'][0] = array("symptom" => "Default");
-                $data['technical_defect'][0] = array("defect" => "Default");
-                $data['technical_solution'][0] = array("technical_solution" => "Default");
-            }
-        }
         
         if (!empty($data['booking_history']['spare_parts'])) {
             $spare_parts_list = array();
@@ -1890,10 +1881,7 @@ class Partner extends CI_Controller {
                 $bookingSymptom['booking_id'] = $booking_id;
                 $bookingSymptom['symptom_id_booking_creation_time'] = $post['booking_request_symptom'];
                 $bookingSymptom['create_date'] = date("Y-m-d H:i:s");
-                
-                if($post['booking_request_symptom']) {
-                    $this->booking_model->addBookingSymptom($bookingSymptom);
-                }
+                $this->booking_model->addBookingSymptom($bookingSymptom);
             }
             $up_flag = 1;
             $url = base_url() . "employee/vendor/update_upcountry_and_unit_in_sc/" . $booking_details['booking_id'] . "/" . $up_flag;
