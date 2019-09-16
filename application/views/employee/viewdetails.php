@@ -590,6 +590,7 @@
                                         <th> Parts Warranty Status </th>    
                                         <th>Requested Quantity </th>                                
                                         <th >Requested Date</th>
+                                        <th >Date Of Purchase</th>
                                         <th >Invoice Image </th>
                                         <th >Serial Number Image </th>
                                         <th >Defective Front Part Image </th>
@@ -622,8 +623,8 @@
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
                                         <td><?php if($sp['part_warranty_status']==2){echo 'Out Of Warranty';}else{echo 'In - Warranty';} ?></td> 
                                         <td><?php echo $sp['quantity']; ?></td> 
-                                        
-                                        <td><?php echo $sp['create_date']; ?></td>
+                                        <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
+                                        <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
                                         ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i>
