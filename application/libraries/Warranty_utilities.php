@@ -30,26 +30,24 @@ class Warranty_utilities {
         }
         
         foreach ($arrBookings as $booking_id => $rec_data) {
+            $purchase_date = date('Y-m-d', strtotime($rec_data['purchase_date']));
             // Calculate Purchase Date
-            // Used in case data is read from excel
-            if (DateTime::createFromFormat('Y-m-d', $rec_data['purchase_date']) === FALSE) {
-                $rec_data['purchase_date'] = (double) $rec_data['purchase_date'];
-                $unix_date = ($rec_data['purchase_date'] - 25569) * 86400;
-                $excel_date = (25569) + ($unix_date / 86400);
-                $unix_date = ($excel_date - 25569) * 86400;
-                $rec_data['purchase_date'] = date('Y-m-d', $unix_date);
+            // Used in case data is read from excel            
+            if (DateTime::createFromFormat('d-m-Y', $rec_data['purchase_date']) === FALSE) {
+                $purchase_date = date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP($rec_data['purchase_date']));
             }
             
             // if Service Id is there, get service specific plans also
             if(!empty($rec_data['service_id']))
             {
-                $arrOrWhere["((appliance_model_details.model_number = '".trim($rec_data['model_number'])."' OR (warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL)) and date(warranty_plans.period_start) <= '".$rec_data['purchase_date']."' and date(warranty_plans.period_end) >= '".$rec_data['purchase_date']."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+                $arrOrWhere["((appliance_model_details.model_number = '".trim($rec_data['model_number'])."' OR (warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL)) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
             }
             else
             {
-                $arrOrWhere["(appliance_model_details.model_number = '".$rec_data['model_number']."' and date(warranty_plans.period_start) <= '".$rec_data['purchase_date']."' and date(warranty_plans.period_end) >= '".$rec_data['purchase_date']."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+                $arrOrWhere["(appliance_model_details.model_number = '".$rec_data['model_number']."' and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
             }            
-        }    
+        }  
+                
         $arrWarrantyData = $this->My_CI->warranty_model->get_warranty_data($arrOrWhere);        
         return $arrWarrantyData;
     }
@@ -178,5 +176,10 @@ class Warranty_utilities {
         }
         $arrBookingsWarrantyStatus = $this->get_bookings_warranty_status($arrBookings);   
         return $arrBookingsWarrantyStatus;
+    }
+    
+    function get_warranty_specific_data_of_bookings($arrBookingIds){
+        $arrWarrantySpecificData = $this->My_CI->warranty_model->get_warranty_specific_data_of_bookings($arrBookingIds);        
+        return $arrWarrantySpecificData;
     }
 }

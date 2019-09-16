@@ -2,6 +2,9 @@
     .disable_link {
         display: none;
     }
+    .select2-container--default{
+        width: 100% !important;
+    }
 </style>
 <div id="page-wrapper">
     <div class="container-fluid">
@@ -544,9 +547,11 @@ function alpha(e) {
                         $('.parts_type').val('val', "");
                         $('.parts_type').val('Select Part Type').change();
                         $('.parts_type').html(data);
+                        $(".select2-container").css('width','100% !important%');
                         $('.parts_name').val('val', "");
                         $('.parts_name').val('Select Part Type').change();
                         $('#spinner').removeClass('fa fa-spinner').hide();
+                        
                     }
                 });
             }else{
@@ -635,6 +640,8 @@ function alpha(e) {
                         html += "</select>";
                         html += "<input type='hidden' id='model_number' name='model_number'>";
                         $("#appliance_model_div").html(html);
+                        $('#model_number_id').select2();
+                        $(".select2-container--default").css('width','100%');
                 }
             }
         });
@@ -934,8 +941,8 @@ function alpha(e) {
                 
             <?php } else { ?>
                 $clone
-                   .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).end()
-                   .find('[id="parts_number"]').attr('name', 'part[' + partIndex + '][parts_number]').addClass('parts_number').attr('id','parts_number_'+partIndex).select2().end()
+                   .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
+                   .find('[id="parts_number"]').attr('name', 'part[' + partIndex + '][parts_number]').addClass('parts_number').attr('id','parts_number_'+partIndex).end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
@@ -1021,7 +1028,8 @@ function alpha(e) {
             url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
             data: { service_id:service_id},
             success:function(data){                       
-                $('.spare_parts_type').html(data);                  
+                $('.spare_parts_type').html(data); 
+                $('#parts_type_0').select2();
             }
         });
     });
