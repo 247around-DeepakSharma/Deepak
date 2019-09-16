@@ -2175,7 +2175,7 @@ class invoices_model extends CI_Model {
                 AND bd.partner_id = '$partner_id'
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
                 AND bd.closed_date >=  '$from_date'
-                AND ud.closed_date <  '$to_date'
+                AND bd.closed_date <  '$to_date'
                 AND `approved_defective_parts_by_partner` = 1
                 AND partner_courier_invoice_id IS NULL
                 AND awb_by_sf IS NOT NULL
