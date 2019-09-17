@@ -1681,14 +1681,14 @@ class vendor_model extends CI_Model {
     function get_rm_sf_relation_by_sf_id($sf_id){
         if(!empty($sf_id)){
             $sql = "Select employee_relation.*, employee.* from employee_relation,employee "
-                . "where FIND_IN_SET($sf_id,employee_relation.service_centres_id) "
+                . "where FIND_IN_SET($sf_id,employee_relation.individual_service_centres_id) "
                 . "AND employee.groups != '"._247AROUND_ADMIN."' "
                 . "AND employee_relation.agent_id = employee.id ORDER BY employee_relation.agent_id DESC";
             $response = $this->db->query($sql)->result_array();
         }else{
             $response = false;
         }
-        
+       
         return $response;
     }
     
@@ -1696,23 +1696,45 @@ class vendor_model extends CI_Model {
      * @Desc: This function is used to update employee_relation table
      * @parmas: $agent_id, $sf_id
      * @return: boolean
-     * 
+     *
      */
-    function update_rm_to_sf_relation($agent_id,$sf_id){
-        //Getting values of SF RM relation if present
-
-        $query_result = $this->get_rm_sf_relation_by_state_code($state_code);        
-        if(!empty($query_result)){ 
-            $agent_id = $query_result[0]['id'];
-
-            //Now adding SF to New RM
-            return $this->add_rm_to_sf_relation($agent_id, $sf_id);
-            
-        }else{
-            //No assignment has been done earlier ADD NEW
-            return $this->add_rm_to_sf_relation($agent_id, $sf_id);
+    function update_rm_to_sf_relation($agent_id,$sf_id) {
+        // remove service center id.
+        $sql = "SELECT
+                    employee_relation.*
+                FROM
+                    employee_relation,employee
+                WHERE
+                    (FIND_IN_SET({$sf_id},employee_relation.service_centres_id)  or FIND_IN_SET({$sf_id},employee_relation.individual_service_centres_id))
+                    AND employee.groups != 'admin'
+                    AND employee_relation.agent_id = employee.id
+                ORDER BY
+                    employee_relation.agent_id DESC";
+       
+        $remove_array = $this->db->query($sql)->result_array();
+       
+        if(!empty($remove_array)) {
+            foreach($remove_array as $rm_relation) {
+                if(!empty($rm_relation['service_centres_id'])) {
+                    $arr_service_center_id = explode(',', $rm_relation['service_centres_id']);
+                    if(in_array($sf_id, array_filter($arr_service_center_id))) {
+                        unset($arr_service_center_id[array_search($sf_id, $arr_service_center_id)]);
+                        $this->reusable_model->update_table('employee_relation',['service_centres_id' => trim(implode(',', array_filter($arr_service_center_id)), ',')], ['id' => $rm_relation['id']]);
+                    }
+                }
+               
+                if(!empty($rm_relation['individual_service_centres_id'])) {
+                    $arr_individual_service_center_id = explode(',', $rm_relation['individual_service_centres_id']);
+                    if(in_array($sf_id, array_filter($arr_individual_service_center_id))) {
+                        unset($arr_individual_service_center_id[array_search($sf_id, $arr_individual_service_center_id)]);
+                        $this->reusable_model->update_table('employee_relation',['individual_service_centres_id' => trim(implode(',', array_filter($arr_individual_service_center_id)), ',')], ['id' => $rm_relation['id']]);
+                    }
+                }
+            }
         }
-        
+       
+
+        return $this->add_rm_to_sf_relation($agent_id, $sf_id);
     }
     
     /**
