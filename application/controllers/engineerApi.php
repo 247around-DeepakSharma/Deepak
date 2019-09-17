@@ -1217,7 +1217,7 @@ class engineerApi extends CI_Controller {
                             $data['serial_number'] = $unitDetails[0]["serial_number"];
                             $sn_pic_url = $requestData['booking_id']."_" . $unit_id ."_serialNO_".rand(10,100).".png";
 
-                            $this->miscelleneous->generate_image($unitDetails[0]["serial_number_pic"],$sn_pic_url,"engineer-uploads");
+                            $this->miscelleneous->generate_image($unitDetails[0]["serial_number_pic"],$sn_pic_url, SERIAL_NUMBER_PIC_DIR);
 
                             $data["serial_number_pic"] = $sn_pic_url;
 
@@ -2981,7 +2981,7 @@ class engineerApi extends CI_Controller {
         $curl_data = array();
         $validateKeys = array("booking_id", "prices", "request_types");
         $request_types =  json_decode($requestData['request_types'], true);
-        $requested_prices = $requestData['prices'];
+        $requested_prices = json_decode($requestData['prices'], true);
         foreach ($validateKeys as $key){
             if (!array_key_exists($key, $requestData)){ 
                 $check = false;

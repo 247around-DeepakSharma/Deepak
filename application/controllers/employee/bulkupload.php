@@ -40,9 +40,9 @@ class Bulkupload extends CI_Controller {
             
             if(empty($excelArray))
             {
-                echo("Empty File");exit;
+                $this->session->set_flashdata('file_error', "Empty File !");
+                redirect(base_url() . "employee/bulkupload/check_warranty");
             }
-            
             // headers present in excel
             $excel_headers = array_keys($excelArray[0]);
 
@@ -51,13 +51,15 @@ class Bulkupload extends CI_Controller {
 
             if($excel_headers != $header_column_need_to_be_present)
             {
-                echo("Uploaded File format not matches with required file format");
-                exit;
+                $this->session->set_flashdata('file_error', "Uploaded File format not matches with required file format");
+                redirect(base_url() . "employee/bulkupload/check_warranty");
             }
             
             $excelArray = array_chunk($excelArray, 200);
-            foreach ($excelArray as $key => $arrBookings) {                
-                $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);            
+            foreach ($excelArray as $key => $arrBookings) {
+//                $arrBookingIds = array_column($arrBookings, 'booking_id');
+//                $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings($arrBookingIds);
+                $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings);
                 $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
                 foreach($arrBookings as $key => $arrBooking)
                 {
@@ -65,33 +67,23 @@ class Bulkupload extends CI_Controller {
                     // Used in case data is read from excel
                     $arrBookings[$key]['purchase_date'] = date('Y-m-d', strtotime($arrBooking['purchase_date']));
                     if (DateTime::createFromFormat('d-m-Y', $arrBooking['purchase_date']) === FALSE) {
-                        $arrBooking['purchase_date'] = (double) trim($arrBooking['purchase_date']);
-                        $unix_date = ($arrBooking['purchase_date'] - 25569) * 86400;
-                        $excel_date = (25569) + ($unix_date / 86400);
-                        $unix_date = ($excel_date - 25569) * 86400;
-                        $arrBooking['purchase_date'] = date('Y-m-d', $unix_date);
-                        $arrBookings[$key]['purchase_date'] = date('Y-m-d', $unix_date);
+                        $arrBookings[$key]['purchase_date'] = date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP($arrBooking['purchase_date']));
                     }
                     
                     // Calculate Booking Create Date
                     // Used in case data is read from excel
                     $arrBookings[$key]['booking_create_date'] = date('Y-m-d', strtotime($arrBooking['booking_create_date']));
                     if (DateTime::createFromFormat('d-m-Y', $arrBooking['booking_create_date']) === FALSE) {
-                        $arrBooking['booking_create_date'] = (double) trim($arrBooking['booking_create_date']);
-                        $unix_date = ($arrBooking['booking_create_date'] - 25569) * 86400;
-                        $excel_date = (25569) + ($unix_date / 86400);
-                        $unix_date = ($excel_date - 25569) * 86400;
-                        $arrBooking['booking_create_date'] = date('Y-m-d', $unix_date);
-                        $arrBookings[$key]['booking_create_date'] = date('Y-m-d', $unix_date);
+                        $arrBookings[$key]['booking_create_date'] = date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP($arrBooking['booking_create_date']));
                     }
-                
+
                     if(!empty($arrModelWiseWarrantyData[$arrBooking['model_number']]))
                     {   
-                        $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$arrBooking['model_number']]);
+                        $arrBookings[$key] = $this->warranty_utilities->map_warranty_period_to_booking($arrBookings[$key], $arrModelWiseWarrantyData[$arrBooking['model_number']]);
                     }
                     $arrBookings[$arrBooking['booking_id']] = $arrBookings[$key];
                     unset($arrBookings[$key]);
-                }                
+                }
                 $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);
                 $returnArray = array_merge($returnArray, $arrBookingsWarrantyStatus);
             }
