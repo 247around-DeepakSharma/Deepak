@@ -266,29 +266,23 @@
                                                 <a target="_blank"  href="#" id="parts_image_0" class="disable_link"><i style="font-size: 25px;" class="glyphicon glyphicon-picture"></i></a>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="parts_number_0" class="col-md-4">Part Number</label>
-                                            <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
-                                                <div class="col-md-6">
-                                                    <select class="form-control spare_parts parts_number" id="parts_number_0" name="part[0][parts_number]" disabled>
-                                                        <option>Please select part type first</option>
-                                                    </select>
-                                                    <span id="spinner_part_number" style="display:none"></span>
-                                                </div>
-                                            <?php } else { ?> 
-                                                <div class="col-md-6">
-                                                    <input type="text" class="form-control spare_parts parts_number" id="parts_number_0" name="part[0][parts_number]" value = "" placeholder="Part Number" disabled>
-                                                </div>
-                                            <?php } ?> 
-                                                <a target="_blank"  href="#" id="parts_image_1" class="disable_link"><i style="font-size: 25px;" class="glyphicon glyphicon-picture"></i></a>
-                                        </div>
-                                    </div>
-
-
-
                                 </div>
                                 <div class="row">
+
+                                        <?php if (isset($inventory_details) && !empty($inventory_details)) { ?>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="parts_number_0" class="col-md-4">Part Number</label>
+                                                    <div class="col-md-6">
+                                                        <select class="form-control spare_parts parts_number" id="parts_number_0" name="part[0][parts_number]" disabled>
+                                                            <option>Please select part type first</option>
+                                                        </select>
+                                                        <span id="spinner_part_number" style="display:none"></span>
+                                                    </div>
+                                                    <a target="_blank"  href="#" id="parts_image_1" class="disable_link"><i style="font-size: 25px;" class="glyphicon glyphicon-picture"></i></a>
+                                            </div>
+                                        </div>
+                                        <?php } ?>
 
                                         <div class="col-md-6">
                                         <div class="form-group">
@@ -298,6 +292,8 @@
                                             </div>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="row">
 
 
                                       <div class="col-md-6">
@@ -386,29 +382,23 @@
                                             </div>
 
                                         </div>
+
+                                    </div>
+                                    <div class="row">
+                                        <?php if (isset($inventory_details) && !empty($inventory_details)) { ?>
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="parts_number" class="col-md-4">Part Number</label>
-                                                <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                                     <div class="col-md-6">
                                                         <select class="form-control spare_parts parts_number" id="parts_number" disabled="true">
                                                             <option>Please select part type first</option>
                                                         </select>
                                                         <span id="spinner_part_number" style="display:none"></span>
                                                     </div>
-                                                <?php } else { ?> 
-                                                    <div class="col-md-6">
-                                                        <input type="text" class="form-control spare_parts parts_number" id="parts_number" value = "" placeholder="Part Number" disabled="true">
-                                                    </div>
-                                                <?php } ?> 
                                                     <a target="_blank"  href="#" id="parts_image" class="disable_link"><i style="font-size: 25px;" class="glyphicon glyphicon-picture"></i></a>
                                             </div>
                                         </div>
-
-
-
-                                    </div>
-                                    <div class="row">
+                                        <?php } ?>
 
                                          <div class="col-md-6">
                                             <div class="form-group">
@@ -418,6 +408,8 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div class="row">
                                         <div class="col-md-6">
                                             <div class="form-group">
                                                 <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture <?php if(empty($on_saas)){ ?> *<?php } ?></label>
@@ -602,19 +594,31 @@ function alpha(e) {
                         var model_number_id = $('#model_number_id').val();
            
                         var part_type = $('#parts_type_' + count).val();
-                        $('#spinner').addClass('fa fa-spinner').show();
-                        if(model_number_id && part_type){
-                            $.ajax({
-                                method:'POST',
-                                url:'<?php echo base_url(); ?>employee/inventory/get_part_number/1',
-                                data: {model_number_id:model_number_id,entity_id: '<?php echo $bookinghistory[0]['partner_id']?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $bookinghistory[0]['service_id']; ?>', part_type:part_type},
-                                success:function(data){
-                                    $('#parts_number_' + count).val('val', "");
-                                    $('#parts_number_' +count).html(data).change();
-                                    $('#spinner_part_number').removeClass('fa fa-spinner').hide();
-                                    $('#parts_number_' + count).select2();
-                                }
-                            });
+                        var part_name = $(this).val();
+                        if(!!part_name){
+                            if(model_number_id && part_type){
+                                $.ajax({
+                                    method:'POST',
+                                    url:'<?php echo base_url(); ?>employee/inventory/get_part_number/1',
+                                    data: {
+                                        model_number_id:model_number_id,
+                                        entity_id: '<?php echo $bookinghistory[0]['partner_id']?>' ,
+                                        entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' ,
+                                        service_id: '<?php echo $bookinghistory[0]['service_id']; ?>',
+                                        part_type:part_type,
+                                        part_name: part_name
+                                    },
+                                    success:function(data){
+                                        $('#parts_number_' + count).val('val', "");
+                                        $('#parts_number_' +count).html(data).change();
+                                        $('#spinner_part_number').removeClass('fa fa-spinner').hide();
+                                        $('#parts_number_' + count).select2();
+                                    }
+                                });
+                            }
+                        }
+                        else{
+                            $('#parts_number_' + count).empty().select2();
                         }
                     }
                 }
@@ -935,7 +939,6 @@ function alpha(e) {
             <?php } else { ?>
                 $clone
                    .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).end()
-                   .find('[id="parts_number"]').attr('name', 'part[' + partIndex + '][parts_number]').addClass('parts_number').attr('id','parts_number_'+partIndex).select2().end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
