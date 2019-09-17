@@ -291,8 +291,8 @@
                         $('#brand').select2().trigger('change');
                         $("#model").val(warrantyData[0]['model_id']);
                         $('#model').select2().trigger('change'); 
-                    }, 300);
-                }, 300);
+                    }, 500);
+                }, 500);
                 $('#purchase_date').datepicker('setDate', warrantyData[0]['purchase_date']);                
             }                            
         });
