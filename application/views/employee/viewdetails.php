@@ -448,6 +448,7 @@
                                 <th>Partner Invoice ID</th>
                                 <?php } ?>
                                 <th>SF Earning</th>
+                                <th>Warranty Status</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -551,6 +552,9 @@
                                             $unit_detail['vendor_extra_charges']  +  $unit_detail['vendor_st_extra_charges']  + 
                                              $unit_detail['vendor_parts']  + $unit_detail['vendor_st_parts'] +
                                             $sf_upcountry_charges);?>
+                                    </td>
+                                    <td>
+                                        <span id="warranty_checker_status_<?=$key?>"></span>
                                     </td>
                                 </tr>
                                     <?php   } ?>
@@ -2355,6 +2359,37 @@ background-color: #f5f5f5;
            }});
         }
     });
+    
+    // function to cross check request type of booking with warranty status of booking 
+    <?php if(!empty($unit_details)) { 
+        foreach ($unit_details as $key =>  $unit_detail) { ?>
+                var model_number = "<?= $unit_detail['sf_model_number']?>";
+                var dop = "<?= $unit_detail['sf_purchase_date']?>";
+                var booking_id = "<?= $unit_detail['booking_id']?>";
+                if(model_number !== "" && model_number !== null && dop !== ""){ 
+                    $.ajax({
+                        method:'POST',
+                        url:"<?php echo base_url(); ?>employee/booking/get_warranty_data",
+                        data:{
+                            'bookings_data[0]' : {
+                                'partner_id' : "<?= $unit_detail['partner_id']?>",                                
+                                'model_number' : model_number,
+                                'purchase_date' : dop,
+                                'booking_id' : booking_id,
+                                'service_id' : "<?= $unit_detail['service_id']?>",
+                                'booking_create_date' : "<?= $unit_detail['create_date']?>",
+                            }
+                        },
+                        success:function(response){
+                            var warrantyData = JSON.parse(response);
+                            var warranty_status = warrantyData[booking_id];
+                            $("#warranty_checker_status_<?=$key?>").html(warranty_status);
+                        }                            
+                    });
+                }
+    <?php } 
+    }?>
+    // function ends here ---------------------------------------------------------------- 
    });
     </script>
     

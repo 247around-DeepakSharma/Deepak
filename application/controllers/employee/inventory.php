@@ -2927,6 +2927,7 @@ class Inventory extends CI_Controller {
         $model_number_id = $this->input->post('model_number_id');
         $part_type = $this->input->post('part_type');
         $requested_inventory_id = $this->input->post('requested_inventory_id');
+        $part_name = $this->input->post('part_name');
         $where = array();
         if (!empty($model_number_id)) {
             $where['model_number_id'] = $model_number_id;
@@ -2934,6 +2935,10 @@ class Inventory extends CI_Controller {
 
         if (!empty($part_type)) {
             $where['type'] = $part_type;
+        }
+
+        if(!empty($part_name)){
+            $where['inventory_master_list.part_name'] = $part_name;
         }
 
         if ($this->input->post('service_id')) {
@@ -2952,13 +2957,21 @@ class Inventory extends CI_Controller {
         
         $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_image', $where);
         $option = '';
-        foreach ($inventory_type as $value) {
-            $option .= "<option  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' data-partimage='" . $value['part_image'] . "' value='" . $value['part_number'] . "'";
-            if($requested_inventory_id == $value['inventory_id']){
-                $option .= " selected ";
+        if (!empty($this->input->post('text_input'))) {
+            if(is_array($inventory_type)){
+                $option = $inventory_type[0]['part_number'];
+            }else{
+                $option = $inventory_type['part_number'];
             }
-            $option .=" > ";
-            $option .= $value['part_number'] . "</option>";
+        }else{
+            foreach ($inventory_type as $value) {
+                $option .= "<option  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' data-partimage='" . $value['part_image'] . "' value='" . $value['part_number'] . "'";
+                if($requested_inventory_id == $value['inventory_id']){
+                    $option .= " selected ";
+                }
+                $option .=" > ";
+                $option .= $value['part_number'] . "</option>";
+            }
         }
 
         echo $option;
