@@ -1247,7 +1247,24 @@ class Inventory_model extends CI_Model {
     }
 
 
-
+/**
+     * @Desc: This function is used to get data from the inventory_model_mapping table
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_inventory_without_model_mapping_data($select,$where = array()){
+        
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $this->db->from('inventory_master_list');
+        $this->db->join('services','services.id = inventory_master_list.service_id');
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 
 
 
