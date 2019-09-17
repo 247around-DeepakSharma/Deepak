@@ -14,6 +14,7 @@ class Warranty extends CI_Controller {
         $this->load->model('warranty_model');
         $this->load->library("session");
         $this->load->library('miscelleneous');
+        $this->load->library('warranty_utilities');
         if ($this->session->userdata('loggedIn') == TRUE) {
             return TRUE;
         } else {
@@ -171,4 +172,17 @@ class Warranty extends CI_Controller {
         }        
         return $row;        
     }
+    
+    public function get_warranty_specific_data_from_booking_id()
+    {
+        $booking_id = $this->input->post('booking_id');
+        $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings([$booking_id]);
+        if(!empty($arrBookings[0]['model_number'])){
+            $arr_model = $this->reusable_model->get_search_result_data("appliance_model_details","id",array("model_number"=>  stripslashes($arrBookings[0]['model_number']), "active" => 1),NULL,NULL,NULL,NULL,NULL,array());        
+            $model_id = !empty($arr_model[0]['id']) ? $arr_model[0]['id'] : "";
+            $arrBookings[0]['model_id'] = $model_id;
+        }
+        echo json_encode($arrBookings);
+    }
+ 
 }
