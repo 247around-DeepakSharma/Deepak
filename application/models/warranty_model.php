@@ -148,6 +148,7 @@ class Warranty_model extends CI_Model {
                         date(booking_details.create_date) as booking_create_date,
                         booking_details.partner_id,
                         booking_details.service_id,
+                        booking_unit_details.appliance_brand,
                         IFNULL(spare_parts_details.model_number,
                                         IFNULL(booking_unit_details.sf_model_number,
                                                         IFNULL(service_center_booking_action.model_number,
