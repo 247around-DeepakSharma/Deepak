@@ -96,13 +96,17 @@ class File_upload extends CI_Controller {
                    
                     //save file into database send send response based on file upload status               
                     if (isset($response['status']) && ($response['status'])) {
-
+                        
                         //save file and upload on s3
                         $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
+                        
+                        $this->session->set_userdata('file_success', $response['message']);
                     } else {
                         //save file and upload on s3
                         $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
                         $this->session->set_flashdata('file_error', $response['message']);
+                        $this->session->set_userdata('file_error', $response['message']);
+                        
                     }
 
                     //send email
@@ -1382,16 +1386,17 @@ class File_upload extends CI_Controller {
                     $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
                 }
                 
+                $unique_list = array_map("unserialize", array_unique(array_map("serialize", $notInserted)));
                 if(!empty($notInserted)){
                     $template = array(
                         'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
                     );
                     $this->table->set_template($template);
                     $this->table->set_heading(array('Part Code', 'Alt Part Code'));
-                    foreach ($notInserted as $val){  
+                    foreach ($unique_list as $val){  
                         $this->table->add_row($val['part_code'], $val['alt_part_code']);
                     }
-                    $response['data'] = "<br><b> Error in creating mapping.<br> " . $this->table->generate();
+                    $response['data'] = "<br><b>". $this->table->generate();
                 }
             } else {
                 $response['status'] = $check_header['status'];
