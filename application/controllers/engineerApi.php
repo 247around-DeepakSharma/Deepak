@@ -1186,6 +1186,8 @@ class engineerApi extends CI_Controller {
         $unitDetails = $requestData["unit_array"];
         $booking_id = $requestData["booking_id"]; 
         $validation = true;
+        $sn_pic_url = "";
+        $serial_number_text = "";
         if($validation){
             foreach($unitDetails as $value){
                 $data = array();
@@ -1209,19 +1211,15 @@ class engineerApi extends CI_Controller {
 
                     if($value['pod'] == "1"){
                         if(isset($value["serial_number"])){
-                            $data['serial_number'] = $unitDetails[0]["serial_number"];
-                            $sn_pic_url = $requestData['booking_id']."_" . $unit_id ."_serialNO_".rand(10,100).".png";
-
-                            $this->miscelleneous->generate_image($unitDetails[0]["serial_number_pic"],$sn_pic_url, SERIAL_NUMBER_PIC_DIR);
-
-                            $data["serial_number_pic"] = $sn_pic_url;
-
-                        } else {
-                            $validation = false;
-                            break;
-                        }
-
+                            if(!$sn_pic_url){
+                                $serial_number_text = $unitDetails[0]["serial_number"];
+                                $sn_pic_url = $requestData['booking_id']."_" . $unit_id ."_serialNO_".rand(10,100).".png";
+                                $this->miscelleneous->generate_image($unitDetails[0]["serial_number_pic"],$sn_pic_url, SERIAL_NUMBER_PIC_DIR);
+                            }
+                        } 
                     }
+                    $data['serial_number'] = $serial_number_text;
+                    $data["serial_number_pic"] = $sn_pic_url;
                     $data["closed_date"] = date("Y-m-d H:i:s");
                     $data["sf_purchase_date"] = $requestData['purchase_date'];
                     if(isset( $unitDetails[0]['model_number'])){
