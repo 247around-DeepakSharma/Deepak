@@ -160,23 +160,19 @@
                                         </div>
                                         
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="parts_number" class="col-md-4">Part Number</label>
-                                            <?php if (isset($inventory_details) && !empty($inventory_details)) { ?>
-                                            <div class="col-md-6">
-                                                <select class="form-control spare_parts parts_number" id="parts_number" disabled>
-                                                    <option selected disabled>Select Part Number</option>
-                                                </select>
-                                            </div>
-                                            <?php } else { ?>
-                                            <div class="col-md-6">
-                                                <input type="text" class="form-control spare_parts parts_number" id="parts_number" placeholder="Part Number" disabled>
-                                            </div>
-                                            <?php } ?>
-                                        </div>
+                                    <?php if (isset($inventory_details) && !empty($inventory_details)) { ?>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="parts_number" class="col-md-4">Part Number</label>
 
-                                    </div>
+                                                <div class="col-md-6">
+                                                    <select class="form-control spare_parts parts_number" id="parts_number" disabled>
+                                                        <option selected disabled>Select Part Number</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
                                 </div>
                                 <div class="row">
                                     <div class="col-md-6">
@@ -237,7 +233,7 @@
 <?php if(empty($inventory_details)){ ?>
 <script>
 $(document).ready(function(){ 
-    defults_inventory_part_type();  
+    defults_inventory_part_type();
     function defults_inventory_part_type(){
         $.ajax({
                 method:'POST',
@@ -257,7 +253,7 @@ $(document).ready(function(){
 <?php if(!empty($inventory_details)){ ?>
 <script>
 $('#model_number_id').select2();
-$('#parts_name').select2();
+$('#parts_name').select2().change();
 $(document).ready(function(){    
     
         $('#model_number_id').on('change', function() {        
@@ -338,34 +334,50 @@ $(document).ready(function(){
                          var inventory_id =$("#parts_name").find('option:selected').attr("data-inventory"); 
                         $("#current_inventory_id").val(inventory_id);
                         $('#spinner').removeClass('fa fa-spinner').hide();
-                        change_parts_number(part_type);
+                        //change_parts_number(part_type);
                     }
                 });
             }else{
                 console.log("Please Select Model Number");
             }
       }
-      function change_parts_number(part_type){
+      $(document).on("change","#parts_name",function(){
+        var part_type = $("#parts_type").val();
+        var part_name = $(this).val();
+
+        if(!part_type || !part_name){
+            $('#parts_number').empty().select2({placeholder:"Please select part name first."});
+            return false;
+        }
         var model_number_id = $('#model_number_id').val();
         if(model_number_id && part_type){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/get_part_number',
-                data: { model_number_id:model_number_id,requested_inventory_id:'<?php echo $spare_parts_details['requested_inventory_id']; ?>', entity_id: '<?php echo $spare_parts_details['booking_partner_id']; ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo $spare_parts_details['service_id']; ?>',part_type:part_type,is_option_selected:true },
+                data: {
+                    model_number_id:model_number_id,
+                    requested_inventory_id:'<?php echo $spare_parts_details['requested_inventory_id']; ?>',
+                    entity_id: '<?php echo $spare_parts_details['booking_partner_id']; ?>' ,
+                    entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' ,
+                    service_id: '<?php echo $spare_parts_details['service_id']; ?>',
+                    part_type:part_type,
+                    is_option_selected:true,
+                    part_name: part_name
+                },
                 success:function(data){
                     //console.log(data);
                     $('#parts_number').val("");
                     $('#parts_number').val('Select Part Number').change();
                     $('#parts_number').html(data).change();
                     //$('#spinner_'+ sp_id).removeClass('fa fa-spinner').hide();
-                    //$('#parts_number').select2();
+                    $('#parts_number').select2();
 
                 }
             });
         }else{
           //  alert("Please Select Model Number");
         }
-    }
+    });
             
 });
 
