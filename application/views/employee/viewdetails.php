@@ -448,6 +448,7 @@
                                 <th>Partner Invoice ID</th>
                                 <?php } ?>
                                 <th>SF Earning</th>
+                                <th>Warranty Status</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -552,6 +553,9 @@
                                              $unit_detail['vendor_parts']  + $unit_detail['vendor_st_parts'] +
                                             $sf_upcountry_charges);?>
                                     </td>
+                                    <td>
+                                        <span id="warranty_checker_status_<?=$key?>"></span>
+                                    </td>
                                 </tr>
                                     <?php   } ?>
                             </tbody>
@@ -590,6 +594,7 @@
                                         <th> Parts Warranty Status </th>    
                                         <th>Requested Quantity </th>                                
                                         <th >Requested Date</th>
+                                        <th >Date Of Purchase</th>
                                         <th >Invoice Image </th>
                                         <th >Serial Number Image </th>
                                         <th >Defective Front Part Image </th>
@@ -622,8 +627,8 @@
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
                                         <td><?php if($sp['part_warranty_status']==2){echo 'Out Of Warranty';}else{echo 'In - Warranty';} ?></td> 
                                         <td><?php echo $sp['quantity']; ?></td> 
-                                        
-                                        <td><?php echo $sp['create_date']; ?></td>
+                                        <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
+                                        <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
                                         ?> <a href="<?php echo S3_WEBSITE_URL; ?>misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank" id="<?php echo "a_invoice_pic_".$sp['id']; ?>">Click Here</a> <?php } } ?> &nbsp;&nbsp;<i id="<?php echo "invoice_pic_".$sp['id']; ?>" class="fa fa-pencil fa-lg" onclick="openfileDialog('<?php echo $sp["id"];?>','invoice_pic');"></i>
@@ -2232,6 +2237,37 @@ background-color: #f5f5f5;
            }});
         }
     });
+    
+    // function to cross check request type of booking with warranty status of booking 
+    <?php if(!empty($unit_details)) { 
+        foreach ($unit_details as $key =>  $unit_detail) { ?>
+                var model_number = "<?= $unit_detail['sf_model_number']?>";
+                var dop = "<?= $unit_detail['sf_purchase_date']?>";
+                var booking_id = "<?= $unit_detail['booking_id']?>";
+                if(model_number !== "" && model_number !== null && dop !== ""){ 
+                    $.ajax({
+                        method:'POST',
+                        url:"<?php echo base_url(); ?>employee/booking/get_warranty_data",
+                        data:{
+                            'bookings_data[0]' : {
+                                'partner_id' : "<?= $unit_detail['partner_id']?>",                                
+                                'model_number' : model_number,
+                                'purchase_date' : dop,
+                                'booking_id' : booking_id,
+                                'service_id' : "<?= $unit_detail['service_id']?>",
+                                'booking_create_date' : "<?= $unit_detail['create_date']?>",
+                            }
+                        },
+                        success:function(response){
+                            var warrantyData = JSON.parse(response);
+                            var warranty_status = warrantyData[booking_id];
+                            $("#warranty_checker_status_<?=$key?>").html(warranty_status);
+                        }                            
+                    });
+                }
+    <?php } 
+    }?>
+    // function ends here ---------------------------------------------------------------- 
    });
     </script>
     

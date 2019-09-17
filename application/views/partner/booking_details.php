@@ -312,6 +312,7 @@
                                                             <th>Requested Quantity</th>
                                                             <th>Shipped Quantity</th>
                                                             <th >Requested Date</th>
+                                                            <th >Date Of Purchase</th>
                                                             <th >Invoice Image </th>
                                                             <th >Serial Number Image </th>
                                                             <th >Defective Front Part Image </th>
@@ -334,9 +335,13 @@
                                                                 <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><b>".$sp['original_parts_number']."</b>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
                                                                 <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><b>".$sp['part_number']."</b>"; }  ?></td>
                                                                 <td><?php echo $sp['parts_requested_type']; ?></td>       
+
                                                                 <td><?php echo $sp['quantity']; ?></td>  
                                                                 <td><?php echo $sp['shipped_quantity']; ?></td> 
-                                                                <td><?php echo $sp['create_date']; ?></td>
+
+                                                                <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
+                                                                <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
+
                                                                 <td><?php
                                                                     if (!is_null($sp['invoice_pic'])) {
                                                                         if ($sp['invoice_pic'] != '0') {
