@@ -206,7 +206,34 @@ class Warranty_model extends CI_Model {
         
         $this->db->group_by('appliance_model_details.id,appliance_model_details.model_number,warranty_plans.period_start, warranty_plans.period_end');
         $query = $this->db->get();
-//        echo '<pre>';print_r($this->db->last_query());exit;
+        return $query->result_array();
+    }
+
+    function get_warranty_specific_data_of_bookings($arrBookingIds) {
+        $this->db->_protect_identifiers = FALSE;
+        $strSelect =    'booking_details.booking_id,
+                        date(booking_details.create_date) as booking_create_date,
+                        booking_details.partner_id,
+                        booking_details.service_id,
+                        booking_unit_details.appliance_brand,
+                        IFNULL(spare_parts_details.model_number,
+                                        IFNULL(booking_unit_details.sf_model_number,
+                                                        IFNULL(service_center_booking_action.model_number,
+                                                                        booking_unit_details.model_number))) AS model_number,
+                        IFNULL(date(spare_parts_details.date_of_purchase),
+                                        IFNULL(date(booking_unit_details.sf_purchase_date),
+                                                        IFNULL(date(service_center_booking_action.sf_purchase_date),
+                                                                        date(booking_unit_details.purchase_date)))) AS purchase_date';
+
+
+        $this->db->select($strSelect);
+        $this->db->from('booking_details');
+        $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id', 'Left');
+        $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'Left');
+        $this->db->join('service_center_booking_action', 'booking_details.booking_id = service_center_booking_action.booking_id', 'Left');
+        $this->db->where_in('booking_details.booking_id',$arrBookingIds);
+        $this->db->group_by('booking_details.booking_id');
+        $query = $this->db->get();
         return $query->result_array();
     }
 }

@@ -8,7 +8,8 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <h1 class="page-header">
-                            Check Warranty
+                            Check Warranty   
+                            <input type="text" value="" name="booking_id" id="booking_id" placeholder="Enter Booking Id" style="float:right;font-size:20px;padding:5px;"/>
                         </h1>
                         <form name="myForm" class="form-horizontal" method='post'> 
                             <div class="row">
@@ -160,7 +161,8 @@
             url: '<?php echo base_url(); ?>employee/partner/get_brands_from_service',
             data: {service_id: service_id, partner_id: partner_id},
             success: function (data) {
-                //First Resetting Options values present if any                
+                //First Resetting Options values present if any   
+                $('#brand').html("");
                 $('#brand').append(data);
                 $('#brand').val('<?php echo $brand; ?>');
                 $('#brand').trigger("change");
@@ -261,6 +263,41 @@
     $('#show').click(function () {
         validateform();
     });
+    
+    // Autofill Warranty Relevant data on entering Booking Id
+    $("#booking_id").keyup(function(event) {
+        if (event.keyCode === 13 && $("#booking_id").val() != "") {
+            fill_warranty_related_data();
+        }        
+    });;
+    
+    function fill_warranty_related_data()
+    {
+        $.ajax({
+            method:'POST',
+            url:"<?php echo base_url(); ?>employee/warranty/get_warranty_specific_data_from_booking_id",
+            data:{
+                booking_id : $("#booking_id").val()
+            },
+            success:function(response){
+                var warrantyData = JSON.parse(response);
+                $("#partner").val(warrantyData[0]['partner_id']);
+                $('#partner').select2().trigger('change');
+                setTimeout(function(){ 
+                    $("#service_id").val(warrantyData[0]['service_id']);
+                    $('#service_id').select2().trigger('change'); 
+                    setTimeout(function(){ 
+                        $("#brand").val(warrantyData[0]['appliance_brand']); 
+                        $('#brand').select2().trigger('change');
+                        $("#model").val(warrantyData[0]['model_id']);
+                        $('#model').select2().trigger('change'); 
+                    }, 300);
+                }, 300);
+                $('#purchase_date').datepicker('setDate', warrantyData[0]['purchase_date']);                
+            }                            
+        });
+    }
+    
 </script>
 
 
