@@ -433,9 +433,7 @@ class Service_centers extends CI_Controller {
                         $bookng_unit_details[$key1]['en_model_number'] = $en[0]['model_number'];
                         $bookng_unit_details[$key1]['en_symptom_id'] = $en[0]['symptom'];
                         $bookng_unit_details[$key1]['en_defect_id'] = $en[0]['defect'];
-                        $bookng_unit_details[$key1]['en_solution_id'] = $en[0]['solution'];
                         $bookng_unit_details[$key1]['en_closing_remark'] = $en[0]['closing_remark'];
-                        $bookng_unit_details[$key1]['en_amount_paid'] = $en[0]['amount_paid'];
                         if ($en[0]['is_broken'] == 1) {
                             $broken = 1;
                         }
@@ -1912,6 +1910,7 @@ class Service_centers extends CI_Controller {
             $data['model_number'] = $this->input->post('model_number');
             $data['serial_number'] = $this->input->post('serial_number');
             $data['date_of_purchase'] = $this->input->post('dop');
+
             $data['part_warranty_status'] = $this->input->post('part_warranty_status');
             $data['remarks_by_sc'] = $this->input->post('reason_text');
 
@@ -1931,6 +1930,18 @@ class Service_centers extends CI_Controller {
                 if (isset($value['defective_back_parts_pic'])) {
                     $data['defective_back_parts_pic'] = $value['defective_back_parts_pic'];
                 }
+                if (isset($value['date_of_request'])) {
+                    $data['date_of_request'] = $value['date_of_request'];
+                }
+
+                if (isset($value['service_center_id'])) {
+                    $data['service_center_id'] = $value['service_center_id'];
+                }
+
+                if (isset($value['booking_id'])) {
+                    $data['booking_id'] = $value['booking_id'];
+                }
+                
                 
                 
             }
@@ -2009,14 +2020,12 @@ class Service_centers extends CI_Controller {
         $delivered_sp =array();
         if($data['is_micro_wh']==1){
 
-            $data['spare_id'] = $this->input->post('spare_id');
-            $data['shipped_inventory_id'] = $data['requested_inventory_id'];
-            array_push($delivered_sp, $data);
-            unset($data['spare_id']);
-        }
+                $data['spare_id'] = $this->input->post('spare_id');
+                $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
+                array_push($delivered_sp, $data);
+            }
         $where = array('id' => $this->input->post('spare_id'));
-        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager'
-                || $this->session->userdata('user_group') == 'developer') {
+        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
 
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
             
@@ -2633,6 +2642,7 @@ class Service_centers extends CI_Controller {
             $data['model_number_shipped'] = $value['model_number'];
             $data['parts_shipped'] = $value['parts_requested'];
             $data['shipped_parts_type'] = $value['parts_requested_type'];
+            $data['shipped_date'] = $value['date_of_request'];
             $data['shipped_date'] = $value['date_of_request'];
             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
             $data['shipped_inventory_id'] = $value['requested_inventory_id'];
