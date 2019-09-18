@@ -1854,7 +1854,7 @@ class Invoice extends CI_Controller {
                 
                 //$convert = $this->invoice_lib->send_request_to_convert_excel_to_pdf($invoice['meta']['invoice_id'], $invoice_type);
                 $convert = $this->invoice_lib->convert_invoice_file_into_pdf($invoice, $invoice_type);
-                unset($invoice['booking']);
+//                unset($invoice['booking']);
                 $output_pdf_file_name = $convert['main_pdf_file_name'];
                 array_push($files, TMP_FOLDER . $convert['excel_file']);
                 
@@ -1912,6 +1912,14 @@ class Invoice extends CI_Controller {
                     );
                     
                     $this->invoices_model->action_partner_invoice($invoice_details);
+                    
+                    foreach($invoice['booking'] as $key=>$value){
+                        $invoice['booking'][$key]['product_or_services']='Product';
+                    }
+                    
+                    //Insert invoice Breakup
+                    $this->insert_invoice_breakup($invoice);
+                    
                     log_message('info', __FUNCTION__ . " Reset Invoice Id " . $invoice['meta']['invoice_id']);
                     $this->inventory_model->update_brackets(array('invoice_id' => NULL), array('invoice_id' => $invoice['meta']['invoice_id']));
               
@@ -3276,6 +3284,10 @@ class Invoice extends CI_Controller {
             );
             
              $this->invoices_model->insert_new_invoice($invoice_details);
+             
+            //Insert invoice Breakup
+            $this->insert_invoice_breakup($response); 
+            
              log_message('info', __METHOD__ . ": Invoice ID inserted");
              $this->session->set_flashdata('file_error', $description.' Invoice Generated');
              redirect(base_url() . "employee/invoice/invoice_partner_view");
@@ -3591,7 +3603,7 @@ class Invoice extends CI_Controller {
         $data[0]['district'] = $partner_data['district'];
         $data[0]['pincode'] = $partner_data['pincode'];
         $data[0]['state'] = $partner_data['state'];
-        $data[0]['rate'] = 0;
+        $data[0]['rate'] = $data[0]['taxable_value']/$qty;//0;
         $data[0]['qty'] = $qty;
         $data[0]['hsn_code'] = $hsn_code;
         $data[0]['gst_rate'] = $gst_rate;
@@ -3922,6 +3934,10 @@ class Invoice extends CI_Controller {
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
+                
+                //Insert invoice Breakup
+                $this->insert_invoice_breakup($response); 
+
                 log_message('info', __METHOD__ . ": Invoice ID inserted");
 
                 $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array("sell_invoice_id" => $response['meta']['invoice_id']));
@@ -4368,6 +4384,10 @@ class Invoice extends CI_Controller {
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
+
+                //Insert invoice Breakup
+                $this->insert_invoice_breakup($response);
+            
                 log_message('info', __METHOD__ . ": Invoice ID inserted");
                 
                 $this->invoice_lib->insert_def_invoice_breakup($response, 1);
@@ -4740,6 +4760,10 @@ class Invoice extends CI_Controller {
                         $data['reference_invoice_id'] = $response['meta']['reference_invoice_id'];
 
                         $status = $this->invoices_model->insert_new_invoice($data);
+                        
+                        //Insert invoice Breakup
+                        $this->insert_invoice_breakup($response);
+                
                         if (!empty($status)) {
                             log_message("info", __METHOD__ . " Invoice Inserted ");
                             echo "Success";
@@ -4851,6 +4875,21 @@ class Invoice extends CI_Controller {
                 );
                // print_r($credit_invoice_details); die();
                 $this->invoices_model->action_partner_invoice($credit_invoice_details);
+                
+                $invoice_data = array(0 => array(
+                        "invoice_id" => $credit_invoice_details['invoice_id'],
+                        "description" => $credit_invoice_details['sub_category'],
+                        "qty" => 1,
+                        "product_or_services" => SERVICE,
+                        "rate" => ($credit_invoice_details['total_amount_collected']),
+                        "taxable_value" => ($credit_invoice_details['total_amount_collected']),
+                        "total_amount" => $credit_invoice_details['total_amount_collected'],
+                        "create_date" => date('Y-m-d H:i:s')
+                    )
+                );
+                //Insert invoice Breakup
+                $this->invoices_model->insert_invoice_breakup($invoice_data);
+                
                 $this->invoices_model->update_partner_invoices(array('invoice_id' => $dn_invoice_id), array('credit_generated' => 1));
                 
                 $email_template = $this->booking_model->get_booking_email_template(CN_AGAINST_GST_DN);
