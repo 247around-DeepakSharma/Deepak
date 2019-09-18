@@ -204,15 +204,15 @@
                         ?>
                     </td>
                     
-          	<td><?php if($row['active']==1)
-                {
-                  echo "<a id='edit' class='btn btn-small btn-danger' onclick =pendingBookings(".$row['id'].",'P', ".$row['is_micro_wh'].")>Deactivate</a>";                
-                }
+          	<td>
+                    
+               <?php if($row['active']==1) { ?>
+                  <a id='edit' class='btn btn-small btn-danger' onclick ="pendingBookings('<?php echo $row['id']?>','P', '<?php echo $row['is_micro_wh'] ?>')">Deactivate</a>           
+               <?php }
                 else
-                {
-                  echo "<a id='edit' class='btn btn-small btn-primary' "
-                                    . "href=" . base_url() . "employee/vendor/vendor_activate_deactivate/$row[id]/1>Activate</a>";                
-                }
+                { ?>
+                   <a id='edit' class='btn btn-small btn-primary' href="<?php echo base_url() ?>employee/vendor/vendor_activate_deactivate/<?php echo $row['id']?>/1">Activate</a>        
+              <?php  }
               ?>
             </td>
             <td><button type="button" class="btn btn-small btn-success" id="<?php echo $row['id']; ?>" data-toggle="modal" data-target="#pin_code" onclick="createPinCodeForm(this.id,<?php echo "'".$row['name']."'"  ?>)">Pin Code</button></td>
