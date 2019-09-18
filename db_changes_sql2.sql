@@ -950,36 +950,28 @@ VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s
 
 <br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
  
-
-
+ 
 --Pranjal 30-8-2019 - for adding link for RM Mapping
 insert into `header_navigation`(`entity_type`,`title`,`link`,`level`,`groups`,`nav_type`,`is_active`)
 values ('247Around','RM Mapping','employee/user/rm_state_mapping',1,'admin,developer','right_nav','1')
 --Abhishek--2-sep-2019
 ALTER TABLE `spare_parts_details` ADD `shipped_to_partner_qty` INT(11) NOT NULL DEFAULT '1' AFTER `shipped_quantity`;
-
---Abhay 03 Sept
-ALTER TABLE `inventory_alternate_spare_parts_mapping` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `alt_inventory_id`;
-ALTER TABLE `alternate_inventory_set` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `inventory_id`;
-
  
 --Abhay 03 Sept
 ALTER TABLE `inventory_alternate_spare_parts_mapping` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `alt_inventory_id`;
 ALTER TABLE `alternate_inventory_set` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `inventory_id`;
  
-
 -- Ankit 03-09-2019
 ALTER TABLE spare_consumption_status ADD COLUMN status_description text NULL DEFAULT NULL AFTER consumed_status; 
 
 -- Kajal 04-09-2019
 UPDATE `email_template` SET `subject` = 'Spare shipped by %s to %s' , `template` = 'Dear Partner,<br><br> <b>%s</b> shipped below spare to your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around' , `cc` = 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com' WHERE `email_template`.`tag` = 'msl_send_by_wh_to_partner';
- 
+
 -- Kajal 05-09-2019
 UPDATE `email_template` SET `from` = 'defective-outward@247around.com', `cc` = 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com' WHERE `email_template`.`tag` = 'defective_spare_send_by_wh_to_partner';
 
 -- Kajal 06-09-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_wh', 'New Spare shipped by %s to %s', 'Dear SF,<br><br> <b>%s</b> shipped below new spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', NULL, 'defective-outward@247around.com', '', 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com', '', '1', CURRENT_TIMESTAMP);
-
 
 -- Ankit 09-09-2019
 CREATE TABLE wrong_part_shipped_details (
@@ -989,8 +981,7 @@ CREATE TABLE wrong_part_shipped_details (
     inventory_id int(11) NOT NULL,
     remarks text NULL DEFAULT NULL
 );
-
-
+ 
  --Abhishek---
  CREATE TABLE spare_qty_mgmt ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `spare_id` INT(11) NOT NULL ,  `booking_id` VARCHAR(60) NOT NULL ,  `qty` INT(11) NOT NULL DEFAULT '1' ,  `sf_id` INT NOT NULL ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
  ALTER TABLE `spare_qty_mgmt` ADD `awb_by_sf_defective` VARCHAR(50) NOT NULL AFTER `created_on`, ADD `def_courier_price_by_sf` INT(11) NOT NULL AFTER `awb_by_sf_defective`, ADD `def_courier_name` VARCHAR(50) NOT NULL AFTER `def_courier_price_by_sf`;
@@ -1025,3 +1016,4 @@ UPDATE `spare_consumption_status` SET `tag` = 'part_cancelled' WHERE `spare_cons
 UPDATE `spare_consumption_status` SET `tag` = 'nrn_approved' WHERE `spare_consumption_status`.`id` = 7;
 
 ALTER TABLE wrong_part_shipped_details ADD COLUMN create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ;
+ 
