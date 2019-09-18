@@ -4931,7 +4931,7 @@ class Invoice extends CI_Controller {
                     )
                 );
                 //Insert invoice Breakup
-                $this->insert_invoice_breakup($invoice_data);
+                $this->invoices_model->insert_invoice_breakup($invoice_data);
                 
                 $this->invoices_model->update_partner_invoices(array('invoice_id' => $dn_invoice_id), array('credit_generated' => 1));
                 
