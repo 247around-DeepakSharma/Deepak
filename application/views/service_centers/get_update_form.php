@@ -311,7 +311,7 @@
                                         <div class="form-group">
                                             <label for="quantity" class="col-md-4">Quantity *</label>
                                             <div class="col-md-6">
-                                                <input type="text" pattern="[1-9]{3}" min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                                <input type="text"   min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
                                                 <span id="error_span_0" style="color:red;" class="hide"></span>
 
                                             </div>
@@ -428,7 +428,7 @@
                                             <div class="form-group">
                                                 <label for="quantity" class="col-md-4">Quantity *</label>
                                                 <div class="col-md-6">
-                                                    <input type="text" pattern="[1-9]{3}" min="1" readonly="" value="1" class="form-control  spare_parts" id="quantity" >
+                                                    <input type="text"   min="1" readonly="" value="1" class="form-control  spare_parts" id="quantity" >
                                                     <span id="error_span" style="color:red;" class="hide"></span>
                                                 </div>
                                             </div>
