@@ -24,7 +24,7 @@ class Warranty_utilities {
      * @param type $arrBookings
      * @return type
      */
-    function get_warranty_data($arrBookings, $is_excel = false){
+    function get_warranty_data($arrBookings){
         if(empty($arrBookings)){
             return array();
         }
@@ -32,8 +32,8 @@ class Warranty_utilities {
         foreach ($arrBookings as $booking_id => $rec_data) {
             // Calculate Purchase Date
             // Used in case data is read from excel   
-            $purchase_date = date('Y-m-d', strtotime($rec_data['purchase_date']));   
-            if ($is_excel && $rec_data['purchase_date'] != "0000-00-00" && DateTime::createFromFormat('d-m-Y', $rec_data['purchase_date']) === FALSE) {
+            $purchase_date = date('Y-m-d', strtotime($rec_data['purchase_date']));            
+            if (DateTime::createFromFormat('d-m-Y', $rec_data['purchase_date']) === FALSE && $rec_data['purchase_date'] != "0000-00-00") {
                 $purchase_date = date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP($rec_data['purchase_date']));
             }
             
