@@ -152,4 +152,9 @@ class Warranty_utilities {
         endif; 
         return $warrantyStatus;
     }
+    
+    function get_warranty_specific_data_of_bookings($arrBookingIds){
+       $arrWarrantySpecificData = $this->My_CI->warranty_model->get_warranty_specific_data_of_bookings($arrBookingIds);
+       return $arrWarrantySpecificData;
+    }
 }
