@@ -417,9 +417,7 @@ class Service_centers extends CI_Controller {
                         $bookng_unit_details[$key1]['en_model_number'] = $en[0]['model_number'];
                         $bookng_unit_details[$key1]['en_symptom_id'] = $en[0]['symptom'];
                         $bookng_unit_details[$key1]['en_defect_id'] = $en[0]['defect'];
-                        $bookng_unit_details[$key1]['en_solution_id'] = $en[0]['solution'];
                         $bookng_unit_details[$key1]['en_closing_remark'] = $en[0]['closing_remark'];
-                        $bookng_unit_details[$key1]['en_amount_paid'] = $en[0]['amount_paid'];
                         if ($en[0]['is_broken'] == 1) {
                             $broken = 1;
                         }
@@ -1852,6 +1850,7 @@ class Service_centers extends CI_Controller {
             $data['model_number'] = $this->input->post('model_number');
             $data['serial_number'] = $this->input->post('serial_number');
             $data['date_of_purchase'] = $this->input->post('dop');
+
             $data['part_warranty_status'] = $this->input->post('part_warranty_status');
             $data['remarks_by_sc'] = $this->input->post('reason_text');
 
@@ -1871,6 +1870,19 @@ class Service_centers extends CI_Controller {
                 if (isset($value['defective_back_parts_pic'])) {
                     $data['defective_back_parts_pic'] = $value['defective_back_parts_pic'];
                 }
+
+                 if (isset($value['date_of_request'])) {
+                    $data['date_of_request'] = $value['date_of_request'];
+                }
+
+                if (isset($value['service_center_id'])) {
+                    $data['service_center_id'] = $value['service_center_id'];
+                }
+
+                if (isset($value['booking_id'])) {
+                    $data['booking_id'] = $value['booking_id'];
+                }
+ 
             }
         }
 
@@ -1952,6 +1964,7 @@ class Service_centers extends CI_Controller {
             }
         $where = array('id' => $this->input->post('spare_id'));
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
+
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
             
              $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
