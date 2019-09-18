@@ -1739,7 +1739,7 @@ function remap_in_bom_map($remap_bom_array){
                 }
             } else {
                 $returnData['status'] = FALSE;
-                $returnData['message'] = "File upload Failed. Empty file has been uploaded";
+                $returnData['message'] = $file_status['message'];
             }
         echo json_encode($returnData);
     }
@@ -2038,6 +2038,7 @@ function remap_in_bom_map($remap_bom_array){
         $file_status = $this->get_upload_file_type();
         $partner_id = $this->input->post('partner_id');
         $returnMsg = [];
+        $errorMsg = "";
 
         if ($file_status['file_name_lenth']) {
             if ($file_status['status']) {
@@ -2051,7 +2052,24 @@ function remap_in_bom_map($remap_bom_array){
                 $header_column_need_to_be_present = array('product', 'category', 'capacity');        
                 //check if required column is present in upload file header
                 $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
+                $arr_mismatch = array_diff_assoc($header_column_need_to_be_present,$data['header_data']);
 
+                if(!empty($arr_mismatch))
+                {
+                   // Invalid file format
+                   $errorMsg = 'Uploaded File format not Matches with requested format';
+                   $this->session->set_flashdata('file_error', $errorMsg);
+                   redirect(base_url() . 'file_upload/upload_partner_appliance_list');
+                }
+                
+                if($data['highest_row'] <= 1)
+                {
+                   // Empty file
+                   $errorMsg = 'Empty file uploaded';
+                   $this->session->set_flashdata('file_error', $errorMsg);
+                   redirect(base_url() . 'file_upload/upload_partner_appliance_list');
+                }
+                
                 if ($check_header['status']) {
                     
                     // apply loop for validation.

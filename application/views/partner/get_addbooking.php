@@ -797,7 +797,7 @@
                 singleDatePicker: true,
                 showDropdowns: true,
                 minDate:"1998-01-01",
-                maxDate:today,
+                maxDate:'<?php echo date("Y-m-d"); ?>',
                 locale:{
                     format: 'YYYY-MM-DD'
                 }

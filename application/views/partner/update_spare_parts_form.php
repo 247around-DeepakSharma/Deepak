@@ -149,12 +149,14 @@
                                             <input type="hidden" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]">
                                         </div>
                                         <?php } else if(isset($appliance_model_details) && !empty($appliance_model_details)){ ?>
+                                            <div class="col-md-7">
                                             <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $key;?>')" id="<?php echo "shippedmodelnumberid_".$key;?>" name="part[<?php echo $key; ?>][shipped_model_number_id]" required="">
                                                 <option value="" disabled="" selected="">Select Model Number</option>
                                                 <?php foreach ($appliance_model_details as $key1 => $value1) { ?> 
                                                 <option value="<?php echo $value1['id']; ?>" <?php if($value1['model_number'] == $value->model_number){ echo "selected"; } ?> ><?php echo $value1['model_number']; ?></option>
                                                 <?php } ?>
                                             </select>
+                                        </div>
                                             <input type="hidden" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]">
                                         
                                         <?php } else { ?> 
@@ -168,31 +170,27 @@
                                             <label for="shipped_parts_name" class="col-md-4">Shipped Parts Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                                 <div class="col-md-7">
-                                                    <select required="" class="form-control spare_parts shipped_parts_name" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]">
+                                                    <select required="" class="form-control spare_parts shipped_parts_name shipped-part-name" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]"  data-key="<?=$key?>">
                                                     </select>
                                                     <span id="spinner" style="display:none"></span>
                                                 </div>
                                             <?php } else { ?> 
                                                 <div class="col-md-7">
-                                                    <input required="" type="text" class="form-control spare_parts" onchange="change_parts_name('<?php echo $key; ?>')" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name" >
+                                                    <input required="" type="text" class="form-control spare_parts shipped-part-name" onchange="change_parts_name('<?php echo $key; ?>')" id="<?php echo "shippedpartsname_" . $key; ?>" name="part[<?php echo $key; ?>][shipped_parts_name]" value = "" placeholder="Shipped Parts Name"  data-key="<?=$key?>">
                                                 </div>
                                             <?php } ?>
                                         </div>
                                         
-                                    <div class="form-group">
-                                        <label for="shipped_parts_number" class="col-md-4">Shipped Parts Number</label>
-                                        <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
+                                    <?php if (isset($inventory_details) && !empty($inventory_details)) { ?>
+                                        <div class="form-group">
+                                            <label for="shipped_parts_number" class="col-md-4">Shipped Parts Number</label>
                                             <div class="col-md-7">
                                                 <select required="" class="form-control spare_parts shipped_parts_number" id="<?php echo "shippedpartsnumber_" . $key; ?>" disabled>
                                                     <option value="">Select Part Name First</option>
                                                 </select>
                                             </div>
-                                        <?php } else { ?> 
-                                            <div class="col-md-7">
-                                                <input required="" type="text" class="form-control spare_parts"  id="<?php echo "shippedpartsname_" . $key; ?>" value = "" placeholder="Shipped Parts Number" disabled>
-                                            </div>
-                                        <?php } ?>
-                                    </div>
+                                        </div>
+                                    <?php } ?>
                                         
                                     </div>
                                     <?php if($value->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS){ ?>                                    
@@ -264,7 +262,7 @@
                                             <select required="" class="form-control shipped_part_type spare_parts" onchange="change_shipped_part_type('<?php echo $key;?>')" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]">
                                                 <option selected disabled>Select Part Type</option>
                                             </select>
-                                        <span id="<?php echo "spinner_". $key?>" style="display:none"></span>
+                                            <span id="<?php echo "spinner_". $key?>" style="display:none"></span>
                                         </div>
                                         <?php } else { ?> 
                                         <div class="col-md-7">                                            
@@ -335,7 +333,7 @@
                                         </div>
                                     </div>
                                     <div class="col-md-5">
-                                      <div style="margin-bottom: 40px;">  
+                                        <!--<div style="margin-bottom: 40px;">  </div> this one is causing alignment issue-->
                                       <div class="form-group">
                                         <label for="shipped_model_number" class="col-md-4">Shipped Model Number *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
@@ -359,31 +357,26 @@
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Parts Name *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-7">
-                                            <select class="form-control spare_parts" id="shippedpartsname" >
+                                            <select class="form-control spare_parts shipped-part-name" id="shippedpartsname" >
                                             </select>
                                             <span id="spinner" style="display:none"></span>
                                         </div>
                                         <?php } else { ?> 
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control spare_parts" id="shippedpartsname" value = "" placeholder="Shipped Parts Name" >
+                                            <input type="text" class="form-control spare_parts shipped-part-name" id="shippedpartsname" value = "" placeholder="Shipped Parts Name" >
                                         </div>
                                         <?php } ?>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="shipped_parts_name" class="col-md-4">Shipped Parts Number</label>
-                                        <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
-                                        <div class="col-md-7">
-                                            <select class="form-control spare_parts" id="shippedpartsnumber" disabled>
-                                            </select>
-                                            <span id="spinner" style="display:none"></span>
+                                    <?php if (isset($inventory_details) && !empty($inventory_details)) { ?>
+                                        <div class="form-group">
+                                            <label for="shipped_parts_name" class="col-md-4">Shipped Parts Number</label>
+                                            <div class="col-md-7">
+                                                <select class="form-control spare_parts" id="shippedpartsnumber" disabled>
+                                                </select>
+                                                <span id="spinner" style="display:none"></span>
+                                            </div>
                                         </div>
-                                        <?php } else { ?> 
-                                        <div class="col-md-6">
-                                            <input type="text" class="form-control spare_parts" id="shippedpartsnumber" value = "" placeholder="Shipped Parts Number" disabled>
-                                        </div>
-                                        <?php } ?>
-                                    </div>
-                                       </div>
+                                    <?php } ?>
                                      <?php if($request_type == REPAIR_OOW_TAG){ ?>   
                                      <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Invoice Id *</label>
@@ -794,7 +787,7 @@
                     $('#shippedpartsname_' +key).val('Select Part Name').change();
                     $('#shippedpartsname_' + key).html(data).change();
                     $('#spinner_' + key).removeClass('fa fa-spinner').hide();
-                    change_parts_number(key);
+                    //change_parts_number(key);
 //                    var request_part_type = $("#partsname_"+key).val();
 //                    if(request_part_type){
 //                        $('#shippedpartsname_' +key).val(request_part_type).change(); 
@@ -838,31 +831,51 @@
             });
         }
     }
-    function change_parts_number(key){
-        var model_number_id = $('#shippedmodelnumberid_' + key).val();
-        var part_type = $('#shippedparttype_'+ key).val();
-       
-        $('#spinner_'+key).addClass('fa fa-spinner').show();
-        if(model_number_id && part_type){
-            var requested_inventory_id = $("#requested_inventory_id_"+key).val();
-            $.ajax({
-                method:'POST',
-                url:'<?php echo base_url(); ?>employee/inventory/get_part_number',
-                data: { model_number_id:model_number_id,requested_inventory_id:requested_inventory_id, entity_id: '<?php echo ((isset($spare_parts[0]->partner_id)) ? $spare_parts[0]->partner_id : '') ?>' , entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' , service_id: '<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>',part_type:part_type,is_option_selected:true },
-                success:function(data){
-                    //console.log(data);
-                    $('#shippedpartsnumber_' + key).val("");
-                    $('#shippedpartsnumber_' + key).val('Select Part Number').change();
-                    $('#shippedpartsnumber_' +key).html(data).change();
-                    //$('#spinner_'+ sp_id).removeClass('fa fa-spinner').hide();
-                    $('#shippedpartsnumber_' + key).select2();
-                    
+    $(document).ready(function(){
+        $(document).on("change",".shipped-part-name",function(){
+            var key = $(this).data("key");
+            if(typeof key=="undefined" || key === null){
+                return false;
+            }
+            var part_name = $(this).val();
+            var model_number_id = $('#shippedmodelnumberid_' + key).val();
+            var part_type = $('#shippedparttype_'+ key).val();
+
+            $('#spinner_'+key).addClass('fa fa-spinner').show();
+            if(!!part_name){
+                if(model_number_id && part_type){
+                    var requested_inventory_id = $("#requested_inventory_id_"+key).val();
+                    $.ajax({
+                        method:'POST',
+                        url:'<?php echo base_url(); ?>employee/inventory/get_part_number',
+                        data: {
+                            model_number_id:model_number_id,
+                            requested_inventory_id:requested_inventory_id,
+                            entity_id: '<?php echo ((isset($spare_parts[0]->partner_id)) ? $spare_parts[0]->partner_id : '') ?>' ,
+                            entity_type: '<?php echo _247AROUND_PARTNER_STRING; ?>' ,
+                            service_id: '<?php echo ((isset($spare_parts[0]->service_id)) ? $spare_parts[0]->service_id : '') ?>',
+                            part_type:part_type,
+                            is_option_selected:true,
+                            part_name : part_name
+                        },
+                        success:function(data){
+                            //console.log(data);
+                            $('#shippedpartsnumber_' + key).val("");
+                            $('#shippedpartsnumber_' + key).val('Select Part Number').change();
+                            $('#shippedpartsnumber_' +key).html(data).change();
+                            $('#spinner_'+ key).removeClass('fa fa-spinner').hide();
+                            $('#shippedpartsnumber_' + key).select2();
+
+                        }
+                    });
+                }else{
+                  //  alert("Please Select Model Number");
                 }
-            });
-        }else{
-          //  alert("Please Select Model Number");
-        }
-    }
+            }else{
+                $('#shippedpartsnumber_' + key).empty().select2({placeholder:'Select part name first'});
+            }
+        });
+    });
         
     <?php } ?>
     
@@ -886,7 +899,7 @@
                 .find('[id="shippedmodelnumberid"]').attr('name', 'part[' + partIndex + '][shipped_model_number_id]').attr("onchange", "change_shipped_model('"+partIndex+"')").attr('id','shippedmodelnumberid_'+partIndex).select2({placeholder:'Select Model Number'}).attr('id','shippedmodelnumberid_'+partIndex).attr("required", true).end()
                 .find('[id="inventoryid"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','inventoryid_'+partIndex).end()
                 .find('[id="shippedmodelnumber"]').attr('name', 'part[' + partIndex + '][shipped_model_number]').attr('id','shippedmodelnumber_'+partIndex).end()
-                .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][shipped_parts_name]').attr("onchange", "change_parts_name('"+partIndex+"')").attr('id','shippedpartsname_'+partIndex).attr("required", true).select2({placeholder:'Select Part Name'}).end()
+                .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][shipped_parts_name]').data("key",partIndex).attr("onchange", "change_parts_name('"+partIndex+"')").attr('id','shippedpartsname_'+partIndex).attr("required", true).select2({placeholder:'Select Part Name'}).end()
                 .find('[id="shippedpartsnumber"]').attr('id','shippedpartsnumber_'+partIndex).select2({placeholder:'Select Part Number'}).end()
                 .find('[id="shippedparttype"]').attr('name', 'part[' + partIndex + '][shipped_part_type]').attr("onchange", "change_shipped_part_type('"+partIndex+"')").attr('id','shippedparttype_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
                 .find('[id="remarks"]').attr('name', 'part[' + partIndex + '][remarks_by_partner]').attr('id','remarks_'+partIndex).end()
@@ -908,8 +921,7 @@
                 .find('[id="shippedmodelnumberid"]').attr('name', 'part[' + partIndex + '][shipped_model_number_id]').attr("onchange", "change_shipped_model('"+partIndex+"')").attr('id','shippedmodelnumberid_'+partIndex).attr("required", true).end()
                 .find('[id="inventoryid"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','inventoryid_'+partIndex).end()
                 .find('[id="shippedmodelnumber"]').attr('name', 'part[' + partIndex + '][shipped_model_number]').attr('id','shippedmodelnumber_'+partIndex).end()
-                .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][shipped_parts_name]').attr('id','shippedpartsname_'+partIndex).attr("required", true).end()
-                .find('[id="shippedpartsnumber"]').attr('id','shippedpartsnumber_'+partIndex).select2({placeholder:'Select Part Number'}).end()
+                .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][shipped_parts_name]').data("key",partIndex).attr('id','shippedpartsname_'+partIndex).attr("required", true).end()
                 .find('[id="shippedparttype"]').attr('name', 'part[' + partIndex + '][shipped_part_type]').attr('id','shippedparttype_'+partIndex).attr("required", true).end()
                 .find('[id="remarks"]').attr('name', 'part[' + partIndex + '][remarks_by_partner]').attr('id','remarks_'+partIndex).end()
                 .find('[id="approx_value"]').attr('name', 'part[' + partIndex + '][approx_value]').attr('id','approx_value_'+partIndex).end()
