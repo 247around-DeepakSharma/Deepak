@@ -250,7 +250,7 @@
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Requested Quantity</label>
                                         <div class="col-md-7">
-                                            <input class="form-control" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]" readonly=""  value="<?php echo $value->quantity; ?>"  required /> 
+                                            <input type="text" class="form-control" id="<?php echo "req_quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]" readonly=""  value="<?php echo $value->quantity; ?>"  required /> 
                                         </div>
                                     </div>
                                      </div>
@@ -276,7 +276,10 @@
                                    <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Shipped Quantity</label>
                                         <div class="col-md-7">
-                                            <input type="number" min="1" class="form-control quantity" data-id="<?php echo $key; ?>" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][shipped_quantity]" value="<?php echo $value->quantity; ?>"    required  />
+                                            <input type="text" min="1" class="form-control quantity" data-id="<?php echo $key; ?>" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][shipped_quantity]" readonly="" value="<?php echo $value->quantity; ?>"    required  />
+
+
+                                            <span id="error_span_<?php echo $key; ?>" style="color:red;" class="hide"></span>
                                         </div>
                                     </div>
                                     </div>
@@ -419,8 +422,8 @@
                                 </div>
                                     
                                 <div class="col-md-5">
-                                    <div style="margin-bottom: 40px;">  
-                                        <div class="form-group" style="margin-bottom: 90px;">
+                                    <div style="margin-bottom: ">  
+                                        <div class="form-group" style="">
                                             <label for="shipped_part_type" class="col-md-4">Shipped Parts Type *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-7">
@@ -429,6 +432,7 @@
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
+
                                             <?php } else { ?> 
                                             <div class="col-md-7">                                            
                                                 <select required="" class="form-control spare_parts_type" id="shippedparttype"  value = "">
@@ -439,6 +443,17 @@
                                             <div class="col-md-1">
                                                 <button type="button" class="btn btn-default pull-right removeButton"><i class="fa fa-minus"></i></button>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group ">
+                                        <label for="parts_name" class="col-md-4">Shipped Quantity</label>
+                                        <div class="col-md-7">
+                                            <input type="text" min="1" class="form-control quantity " id="quantity" value="1" name="" readonly=""     required  />
+                                            <span id="error_span" style="color:red;" class="hide"></span>
+
+
+                                            <span id="error_span" style="color:red;" class="hide"></span>
                                         </div>
                                     </div>
                                     <?php if ($request_type == REPAIR_OOW_TAG) { ?>   
@@ -726,17 +741,23 @@
         var max = parseInt($("#shippedpartsname_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
         if(val>max){
          $(this).val("1");
-         swal("Error !", "Maximum quantity'allowed to ship is : "+max);
+           $("#error_span_"+indexId).text('Maximum quantity allowed to ship is : '+max);
+           $("#error_span_"+indexId).removeClass('hide');
+        }else{
+            $("#error_span_"+indexId).addClass('hide');
         }
         }else{
         $(this).val("");
-        swal("Error !", "0 quantity or negative value not allowed"); 
+          $("#error_span_"+indexId).text('0 quantity,special charcter or negative value not allowed ');
+          $("#error_span_"+indexId).removeClass('hide'); 
 
         }
         }else{
 
         $(this).val("");
-        swal("Error !", "Special chars not allowed");
+           $("#error_span_"+indexId).text('');
+           $("#error_span_"+indexId).text('Special chars not allowed');
+           $("#error_span_"+indexId).removeClass('hide');
         }
        });
     
@@ -811,6 +832,7 @@
         var inventory=  $('#shippedpartsname_' +key).find(':selected').attr('data-inventory');
         var service_id =  $('#shippedparttype_' +key).find(':selected').attr('data-service_id');
         $('#inventoryid_'+key).val(inventory);
+        //$("#quantity_0").removeAttr("readonly");
         get_hsn_code_list(key,service_id);
         if(model_number_id && part_name){
             $.ajax({
@@ -834,6 +856,7 @@
     $(document).ready(function(){
         $(document).on("change",".shipped-part-name",function(){
             var key = $(this).data("key");
+
             if(typeof key=="undefined" || key === null){
                 return false;
             }
@@ -864,6 +887,7 @@
                             $('#shippedpartsnumber_' + key).val('Select Part Number').change();
                             $('#shippedpartsnumber_' +key).html(data).change();
                             $('#spinner_'+ key).removeClass('fa fa-spinner').hide();
+                            $("#quantity_"+key).removeAttr("readonly");
                             $('#shippedpartsnumber_' + key).select2();
 
                         }
@@ -912,7 +936,9 @@
                 .find('[id="invoice_date"]').attr('name', 'part[' + partIndex + '][invoice_date]').attr('id','invoice_date_'+partIndex).end()
                 .find('[id="gst_rate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','gst_rate_'+partIndex).end()
                 .find('[id="purchase_price"]').attr('name', 'part[' + partIndex + '][purchase_price]').attr('id','purchase_price_'+partIndex).end()
-                .find('[id="spare_id"]').attr('name', 'part[' + partIndex + '][spare_id]').attr('id','spare_id_'+partIndex).end();
+                .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][shipped_quantity]').attr('id','quantity_'+partIndex).end()
+                .find('[id="error_span"]').attr('id','error_span_'+partIndex).end()
+                .find('[id="spare_id"]').attr('name', 'part[' + partIndex + '][spare_id]').attr('id','spare_id_'+partIndex).end();  
     
         })
             <?php } else { ?>
@@ -933,6 +959,8 @@
                 .find('[id="invoice_date"]').attr('name', 'part[' + partIndex + '][invoice_date]').attr('id','invoice_date_'+partIndex).end()
                 .find('[id="gst_rate"]').attr('name', 'part[' + partIndex + '][gst_rate]').attr('id','gst_rate_'+partIndex).end()
                 .find('[id="purchase_price"]').attr('name', 'part[' + partIndex + '][purchase_price]').attr('id','purchase_price_'+partIndex).end()
+                 .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][shipped_quantity]').attr('id','quantity_'+partIndex).end()
+                 .find('[id="error_span"]').attr('id','error_span_'+partIndex).end()
                 .find('[id="spare_id"]').attr('name', 'part[' + partIndex + '][spare_id]').attr('id','spare_id_'+partIndex).end();
     
         })
