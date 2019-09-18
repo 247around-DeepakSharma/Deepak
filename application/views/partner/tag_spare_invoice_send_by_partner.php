@@ -324,7 +324,7 @@
                                     <div class="form-group">
                                         <label class="col-xs-2 control-label">Invoice Amount * </label>
                                         <div class="col-xs-4">
-                                            <input placeholder="Enter Invoice Number" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="on_invoice_amount" required=""/>
+                                            <input placeholder="Enter Invoice Amount" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="on_invoice_amount" required=""/>
                                             <span id="error_on_invoice_amount" style="color: red;"></span>
                                         </div>
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice File*  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 5 MB."><i class="fa fa-info"></i></span></label>

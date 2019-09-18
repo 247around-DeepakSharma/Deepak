@@ -4923,7 +4923,7 @@ class Invoice extends CI_Controller {
                         "invoice_id" => $credit_invoice_details['invoice_id'],
                         "description" => $credit_invoice_details['sub_category'],
                         "qty" => 1,
-                        "product_or_services" => "Service",
+                        "product_or_services" => SERVICE,
                         "rate" => ($credit_invoice_details['total_amount_collected']),
                         "taxable_value" => ($credit_invoice_details['total_amount_collected']),
                         "total_amount" => $credit_invoice_details['total_amount_collected'],
@@ -4931,7 +4931,7 @@ class Invoice extends CI_Controller {
                     )
                 );
                 //Insert invoice Breakup
-                $this->insert_invoice_breakup($invoice_data);
+                $this->invoices_model->insert_invoice_breakup($invoice_data);
                 
                 $this->invoices_model->update_partner_invoices(array('invoice_id' => $dn_invoice_id), array('credit_generated' => 1));
                 

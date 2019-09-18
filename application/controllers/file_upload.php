@@ -1739,7 +1739,7 @@ function remap_in_bom_map($remap_bom_array){
                 }
             } else {
                 $returnData['status'] = FALSE;
-                $returnData['message'] = "File upload Failed. Empty file has been uploaded";
+                $returnData['message'] = $file_status['message'];
             }
         echo json_encode($returnData);
     }
