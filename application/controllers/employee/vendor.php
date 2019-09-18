@@ -3846,7 +3846,7 @@ class vendor extends CI_Controller {
      * 
      */
     function process_remove_penalty(){
-        
+        $this->checkUserSession();
         $id = $this->input->post('id');
         $status = $this->input->post('status');
         $booking_id = $this->input->post('booking_id');
