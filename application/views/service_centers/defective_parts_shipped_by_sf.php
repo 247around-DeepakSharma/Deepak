@@ -60,7 +60,7 @@
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">Shipped Date</th>
-                            <th class="text-center">Remarks</th>
+                            <th class="text-center" style="width: 15% !important;">Remarks</th>
                             <th class="text-center">Received</th>
                             <th class="text-center">Reject</th>
                         </tr>
