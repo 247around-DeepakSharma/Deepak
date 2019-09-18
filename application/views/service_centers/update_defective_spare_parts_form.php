@@ -128,14 +128,6 @@
                                     </div>
                                     <?php echo form_error('defective_courier_receipt'); ?>
                                 </div>
-                                    <div class="form-group ">
-                                    <label for="courier" class="col-md-4">Shipping Quantity *</label>
-                                    <div class="col-md-6">
-                                    <input type="number" class="form-control shipping_qty" id="shipping_qty" name="sp[<?php echo $spare_parts[0]['id'] ?>]" value = "<?php echo $spare_parts[0]['defevtive_shipped_qty_remaining']; ?>"  data-shipped-quantity="<?php echo $spare_parts[0]['defevtive_shipped_qty_remaining']; ?>"  placeholder="Please Shipped Quantity" min="1"  required >
-                                    </div>      
-                                    <input name="recieve_qty[<?php echo $spare_parts[0]['id'] ?>]" type="hidden"  value="<?php echo $spare_parts[0]['shipped_quantity']; ?>">                               
-                                   </div>
-                                    
                                 <?php
                                     // print_r($value);
                                     ?>
@@ -202,9 +194,9 @@
                     </div>
                 </div>
                 <div class="col-md-12 text-center" style="margin-bottom:30px;">
-                    <input type="hidden" name="sf_id" value="<?php echo $spare_parts[0]['service_center_id']; ?>">
+                    <input type="hidden" name="sf_id" value="<?php echo $spare_parts[0]['service_center_id'] ?>">
                     <input type="hidden" name="courier_boxes_weight_flag" id="courier_boxes_weight_flag" value="0">
-                    <input type="hidden" name="booking_partner_id" value="<?php echo $spare_parts[0]['booking_partner_id']; ?>">
+                    <input type="hidden" name="booking_partner_id" value="<?php echo $spare_parts[0]['booking_partner_id'] ?>">
                     <input type="submit" value="Update Booking" style="background-color:#2C9D9C; border-color: #2C9D9C; color:#fff;" class="btn btn-md btn-default" />
                 </div>
                 <?php //  print_r($courier_details);   ?>
@@ -232,16 +224,6 @@
         $(this).val('');
     });
     
-    $(document).on("keyup",".shipping_qty",function(){
-
-   var max = parseInt($(this).attr("data-shipped-quantity"));
-   var current  = parseInt($(this).val()); 
-   if (current>max) {
-
-    swal("Error !", "Your entered quantity is greater than the shipped quantity by warehouse/partner to SF . Please enter the less than or equal to  "+max);
-    $(this).val(max);
-   } 
-   });
     
     $("#defective_parts_shipped_weight_in_kg").on({
         "click": function () {
