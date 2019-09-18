@@ -6036,7 +6036,7 @@ class Inventory extends CI_Controller {
             if (!empty($data['data'])) {
                 $data['count'] = $count;
                 $data['inventory_master_list'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.inventory_id,inventory_master_list.part_name,inventory_master_list.part_number, '
-                        . 'inventory_master_list.gst_rate, inventory_master_list.hsn_code, inventory_master_list.price, inventory_master_list.type', array('appliance_model_details.model_number' => $data['data'][0]['model_number'],'inventory_master_list.service_id' => $data['data'][0]['service_id']));
+                        . 'inventory_master_list.gst_rate, inventory_master_list.hsn_code, inventory_master_list.price, inventory_master_list.type', array('inventory_model_mapping.active' => 1,'appliance_model_details.model_number' => $data['data'][0]['model_number'],'inventory_master_list.service_id' => $data['data'][0]['service_id']));
                                 
                 $html = $this->load->view('employee/tag_spare_line_item', $data, true);
 
