@@ -1673,6 +1673,7 @@ class Booking extends CI_Controller {
     function viewdetails($booking_id) {
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
+        $data['defective_history'] = $this->inventory_model->getDefecvtive_history($booking_id);
         $data['file_type'] = $this->booking_model->get_file_type();
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
         if(!empty($data['booking_history'])){
@@ -5917,43 +5918,8 @@ class Booking extends CI_Controller {
                 echo json_encode($arrBookingsWarrantyStatus);
             break;
             case 2:                
-                $selected_booking_request_types = $arrBookings[0]['booking_request_types'];
-                $booking_request_type = $this->booking_utilities->get_booking_request_type($selected_booking_request_types); 
-                $booking_id = $arrBookings[0]['booking_id'];
-                $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
-                $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
-                $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
-                $warranty_mismatch = 0;
-                $returnMessage = "";
-                
-                if(!empty($arr_warranty_status[$warranty_checker_status]))
-                {
-                    $warranty_mismatch = 1;
-                    foreach($arr_warranty_status[$warranty_checker_status] as $request_types)
-                    {
-                        if(strpos(strtoupper(str_replace(" ","",$booking_request_type)), strtoupper(str_replace(" ","",$request_types))) !== false)
-                        {
-                            $warranty_mismatch = 0;
-                            break;
-                        }
-                    }
-                }
-                
-                if(!empty($warranty_mismatch))
-                {
-                    if((strpos(strtoupper(str_replace(" ","",$booking_request_type)), 'OUTOFWARRANTY') !== false))
-                    {
-                        $warranty_mismatch = 0;
-                        $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";
-                    }
-                    else
-                    { 
-                        $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
-                    }   
-                }
-                $arrReturn['status'] = $warranty_mismatch;
-                $arrReturn['message'] = $returnMessage;
-                echo json_encode($arrReturn);
+                $warranty_result = $this->warranty_utilities->match_warranty_status_with_request_type($arrBookings, $arrBookingsWarrantyStatus);
+                echo $warranty_result;
             break;
         }        
     }
@@ -5997,6 +5963,7 @@ class Booking extends CI_Controller {
         $this->load->view('employee/wrong_spare_part', $data);
     }    
 
-
+ 
 }
+
  
