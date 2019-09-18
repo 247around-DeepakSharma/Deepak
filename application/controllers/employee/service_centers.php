@@ -1806,6 +1806,7 @@ class Service_centers extends CI_Controller {
             $data['model_number'] = $this->input->post('model_number');
             $data['serial_number'] = $this->input->post('serial_number');
             $data['date_of_purchase'] = $this->input->post('dop');
+
             $data['part_warranty_status'] = $this->input->post('part_warranty_status');
             $data['remarks_by_sc'] = $this->input->post('reason_text');
 
@@ -1825,6 +1826,19 @@ class Service_centers extends CI_Controller {
                 if (isset($value['defective_back_parts_pic'])) {
                     $data['defective_back_parts_pic'] = $value['defective_back_parts_pic'];
                 }
+
+                 if (isset($value['date_of_request'])) {
+                    $data['date_of_request'] = $value['date_of_request'];
+                }
+
+                if (isset($value['service_center_id'])) {
+                    $data['service_center_id'] = $value['service_center_id'];
+                }
+
+                if (isset($value['booking_id'])) {
+                    $data['booking_id'] = $value['booking_id'];
+                }
+ 
             }
         }
 
@@ -1902,9 +1916,8 @@ class Service_centers extends CI_Controller {
             unset($data['spare_id']);
         }
         $where = array('id' => $this->input->post('spare_id'));
-
-        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager'
-                || $this->session->userdata('user_group') == 'developer') {
+ 
+        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
 
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
             
