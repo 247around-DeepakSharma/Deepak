@@ -1053,41 +1053,6 @@ class engineerApi extends CI_Controller {
     }
 
     /**
-     * @input: Booking ID to be cancelled
-     * @description: Cancel pre-existing booking
-     * @output:
-     */
-    function processCancelBooking() {
-        log_message('info', "Entering: " . __METHOD__);
-
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //print_r($requestData);
-        $activity = array('activity' => 'process cancel booking', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
-
-        $booking_id = $requestData['booking_id'];
-        $cancellation_reason = $requestData['reason'];
-        
-        $data = $this->booking_model->getbooking_history($booking_id);
-        $result = $data[0];
-
-        log_message('info', "Booking ID: " . $booking_id . ", Reason: " . $cancellation_reason);
-
-        $this->miscelleneous->process_cancel_form($booking_id, _247AROUND_PENDING, $cancellation_reason, "Cancelled By Customer through Mobile APP", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT, _247AROUND, _247AROUND);
-
-        //Send message to User
-        $user_profile = $this->apis->getuserProfileid($result['user_id']);
-//        log_message('info', "Formatted date: " . $booking_date_formatted);
-
-        //Send cancellation mails to Admin, Vendor and User
-        $this->sendCancellationMails($user_profile[0], $result);
-
-        $this->jsonResponseString['response'] = "done";
-        $this->sendJsonResponse(array('0000', 'success'));
-        
-    }
-
-    /**
      * @input: Booking ID to be rescheduled, new date and time
      * @description: Cancel pre-existing booking
      * @output:
@@ -1317,47 +1282,73 @@ class engineerApi extends CI_Controller {
     function processCancelBookingByEngineer(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if(!empty($requestData["bookingID"]) && !empty($requestData["cancellationReason"])){
-            
-            $data['current_status'] = "InProcess";
-            $data['internal_status'] = _247AROUND_CANCELLED;
-            $data['cancellation_reason'] = $requestData["cancellationReason"];
-            $data['cancellation_remark'] = $requestData["remarks"];
-            $data["closed_date"] = date("Y-m-d H:i:s");
-            $this->engineer_model->update_engineer_table($data, array( "booking_id" =>$requestData["bookingID"] ));
-            
-            $en["booking_id"] = $requestData["bookingID"];
-            $en["remarks"] = "Booking Cancelled By Engineer From App";
-            $en['closed_date'] = date("Y-m-d H:i:s");
             $bookinghistory = $this->booking_model->getbooking_history($requestData["bookingID"]);
-            if(!empty($requestData['location']) ){
-                $location = json_decode($requestData['location'], true);
-                $en["pincode"] = $location['pincode'];
-                $en["city"] = $location['city'];
-                $en["address"] = $location['address'];
-                $en["latitude"] = $location['latitude'];
-                $en["longitude"] = $location['longitude'];
-                if($bookinghistory[0]['booking_pincode'] != $location['pincode']){
-                    $en['mismatch_pincode']  = 1;
+            /* check spare part oredered status on booking which need to be cancel */
+            $isdisable = false; 
+            if(isset($bookinghistory['spare_parts'])){ 
+                foreach($bookinghistory['spare_parts'] as $sp){
+                    switch ($sp['status']){
+                        case SPARE_PARTS_REQUESTED: 
+                             $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                             $isdisable= true;
+                            break;
+                        case SPARE_SHIPPED_BY_PARTNER:
+                        case SPARE_DELIVERED_TO_SF:
+                        case DEFECTIVE_PARTS_REJECTED:
+                        case DEFECTIVE_PARTS_RECEIVED:
+                        case DEFECTIVE_PARTS_SHIPPED:
+                        case DEFECTIVE_PARTS_PENDING:
+                        case SPARE_OOW_SHIPPED:
+                             $status = CANCEL_PAGE_SPARE_SHIPPED;
+                             $isdisable= true;
+                             break;
+                    }
+
                 }
-               
             }
-            $en["service_center_id"] = $requestData['service_center_id'];
-            $en["engineer_id"] = $requestData['engineer_id'];
-            $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $data["booking_id"]));
-            if(!empty($is_exist)){
-                $this->engineer_model->update_engineer_action_sig(array("id"=> $is_exist[0]['id']), $en);
+            if(!$isdisable){
+                $data['current_status'] = "InProcess";
+                $data['internal_status'] = _247AROUND_CANCELLED;
+                $data['cancellation_reason'] = $requestData["cancellationReason"];
+                $data['cancellation_remark'] = $requestData["remarks"];
+                $data["closed_date"] = date("Y-m-d H:i:s");
+                $this->engineer_model->update_engineer_table($data, array( "booking_id" =>$requestData["bookingID"] ));
+
+                $en["booking_id"] = $requestData["bookingID"];
+                $en["remarks"] = "Booking Cancelled By Engineer From App";
+                $en['closed_date'] = date("Y-m-d H:i:s");
+
+                if(!empty($requestData['location']) ){
+                    $location = json_decode($requestData['location'], true);
+                    $en["pincode"] = $location['pincode'];
+                    $en["city"] = $location['city'];
+                    $en["address"] = $location['address'];
+                    $en["latitude"] = $location['latitude'];
+                    $en["longitude"] = $location['longitude'];
+                    if($bookinghistory[0]['booking_pincode'] != $location['pincode']){
+                        $en['mismatch_pincode']  = 1;
+                    }
+
+                }
+                $en["service_center_id"] = $requestData['service_center_id'];
+                $en["engineer_id"] = $requestData['engineer_id'];
+                $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $data["booking_id"]));
+                if(!empty($is_exist)){
+                    $this->engineer_model->update_engineer_action_sig(array("id"=> $is_exist[0]['id']), $en);
+                } else {
+                    $this->engineer_model->insert_engineer_action_sign($en);
+                }
+
+                $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING, 
+                        "Booking Cancelled By Engineer From App", 
+                        $requestData['sc_agent_id'], "",ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
+
+                $this->sendJsonResponse(array('0000', 'success'));
             } else {
-                $this->engineer_model->insert_engineer_action_sign($en);
+                $this->sendJsonResponse(array('0019', $status));
             }
-           
-            $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING, 
-                    "Booking Cancelled By Engineer From App", 
-                    $requestData['sc_agent_id'], "",ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
-            
-            $this->sendJsonResponse(array('0000', 'success'));
-             
         } else {
-            $this->sendJsonResponse(array('0019', 'Failure'));
+            $this->sendJsonResponse(array('0020', 'Failure'));
         }
     }
 
