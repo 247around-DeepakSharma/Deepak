@@ -2009,12 +2009,14 @@ class Service_centers extends CI_Controller {
         $delivered_sp =array();
         if($data['is_micro_wh']==1){
 
-                $data['spare_id'] = $this->input->post('spare_id');
-                $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
-                array_push($delivered_sp, $data);
-            }
+            $data['spare_id'] = $this->input->post('spare_id');
+            $data['shipped_inventory_id'] = $data['requested_inventory_id'];
+            array_push($delivered_sp, $data);
+            unset($data['spare_id']);
+        }
         $where = array('id' => $this->input->post('spare_id'));
-        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
+        if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager'
+                || $this->session->userdata('user_group') == 'developer') {
 
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
             
