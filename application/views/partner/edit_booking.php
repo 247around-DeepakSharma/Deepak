@@ -1,3 +1,6 @@
+<?php
+$str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
+?>
 <style>
     .col-md-3{
     width: 25%;
@@ -18,6 +21,13 @@
     }
     #dealer_list li{padding: 10px; border-bottom: #bbb9b9 1px solid;}
     #dealer_list li:hover{background:#e9ebee;cursor: pointer;}
+    
+     <?php if(!empty($str_disabled)) { ?> 
+    .appliance_brand, .appliance_category, .appliance_capacity, #purchase_date, #model_number_1{
+        pointer-events : none !important;
+        background : #eee !important;
+    }    
+    <?php } ?>
 </style>
 <?php
     if(!$is_repeat){
@@ -133,7 +143,7 @@
                             <div class="form-group col-md-12 <?php if( form_error('model_number') ) { echo 'has-error';} ?>">
                                 <label for="model_number_1">Model Number  <span id="error_model" style="color: red;"></label>
                                 <span id="model_number_2">
-                                    <select class="form-control select-model"  name="model_number" id="model_number_1" >
+                                    <select class="form-control select-model"  name="model_number" id="model_number_1" onchange="check_booking_request()">
                                         <option selected disabled>Select Model</option>
                                     </select>
                                 </span>
@@ -211,6 +221,9 @@
                         <div class="clearfix"></div>
                     </div>
                     <div class="x_content">
+                        <div class="col-md-12" style="margin-bottom:10px;padding:10px;">
+                            <span style="color:red;text-align: center;font-size: 16px;font-weight:bold;" class="errorMsg"></span>
+                        </div>
                         <div class="col-md-12">
                             <div  class="form-group col-md-12">
                                 <table class="table priceList table-striped table-bordered" id="priceList">
@@ -288,7 +301,7 @@
                                     <div class="col-md-12">
                                         <div class="form-group col-md-12  <?php if( form_error('purchase_date') ) { echo 'has-error';} ?>">
                                             <label for="purchase_date">Purchase Date * <span id="error_purchase_date" style="color: red;"></span></label>
-                                            <input style="background-color:#FFF;"  type="text" class="form-control" readonly  id="purchase_date" name="purchase_date"  value = "<?php if(isset($unit_details[0]['purchase_date'])){echo $unit_details[0]['purchase_date'];} ?>" <?php if($is_repeat){echo 'readonly';} ?> max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
+                                            <input style="background-color:#FFF;"  type="text" class="form-control" readonly  id="purchase_date" name="purchase_date"  value = "<?php if(isset($unit_details[0]['purchase_date'])){echo $unit_details[0]['purchase_date'];} ?>" <?php if($is_repeat){echo 'readonly';} ?> max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request();">
                                             <?php echo form_error('purchase_date'); ?>
                                         </div>
                                     </div>
@@ -602,9 +615,12 @@
     // $("#service_name").select2();
     $("#booking_request_symptom").select2();
     $("#model_number_1").select2();
-    $("#appliance_brand_1").select2();
-    $("#appliance_capacity_1").select2();
-    $("#appliance_category_1").select2();
+    <?php if(empty($str_disabled)) { ?> 
+        $("#appliance_brand_1").select2();
+        $("#appliance_capacity_1").select2();
+        $("#appliance_category_1").select2();
+    <?php } ?> 
+    
     $("#partner_source").select2();
     var today = new Date();
     
@@ -754,12 +770,12 @@
                         success: function (data) {
                          
                                 if($.trim(data) === "Data Not Found"){
-                                    var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model">';
+                                    var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model" onfocusout="check_booking_request()">';
                                     $("#model_number_2").html(input).change();
                                     $('.select-model').next(".select2-container").hide();
                                 } else {
                                     //First Resetting Options values present if any
-                                     var input_text = '<span id="model_number_2"><select class="form-control select-model"  name="model_number" id="model_number_1" ><option selected disabled>Select Model</option></select></span>';
+                                     var input_text = '<span id="model_number_2"><select class="form-control select-model"  name="model_number" id="model_number_1" onchange="check_booking_request()"><option selected disabled>Select Model</option></select></span>';
                                     $("#model_number_2").html(input_text).change();
                                     $("#model_number_1").append(data).change();
                                     $("#model_number_1").select2();
@@ -1182,7 +1198,7 @@
     }
     
     $(document).ready(function(){
-       
+        check_booking_request();
        <?php
         if($is_repeat){ ?>
            $("#repeat_reason_holder").show();
@@ -1285,10 +1301,12 @@
             
     $('#purchase_date').on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('YYYY-MM-DD'));
+        check_booking_request();
     });
     
     $('#purchase_date').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
+        check_booking_request();
     });
     
     function check_active_paid(no){
@@ -1410,4 +1428,49 @@
         }
     
     }
+    
+    // function to cross check request type of booking with warranty status of booking 
+    function check_booking_request()
+    {
+        $(".price_checkbox").attr("disabled", false);
+        var model_number = $(".select-model").val();
+        var dop = $("#purchase_date").val();
+        var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
+        var service_id = $("#service_name").val();
+        var booking_id = '<?php echo $booking_history[0]['booking_id'];?>';
+        var booking_create_date = '<?php echo $booking_history[0]['create_date'];?>';
+        var booking_request_types = []; 
+        $(".price_checkbox:checked").each(function(){
+            var price_tag = $(this).attr('data-price_tag');
+            booking_request_types.push(price_tag);
+        });
+        $("#submitform").attr("disabled", false);
+        $('.errorMsg').html("");
+        if(model_number !== "" && model_number !== null && model_number !== undefined && dop !== "" && booking_request_types.length > 0){                               
+            $.ajax({
+                method:'POST',
+                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2",
+                data:{
+                    'bookings_data[0]' : {
+                        'partner_id' : partner_id,
+                        'booking_id' : booking_id,
+                        'booking_create_date' : booking_create_date,
+                        'service_id' : service_id,
+                        'model_number' : model_number,
+                        'purchase_date' : dop, 
+                        'booking_request_types' : booking_request_types
+                    }
+                },
+                success:function(response){
+                    var returnData = JSON.parse(response);
+                    $('.errorMsg').html(returnData['message']);
+                    if(returnData['status'] == 1)
+                    {
+                        $("#submitform").attr("disabled", true);                        
+                    }
+                }                           
+            });
+        }
+    }
+// function ends here ---------------------------------------------------------------- 
 </script>

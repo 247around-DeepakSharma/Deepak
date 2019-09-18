@@ -1669,6 +1669,7 @@ class Partner extends CI_Controller {
             }
             
             $data['is_repeat'] = $is_repeat;
+            $data['is_spare_requested'] = $this->booking_utilities->is_spare_requested($data);
             $this->miscelleneous->load_partner_nav_header();
             //$this->load->view('partner/header');
             $this->load->view('partner/edit_booking', $data);
@@ -3403,7 +3404,7 @@ class Partner extends CI_Controller {
                 }
                 $checkboxClass = $prices['product_or_services'];
                 $ch  = "check_active_paid('".$i."')";
-               $onclick = 'onclick="final_price(), '.$ch.', set_upcountry(), disableCheckbox(this), get_symptom()"';
+               $onclick = 'onclick="check_booking_request(),final_price(), '.$ch.', set_upcountry(), disableCheckbox(this), get_symptom()"';
                 $tempHelperString = "";
                if($is_repeat){
                     if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
@@ -3418,7 +3419,7 @@ class Partner extends CI_Controller {
                         if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
                             $checkboxClass = "repeat_".$prices['product_or_services'];
                             $tempString = "'".$contact."','".$service_id."','".$partner_id."',this.checked,true";
-                            $onclick = 'onclick="final_price(),'.$ch.', set_upcountry(), get_symptom(),disableCheckbox(this),get_parent_booking('.$tempString.')"';
+                            $onclick = 'onclick="check_booking_request(),final_price(),'.$ch.', set_upcountry(), get_symptom(),disableCheckbox(this),get_parent_booking('.$tempString.')"';
                             //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                          }
                     }
@@ -3426,7 +3427,7 @@ class Partner extends CI_Controller {
                          if($prices['service_category'] ==  REPEAT_BOOKING_TAG){
                              $checkboxClass = "repeat_".$prices['product_or_services'];
                             $tempString = "'".$contact."','".$service_id."','".$partner_id."',this.checked,false";
-                            $onclick = 'onclick="final_price(),'.$ch.', get_symptom(), set_upcountry(), disableCheckbox(this), get_parent_booking('.$tempString.')"';
+                            $onclick = 'onclick="check_booking_request(),final_price(),'.$ch.', get_symptom(), set_upcountry(), disableCheckbox(this), get_parent_booking('.$tempString.')"';
                             //$onclick = 'onclick="get_parent_booking('.$tempString.')"';
                          }
                     }
