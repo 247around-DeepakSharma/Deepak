@@ -212,6 +212,9 @@
                         <input type="hidden" name="previous_inventory_id" value="<?php echo $spare_parts_details['requested_inventory_id']; ?>"> 
                         <input type="hidden" name="current_inventory_id" id="current_inventory_id" value="">
                         <input type="hidden" name="service_center_id" value="<?php echo $spare_parts_details['assigned_vendor_id']; ?>">
+                        <input type="hidden" name="part[0]['service_center_id']" value="<?php echo $spare_parts_details['assigned_vendor_id']; ?>">
+                        <input type="hidden" name="part[0]['date_of_request']" value="<?php echo $spare_parts_details['date_of_request']; ?>">
+                        <input type="hidden" name="part[0]['booking_id']" value="<?php echo $spare_parts_details['booking_id']; ?>">
                         <?php 
                           if($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer"   ){  ?>
                         <input type="submit"  value="Update" id="submitform" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return submitForm();"   class="btn btn-danger btn-large">
