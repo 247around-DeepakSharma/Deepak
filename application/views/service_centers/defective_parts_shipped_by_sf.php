@@ -70,7 +70,7 @@
                     </thead>
                     <tbody>
                         <?php $sn_no=1;foreach ($spare_parts as $key => $row) { ?>
-                            <tr style="text-align: center;">
+                            <tr style="text-align: center;<?php if($row['defective_part_rejected_by_partner']==1){echo "background-color: #d89e9e !important;font-weight: 900";} ?>">
                                 <td>
                                     <?php echo $sn_no; ?>
                                 </td>
