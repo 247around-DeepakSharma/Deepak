@@ -7797,14 +7797,14 @@ class Service_centers extends CI_Controller {
      * @param type $id
      * @param type $partner_id
      */
-    function wrong_spare_part($booking_id, $spare_part_detail_id, $part_name) {
+    function wrong_spare_part($booking_id) {
         $this->checkUserSession();
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $service_center_id  = $this->session->userdata('service_center_id');
         
         $post_data = $this->input->post();
         $data['booking_id'] = $booking_id;
-        $data['spare_part_detail_id'] = $spare_part_detail_id;
+        $data['spare_part_detail_id'] = $post_data['spare_part_detail_id'];
         $data['part_name'] = $post_data['part_name'];
         $data['service_id'] = $post_data['service_id'];
         $data['parts'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name', ['service_id' => $data['service_id'], 'inventory_id not in (1,2)' => NULL]);
