@@ -177,7 +177,9 @@
                                            <?php } ?>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
+
+
+                                             <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="defective_parts_pic" class="col-md-4">Defective Back Part Picture *</label>
                                             <div class="col-md-6">
@@ -189,6 +191,23 @@
                                            <?php } ?>
                                         </div>
                                     </div>
+
+
+                                   <div class="col-md-6">
+                                       <div class="form-group ">
+                                        <label for="shipped_parts_name" class="col-md-4">Shipped Quantity *</label>
+                                        <div class="col-md-6">
+
+                                            <input class="form-control quantity" type="text" min="1" value="<?php echo $spare_parts_details['shipped_quantity'] ?>" id="" name="part[0][shipped_quantity]" readonly="" required />
+                                            <span id="error_span_0" style="color:red;" class="hide"></span>
+
+                                            <?php echo form_error('quantity'); ?>
+                                        </div>
+                                    </div>
+                                    </div>
+
+
+                           
                                 </div>
                             </div>
                         </div>
