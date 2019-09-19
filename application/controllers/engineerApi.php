@@ -1344,7 +1344,7 @@ class engineerApi extends CI_Controller {
                         "Booking Cancelled By Engineer From App", 
                         $requestData['sc_agent_id'], "",ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
 
-                $this->sendJsonResponse(array('0000', 'success'));
+                $this->sendJsonResponse(array('0000', 'Booking Cancelled Successfully'));
             } else {
                 $this->sendJsonResponse(array('0019', $status));
             }
@@ -2107,7 +2107,14 @@ class engineerApi extends CI_Controller {
         $requestData["call_from_api"] = TRUE;
         $validation = $this->validateSparePartsOrderRequest($requestData);
         if($validation['status']){ 
+            /*Check part warranty status*/
+            $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
             foreach ($requestData['part'] as $key => $value){
+                if(strpos($bookingDetails[0]['request_type'],'Out Of Warranty') == true || strpos($bookingDetails[0]['request_type'],'Gas Recharge - Out') == true ){
+                    $requestData['part'][$key]['part_warranty_status'] = 2;
+                }else{
+                    $requestData['part'][$key]['part_warranty_status'] = 1;
+                }
                 //upload defective front part pic
                 if($value["defective_front_parts"]){
                     $defective_part_pic = "Defective_Parts_".date("YmdHis").".png";
@@ -2135,7 +2142,7 @@ class engineerApi extends CI_Controller {
                 $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "misc-images");
                 $requestData['invoice_pic'] = $invoice_pic;
             }
-        
+            
             //Call curl for updating spare parts using code from where service center ask for spare parts
             $url = base_url()."employee/service_centers/update_spare_parts"; 
             $ch = curl_init($url);
