@@ -169,6 +169,7 @@
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6">
+ 
                                             <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php if(isset($unit_serial_number) && !empty($unit_serial_number)){echo $unit_serial_number;}  ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="">
                                         </div>
                                     </div>
@@ -180,12 +181,10 @@
                                             <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
                                             <input type="hidden" value="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo $unit_serial_number_pic;}  ?>"  name="serial_number_pic_exist" >
                                         </div>
+                                        <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ ?>
+                                            <a target="_blank" class="<?php if(!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)){echo 'hide';}  ?>" href="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo S3_WEBSITE_URL."/".SERIAL_NUMBER_PIC_DIR."/".$unit_serial_number_pic;}  ?>">View</a>
+                                     <?php    } ?>
 
-                                        <?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){ ?>
-                                            <a target="_blank"  href="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo S3_WEBSITE_URL."/".SERIAL_NUMBER_PIC_DIR."/".$unit_serial_number_pic;}  ?>">View</a>
-                                        <?php    } ?>
-                                        
-                                        
                                     </div>
                                 </div> 
                             </div>
@@ -312,8 +311,11 @@
                                         <div class="form-group">
                                             <label for="quantity" class="col-md-4">Quantity *</label>
                                             <div class="col-md-6">
-                                                <input type="number" pattern="[1-9]{3}" min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                                <input type="text" pattern="[1-9]{3}" min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                                <span id="error_span_0" style="color:red;" class="hide"></span>
+
                                             </div>
+
                                         </div>
                                     </div>
                                 </div>
@@ -426,7 +428,8 @@
                                             <div class="form-group">
                                                 <label for="quantity" class="col-md-4">Quantity *</label>
                                                 <div class="col-md-6">
-                                                    <input type="number" pattern="[1-9]{3}" min="1" readonly="" value="1" class="form-control  spare_parts" id="quantity" >
+                                                    <input type="text" pattern="[1-9]{3}" min="1" readonly="" value="1" class="form-control  spare_parts" id="quantity" >
+                                                    <span id="error_span" style="color:red;" class="hide"></span>
                                                 </div>
                                             </div>
                                         </div>
@@ -543,7 +546,7 @@ function alpha(e) {
                         $('.parts_name').val('val', "");
                         $('.parts_name').val('Select Part Type').change();
                         $('#spinner').removeClass('fa fa-spinner').hide();
-
+                        
                     }
                 });
             }else{
@@ -674,8 +677,8 @@ function alpha(e) {
      });
      
      if(checkbox_value ===0){
-     	  alert('Please select atleast one checkbox.');
-     	  checkbox_value = 0;
+          alert('Please select atleast one checkbox.');
+          checkbox_value = 0;
      }
      
       var reason = $("input[name='reason']:checked"). val();
@@ -937,20 +940,23 @@ function alpha(e) {
                         .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                         .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
                         .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).end()
-                        .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')")
-                        .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','quantity_name_'+partIndex).attr("required", true).end()
+                        .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')") error_span
+                        .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','parts_quantity_'+partIndex).attr("required", true).end()
+                        .find('[id="error_span"]').addClass('hide').attr('id','error_span_'+partIndex).attr("required", true).end()
                         .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
                         .find('[id="parts_image"]').attr('id', 'parts_image_'+partIndex).end()                
                         .find('[id="remove_section"]').attr('id', 'remove_section_'+partIndex).end()
                 
             <?php } else { ?>
                 $clone
+
                    .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
                    .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').addClass('part_in_warranty_status').attr('id','part_warranty_status_'+partIndex).attr("required", true).end()//.attr("onchange", "get_symptom('"+partIndex+"')")
-                   .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','quantity'+partIndex).attr("required", true).end()
+                   .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').addClass('quantity').attr('id','parts_quantity_'+partIndex).attr("required", true).end()
+                   .find('[id="error_span"]').addClass('hide').attr('id','error_span_'+partIndex).attr("required", true).end()
                    .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).end()
                    .find('[id="inventory_stock"]').attr('id', 'inventory_stock_'+partIndex).end()
                    .find('[id="parts_image"]').attr('id', 'parts_image_'+partIndex).end()  
@@ -1011,15 +1017,26 @@ function alpha(e) {
          var max = parseInt($("#parts_name_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
         if(val>max){
          $(this).val("1");
-         swal("Error !", "Maximum quantity'allowed to ship is : "+max);
+        // swal("Error !", "Maximum quantity'allowed to ship is : "+max);
+           $("#error_span_"+indexId).text('Maximum quantity allowed to ship is : '+max);
+           $("#error_span_"+indexId).removeClass('hide');
+        }else{
+             $("#error_span_"+indexId).addClass('hide');
         }
         }else{
           $(this).val("");
-          swal("Error !", "0 quantity or negative value not allowed");  
+        //  swal("Error !", "0 quantity or negative value not allowed");  
+          //$(this).css("border-color","red");
+          $("#error_span_"+indexId).text('0 quantity,special charcter or negative value not allowed ');
+          $("#error_span_"+indexId).removeClass('hide');
         }
         }else{
           $(this).val("");
-          swal("Error !", "Special chars not allowed");
+          //swal("Error !", "Special chars not allowed");
+           $("#error_span_"+indexId).text('');
+           $("#error_span_"+indexId).text('Special chars not allowed');
+           $("#error_span_"+indexId).removeClass('hide');
+
         }
        });
     
@@ -1031,7 +1048,7 @@ function alpha(e) {
             url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
             data: { service_id:service_id},
             success:function(data){                       
-                $('.spare_parts_type').html(data);
+                $('.spare_parts_type').html(data); 
                 $('#parts_type_0').select2();
             }
         });
