@@ -57,8 +57,8 @@
 
         $.ajax({
             method: 'POST', dataType:'json',
-            url : '<?php echo base_url(); ?>employee/service_centers/wrong_spare_part/<?php echo $booking_id; ?>/<?php echo $spare_part_detail_id; ?>/<?php echo $part_name; ?>',
-            data: {wrong_flag:1, service_id: '<?php echo $service_id; ?>', wrong_part:wrong_part, remarks:remarks, part_name:'<?php echo $part_name; ?>'},
+            url : '<?php echo base_url(); ?>employee/service_centers/wrong_spare_part/<?php echo $booking_id; ?>',
+            data: {wrong_flag:1, service_id: '<?php echo $service_id; ?>', wrong_part:wrong_part, remarks:remarks, part_name:'<?php echo $part_name; ?>', spare_part_detail_id : spare_id},
         }).success(function(data){
             $('#wrong_part_'+spare_id).val(JSON.stringify(data));
             $('#WrongSparePartsModal').modal('toggle');

@@ -1233,7 +1233,7 @@
     function open_wrong_spare_part_model(spare_part_detail_id, booking_id, part_name, service_id) {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/service_centers/wrong_spare_part/' + booking_id + "/" +spare_part_detail_id+'/'+part_name,
+            url: '<?php echo base_url(); ?>employee/service_centers/wrong_spare_part/' + booking_id,
             data: {spare_part_detail_id:spare_part_detail_id, booking_id:booking_id, part_name:part_name, service_id:service_id},
             success: function (data) {
                 $("#wrong_spare_part_model").children('.modal-content').children('.modal-body').html(data);   
