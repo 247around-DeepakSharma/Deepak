@@ -419,7 +419,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
 
    function get_booking_report_by_service_center_data($sf_list, $interval_in_days, $sf_closed_date = NULL) {
 
-       $data = $this->My_CI->reporting_utils->get_booking_by_service_center($sf_list, $interval_in_days, $sf_closed_date);
+       $data = $this->My_CI->reporting_utils->get_booking_by_service_center($sf_list, $interval_in_days);
        
        foreach ($data['service_center_id'] as $key => $val) {
            

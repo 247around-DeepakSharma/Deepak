@@ -5205,6 +5205,7 @@ class Partner extends CI_Controller {
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Waiting_Upcountry_Bookings_".date("Y-m-d"));
     }
     function download_spare_part_shipped_by_partner($isAdmin=0,$partner_post=0){
+        ini_set('memory_limit', '-1');
         ob_start();
         $where = '1';
         if($isAdmin == 0 && $partner_post==0) {
@@ -6144,6 +6145,7 @@ class Partner extends CI_Controller {
         echo json_encode($res);
     }
     function download_real_time_summary_report($partnerID){
+        ini_set('memory_limit', '-1');
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0);

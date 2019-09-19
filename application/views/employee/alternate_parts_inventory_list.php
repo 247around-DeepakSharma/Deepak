@@ -229,6 +229,11 @@
             success:function(response){
                 $('#'+div_to_update).html(response);
                 $('#'+div_to_update).select2();
+                var selected_partner_id = $('#partner_id option:selected').val();
+                if(selected_partner_id !=''){
+                  get_services('inventory_service_id',selected_partner_id);  
+                }
+                
             }
         });
     }

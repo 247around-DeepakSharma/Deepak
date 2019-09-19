@@ -663,7 +663,7 @@ class Service_centers extends CI_Controller {
                         redirect(base_url() . "service_center/pending_booking");
                     }
                 } else {
-                    $this->session->set_userdata('error', "You cannot complete the booking id : $booking_id. Please contact to 247Around Team");
+                    $this->session->set_userdata('error', "Price Not Found Against Updated Information For Booking  : $booking_id. Please Contact to back Office Team");
                     redirect(base_url() . "service_center/pending_booking");
                 }
             } else {
@@ -3004,8 +3004,6 @@ class Service_centers extends CI_Controller {
 
 
    function do_multiple_spare_shipping(){
-
-
      $sp_ids =  explode(',',$_POST['sp_ids']);
      $count_spare=  count($sp_ids);
      $count_spare=$count_spare-1;
@@ -3025,7 +3023,6 @@ class Service_centers extends CI_Controller {
 
         $spare_part = $this->partner_model->get_spare_parts_booking($where);
         if (!empty($spare_part)) {
-            
         $_POST['sf_id'] = $spare_part[0]['service_center_id'];
         $_POST['booking_id'] = $spare_part[0]['booking_id'];
         $_POST['user_name'] = $spare_part[0]['name'];
@@ -7373,5 +7370,4 @@ class Service_centers extends CI_Controller {
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings);   
         echo json_encode($arrBookingsWarrantyStatus);
     }
-
 }

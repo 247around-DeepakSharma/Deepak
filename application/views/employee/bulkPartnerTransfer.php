@@ -78,6 +78,9 @@
            data: form.serialize(), // serializes the form's elements.
            success: function(data)
            {
+
+              var data = data.trim(data);
+               $.trim(data);
                console.log(data); // show response from the php script.
                if(data=='success'){
                    swal("Transferred!", "Your spares has been transferred !.", "success"); 

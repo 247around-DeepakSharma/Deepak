@@ -4408,8 +4408,8 @@ function generate_image($base64, $image_name,$directory){
                         'defective_return_to_entity_type' => $data['defective_return_to_entity_type'],
                         'challan_approx_value' => $data['challan_approx_value'],
                         'requested_inventory_id' => $data['inventory_id'],
-                        'parts_requested' => $data['part_name']
-                        //'parts_requested_type' => $data['type']
+                        'parts_requested' => $data['part_name'],
+                        'parts_requested_type' => $data['type']
                     );
                     
                     $spare_pending_on_to='';

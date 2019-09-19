@@ -290,7 +290,7 @@
                                                                    $dop_mendatory = 1; 
                                                             }
                                                             ?>
-                                                            <?php if ($price['pod'] == "1" || !empty($sr)) { ?>
+                                                            <?php //if ($price['pod'] == "1" || !empty($sr)) { ?>
                                                             <div class="form-group">
                                                                 <div class="col-md-12">
                                                                     <input type="hidden" id="<?php echo "serial_number_pic" . $count ?>" class="form-control" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "]" ?>" 
@@ -357,7 +357,7 @@
                                                                 </div>
                                                                 
                                                             </div>
-                                                            <?php } ?>
+                                                            <?php // } ?>
                                                         </td>
                                                         <td id="<?php echo "price_tags".$count; ?>"><?php echo $price['price_tags']; ?></td>
                                                         <td id="<?php echo "amount_due".$count; ?>"><?php echo $price['customer_net_payable']; ?></td>
@@ -465,7 +465,7 @@
                                                             <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>" 
                                                             class="<?php echo "unit_dop_".$key1."_".$key;?>" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>" />
                                                         </td>
-                                                        <td style="border-color: #eeee;"> <?php if ($value['pod'] == "1") { ?>
+                                                        <td style="border-color: #eeee;"> <?php // if ($value['pod'] == "1") { ?>
                                                             <input type="text" class="form-control" onblur="validateSerialNo('<?php echo $count;?>')"  id="<?php echo "serial_number" . $count; ?>" name="<?php echo "serial_number[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" placeholder= "Enter Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" />
                                                             <input type="hidden"  id="<?php echo "model_number" . $count; ?>" class="form-control" value=""   />
                                                             <input type="hidden" class="form-control" id="<?php echo "serial_number_pic" . $count; ?>" name="<?php echo "serial_number_pic[" . $price['unit_id'] . "new" . $value['id'] . "]" ?>"  value="" />
@@ -478,7 +478,7 @@
                                                             <br/>
                                                             <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
                                                             <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control serialNumberPic" name="<?php echo "upload_serial_number_pic[" .  $price['unit_id'] . "new" . $value['id'] . "]" ?>"   />
-                                                    <?php } ?>
+                                                    <?php //} ?>
                                                         </td>
                                                
                                                             <td style="border-color: #eeee;" id="<?php echo "price_tags".$count; ?>"><?php echo $value['service_category']; ?></td>

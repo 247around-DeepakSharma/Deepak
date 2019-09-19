@@ -16,7 +16,7 @@ class Spare_parts extends CI_Controller {
         $this->load->model('service_centers_model');
         $this->load->model('invoices_model');
         $this->load->model('employee_model');
-        
+        $this->load->model('vendor_model');
         
         $this->load->library('form_validation');
         $this->load->library('notify');
@@ -2813,6 +2813,7 @@ class Spare_parts extends CI_Controller {
                 )
         );
 
+        ob_end_clean();
         $res1 = 0;
         if (file_exists(TMP_FOLDER . $output_file_excel)) {
 

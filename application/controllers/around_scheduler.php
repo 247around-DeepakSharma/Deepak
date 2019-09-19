@@ -2224,7 +2224,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
      * It called By Cron
      */
     function auto_review_booking(){
-        $data = $this->service_centers_model->get_admin_review_bookings(NULL, "All", array(), 0,NULL,-1);
+        $data = $this->service_centers_model->get_admin_review_bookings(NULL, "Completed", array(), 0,NULL,-1);
         if(!empty($data)){
             $requested_bookings = array_column($data, 'booking_id');
             $partner_id_array =   array_column($data, 'partner_id', 'booking_id');

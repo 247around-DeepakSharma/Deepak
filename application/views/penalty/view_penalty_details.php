@@ -12,11 +12,24 @@
             </h1>
         </div> 
         <div class="col-md-12">
+            <?php 
+                        if ($this->session->userdata('success')) {
+                            echo '<div class="col-md-12 alert alert-success alert-dismissible" role="alert">
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                    <strong>' . $this->session->userdata('success') . '</strong>
+                                </div>';
+                            
+                            $this->session->unset_userdata('success');
+                        }
+                    ?>
     <table id="book-table" class="table table-bordered table-condensed">
         <thead>
             <tr>
                 <th>S.No.</th>
                 <th>Escalation Reason</th>
+                <th>Entity</th>
                 <th>Penalty Amount</th>
                 <th>CAP Amount</th>
                 <th>Update</th>
@@ -33,8 +46,9 @@
 
                         <td width="5%"><?php echo ++$key; ?></td>
                         <td width="45%"><?php echo $penalty_detail['escalation_reason']; ?></td>
-                        <td width="15%"><?php if(!empty($penalty_detail['penalty_amount'])) { echo $penalty_detail['penalty_amount'];} else { echo '-'; } ?></td>
-                        <td width="15%"><?php if(!empty($penalty_detail['cap_amount'])) { echo $penalty_detail['cap_amount'];} else { echo '-'; } ?></td>
+                        <td width="10%"><?php echo $penalty_detail['entity']; ?></td>
+                        <td width="10%"><?php if(!empty($penalty_detail['penalty_amount'])) { echo $penalty_detail['penalty_amount'];} else { echo '-'; } ?></td>
+                        <td width="10%"><?php if(!empty($penalty_detail['cap_amount'])) { echo $penalty_detail['cap_amount'];} else { echo '-'; } ?></td>
                         <td width="10%">
                             <a class="btn btn-sm btn-primary " style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url() ?>penalty/get_penalty_detail_form/<?php echo $penalty_detail['id']; ?>"><i class="fa fa-edit" aria-hidden="true"></i></a>
                         </td>

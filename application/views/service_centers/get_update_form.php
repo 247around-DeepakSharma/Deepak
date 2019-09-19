@@ -33,9 +33,7 @@
                                 <th>Booking Id</th>
                                 <th>Customer Name</th>
                                 <th>Phone Number</th>
-                                <?php if(isset($saas_module) && (!$saas_module)) { ?>
                                 <th style="text-align: center;">Edit Request Type</th>
-                                <?php } ?>
                                 <th style="text-align: center;">Warranty Checker</th>
                             </tr>
                             <tr>
@@ -48,9 +46,7 @@
                                 <td>
                                     <input type="text" class="form-control"   value = "<?php if (isset($bookinghistory[0]['booking_primary_contact_no'])) {echo $bookinghistory[0]['booking_primary_contact_no']; }?>"  disabled>
                                 </td>
-                                <?php if(isset($saas_module) && (!$saas_module)) { ?>
-                                       <td><center><a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="height: 29px;width: 36px;" class="btn btn-sm btn-success"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a></center></td>
-                                <?php } ?>                                    
+                                       <td><center><a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($bookinghistory[0]['booking_id']))?>" style="height: 29px;width: 36px;" class="btn btn-sm btn-success"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a></center></td>                                
                                 <td>
                                         <?php 
                                             $partner_id = "";

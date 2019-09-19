@@ -4064,6 +4064,7 @@ class Invoice extends CI_Controller {
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
                                     $data[0]['from_pincode'] = $value['to_city'];
+                                    $data[0]['state_stamp_pic'] = $value['state_stamp_pic'];
                                     $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare);
                                     if ($a) {
                                         
@@ -4107,6 +4108,7 @@ class Invoice extends CI_Controller {
                         . $data[0]['from_pincode'];
 
             $response['meta']['main_company_pincode'] = $data[0]['from_pincode'];
+            $response['meta']['main_company_seal'] = $data[0]['state_stamp_pic'];
         }
         $response['meta']['invoice_id'] = $invoice_id;
         

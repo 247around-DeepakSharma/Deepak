@@ -145,7 +145,7 @@ class Invoice_lib {
        
         if(isset($meta['main_company_seal_cell'])){
           if($meta['main_company_seal']){
-            $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_seal'];
+            $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/brand-logo/".$meta['main_company_seal'];
             if($this->remote_file_exists($main_seal_path)){
                 if(copy($main_seal_path, TMP_FOLDER . $meta['main_company_seal'])){
                     $seal_cell = $meta['main_company_seal_cell'];
@@ -1008,11 +1008,8 @@ class Invoice_lib {
                     $value['part_name'] = $inventory_details[0]['part_name'];
 
                     foreach ($unsettle as $key => $b) {
-
                         $restQty = $b['qty'] - $b['settle_qty'];
                         if ($restQty == $qty) {
-
-
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             if (!empty($s)) {
@@ -1040,8 +1037,6 @@ class Invoice_lib {
                                 log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                             }
                         } else if ($restQty < $qty) {
-
-
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             if (!empty($s)) {
@@ -1130,6 +1125,7 @@ class Invoice_lib {
             $around_address = !empty($around_gst[0]['address'])? $around_gst[0]['address']: "";
             $around_pincode = !empty($around_gst[0]['pincode'])? $around_gst[0]['pincode']: "";
             $around_city = !empty($around_gst[0]['city'])? $around_gst[0]['city']: "";
+            $around_seal_img = !empty($around_gst[0]['state_stamp_picture'])? $around_gst[0]['state_stamp_picture']: "";
             
             $partner_state_code = $partner_gst[0]['state'];
             $partner_gst_number = $partner_gst[0]['gst_number'];
@@ -1160,6 +1156,7 @@ class Invoice_lib {
             "from_address" => $around_address,
             "from_pincode" => $around_pincode,
             "from_city" => $around_city,
+            "state_stamp_pic" => $around_seal_img,
             "from_gst_number_id" => $b['to_gst_number'],
             "shipping_quantity" => (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1),
             );

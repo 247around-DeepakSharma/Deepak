@@ -3226,10 +3226,17 @@ class Inventory extends CI_Controller {
 //        $str = '{"is_wh_micro":"2","247around_gst_number":"09AAFCB1281J1ZM","partner_id":"247130","wh_id":"870","awb_number":"12587455","courier_name":"gati-kwe","courier_shipment_date":"2019-07-04","from_gst_number":"7","part":[{"shippingStatus":"1","service_id":"37","part_name":"TRAY,BOTTOM,ER180I,INSTA","part_number":"1100023151","booking_id":"","quantity":"1","part_total_price":"158.25","hsn_code":"39239090","gst_rate":"18","inventory_id":"6011"},{"shippingStatus":"1","service_id":"37","part_name":"LEG,ADJUSTABLE,27MM L,ER180I,INSTA","part_number":"1100028374","booking_id":"","quantity":"2","part_total_price":"15","hsn_code":"84189900","gst_rate":"18","inventory_id":"7463"}],"partner_name":" Videocon","wh_name":" Amritsar Baldev Electronics - (Micro Warehouse) ","dated":"2019-07-04","sender_entity_type":"vendor","sender_entity_id":"15","invoice_tag":"MSL","transfered_by":"2"}';
  //        $_POST = json_decode($str, true);  
 //  
-        $invoice_file_required=0;
-        if (!isset($_POST['invoice_file_flag']) || $invoice_file_required) {
-           $invoice_file_required=1;      
-        }      
+         // print_r($_POST);  
+        $invoice_file_required =  $this->input->post('invoice_file');
+                        
+        if (!$invoice_file_required) {
+           $invoice_file_required=0;      
+                        
+        }else{
+            $invoice_file_required=1;
+                        
+        }   
+
         $partner_id = $this->input->post('partner_id');
         $invoice_id = $this->input->post('invoice_id');
         $invoice_dated = $this->input->post('dated');
@@ -3558,7 +3565,7 @@ class Inventory extends CI_Controller {
      * @param Array $ledger
      * @param int $wh_id
      */
-    function move_inventory_to_warehouse($ledger, $fomData, $wh_id, $is_wh_micro, $action_agent_id) {
+     function move_inventory_to_warehouse($ledger, $fomData, $wh_id, $is_wh_micro, $action_agent_id) {
         log_message('info', __METHOD__ . " warehouse id " . $wh_id . " ledger " . json_encode($ledger, true) . " Form data " . json_encode($fomData) . " WH id " . $wh_id,true);
 
         $transfered_by = $this->input->post('transfered_by');
@@ -3830,7 +3837,10 @@ class Inventory extends CI_Controller {
         }
         if(!empty($around_gst[0]['email_id'])){
             $response['meta']['main_company_phone'] = $around_gst[0]['contact_number'];
-        }  
+        }
+        if(!empty($around_gst[0]['state_stamp_picture'])){
+            $response['meta']['main_company_seal'] = $around_gst[0]['state_stamp_picture'];
+        }
         $response['meta']['invoice_id'] = $invoice_id;
         $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         if ($status) {
@@ -4335,7 +4345,7 @@ class Inventory extends CI_Controller {
      * @param Int $receiver_entity_id
      * @param Int $sender_entity_id
      */
-    function map_in_tansit_inventory_data_to_warehouse($data, $receiver_entity_id, $sender_entity_id) {
+      function map_in_tansit_inventory_data_to_warehouse($data, $receiver_entity_id, $sender_entity_id) {
         log_message('info', __METHOD__);
         $where = array(
             'entity_type' => _247AROUND_SF_STRING,
@@ -4830,6 +4840,7 @@ class Inventory extends CI_Controller {
                             . $invoiceValue['data'][0]['from_pincode'];
 
                 $response['meta']['main_company_pincode'] = $invoiceValue['data'][0]['from_pincode'];
+                $response['meta']['main_company_seal'] = $invoiceValue['data'][0]['state_stamp_pic'];
 
                 $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
                 if ($status) {
@@ -6928,11 +6939,8 @@ class Inventory extends CI_Controller {
      * @param String $booking_id
      */
     function msl_excel_upload(){
-        
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/msl_excel_upload');
-       
-        
+        $this->load->view('employee/msl_excel_upload'); 
     }
     
      /**

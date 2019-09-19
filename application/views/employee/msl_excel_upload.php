@@ -13,6 +13,7 @@
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">
+ 
             <?php 
             if(!empty($this->session->flashdata('fail'))){ ?>
                
@@ -30,44 +31,10 @@
             ?>
             <h1 class="page-header">
                MSL Excel Upload
+               <a href="<?php echo "https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/vendor-partner-docs/MSL-excel-sample.xlsx' ?>" name="download-sample-file" class="btn btn-primary" style="float:right;">Download Sample File</a>
             </h1>
           <div id="show_both">
-<!--              <form  action="<?php //echo base_url()?>employee/service_centre_charges/upload_service_price_from_excel" method="POST" enctype="multipart/form-data">
-               <div class="form-group  <?php //if( form_error('file') ) { echo 'has-error';} ?>">
-                  <label for="excel" class="col-md-3">Upload Service Price List:</label>
-                  <div class="col-md-3">
-                     <input type="file" class="form-control"  name="file" >
-                     <?php //echo form_error('file'); ?>
-                  </div>
-                <input class="col-md-2 btn btn-danger btn-sm" type= "submit"  value ="Upload" >  
-                
-               </div>
-            </form>
-              <a href="<?php //echo base_url(); ?>BookingSummary/download_latest_file/price" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>
-                <div class="col-md-12" style="margin-top:20px;">
-                    <h3>File Upload History</h3>
-                    <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
-                        <thead>
-                            <tr>
-                                <th>S.No.</th>
-                                <th>Download</th>
-                                <th>Uploaded By</th>
-                                <th>Uploaded Date</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-              
-          <div class="clear"></div>
-          <hr style="margin-top:10px; margin-bottom:40px;">-->
-
-
-
-
-
+ 
         <form method="POST"   enctype="multipart/form-data"  action="<?php echo base_url();  ?>file_upload/process_upload_file"  >
             <div class="row">
 
@@ -101,12 +68,8 @@
         <h4 class="modal-title">Excel Entries Not Updated</h4>
       </div>
       <div class="modal-body">
-            <?php 
-            if(!empty($this->session->flashdata('fail'))){
-                echo $this->session->flashdata('fail');
-            }else{
-                echo $this->session->flashdata('details'); 
-            }
+            <?php    
+                echo $this->session->userdata('details');
             ?>
       </div>
       <div class="modal-footer">
