@@ -1622,31 +1622,39 @@ class Inventory_model extends CI_Model {
         }
     }
     
+     /**
+     * @desc: This function is used to Download consolidated data
+     * @params: $select
+     * @params: Array $where
+     * @return: Json
+     */
    
-    function get_spare_consolidated_data($select,$where,$group_by=''){
-        $this->db->select($select,false);
+    function get_spare_consolidated_data($select, $where, $group_by = '') {
+        $this->db->select($select, false);
         $this->db->from('booking_details');
-        $this->db->join('spare_parts_details','booking_details.booking_id = spare_parts_details.booking_id');
-        $this->db->join('partners','booking_details.partner_id = partners.id');
-        $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id');
-        $this->db->join('service_centres','booking_details.assigned_vendor_id = service_centres.id');
-        $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='"._247AROUND_EMPLOYEE_STRING."' ", "left"); // new query for AM
-        $this->db->join('employee',"employee.id = agent_filters.agent_id", "left"); // new query for AM
+        $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id');
+        $this->db->join('partners', 'booking_details.partner_id = partners.id');
+        $this->db->join('spare_consumption_status', 'spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
+        $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id');
+        $this->db->join('agent_filters', "partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='" . _247AROUND_EMPLOYEE_STRING . "' ", "left"); // new query for AM
+        $this->db->join('employee', "employee.id = agent_filters.agent_id", "left"); // new query for AM
         //$this->db->join('employee','partners.account_manager_id = employee.id'); // old query for AM
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
-        $this->db->join('service_centres sc','spare_parts_details.partner_id=sc.id','left');
-        if(!empty($where)){
-           $this->db->where($where,false); 
+        $this->db->join('service_centres sc', 'spare_parts_details.partner_id=sc.id', 'left');
+        $this->db->join('services', 'services.id=booking_details.service_id', 'left');
+
+        if (!empty($where)) {
+            $this->db->where($where, false);
         }
-        if(!empty($group_by)) {
-            $this->db->group_by($group_by,false);
+
+        if (!empty($group_by)) {
+            $this->db->group_by($group_by, false);
         }
         $query = $this->db->get();
-        
-        return $query;
 
+        return $query;
     }
-    
+
     /**
      * @desc: This function is used to insert the courier api data into database
      * @params: Array $data
