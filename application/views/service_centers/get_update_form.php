@@ -169,6 +169,7 @@
                                     <div class="form-group">
                                         <label for="serial_number" class="col-md-4">Serial Number *</label>
                                         <div class="col-md-6">
+ 
                                             <input type="text" class="form-control spare_parts" id="serial_number" name="serial_number"  value="<?php if(isset($unit_serial_number) && !empty($unit_serial_number)){echo $unit_serial_number;}  ?>" placeholder="Serial Number" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8" required="">
                                         </div>
                                     </div>
@@ -180,12 +181,10 @@
                                             <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
                                             <input type="hidden" value="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo $unit_serial_number_pic;}  ?>"  name="serial_number_pic_exist" >
                                         </div>
+                                        <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ ?>
+                                            <a target="_blank" class="<?php if(!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)){echo 'hide';}  ?>" href="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo S3_WEBSITE_URL."/".SERIAL_NUMBER_PIC_DIR."/".$unit_serial_number_pic;}  ?>">View</a>
+                                     <?php    } ?>
 
-                                        <?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){ ?>
-                                            <a target="_blank"  href="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo S3_WEBSITE_URL."/".SERIAL_NUMBER_PIC_DIR."/".$unit_serial_number_pic;}  ?>">View</a>
-                                        <?php    } ?>
-                                        
-                                        
                                     </div>
                                 </div> 
                             </div>
@@ -543,7 +542,7 @@ function alpha(e) {
                         $('.parts_name').val('val', "");
                         $('.parts_name').val('Select Part Type').change();
                         $('#spinner').removeClass('fa fa-spinner').hide();
-
+                        
                     }
                 });
             }else{
@@ -674,8 +673,8 @@ function alpha(e) {
      });
      
      if(checkbox_value ===0){
-     	  alert('Please select atleast one checkbox.');
-     	  checkbox_value = 0;
+          alert('Please select atleast one checkbox.');
+          checkbox_value = 0;
      }
      
       var reason = $("input[name='reason']:checked"). val();
@@ -945,6 +944,7 @@ function alpha(e) {
                 
             <?php } else { ?>
                 $clone
+
                    .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
@@ -1031,7 +1031,7 @@ function alpha(e) {
             url:'<?php echo base_url(); ?>employee/inventory/get_inventory_parts_type',
             data: { service_id:service_id},
             success:function(data){                       
-                $('.spare_parts_type').html(data);
+                $('.spare_parts_type').html(data); 
                 $('#parts_type_0').select2();
             }
         });

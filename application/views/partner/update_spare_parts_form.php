@@ -149,12 +149,14 @@
                                             <input type="hidden" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]">
                                         </div>
                                         <?php } else if(isset($appliance_model_details) && !empty($appliance_model_details)){ ?>
+                                            <div class="col-md-7">
                                             <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $key;?>')" id="<?php echo "shippedmodelnumberid_".$key;?>" name="part[<?php echo $key; ?>][shipped_model_number_id]" required="">
                                                 <option value="" disabled="" selected="">Select Model Number</option>
                                                 <?php foreach ($appliance_model_details as $key1 => $value1) { ?> 
                                                 <option value="<?php echo $value1['id']; ?>" <?php if($value1['model_number'] == $value->model_number){ echo "selected"; } ?> ><?php echo $value1['model_number']; ?></option>
                                                 <?php } ?>
                                             </select>
+                                        </div>
                                             <input type="hidden" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]">
                                         
                                         <?php } else { ?> 
@@ -260,7 +262,7 @@
                                             <select required="" class="form-control shipped_part_type spare_parts" onchange="change_shipped_part_type('<?php echo $key;?>')" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]">
                                                 <option selected disabled>Select Part Type</option>
                                             </select>
-                                        <span id="<?php echo "spinner_". $key?>" style="display:none"></span>
+                                            <span id="<?php echo "spinner_". $key?>" style="display:none"></span>
                                         </div>
                                         <?php } else { ?> 
                                         <div class="col-md-7">                                            
