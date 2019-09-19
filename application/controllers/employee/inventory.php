@@ -2079,6 +2079,12 @@ class Inventory extends CI_Controller {
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        if(!empty($this->input->post('entity_id')))
+        {
+            $data['entity_id']=$this->input->post('entity_id');
+            $data['service_id']=$this->input->post('service_id');
+            $data['search']=$this->input->post('search');
+        }
         $this->load->view("employee/inventory_master_list", $data);
     }
     

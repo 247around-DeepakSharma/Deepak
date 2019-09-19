@@ -88,12 +88,14 @@
                     <h3>Inventory Master List</h3>
                 </div>
                 <div class="col-md-6">
+                <?php if(empty($entity_id)){?>
                     <a class="btn btn-success pull-right" style="margin-top: 10px;" id="add_master_list" title="Add Item"><i class="fa fa-plus"></i></a>
+                <?php }?>
                 </div>
             </div>
         </div>
         <hr>
-        <div class="filter_box">
+                <div class="filter_box" style="<?php if(!empty($entity_id)){?> display:none <?php }?>">
             <div class="row">
                 <div class="form-inline">
                     <div class="form-group col-md-3">
@@ -110,7 +112,7 @@
                 </div>
             </div>
         </div>
-        <hr>
+        <?php if(empty($entity_id)){?><hr><?php }?>
         <div class="success_msg_div" style="display:none;">
             <div class="alert alert-success alert-dismissible" role="alert" style="margin-top:15px;">
                 <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -428,9 +430,16 @@
                 data: function(d){
                     
                     var entity_details = get_entity_details();
+                    <?php if(!empty($entity_id)){?>
                     d.entity_id = entity_details.entity_id,
                     d.entity_type = entity_details.entity_type,
+                    d.service_id = entity_details.service_id,
+                      d.search=entity_details.search
+                      <?php } else { ?>
+                        d.entity_id = entity_details.entity_id,
+                    d.entity_type = entity_details.entity_type,
                     d.service_id = entity_details.service_id
+                    <?php } ?>
                 }
             },
             "deferRender": true       
@@ -438,12 +447,20 @@
     }
     
     function get_entity_details(){
+        <?php if(!empty($entity_id)){?>
+            var data = {
+            'entity_id': '<?php echo $entity_id ?>',
+            'entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
+            'service_id': '<?php echo $service_id ?>',
+            'search': { 'value':'<?php echo $search ?>','regex':'false'}
+        };
+        <?php } else { ?>
         var data = {
             'entity_id': $('#partner_id').val(),
             'entity_type' : '<?php echo _247AROUND_PARTNER_STRING; ?>',
             'service_id': $('#inventory_service_id').val()
         };
-        
+    <?php } ?>
         return data;
     }
     
