@@ -164,7 +164,7 @@
                                         <label for="shipped_parts_name" class="col-md-4">Requested Quantity *</label>
                                         <div class="col-md-6">
                                             <input class="form-control" value="<?php echo $sp->quantity; ?>" id="<?php echo "quantity_".$skey;?>" name="part[<?php echo $skey;?>][quantity]" readonly="readonly" required />
-                                           
+                                            <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
                                             <?php echo form_error('quantity'); ?>
                                         </div>
                                     </div>
@@ -215,7 +215,8 @@
                                     <div class="form-group ">
                                         <label for="parts_type" class="col-md-4">Part Warranty Status</label>
                                         <div class="col-md-6">
-                                            <input class="form-control" id="<?php echo "part_warranty_statusid_".$skey;?>" value="<?php if(isset($sp->part_warranty_status) && $sp->part_warranty_status == 1){ echo "In Warranty";} else { echo "Out Of Warranty";} ?>" name="part[<?php echo $skey;?>][part_warranty_status]" readonly="readonly" >
+                                            <input type="text" class="form-control" value="<?php if(isset($sp->part_warranty_status) && $sp->part_warranty_status == 1){ echo "In Warranty";} else { echo "Out Of Warranty";} ?>" readonly="readonly" >
+                                            <input type="hidden" class="form-control" id="<?php echo "part_warranty_statusid_".$skey;?>" value="<?php if(isset($sp->part_warranty_status) && $sp->part_warranty_status == 1){ echo SPARE_PART_IN_WARRANTY_STATUS; } else { echo SPARE_PART_IN_OUT_OF_WARRANTY_STATUS; } ?>" name="part[<?php echo $skey;?>][part_warranty_status]" readonly="readonly" >
                                         </div>
                                     </div>
                                     
@@ -226,8 +227,9 @@
                                         } ?>">
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Quantity *</label>
                                         <div class="col-md-6">
+
                                             <input class="form-control quantity" type="number" min="1" value="<?php echo $sp->quantity; ?>" id="<?php echo "shippedquantity_".$skey;?>" name="part[<?php echo $skey;?>][shipped_quantity]" required />
-                                           
+
                                             <?php echo form_error('quantity'); ?>
                                         </div>
                                     </div>
@@ -320,7 +322,6 @@
                                             <label for="shippedquantity" class="col-md-4">Shipped Quantity *</label>
                                             <div class="col-md-6">
                                                 <input type="number" min="1" class="form-control shippedquantity " value="1" id="shippedquantity"  />
-                                              
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
                                         </div>
@@ -356,8 +357,9 @@
                                         <div class="form-group ">
                                             <label for="quantity" class="col-md-4">Requested  Quantity *</label>
                                             <div class="col-md-6">
-                                                <input  class="form-control quantity "  id="quantity"  />
-
+                                                <input  class="form-control quantity "  value="1"  readonly  id="quantity"  />
+                                              
+                                                <span id="spinner" style="display:none"></span>
                                             </div>
                                         </div>.
                                         
@@ -417,7 +419,7 @@
                         <div class="col-md-6">
                             <div class="form-group <?php
                                 if (form_error('courier_name')) {echo 'has-error';} ?>">
-                                <label for="courier" class="col-md-4">Courier Name </label>
+                                <label for="courier" class="col-md-4">Courier Name *</label>
                                 <div class="col-md-6">
                                     <!--                                    <input type="text" class="form-control" id="courier_name" name="courier_name" value = "" placeholder="Please Enter courier Name"  required>-->
                                     <select class="form-control" id="courier_name" name="courier_name" required>
