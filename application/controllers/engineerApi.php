@@ -3195,12 +3195,12 @@ class engineerApi extends CI_Controller {
                 
                 if(!empty($warranty_status_holder)){ 
                      if($warranty_status_holder['warranty_flag'] != 2){
-                        $this->jsonResponseString['response'] = $response;
+                        $this->jsonResponseString['response'] = array("warranty_flag" => $response['status'], "message" => $response['message']);
                         $this->sendJsonResponse(array('0000', 'success'));
                      }
                 }
                 else{ 
-                    $this->jsonResponseString['response'] = $response;
+                    $this->jsonResponseString['response'] = array("warranty_flag" => $response['status'], "message" => $response['message']);
                     $this->sendJsonResponse(array('0000', 'success'));
                 }            
             }
