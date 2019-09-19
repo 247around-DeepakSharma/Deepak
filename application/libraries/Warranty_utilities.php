@@ -131,6 +131,7 @@ class Warranty_utilities {
      */
     public function get_warranty_status($in_warranty_period, $extended_warranty_period, $purchase_date, $create_date)
     {
+        $create_date = date('Y-m-d', strtotime($create_date));
         $warrantyStatus = 'OW';
         $in_warranty_months = !empty($in_warranty_period) ? $in_warranty_period : 12;
         $extended_warranty_months = !empty($extended_warranty_period) ? $extended_warranty_period : 0;                

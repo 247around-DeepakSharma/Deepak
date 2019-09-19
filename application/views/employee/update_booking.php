@@ -1355,7 +1355,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
             var model_number = $(".input-model").val();
         } 
         var dop = $("#purchase_date_1").val();
-        var partner_id = $("#source_code").val();
+        var partner_id = $("#source_code").find(':selected').attr('data-id');
         var service_id = $("#service_id").val();
         var booking_id = 1;
         var booking_create_date = "<?= date('Y-m-d')?>";

@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
@@ -1672,7 +1673,6 @@ class Booking extends CI_Controller {
     function viewdetails($booking_id) {
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
-        $data['defective_history'] = $this->inventory_model->getDefecvtive_history($booking_id);
         $data['file_type'] = $this->booking_model->get_file_type();
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
         if(!empty($data['booking_history'])){
@@ -5962,5 +5962,7 @@ class Booking extends CI_Controller {
         $this->load->view('employee/wrong_spare_part', $data);
     }    
 
+ 
 }
 
+ 

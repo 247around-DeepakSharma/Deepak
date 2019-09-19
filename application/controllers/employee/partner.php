@@ -167,7 +167,6 @@ class Partner extends CI_Controller {
         $this->checkUserSession();
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
-        $data['defective_history'] = $this->inventory_model->getDefecvtive_history($booking_id);
         $data['booking_files'] = $this->booking_model->get_booking_files(array('booking_id' => $booking_id));
         if($data['booking_history'][0]['dealer_id']){ 
             $dealer_detail = $this->dealer_model->get_dealer_details('dealer_name, dealer_phone_number_1', array('dealer_id'=>$data['booking_history'][0]['dealer_id']));
@@ -6537,7 +6536,7 @@ class Partner extends CI_Controller {
             $state = 1;
             $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
         }
-        $select = "spare_parts_details.booking_id,GROUP_CONCAT(spare_parts_details.quantity) as quantity,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
+        $select = "spare_parts_details.booking_id,spare_parts_details.quantity,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "
@@ -6630,14 +6629,12 @@ class Partner extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
-            . ' AND status IN("'.DEFECTIVE_PARTS_SHIPPED.'","'.DEFECTIVE_PARTS_SHIPPED_PENDING.'")  ) OR '
+            . ' AND status = "'.DEFECTIVE_PARTS_SHIPPED.'" ) OR '
             . '(booking_details.current_status ="'._247AROUND_COMPLETED.'" AND '
             . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
             . 'AND spare_parts_details.status = "'.DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH.'"))' => NULL
         );
-
-       // print_r($where);  exit;
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
        }
@@ -6650,7 +6647,6 @@ class Partner extends CI_Controller {
                 . ",spare_parts_details.sf_challan_file,spare_parts_details.quantity,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number";
         $group_by = "spare_parts_details.id";
         $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length'],0,NULL,true);
-
          $bookingCount = $this->service_centers_model->count_spare_parts_booking($where, $select, $group_by,$state);
          $sn = $postData['start'];
          foreach ($bookingData as  $row) {
@@ -6662,6 +6658,7 @@ class Partner extends CI_Controller {
                     $tempArray[] = $row['name'];
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'] ."</span>";
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";
+                    $tempArray[] = "<span>". $row['quantity'] ."</span>";
                     $tempArray[] = "<span>". $row['qty'] ."</span>";
                     $tempArray[] = $row['courier_name_by_sf'];
                     $courier_name_by_sf = "'".$row['courier_name_by_sf']."'";
@@ -6968,7 +6965,7 @@ class Partner extends CI_Controller {
                $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "booking_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "','".DEFECTIVE_PARTS_SHIPPED_PENDING."' ,'".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
         );
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
@@ -6981,7 +6978,7 @@ class Partner extends CI_Controller {
                 ."spare_parts_details.date_of_purchase as 'dop',"
                 ." spare_parts_details.model_number as 'model',"
                 ."spare_parts_details.date_of_purchase as 'dop',"
-                ." spare_parts_details.shipped_quantity, services.services as 'product_name',"
+                ." spare_parts_details.quantity, services.services as 'product_name',"
                 ." users.name,DATEDIFF(CURDATE(),date(booking_details.service_center_closed_date)) as aging,"
                 ." spare_parts_details.courier_name_by_partner,"
                 ." spare_parts_details.awb_by_partner,spare_parts_details.partner_challan_number, i.part_number";
@@ -7001,7 +6998,7 @@ class Partner extends CI_Controller {
                     $tempArray[] = $row['dop'];
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'].'</span>';
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'].'</span>';
-                    $tempArray[] = $row['shipped_quantity'];
+                    $tempArray[] = $row['quantity'];
                     $tempArray[] = $row['courier_name_by_partner'];
                     $tempArray[] = $row['awb_by_partner'];
                     if(!empty($row['partner_challan_file'])) {

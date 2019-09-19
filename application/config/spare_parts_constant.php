@@ -142,7 +142,6 @@ define('NRN_TO_BE_SHIPPED_BY_PARTNER', 'NRN To Be Shipped By Partner');
 define('COURIER_STATUS_FILE_MSG', 'Auto Acknowledged BY Courier Status File');
 define('COURIER_STATUS_FILE_STATUS_DESCRIPTION', 'Delivered at destination city');
 define('SPARE_RECIEVED_NOT_USED', 'Spare recieved but not used');
-
 //MWH auto deliver consumption remove
 define('REMOVE_PART_CONSUMPTION', 'Consumed MSL Part Removed');
 

@@ -457,6 +457,7 @@
     var cloneIndex = $(".clonedInput").length +1;
 
     function clone(){
+        $('.select-model').select2("destroy");
        $(this).parents(".clonedInput").clone()
            .appendTo(".cloned")
            .attr("id", "cat" +  cloneIndex)
@@ -481,6 +482,12 @@
                     $(this).removeClass('hasDatepicker');
                 } 
                  $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
+            });
+           
+            $('.select-model').each(function () {
+                $(this).select2({
+                    width:"239px"
+                });
             });
            
        cloneIndex++;
@@ -560,7 +567,7 @@ function check_booking_request()
         var model_number = $(".input-model").val();
     } 
     var dop = $("#purchase_date_1").val();
-    var partner_id = $("#source_code").val();
+    var partner_id = $("#source_code").find(':selected').attr('data-id');
     var service_id = $("#service_id").val();
     var booking_id = 1;
     var booking_create_date = "<?= date('Y-m-d')?>";
