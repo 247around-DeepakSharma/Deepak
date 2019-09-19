@@ -436,6 +436,7 @@ class Service_centers extends CI_Controller {
                         $bookng_unit_details[$key1]['en_solution_id'] = $en[0]['solution'];
                         $bookng_unit_details[$key1]['en_closing_remark'] = $en[0]['closing_remark'];
                         $bookng_unit_details[$key1]['en_amount_paid'] = $en[0]['amount_paid'];
+                        $bookng_unit_details[$key1]['en_purchase_invoice'] = $en[0]['purchase_invoice'];
                         if ($en[0]['is_broken'] == 1) {
                             $broken = 1;
                         }
