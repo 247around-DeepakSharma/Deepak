@@ -2127,7 +2127,7 @@ class engineerApi extends CI_Controller {
         
             if($requestData['serial_number_pic_exist']){
                 $serial_number_pic = "serial_number_pic_".date("YmdHis").".png";
-                $this->miscelleneous->generate_image($requestData['serial_number_pic_exist'], $serial_number_pic, "misc-images");
+                $this->miscelleneous->generate_image($requestData['serial_number_pic_exist'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
                 $requestData['serial_number_pic'] = $serial_number_pic;
             }
 
