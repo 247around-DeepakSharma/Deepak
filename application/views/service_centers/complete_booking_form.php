@@ -753,12 +753,6 @@
             $('#'+$(this).attr('id').replace("upload_", "")).val($(this).val());
         });
         
-        $('.spare_consumption_status').on('change', function() {
-            if($(this).children("option:selected").data('tag') == '<?php echo WRONG_PART_RECEIVED_TAG; ?>') {
-                open_wrong_spare_part_model($(this).children("option:selected").data('spare_id'), '<?php echo $booking_history[0]['booking_id']; ?>', $(this).children("option:selected").data('part_number'), '<?php echo $booking_history[0]['service_id']; ?>');
-            }
-        })
-        
         if($("#technical_problem").val()){
             update_defect();
         }
