@@ -87,6 +87,7 @@ class Service_centers extends CI_Controller {
             $data['rating'] = 0;
             $data['count'] =  $rating_data[0]['count'];
         }
+        $data['msl'] = $this->get_msl_amounts();
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/pending_booking', $data);
         if(!$this->session->userdata("login_by")){
@@ -6866,38 +6867,46 @@ class Service_centers extends CI_Controller {
             $join['services'] = "services.id = vendor_pincode_mapping.Appliance_ID";
             $data['services'] = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","DISTINCT vendor_pincode_mapping.Appliance_ID as id,services.services",
                  array("Vendor_ID"=>$this->session->userdata('service_center_id')),$join,NULL,array("services.services"=>"ASC"),NULL,NULL,array());
-            $mslSecurityData = $this->reusable_model->get_search_result_data(
-                'vendor_partner_invoices',
-                "vendor_partner, vendor_partner_id, sub_category,(total_amount_collected-amount_paid) as 'amount'",
-                array(
-                    "vendor_partner"=> "vendor",
-                    "vendor_partner_id"=> $this->session->userdata('service_center_id')
-                ),
-                NULL,NULL,NULL,
-                array(
-                    "sub_category"=>array(
-                        MSL_SECURITY_AMOUNT,
-                        MSL_NEW_PART_RETURN,
-                        MSL_DEFECTIVE_RETURN
-                    )
-                ),NULL,array()
-            );
-            $mslSecurityAmount = 0.0;
-            $mslAmount = 0.0;
-            foreach($mslSecurityData as $row){
-                if(!empty($row['sub_category']) && $row['sub_category']==MSL_SECURITY_AMOUNT){
-                    $mslSecurityAmount += floatval($row['amount']);
-                }else if(!empty($row['sub_category']) && ($row['sub_category']==MSL_DEFECTIVE_RETURN || $row['sub_category']==MSL_NEW_PART_RETURN)){
-                    $mslAmount += floatval($row['amount']);
-                }
-            }
-            $mslAmount = $mslSecurityAmount-$mslAmount;
-            $data['msl'] = array(
-                'security'=>sprintf("%01.2f", $mslSecurityAmount),
-                'amount'=>sprintf("%01.2f", $mslAmount)
-            );
+            $data['msl'] = $this->get_msl_amounts();
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/dashboard',$data);
+    }
+    /**
+     * get_msl_amounts() fetch msl amounts
+     * returns array() -> msl amounts
+     */
+    private function get_msl_amounts(){
+        $mslSecurityData = $this->reusable_model->get_search_result_data(
+            'vendor_partner_invoices',
+            "vendor_partner, vendor_partner_id, sub_category,(total_amount_collected-amount_paid) as 'amount'",
+            array(
+                "vendor_partner"=> "vendor",
+                "vendor_partner_id"=> $this->session->userdata('service_center_id')
+            ),
+            NULL,NULL,NULL,
+            array(
+                "sub_category"=>array(
+                    MSL_SECURITY_AMOUNT,
+                    MSL_NEW_PART_RETURN,
+                    MSL_DEFECTIVE_RETURN
+                )
+            ),NULL,array()
+        );
+        $mslSecurityAmount = 0.0;
+        $mslAmount = 0.0;
+        foreach($mslSecurityData as $row){
+            if(!empty($row['sub_category']) && $row['sub_category']==MSL_SECURITY_AMOUNT){
+                $mslSecurityAmount += floatval($row['amount']);
+            }else if(!empty($row['sub_category']) && ($row['sub_category']==MSL_DEFECTIVE_RETURN || $row['sub_category']==MSL_NEW_PART_RETURN)){
+                $mslAmount += floatval($row['amount']);
+            }
+        }
+        $mslAmount = $mslSecurityAmount-$mslAmount;
+        $msl = array(
+            'security'=>sprintf("%01.2f", $mslSecurityAmount),
+            'amount'=>sprintf("%01.2f", $mslAmount)
+        );
+        return $msl;
     }
     
     function check_warehouse_shipped_awb_exist(){
