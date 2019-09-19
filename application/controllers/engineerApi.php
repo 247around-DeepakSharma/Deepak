@@ -3055,14 +3055,14 @@ class engineerApi extends CI_Controller {
             if($warranty_status){
                 if(!$edit_call_type){
                     log_message("info", __METHOD__ . " Warraranty status successfully varified. ");
-                    $this->jsonResponseString['response'] = array("warranty_flag" => 0, "message" => "Warraranty status successfully varified");
+                    $this->jsonResponseString['response'] = $response;
                     $this->sendJsonResponse(array('0000', "Warraranty status successfully varified"));
                 }
             }
             else{ 
                 if(!empty($warranty_status_holder)){
                     log_message("info", __METHOD__ . $warranty_status_holder['message']);
-                    $this->jsonResponseString['response'] = array("warranty_flag" => $warranty_status_holder['status'], "message" => $warranty_status_holder['message']);
+                    $this->jsonResponseString['response'] = $response;
                     $this->sendJsonResponse(array('0056', $warranty_status_holder['message']));
                 }
             }
