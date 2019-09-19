@@ -461,8 +461,8 @@ class Service_centers_model extends CI_Model {
     }
 
 
-    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL, $is_defective_required = false){
-        $this->_spare_parts_booking_query($where, $select,$state, $is_defective_required);
+    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL){
+        $this->_spare_parts_booking_query($where, $select,$state);
 
  
         if($group_by){
@@ -486,7 +486,7 @@ class Service_centers_model extends CI_Model {
     
 
 
-    function _spare_parts_booking_query($where, $select,$state=0, $is_defective_required = false){
+    function _spare_parts_booking_query($where, $select,$state=0){
 
         $this->db->select($select, false);
         $this->db->from('spare_parts_details');
@@ -496,10 +496,6 @@ class Service_centers_model extends CI_Model {
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
         $this->db->join("services","booking_details.service_id = services.id", "left");
 
-
-        if(!empty($is_defective_required)) {
-            $this->db->join('spare_qty_mgmt', 'spare_parts_details.id =  spare_qty_mgmt.spare_id', 'left');
-        }
 
         $this->db->where($where, false);  
         if($state == 1){

@@ -1118,7 +1118,7 @@ class engineerApi extends CI_Controller {
             $login = $this->dealer_model->entity_login(array("entity" => "engineer", 
             "active" =>1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if(!empty($login)){
-                $engineer  = $this->engineer_model->get_engineers_details(array("id" => $login[0]['entity_id']), "service_center_id, name");
+                $engineer  = $this->engineer_model->get_engineers_details(array("id" => $login[0]['entity_id'], "active" => 1), "service_center_id, name");
                 if(!empty($engineer)){
                     $sc_agent = $this->service_centers_model->get_sc_login_details_by_id($engineer[0]['service_center_id']);
                     $data[0]['service_center_id'] = $engineer[0]['service_center_id'];
@@ -1172,9 +1172,9 @@ class engineerApi extends CI_Controller {
                     }
                     
                     if(isset($value["purchase_invoice"])){
-                        $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".rand(10,100).".png";
+                        $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".date("YmdHis").".png";
 
-                        $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "engineer-uploads");
+                        $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "misc-images");
 
                         $data["purchase_invoice"] = $purchase_inv_url;
                     }
@@ -1344,7 +1344,7 @@ class engineerApi extends CI_Controller {
                         "Booking Cancelled By Engineer From App", 
                         $requestData['sc_agent_id'], "",ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
 
-                $this->sendJsonResponse(array('0000', 'success'));
+                $this->sendJsonResponse(array('0000', 'Booking Cancelled Successfully'));
             } else {
                 $this->sendJsonResponse(array('0019', $status));
             }
@@ -2107,7 +2107,14 @@ class engineerApi extends CI_Controller {
         $requestData["call_from_api"] = TRUE;
         $validation = $this->validateSparePartsOrderRequest($requestData);
         if($validation['status']){ 
+            /*Check part warranty status*/
+            $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
             foreach ($requestData['part'] as $key => $value){
+                if(strpos($bookingDetails[0]['request_type'],'Out Of Warranty') == true || strpos($bookingDetails[0]['request_type'],'Gas Recharge - Out') == true ){
+                    $requestData['part'][$key]['part_warranty_status'] = 2;
+                }else{
+                    $requestData['part'][$key]['part_warranty_status'] = 1;
+                }
                 //upload defective front part pic
                 if($value["defective_front_parts"]){
                     $defective_part_pic = "Defective_Parts_".date("YmdHis").".png";
@@ -2126,7 +2133,7 @@ class engineerApi extends CI_Controller {
         
             if($requestData['serial_number_pic_exist']){
                 $serial_number_pic = "serial_number_pic_".date("YmdHis").".png";
-                $this->miscelleneous->generate_image($requestData['serial_number_pic_exist'], $serial_number_pic, "misc-images");
+                $this->miscelleneous->generate_image($requestData['serial_number_pic_exist'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
                 $requestData['serial_number_pic'] = $serial_number_pic;
             }
 
@@ -2135,7 +2142,7 @@ class engineerApi extends CI_Controller {
                 $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "misc-images");
                 $requestData['invoice_pic'] = $invoice_pic;
             }
-        
+            
             //Call curl for updating spare parts using code from where service center ask for spare parts
             $url = base_url()."employee/service_centers/update_spare_parts"; 
             $ch = curl_init($url);
@@ -2770,7 +2777,7 @@ class engineerApi extends CI_Controller {
         else{
             if($db_warranty_status = "IW"){
                 if((strpos($request_type, 'Out Of Warranty')) || (strpos($request_type, 'Out Warranty'))){
-                    $data['warranty_flag'] = 2;
+                    $data['warranty_flag'] = 0;
                     $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching with current request type (".$request_type.") of booking, but if needed you may proceed with current request type.";
                 }
                 else{
@@ -3039,16 +3046,15 @@ class engineerApi extends CI_Controller {
                 
                 foreach ($request_types as $request_typess){
                     $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings); 
-                    $arrBookings[0]['booking_request_types'] = $request_typess;
-                    $arrWarrantyData = $this->warranty_utilities->match_warranty_status_with_request_type($arrBookings, $arrBookingsWarrantyStatus);
-                    $response = json_decode($arrWarrantyData, true);
-                    if($response['status'] == 1){
-                        $warranty_status = false;
-                        $warranty_status_holder = $response;
-                        $edit_call_type = false;
-                        $warranty_checker = false;
-                        break;
-                    }
+                        $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
+                        $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type);
+                        if($response['warranty_flag'] == 1){
+                            $warranty_status = false;
+                            $warranty_status_holder = $response;
+                            $edit_call_type = false;
+                            $warranty_checker = false;
+                            break;
+                        }
                 }
             } 
            
@@ -3188,12 +3194,12 @@ class engineerApi extends CI_Controller {
                 
                 if(!empty($warranty_status_holder)){ 
                      if($warranty_status_holder['warranty_flag'] != 2){
-                        $this->jsonResponseString['response'] = $response;
+                        $this->jsonResponseString['response'] = array("warranty_flag" => $response['warranty_flag'], "message" => $response['message']);
                         $this->sendJsonResponse(array('0000', 'success'));
                      }
                 }
                 else{ 
-                    $this->jsonResponseString['response'] = $response;
+                    $this->jsonResponseString['response'] = array("warranty_flag" => $response['warranty_flag'], "message" => $response['message']);
                     $this->sendJsonResponse(array('0000', 'success'));
                 }            
             }

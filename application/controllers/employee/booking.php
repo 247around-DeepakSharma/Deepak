@@ -2602,9 +2602,9 @@ class Booking extends CI_Controller {
                     $status = COURIER_LOST;
                 }
                 
-                if($consumption_status_tag == PART_CANCELLED_STATUS_TAG && empty($spare_part_detail['parts_shipped'])) {
-                    $status = _247AROUND_CANCELLED;
-                }
+//                if($consumption_status_tag == PART_CANCELLED_STATUS_TAG && empty($spare_part_detail['parts_shipped'])) {
+//                    $status = _247AROUND_CANCELLED;
+//                }
                 
                 if($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG) {
                     $status = OK_PART_TO_BE_SHIPPED;
@@ -2620,9 +2620,9 @@ class Booking extends CI_Controller {
                     $status = DAMAGE_PART_TO_BE_SHIPPED;
                 }
 
-                if($consumption_status_tag == PART_NRN_APPROVED_STATUS_TAG) {
-                    $status = NRN_APPROVED_BY_PARTNER;
-                }
+//                if($consumption_status_tag == PART_NRN_APPROVED_STATUS_TAG) {
+//                    $status = NRN_APPROVED_BY_PARTNER;
+//                }
                 
                 $this->reusable_model->update_table('spare_parts_details', [
                     'consumed_part_status_id' => $status_id,
@@ -5939,11 +5939,11 @@ class Booking extends CI_Controller {
      * @param type $id
      * @param type $partner_id
      */
-    function wrong_spare_part($booking_id, $spare_part_detail_id, $part_name) {
+    function wrong_spare_part($booking_id) {
         
         $post_data = $this->input->post();
         $data['booking_id'] = $booking_id;
-        $data['spare_part_detail_id'] = $spare_part_detail_id;
+        $data['spare_part_detail_id'] = $post_data['spare_part_detail_id'];
         $data['part_name'] = $post_data['part_name'];
         $data['service_id'] = $post_data['service_id'];
         $data['parts'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name', ['service_id' => $data['service_id'], 'inventory_id not in (1,2)' => NULL]);

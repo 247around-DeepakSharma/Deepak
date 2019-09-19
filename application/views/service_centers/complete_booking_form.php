@@ -199,17 +199,20 @@
                                            
                                             <input type="file" name="sf_purchase_invoice" 
                                                    onchange="update_purchase_invoice_for_unit('<?php echo $key1?>')"  id="<?php echo "purchase_invoice_".$key1?>" class="form-control purchase-invoice"
-                                                   value="<?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {  echo $booking_history['spare_parts'][0]['invoice_pic']; } ?>"
+                                                   value="<?php if($this->session->userdata('is_engineer_app') == 1 && !is_null($bookng_unit_details[0]['en_purchase_invoice'])){ echo $bookng_unit_details[0]['en_purchase_invoice']; } else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {  echo $booking_history['spare_parts'][0]['invoice_pic']; } ?>"
                                             >
                                             
                                             <?php $src = base_url() . 'images/no_image.png';
                                             $image_src = $src;
-                                            if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {
+                                            if($this->session->userdata('is_engineer_app') == 1 && !is_null($bookng_unit_details[0]['en_purchase_invoice'])){
+                                                $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$bookng_unit_details[0]['en_purchase_invoice'];
+                                            } 
+                                            else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {
                                                 //Path to be changed
                                                 $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history['spare_parts'][0]['invoice_pic'];
                                             }
                                             ?>
-                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?= (!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic']) ? "View Purchase Invoice Pic" : ""); ?></small></a>
+                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?php if($this->session->userdata('is_engineer_app') == 1 && !is_null($bookng_unit_details[0]['en_purchase_invoice'])){ echo "View Purchase Invoice Pic"; } else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])){ echo "View Purchase Invoice Pic"; } else{ echo ""; } ?></small></a>
                                             
                                             
                                         </div>
@@ -324,7 +327,7 @@
                                                                             }
                                                                         }
                                                                         
-                                                                        if ($price['product_or_services'] == "Product" && $price['customer_net_payable'] == 0) { 
+                                                                        if ($price['product_or_services'] !== "Product" || (($price['product_or_services'] == "Product") && $price['customer_net_payable'] == 0)) { 
                                                                            if(isset($price['en_parts_cost'])){
                                                                             $parts_cost = $price['en_parts_cost'];
                                                                            }
@@ -1230,7 +1233,7 @@
     function open_wrong_spare_part_model(spare_part_detail_id, booking_id, part_name, service_id) {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/service_centers/wrong_spare_part/' + booking_id + "/" +spare_part_detail_id+'/'+part_name,
+            url: '<?php echo base_url(); ?>employee/service_centers/wrong_spare_part/' + booking_id,
             data: {spare_part_detail_id:spare_part_detail_id, booking_id:booking_id, part_name:part_name, service_id:service_id},
             success: function (data) {
                 $("#wrong_spare_part_model").children('.modal-content').children('.modal-body').html(data);   
