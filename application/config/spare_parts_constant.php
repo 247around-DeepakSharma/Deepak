@@ -132,6 +132,7 @@ define('MSL_TRANSFERED_BY_WAREHOUSE', "2");
 define('GAS_RECHARGE_IN_WARRANTY', 'Gas Recharge - In Warranty');
 define('GAS_RECHARGE_OUT_OF_WARRANTY', 'Gas Recharge - Out of Warranty');
 define('MSL_TRANSFERED_BY_PARTNER_BY_EXCEL', 'Msl send by partner by excel upload');
+
 define('AMC_PRICE_TAGS', 'AMC (Annual Maintenance Contract)');
 define('UNABLE_TO_COMPLETE_BOOKING_INVOICE_GENERATED_MSG', 'Invoice has been generated so booking can not be updated.');
 
@@ -160,3 +161,6 @@ define('PART_NRN_APPROVED_STATUS_TAG', 'nrn_approved');
 define('OK_PART_TO_BE_SHIPPED', 'Ok Part To Be Shipped');
 define('DAMAGE_PART_TO_BE_SHIPPED', 'Damage Part To Be Shipped');
 
+
+define('COURIER_STATUS_FILE_MSG', 'Auto Acknowledged BY Courier Status File');
+define('COURIER_STATUS_FILE_STATUS_DESCRIPTION', 'Delivered at destination city');

@@ -55,6 +55,8 @@ class Do_background_upload_excel extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->model('vendor_model');
         $this->load->model('reporting_utils');
+        $this->load->model('inventory_model');
+        $this->load->model('service_centers_model');
         $this->load->library('s3');
         $this->load->library('email');
     }
@@ -1624,6 +1626,10 @@ class Do_background_upload_excel extends CI_Controller {
                     $response['file_tmp_name'] = $_FILES['file']['tmp_name'];
                     $response['file_ext'] = 'Excel5';
                     break;
+                case 'csv':
+                    $response['file_tmp_name'] = $_FILES['file']['tmp_name'];
+                    $response['file_ext'] = 'csv';
+                    break;    
             }
 
             $response['status'] = True;
@@ -2005,6 +2011,244 @@ class Do_background_upload_excel extends CI_Controller {
             $num += (ord(strtolower($arr[$i])) - 96) * (pow(26, $i));
         }
         return $num - 1;
+    }
+
+    /**
+     * Process the courier status file after reading email came from the courier partner
+     *
+     * @access  public
+     * @param   void
+     * @return  void
+     */
+    function process_courier_status_file() {
+        log_message("info", __METHOD__ . " Courier Status File: Beginning processing...");
+
+        //get all the post data
+        $upload_file_type = $this->input->post('file_type');
+        $redirect_to = $this->input->post('redirect_to');
+        $partner_id = $this->input->post('partner_id');
+        $this->is_send_file_back = $this->input->post('is_file_send_back');
+        $this->revert_file_email = $this->input->post('revert_file_email');
+        $this->email_send_to = $this->input->post('email_send_to');
+
+
+        //get email msg id in the case of automatic file upload
+        $this->email_message_id = !($this->input->post('email_message_id') === NULL) ? $this->input->post('email_message_id') : '';
+
+        //get file extension and file tmp name
+        $file_status = $this->get_upload_file_type();
+
+        //if file type is valid then validate header for processing
+        if ($file_status['status']) {
+            //get file header
+            $response = $this->read_courier_status_file_header($file_status);
+
+            //if file uploaded successfully then log else send email 
+            if ($response['status']) {
+
+                $proceed_data = $this->do_operation_on_courier_status_file($response['msg']);
+                log_message("info", "Courier File Uploaded successfully");
+                $file_upload_id = $this->miscelleneous->update_file_uploads($file_status['file_tmp_name'], TMP_FOLDER . $file_status['file_tmp_name'], $upload_file_type, FILE_UPLOAD_SUCCESS_STATUS, $this->email_message_id, "partner", $partner_id);
+            } else {
+
+                $file_upload_id = $this->miscelleneous->update_file_uploads($file_status['file_tmp_name'], TMP_FOLDER . $file_status['file_tmp_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, $this->email_message_id, "partner", $partner_id);
+                    
+                if (empty($this->email_send_to)) {
+                    if (empty($this->session->userdata('official_email'))) {
+                        if (!empty($get_partner_am_id[0]['account_manager_id'])) {
+                            $to = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
+                            } else {
+                                $to = _247AROUND_SALES_EMAIL;
+                            }
+                        } else {
+                            $to = $this->session->userdata('official_email');
+                        }
+                    } else {
+                        $to = $this->email_send_to;
+                    }
+
+                    $cc = NITS_ANUJ_EMAIL_ID;
+                    $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
+                    $subject = "Failed!".$upload_file_type."  File uploaded by " . $agent_name;
+                    $body = $response['msg'];
+                    $body .= "<br> <b>File Name</b> " . $file_status['file_name'];
+                    $attachment = TMP_FOLDER . $file_status['file_name'];
+                    $this->notify->sendEmail("noreply@247around.com", $to, $cc, "", $subject, $body, $attachment, FILE_UPLOAD_FAILED_STATUS);
+                }
+        }else{
+            log_message('info', __FUNCTION__. " Courier Status File type invalid");
+        }
+    }
+
+
+    /**
+     * Process the courier status file after reading email came from the courier partner
+     *
+     * @access  private
+     * @param   array
+     * @return  array
+     */
+    private function read_courier_status_file_header($file) {
+        log_message("info", __METHOD__.' extractig file data');
+        $file = $_FILES['file']['tmp_name'];
+
+        $handle = fopen($file, "r");
+        $header = [];
+        $courierStatusFileData = [];
+        $escapeCounter = 0;
+
+        while (($data = fgetcsv($handle, 1000, ",")) !== FALSE) {
+            if ($escapeCounter > 0) {
+                array_shift($data);
+                $fileData = array_combine($header, $data);
+
+                $formated_data = $this->format_courier_status_file_data($fileData);
+
+                array_push($courierStatusFileData,$formated_data);
+            } else {
+               
+                $s = $this->check_courier_file_column_exist($data);
+
+                if (!$s['status']) {
+                   return $s;
+                }else{
+                    array_shift($s['header']);
+                    $header = $s['header'];
+                }
+            }
+            $escapeCounter = $escapeCounter + 1;
+        }
+        fclose($handle);
+
+        if(!empty($courierStatusFileData)){
+            $insert_batch_data = $this->inventory_model->insert_courier_status_details($courierStatusFileData);
+            log_message('info',__METHOD__.' inserted courier details id '. $insert_batch_data);
+            $returnData = array('status' => TRUE, 'msg' => $courierStatusFileData);
+        }else{
+            log_message('info',__METHOD__.' No Data found to insert in courier Status');
+            $returnData = array('status' => FALSE, 'msg' => 'No Data Found For Courier Status File');   
+        }
+
+        return $returnData;
+    }
+
+
+    private function format_courier_status_file_data($data) {
+        log_message('info', __METHOD__,' formatting the courier file data...');
+
+        $data['bkg_dt'] = Date('Y-m-d',strtotime($data['bkg_dt']));
+        $data['assured_dly_dt'] = Date('Y-m-d',strtotime($data['assured_dly_dt']));
+        $data['delivery_date'] = !empty($data['delivery_date']) ? Date('Y-m-d',strtotime($data['delivery_date'])) : null;
+
+        return $data;
+    }
+
+    /**
+     * validate courier file column
+     *
+     * @access  private
+     * @param   array
+     * @return  array
+     */
+    private function check_courier_file_column_exist($data){
+        log_message('info', __METHOD__.' validating courier status file header');
+
+        $select = 'docket_number, booking_station, delivery_station, consignee_name, courier_booking_date, assured_delivery_date, delivery_date, docket_status, docket_current_status';
+        $actual_header_data = $this->reusable_model->get_search_query('courier_file_upload_header_mapping', $select, 
+            array('courier_partner_id' => $this->input->post('partner_id')), NULL, NULL, NULL, NULL, NULL)->result_array();
+
+        if(!empty($actual_header_data)){
+            $file_header = array_filter(array_map(function($val) { return trim(strtolower($val));}, $data));
+
+            $is_all_header_present = array_diff(array_values($actual_header_data[0]), $file_header);
+            
+            if (empty($is_all_header_present)) {
+                $return_response['status'] = TRUE;
+                $return_response['msg'] = '';
+                $return_response['header'] = $file_header;
+            } else {
+                
+                $this->Columfailed = "<b>" . implode($is_all_header_present, ',') . " </b> column does not exist.Please correct these and send again. <br><br>";
+                $return_response['status'] = FALSE;
+                $return_response['msg'] = $this->Columfailed;
+            }
+        }else{
+            $return_response['status'] = FALSE;
+            $return_response['msg'] = 'It looks like no courier header exists in our record for given file';
+        }
+
+
+        return $return_response;
+    }
+
+    /**
+     * Process the courier status file after reading email came from the courier partner
+     *
+     * @access  public
+     * @param   array
+     * @return  array
+     */
+    public function do_operation_on_courier_status_file($data){
+        log_message('info', __FUNCTION__ . "=>Courier File Uploaded: Doing Operation on file data...");
+
+        if(!empty($data)){
+            for($i = 0; $i < count($data); $i++){
+                if($data[$i]['docket_status'] === 'TRAVELLING'){
+                    $where = array('spare_parts_details.awb_by_partner' => $data[$i]['docket_no']);
+                    $select = 'spare_parts_details.id,spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.awb_by_partner';
+                    $booking_details = $this->service_centers_model->get_spare_parts_booking($where, $select);
+
+                    if(!empty($booking_details)){
+                        $this->update_spare_status_by_courier_status_file($booking_details,$data[$i]);
+                    }else{
+                        log_message('info', __FUNCTION__.' No Data Found for '. $data[$i]['docket_no']. ' in spare part details table');
+                    }
+                }
+            }
+        }else{
+            log_message('info', __FUNCTION__.' no data found to process');
+        }
+
+    }
+
+
+    /**
+     * update status of the booking after courier status file uploaded
+     *
+     * @access  public
+     * @param   array
+     * @return  void
+     */
+    public function update_spare_status_by_courier_status_file($data,$fileData){
+        log_message('info', __FUNCTION__.' processing updation of spare status after courier status file upload');
+
+        foreach($data as $value){
+            log_message('info', __FUNCTION__.' inserting data into courier tracking table...');
+            $tmp_arr = array();
+            $tmp_arr['api_id'] = null;
+            $tmp_arr['awb_number'] = $value['awb_by_partner'];
+            $tmp_arr['carrier_code'] = 'gati-kwe';
+            $tmp_arr['spare_id'] = $value['id'];
+            $tmp_arr['checkpoint_status_date'] = $fileData['delivery_date'];
+            $tmp_arr['checkpoint_status'] = strtolower(DELIVERED_SPARE_STATUS);
+            $tmp_arr['checkpoint_status_details'] = $fileData['delivery_stn'];
+            $tmp_arr['checkpoint_status_description'] = COURIER_STATUS_FILE_STATUS_DESCRIPTION;
+            $tmp_arr['final_status'] = strtolower(DELIVERED_SPARE_STATUS);
+            $tmp_arr['create_date'] = date('Y-m-d H:i:s');
+            $tmp_arr['remarks'] = COURIER_STATUS_FILE_MSG;
+
+            $insert_data = $this->inventory_model->insert_courier_api_data($data_to_insert);
+
+            if($insert_data){
+                log_message('info', __FUNCTION__.' updating booking status after courier status file uploaded...');
+                $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/".$value['booking_id'].'/'.$value['service_center_id'].'/'.$value['id'].'/'.$value['partner_id'].'/'.TRUE;
+                $pcb = array();
+                $this->asynchronous_lib->do_background_process($cb_url, $pcb);
+            }else{
+                log_message('info', __FUNCTION__. ' Data not inserted... '. print_r($tmp_arr,TRUE));
+            }
+            
+        }
     }
 
 }
