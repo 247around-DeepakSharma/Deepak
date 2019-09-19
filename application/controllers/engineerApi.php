@@ -1209,9 +1209,9 @@ class engineerApi extends CI_Controller {
                     }
                     
                     if(isset($value["purchase_invoice"])){
-                        $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".rand(10,100).".png";
+                        $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".date("YmdHis").".png";
 
-                        $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "engineer-uploads");
+                        $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "misc-images");
 
                         $data["purchase_invoice"] = $purchase_inv_url;
                     }
