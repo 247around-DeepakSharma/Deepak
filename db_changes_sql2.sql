@@ -588,7 +588,6 @@ ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_part_type_in
 ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_plan_id_warranty_plan_plan_id FOREIGN KEY (plan_id) REFERENCES warranty_plans (plan_id);
 
 
-<<<<<<< HEAD
 --- Abhishek -----
 
 CREATE TABLE spare_nrn_approval ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `booking_id` VARCHAR(50) NOT NULL ,  `email_to` VARCHAR(100) NULL DEFAULT NULL ,  `remark` TEXT NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
