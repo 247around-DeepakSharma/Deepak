@@ -1315,47 +1315,73 @@ class engineerApi extends CI_Controller {
     function processCancelBookingByEngineer(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if(!empty($requestData["bookingID"]) && !empty($requestData["cancellationReason"])){
-            
-            $data['current_status'] = "InProcess";
-            $data['internal_status'] = _247AROUND_CANCELLED;
-            $data['cancellation_reason'] = $requestData["cancellationReason"];
-            $data['cancellation_remark'] = $requestData["remarks"];
-            $data["closed_date"] = date("Y-m-d H:i:s");
-            $this->engineer_model->update_engineer_table($data, array( "booking_id" =>$requestData["bookingID"] ));
-            
-            $en["booking_id"] = $requestData["bookingID"];
-            $en["remarks"] = "Booking Cancelled By Engineer From App";
-            $en['closed_date'] = date("Y-m-d H:i:s");
             $bookinghistory = $this->booking_model->getbooking_history($requestData["bookingID"]);
-            if(!empty($requestData['location']) ){
-                $location = json_decode($requestData['location'], true);
-                $en["pincode"] = $location['pincode'];
-                $en["city"] = $location['city'];
-                $en["address"] = $location['address'];
-                $en["latitude"] = $location['latitude'];
-                $en["longitude"] = $location['longitude'];
-                if($bookinghistory[0]['booking_pincode'] != $location['pincode']){
-                    $en['mismatch_pincode']  = 1;
+            /* check spare part oredered status on booking which need to be cancel */
+            $isdisable = false; 
+            if(isset($bookinghistory['spare_parts'])){ 
+                foreach($bookinghistory['spare_parts'] as $sp){
+                    switch ($sp['status']){
+                        case SPARE_PARTS_REQUESTED: 
+                             $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                             $isdisable= true;
+                            break;
+                        case SPARE_SHIPPED_BY_PARTNER:
+                        case SPARE_DELIVERED_TO_SF:
+                        case DEFECTIVE_PARTS_REJECTED:
+                        case DEFECTIVE_PARTS_RECEIVED:
+                        case DEFECTIVE_PARTS_SHIPPED:
+                        case DEFECTIVE_PARTS_PENDING:
+                        case SPARE_OOW_SHIPPED:
+                             $status = CANCEL_PAGE_SPARE_SHIPPED;
+                             $isdisable= true;
+                             break;
+                    }
+
                 }
-               
             }
-            $en["service_center_id"] = $requestData['service_center_id'];
-            $en["engineer_id"] = $requestData['engineer_id'];
-            $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $data["booking_id"]));
-            if(!empty($is_exist)){
-                $this->engineer_model->update_engineer_action_sig(array("id"=> $is_exist[0]['id']), $en);
+            if(!$isdisable){
+                $data['current_status'] = "InProcess";
+                $data['internal_status'] = _247AROUND_CANCELLED;
+                $data['cancellation_reason'] = $requestData["cancellationReason"];
+                $data['cancellation_remark'] = $requestData["remarks"];
+                $data["closed_date"] = date("Y-m-d H:i:s");
+                $this->engineer_model->update_engineer_table($data, array( "booking_id" =>$requestData["bookingID"] ));
+
+                $en["booking_id"] = $requestData["bookingID"];
+                $en["remarks"] = "Booking Cancelled By Engineer From App";
+                $en['closed_date'] = date("Y-m-d H:i:s");
+
+                if(!empty($requestData['location']) ){
+                    $location = json_decode($requestData['location'], true);
+                    $en["pincode"] = $location['pincode'];
+                    $en["city"] = $location['city'];
+                    $en["address"] = $location['address'];
+                    $en["latitude"] = $location['latitude'];
+                    $en["longitude"] = $location['longitude'];
+                    if($bookinghistory[0]['booking_pincode'] != $location['pincode']){
+                        $en['mismatch_pincode']  = 1;
+                    }
+
+                }
+                $en["service_center_id"] = $requestData['service_center_id'];
+                $en["engineer_id"] = $requestData['engineer_id'];
+                $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $data["booking_id"]));
+                if(!empty($is_exist)){
+                    $this->engineer_model->update_engineer_action_sig(array("id"=> $is_exist[0]['id']), $en);
+                } else {
+                    $this->engineer_model->insert_engineer_action_sign($en);
+                }
+
+                $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING, 
+                        "Booking Cancelled By Engineer From App", 
+                        $requestData['sc_agent_id'], "",ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
+
+                $this->sendJsonResponse(array('0000', 'Booking Cancelled Successfully'));
             } else {
-                $this->engineer_model->insert_engineer_action_sign($en);
+                $this->sendJsonResponse(array('0019', $status));
             }
-           
-            $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING, 
-                    "Booking Cancelled By Engineer From App", 
-                    $requestData['sc_agent_id'], "",ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
-            
-            $this->sendJsonResponse(array('0000', 'success'));
-             
         } else {
-            $this->sendJsonResponse(array('0019', 'Failure'));
+            $this->sendJsonResponse(array('0020', 'Failure'));
         }
     }
 
@@ -2150,7 +2176,14 @@ class engineerApi extends CI_Controller {
         $requestData["call_from_api"] = TRUE;
         $validation = $this->validateSparePartsOrderRequest($requestData);
         if($validation['status']){ 
+            /*Check part warranty status*/
+            $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
             foreach ($requestData['part'] as $key => $value){
+                if(strpos($bookingDetails[0]['request_type'],'Out Of Warranty') == true || strpos($bookingDetails[0]['request_type'],'Gas Recharge - Out') == true ){
+                    $requestData['part'][$key]['part_warranty_status'] = 2;
+                }else{
+                    $requestData['part'][$key]['part_warranty_status'] = 1;
+                }
                 //upload defective front part pic
                 if($value["defective_front_parts"]){
                     $defective_part_pic = "Defective_Parts_".date("YmdHis").".png";
@@ -2178,7 +2211,7 @@ class engineerApi extends CI_Controller {
                 $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "misc-images");
                 $requestData['invoice_pic'] = $invoice_pic;
             }
-        
+            
             //Call curl for updating spare parts using code from where service center ask for spare parts
             $url = base_url()."employee/service_centers/update_spare_parts"; 
             $ch = curl_init($url);
