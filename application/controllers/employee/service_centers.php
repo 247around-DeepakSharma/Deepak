@@ -5872,6 +5872,28 @@ class Service_centers extends CI_Controller {
             $this->check_WH_UserSession();
         }
 
+        // get spare part detail.
+        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_detail', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        if(!empty($spare_part_detail['consumed_part_status_id'])) {
+            $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
+            if(!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag, [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG])) {
+                // part stock in.
+                $in = [];
+                $in['receiver_entity_id'] = $this->session->userdata('service_center_id');
+                $in['receiver_entity_type'] = _247AROUND_SF_STRING;
+                $in['sender_entity_id'] = $spare_part_detail['service_center_id'];
+                $in['sender_entity_type'] = _247AROUND_SF_STRING;
+                $in['booking_id'] = $booking_id;
+                $in['inventory_id'] = $spare_part_detail['shipped_inventory_id'];
+                $in['agent_id'] = $this->session->userdata('service_center_id');    
+                $in['is_wh'] = TRUE;
+                $in['agent_type'] = _247AROUND_SF_STRING;
+                $in['stock'] = $spare_part_detail['shipped_quantity'];
+
+                $this->miscelleneous->process_inventory_stocks($in);            
+            }
+        }
+        
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED,
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
