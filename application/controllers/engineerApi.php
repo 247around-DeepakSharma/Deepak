@@ -2777,7 +2777,7 @@ class engineerApi extends CI_Controller {
         else{
             if($db_warranty_status = "IW"){
                 if((strpos($request_type, 'Out Of Warranty')) || (strpos($request_type, 'Out Warranty'))){
-                    $data['warranty_flag'] = 2;
+                    $data['warranty_flag'] = 0;
                     $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching with current request type (".$request_type.") of booking, but if needed you may proceed with current request type.";
                 }
                 else{
@@ -3046,16 +3046,15 @@ class engineerApi extends CI_Controller {
                 
                 foreach ($request_types as $request_typess){
                     $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings); 
-                    $arrBookings[0]['booking_request_types'] = $request_typess;
-                    $arrWarrantyData = $this->warranty_utilities->match_warranty_status_with_request_type($arrBookings, $arrBookingsWarrantyStatus);
-                    $response = json_decode($arrWarrantyData, true);
-                    if($response['status'] == 1){
-                        $warranty_status = false;
-                        $warranty_status_holder = $response;
-                        $edit_call_type = false;
-                        $warranty_checker = false;
-                        break;
-                    }
+                        $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
+                        $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type);
+                        if($response['warranty_flag'] == 1){
+                            $warranty_status = false;
+                            $warranty_status_holder = $response;
+                            $edit_call_type = false;
+                            $warranty_checker = false;
+                            break;
+                        }
                 }
             } 
            
@@ -3195,12 +3194,12 @@ class engineerApi extends CI_Controller {
                 
                 if(!empty($warranty_status_holder)){ 
                      if($warranty_status_holder['warranty_flag'] != 2){
-                        $this->jsonResponseString['response'] = array("warranty_flag" => $response['status'], "message" => $response['message']);
+                        $this->jsonResponseString['response'] = array("warranty_flag" => $response['warranty_flag'], "message" => $response['message']);
                         $this->sendJsonResponse(array('0000', 'success'));
                      }
                 }
                 else{ 
-                    $this->jsonResponseString['response'] = array("warranty_flag" => $response['status'], "message" => $response['message']);
+                    $this->jsonResponseString['response'] = array("warranty_flag" => $response['warranty_flag'], "message" => $response['message']);
                     $this->sendJsonResponse(array('0000', 'success'));
                 }            
             }
