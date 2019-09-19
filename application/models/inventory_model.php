@@ -350,7 +350,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('partners','partners.id = booking_details.partner_id', "left");
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
-        $this->db->join('inventory_master_list iml',"iml.part_name=spare_parts_details.parts_requested","left");
+        /*$this->db->join('inventory_master_list iml',"iml.part_name=spare_parts_details.parts_requested","left");*/
         if(isset($post['is_inventory'])){
             
             $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
@@ -2937,32 +2937,4 @@ class Inventory_model extends CI_Model {
         
         return $query->result_array();
     }
-
-
-    function insert_defective_ledger_data($data){
-
-       $this->db->insert('spare_qty_mgmt',$data);
-       if($this->db->affected_rows() > 0){
-           $res = TRUE;
-       }else{
-           $res = FALSE;
-       }
-       
-       return $res;
-
-   }    
-   
-    function update_qty_ledger_mgmt($data,$where){
-
-       $this->db->where($where);
-       $this->db->update('spare_qty_mgmt',$data);
-       if($this->db->affected_rows() > 0){
-           $res = TRUE;
-       }else{
-           $res = FALSE;
-       }
-       
-       return $res;
-   }   
- 
 }
