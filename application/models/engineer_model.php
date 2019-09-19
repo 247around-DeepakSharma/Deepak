@@ -253,6 +253,7 @@ class Engineer_model extends CI_Model {
                 JOIN entity_identity_proof on entity_identity_proof.entity_id = engineer_details.id AND entity_identity_proof.entity_type = 'engineer' 
                 JOIN engineer_appliance_mapping on engineer_appliance_mapping.engineer_id = engineer_details.id
                 JOIN services on services.id = engineer_appliance_mapping.service_id
+                JOIN service_centres on service_centres.id = engineer_details.service_center_id
                 WHERE engineer_details.id = '".$enginner_id."' GROUP BY engineer_appliance_mapping.engineer_id";
         $query = $this->db->query($sql);
         return $query->result_array();
