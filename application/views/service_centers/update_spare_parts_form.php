@@ -660,6 +660,7 @@
                             $('#shippedpartsnumber_' +sp_id).html(data).change();
                             $('#spinner_'+ sp_id).removeClass('fa fa-spinner').hide();
                             $('#shippedpartsnumber_' + sp_id).select2();
+                            $("#shippedquantity_"+sp_id).removeAttr("readonly");
 
                             }
                     });
@@ -723,7 +724,7 @@
                 .find('[id="remarks"]').attr('name', 'part[' + partIndex + '][remarks_by_partner]').attr('id','remarks_'+partIndex).end()
                 .find('[id="approx_value"]').attr('name', 'part[' + partIndex + '][approx_value]').attr('id','approx_value_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventory_id_'+partIndex).end()
-                .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity'+partIndex).end()
+                .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','shippedquantity_'+partIndex).end()
                 .find('[id="shippedquantity"]').attr('name', 'part[' + partIndex + '][shipped_quantity]').attr('id','shippedquantity_'+partIndex).end()
                 .find('[id="error_span"]').addClass('hide').attr('id','error_span_'+partIndex).attr("required", true).end()
                 .find('[id="spare_id"]').attr('name', 'part[' + partIndex + '][spare_id]').attr('id','spare_id_'+partIndex).end()
