@@ -5567,7 +5567,7 @@ class Service_centers extends CI_Controller {
             "status " => DEFECTIVE_PARTS_SHIPPED
         );
 
-        $select = "defective_part_shipped, spare_parts_details.id, "
+        $select = "defective_part_shipped, spare_parts_details.shipped_quantity,spare_parts_details.id, "
                 . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',i.part_number ";
 
@@ -5982,6 +5982,28 @@ class Service_centers extends CI_Controller {
             $this->check_WH_UserSession();
         }
 
+        // get spare part detail.
+        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_detail', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        if(!empty($spare_part_detail['consumed_part_status_id'])) {
+            $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
+            if(!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag, [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG])) {
+                // part stock in.
+                $in = [];
+                $in['receiver_entity_id'] = $this->session->userdata('service_center_id');
+                $in['receiver_entity_type'] = _247AROUND_SF_STRING;
+                $in['sender_entity_id'] = $spare_part_detail['service_center_id'];
+                $in['sender_entity_type'] = _247AROUND_SF_STRING;
+                $in['booking_id'] = $booking_id;
+                $in['inventory_id'] = $spare_part_detail['shipped_inventory_id'];
+                $in['agent_id'] = $this->session->userdata('service_center_id');    
+                $in['is_wh'] = TRUE;
+                $in['agent_type'] = _247AROUND_SF_STRING;
+                $in['stock'] = $spare_part_detail['shipped_quantity'];
+
+                $this->miscelleneous->process_inventory_stocks($in);            
+            }
+        }
+        
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED,
             'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
@@ -6845,7 +6867,36 @@ class Service_centers extends CI_Controller {
             $join['services'] = "services.id = vendor_pincode_mapping.Appliance_ID";
             $data['services'] = $this->reusable_model->get_search_result_data("vendor_pincode_mapping","DISTINCT vendor_pincode_mapping.Appliance_ID as id,services.services",
                  array("Vendor_ID"=>$this->session->userdata('service_center_id')),$join,NULL,array("services.services"=>"ASC"),NULL,NULL,array());
-           
+            $mslSecurityData = $this->reusable_model->get_search_result_data(
+                'vendor_partner_invoices',
+                "vendor_partner, vendor_partner_id, sub_category,(total_amount_collected-amount_paid) as 'amount'",
+                array(
+                    "vendor_partner"=> "vendor",
+                    "vendor_partner_id"=> $this->session->userdata('service_center_id')
+                ),
+                NULL,NULL,NULL,
+                array(
+                    "sub_category"=>array(
+                        MSL_SECURITY_AMOUNT,
+                        MSL_NEW_PART_RETURN,
+                        MSL_DEFECTIVE_RETURN
+                    )
+                ),NULL,array()
+            );
+            $mslSecurityAmount = 0.0;
+            $mslAmount = 0.0;
+            foreach($mslSecurityData as $row){
+                if(!empty($row['sub_category']) && $row['sub_category']==MSL_SECURITY_AMOUNT){
+                    $mslSecurityAmount += floatval($row['amount']);
+                }else if(!empty($row['sub_category']) && ($row['sub_category']==MSL_DEFECTIVE_RETURN || $row['sub_category']==MSL_NEW_PART_RETURN)){
+                    $mslAmount += floatval($row['amount']);
+                }
+            }
+            $mslAmount = $mslSecurityAmount-$mslAmount;
+            $data['msl'] = array(
+                'security'=>sprintf("%01.2f", $mslSecurityAmount),
+                'amount'=>sprintf("%01.2f", $mslAmount)
+            );
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/dashboard',$data);
     }
