@@ -2937,32 +2937,4 @@ class Inventory_model extends CI_Model {
         
         return $query->result_array();
     }
-
-
-    function insert_defective_ledger_data($data){
-
-       $this->db->insert('spare_qty_mgmt',$data);
-       if($this->db->affected_rows() > 0){
-           $res = TRUE;
-       }else{
-           $res = FALSE;
-       }
-       
-       return $res;
-
-   }    
-   
-    function update_qty_ledger_mgmt($data,$where){
-
-       $this->db->where($where);
-       $this->db->update('spare_qty_mgmt',$data);
-       if($this->db->affected_rows() > 0){
-           $res = TRUE;
-       }else{
-           $res = FALSE;
-       }
-       
-       return $res;
-   }   
- 
 }
