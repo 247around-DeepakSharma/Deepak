@@ -8324,9 +8324,9 @@ class Partner extends CI_Controller {
            $state = $this->input->post('state');
            $where = $where." AND booking_details.state = '$state'";
        }
-       if($this->input->post('booking_id')){
-           $booking_id = $this->input->post('booking_id');
-           $where = $where." AND booking_details.booking_id = '$booking_id'";
+       if(!empty($postData['search'])){
+            $booking_id = $postData['search']['value'];
+           $where = $where." AND booking_details.booking_id LIKE '%".$booking_id."%'";
        }
        if($this->session->userdata('is_filter_applicable') == 1){
             $state = 1;
