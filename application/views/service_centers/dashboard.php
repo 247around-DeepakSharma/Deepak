@@ -31,13 +31,13 @@
             <div>
                 <a><label>MSL Security Amount (Rs.)</label></a>
                 <div class="count <?php if($msl['security']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
-                    <strong class="blink"><?php echo $msl['security']; ?>/-</strong>
+                    <strong><?php echo $msl['security']; ?>/-</strong>
                 </div>
             </div>
             <div>
                 <a><label>MSL Amount (Rs.)</label></a>
                 <div class="count <?php if($msl['amount']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
-                    <strong class="blink"><?php echo $msl['amount']; ?>/-</strong>
+                    <strong><?php echo $msl['amount']; ?>/-</strong>
                 </div>
             </div>
         </div>
