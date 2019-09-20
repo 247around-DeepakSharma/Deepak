@@ -1060,7 +1060,7 @@ class Booking extends CI_Controller {
         $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',NULL, NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $data['is_spare_requested'] = $this->booking_utilities->is_spare_requested($data);
-        $this->miscelleneous->load_nav_header();
+        $this->miscelleneous->load_nav_header(); 
         $this->load->view('employee/completebooking', $data);
     }
 
@@ -2592,14 +2592,23 @@ class Booking extends CI_Controller {
                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details','*',['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
                 $status = $spare_part_detail['status'];
                 
+                // check record exist in wrong spare part details.
+                $check_wrong_part_record_exist = $this->reusable_model->get_search_result_data('wrong_part_shipped_details', '*', ['spare_id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+                
                 $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status','tag',['id' => $status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
                 
                 if($consumption_status_tag == PART_CONSUMED_TAG && !empty($spare_part_detail['parts_shipped'])) {
                     $status = DEFECTIVE_PARTS_PENDING;
+                    if(!empty($check_wrong_part_record_exist)) {
+                        $this->reusable_model->delete_from_table('wrong_part_shipped_details', ['spare_id' => $spare_id]);
+                    }
                 }
                 
                 if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
                     $status = COURIER_LOST;
+                    if(!empty($check_wrong_part_record_exist)) {
+                        $this->reusable_model->delete_from_table('wrong_part_shipped_details', ['spare_id' => $spare_id]);
+                    }
                 }
                 
 //                if($consumption_status_tag == PART_CANCELLED_STATUS_TAG && empty($spare_part_detail['parts_shipped'])) {
@@ -2608,16 +2617,24 @@ class Booking extends CI_Controller {
                 
                 if($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG) {
                     $status = OK_PART_TO_BE_SHIPPED;
+                    if(!empty($check_wrong_part_record_exist)) {
+                        $this->reusable_model->delete_from_table('wrong_part_shipped_details', ['spare_id' => $spare_id]);
+                    }
                 }
                 
                 if($consumption_status_tag == WRONG_PART_RECEIVED_TAG && !empty($post_data['wrong_part'])) {
                     $status = OK_PART_TO_BE_SHIPPED;
-                    $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
-                    $this->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
+                    if(empty($check_wrong_part_record_exist)) {
+                        $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
+                        $this->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
+                    }
                 }
                 
                 if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
                     $status = DAMAGE_PART_TO_BE_SHIPPED;
+                    if(!empty($check_wrong_part_record_exist)) {
+                        $this->reusable_model->delete_from_table('wrong_part_shipped_details', ['spare_id' => $spare_id]);
+                    }
                 }
 
 //                if($consumption_status_tag == PART_NRN_APPROVED_STATUS_TAG) {
@@ -5952,7 +5969,7 @@ class Booking extends CI_Controller {
 
             $wrong_part_detail = [];
             $wrong_part_detail['spare_id'] = $data['spare_part_detail_id'];
-            $wrong_part_detail['part_name'] = $post_data['part_name'];
+            $wrong_part_detail['part_name'] = $post_data['wrong_part_name'];
             $wrong_part_detail['inventory_id'] = $post_data['wrong_part'];
             $wrong_part_detail['remarks'] = $post_data['remarks'];
             echo json_encode($wrong_part_detail);exit;
