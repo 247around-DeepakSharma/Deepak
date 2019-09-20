@@ -3181,6 +3181,9 @@ class engineerApi extends CI_Controller {
                 //$this->asynchronous_lib->do_background_process($url, $curl_data);
                 $this->partner_cb->partner_callback($requestData["booking_id"]);
                 
+                $booking_update_data = array("sf_model_number" => $requestData["model_number"], "sf_purchase_date" => $requestData["purchase_date"]);
+                $this->booking_model->update_booking_unit_details($requestData["booking_id"], $booking_update_data);
+                
                 log_message("info", "Booking Request type hase been updated successfully");
                 
                 $this->jsonResponseString['response'] = $response;
