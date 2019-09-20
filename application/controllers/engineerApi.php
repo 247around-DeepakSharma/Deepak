@@ -3051,7 +3051,6 @@ class engineerApi extends CI_Controller {
                 );
                 
                 foreach ($request_types as $request_typess){
-                    $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings); 
                         $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
                         $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type);
                         if($response['warranty_flag'] == 1){
