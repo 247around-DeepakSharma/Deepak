@@ -7816,7 +7816,7 @@ class Service_centers extends CI_Controller {
 
             $wrong_part_detail = [];
             $wrong_part_detail['spare_id'] = $data['spare_part_detail_id'];
-            $wrong_part_detail['part_name'] = $post_data['part_name'];
+            $wrong_part_detail['part_name'] = $post_data['wrong_part_name'];
             $wrong_part_detail['inventory_id'] = $post_data['wrong_part'];
             $wrong_part_detail['remarks'] = $post_data['remarks'];
             echo json_encode($wrong_part_detail);exit;

@@ -1333,7 +1333,7 @@ class engineerApi extends CI_Controller {
                 }
                 $en["service_center_id"] = $requestData['service_center_id'];
                 $en["engineer_id"] = $requestData['engineer_id'];
-                $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $data["booking_id"]));
+                $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $requestData["bookingID"]));
                 if(!empty($is_exist)){
                     $this->engineer_model->update_engineer_action_sig(array("id"=> $is_exist[0]['id']), $en);
                 } else {
@@ -3051,7 +3051,6 @@ class engineerApi extends CI_Controller {
                 );
                 
                 foreach ($request_types as $request_typess){
-                    $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings); 
                         $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
                         $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type);
                         if($response['warranty_flag'] == 1){
