@@ -117,7 +117,10 @@ class Service_centers extends CI_Controller {
                $sf_data['model'] = $booking_unit[0]['model_number'];  
             }   
             }
-
+        if(!empty($this->input->post('search')))
+        {
+            $sf_data['search'] = $this->input->post('search');
+        }
         if (!empty($model_number_id) && empty($service_id)) {
             $model_number_id = urldecode($model_number_id);
             $sf_data['model_number_id'] = $model_number_id;
