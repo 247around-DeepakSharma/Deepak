@@ -6707,10 +6707,10 @@ class Partner extends CI_Controller {
        if($this->input->post('booking_id')){
            $where['spare_parts_details.booking_id'] = $this->input->post('booking_id');
        }
-        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, spare_qty_mgmt.qty, spare_qty_mgmt.id as spare_qty_mgmt_id, "
+        $select = "defective_part_shipped,spare_parts_details.defactive_part_received_date_by_courier_api, "
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                 . "remarks_defective_part_by_sf,spare_parts_details.sf_challan_number"
-                . ",spare_parts_details.sf_challan_file,IFNULL(spare_qty_mgmt.qty,1) as qty,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number";
+                . ",spare_parts_details.sf_challan_file, spare_parts_details.shipped_quantity   as qty,spare_parts_details.partner_challan_number, spare_parts_details.id, spare_parts_details.status, i.part_number";
         //$group_by = "spare_qty_mgmt.spare_id";
                 $group_by =FALSE;
         $bookingData = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $postData['start'], $postData['length'],0,NULL,TRUE);
@@ -6726,9 +6726,7 @@ class Partner extends CI_Controller {
                     $tempArray[] = $row['name'];
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['defective_part_shipped'] ."</span>";
                     $tempArray[] = "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";
-                    $tempArray[] = "<span>". $row['quantity'] ."</span>";
-
-                    $tempArray[] = "<span>". $row['qty'] ."</span>";
+                    $tempArray[] = "<span>". $row['shipped_quantity'] ."</span>";
                     $tempArray[] = $row['courier_name_by_sf'];
                     $courier_name_by_sf = "'".$row['courier_name_by_sf']."'";
                     $awb_by_sf = "'".$row['awb_by_sf']."'";
