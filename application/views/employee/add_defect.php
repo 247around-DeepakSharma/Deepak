@@ -92,7 +92,7 @@
        
     }
     
-    function get_partner() {
+ function get_partner() {
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/partner/get_partner_list',

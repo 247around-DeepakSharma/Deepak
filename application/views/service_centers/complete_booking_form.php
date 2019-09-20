@@ -1403,6 +1403,6 @@
              maxDate:0,
              yearRange: '1970:'+new Date().getFullYear(),
              disabled : true
-        }).datepicker('show');
+         }).datepicker('show');
     }
 </script>

@@ -613,6 +613,8 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                                                 echo " checked ";
                                                                             }
                                                                             echo "style= 'pointer-events: none;'";
+                                                                        }elseif($price['service_category'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
+                                                                            echo "onclick='return false;' ";
                                                                         }
                                                                         else{
                                                                             if(($tags['price_tags'] == $price['service_category'])){

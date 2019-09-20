@@ -455,7 +455,7 @@ class Penalty_model extends CI_Model {
     }
     
     function get_panelty_details_data($id = NULL) {
-        $this->db->select('vendor_escalation_policy.id, vendor_escalation_policy.escalation_reason, vendor_escalation_policy.active as escalation_policy_active, penalty_details.escalation_id, penalty_details.cap_amount, penalty_details.penalty_amount, penalty_details.active as penalty_active');
+        $this->db->select('vendor_escalation_policy.id, vendor_escalation_policy.entity, vendor_escalation_policy.escalation_reason, vendor_escalation_policy.active as escalation_policy_active, penalty_details.escalation_id, penalty_details.cap_amount, penalty_details.penalty_amount, penalty_details.active as penalty_active');
         $this->db->join("penalty_details", "vendor_escalation_policy.id = penalty_details.escalation_id", "left");   
         if(!empty($id)) {
             $this->db->where('vendor_escalation_policy.id', $id);

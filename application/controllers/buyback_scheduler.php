@@ -8,6 +8,8 @@ ini_set('max_execution_time', 360000);
 class buyback_scheduler extends CI_Controller {
     function __Construct() {
         parent::__Construct();
+        $this->load->model('bb_model');
+        $this->load->model('booking_model');
         $this->load->library("buyback");
         $this->load->library("notify");
     }
@@ -35,5 +37,61 @@ class buyback_scheduler extends CI_Controller {
                     $bcc = $email_template[5];
                     $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, '', BUYBACK_DISPUTED_ORDERS_SUMMARY);
                 }
+    }
+    
+    // This Function is used to send Buyback not delivered orders mail. 
+    // It Contains Following Orders
+    // 1) Not delivered orders.
+    // 2) Previous day from current day.
+    function send_not_delivered_orders_list() {
+        
+        $data = $this->bb_model->get_not_delivered_orders_list();
+        
+        // generate data in table format.
+        $table = '<table border="1" style="border-collapse:collapse">';
+        $table .= '<thead><tr>
+                    <th style="text-align:left;">Order ID</th>
+                    <th style="text-align:left;">Tracking ID</th>
+                    <th style="text-align:left;">Appliance</th>
+                    <th style="text-align:left;">Category/Size</th>
+                    <th style="text-align:left;">City</th>
+                    <th style="text-align:left;">Order Date</th>
+                    <th style="text-align:left;">Delivery Date</th>
+                    <th style="text-align:left;">Current Status</th>
+                    <th style="text-align:left;">Exchange Price</th>
+            </tr></thead>';
+        
+        if(empty($data)) {
+            $table .= '<tr><td colspan="9">No data found.</td></tr>';
+        } else {
+            foreach($data as $d) {
+                $table .= '<tr>';
+                $table .= '<td>'.$d['partner_order_id'].'</td>';
+                $table .= '<td>'.$d['partner_tracking_id'].'</td>';
+                $table .= '<td>'.$d['services'].'</td>';
+                $table .= '<td>'.$d['category'].'</td>';
+                $table .= '<td>'.$d['city'].'</td>';
+                $table .= '<td>'.$d['order_date'].'</td>';
+                $table .= '<td>'.$d['delivery_date'].'</td>';
+                $table .= '<td>'.$d['current_status'].'</td>';
+                $table .= '<td>'.$d['exchange_price'].'</td>';
+                $table .= '</tr>';
+            }
+        }
+        
+        $table .= '</table>';
+        
+        $email_template = $this->booking_model->get_booking_email_template(NOT_DELIVERED_BB_ORDERS);
+        
+        // prepare mail
+        $to = $email_template[1];
+        $from = $email_template[2];
+        $cc = $email_template[3];
+        $subject = 'Delivered Not Received orders reporting - '.date('d-M-Y', strtotime('-1 day', strtotime(date('Y-m-d'))));
+        
+        $body = '<p>Hi Team,<br />
+                Please find below the Delivered Not Received orders reported on '.date('d-M-Y', strtotime('-1 day', strtotime(date('Y-m-d')))).' for your immediate action:</p><br /><br />'.$table;
+        
+        $this->notify->sendEmail($from, $to, $cc, NULL, $subject, $body, NULL, NULL);
     }
 }

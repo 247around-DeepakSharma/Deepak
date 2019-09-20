@@ -131,3 +131,4 @@
 <?php if ($this->session->flashdata('file_success')) {
     $this->session->unset_userdata('file_success');
 } ?>
+</script>

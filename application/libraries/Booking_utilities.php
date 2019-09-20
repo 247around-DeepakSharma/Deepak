@@ -58,7 +58,7 @@ class Booking_utilities {
 
             $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
             $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
-            $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services']);
+            $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services'], $booking_details[0]['partner_id']);
             $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1', 'booking_status != "Cancelled" ' => NULL);
             
             $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
@@ -183,7 +183,7 @@ class Booking_utilities {
             else{
                 $qr = $this->get_qr_code_response($booking_details[0]['booking_id'], $booking_details[0]['amount_due'], 
                 $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
-                $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services']);
+                $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services'], $booking_details[0]['partner_id']);
             }
             $unit_where = array('booking_id' => $booking_id, 'pay_to_sf' => '1', 'booking_status != "Cancelled" ' => NULL);
             $unit_details = $this->My_CI->booking_model->get_unit_details($unit_where);
@@ -274,7 +274,7 @@ class Booking_utilities {
         }
         log_message('info', __FUNCTION__ . " => Exiting, Booking ID: " . $booking_id);
     }
-    function send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services,$regenrate_flag=0){
+    function send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services,$regenrate_flag=0, $partner_id = false){
         $userDownload = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_SMS, 0, $pocNumber,$regenrate_flag);
             log_message("info", __METHOD__. " Booking id ". $booking_id. " User QR Response ".print_r($userDownload, true));
             $user = json_decode($userDownload, TRUE);
@@ -286,6 +286,17 @@ class Booking_utilities {
                     $sms['tag'] = "customer_qr_download";   
                     $sms['smsData']['services'] = $services;
                     $sms['smsData']['url'] = $tinyUrl;
+                    if($partner_id){
+                        if($partner_id == VIDEOCON_ID){
+                            $sms['smsData']['cc_number'] = "0120-4500600";
+                        }
+                        else{
+                           $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
+                        }
+                    }
+                    else{
+                        $sms['smsData']['cc_number'] = _247AROUND_CALLCENTER_NUMBER; 
+                    }
                     $sms['phone_no'] = $userPhone;
                     $sms['booking_id'] = $booking_id;
                     $this->My_CI->notify->send_sms_msg91($sms);
@@ -303,11 +314,11 @@ class Booking_utilities {
      * @param String $pocNumber
      * @return boolean
      */
-function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $userPhone, $services){
+function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $userPhone, $services, $partner_id){
         log_message("info", __METHOD__. " Booking id ". $booking_id. " Due ".$amount_due);
         $response = $this->My_CI->paytm_payment_lib->generate_qr_code($booking_id, QR_CHANNEL_JOB_CARD, 0, $pocNumber);
         if($amount_due > 0){
-            $this->send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services);
+            $this->send_qr_code_sms($booking_id, $pocNumber, $user_id, $userPhone, $services, 0, $partner_id);
         }
         log_message("info", __METHOD__. " Booking id ". $booking_id. " Job QR Response ".print_r($response, true));
         $result = json_decode($response, TRUE);
@@ -663,14 +674,14 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                            "<td width='10%' style='text-align: center;border: 1px solid #001D48;padding:5px;font-size:80%' class='text-right'>" . $value['state'] .
                            "<td width='11%' style='text-align: center;border: 1px solid #001D48;padding:5px;font-size:80%;' class='text-right'>" . $value['city'] .
                            "</td><td width='15%' style='text-align: center;border: 1px solid #001D48;font-size:80%;padding:5px;' class='text-right'>" . $value['service_center_name'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['yesterday_booked'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['yesterday_completed'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['yesterday_cancelled'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['month_completed'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['month_cancelled'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['last_2_day'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['last_3_day'] .
-                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right'>" . $value['greater_than_5_days'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right yesterday_booked'>" . $value['yesterday_booked'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right yesterday_completed'>" . $value['yesterday_completed'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right yesterday_cancelled'>" . $value['yesterday_cancelled'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right month_completed'>" . $value['month_completed'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right month_cancelled'>" . $value['month_cancelled'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right last_2_day'>" . $value['last_2_day'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right last_3_day'>" . $value['last_3_day'] .
+                           " </td><td style='text-align: center;border: 1px solid #001D48;background:#E5E0D1;padding:5px;font-size:80%' class='text-right greater_than_5_days'>" . $value['greater_than_5_days'] .
                            " </td></tr>";
 
                    $yesterday_booked += $value['yesterday_booked'];
