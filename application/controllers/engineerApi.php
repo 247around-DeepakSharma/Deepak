@@ -1332,7 +1332,7 @@ class engineerApi extends CI_Controller {
                 }
                 $en["service_center_id"] = $requestData['service_center_id'];
                 $en["engineer_id"] = $requestData['engineer_id'];
-                $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $data["booking_id"]));
+                $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $requestData["bookingID"]));
                 if(!empty($is_exist)){
                     $this->engineer_model->update_engineer_action_sig(array("id"=> $is_exist[0]['id']), $en);
                 } else {
