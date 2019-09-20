@@ -362,7 +362,7 @@ class Inventory_model extends CI_Model {
         }
         
         if( isset($post['spare_invoice_flag']) && !empty($post['spare_invoice_flag'])){
-            $this->db->join('spare_invoice_details', 'spare_parts_details.id = spare_invoice_details.spare_id','left');  
+            $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id','left');  
         }
         
         $this->db->join('services', 'booking_details.service_id = services.id','left');
@@ -2941,7 +2941,7 @@ class Inventory_model extends CI_Model {
 
         $this->db->select($select, false);
         $this->db->from('spare_parts_details');
-        $this->db->join('spare_invoice_details', 'spare_parts_details.id = spare_invoice_details.spare_id');
+        $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id');
 
         if (!empty($where)) {
             $this->db->where($where, false);
