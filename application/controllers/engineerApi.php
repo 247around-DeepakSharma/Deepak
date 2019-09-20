@@ -2738,7 +2738,7 @@ class engineerApi extends CI_Controller {
         }
     }
     
-    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $request_type){
+    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type){
         $data = array();
         $matching_flag = false;
         $arrBookings[0] = array(
@@ -2761,36 +2761,42 @@ class engineerApi extends CI_Controller {
         }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings); 
 
-        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];
-        $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');  
-        $db_warranty_status = $arrBookingsWarrantyStatus[$booking_id];
-        foreach ($arr_warranty_status[$db_warranty_status] as $key => $value) {
-            if(strpos($request_type, $value)){ 
-               $matching_flag = true;
-               break;
-            }
-        }
-        if($matching_flag){
-            $data['warranty_flag'] = 0;
-            $data['message'] = "Warraranty status successfully varified";
-        }
-        else{
-            if($db_warranty_status = "IW"){
-                if((strpos($request_type, 'Out Of Warranty')) || (strpos($request_type, 'Out Warranty'))){
-                    $data['warranty_flag'] = 2;
-                    $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching with current request type (".$request_type.") of booking, but if needed you may proceed with current request type.";
-                }
-                else{
-                    $data['warranty_flag'] = 1;
-                    $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching current request type ".$request_type." to request part please change request type of the booking.";
+        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
+        $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
+        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
+        $warranty_mismatch = 0;
+        $returnMessage = "";
+
+        if(!empty($arr_warranty_status[$warranty_checker_status]))
+        {
+            $warranty_mismatch = 1;
+            foreach($arr_warranty_status[$warranty_checker_status] as $request_types)
+            {
+                if(strpos(strtoupper(str_replace(" ","",$booking_request_type)), strtoupper(str_replace(" ","",$request_types))) !== false)
+                {
+                    $warranty_mismatch = 0;
+                    break;
                 }
             }
-            else{
-                $data['warranty_flag'] = 1;
-                $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching current request type ".$request_type." to request part please change request type of the booking.";
-            }
         }
-        return $data;
+
+        if(!empty($warranty_mismatch))
+        {
+            if((strpos(strtoupper(str_replace(" ","",$booking_request_type)), 'OUTOFWARRANTY') !== false))
+            {
+                $warranty_mismatch = 0;
+                $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";
+            }
+            else
+            { 
+                $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
+            }   
+        }
+        $arrReturn['warranty_flag'] = $warranty_mismatch;
+        $arrReturn['message'] = $returnMessage;
+        return $arrReturn;
+        
+        
     }
     
     function getSparePartsWarrantyChecker(){
@@ -3046,34 +3052,18 @@ class engineerApi extends CI_Controller {
                 
                 foreach ($request_types as $request_typess){
                     $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings); 
-                    $arrBookings[0]['booking_request_types'] = $request_typess;
-                    $arrWarrantyData = $this->warranty_utilities->match_warranty_status_with_request_type($arrBookings, $arrBookingsWarrantyStatus);
-                    $response = json_decode($arrWarrantyData, true);
-                    if($response['status'] == 1){
-                        $warranty_status = false;
-                        $warranty_status_holder = $response;
-                        $edit_call_type = false;
-                        $warranty_checker = false;
-                        break;
-                    }
+                        $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
+                        $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type);
+                        if($response['warranty_flag'] == 1){
+                            $warranty_status = false;
+                            $warranty_status_holder = $response;
+                            $edit_call_type = false;
+                            $warranty_checker = false;
+                            break;
+                        }
                 }
             } 
            
-            if($warranty_status){
-                if(!$edit_call_type){
-                    log_message("info", __METHOD__ . " Warraranty status successfully varified. ");
-                    $this->jsonResponseString['response'] = array("warranty_flag" => 0, "message" => "Warraranty status successfully varified");
-                    $this->sendJsonResponse(array('0000', "Warraranty status successfully varified"));
-                }
-            }
-            else{ 
-                if(!empty($warranty_status_holder)){
-                    log_message("info", __METHOD__ . $warranty_status_holder['message']);
-                    $this->jsonResponseString['response'] = array("warranty_flag" => $warranty_status_holder['status'], "message" => $warranty_status_holder['message']);
-                    $this->sendJsonResponse(array('0056', $warranty_status_holder['message']));
-                }
-            }
-            
             if($edit_call_type){  
                 $curl_data['is_repeat'] = $booking_details['is_repeat'];
                 $curl_data['upcountry_data'] = ""; 
@@ -3193,16 +3183,22 @@ class engineerApi extends CI_Controller {
                 
                 log_message("info", "Booking Request type hase been updated successfully");
                 
-                if(!empty($warranty_status_holder)){ 
-                     if($warranty_status_holder['warranty_flag'] != 2){
-                        $this->jsonResponseString['response'] = array("warranty_flag" => $response['status'], "message" => $response['message']);
-                        $this->sendJsonResponse(array('0000', 'success'));
-                     }
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));         
+            }
+            if($warranty_status){
+                if(!$edit_call_type){
+                    log_message("info", __METHOD__ . "Warraranty status successfully varified. ");
+                    $this->jsonResponseString['response'] = $response;
+                    $this->sendJsonResponse(array('0000', "Warraranty status successfully varified"));
                 }
-                else{ 
-                    $this->jsonResponseString['response'] = array("warranty_flag" => $response['status'], "message" => $response['message']);
-                    $this->sendJsonResponse(array('0000', 'success'));
-                }            
+            }
+            else{ 
+                if(!empty($warranty_status_holder)){
+                    log_message("info", __METHOD__ . $warranty_status_holder['message']);
+                    $this->jsonResponseString['response'] = $response;
+                    $this->sendJsonResponse(array('0056', $warranty_status_holder['message']));
+                }
             }
         }                   
         else{

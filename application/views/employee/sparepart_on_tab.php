@@ -755,21 +755,23 @@
     
     //datatables    
     spare_parts_requested_table = $('#spare_parts_requested_table').on('xhr.dt', function (e, settings, json, xhr) {
-            var arr_bookings_data = json["bookings_data"];
-            for (var rec_bookings_data in arr_bookings_data) {
-                $.ajax({
-                    method:'POST',
-                    url:"<?php echo base_url(); ?>employee/booking/get_warranty_data",
-                    data:{'bookings_data': arr_bookings_data[rec_bookings_data]},
-                    success:function(response){
-                        $(".warranty-loader").hide();
-                        var warrantyData = JSON.parse(response);                        
-                        $.each(warrantyData, function(index, value) {
-                            $(".warranty-"+index).html(value);
-                        });
-                    }                            
-                }); 
-            }
+            if (typeof json !== 'undefined' && typeof json["bookings_data"] !== 'undefined' && json["bookings_data"].length > 0) {
+                var arr_bookings_data = json["bookings_data"];
+                for (var rec_bookings_data in arr_bookings_data) {
+                    $.ajax({
+                        method:'POST',
+                        url:"<?php echo base_url(); ?>employee/booking/get_warranty_data",
+                        data:{'bookings_data': arr_bookings_data[rec_bookings_data]},
+                        success:function(response){
+                            $(".warranty-loader").hide();
+                            var warrantyData = JSON.parse(response);                        
+                            $.each(warrantyData, function(index, value) {
+                                $(".warranty-"+index).html(value);
+                            });
+                        }                            
+                    }); 
+                } 
+            }            
         }).DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.

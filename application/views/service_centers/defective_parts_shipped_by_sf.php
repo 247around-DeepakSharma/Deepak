@@ -62,6 +62,8 @@
                             <th class="text-center">Shipped Date</th>
                          
                             <th class="text-center">Remarks</th>
+                            <th class="text-center">Consumption</th>
+                            <th class="text-center">Consumption Reason</th>                            
                             <th class="text-center">Received</th>
                             <th class="text-center">Reject</th>
                         </tr>
@@ -108,6 +110,8 @@
                                     <td>
                                 <?php echo $row['remarks_defective_part_by_sf']; ?>
                                 </td>
+                                <td><?php if($row['is_consumed'] == 1) { echo 'Yes'; } else { echo 'No';} ?></td>
+                                <td><?php echo $row['consumed_status']; ?></td>                                
                                 <td>
                                 <?php if (!empty($row['defective_part_shipped'])) { ?> 
                                     <a  onclick="return confirm_received()"  class="btn btn-sm btn-primary recieve_defective" id="defective_parts" href="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/0" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a> <input type="checkbox" class="checkbox_revieve_class" name="revieve_checkbox"  data-url="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/1"  />
