@@ -245,8 +245,10 @@
             <h1 align="left">
                 <b>Pending Bookings</b>
                 <?php
-                    if(isset($Bookings[0]->service_center_closed_date) && !empty($Bookings[0]->service_center_closed_date)){
+                    if(isset($booking_status) && $booking_status === 0){
                         echo "<small class='text-danger'>(Booking Cancelled By SF)</small>";
+                    }else if($booking_status === 1){
+                        echo "<small class='text-danger'>(Booking Completed By SF)</small>";
                     }
                 ?>
             </h1>
