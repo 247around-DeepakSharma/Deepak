@@ -495,7 +495,7 @@ class Service_centers_model extends CI_Model {
         $this->db->join('service_centres', 'spare_parts_details.service_center_id =  service_centres.id');
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
         $this->db->join("services","booking_details.service_id = services.id", "left");
-
+        $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
 
         $this->db->where($where, false);  
         if($state == 1){
@@ -1176,7 +1176,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
     function insert_data_into_spare_invoice_details($data){
         
        if(!empty($data)){
-         $this->db->insert('spare_invoice_details', $data);  
+         $this->db->insert('oow_spare_invoice_details', $data);  
        }       
         log_message('info', __FUNCTION__ . '=> Insert Spare Parts: ' .$this->db->last_query());
         return $this->db->insert_id();  

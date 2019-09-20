@@ -386,6 +386,7 @@
                                 <th >Final Requested Parts </th>
 <!--                                <th > Requested Part Number </th>-->
                                 <th >Requested Parts Type</th>
+                                <th >Parts Warranty Status</th>
                                 <th >Requested Quantity</th>
                                 <th >Requested Date</th>
                                 <th >Date Of Purchase</th>
@@ -413,6 +414,15 @@
                                 <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/".$sp['appliance_model_detail_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>"; }  ?></td>
 <!--                                <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; }  ?></td>-->
                                 <td><?php echo $sp['parts_requested_type']; ?></td>
+                                <td><?php
+                                    if ($sp['part_warranty_status']==2){
+                                        echo "Out - Warranty";
+                                    }else if($sp['part_warranty_status']==1){
+                                        echo "In - Warranty";
+                                    }else{
+                                        echo "NA";
+                                    }
+                                ?></td>
                                 <td><?php echo $sp['quantity']; ?></td>
                                 <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
                                 <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
