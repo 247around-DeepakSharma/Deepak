@@ -16,6 +16,7 @@ class Warranty_utilities {
 	$this->My_CI = & get_instance();
 
 	$this->My_CI->load->model('warranty_model');
+        $this->My_CI->load->library('booking_utilities');
     }
     
     /**
@@ -24,18 +25,19 @@ class Warranty_utilities {
      * @param type $arrBookings
      * @return type
      */
-    function get_warranty_data($arrBookings){
+    function get_warranty_data($arrBookings, $is_excel = false){
         if(empty($arrBookings)){
             return array();
         }
         
         foreach ($arrBookings as $booking_id => $rec_data) {
-            $purchase_date = date('Y-m-d', strtotime($rec_data['purchase_date']));
             // Calculate Purchase Date
-            // Used in case data is read from excel            
-            if (DateTime::createFromFormat('d-m-Y', $rec_data['purchase_date']) === FALSE) {
+            // Used in case data is read from excel   
+            $purchase_date = date('Y-m-d', strtotime($rec_data['purchase_date']));   
+            if ($is_excel && $rec_data['purchase_date'] != "0000-00-00" && DateTime::createFromFormat('d-m-Y', $rec_data['purchase_date']) === FALSE) {
                 $purchase_date = date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP($rec_data['purchase_date']));
             }
+            
             
             // if Service Id is there, get service specific plans also
             if(!empty($rec_data['service_id']))
@@ -129,6 +131,7 @@ class Warranty_utilities {
      */
     public function get_warranty_status($in_warranty_period, $extended_warranty_period, $purchase_date, $create_date)
     {
+        $create_date = date('Y-m-d', strtotime($create_date));
         $warrantyStatus = 'OW';
         $in_warranty_months = !empty($in_warranty_period) ? $in_warranty_period : 12;
         $extended_warranty_months = !empty($extended_warranty_period) ? $extended_warranty_period : 0;                
@@ -177,9 +180,50 @@ class Warranty_utilities {
         $arrBookingsWarrantyStatus = $this->get_bookings_warranty_status($arrBookings);   
         return $arrBookingsWarrantyStatus;
     }
-    
+
     function get_warranty_specific_data_of_bookings($arrBookingIds){
-        $arrWarrantySpecificData = $this->My_CI->warranty_model->get_warranty_specific_data_of_bookings($arrBookingIds);        
+        $arrWarrantySpecificData = $this->My_CI->warranty_model->get_warranty_specific_data_of_bookings($arrBookingIds);
         return $arrWarrantySpecificData;
+    }
+    
+    function match_warranty_status_with_request_type($arrBookings, $arrBookingsWarrantyStatus){
+        
+        $selected_booking_request_types = $arrBookings[0]['booking_request_types'];
+        $booking_request_type = $this->My_CI->booking_utilities->get_booking_request_type($selected_booking_request_types); 
+        $booking_id = $arrBookings[0]['booking_id'];
+        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
+        $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
+        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
+        $warranty_mismatch = 0;
+        $returnMessage = "";
+
+        if(!empty($arr_warranty_status[$warranty_checker_status]))
+        {
+            $warranty_mismatch = 1;
+            foreach($arr_warranty_status[$warranty_checker_status] as $request_types)
+            {
+                if(strpos(strtoupper(str_replace(" ","",$booking_request_type)), strtoupper(str_replace(" ","",$request_types))) !== false)
+                {
+                    $warranty_mismatch = 0;
+                    break;
+                }
+            }
+        }
+
+        if(!empty($warranty_mismatch))
+        {
+            if((strpos(strtoupper(str_replace(" ","",$booking_request_type)), 'OUTOFWARRANTY') !== false))
+            {
+                $warranty_mismatch = 0;
+                $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";
+            }
+            else
+            { 
+                $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
+            }   
+        }
+        $arrReturn['status'] = $warranty_mismatch;
+        $arrReturn['message'] = $returnMessage;
+        return json_encode($arrReturn);
     }
 }

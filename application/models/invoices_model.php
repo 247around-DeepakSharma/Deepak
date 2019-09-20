@@ -2167,7 +2167,7 @@ class invoices_model extends CI_Model {
                 ELSE '' END AS billable_weight,
                 CASE WHEN (defective_courier_receipt IS NOT NULL) THEN 
                 (concat('".S3_WEBSITE_URL."misc-images/',defective_courier_receipt)) ELSE '' END AS courier_receipt_link
-                FROM  booking_details as bd 
+                FROM  booking_details as bd
                 JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id 
                 LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_sf 
                 WHERE
@@ -2200,7 +2200,7 @@ class invoices_model extends CI_Model {
                 CASE WHEN (billable_weight > 0 ) THEN (concat(billable_weight, ' KG')) ELSE '' END AS billable_weight,
                 box_count, count(bd.booking_id) as count_of_booking,
                 '' AS courier_receipt_link
-                FROM  booking_details as bd 
+                FROM  booking_details as bd
                 JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id 
                 LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_partner
                 WHERE

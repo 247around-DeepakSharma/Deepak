@@ -31,9 +31,8 @@
                             <th class="text-center">Age of Pending</th>
                             <th class="text-center">Parts Received</th>
                             <th class="text-center">Parts Code </th>
-                            <th class="text-center">Amount</th>
+                             <th class="text-center">Amount</th>
                             <th class="text-center">Remarks By Partner</th>
-                            <th class="text-center">Quantity</th>
                             <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
                             <th class="text-center" >Challan<input type="checkbox" id="selectall_challan_file" > </th>   
                             <th class="text-center" >Bulk Send<input type="checkbox" id="selectall_send_courier" > </th>                          
@@ -68,9 +67,6 @@
 
                                     <td>
                                         <?php if(!is_null($row['remarks_defective_part_by_partner'])){  echo $row['remarks_defective_part_by_partner']; } else { echo $row['remarks_by_partner'];} ?>
-                                    </td>
-                                    <td>
-                                        <input type="number" id="spqty<?php echo $row['id'];  ?>" data-shipped-quantity="<?php echo $row['defevtive_shipped_qty_remaining'];?>" min="1" class="defective_qty form-control checkbox_address" name="defective_qty"  value="<?php echo $row['defevtive_shipped_qty_remaining'];?>" /> 
                                     </td>
                                     <td>
                                         <input type="checkbox" class="form-control checkbox_address" onclick="remove_select_all()" name="download_address[]"  value="<?php echo $row['id'];?>" />
@@ -120,7 +116,7 @@
 <div id="courier_update" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
-        <form id="idForm"  action="<?php echo base_url(); ?>employee/service_centers/do_multiple_spare_shipping"  method="POST" enctype="multipart/form-data" >
+        <form id="idForm"  action="<?php echo base_url(); ?>employee/service_centers/do_multiple_spare_shipping"  method="POST" enctype="multipart/form-data" onsubmit="return submitForm();">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
@@ -235,65 +231,6 @@
 </style>
 
 <script>
-
-
-$("#idForm").submit(function(e) {
-
-    e.preventDefault(); // avoid to execute the actual submit of the form.
-
-    $(".loader").removeClass('hide');
-
-    yourArray=[];
-    $(".checkbox_courier:checked").each(function(){ 
-     var sp = $(this).val();
-     var qty   = $("#spqty"+sp).val();
-    console.log(qty);
-    yourArray.push($(this).val());
-     $("<input />").attr("type", "hidden")
-          .attr("name", "sp["+sp+"]")
-          .attr("value", qty)
-          .appendTo("#idForm");
-    });
-
-$("#spareids").val(yourArray);
-  
-       var form_data = new FormData(document.getElementById("idForm"));
-
-               $.ajax({
-                   url: "<?php echo base_url()  ?>employee/service_centers/do_multiple_spare_shipping",
-                   type: "POST",
-                   data: form_data,
-                   processData: false,  // tell jQuery not to process the data
-                   contentType: false   // tell jQuery not to set contentType
-                   }).done(function(response) {
-                         console.log(response);
-                          
-                            $(".loader").addClass('hide');
-                             swal({title: "Updated !", text: "Your courier details updated .", type: "success"},
-                              function(){ 
-                             // location.reload();
-                             }
-                   );
-                        
-               });
-
-
-
-
-
-
-
-
-
-
-
-
-
-});
-
-
-
-
     function submitForm(){
        event.preventDefault();
        $(".loader").removeClass('hide');
@@ -311,7 +248,7 @@ $("#spareids").val(yourArray);
                             $(".loader").addClass('hide');
                              swal({title: "Updated !", text: "Your courier details updated .", type: "success"},
                               function(){ 
-                             // location.reload();
+                              location.reload();
                              }
                    );
                         
@@ -329,17 +266,6 @@ $("#spareids").val(yourArray);
             format: 'YYYY-MM-DD'
         }
     });
-
-  $(document).on("keyup",".defective_qty",function(){
-
-   var max = parseInt($(this).attr("data-shipped-quantity"));
-   var current  = parseInt($(this).val()); 
-   if (current>max) {
-
-    swal("Error !", "Your entered quantity is greater than the shipped quantity by warehouse/partner to SF . Please enter the less than or equal to  "+max);
-    $(this).val(max);
-   } 
-});
     
     $('#defective_part_shipped_date').on('apply.daterangepicker', function (ev, picker) {
         $(this).val(picker.startDate.format('YYYY-MM-DD'));
@@ -505,17 +431,17 @@ if($('.checkbox_courier:checkbox:checked').length > 0){
 });
 
  
-//  $("#button_send").click(function(){
-//  yourArray=[];
+ $("#button_send").click(function(){
+ yourArray=[];
 
-// $(".checkbox_courier:checked").each(function(){
-//  yourArray.push($(this).val());
+      $(".checkbox_courier:checked").each(function(){
+       yourArray.push($(this).val());
+       });
  
-// });
- 
-// $("#spareids").val(yourArray);
-         
-//  });
+$("#spareids").val(yourArray);
+  
+       
+ });
 
 
 

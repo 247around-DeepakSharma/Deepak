@@ -2079,6 +2079,12 @@ class Inventory extends CI_Controller {
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        if(!empty($this->input->post('entity_id')))
+        {
+            $data['entity_id']=$this->input->post('entity_id');
+            $data['service_id']=$this->input->post('service_id');
+            $data['search']=$this->input->post('search');
+        }
         $this->load->view("employee/inventory_master_list", $data);
     }
     
@@ -2927,6 +2933,7 @@ class Inventory extends CI_Controller {
         $model_number_id = $this->input->post('model_number_id');
         $part_type = $this->input->post('part_type');
         $requested_inventory_id = $this->input->post('requested_inventory_id');
+        $part_name = $this->input->post('part_name');
         $where = array();
         if (!empty($model_number_id)) {
             $where['model_number_id'] = $model_number_id;
@@ -2934,6 +2941,10 @@ class Inventory extends CI_Controller {
 
         if (!empty($part_type)) {
             $where['type'] = $part_type;
+        }
+
+        if(!empty($part_name)){
+            $where['inventory_master_list.part_name'] = $part_name;
         }
 
         if ($this->input->post('service_id')) {
@@ -2952,13 +2963,21 @@ class Inventory extends CI_Controller {
         
         $inventory_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.part_number,inventory_master_list.inventory_id,inventory_model_mapping.max_quantity,inventory_master_list.part_image', $where);
         $option = '';
-        foreach ($inventory_type as $value) {
-            $option .= "<option  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' data-partimage='" . $value['part_image'] . "' value='" . $value['part_number'] . "'";
-            if($requested_inventory_id == $value['inventory_id']){
-                $option .= " selected ";
+        if (!empty($this->input->post('text_input'))) {
+            if(is_array($inventory_type)){
+                $option = $inventory_type[0]['part_number'];
+            }else{
+                $option = $inventory_type['part_number'];
             }
-            $option .=" > ";
-            $option .= $value['part_number'] . "</option>";
+        }else{
+            foreach ($inventory_type as $value) {
+                $option .= "<option  data-maxquantity='" . $value['max_quantity'] . "'  data-inventory='" . $value['inventory_id'] . "' data-partimage='" . $value['part_image'] . "' value='" . $value['part_number'] . "'";
+                if($requested_inventory_id == $value['inventory_id']){
+                    $option .= " selected ";
+                }
+                $option .=" > ";
+                $option .= $value['part_number'] . "</option>";
+            }
         }
 
         echo $option;
@@ -6056,14 +6075,14 @@ class Inventory extends CI_Controller {
 
     function download_spare_consolidated_data($partner_id = NULL) {
         log_message('info', __METHOD__ . ' Processing...');
-       
+
         $partner_id = $this->input->post('partner_id');
-        $select = "spare_parts_details.id as spare_id, i.part_number, spare_parts_details.model_number, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as 'NRN Status',(CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status',GROUP_CONCAT(employee.full_name) as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
+        $select = "spare_parts_details.id as spare_id, services.services as 'Appliance', i.part_number, spare_parts_details.model_number, service_center_closed_date,booking_details.assigned_vendor_id, booking_details.booking_id as 'Booking ID',booking_details.request_type as 'Booking Request Type',(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as 'NRN Status',(CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status',GROUP_CONCAT(employee.full_name) as 'Account Manager Name',partners.public_name as 'Partner Name',service_centres.name as 'SF Name',"
                 . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
                 . "service_centres.district as 'SF City', "
                 . "booking_details.current_status as 'Booking Status',spare_parts_details.status as 'Spare Status', "
                 . "spare_parts_details.parts_shipped as 'Part Shipped By Partner',spare_parts_details.shipped_parts_type as 'Part Type',i.part_number as 'Part Code',"
-                . "spare_parts_details.shipped_date as 'Partner Part Shipped Date',spare_parts_details.awb_by_partner as 'Partner AWB Number',"
+                . "spare_parts_details.date_of_request as 'Date Of Request',spare_parts_details.shipped_date as 'Partner Part Shipped Date',spare_parts_details.spare_cancelled_date as 'Spare Cancellation Date',spare_parts_details.awb_by_partner as 'Partner AWB Number',"
                 . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
                 . "partner_challan_number AS 'Partner Challan Number', sf_challan_number as 'SF Challan Number', "
                 . "spare_parts_details.acknowledge_date as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'IS Spare Auto Acknowledge',"
@@ -6079,7 +6098,7 @@ class Inventory extends CI_Controller {
         }
 
         $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
-        
+
         $this->load->dbutil();
         $this->load->helper('file');
 
@@ -6114,14 +6133,14 @@ class Inventory extends CI_Controller {
             if ($this->session->userdata('partner_id')) {
                 $where['spare_parts_details.partner_id'] = $this->session->userdata('partner_id');
             }
-            $data['data'] = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, requested_inventory_id, booking_details.partner_id,"
-                    . "spare_parts_details.booking_id, booking_details.service_id", $where, true);
-
+            $data['data'] = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.requested_inventory_id, booking_details.partner_id,"
+                    . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number", $where, true);
+            
             if (!empty($data['data'])) {
                 $data['count'] = $count;
-                $data['inventory_master_list'] = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_name,part_number, '
-                        . 'gst_rate, hsn_code, price, type', array('service_id' => $data['data'][0]['service_id']));
-
+                $data['inventory_master_list'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.inventory_id,inventory_master_list.part_name,inventory_master_list.part_number, '
+                        . 'inventory_master_list.gst_rate, inventory_master_list.hsn_code, inventory_master_list.price, inventory_master_list.type', array('inventory_model_mapping.active' => 1,'appliance_model_details.model_number' => $data['data'][0]['model_number'],'inventory_master_list.service_id' => $data['data'][0]['service_id']));
+                                
                 $html = $this->load->view('employee/tag_spare_line_item', $data, true);
 
                 echo json_encode(array('code' => 247, "data" => $html, "count" => count($data)));
@@ -7266,7 +7285,7 @@ class Inventory extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
         
-        $select = "invoice_details.invoice_id AS 'Invoice Id', date_format(invoice_details.create_date, \"%d-%m-%Y %h:%i:%s\") AS 'Invoice Date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', part_number AS 'Part Number', "
+        $select = "invoice_details.invoice_id AS 'Invoice Id', date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'Invoice Date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', part_number AS 'Part Number', "
                 . "invoice_details.description AS 'Description', invoice_details.hsn_code AS 'HSN Code', invoice_details.qty AS 'Quantity', rate AS 'Rate', invoice_details.taxable_value AS 'Taxable Value', (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS 'GST Rate',"
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS 'GST Tax Amount', total_amount AS 'Total Amount', vendor_partner_invoices.type AS Type, entt_gst_dtl.gst_number AS 'From GST Number',entity_gst_details.gst_number AS 'To GST Number',"
                 . "vendor_partner_invoices.sub_category AS 'Sub Category',courier_details.AWB_no AS 'Awb_Number',courier_details.courier_name AS 'Courier Name',date_format(courier_details.shipment_date, \"%d-%m-%Y %H:%i:%s\") AS 'Shipment Date'";
@@ -7451,8 +7470,8 @@ class Inventory extends CI_Controller {
         $spare_id_array = $this->input->post("spare_id_array");
         if(!empty($spare_id_array)){
           $spare_ids = implode(',',$spare_id_array);
-          $select = 'spare_parts_details.booking_id,spare_invoice_details.id,spare_invoice_details.invoice_id,spare_invoice_details.spare_id,spare_invoice_details.invoice_date,spare_invoice_details.hsn_code,spare_invoice_details.invoice_amount,spare_invoice_details.gst_rate,spare_invoice_details.invoice_pdf';
-          $where = array("spare_invoice_details.spare_id IN(".$spare_ids.")" => NULL); 
+          $select = 'spare_parts_details.booking_id,oow_spare_invoice_details.id,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.spare_id,oow_spare_invoice_details.invoice_date,oow_spare_invoice_details.hsn_code,oow_spare_invoice_details.invoice_amount,oow_spare_invoice_details.gst_rate,oow_spare_invoice_details.invoice_pdf';
+          $where = array("oow_spare_invoice_details.spare_id IN(".$spare_ids.")" => NULL); 
           
           $invoice_details = $this->inventory_model->get_spare_invoice_details($select, $where); 
         }
