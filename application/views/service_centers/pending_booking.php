@@ -1,5 +1,26 @@
 <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+<style>
+    #msl_info{margin: 10px 15px;width: 98%;padding: 0px;}
+    #msl_info .x_title{color: black;}
+    #msl_info .x_title>h2{text-align: center; margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;}
+    #msl_info .x_body{
+        margin-top: 0px;
+        display: flex;
+        font-size: 25px;
+        border: 2px solid #ededed;
+        padding: 10px 0;
+        flex-direction: row;
+        justify-content: space-evenly;
+    }
+    #msl_info .x_body>div{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    #msl_info a{font-size:18px;color: #254d5d;}
+    #msl_info .count{text-decoration: underline;font-size: 36px;
+</style>
 <div class="container-fluid">
     <div class="row" >
         <?php 
@@ -27,6 +48,27 @@
             </div>';
             }
             ?>
+        <?php if($this->session->userdata("is_micro_wh")==1){ ?>
+        <div class="col-md-10 col-md-offset-2" id="msl_info">
+            <div class="x_title">
+                <h2><b>MSL Security Amount</b></h2>
+            </div>
+            <div class="x_body">
+                <div>
+                    <a><label>MSL Security Amount (Rs.)</label></a>
+                    <div class="count <?php if($msl['security']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
+                        <strong><?php echo $msl['security']; ?>/-</strong>
+                    </div>
+                </div>
+                <div>
+                    <a><label>MSL Amount (Rs.)</label></a>
+                    <div class="count <?php if($msl['amount']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
+                        <strong><?php echo $msl['amount']; ?>/-</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
         <div class="col-md-10 col-md-offset-2">
             <div style="margin-top:10px; display: flex;font-size: 25px;">
                     <b>Rating:</b> &nbsp;

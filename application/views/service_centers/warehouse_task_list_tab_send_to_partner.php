@@ -115,13 +115,11 @@
                                      </td>
 
                                     <td>
-                                        <input type="number" readonly="" min="1" class="check_max_val" value="<?php echo $row['qty']?>" data-shipped-quantity="<?php echo $row['qty']?>" id="spare<?php echo $row['id']?>" name="shipping_quantity">
+                                        <input type="number" readonly="readonly" min="1" value="<?php echo $row['shipped_quantity']?>" data-shipping_quantity="<?php echo $row['shipped_quantity']?>" id="spare<?php echo $row['id']?>" name="shipping_quantity">
                                      </td>
                                     <td>
                                         
-                                        <input type="checkbox" class="check_single_row " data-is_micro_wh ="<?php echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>"  data-shipped
-                                        -quantity = "<?php echo $row['shipped_quantity'];?>" data-qty-spare_id="<?php echo $row['qty_id'];  ?>" >
-
+                                        <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
                                     </td>
                             </tr>
                             <?php $sn_no++; } ?>
@@ -287,36 +285,6 @@
             }
         ]
     });
-
-   
-// $(".check_max_val").bind("keyup change", function(e) {
-//   $(".check_max_val").keyup(function(){    
-
-
-// });
-
-
- 
-
-
-$(document).on("keyup",".check_max_val",function(){
-
-   var max = parseInt($(this).attr("data-shipped-quantity"));
-   var current  = parseInt($(this).val()); 
-   if (current>max) {
-
-    swal("Error !", "Your entered quantity is greater than the shipped quantity by warehouse/partner to SF . Please enter the less than or equal to  "+max);
-    $(this).val(max);
-   } 
-});
-
-
-
-
-
-
-
-
     
      $("#partner_search").click(function(){         
          var partner_id = $("#partner_id_send_to_partner").val();
@@ -407,7 +375,6 @@ $(document).on("keyup",".check_max_val",function(){
             tmp_arr[key]['defective_return_to_entity_id'] = $(this).attr('data-defective_return_to_entity_id');
             tmp_arr[key]['defective_return_to_entity_type'] = $(this).attr('data-defective_return_to_entity_type');
             tmp_arr[key]['spare_id'] = $(this).attr('data-spare_id');
-            tmp_arr[key]['qty_mgmt_id'] = $(this).attr('data-qty-spare_id');
             tmp_arr[key]['part_name'] = $(this).attr('data-part_name');
             tmp_arr[key]['service_center_id'] = $(this).attr('data-service_center_id');
             tmp_arr[key]['sent_entity_type'] = $(this).attr('data-entity_type');

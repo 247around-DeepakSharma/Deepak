@@ -350,7 +350,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('partners','partners.id = booking_details.partner_id', "left");
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
-        $this->db->join('inventory_master_list iml',"iml.part_name=spare_parts_details.parts_requested","left");
+        /*$this->db->join('inventory_master_list iml',"iml.part_name=spare_parts_details.parts_requested","left");*/
         if(isset($post['is_inventory'])){
             
             $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
@@ -1237,7 +1237,6 @@ class Inventory_model extends CI_Model {
         }
         $this->db->order_by('model_number','ASC');
         $query = $this->db->get('appliance_model_details');
-      //  print_r($this->db->last_query());  exit;
         return $query->result_array();
     }
     
@@ -1639,32 +1638,39 @@ class Inventory_model extends CI_Model {
         }
     }
     
+     /**
+     * @desc: This function is used to Download consolidated data
+     * @params: $select
+     * @params: Array $where
+     * @return: Json
+     */
    
-    function get_spare_consolidated_data($select,$where,$group_by=''){
-        $this->db->select($select,false);
+    function get_spare_consolidated_data($select, $where, $group_by = '') {
+        $this->db->select($select, false);
         $this->db->from('booking_details');
-        $this->db->join('spare_parts_details','booking_details.booking_id = spare_parts_details.booking_id');
-        $this->db->join('partners','booking_details.partner_id = partners.id');
-        $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id','left');
-        $this->db->join('service_centres','booking_details.assigned_vendor_id = service_centres.id');
-        $this->db->join('agent_filters',"partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='"._247AROUND_EMPLOYEE_STRING."' ", "left"); // new query for AM
-        $this->db->join('employee',"employee.id = agent_filters.agent_id", "left"); // new query for AM
+        $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id');
+        $this->db->join('partners', 'booking_details.partner_id = partners.id');
+        $this->db->join('spare_consumption_status', 'spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
+        $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id');
+        $this->db->join('agent_filters', "partners.id = agent_filters.entity_id AND agent_filters.state = service_centres.state AND agent_filters.entity_type='" . _247AROUND_EMPLOYEE_STRING . "' ", "left"); // new query for AM
+        $this->db->join('employee', "employee.id = agent_filters.agent_id", "left"); // new query for AM
         //$this->db->join('employee','partners.account_manager_id = employee.id'); // old query for AM
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
-        $this->db->join('service_centres sc','spare_parts_details.partner_id=sc.id','left');
-        if(!empty($where)){
-           $this->db->where($where,false); 
+        $this->db->join('service_centres sc', 'spare_parts_details.partner_id=sc.id', 'left');
+        $this->db->join('services', 'services.id=booking_details.service_id', 'left');
+
+        if (!empty($where)) {
+            $this->db->where($where, false);
         }
-        
-        if(!empty($group_by)) {
-            $this->db->group_by($group_by,false);
+
+        if (!empty($group_by)) {
+            $this->db->group_by($group_by, false);
         }
         $query = $this->db->get();
-        
-        return $query;
 
+        return $query;
     }
-    
+
     /**
      * @desc: This function is used to insert the courier api data into database
      * @params: Array $data
@@ -2963,67 +2969,5 @@ class Inventory_model extends CI_Model {
         
         return $query->result_array();
     }
-
-
-    function insert_defective_ledger_data($data){
-
-        $this->db->insert('spare_qty_mgmt',$data);
-        if($this->db->affected_rows() > 0){
-            $res = TRUE;
-        }else{
-            $res = FALSE;
-        }
-        
-        return $res;
-
-    }
-
-    function get_qty_mgmt_data($select,$where,$group_by=FALSE){
-
-        $this->db->select($select);
-        if(!empty($where)){
-            $this->db->where($where,false);
-        }
-        $this->db->from('spare_qty_mgmt');
-        if ($group_by) {
-         $this->db->group_by('spare_qty_mgmt.spare_id');     
-        }
-              
-        $query = $this->db->get();
-       //  print_r($this->db->last_query());
-        return $query->result_array();
-
-    }
-
-
-    function update_qty_ledger_mgmt($data,$where){
-
-        $this->db->where($where);
-        $this->db->update('spare_qty_mgmt',$data);
-        if($this->db->affected_rows() > 0){
-            $res = TRUE;
-        }else{
-            $res = FALSE;
-        }
-        
-        return $res;
-    }
-
-    function getDefecvtive_history($booking_id){
-
-        $select=",spare_qty_mgmt.qty,spare_qty_mgmt.qty_status,spare_qty_mgmt.created_on as qty_def_shipped_date,spare_qty_mgmt.awb_by_sf_defective,spare_qty_mgmt.def_courier_price_by_sf,def_courier_name,spare_parts_details.*";
-        $where=array('spare_qty_mgmt.is_defective_qty'=>1,'spare_parts_details.booking_id'=>$booking_id);
-        $this->db->select($select);
-       // $this->db->from('spare_parts_details');
-        $this->db->join('spare_qty_mgmt','spare_parts_details.id=spare_qty_mgmt.spare_id');
-        $this->db->where($where);
-        $query = $this->db->get('spare_parts_details');
-       // print_r($this->db->last_query());  exit;
-        return $query->result_array();
-
-
-    }
-   
-   
-   
+    
 }

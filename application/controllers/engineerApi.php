@@ -1053,41 +1053,6 @@ class engineerApi extends CI_Controller {
     }
 
     /**
-     * @input: Booking ID to be cancelled
-     * @description: Cancel pre-existing booking
-     * @output:
-     */
-    function processCancelBooking() {
-        log_message('info', "Entering: " . __METHOD__);
-
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        //print_r($requestData);
-        $activity = array('activity' => 'process cancel booking', 'data' => json_encode($requestData), 'time' => $this->microtime_float());
-        $this->apis->logTable($activity);
-
-        $booking_id = $requestData['booking_id'];
-        $cancellation_reason = $requestData['reason'];
-        
-        $data = $this->booking_model->getbooking_history($booking_id);
-        $result = $data[0];
-
-        log_message('info', "Booking ID: " . $booking_id . ", Reason: " . $cancellation_reason);
-
-        $this->miscelleneous->process_cancel_form($booking_id, _247AROUND_PENDING, $cancellation_reason, "Cancelled By Customer through Mobile APP", _247AROUND_DEFAULT_AGENT, _247AROUND_DEFAULT_AGENT, _247AROUND, _247AROUND);
-
-        //Send message to User
-        $user_profile = $this->apis->getuserProfileid($result['user_id']);
-//        log_message('info', "Formatted date: " . $booking_date_formatted);
-
-        //Send cancellation mails to Admin, Vendor and User
-        $this->sendCancellationMails($user_profile[0], $result);
-
-        $this->jsonResponseString['response'] = "done";
-        $this->sendJsonResponse(array('0000', 'success'));
-        
-    }
-
-    /**
      * @input: Booking ID to be rescheduled, new date and time
      * @description: Cancel pre-existing booking
      * @output:
@@ -1153,7 +1118,7 @@ class engineerApi extends CI_Controller {
             $login = $this->dealer_model->entity_login(array("entity" => "engineer", 
             "active" =>1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if(!empty($login)){
-                $engineer  = $this->engineer_model->get_engineers_details(array("id" => $login[0]['entity_id']), "service_center_id, name");
+                $engineer  = $this->engineer_model->get_engineers_details(array("id" => $login[0]['entity_id'], "active" => 1), "service_center_id, name");
                 if(!empty($engineer)){
                     $sc_agent = $this->service_centers_model->get_sc_login_details_by_id($engineer[0]['service_center_id']);
                     $data[0]['service_center_id'] = $engineer[0]['service_center_id'];
@@ -1207,9 +1172,9 @@ class engineerApi extends CI_Controller {
                     }
                     
                     if(isset($value["purchase_invoice"])){
-                        $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".rand(10,100).".png";
+                        $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".date("YmdHis").".png";
 
-                        $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "engineer-uploads");
+                        $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "misc-images");
 
                         $data["purchase_invoice"] = $purchase_inv_url;
                     }
@@ -1318,47 +1283,73 @@ class engineerApi extends CI_Controller {
     function processCancelBookingByEngineer(){
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if(!empty($requestData["bookingID"]) && !empty($requestData["cancellationReason"])){
-            
-            $data['current_status'] = "InProcess";
-            $data['internal_status'] = _247AROUND_CANCELLED;
-            $data['cancellation_reason'] = $requestData["cancellationReason"];
-            $data['cancellation_remark'] = $requestData["remarks"];
-            $data["closed_date"] = date("Y-m-d H:i:s");
-            $this->engineer_model->update_engineer_table($data, array( "booking_id" =>$requestData["bookingID"] ));
-            
-            $en["booking_id"] = $requestData["bookingID"];
-            $en["remarks"] = "Booking Cancelled By Engineer From App";
-            $en['closed_date'] = date("Y-m-d H:i:s");
             $bookinghistory = $this->booking_model->getbooking_history($requestData["bookingID"]);
-            if(!empty($requestData['location']) ){
-                $location = json_decode($requestData['location'], true);
-                $en["pincode"] = $location['pincode'];
-                $en["city"] = $location['city'];
-                $en["address"] = $location['address'];
-                $en["latitude"] = $location['latitude'];
-                $en["longitude"] = $location['longitude'];
-                if($bookinghistory[0]['booking_pincode'] != $location['pincode']){
-                    $en['mismatch_pincode']  = 1;
+            /* check spare part oredered status on booking which need to be cancel */
+            $isdisable = false; 
+            if(isset($bookinghistory['spare_parts'])){ 
+                foreach($bookinghistory['spare_parts'] as $sp){
+                    switch ($sp['status']){
+                        case SPARE_PARTS_REQUESTED: 
+                             $status = CANCEL_PAGE_SPARE_NOT_SHIPPED;
+                             $isdisable= true;
+                            break;
+                        case SPARE_SHIPPED_BY_PARTNER:
+                        case SPARE_DELIVERED_TO_SF:
+                        case DEFECTIVE_PARTS_REJECTED:
+                        case DEFECTIVE_PARTS_RECEIVED:
+                        case DEFECTIVE_PARTS_SHIPPED:
+                        case DEFECTIVE_PARTS_PENDING:
+                        case SPARE_OOW_SHIPPED:
+                             $status = CANCEL_PAGE_SPARE_SHIPPED;
+                             $isdisable= true;
+                             break;
+                    }
+
                 }
-               
             }
-            $en["service_center_id"] = $requestData['service_center_id'];
-            $en["engineer_id"] = $requestData['engineer_id'];
-            $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $data["booking_id"]));
-            if(!empty($is_exist)){
-                $this->engineer_model->update_engineer_action_sig(array("id"=> $is_exist[0]['id']), $en);
+            if(!$isdisable){
+                $data['current_status'] = "InProcess";
+                $data['internal_status'] = _247AROUND_CANCELLED;
+                $data['cancellation_reason'] = $requestData["cancellationReason"];
+                $data['cancellation_remark'] = $requestData["remarks"];
+                $data["closed_date"] = date("Y-m-d H:i:s");
+                $this->engineer_model->update_engineer_table($data, array( "booking_id" =>$requestData["bookingID"] ));
+
+                $en["booking_id"] = $requestData["bookingID"];
+                $en["remarks"] = "Booking Cancelled By Engineer From App";
+                $en['closed_date'] = date("Y-m-d H:i:s");
+
+                if(!empty($requestData['location']) ){
+                    $location = json_decode($requestData['location'], true);
+                    $en["pincode"] = $location['pincode'];
+                    $en["city"] = $location['city'];
+                    $en["address"] = $location['address'];
+                    $en["latitude"] = $location['latitude'];
+                    $en["longitude"] = $location['longitude'];
+                    if($bookinghistory[0]['booking_pincode'] != $location['pincode']){
+                        $en['mismatch_pincode']  = 1;
+                    }
+
+                }
+                $en["service_center_id"] = $requestData['service_center_id'];
+                $en["engineer_id"] = $requestData['engineer_id'];
+                $is_exist = $this->engineer_model->get_engineer_sign("id", array("service_center_id" => $requestData['service_center_id'], "booking_id" => $data["booking_id"]));
+                if(!empty($is_exist)){
+                    $this->engineer_model->update_engineer_action_sig(array("id"=> $is_exist[0]['id']), $en);
+                } else {
+                    $this->engineer_model->insert_engineer_action_sign($en);
+                }
+
+                $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING, 
+                        "Booking Cancelled By Engineer From App", 
+                        $requestData['sc_agent_id'], "",ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
+
+                $this->sendJsonResponse(array('0000', 'Booking Cancelled Successfully'));
             } else {
-                $this->engineer_model->insert_engineer_action_sign($en);
+                $this->sendJsonResponse(array('0019', $status));
             }
-           
-            $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING, 
-                    "Booking Cancelled By Engineer From App", 
-                    $requestData['sc_agent_id'], "",ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
-            
-            $this->sendJsonResponse(array('0000', 'success'));
-             
         } else {
-            $this->sendJsonResponse(array('0019', 'Failure'));
+            $this->sendJsonResponse(array('0020', 'Failure'));
         }
     }
 
@@ -2116,7 +2107,14 @@ class engineerApi extends CI_Controller {
         $requestData["call_from_api"] = TRUE;
         $validation = $this->validateSparePartsOrderRequest($requestData);
         if($validation['status']){ 
+            /*Check part warranty status*/
+            $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
             foreach ($requestData['part'] as $key => $value){
+                if(strpos($bookingDetails[0]['request_type'],'Out Of Warranty') == true || strpos($bookingDetails[0]['request_type'],'Gas Recharge - Out') == true ){
+                    $requestData['part'][$key]['part_warranty_status'] = 2;
+                }else{
+                    $requestData['part'][$key]['part_warranty_status'] = 1;
+                }
                 //upload defective front part pic
                 if($value["defective_front_parts"]){
                     $defective_part_pic = "Defective_Parts_".date("YmdHis").".png";
@@ -2135,7 +2133,7 @@ class engineerApi extends CI_Controller {
         
             if($requestData['serial_number_pic_exist']){
                 $serial_number_pic = "serial_number_pic_".date("YmdHis").".png";
-                $this->miscelleneous->generate_image($requestData['serial_number_pic_exist'], $serial_number_pic, "misc-images");
+                $this->miscelleneous->generate_image($requestData['serial_number_pic_exist'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
                 $requestData['serial_number_pic'] = $serial_number_pic;
             }
 
@@ -2144,7 +2142,7 @@ class engineerApi extends CI_Controller {
                 $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "misc-images");
                 $requestData['invoice_pic'] = $invoice_pic;
             }
-        
+            
             //Call curl for updating spare parts using code from where service center ask for spare parts
             $url = base_url()."employee/service_centers/update_spare_parts"; 
             $ch = curl_init($url);
@@ -2740,7 +2738,7 @@ class engineerApi extends CI_Controller {
         }
     }
     
-    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $request_type){
+    function warrantyChecker($booking_id, $partner_id, $booking_create_date, $model_number, $purchase_date, $booking_request_type){
         $data = array();
         $matching_flag = false;
         $arrBookings[0] = array(
@@ -2763,36 +2761,42 @@ class engineerApi extends CI_Controller {
         }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings); 
 
-        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];
-        $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');  
-        $db_warranty_status = $arrBookingsWarrantyStatus[$booking_id];
-        foreach ($arr_warranty_status[$db_warranty_status] as $key => $value) {
-            if(strpos($request_type, $value)){ 
-               $matching_flag = true;
-               break;
-            }
-        }
-        if($matching_flag){
-            $data['warranty_flag'] = 0;
-            $data['message'] = "Warraranty status successfully varified";
-        }
-        else{
-            if($db_warranty_status = "IW"){
-                if((strpos($request_type, 'Out Of Warranty')) || (strpos($request_type, 'Out Warranty'))){
-                    $data['warranty_flag'] = 2;
-                    $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching with current request type (".$request_type.") of booking, but if needed you may proceed with current request type.";
-                }
-                else{
-                    $data['warranty_flag'] = 1;
-                    $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching current request type ".$request_type." to request part please change request type of the booking.";
+        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
+        $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
+        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
+        $warranty_mismatch = 0;
+        $returnMessage = "";
+
+        if(!empty($arr_warranty_status[$warranty_checker_status]))
+        {
+            $warranty_mismatch = 1;
+            foreach($arr_warranty_status[$warranty_checker_status] as $request_types)
+            {
+                if(strpos(strtoupper(str_replace(" ","",$booking_request_type)), strtoupper(str_replace(" ","",$request_types))) !== false)
+                {
+                    $warranty_mismatch = 0;
+                    break;
                 }
             }
-            else{
-                $data['warranty_flag'] = 1;
-                $data['message'] = "Booking Warranty Status (".$arr_warranty_status_full_names[$db_warranty_status].") is not matching current request type ".$request_type." to request part please change request type of the booking.";
-            }
         }
-        return $data;
+
+        if(!empty($warranty_mismatch))
+        {
+            if((strpos(strtoupper(str_replace(" ","",$booking_request_type)), 'OUTOFWARRANTY') !== false))
+            {
+                $warranty_mismatch = 0;
+                $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";
+            }
+            else
+            { 
+                $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
+            }   
+        }
+        $arrReturn['warranty_flag'] = $warranty_mismatch;
+        $arrReturn['message'] = $returnMessage;
+        return $arrReturn;
+        
+        
     }
     
     function getSparePartsWarrantyChecker(){
@@ -2968,7 +2972,7 @@ class engineerApi extends CI_Controller {
     function submitWarrantyCheckerAndEditCallType(){
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-       
+                            
         $missing_key = "";
         $check = true;
         $check_request_type = array();
@@ -3036,9 +3040,18 @@ class engineerApi extends CI_Controller {
                 }
             }
             
-            if($warranty_checker){ 
+            if($warranty_checker){
+                $arrBookings[0] = array(
+                    "booking_id" => $requestData["booking_id"],
+                    "partner_id" => $booking_details["booking_history"][0]['partner_id'],
+                    "booking_create_date" => date("Y-m-d", strtotime($booking_details["booking_history"][0]['create_date'])),
+                    "purchase_date" => date("Y-m-d", strtotime($requestData["purchase_date"])),
+                    "model_number" => $requestData["model_number"],
+                    "service_id" => $booking_details["booking_history"][0]['service_id'],
+                );
+                
                 foreach ($request_types as $request_typess){
-                    //foreach($request_typess as $request_type){
+                    $arrBookingsWarrantyStatus = $this->warranty_utilities->get_warranty_status_of_bookings($arrBookings); 
                         $new_request_type = $this->booking_utilities->get_booking_request_type($request_typess);
                         $response = $this->warrantyChecker($requestData["booking_id"], $booking_details["booking_history"][0]['partner_id'], $booking_details["booking_history"][0]['create_date'], $requestData["model_number"], $requestData["purchase_date"], $new_request_type);
                         if($response['warranty_flag'] == 1){
@@ -3046,34 +3059,11 @@ class engineerApi extends CI_Controller {
                             $warranty_status_holder = $response;
                             $edit_call_type = false;
                             $warranty_checker = false;
+                            break;
                         }
-                        else if($response['warranty_flag'] == 2){
-                            $warranty_status = false;
-                            $warranty_status_holder = $response;
-                            $edit_call_type = true;
-                            $warranty_checker = false;
-                        }
-                   // }
                 }
             } 
            
-            if($warranty_status){
-                if(!$edit_call_type){
-                    log_message("info", __METHOD__ . " Warraranty status successfully varified. ");
-                    $this->jsonResponseString['response'] = array("warranty_flag" => 0, "message" => "Warraranty status successfully varified");
-                    $this->sendJsonResponse(array('0000', "Warraranty status successfully varified"));
-                }
-            }
-            else{ 
-                if(!empty($warranty_status_holder)){
-                //if($warranty_status_holder['warranty_flag'] != 2){
-                    log_message("info", __METHOD__ . $warranty_status_holder['message']);
-                    $this->jsonResponseString['response'] = array("warranty_flag" => $warranty_status_holder['warranty_flag'], "message" => $warranty_status_holder['message']);
-                    $this->sendJsonResponse(array('0056', $warranty_status_holder['message']));
-                //}
-                }
-            }
-            
             if($edit_call_type){  
                 $curl_data['is_repeat'] = $booking_details['is_repeat'];
                 $curl_data['upcountry_data'] = ""; 
@@ -3193,16 +3183,22 @@ class engineerApi extends CI_Controller {
                 
                 log_message("info", "Booking Request type hase been updated successfully");
                 
-                if(!empty($warranty_status_holder)){ 
-                     if($warranty_status_holder['warranty_flag'] != 2){
-                        $this->jsonResponseString['response'] = $response;
-                        $this->sendJsonResponse(array('0000', 'success'));
-                     }
-                }
-                else{ 
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));         
+            }
+            if($warranty_status){
+                if(!$edit_call_type){
+                    log_message("info", __METHOD__ . "Warraranty status successfully varified. ");
                     $this->jsonResponseString['response'] = $response;
-                    $this->sendJsonResponse(array('0000', 'success'));
-                }            
+                    $this->sendJsonResponse(array('0000', "Warraranty status successfully varified"));
+                }
+            }
+            else{ 
+                if(!empty($warranty_status_holder)){
+                    log_message("info", __METHOD__ . $warranty_status_holder['message']);
+                    $this->jsonResponseString['response'] = $response;
+                    $this->sendJsonResponse(array('0056', $warranty_status_holder['message']));
+                }
             }
         }                   
         else{
