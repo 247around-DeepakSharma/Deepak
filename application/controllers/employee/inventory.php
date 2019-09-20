@@ -7470,8 +7470,8 @@ class Inventory extends CI_Controller {
         $spare_id_array = $this->input->post("spare_id_array");
         if(!empty($spare_id_array)){
           $spare_ids = implode(',',$spare_id_array);
-          $select = 'spare_parts_details.booking_id,spare_invoice_details.id,spare_invoice_details.invoice_id,spare_invoice_details.spare_id,spare_invoice_details.invoice_date,spare_invoice_details.hsn_code,spare_invoice_details.invoice_amount,spare_invoice_details.gst_rate,spare_invoice_details.invoice_pdf';
-          $where = array("spare_invoice_details.spare_id IN(".$spare_ids.")" => NULL); 
+          $select = 'spare_parts_details.booking_id,oow_spare_invoice_details.id,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.spare_id,oow_spare_invoice_details.invoice_date,oow_spare_invoice_details.hsn_code,oow_spare_invoice_details.invoice_amount,oow_spare_invoice_details.gst_rate,oow_spare_invoice_details.invoice_pdf';
+          $where = array("oow_spare_invoice_details.spare_id IN(".$spare_ids.")" => NULL); 
           
           $invoice_details = $this->inventory_model->get_spare_invoice_details($select, $where); 
         }
