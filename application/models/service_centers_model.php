@@ -486,6 +486,8 @@ class Service_centers_model extends CI_Model {
         $this->db->join('service_centres', 'spare_parts_details.service_center_id =  service_centres.id');
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
         $this->db->join("services","booking_details.service_id = services.id", "left");
+        $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
+
         $this->db->where($where, false);  
         if($state == 1){
             $stateWhere['agent_filters.agent_id'] = $this->session->userdata('agent_id');
