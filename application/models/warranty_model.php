@@ -64,7 +64,7 @@ class Warranty_model extends CI_Model {
 
         return $query->result_array();
     }
-    
+
     function check_warranty_by_booking_ids($arrBookings) {
         $this->db->_protect_identifiers = FALSE;
         $strBookings = '"'.implode('","', $arrBookings).'"';
@@ -141,7 +141,7 @@ class Warranty_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
-    
+
     function get_warranty_specific_data_of_bookings($arrBookingIds) {
         $this->db->_protect_identifiers = FALSE;
         $strSelect =    'booking_details.booking_id,
@@ -157,8 +157,8 @@ class Warranty_model extends CI_Model {
                                         IFNULL(date(booking_unit_details.sf_purchase_date),
                                                         IFNULL(date(service_center_booking_action.sf_purchase_date),
                                                                         date(booking_unit_details.purchase_date)))) AS purchase_date';
-        
-       
+
+
         $this->db->select($strSelect);
         $this->db->from('booking_details');
         $this->db->join('spare_parts_details', 'booking_details.booking_id = spare_parts_details.booking_id', 'Left');
@@ -166,7 +166,7 @@ class Warranty_model extends CI_Model {
         $this->db->join('service_center_booking_action', 'booking_details.booking_id = service_center_booking_action.booking_id', 'Left');
         $this->db->where_in('booking_details.booking_id',$arrBookingIds);
         $this->db->group_by('booking_details.booking_id');
-        $query = $this->db->get();    
+        $query = $this->db->get();
         return $query->result_array();
     }
 }

@@ -220,7 +220,7 @@ class Engineer_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_engineer_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false, $is_partner = false, $is_vendor = false){
+    function get_engineer_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false, $is_partner = false, $is_vendor = false, $is_sign = false){
         $this->db->distinct();
         $this->db->select($select, false);
         $this->db->from('engineer_booking_action');
@@ -241,6 +241,9 @@ class Engineer_model extends CI_Model {
         }
         if($is_vendor){
             $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id'); 
+        }
+        if($is_sign){
+            $this->db->join('engineer_table_sign', 'engineer_table_sign.booking_id = engineer_booking_action.booking_id'); 
         }
         $query = $this->db->get();
         //echo $this->db->last_query(); die();

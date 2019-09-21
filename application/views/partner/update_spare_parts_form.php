@@ -829,7 +829,7 @@
      
     function change_parts_name(key){
     
-        var model_number_id = $('#shipped_model_number_id').val();
+  var model_number_id = $('#shipped_model_number_id').val();
         var part_name = $('#shippedpartsname_' + key).val();
         var inventory=  $('#shippedpartsname_' +key).find(':selected').attr('data-inventory');
         var service_id =  $('#shippedparttype_' +key).find(':selected').attr('data-service_id');

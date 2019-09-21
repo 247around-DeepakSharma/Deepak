@@ -1,7 +1,7 @@
 <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
 <style>
-    #msl_info{margin: 10px 89px;width: 88%;padding: 0px;}
+    #msl_info{margin: 10px 15px;width: 98%;padding: 0px;}
     #msl_info .x_title{color: black;}
     #msl_info .x_title>h2{text-align: center; margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;}
     #msl_info .x_body{
@@ -48,6 +48,7 @@
             </div>';
             }
             ?>
+        <?php if($this->session->userdata("is_micro_wh")==1){ ?>
         <div class="col-md-10 col-md-offset-2" id="msl_info">
             <div class="x_title">
                 <h2><b>MSL Security Amount</b></h2>
@@ -67,6 +68,7 @@
                 </div>
             </div>
         </div>
+        <?php } ?>
         <div class="col-md-10 col-md-offset-2">
             <div style="margin-top:10px; display: flex;font-size: 25px;">
                     <b>Rating:</b> &nbsp;
@@ -110,6 +112,7 @@
                 <?php if($this->session->userdata('is_update') == 1){ ?>
                 <li role="presentation"><a href="#tomorrow_booking" aria-controls="tomorrow_booking" role="tab" data-toggle="tab">Tomorrow Bookings</a></li>
                 <li role="presentation"><a href="#rescheduled_booking" aria-controls="rescheduled_booking" role="tab" data-toggle="tab">Rescheduled Bookings</a></li>
+                <li role="presentation"><a href="#inprogress_bookings" aria-controls="inprogress_bookings" role="tab" data-toggle="tab">InProcess Bookings</a></li>
                 <li role="presentation"><a href="#spare_required" aria-controls="spare_required" role="tab" data-toggle="tab">Spare Required Bookings</a></li>
                 <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
                 <li role="presentation"><a href="#bookings_on_approval" aria-controls="bookings_on_approval" role="tab" data-toggle="tab">Bookings On Approval</a></li>
@@ -168,7 +171,7 @@
     </div>
 </div>
 <!-- Modal -->
-<div id="myModal1" class="modal fade" role="dialog">
+<div id="UpcountryModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" id="open_model">
         <!-- Modal content-->
         <div class="modal-content" >
@@ -200,6 +203,11 @@
         
     
         $('#tomorrow_datatable').dataTable( {
+            "pageLength": 50,
+            "bFilter": false
+        } );
+    
+        $('#inprogress_datatable').dataTable( {
             "pageLength": 50,
             "bFilter": false
         } );
@@ -426,7 +434,7 @@ span.stars span {
       url: '<?php echo base_url(); ?>service_center/pending_booking_upcountry_price/' + booking_id+"/"+is_customer_paid +"/"+flat_upcountry,
       success: function (data) {
        $("#open_model").html(data);   
-       $('#myModal1').modal('toggle');
+       $('#UpcountryModal').modal('toggle');
     
       }
     });

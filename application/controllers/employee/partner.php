@@ -2008,8 +2008,6 @@ class Partner extends CI_Controller {
         }
         
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
-        
-        
         $this->miscelleneous->load_partner_nav_header();
         $this->load->view('partner/update_spare_parts_form', $data);
         $this->load->view('partner/partner_footer');
@@ -2770,7 +2768,7 @@ class Partner extends CI_Controller {
      * @return: String
      * 
      */
-    function get_brands_from_service() {
+    function get_brands_from_service() {    
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $appliace_brand = $this->input->post('brand');
@@ -2911,6 +2909,55 @@ class Partner extends CI_Controller {
         echo $capacity;
     }
 
+    /**
+     * @Desc: This function is used to get  Model for Partner for particular Brand, service_id, capacity and category
+     *      This is being called from AJAX
+     * @params: partner_id, service_name, brand_name, category
+     * $return: Json
+     * 
+     */
+    function get_model_for_partner_with_brand() {
+        $partner_id = $this->input->post('partner_id');
+        $service_id = $this->input->post('service_id');
+        $brand = $this->input->post('brand');
+ 
+        
+       
+            $where = array(
+                "partner_appliance_details.partner_id" => $partner_id,
+                'partner_appliance_details.service_id' => $service_id,
+                'partner_appliance_details.brand' => $brand,
+                'appliance_model_details.active'=> 1
+            );
+            
+           
+            $data = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number, model", $where);
+       
+
+
+        if (!empty($data[0]['model'])) {
+            $model = "";
+            foreach ($data as $value) {
+                $model .= "<option ";
+//                if (trim($model_number) === trim($value['model_number'])) {
+//                    $model .= " selected ";
+//                } else if (count($data) == 1) {
+//                    $model .= " selected ";
+//                }
+//                else{
+//                    if($is_repeat){
+//                        $model .= " disabled ";
+//                    }
+//                }
+                
+                $model .= " value='" . $value['model_number'] . "'>" . $value['model_number'] . "</option>";
+            }
+            echo $model;
+        } else {
+            echo "Data Not Found";
+        }
+    }
+    
     /**
      * @Desc: This function is used to get  Model for Partner for particular Brand, service_id, capacity and category
      *      This is being called from AJAX
@@ -4073,7 +4120,7 @@ class Partner extends CI_Controller {
      * 
      */
     function download_sf_list_excel() {
-        $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1');
+        $where = array('service_centres.active' => '1', 'service_centres.on_off' => '1',is_CP => '0');
         $select = "service_centres.id,service_centres.district,service_centres.state,service_centres.pincode,service_centres.appliances,service_centres.non_working_days,GROUP_CONCAT(sub_service_center_details.district) as upcountry_districts";
         //$vendor = $this->vendor_model->getVendorDetails($select, $where, 'state');
              $vendor =  $this->reusable_model->get_search_result_data("service_centres",$select,$where,array("sub_service_center_details"=>"sub_service_center_details.service_center_id = service_centres.id"),
@@ -5296,6 +5343,7 @@ class Partner extends CI_Controller {
     }
     
     function download_spare_part_shipped_by_partner($isAdmin=0,$partner_post=0){
+        ini_set('memory_limit', '-1');
         ob_start();
         $where = '1';
         if($isAdmin == 0 && $partner_post==0) {
@@ -5445,8 +5493,8 @@ class Partner extends CI_Controller {
              }else{
             $tempArray[] = "No";   
              }
-
-             $CSVData[]  = $tempArray;            
+             
+            $CSVData[]  = $tempArray;            
         }  
 
         $this->miscelleneous->downloadCSV($CSVData, $headings, "Spare_Part_Shipped_By_Partner_".date("Y-m-d"));
@@ -6263,6 +6311,7 @@ class Partner extends CI_Controller {
         echo json_encode($res);
     }
     function download_real_time_summary_report($partnerID){
+        ini_set('memory_limit', '-1');
         $newCSVFileName = "Booking_summary_" . date('j-M-Y-H-i-s') . ".csv";
         $csv = TMP_FOLDER . $newCSVFileName;
         $report = $this->partner_model->get_partner_leads_csv_for_summary_email($partnerID,0);
@@ -7797,6 +7846,7 @@ class Partner extends CI_Controller {
         $post['partner_id'] = $this->input->post('partner_id');
         $post['service_id']=$this->input->post('service_id');
         $post['brand']=$this->input->post('brand');
+        $post['model']=$this->input->post('model');
         $post['request_type']=$this->input->post('request_type');
 
         return $post;
@@ -7807,9 +7857,10 @@ class Partner extends CI_Controller {
         $service_id=$data['service_id'];
         $brand=$data['brand'];
         $request_type=$data['request_type'];
+        $model=$data['model'];
         
         if(!empty($id)){
-            $data['where']['entity_id'] =  $id;
+            $data['where']['collateral.entity_id'] =  $id;
         }
         if(!empty($service_id))
             $data['where']['collateral.appliance_id'] =  $service_id;
@@ -7817,6 +7868,8 @@ class Partner extends CI_Controller {
             $data['where']['collateral.brand'] =  $brand;
         if(!empty($request_type))
             $data['where_in']['request_type'] =  $request_type;
+        if(!empty($model))
+            $data['where']['collateral.model'] =  $model;
         
         $data['column_order'] = array(NULL,'collateral_type','model','category', 'capacity',NULL, NULL,'start_date');
         $data['column_search'] = array('collateral_type','model','category', 'capacity','document_description');
@@ -8319,90 +8372,81 @@ class Partner extends CI_Controller {
         );
         echo json_encode($output);
     }
-
-
-
-
     function do_partner_nrn_approval(){
 
-        $booking_id = trim($this->input->post('booking_id'));
-        $partner_id = $this->session->userdata('partner_id');
-        if(empty($partner_id)){
-         $partner_id = $this->input->post('partner_id');   
-        }
-        $email="Not Given";
-        $remarks = $this->input->post('remarks');
-        if (isset($_POST['email']) && !empty($_POST['email'])) {
-           $email = $this->input->post('email');
-        }
-      //  $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG',);
-        $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG','docx','DOCX','doc','DOC');
-        $approval_file_name = "Not Uploaded";
-        if(isset($_FILES["approval_file"]) && !empty($_FILES["approval_file"])){
-           $approval_file_name = $this->miscelleneous->upload_file_to_s3($_FILES["approval_file"], "nrn_approval", $allowedExts, $booking_id, "nrn_approvals_files", "incoming_approve_nrn");
-        }
+            $booking_id = trim($this->input->post('booking_id'));
+            $partner_id = $this->session->userdata('partner_id');
+            if(empty($partner_id)){
+             $partner_id = $this->input->post('partner_id');   
+            }
+            $email="Not Given";
+            $remarks = $this->input->post('remarks');
+            if (isset($_POST['email']) && !empty($_POST['email'])) {
+               $email = $this->input->post('email');
+            }
+          //  $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG',);
+            $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG','docx','DOCX','doc','DOC');
+            $approval_file_name = "Not Uploaded";
+            if(isset($_FILES["approval_file"]) && !empty($_FILES["approval_file"])){
+               $approval_file_name = $this->miscelleneous->upload_file_to_s3($_FILES["approval_file"], "nrn_approval", $allowedExts, $booking_id, "nrn_approvals_files", "incoming_approve_nrn");
+            }
 
-        $data_nrn = array(
-            'booking_id'=>$booking_id,
-            'email_to'=>trim($email),
-            'approval_file'=>$approval_file_name,
-            'remark'=>trim($remarks)
-        );
+            $data_nrn = array(
+                'booking_id'=>$booking_id,
+                'email_to'=>trim($email),
+                'approval_file'=>$approval_file_name,
+                'remark'=>trim($remarks)
+            );
 
- $where_shipped = array('booking_id' => trim($booking_id),'shipped_date IS NOT NULL'=>NULL);
- $check_shipped_status = $this->partner_model->get_spare_parts_by_any("*",$where_shipped);
-        $response = $this->partner_model->insert_nrn_approval($data_nrn);
-        if ($response  && empty($check_shipped_status)) {
+     $where_shipped = array('booking_id' => trim($booking_id),'shipped_date IS NOT NULL'=>NULL);
+     $check_shipped_status = $this->partner_model->get_spare_parts_by_any("*",$where_shipped);
+            $response = $this->partner_model->insert_nrn_approval($data_nrn);
+            if ($response  && empty($check_shipped_status)) {
 
-        	$select_invemtory = "partner_id,requested_inventory_id,quantity,booking_id,status,entity_type";
-        	$where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
-        	$spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
+                $select_invemtory = "partner_id,requested_inventory_id,quantity,booking_id,status,entity_type";
+                $where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
+                $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
 
-        	foreach ($spare_inventory_update as  $update_pending) {
-        		 
-        		$this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
-        	}
+                foreach ($spare_inventory_update as  $update_pending) {
 
-        
-                $where = array('booking_id' => trim($booking_id));
-                $data = array(
-                    'status'=>NRN_APPROVED_BY_PARTNER,
-                    'nrn_approv_by_partner'=>1
-                );
-                $response = $this->service_centers_model->update_spare_parts($where, $data);
-
-                    $booking['internal_status'] =NRN_APPROVED_BY_PARTNER;
-                    $booking['current_status'] = _247AROUND_PENDING;
-                    $actor="";
-                    $next_action="";
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING,NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);
-                
-                if (!empty($partner_status)) {
-                    $booking['partner_current_status'] = $partner_status[0];
-                    $booking['partner_internal_status'] = $partner_status[1];
-                    $actor = $booking['actor'] = $partner_status[2];
-                    $next_action = $booking['next_action'] = $partner_status[3];
+                    $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
                 }
-                $this->booking_model->update_booking($booking_id, $booking);
 
-               $data_service_center=array(
-                		'current_status'=>_247AROUND_PENDING,
-                		'internal_status'=>NRN_APPROVED_BY_PARTNER
-                );
-               $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
 
-                $new_state=NRN_APPROVED_BY_PARTNER;
-                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor,$next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
-                echo "1";   
-        }else{
-           echo "0";
+                    $where = array('booking_id' => trim($booking_id));
+                    $data = array(
+                        'status'=>NRN_APPROVED_BY_PARTNER,
+                        'nrn_approv_by_partner'=>1
+                    );
+                    $response = $this->service_centers_model->update_spare_parts($where, $data);
+
+                        $booking['internal_status'] =NRN_APPROVED_BY_PARTNER;
+                        $booking['current_status'] = _247AROUND_PENDING;
+                        $actor="";
+                        $next_action="";
+                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING,NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);
+
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
+                    }
+                    $this->booking_model->update_booking($booking_id, $booking);
+
+                   $data_service_center=array(
+                            'current_status'=>_247AROUND_PENDING,
+                            'internal_status'=>NRN_APPROVED_BY_PARTNER
+                    );
+                   $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
+
+                    $new_state=NRN_APPROVED_BY_PARTNER;
+                        $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor,$next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
+                    echo "1";   
+            }else{
+               echo "0";
+            }
+
         }
-       
-    }
-
-
-
-
-
    
 }

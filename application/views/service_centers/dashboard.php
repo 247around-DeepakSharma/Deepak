@@ -23,6 +23,7 @@
     #msl_info .count{text-decoration: underline;font-size: 36px;}
 </style>
 <div class="row" style="margin: 0px;">
+    <?php if($this->session->userdata("is_micro_wh")==1){ ?>
     <div class="col-md-10 col-md-offset-2" id="msl_info">
         <div class="x_title">
             <h2>MSL Security Amount</h2>
@@ -42,6 +43,7 @@
             </div>
         </div>
     </div>
+    <?php } ?>
     <div class="col-md-10 col-md-offset-2" style="margin: 10px 89px;width: 88%;padding: 0px;">
         <div class="x_title" style="background: #2c9d9c; color: #fff;">
             <h2 style="margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;">Performance Summary</h2>

@@ -37,8 +37,10 @@ class Engineer extends CI_Controller {
     }
     
     function review_engineer_action_form(){
-      
         $where['where'] = array("engineer_booking_action.current_status" => "InProcess");
+        if($this->session->userdata('service_center_id')){
+            $where['where']['engineer_booking_action.service_center_id'] = $this->session->userdata('service_center_id');
+        }
         $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid, engineer_table_sign.remarks, engineer_table_sign.mismatch_pincode");
        
         foreach ($data as $key => $value) {
@@ -229,7 +231,7 @@ class Engineer extends CI_Controller {
         $data = array();
         $no = $post['start'];
         
-        $list =  $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, service_centres.name as company_name", $post);
+        $list =  $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, engineer_details.create_date, service_centres.name as company_name", $post);
         //echo $this->db->last_query(); die();
         foreach ($list as $key => $value) {
            $service_id  = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$value->id, "is_active"=>1), "service_id");
@@ -283,6 +285,7 @@ class Engineer extends CI_Controller {
         $row[] = $phone_call_button;
         $row[] = $alternet_phone_call_button;
         $row[] = $engineer_list->identity_proof;
+        $row[] = date('Y-m-d', strtotime($engineer_list->create_date));
         if(!$this->input->post("service_center_id")){
             if($this->session->userdata('user_group') == 'regionalmanager'){ 
                 if($engineer_list->varified == 0){

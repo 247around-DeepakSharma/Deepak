@@ -313,7 +313,6 @@
                                             <div class="col-md-6">
                                                 <input type="text"   min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
                                                 <span id="error_span_0" style="color:red;" class="hide"></span>
-
                                             </div>
 
                                         </div>
@@ -1055,7 +1054,7 @@ function alpha(e) {
     });
 
     // function to cross check request type of booking with warranty status of booking 
-    function check_booking_request()
+   function check_booking_request()
     {
         var model_number = $('#model_number').val();
         var dop = $("#dop").val();

@@ -570,6 +570,455 @@ INSERT INTO entity_login_table (entity, entity_id, entity_name, contact_person_i
 UPDATE `sms_template` SET `template` = 'Hi %S,Your Engineer Login is created.User Id - %s,Password - %s. download engineer app from https://urlzs.com/zoUkF.247around' WHERE `sms_template`.`tag` = 'engineer_login_sms_template';
 --Gorakh 08-08-2019
 ALTER TABLE `inventory_model_mapping` ADD `active` TINYINT DEFAULT 1 AFTER  `create_date`;
+=======
+ 
+-- Ankit 13-08-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'not_delivered_bb_orders', NULL, ' ', 'sunilk@247around.com', 'kmardee@amazon.com,ybhargav@amazon.com', 'sunilk@247around.com', '', '1', '', CURRENT_TIMESTAMP);
+ 
+--Gorakh 08-08-2019
+ALTER TABLE `inventory_model_mapping` ADD `active` TINYINT DEFAULT 1 AFTER  `create_date`;
+
+-- Menus for category/capacity
+INSERT INTO `header_navigation` ( `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Partner Category Capacity Mapping', NULL, 'employee/service_centre_charges/show_partner_appliances', 2, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:13:09'),
+( '247Around', 'Capacity', NULL, 'capacity', 2, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:11:02'),
+( '247Around', 'Category', NULL, 'category', 1, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:07:06');
+
+-- Add Foriegn key Constraints on Warranty Tables
+ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT `fk_warranty_plan_model_mapping_services` FOREIGN KEY(`service_id`) REFERENCES services(id);
+ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT `fk_warranty_plan_model_mapping_plans` FOREIGN KEY(`plan_id`) REFERENCES warranty_plans(plan_id);
+ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT `fk_warranty_plan_model_mapping_model` FOREIGN KEY(`model_id`) REFERENCES appliance_model_details(id);
+ALTER TABLE warranty_plans  ADD CONSTRAINT `fk_warranty_plan_partner_id_partners_id` FOREIGN KEY (partner_id) REFERENCES partners (id);
+ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_mapping_plan_id_warranty_plan_plan_id FOREIGN KEY (plan_id) REFERENCES warranty_plans (plan_id);
+ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_mapping_state_code_state_state_code FOREIGN KEY (state_code) REFERENCES state_code (state_code);
+ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_part_type_inventory_parts_type_id FOREIGN KEY (part_type_id) REFERENCES inventory_parts_type (id);
+ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_plan_id_warranty_plan_plan_id FOREIGN KEY (plan_id) REFERENCES warranty_plans (plan_id);
+
+
+--- Abhishek -----
+
+CREATE TABLE spare_nrn_approval ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `booking_id` VARCHAR(50) NOT NULL ,  `email_to` VARCHAR(100) NULL DEFAULT NULL ,  `remark` TEXT NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `spare_nrn_approval` ADD `approval_file` TEXT NULL DEFAULT NULL AFTER `email_to`;
+ALTER TABLE `spare_parts_details` ADD `nrn_approv_by_partner` INT(5) NOT NULL DEFAULT '0' AFTER `spare_cancellation_reason`;
+ 
+ 
+-- Ankit 13-08-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'not_delivered_bb_orders', NULL, ' ', 'sunilk@247around.com', 'kmardee@amazon.com,ybhargav@amazon.com', 'sunilk@247around.com', '', '1', '', CURRENT_TIMESTAMP);
+
+---Abhishek--
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES (NULL, '247130', 'Pending', 'NRN Approved By Partner', 'NRN Approved By Partner', 'NRN Approved By Partner', 'Partner', NULL, CURRENT_TIMESTAMP);
+ 
+-- Kajal 20-08-2019
+INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare_part_lost', 'Part Sold', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
+UPDATE `invoice_tags` SET `tag` = 'part_lost' WHERE `invoice_tags`.`sub_category` = 'Defective Part Lost';
+
+-- Kajal 22-08-2019
+UPDATE `invoice_tags` SET `tag` = 'Out-of-Warranty' WHERE `invoice_tags`.`sub_category` = 'Out-of-Warranty';
+
+-- Prity 26-08-2019
+ALTER TABLE warranty_plans add column `plan_depends_on` int(11) NOT NULL DEFAULT 1 COMMENT '1 => Model Specific (Plan Valid on Model Number), 2 => Service Specific (Plan Valid on Product eg : AC, WM)';
+--Gorakh 26-08-2019
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Master', NULL, NULL, 1, NULL, 'accountmanager,admin,closure,developer,inventory_manager,regionalmanager', 'main_nav', 1, '2017-12-29 06:08:44');
+
+UPDATE `header_navigation` SET `parent_ids` = '247',title ='Upload Model Master' WHERE `header_navigation`.`id` = 120;
+UPDATE `header_navigation` SET `parent_ids` = '247',title='Upload BOM Master'  WHERE `header_navigation`.`id` = 116;
+UPDATE `header_navigation` SET `parent_ids` = '247', title ='Upload Alternate Master' WHERE `header_navigation`.`id` = 225;
+UPDATE `header_navigation` SET `parent_ids` = '247', title='Upload Model vs Part Code Master' WHERE `header_navigation`.`id` = 121;
+UPDATE `header_navigation` SET `parent_ids` = '247',title='Create Part Type' WHERE `header_navigation`.`id` = 197;
+UPDATE `header_navigation` SET `parent_ids` = '190',title='Upload Symptom Master' WHERE `header_navigation`.`id` = 190;
+
+UPDATE `header_navigation` SET `parent_ids` = '247',title='Download Serviceable BOM By Appliance' WHERE `header_navigation`.`id` = 233;
+
+UPDATE `header_navigation` SET `is_active` = '0' WHERE `header_navigation`.`id` = 239;
+
+UPDATE `header_navigation` SET `parent_ids` = '247',title='Download Serviceable BOM By Model' WHERE `header_navigation`.`id` = 152;
+
+UPDATE `header_navigation` SET `parent_ids` = '247', WHERE `header_navigation`.`id` = 240;
+
+UPDATE `header_navigation` SET `parent_ids` = '247', WHERE `header_navigation`.`id` = 236;
+
+UPDATE `header_navigation` SET `parent_ids` = '247',title='Download Alternate Part Master' WHERE `header_navigation`.`id` = 238;
+-- Ankit 29-08-2019
+CREATE TABLE spare_consumption_status (
+	id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	consumed_status varchar(255) NOT NULL,
+	is_consumed tinyint(0) NOT NULL DEFAULT 0,
+	create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	update_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO `spare_consumption_status` (`id`, `consumed_status`, `is_consumed`, `create_date`, `update_date`) VALUES (NULL, 'Product consumed', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Product not delivered', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Damage/Broken part received', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Wrong part received', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Part shipped but not used', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Part cancelled', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Part not NRN approved', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+ALTER TABLE spare_parts_details ADD COLUMN consumed_part_status_id int(11) NULL DEFAULT NULL AFTER old_status;
+
+-- Kajal 29-08-2019
+ALTER TABLE `inventory_master_list` ADD `is_invoice` INT(1) NOT NULL DEFAULT '0' AFTER `part_image`;
+
+
+--Pranjal 30-8-2019 - for adding link for RM Mapping
+insert into `header_navigation`(`entity_type`,`title`,`link`,`level`,`groups`,`nav_type`,`is_active`)
+values ('247Around','RM Mapping','employee/user/rm_state_mapping',1,'admin,developer','right_nav','1')
+-- Gorakh 31-08-2019
+ALTER TABLE `hsn_code_details` ADD `service_id` INT NULL DEFAULT NULL AFTER `agent_id`;
+CREATE TABLE `spare_invoice_details` (
+  `id` int(11) NOT NULL,
+  `invoice_id` varchar(255) NOT NULL,
+  `spare_id` int(11) NOT NULL,
+  `invoice_date` datetime NOT NULL,
+  `hsn_code` varchar(255) NOT NULL,
+  `gst_rate` varchar(255) NOT NULL,
+  `invoice_amount` varchar(255) NOT NULL,
+  `invoice_pdf` varchar(500) NOT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `spare_invoice_details`
+  ADD PRIMARY KEY (`id`);
+ALTER TABLE `spare_invoice_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1;
+
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =11081200;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =15050020;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =27111900;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =28044090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =29012300;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =29012910;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =29033919;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =29037100;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =29291010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =29291090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =32041916;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =32041990;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =32061900;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =32064900;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =32081010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =32082090;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =32091010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =32149090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =34039900;
+UPDATE hsn_code_details SET service_id ='42' WHERE hsn_code =35061000;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =35069910;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =38021000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =38101010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =38101090;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =38140010;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =38240000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =38249090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39011010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39021000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39031100;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39031900;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39033000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39039010;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39069000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39071000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39072010;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39073090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39093090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39129020;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =39152000;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =39159090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39171010;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =39172390;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39173100;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39173290;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =39191000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39199010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39199090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39201019;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39202010;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =39202090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39203090;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =39204300;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =39206190;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39206919;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =39210000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39211200;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39211390;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39211900;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39219010;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =39231010;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =39231090;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =39232100;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39232910;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39232990;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39239090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =39241010;
+UPDATE hsn_code_details SET service_id ='42' WHERE hsn_code =39249000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39269010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =39269099;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =40091100;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =40091200;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =4010;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =40101990;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =40103190;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =40103999;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =40161000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =40169320;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =40169330;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =40169340;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =40169350;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =40169390;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =40169950;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =40169960;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =40169990;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =48040000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =48081000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =48089000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =48114100;
+UPDATE hsn_code_details SET service_id ='53' WHERE hsn_code =4819;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =48191010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =48191090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =48192010;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =48192090;
+UPDATE hsn_code_details SET service_id ='42' WHERE hsn_code =48200000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =48211010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =48211020;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =48219090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =48239090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =49011010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =49011020;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =49019900;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =49111090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =52083320;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =54075210;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =62052000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =70031290;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =70040000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =70071900;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =70200090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =72101190;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =72104900;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =72107000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =72124000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =72170000;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =72286012;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =73070000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =7318;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =73181110;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =73181400;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =73181500;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =73181600;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =73182100;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =73182200;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =73182900;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =73182990;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =73199000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =73201011;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =73209090;
+UPDATE hsn_code_details SET service_id ='59' WHERE hsn_code =73219000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =73251000;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =73259999;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =7326;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =73261100;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =73269099;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =74111000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =74112900;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =74120000;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =74199930;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =76011090;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =76071190;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =76169990;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =82051000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =82057000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =83013000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =83022000;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =83052000;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =83081019;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =83100090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =83113090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =83119000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =84130000;
+UPDATE hsn_code_details SET service_id ='53' WHERE hsn_code =84137010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84143000;
+UPDATE hsn_code_details SET service_id ='58' WHERE hsn_code =84145190;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =84145990;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84148011;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84149011;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =84151010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84159000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84180000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84181090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84186990;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84189010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84189900;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84189990;
+UPDATE hsn_code_details SET service_id ='38' WHERE hsn_code =84212190;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =84212900;
+UPDATE hsn_code_details SET service_id ='58' WHERE hsn_code =84213990;
+UPDATE hsn_code_details SET service_id ='58' WHERE hsn_code =84219900;
+UPDATE hsn_code_details SET service_id ='58' WHERE hsn_code =84219990;
+UPDATE hsn_code_details SET service_id ='58' WHERE hsn_code =84439990;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =8450;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =84501200;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =84509000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84509010;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =84509090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84663020;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =84718000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84733030;
+UPDATE hsn_code_details SET service_id ='53' WHERE hsn_code =84799090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =84807900;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =84811000;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =84818090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84828000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =8483;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =84831099;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =84834000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =84835090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =84849000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =8501;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85010000;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =85011011;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85011019;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85011020;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85012000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85013119;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85014090;
+UPDATE hsn_code_details SET service_id ='58' WHERE hsn_code =85015190;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85030090;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85041090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85043100;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85045010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85045090;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85066000;
+UPDATE hsn_code_details SET service_id ='55' WHERE hsn_code =85099000;
+UPDATE hsn_code_details SET service_id ='42' WHERE hsn_code =85159000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85161000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85162900;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85168000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85169000;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85172900;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85177090;
+UPDATE hsn_code_details SET service_id ='45' WHERE hsn_code =8518;
+UPDATE hsn_code_details SET service_id ='45' WHERE hsn_code =85181000;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85182900;
+UPDATE hsn_code_details SET service_id ='45' WHERE hsn_code =85183000;
+UPDATE hsn_code_details SET service_id ='45' WHERE hsn_code =85185000;
+UPDATE hsn_code_details SET service_id ='45' WHERE hsn_code =85219090;
+UPDATE hsn_code_details SET service_id ='45' WHERE hsn_code =85229000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85258090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85281200;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85287213;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85287218;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85287219;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =8529;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85299090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =8532;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =85321000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85322200;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85322500;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85322900;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85322990;
+UPDATE hsn_code_details SET service_id ='45' WHERE hsn_code =85331000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85333190;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85333990;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85334030;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85334090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85340000;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85361010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85361060;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85361090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85363000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85365090;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85366910;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85366990;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85369090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85371000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85392200;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85393190;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85401190;
+UPDATE hsn_code_details SET service_id ='42' WHERE hsn_code =85407100;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85411000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85412900;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85413010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85414020;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85414090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85415000;
+UPDATE hsn_code_details SET service_id ='45' WHERE hsn_code =85416000;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85423100;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =85429000;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85437099;
+UPDATE hsn_code_details SET service_id ='53' WHERE hsn_code =8544;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85440000;
+UPDATE hsn_code_details SET service_id ='50' WHERE hsn_code =85441110;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85441920;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85441990;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =85442010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85444220;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85444920;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =85444999;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =90049090;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =90065990;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =90138010;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =90139010;
+UPDATE hsn_code_details SET service_id ='46' WHERE hsn_code =90139090;
+UPDATE hsn_code_details SET service_id ='58' WHERE hsn_code =90318000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =90321010;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =90328990;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =91070000;
+UPDATE hsn_code_details SET service_id ='42' WHERE hsn_code =94032010;
+UPDATE hsn_code_details SET service_id ='53' WHERE hsn_code =94039000;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =94051090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =94054090;
+UPDATE hsn_code_details SET service_id ='28' WHERE hsn_code =96121090;
+UPDATE hsn_code_details SET service_id ='37' WHERE hsn_code =99000000;
+
+--Abhishek--2-sep-2019
+ALTER TABLE `spare_parts_details` ADD `shipped_to_partner_qty` INT(11) NOT NULL DEFAULT '1' AFTER `shipped_quantity`;
+
+-- Kajal 02-09-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'sf_invoice_summary', 'SF Invoice Summary for period: %s to %s', 
+'Dear SF, Invoice Summary are as follows:- <br><br>%s<br>
+<br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
+VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s to %s', 
+'Dear Partner, Invoice Summary are as follows:- <br><br>%s<br>
+<br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+-- Kajal 04-09-2019
+UPDATE `email_template` SET `subject` = 'Spare shipped by %s to %s' , `template` = 'Dear Partner,<br><br> <b>%s</b> shipped below spare to your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around' , `cc` = 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com' WHERE `email_template`.`tag` = 'msl_send_by_wh_to_partner';
+
+-- Kajal 05-09-2019
+UPDATE `email_template` SET `from` = 'defective-outward@247around.com', `cc` = 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com' WHERE `email_template`.`tag` = 'defective_spare_send_by_wh_to_partner';
+
+-- Kajal 06-09-2019
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_wh', 'Spare shipped by %s to %s', 'Dear SF,<br><br> <b>%s</b> shipped below spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', NULL, 'defective-outward@247around.com', '', 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_wh', 'New Spare shipped by %s to %s', 'Dear SF,<br><br> <b>%s</b> shipped below new spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', NULL, 'defective-outward@247around.com', '', 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+-- Ankit 09-09-2019
+CREATE TABLE wrong_part_shipped_details (
+    id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    spare_id int(11) NOT NULL,
+    part_name varchar(255) NOT NULL,
+    inventory_id int(11) NOT NULL,
+    remarks text NULL DEFAULT NULL
+);
+
+--Kalyani 10-09-2019
+UPDATE `sms_template` SET `template` = 'Get 5 Percent Cashback On Your %s Booking. Download QR Code from %s Or Engineer Job Card & Pay On Paytm App. Use Paytm even if technician refuses and asks for Cash. 5 Percent Discount ONLY available on Payments made through Paytm. %s 247around' WHERE `sms_template`.`tag` = "customer_qr_download";
+
+
+--Kalyani 11-09-2019
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Total Bookings Closed By Engineer', 'Completed', 'Cancelled', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= \"2019-08-01\" AND internal_status = \"Completed\"', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= \"2019-08-01\" AND internal_status = \"Cancelled\"', 'developer', '1', 'service', '1', NULL, CURRENT_TIMESTAMP);
+INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Todays Bookings Closed By Engineer', 'Completed', 'Cancelled', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND DATE(closed_date) = CURDATE() AND internal_status = \"Completed\"', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND DATE(closed_date) = CURDATE() AND internal_status = \"Cancelled\"', 'developer', '1', 'service', '1', NULL, CURRENT_TIMESTAMP);
+
+--sachin 11-09-2019
+
+CREATE TABLE `boloaaka`.`part_type_return_mapping` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `partner_id` INT(11) NOT NULL , `appliance_id` INT(11) NOT NULL , `part_type` VARCHAR(128) NOT NULL , `is_return` BOOLEAN NULL DEFAULT NULL , `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `part_type_return_mapping` ADD `inventory_id` INT(11) NOT NULL AFTER `appliance_id`;
+
+--Kalyani 12-09-2019
+ALTER TABLE `engineer_booking_action` ADD `purchase_invoice` VARCHAR(255) NULL DEFAULT NULL AFTER `serial_number_pic`;
+>>>>>>> CRM_Release_1.66.0.2
 
 -- Menus for category/capacity
 INSERT INTO `header_navigation` ( `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES

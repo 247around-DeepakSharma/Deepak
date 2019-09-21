@@ -676,7 +676,7 @@
 
                         var count = $("#requested_appliance_count").val();
                         if(count == ''){
-                            $("#requested_appliance_count").val(i); 
+                            $("#requested_appliance_count").val(i);
                         }
 
                         if(Number($('#partBasicPrice_'+i).val()) == 0){
@@ -715,7 +715,7 @@
                 if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
                     $('#invoice_amount').css('border','1px solid #ccc');
                     $('#total_spare_invoice_price').removeClass('text-danger');
-                    
+
                     /* Open Modal */
                     $("#clone_id").empty();
                     $('#appliance_details_id').clone(true).appendTo('#clone_id');
@@ -726,11 +726,11 @@
                     $("#clone_id .addButton").hide();
                     $("#clone_id .removeButton").hide(); 
                     if(flag == true){
-                        $('#map_appliance_model').modal('toggle');  
+                        $('#map_appliance_model').modal('toggle');
                     }
-                    
+
                     var c_status = $("#confirmation").val();
-                    if((c_status !='')&& (c_status == '1')){                    
+                    if((c_status !='')&& (c_status == '1')){
                         showConfirmDialougeBox('Are you sure you want to submit ?', 'info');
                     }
                     
@@ -739,7 +739,7 @@
                     $('#invoice_amount').css('border','1px solid red');
                     $('#total_spare_invoice_price').addClass('text-danger');
                     return false;
-                }      
+                }
             }
         });
         
@@ -788,80 +788,80 @@
         document.getElementById(input_id).style.borderColor = color;
         document.getElementById(error_id).innerHTML = message;
     }
-    
+
     function check_validation(){
         var flag=true;
-        
+
         if($.trim($("#dated").val()) === ""){
             display_message("dated","error_dated","red","Please Enter Invoice Date");
             flag=false;
              return false;
         } else {
             display_message("dated","error_dated","green","");
-            flag=true; 
+            flag=true;
         }
-        
+
         if($.trim($("#invoice_id").val()) === ""){
             display_message("invoice_id","error_invoice_id","red","Please Enter Invoice Number");
             flag=false;
              return false;
         } else {
             display_message("invoice_id","error_invoice_id","green","");
-            flag=true; 
+            flag=true;
         }
-        
+
         if($.trim($("#invoice_amount").val()) === ""){
             display_message("invoice_amount","error_invoice_amount","red","Please Enter Invoice Amount");
             flag=false;
              return false;
         } else {
             display_message("invoice_amount","error_invoice_amount","green","");
-            flag=true; 
+            flag=true;
         }
-        
+
         if($.trim($("#invoice_file").val()) === ""){
             display_message("invoice_file","error_invoice_file","red","Please Enter Invoice File");
             flag=false;
              return false;
         } else {
             display_message("invoice_file","error_invoice_file","green","");
-            flag=true; 
+            flag=true;
         }
-        
+
         if($.trim($("#courier_name").val()) === ""){
             display_message("courier_name","error_courier_name","red","Please Enter Courier Name");
             flag=false;
              return false;
         } else {
             display_message("courier_name","error_courier_name","green","");
-            flag=true; 
+            flag=true;
         }
-        
+
         if($.trim($("#despatch_doc_no").val()) === ""){
             display_message("despatch_doc_no","error_despatch_doc_no","red","Please Enter AWB Number");
             flag=false;
              return false;
         } else {
             display_message("despatch_doc_no","error_despatch_doc_no","green","");
-            flag=true; 
+            flag=true;
         }
-        
+
         if($.trim($("#from_gst_number").val()) === ""){
             display_message("from_gst_number","error_from_gst_number","red","Please Enter From GST Number");
             flag=false;
              return false;
         } else {
             display_message("from_gst_number","error_from_gst_number","green","");
-            flag=true; 
+            flag=true;
         }
-        
+
         if($.trim($("#to_gst_number").val()) === ""){
             display_message("to_gst_number","error_to_gst_number","red","Please Enter To GST Number");
             flag=false;
              return false;
         } else {
             display_message("to_gst_number","error_to_gst_number","green","");
-            flag=true; 
+            flag=true;
         }
 
         if($.trim($("#wh_id").val()) === ""){
@@ -870,9 +870,9 @@
              return false;
         } else {
             display_message("wh_id","error_wh_id","green","");
-            flag=true; 
+            flag=true;
         }
-        
+
         for(var i=0;i<=partIndex;i++) {
             if($.trim($('#serviceId_'+i).val()) === ""){
                 display_message("serviceId_"+i,"error_serviceId_"+i,"red","Please Enter Appliance");
@@ -919,10 +919,10 @@
                 flag=true;
             }
         }
-        
+
         return flag;
     }
-    
+
     function showConfirmDialougeBox(title,type){
         if(type === 'info'){
             swal({
@@ -1390,7 +1390,7 @@
             var isvalid = check_booking_msl_validation();//$("#onBookingspareForm").valid();
             var flag = true;
             if (isvalid) {
-                                
+
                 $(".onpartBasicPrice").each(function(i) {
                     validateDecimal('onpartBasicPrice_'+i,$('#onpartBasicPrice_'+i).val());
     
@@ -1433,7 +1433,7 @@
                     }
 
                 });
-                
+
                 if(flag == true) {
                     var booking_id = $("#onbookingid_0").val();
                     if(booking_id !== ""){
@@ -1608,7 +1608,7 @@
                  return false;
             } else {
                 display_message("on_invoice_date","error_on_invoice_date","green","");
-                flag=true; 
+                flag=true;
             }
 
             if($.trim($("#on_invoice_number").val()) === ""){
@@ -1617,7 +1617,7 @@
                  return false;
             } else {
                 display_message("on_invoice_number","error_on_invoice_number","green","");
-                flag=true; 
+                flag=true;
             }
 
             if($.trim($("#on_invoice_amount").val()) === ""){
@@ -1626,7 +1626,7 @@
                  return false;
             } else {
                 display_message("on_invoice_amount","error_on_invoice_amount","green","");
-                flag=true; 
+                flag=true;
             }
 
             if($.trim($("#on_invoice_file").val()) === ""){
@@ -1635,7 +1635,7 @@
                  return false;
             } else {
                 display_message("on_invoice_file","error_on_invoice_file","green","");
-                flag=true; 
+                flag=true;
             }
 
             if($.trim($("#on_courier_name").val()) === ""){
@@ -1644,7 +1644,7 @@
                  return false;
             } else {
                 display_message("on_courier_name","error_on_courier_name","green","");
-                flag=true; 
+                flag=true;
             }
 
             if($.trim($("#on_despatch_doc_no").val()) === ""){
@@ -1653,7 +1653,7 @@
                  return false;
             } else {
                 display_message("on_despatch_doc_no","error_on_despatch_doc_no","green","");
-                flag=true; 
+                flag=true;
             }
 
             if($.trim($("#on_from_gst_number").val()) === ""){
@@ -1662,7 +1662,7 @@
                  return false;
             } else {
                 display_message("on_from_gst_number","error_on_from_gst_number","green","");
-                flag=true; 
+                flag=true;
             }
 
             if($.trim($("#on_to_gst_number").val()) === ""){
@@ -1671,7 +1671,7 @@
                  return false;
             } else {
                 display_message("on_to_gst_number","error_on_to_gst_number","green","");
-                flag=true; 
+                flag=true;
             }
 
             if($.trim($("#on_wh_id").val()) === ""){
@@ -1680,9 +1680,9 @@
                  return false;
             } else {
                 display_message("on_wh_id","error_on_wh_id","green","");
-                flag=true; 
+                flag=true;
             }
-            
+
             if($.trim($('#onbookingid_0').val()) === ""){
                 display_message("onbookingid_0","error_onbookingid_0","red","Please Enter Booking ID");
                 flag=false;
@@ -1691,9 +1691,9 @@
                 display_message("onbookingid_0","error_onbookingid_0","green","");
                 flag=true;
             }
-            
+
 //            $('.shippingStatus').each(function(i) {
-//            if(!$('#s_shippingStatus_'+i).is(':checked') && !$('#n_shippingStatus_'+i).is(':checked') && !$('#l_shippingStatus_'+i).is(':checked')) {    
+//            if(!$('#s_shippingStatus_'+i).is(':checked') && !$('#n_shippingStatus_'+i).is(':checked') && !$('#l_shippingStatus_'+i).is(':checked')) {
 //                document.getElementById('error_shippingStatus_'+i).innerHTML = "Please Select 1 Shipping Status";
 //                flag=false;
 //                 return false;
@@ -1704,7 +1704,7 @@
 //        });
 
             for(var i=0;i<=onBookingIndex;i++) {
-                if(!$('#s_shippingStatus_'+i).is(':checked') && !$('#n_shippingStatus_'+i).is(':checked') && !$('#l_shippingStatus_'+i).is(':checked')) {    
+                if(!$('#s_shippingStatus_'+i).is(':checked') && !$('#n_shippingStatus_'+i).is(':checked') && !$('#l_shippingStatus_'+i).is(':checked')) {
                     document.getElementById('error_shippingStatus_'+i).innerHTML = "Please Select 1 Shipping Status";
                     flag=false;
                      return false;
@@ -1712,7 +1712,7 @@
                     document.getElementById('error_shippingStatus_'+i).innerHTML = "";
                     flag=true;
                 }
-            
+
                 if($.trim($('#onpartName_'+i).val()) === ""){
                     display_message("onpartName_"+i,"error_onpartName_"+i,"red","Please Select Part Name");
                     flag=false;
@@ -1721,7 +1721,7 @@
                     display_message("onpartName_"+i,"error_onpartName_"+i,"green","");
                     flag=true;
                 }
-                
+
                 if($.trim($('#onpartBasicPrice_'+i).val()) === ""){
                     display_message("onpartBasicPrice_"+i,"error_onpartBasicPrice_"+i,"red","Please Enter Basic Price");
                     flag=false;

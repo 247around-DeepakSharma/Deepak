@@ -1746,7 +1746,7 @@ class Booking_model extends CI_Model {
         $oldRequestType =  $this->get_old_request_type($booking_id);
         if (!empty($price_tag)) {
             $results = array_filter($price_tag, function($value) {
-                if ((stripos($value, 'Installation') !== false) || stripos($value, 'Repair') !== false) {
+                if ((stripos($value, 'Installation') !== false) || stripos($value, 'Repair') !== false || stripos($value, 'Extended') !== false) {
                     return $value; 
                     
                 } else {
@@ -2854,4 +2854,32 @@ class Booking_model extends CI_Model {
             return 0;
         }
     }
+
+    /**
+     * [[get booking status from service_center_booking_action (scba)]]
+     * return: int (0-> cancelled, 1-> completed, 2-> pending)
+     *
+     */
+    function get_booking_cancel_complete_status_from_scba($bookingId){
+        $this->db->where("booking_id",$bookingId);
+        $this->db->select("internal_status");
+        $this->db->from("service_center_booking_action");
+        $query = $this->db->get();
+        $result = $query->result_array();
+        error_log("error : ". json_encode($result));
+        $res = 2;
+        if(!$result || empty($result)){
+            return $res;
+        }
+        foreach($result as $row){
+            if($row['internal_status'] == _247AROUND_COMPLETED || $row['internal_status'] == DEFECTIVE_PARTS_PENDING ){
+                $res = 1;
+                break;
+            }else if($row['internal_status'] == _247AROUND_CANCELLED ){
+                $res = 0;
+            }
+        }
+        return $res;
+    }
+
 }

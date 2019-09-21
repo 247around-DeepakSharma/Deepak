@@ -13,6 +13,7 @@
 <div id="page-wrapper">
    <div class="container-fluid">
       <div class="row">
+ 
             <?php 
             if(!empty($this->session->flashdata('fail'))){ ?>
                
@@ -30,45 +31,11 @@
             ?>
             <h1 class="page-header">
                MSL Excel Upload
+               <a href="<?php echo "https://s3.amazonaws.com/". BITBUCKET_DIRECTORY.'/vendor-partner-docs/MSL-excel-sample.xlsx' ?>" name="download-sample-file" class="btn btn-primary" style="float:right;">Download Sample File</a>
             </h1>
           <div id="show_both">
-<!--              <form  action="<?php //echo base_url()?>employee/service_centre_charges/upload_service_price_from_excel" method="POST" enctype="multipart/form-data">
-               <div class="form-group  <?php //if( form_error('file') ) { echo 'has-error';} ?>">
-                  <label for="excel" class="col-md-3">Upload Service Price List:</label>
-                  <div class="col-md-3">
-                     <input type="file" class="form-control"  name="file" >
-                     <?php //echo form_error('file'); ?>
-                  </div>
-                <input class="col-md-2 btn btn-danger btn-sm" type= "submit"  value ="Upload" >  
-                
-               </div>
-            </form>
-              <a href="<?php //echo base_url(); ?>BookingSummary/download_latest_file/price" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>
-                <div class="col-md-12" style="margin-top:20px;">
-                    <h3>File Upload History</h3>
-                    <table id="datatable1" class="table table-striped table-bordered table-hover" style="width: 100%;">
-                        <thead>
-                            <tr>
-                                <th>S.No.</th>
-                                <th>Download</th>
-                                <th>Uploaded By</th>
-                                <th>Uploaded Date</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-              
-          <div class="clear"></div>
-          <hr style="margin-top:10px; margin-bottom:40px;">-->
-
-
-
-
-
-        <form method="POST" id="msl_bulk_upload_form"  enctype="multipart/form-data"  action="<?php echo base_url();  ?>file_upload/process_upload_file" data-preview="true" >
+ 
+        <form method="POST"   enctype="multipart/form-data"  action="<?php echo base_url();  ?>file_upload/process_upload_file"  >
             <div class="row">
 
               <label for="excel" class="col-md-2">Upload File</label>
@@ -101,12 +68,8 @@
         <h4 class="modal-title">Excel Entries Not Updated</h4>
       </div>
       <div class="modal-body">
-            <?php 
-            if(!empty($this->session->flashdata('fail'))){
-                echo $this->session->flashdata('fail');
-            }else{
-                echo $this->session->flashdata('details'); 
-            }
+            <?php    
+                echo $this->session->userdata('details');
             ?>
       </div>
       <div class="modal-footer">
@@ -139,56 +102,11 @@
       </div>
    </div>
 </div>
-<div class="modal" id="msl_upload_preview">
-    <div class="modal-dialog" style="width:80%;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title">Verify MSL Details</h2>
-            </div>
-            
-            <div class="modal-body">
-                <div class="table-responsive">
-                    <table class="table table-responsive table-striped table-hover" id="msl_preview_table">
-                        <thead>
-                            <tr>
-                                <th>SAP Vendor ID</th>
-                                <th>Part Code</th>
-                                <th>Vendor ID</th>
-                                <th>Quantity</th>
-                                <th>Basic Price</th>
-                                <th>HSN Code</th>
-                                <th>GST Rate</th>
-                                <th>Awb Number</th>
-                                <th>Courier Name</th>
-                                <th>Courier Shipment Date</th>
-                                <th>Invoice id</th>
-                                <th>Invoice Date</th>
-                                <th>From GST</th>
-                                <th>To GST</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-            
-            <div class="modal-footer">
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Cancel</button>
-                <button type="button" id="verify_and_upload_msl" class="btn btn-color" data-dismiss="modal">Submit</button>
-            </div>
-        </div>
-    </div>
-</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
 <script>
 
 
 
 $('#msl_excel').change(function () {
-    $("#search").prop("disabled", false);
     var ext = this.value.match(/\.(.+)$/)[1];
     switch (ext) {
         case 'xlsx':
@@ -198,7 +116,6 @@ $('#msl_excel').change(function () {
             alert('This is not an allowed file type.');
              $('#search').attr('disabled', true);
             this.value = '';
-            $("#msl_bulk_upload_form").data("preview",true);
     }
 });
 
@@ -212,24 +129,6 @@ $('#msl_excel').change(function () {
         upload_file_history();
  
         //datatables
-        $("#msl_bulk_upload_form").submit(function(){
-           if($(this).data("preview") == true){
-               var file = $("#msl_excel")[0].files[0];
-               console.log(file);
-               var xl2json = new ExcelToJSON();
-               xl2json.parseExcel(file);
-               return false;
-           }else{
-               $("#msl_bulk_upload_form").data("preview",true);
-           }
-        });
-        $("#verify_and_upload_msl").click(function(){
-            $("#search").prop("disabled", true);
-            $("#msl_bulk_upload_form").submit();
-        });
-        $("#msl_upload_preview").on('hide.bs.modal', function () {
-            $("#msl_bulk_upload_form").data("preview",true);
-        });
     });
     
     function upload_file_history(){ 
@@ -257,55 +156,7 @@ $('#msl_excel').change(function () {
             ]
         });
     }
-    
-    var ExcelToJSON = function() {
-
-        this.parseExcel = function(file) {
-            var reader = new FileReader();
-
-            reader.onload = function(e) {
-                var data = e.target.result;
-                var workbook = XLSX.read(data, {
-                    type: 'binary'
-                });
-                workbook.SheetNames.forEach(function(sheetName) {
-                // Here is your object
-                    var XL_row_object = XLSX.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
-                    //var json_object = JSON.stringify(XL_row_object);
-                    //console.log(JSON.parse(json_object));
-                    console.log(XL_row_object);
-                    var html = "";
-                    for(var i in XL_row_object){
-                        html += "<tr>";
-                        html += "<td>"+ XL_row_object[i]['SAP Vendor Id'];
-                        html += "<td>"+ XL_row_object[i]['Part Code'];
-                        html += "<td>"+ XL_row_object[i]['Vendor Id'];
-                        html += "<td>"+ XL_row_object[i]['Quantity'];
-                        html += "<td>"+ XL_row_object[i]['Basic Price'];
-                        html += "<td>"+ XL_row_object[i]['HSN Code'];
-                        html += "<td>"+ XL_row_object[i]['GST Rate'];
-                        html += "<td>"+ XL_row_object[i]['Awb Number'];
-                        html += "<td>"+ XL_row_object[i]['Courier Name'];
-                        html += "<td>"+ XL_row_object[i]['Courier Shipment Date'];
-                        html += "<td>"+ XL_row_object[i]['Invoice id'];
-                        html += "<td>"+ XL_row_object[i]['Invoice Date'];
-                        html += "<td>"+ XL_row_object[i]['From GST'];
-                        html += "<td>"+ XL_row_object[i]['To GST'];
-                        html += "</tr>";
-                    }
-                    $("#msl_preview_table tbody").empty().html(html);
-                    $("#msl_bulk_upload_form").data("preview",false);
-                    $("#msl_upload_preview").modal();
-                    //jQuery( '#xlx_json' ).val( json_object );
-                })
-            };
-
-            reader.onerror = function(ex) {
-                console.log(ex);
-            };
-
-            reader.readAsBinaryString(file);
-        };
-    };
+ 
+ 
 </script>
  

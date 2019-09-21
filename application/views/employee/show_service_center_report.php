@@ -9,7 +9,7 @@
     <div class="col-md-4">
         <div class="col-md-12" style="margin-top: 4%;">
             <div class="input-group input-append date">
-                <input id="date" class="form-control date"  name="date" type="text" value = "" autocomplete='off' onkeydown="return false" >
+                <input id="date" class="form-control date"  name="date" type="text" value = "<?php echo date('Y-m-d'). ' - '. date('Y-m-d'); ?>" autocomplete='off' onkeydown="return false" >
                 <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
             </div>
         </div>
@@ -109,7 +109,6 @@
             var endDateObj = new Date(end);
             var timeDiff = Math.abs(endDateObj.getTime() - startDateObj.getTime());
             var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
-            
             var date = startDateObj.getFullYear()+'-'+(("0" + (startDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + startDateObj.getDate()).slice(-2))+' - '+endDateObj.getFullYear()+'-'+(("0" + (endDateObj.getMonth() + 1)).slice(-2))+'-'+(("0" + endDateObj.getDate()).slice(-2));
             if(diffDays>31) {
                 alert("Maximum range allowed is 1 month.");

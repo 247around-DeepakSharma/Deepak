@@ -3405,8 +3405,8 @@ function generate_image($base64, $image_name,$directory){
         $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
         
         $saas_module = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        if(isset($saas_module) && (!$saas_module)) { 
-            $where['e.groups'] = _247AROUND_RM;
+        if($saas_module) { 
+            $where['employee.groups'] = _247AROUND_RM;
         }
         
         if($state_check) {
@@ -4407,7 +4407,7 @@ function generate_image($base64, $image_name,$directory){
     /**
      * @desc This function is used to process spare transfer
      */
-    function spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id) {
+      function spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id) {
         $tcount = 0;
         $booking_error_array = array();
         $add_row = array();
