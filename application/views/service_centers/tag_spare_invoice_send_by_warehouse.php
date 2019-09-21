@@ -430,14 +430,14 @@
                             flag = false;
                             return false;
                         }
-                        else {
-                            if((Number($('#partGstRate_'+i).val()) !== 5) && (Number($('#partGstRate_'+i).val()) !== 12) && (Number($('#partGstRate_'+i).val()) !== 18) && (Number($('#partGstRate_'+i).val()) !== 28) ){
-                                showConfirmDialougeBox('Invalid Gst Rate', 'warning');
-                                $('#partGstRate_'+i).addClass('text-danger');
-                                flag = false;
-                                return false;
-                            }
-                        }
+//                        else {
+//                            if((Number($('#partGstRate_'+i).val()) !== 5) && (Number($('#partGstRate_'+i).val()) !== 12) && (Number($('#partGstRate_'+i).val()) !== 18) && (Number($('#partGstRate_'+i).val()) !== 28) ){
+//                                showConfirmDialougeBox('Invalid Gst Rate', 'warning');
+//                                $('#partGstRate_'+i).addClass('text-danger');
+//                                flag = false;
+//                                return false;
+//                            }
+//                        }
                     }
                 });
                 
@@ -1073,14 +1073,14 @@
                         flag = false;
                         return false;
                     }
-                    else {
-                        if((Number($('#onpartGstRate_'+i).val()) !== 5) && (Number($('#onpartGstRate_'+i).val()) !== 12) && (Number($('#onpartGstRate_'+i).val()) !== 18) && (Number($('#onpartGstRate_'+i).val()) !== 28) ){
-                            onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
-                            $('#onpartGstRate_'+i).addClass('text-danger');
-                            flag = false;
-                            return false;
-                        }
-                    }
+//                    else {
+//                        if((Number($('#onpartGstRate_'+i).val()) !== 5) && (Number($('#onpartGstRate_'+i).val()) !== 12) && (Number($('#onpartGstRate_'+i).val()) !== 18) && (Number($('#onpartGstRate_'+i).val()) !== 28) ){
+//                            onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
+//                            $('#onpartGstRate_'+i).addClass('text-danger');
+//                            flag = false;
+//                            return false;
+//                        }
+//                    }
 
                 });
                 
