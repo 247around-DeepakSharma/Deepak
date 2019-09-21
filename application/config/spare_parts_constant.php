@@ -160,7 +160,3 @@ define('PART_NRN_APPROVED_STATUS_TAG', 'nrn_approved');
 
 define('OK_PART_TO_BE_SHIPPED', 'Ok Part To Be Shipped');
 define('DAMAGE_PART_TO_BE_SHIPPED', 'Damage Part To Be Shipped');
-
-
-define('COURIER_STATUS_FILE_MSG', 'Auto Acknowledged BY Courier Status File');
-define('COURIER_STATUS_FILE_STATUS_DESCRIPTION', 'Delivered at destination city');
