@@ -2595,7 +2595,7 @@ function reject_booking_from_review() {
                 
                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details','*',['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
                 $status = $spare_part_detail['status'];
-
+                $defective_part_required = $spare_part_detail['defective_part_required'];
                 // check record exist in wrong spare part details.
                 $check_wrong_part_record_exist = $this->reusable_model->get_search_result_data('wrong_part_shipped_details', '*', ['spare_id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
                 
@@ -2621,6 +2621,7 @@ function reject_booking_from_review() {
                 
                 if($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG) {
                     $status = OK_PART_TO_BE_SHIPPED;
+                    $defective_part_required = 1;
                     if(!empty($check_wrong_part_record_exist)) {
                         $this->reusable_model->delete_from_table('wrong_part_shipped_details', ['spare_id' => $spare_id]);
                     }                    
@@ -2647,6 +2648,7 @@ function reject_booking_from_review() {
                 
                 $this->reusable_model->update_table('spare_parts_details', [
                     'consumed_part_status_id' => $status_id,
+                     'defective_part_required' => $defective_part_required,
                     'status' => $status,
                 ], ['id' => $spare_id]);
             }
