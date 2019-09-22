@@ -88,24 +88,24 @@
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice Date*</label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input placeholder="Select Invoice Date" type="text" readonly=""   onkeydown="return false;"  class="form-control" name="dated" id="dated" required="" autocomplete="off"/>
-                                            <span id="error_dated" style="color: red;"></span>
+                                            <span id="error_dated" class="error" style="color: red;"></span>
                                         </div>
                                         <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input placeholder="Enter Invoice Number" type="text" class="form-control" name="invoice_id" id="invoice_id" required="" onblur="check_invoice_id(this.id, false)"/>
-                                            <span id="error_invoice_id" style="color: red;"></span>
+                                            <span id="error_invoice_id" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="col-xs-2 control-label">Invoice Amount * </label>
                                         <div class="col-xs-4">
                                             <input placeholder="Enter Invoice Amount" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
-                                            <span id="error_invoice_amount" style="color: red;"></span>
+                                            <span id="error_invoice_amount" class="error" style="color: red;"></span>
                                         </div>
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice File*  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 5 MB."><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input type="file" class="form-control" name="file" id="invoice_file" required=""/>
-                                            <span id="error_invoice_file" style="color: red;"></span>
+                                            <span id="error_invoice_file" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -119,13 +119,13 @@
                                                     <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
                                                 <?php } ?>
                                             </select>
-                                            <span id="error_courier_name" style="color: red;"></span>
+                                            <span id="error_courier_name" class="error" style="color: red;"></span>
                                             <?php echo form_error('courier_name'); ?>
                                         </div>
                                         <label class="col-xs-2 control-label">AWB Number *</label>
                                         <div class="col-xs-4">
                                             <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
-                                            <span id="error_despatch_doc_no" style="color: red;"></span>
+                                            <span id="error_despatch_doc_no" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -144,14 +144,14 @@
                                             <select class="form-control" name="from_gst_number" id="from_gst_number" required="">
                                                 <option value="" disabled="">Select From GST Number</option>
                                             </select>
-                                            <span id="error_from_gst_number" style="color: red;"></span>
+                                            <span id="error_from_gst_number" class="error" style="color: red;"></span>
                                         </div>
                                         <label class="col-xs-2 control-label">To GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="247around GST Number print on invoice"><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <select class="form-control" name="to_gst_number" id="to_gst_number" required="">
                                                 <option value="" disabled="">Select To GST Number</option>
                                             </select>
-                                            <span id="error_to_gst_number" style="color: red;"></span>
+                                            <span id="error_to_gst_number" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -160,7 +160,7 @@
                                             <select class="form-control" name="wh_id" id="wh_id" required="">
                                                 <option value="" disabled="">Select Warehouse</option>
                                             </select>
-                                            <span id="error_wh_id" style="color: red;"></span>
+                                            <span id="error_wh_id" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -196,26 +196,26 @@
                                         <div class="col-xs-12 col-sm-6 col-md-2">
                                             <input type="hidden" name="part[0][shippingStatus]" id="shippingStatus_0" value="1">
                                             <select class="form-control" name="part[0][service_id]" id="serviceId_0" required="" onchange="get_part_details(this.id)"></select>
-                                            <span id="error_serviceId_0" style="color: red;"></span>
+                                            <span id="error_serviceId_0" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
                                             <select class="form-control" name="part[0][part_name]" id="partName_0" required="" onchange="get_part_details(this.id)"></select>
-                                            <span id="error_partName_0" style="color: red;"></span>
+                                            <span id="error_partName_0" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
                                             <select class="form-control" name="part[0][part_number]" id="partNumber_0" ></select>
-                                            <span id="error_partNumber_0" style="color: red;"></span>
+                                            <span id="error_partNumber_0" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
                                             <input type="hidden" class="form-control" name="part[0][booking_id]" id="booking_id_0" placeholder="Booking ID" onblur="check_booking_id(this.id)"/>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
                                             <input type="number" class="form-control allowNumericWithOutDecimal" name="part[0][quantity]" id="quantity_0" min="1" placeholder="Quantity" required="" onblur="get_part_details(this.id)" />
-                                            <span id="error_quantity_0" style="color: red;"></span>
+                                            <span id="error_quantity_0" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
                                             <input type="number" class="form-control allowNumericWithDecimal" onkeyup="validateDecimal(this.id, this.value);calculate_total_price()" name="part[0][part_total_price]" id="partBasicPrice_0" value="0" />
-                                            <span id="error_partBasicPrice_0" style="color: red;"></span>
+                                            <span id="error_partBasicPrice_0" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
                                             <input type="text" class="form-control allowNumericWithOutDecimal" name="part[0][hsn_code]" id="partHsnCode_0" value="" />
@@ -233,26 +233,26 @@
                                         <div class="col-xs-12 col-sm-6 col-md-2">
                                             <input type="hidden" id="shippingStatus" value="1">
                                             <select class="form-control" id="service_id"  required="" onchange="get_part_details(this.id)"></select>
-                                            <span id="error_service_id" style="color: red;"></span>
+                                            <span id="error_service_id" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
                                             <select class="form-control" id="part_name"  required="" onchange="get_part_details(this.id)"></select>
-                                            <span id="error_part_name" style="color: red;"></span>
+                                            <span id="error_part_name" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2">
                                             <select class="form-control" id="part_number"></select>
-                                            <span id="error_part_number" style="color: red;"></span>
+                                            <span id="error_part_number" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-2" style="display:none">
                                             <input type="hidden" class="form-control" id="booking_id"  placeholder="Booking ID" onblur="check_booking_id(this.id)"/>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
                                             <input type="number" class="form-control allowNumericWithOutDecimal" id="quantity"  placeholder="Quantity" min="1" required="" onblur="get_part_details(this.id)" />
-                                            <span id="error_quantity" style="color: red;"></span>
+                                            <span id="error_quantity" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
                                             <input type="number" class="form-control allowNumericWithDecimal part-total-price" id="part_total_price"  value="0" />
-                                            <span id="error_part_total_price" style="color: red;"></span>
+                                            <span id="error_part_total_price" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
                                             <input type="text" class="form-control allowNumericWithOutDecimal" id="partHsnCode" value="" />
@@ -289,7 +289,7 @@
                                             <input type="hidden" id="is_defective_part_return_wh" name="is_defective_part_return_wh" value="<?php echo $is_defective_part_return_wh; ?>"/>
                                             <input type="hidden" id="confirmation" value="0">
                                             <input type="hidden" id="requested_appliance_count" value="">
-                                            <button type="submit" class="btn btn-success" id="submit_btn">Preview</button>
+                                            <button type="submit" class="btn btn-success" id="submit_btn" name="submit_btn">Preview</button>
                                         </div>
                                     </div>
                                 </div>
@@ -313,24 +313,24 @@
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice Date*</label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input placeholder="Select Invoice Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
-                                            <span id="error_on_invoice_date" style="color: red;"></span>
+                                            <span id="error_on_invoice_date" class="error" style="color: red;"></span>
                                         </div>
                                         <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input placeholder="Enter Invoice Number" type="text" class="form-control" name="invoice_id" id="on_invoice_number" required="" onblur="check_invoice_id(this.id, true)"/>
-                                            <span id="error_on_invoice_number" style="color: red;"></span>
+                                            <span id="error_on_invoice_number" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label class="col-xs-2 control-label">Invoice Amount * </label>
                                         <div class="col-xs-4">
                                             <input placeholder="Enter Invoice Amount" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="on_invoice_amount" required=""/>
-                                            <span id="error_on_invoice_amount" style="color: red;"></span>
+                                            <span id="error_on_invoice_amount" class="error" style="color: red;"></span>
                                         </div>
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice File*  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 5 MB."><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input type="file" class="form-control" name="file" id="on_invoice_file" required=""/>
-                                            <span id="error_on_invoice_file" style="color: red;"></span>
+                                            <span id="error_on_invoice_file" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -344,13 +344,13 @@
                                                     <option value="<?php echo $value1['courier_code']; ?>"><?php echo $value1['courier_name']; ?></option>
                                                 <?php } ?>
                                             </select>
-                                            <span id="error_on_courier_name" style="color: red;"></span>
+                                            <span id="error_on_courier_name" class="error" style="color: red;"></span>
                                             <?php echo form_error('courier_name'); ?>
                                         </div>
                                         <label class="col-xs-2 control-label">AWB Number *</label>
                                         <div class="col-xs-4">
                                             <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="on_despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
-                                            <span id="error_on_despatch_doc_no" style="color: red;"></span>
+                                            <span id="error_on_despatch_doc_no" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -369,14 +369,14 @@
                                             <select class="form-control" name="from_gst_number" id="on_from_gst_number" required="">
                                                 <option value="" disabled="">Select From GST Number</option>
                                             </select>
-                                            <span id="error_on_from_gst_number" style="color: red;"></span>
+                                            <span id="error_on_from_gst_number" class="error" style="color: red;"></span>
                                         </div>
                                         <label class="col-xs-4 col-sm-2 control-label">To GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="247around GST Number print on invoice"><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <select class="form-control" name="to_gst_number" id="on_to_gst_number" required="">
                                                 <option value="" disabled="">Select To GST Number</option>
                                             </select>
-                                            <span id="error_on_to_gst_number" style="color: red;"></span>
+                                            <span id="error_on_to_gst_number" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -385,7 +385,7 @@
                                             <select class="form-control" name="wh_id" id="on_wh_id" required="">
                                                 <option value="" disabled="">Select Warehouse</option>
                                             </select>
-                                            <span id="error_on_wh_id" style="color: red;"></span>
+                                            <span id="error_on_wh_id" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -410,7 +410,7 @@
                                         <label class="col-xs-4 col-sm-2 control-label">Booking ID *</label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input  placeholder="Enter Booking ID" onblur="bookingBlur('0')"  type="text" class="form-control searchbooking_id" id="onbookingid_0" required="" autocomplete="off" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
-                                            <span id="error_onbookingid_0" style="color: red;"></span>
+                                            <span id="error_onbookingid_0" class="error" style="color: red;"></span>
                                         </div>
                                         <div class="col-xs-8 col-sm-4">
                                             <button type="button" onclick="search_booking_details('0')"  id="searchbookingid_0" class="btn btn-default searchbooking" >Search</button>
@@ -443,7 +443,7 @@
                                                 <label class="col-xs-4 col-sm-2 control-label">Booking ID *</label>
                                                 <div class="col-xs-8 col-sm-4">
                                                     <input placeholder="Enter Booking ID" type="text" class="form-control searchbooking_id" id="onbookingid" required="" autocomplete="off" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
-                                                    <span id="error_onbookingid" style="color: red;"></span>
+                                                    <span id="error_onbookingid" class="error" style="color: red;"></span>
                                                 </div>
                                                 <div class="col-xs-8 col-sm-4">
                                                     <button type="button"  id="searchbookingid" class="btn btn-default searchbooking" >Search</button>
@@ -491,8 +491,8 @@
                               <div id="clone_id" style="text-align: center;"></div>
                               <div class="modal-footer" style="margin-right: 389px;text-align: center;">
                                   <input type="hidden" id="mapped_model_table_id">
-                                  <button type="button" class="btn btn-success" id="sumit_msl">Submit</button>
-                                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                  <button type="button" class="btn btn-success" id="sumit_msl" name="sumit_msl">Submit</button>
+                                  <button type="button" class="btn btn-default" onclick="submit_btn.disabled = false;sumit_msl.disabled = false;" data-dismiss="modal">Cancel</button>
                               </div>
                           </form>
                   </div>
@@ -509,8 +509,31 @@
     });
 
     $("#sumit_msl").click(function(){
+        $("#sumit_msl,#submit_btn").attr('disabled',true);
         $("#confirmation").val('1');
         $("#spareForm").submit();
+    });
+    
+    $("input:text, input:file, select").on('change',function(){
+        $("#sumit_msl,#submit_btn,#on_submit_btn").attr('disabled',false);
+        $('span.error').text('');
+        $(this).css('border-color','#ccc');
+    });
+    
+    $("input:text").on('input',function(){
+        $("#sumit_msl,#submit_btn,#on_submit_btn").attr('disabled',false);
+        $('span.error').text('');
+        $(this).css('border-color','#ccc');
+    });
+    
+    $("input:text").on('click',function(){
+        $("#sumit_msl,#submit_btn,#on_submit_btn").attr('disabled',false);
+        $('span.error').text('');
+        $(this).css('border-color','#ccc');
+    });
+    
+    $('#submit_btn').click(function(){
+        $("#sumit_msl").attr('disabled',false);
     });
     
     var date_before_15_days = new Date();
@@ -664,6 +687,7 @@
         
         $("#spareForm").on('submit', function(e) {
             e.preventDefault();
+            $("#submit_btn").attr('disabled',true);
             var isvalid = check_validation();//$("#spareForm").valid();
             var flag = true;
             if (isvalid) {
@@ -699,14 +723,14 @@
                             flag = false;
                             return false;
                         }
-                        else {
-                            if((Number($('#partGstRate_'+i).val()) !== 5) && (Number($('#partGstRate_'+i).val()) !== 12) && (Number($('#partGstRate_'+i).val()) !== 18) && (Number($('#partGstRate_'+i).val()) !== 28) ){
-                                showConfirmDialougeBox('Invalid Gst Rate', 'warning');
-                                $('#partGstRate_'+i).addClass('text-danger');
-                                flag = false;
-                                return false;
-                            }
-                        }
+//                        else {
+//                            if((Number($('#partGstRate_'+i).val()) !== 5) && (Number($('#partGstRate_'+i).val()) !== 12) && (Number($('#partGstRate_'+i).val()) !== 18) && (Number($('#partGstRate_'+i).val()) !== 28) ){
+//                                showConfirmDialougeBox('Invalid Gst Rate', 'warning');
+//                                $('#partGstRate_'+i).addClass('text-danger');
+//                                flag = false;
+//                                return false;
+//                            }
+//                        }
                     }
                 });
                 
@@ -932,8 +956,14 @@
             closeOnConfirm: false,
             showLoaderOnConfirm: true
         },
-            function(){
+            function(isConfirm) {
+              if (isConfirm) {
+                $("#submit_btn").attr('disabled',true);
                  ajax_call();
+              } else {
+                $("#submit_btn").attr('disabled',false);
+                $("#confirmation").val('0');
+              }
             });
         }else{
             swal({
@@ -944,7 +974,7 @@
     }
  
     function ajax_call(){
-        $('#submit_btn').attr('disabled',true);
+        $('#sumit_msl,#submit_btn').attr('disabled',true);
         $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
     
         //Serializing all For Input Values (not files!) in an Array Collection so that we can iterate this collection later.
@@ -976,6 +1006,8 @@
             formData.append(element.name, element.value);
         });
     
+        $("#spareForm")[0].reset();
+        $("#spareForm").find('input:text, input:file, select').val('');
         $.ajax({
             method:"POST",
             url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
@@ -985,13 +1017,14 @@
             success:function(response){
                 //console.log(response);
                 obj = JSON.parse(response);
-                $('#submit_btn').attr('disabled',false);
-                $('#submit_btn').html("Submit");
+                $('#sumit_msl,#submit_btn').attr('disabled',false);
+                $('#submit_btn').html("Preview");
                 if(obj.status){
                     swal("Thanks!", "Details updated successfully!", "success");
                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                     $('#success_msg').html(obj.message);
                     $("#spareForm")[0].reset();
+                    $("#spareForm").find('input:text, input:file, select').val('');
                     $('#select2-from_gst_number-container').text('Select From GST Number');
                     $('#select2-from_gst_number-container').attr('title','Select From GST Number');
                     $('#select2-to_gst_number-container').text('Select To GST Number');
@@ -1005,8 +1038,11 @@
                     $('#select2-partNumber_0-container').text('Select Part Number');
                     $('#select2-partNumber_0-container').attr('title','Select Part Number');
                     $('#total_spare_invoice_price').html('0');
+                    $('span.error').text('');
+                    $("#spareForm").find('input:text, input:file, select').css('border-color','#ccc');
                     $(".warehouse_print_address").css({'display':'block'});
                     $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
+                    $("#confirmation").val('0');
                 }else{
                     showConfirmDialougeBox(obj.message, 'warning');
                     $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
@@ -1182,12 +1218,12 @@
                     var obj = JSON.parse(res);
                     if(obj.status === true){
                         $('#'+id).css('border','1px solid #ccc');
-                        $('#submit_btn').attr('disabled',false);
+                        $('#on_submit_btn').attr('disabled',false);
                         is_valid_booking = true;
                     }else{
                         is_valid_booking = false;
                         $('#'+id).css('border','1px solid red');
-                        $('#submit_btn').attr('disabled',true);
+                        $('#on_submit_btn').attr('disabled',true);
                         showConfirmDialougeBox('Booking id not found', 'warning');
                     }
                 }
@@ -1195,7 +1231,7 @@
         }else{
             is_valid_booking = true;
             $('#'+id).css('border','1px solid #ccc');
-            $('#submit_btn').attr('disabled',false);
+            $('#on_submit_btn').attr('disabled',false);
         }
     }
     
@@ -1387,6 +1423,7 @@
     
     $("#onBookingspareForm").on('submit', function(e) {
             e.preventDefault();
+            $("#on_submit_btn").attr('disabled',true);
             var isvalid = check_booking_msl_validation();//$("#onBookingspareForm").valid();
             var flag = true;
             if (isvalid) {
@@ -1412,14 +1449,14 @@
                         flag = false;
                         return false;
                     }
-                    else {
-                        if((Number($('#onpartGstRate_'+i).val()) !== 5) && (Number($('#onpartGstRate_'+i).val()) !== 12) && (Number($('#onpartGstRate_'+i).val()) !== 18) && (Number($('#onpartGstRate_'+i).val()) !== 28) ){
-                            onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
-                            $('#onpartGstRate_'+i).addClass('text-danger');
-                            flag = false;
-                            return false;
-                        }
-                    }
+//                    else {
+//                        if((Number($('#onpartGstRate_'+i).val()) !== 5) && (Number($('#onpartGstRate_'+i).val()) !== 12) && (Number($('#onpartGstRate_'+i).val()) !== 18) && (Number($('#onpartGstRate_'+i).val()) !== 28) ){
+//                            onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
+//                            $('#onpartGstRate_'+i).addClass('text-danger');
+//                            flag = false;
+//                            return false;
+//                        }
+//                    }
 
                 });
                 
@@ -1505,6 +1542,8 @@
         $(params).each(function (index, element) {
             formData.append(element.name, element.value);
         });
+        $("#onBookingspareForm")[0].reset();
+        $("#onBookingspareForm").find('input:text, input:file, select').val('');
         $.ajax({
             method:"POST",
             url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
@@ -1542,6 +1581,7 @@
             showLoaderOnConfirm: true
         },
             function(){
+                 $("#on_submit_btn").attr('disabled',true);
                  submitBookingForm();
             });
         }else{

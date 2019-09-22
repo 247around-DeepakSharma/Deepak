@@ -123,6 +123,7 @@ class User extends CI_Controller {
         }
         if($is_flag){
             $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select);
+            $data['booking_status'] = $this->booking_model->get_booking_cancel_complete_status_from_scba($booking_id);
         } 
         
         if(!empty($phone_number) && empty($data['Bookings'])){

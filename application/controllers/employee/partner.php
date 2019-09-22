@@ -5545,7 +5545,7 @@ class Partner extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."')  " => NULL
         );
         $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, "
                 . " spare_parts_details.booking_id, users.name,spare_parts_details.courier_name_by_partner,spare_parts_details.awb_by_partner, spare_parts_details.partner_challan_number, "
@@ -6755,12 +6755,12 @@ class Partner extends CI_Controller {
                             }
                             
                         if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH){
-                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
+                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" id="defective_parts_'.$row['id'].'" onclick="return confirm_received(this.id)" class="btn btn-sm btn-primary"
                                                href='.base_url().'partner/acknowledge_defective_parts_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
                     
                             
                         } else {
-                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
+                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" id="defective_parts_'.$row['id'].'" onclick="return confirm_received(this.id)" class="btn btn-sm btn-primary"
                                                href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
                     
                         }
@@ -7023,7 +7023,7 @@ class Partner extends CI_Controller {
                $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "booking_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."')  " => NULL
         );
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
