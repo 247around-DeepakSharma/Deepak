@@ -5990,7 +5990,7 @@ class Service_centers extends CI_Controller {
         }
 
         // get spare part detail.
-        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_detail', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if(!empty($spare_part_detail['consumed_part_status_id'])) {
             $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
             if(!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag, [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG])) {

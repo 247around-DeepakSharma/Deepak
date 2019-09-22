@@ -29,7 +29,7 @@
             <div class="x_panel">
                 <div class="x_title">
                     <h3>Warehouse Spare Parts Inventory <span id="total_stock"></span> 
-                        <span class="pull-right"><input type="button" id="sellItem" class="btn btn-primary btn-md" onclick="open_selected_parts_to_return()" value="Return new Parts (0)"></span>
+                        <span class="pull-right"><input type="button" id="sellItem" name="sellItem" class="btn btn-primary btn-md" onclick="open_selected_parts_to_return()" value="Return new Parts (0)"></span>
                         <span class="pull-right"><input type="button" id="micro_warehouse" class="download_stock  btn btn-primary btn-md" value="Download Micro-Warehouse Stock"></span>
                         <span class="pull-right"><input type="button" id="warehouse" class="download_stock btn btn-primary btn-md" value="Download Warehouse Stock"></span>
                     </h3>
@@ -250,7 +250,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-success" id="submit_courier_form" onclick="return_new_parts()" >Return New Parts</button>
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal" onclick="sellItem.disabled=false" >Close</button>
                 </div>
               </div>
 

@@ -148,6 +148,7 @@ function crate_table(){
 }
 
 function open_selected_parts_to_return(){
+    $('#sellItem').attr('disabled',true);
     $('#radio_partner').prop('checked',true).change();
     if(returnItemArray.length > 0){
         $("#return_new_parts_data").show();
@@ -155,6 +156,7 @@ function open_selected_parts_to_return(){
         $('#myModal').modal('toggle');
     } else
     {
+        $('#sellItem').attr('disabled',false);
         $("#return_new_parts_data").remove();
         $("#sellItem").val("Return new Parts (0)");
         alert("Please add new parts to return");
@@ -215,7 +217,7 @@ function check_awb_exist(){
 }
 
 function return_new_parts(){
-   // $('#submit_courier_form').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true); 
+    $('#submit_courier_form').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
     var formData = new FormData(document.getElementById("courier_model_form"));
     
     formData.append('inventory_data',JSON.stringify(returnItemArray));  
@@ -227,7 +229,7 @@ function return_new_parts(){
     formData.append("from_gst_number", $("#from_gst_number").val());
     formData.append("receiver_id", $("#to_wh_id").val());
    // console.log(JSON.stringify(returnItemArray));
-
+    $("#courier_model_form")[0].reset();
     $.ajax({
         method:'POST',
         url: baseUrl + '/employee/user_invoice/generate_invoice_for_return_new_inventory',
@@ -254,6 +256,7 @@ function return_new_parts(){
                 location.reload();
             } else {
                 alert(data.message);
+                $('#submit_courier_form').html("Return New Parts").attr('disabled',false);
             }
             $('body').loadingModal('destroy');
         }
