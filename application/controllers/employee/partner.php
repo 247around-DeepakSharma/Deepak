@@ -6742,12 +6742,12 @@ class Partner extends CI_Controller {
                             }
                             
                         if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH){
-                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
+                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" id="defective_parts_'.$row['id'].'" onclick="return confirm_received(this.id)" class="btn btn-sm btn-primary"
                                                href='.base_url().'partner/acknowledge_defective_parts_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
                     
                             
                         } else {
-                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
+                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" id="defective_parts_'.$row['id'].'" onclick="return confirm_received(this.id)" class="btn btn-sm btn-primary"
                                                href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
                     
                         }
