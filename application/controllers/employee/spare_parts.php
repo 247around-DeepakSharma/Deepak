@@ -1373,7 +1373,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 $entity_type = $spare_parts_list[0]['entity_type'];
                 $inventory_id = $spare_parts_list[0]['requested_inventory_id'];
                 $partner_id = $spare_parts_list[0]['booking_partner_id'];
-                $req_quantity = $spare_parts_list[0]['booking_partner_id'];
+                $req_quantity = $spare_parts_list[0]['quantity'];
 
                 if (!empty($spare_parts_list[0]) && !$spare_update_flag) {
                     unset($spare_parts_list[0]['booking_partner_id']);
@@ -1476,9 +1476,19 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 
                     $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUESTED, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, $partner_id, NULL);
 
-					if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 ) {
-                        $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
-                        unset($data['spare_id']);
+                    if (!empty($booking_id)) {
+                        $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
+			  if (isset($data['is_micro_wh']) && $data['is_micro_wh'] == 1 ) {
+                               $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                               unset($data['spare_id']);
+                          }
+                           $sc_data['current_status'] = "InProcess";
+                    $sc_data['internal_status'] = SPARE_PARTS_REQUIRED;
+                    $sc_data['service_center_remarks'] = date("F j") . ":- " . $reason;
+                    $sc_data['update_date'] = date("Y-m-d H:i:s");
+                    $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                                        
+
                     }
 
                     if ($affected_id) {
@@ -2886,7 +2896,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $login_partner_id='';
         $login_service_center_id='';
         if ($this->session->userdata('userType') == 'employee') {
-            $agentid=$this->session->userdata('employee_id');
+            $agentid=$this->session->userdata('id');
             $agent_name =$this->session->userdata('emp_name');
             $login_partner_id = _247AROUND;
             $login_service_center_id =NULL;

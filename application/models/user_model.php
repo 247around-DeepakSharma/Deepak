@@ -7,6 +7,7 @@ class User_model extends CI_Model {
      */
     function __construct() {
         parent::__Construct();
+        $this->load->model('reusable_model');
     }
 
     /**
@@ -460,5 +461,42 @@ class User_model extends CI_Model {
         return $this->db->affected_rows();
     }
     
+    /**
+     * 
+     * @param type $entity_type
+     * @param type $id
+     * @param type $old_password
+     * @return type
+     */
+    function verify_entity_password($entity_type, $id, $old_password) {
+        
+        if($entity_type == _247AROUND_EMPLOYEE_STRING) {
+            $record = $this->reusable_model->get_search_result_data('employee', '*', ['id' => $id, 'employee_password' => md5($old_password)],null,null,null,null,null,[]);
+        }
+        
+        if($entity_type == _247AROUND_SF_STRING) {
+            $record = $this->reusable_model->get_search_result_data('service_centers_login', '*', ['service_center_id' => $id, 'password' => md5($old_password)],null,null,null,null,null,[]);
+        }
+        
+        return (!empty($record) ? '1' : '0');
+    }
+	
+    /**
+     * 
+     * @param type $entity_type
+     * @param type $id
+     * @param type $new_password
+     * @return type
+     */
+    function change_entity_password($entity_type, $id, $new_password) {
+        
+        if($entity_type == _247AROUND_EMPLOYEE_STRING) {
+            return $this->reusable_model->update_table('employee', ['employee_password' => md5($new_password), 'clear_password'=> $new_password], ['id' => $id]);
+        }
+        
+        if($entity_type == _247AROUND_SF_STRING) {
+            return $this->reusable_model->update_table('service_centers_login', ['password' => md5($new_password), 'clear_text' => $new_password], ['service_center_id' => $id]);
+        }
+    }    
     // end of model
 }

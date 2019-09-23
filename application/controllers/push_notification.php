@@ -111,6 +111,8 @@ class Push_Notification extends CI_Controller {
             $data['device'] = "Mobile";
         }
        $this->reusable_model->insert_into_table("push_notification_subscribers",$data);
+       log_message('info', __FUNCTION__ . " Function End");
     }
+    
 }
 

@@ -415,6 +415,28 @@ class service_centre_charges_model extends CI_Model {
             return false;
         }
         }
+
+
+    /**
+     * @desc: This function is used to get data from service_category_mapping table
+     * @params: Array $where
+     * @return: string
+     * 
+     */
+//             function get_appliance_data($where = array()){  
+//             $this->db->select('service_category_mapping.*, services.services, category.name as category, capacity.name as capacity');
+//             $this->db->from('service_category_mapping');
+//             $this->db->join('services', 'services.id =  service_category_mapping.service_id');
+//             $this->db->join('category', 'category.id =  service_category_mapping.category_id');
+//             $this->db->join('capacity', 'capacity.id =  service_category_mapping.capacity_id', 'left');
+//             
+//             if(!empty($where)){
+//                 $this->db->where($where);
+//             }
+//             $this->db->order_by('services.services, category.name, capacity.name');
+//             $query = $this->db->get();
+//            return $query->result();  
+//        } 
         
         /**
      * @desc: This function is used to update service category capacity data in service_category_mapping table

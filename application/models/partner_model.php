@@ -427,14 +427,14 @@ function get_data_for_partner_callback($booking_id) {
             LEFT JOIN service_center_booking_action ON service_center_booking_action.booking_id = booking_details.booking_id
             LEFT JOIN service_centres ON service_center_booking_action.service_center_id = service_centres.id";
         
-        $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        if($is_saas) {
+        //$is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        //if($is_saas) {
             $sql .= " LEFT JOIN booking_symptom_defect_details ON booking_details.booking_id = booking_symptom_defect_details.booking_id
                     LEFT JOIN symptom creation_symptom ON booking_symptom_defect_details.symptom_id_booking_creation_time = creation_symptom.id
                     LEFT JOIN symptom completion_symptom ON booking_symptom_defect_details.symptom_id_booking_completion_time = completion_symptom.id
                     LEFT JOIN defect ON booking_symptom_defect_details.defect_id_completion = defect.id
                     LEFT JOIN symptom_completion_solution ON booking_symptom_defect_details.solution_id = symptom_completion_solution.id";
-        }
+        //}
         
         $sql .= " WHERE product_or_services != 'Product' AND $where GROUP BY ud.booking_id";
         
@@ -540,7 +540,7 @@ function get_data_for_partner_callback($booking_id) {
 
                 if (strpos($value->request_type, 'Repair') !== false || strpos($value->request_type, 'Repeat') !== false || strpos($value->request_type, 'Extended Warranty') !== false || strpos($value->request_type, 'Gas') !== false || 
                         strpos($value->request_type, 'PDI') !== false || strpos($value->request_type, 'Technical') !== false || strpos($value->request_type, 'Wet') !== false || strpos($value->request_type, 'Spare Parts') !== false
-                        || strpos($value->request_type, 'Inspection') !== false) {
+                        || strpos($value->request_type, 'Inspection') !== false || strpos($value->request_type, 'Inspection') !== false) {
                     $result['current_month_repair_booking_requested'] ++;
                     switch ($value->current_status) {
                         case _247AROUND_COMPLETED:
@@ -1223,6 +1223,26 @@ function get_data_for_partner_callback($booking_id) {
 
         return $query->result_array();
     }
+
+
+    /*
+     * @desc: This is used to get active partner id  details and warehouse  details
+     *           
+     */
+    function get_all_partner_warehouse(){
+
+        $this->db->select('warehouse_details.id,warehouse_details.entity_id as partner_id,warehouse_details.warehouse_address_line1 as address,partners.public_name as name,warehouse_details.warehouse_city as city');
+
+        if(!empty($where)){
+           $this->db->where($where);
+        }
+        $this->db->order_by("public_name", "asc"); 
+        $this->db->join('warehouse_details','warehouse_details.entity_id = partners.id');        
+        $query = $this->db->get('partners');
+        return $query->result_array();
+
+    }
+
     
     /**
      * @Desc: This function is used to insert value in partner_missed_calls table
@@ -1699,6 +1719,7 @@ function get_data_for_partner_callback($booking_id) {
         }
         
     }
+    
     function insert_paytm_payment_details($data){
         $this->db->insert('payment_transaction', $data);
         return $this->db->insert_id();

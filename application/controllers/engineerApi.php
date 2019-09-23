@@ -2248,13 +2248,16 @@ class engineerApi extends CI_Controller {
      function getSymptomCompleteBooking(){ 
         log_message("info", __METHOD__. " Entering..");
         $response = array();
+        $response['defect'] = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        if(!empty($requestData["booking_id"]) && !empty($requestData["service_id"]) && !empty($requestData["partner_id"]) && !empty($requestData["request_type"])){
+        
+        if(!empty($requestData["booking_id"]) && !empty($requestData["service_id"]) && !empty($requestData["partner_id"])){
+            $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
             $response['booking_symptom'] = $this->booking_model->getBookingSymptom($requestData["booking_id"]);
-            $price_tags = str_replace('(Free)', '', $requestData["request_type"]);
+            $price_tags = str_replace('(Free)', '', $bookingDetails[0]['request_type']);
             $price_tags1 = str_replace('(Paid)', '', $price_tags);
             
-            $symptom_id = "";
+            $symptom_id = null;
             if(count($response['booking_symptom'])>0) {
                 $symptom_id = ((!is_null($response['booking_symptom'][0]['symptom_id_booking_completion_time'])) ? $response['booking_symptom'][0]['symptom_id_booking_completion_time'] : $response['booking_symptom'][0]['symptom_id_booking_creation_time']);
             }
@@ -2268,7 +2271,7 @@ class engineerApi extends CI_Controller {
                 'request_type.service_category' => $price_tags1
             );
             $response['symptoms'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', $where, $where_in);
-            if((count($response['symptoms']) <= 0) || ($symptom_id == 0)) {
+            if((count($response['symptoms']) <= 0) || (!is_null($symptom_id))) {
                 $response['symptoms'][0] = array('id' => 0, 'symptom' => 'Default');
             }
             
@@ -2294,7 +2297,7 @@ class engineerApi extends CI_Controller {
             }
         }
         else{
-            log_message("info", __METHOD__ . "Service Id - ".$requestData["service_id"]." or Partner Id - ".$requestData["partner_id"]." or Request Type - ".$requestData["request_type"]." not found");
+            log_message("info", __METHOD__ . "Service Id - ".$requestData["service_id"]." or Partner Id - ".$requestData["partner_id"]." or Request Type - ".$bookingDetails[0]['request_type']." not found");
             $this->sendJsonResponse(array('0037', 'Booking Id or Service Id or Partner Id or Request Type not found'));
         }
     }

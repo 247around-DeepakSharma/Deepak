@@ -8374,79 +8374,79 @@ class Partner extends CI_Controller {
     }
     function do_partner_nrn_approval(){
 
-            $booking_id = trim($this->input->post('booking_id'));
-            $partner_id = $this->session->userdata('partner_id');
-            if(empty($partner_id)){
-             $partner_id = $this->input->post('partner_id');   
-            }
-            $email="Not Given";
-            $remarks = $this->input->post('remarks');
-            if (isset($_POST['email']) && !empty($_POST['email'])) {
-               $email = $this->input->post('email');
-            }
-          //  $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG',);
-            $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG','docx','DOCX','doc','DOC');
-            $approval_file_name = "Not Uploaded";
-            if(isset($_FILES["approval_file"]) && !empty($_FILES["approval_file"])){
-               $approval_file_name = $this->miscelleneous->upload_file_to_s3($_FILES["approval_file"], "nrn_approval", $allowedExts, $booking_id, "nrn_approvals_files", "incoming_approve_nrn");
-            }
-
-            $data_nrn = array(
-                'booking_id'=>$booking_id,
-                'email_to'=>trim($email),
-                'approval_file'=>$approval_file_name,
-                'remark'=>trim($remarks)
-            );
-
-     $where_shipped = array('booking_id' => trim($booking_id),'shipped_date IS NOT NULL'=>NULL);
-     $check_shipped_status = $this->partner_model->get_spare_parts_by_any("*",$where_shipped);
-            $response = $this->partner_model->insert_nrn_approval($data_nrn);
-            if ($response  && empty($check_shipped_status)) {
-
-                $select_invemtory = "partner_id,requested_inventory_id,quantity,booking_id,status,entity_type";
-                $where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
-                $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
-
-                foreach ($spare_inventory_update as  $update_pending) {
-
-                    $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
-                }
-
-
-                    $where = array('booking_id' => trim($booking_id));
-                    $data = array(
-                        'status'=>NRN_APPROVED_BY_PARTNER,
-                        'nrn_approv_by_partner'=>1
-                    );
-                    $response = $this->service_centers_model->update_spare_parts($where, $data);
-
-                        $booking['internal_status'] =NRN_APPROVED_BY_PARTNER;
-                        $booking['current_status'] = _247AROUND_PENDING;
-                        $actor="";
-                        $next_action="";
-                        $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING,NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);
-
-                    if (!empty($partner_status)) {
-                        $booking['partner_current_status'] = $partner_status[0];
-                        $booking['partner_internal_status'] = $partner_status[1];
-                        $actor = $booking['actor'] = $partner_status[2];
-                        $next_action = $booking['next_action'] = $partner_status[3];
-                    }
-                    $this->booking_model->update_booking($booking_id, $booking);
-
-                   $data_service_center=array(
-                            'current_status'=>_247AROUND_PENDING,
-                            'internal_status'=>NRN_APPROVED_BY_PARTNER
-                    );
-                   $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
-
-                    $new_state=NRN_APPROVED_BY_PARTNER;
-                        $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor,$next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
-                    echo "1";   
-            }else{
-               echo "0";
-            }
-
+        $booking_id = trim($this->input->post('booking_id'));
+        $partner_id = $this->session->userdata('partner_id');
+        if(empty($partner_id)){
+         $partner_id = $this->input->post('partner_id');   
         }
+        $email="Not Given";
+        $remarks = $this->input->post('remarks');
+        if (isset($_POST['email']) && !empty($_POST['email'])) {
+           $email = $this->input->post('email');
+        }
+      //  $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG',);
+        $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG','docx','DOCX','doc','DOC');
+        $approval_file_name = "Not Uploaded";
+        if(isset($_FILES["approval_file"]) && !empty($_FILES["approval_file"])){
+           $approval_file_name = $this->miscelleneous->upload_file_to_s3($_FILES["approval_file"], "nrn_approval", $allowedExts, $booking_id, "nrn_approvals_files", "incoming_approve_nrn");
+        }
+
+        $data_nrn = array(
+            'booking_id'=>$booking_id,
+            'email_to'=>trim($email),
+            'approval_file'=>$approval_file_name,
+            'remark'=>trim($remarks)
+        );
+
+ $where_shipped = array('booking_id' => trim($booking_id),'shipped_date IS NOT NULL'=>NULL);
+ $check_shipped_status = $this->partner_model->get_spare_parts_by_any("*",$where_shipped);
+        $response = $this->partner_model->insert_nrn_approval($data_nrn);
+        if ($response  && empty($check_shipped_status)) {
+
+            $select_invemtory = "partner_id,requested_inventory_id,quantity,booking_id,status,entity_type";
+            $where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
+            $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
+
+            foreach ($spare_inventory_update as  $update_pending) {
+                 
+                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
+            }
+
+        
+                $where = array('booking_id' => trim($booking_id));
+                $data = array(
+                    'status'=>NRN_APPROVED_BY_PARTNER,
+                    'nrn_approv_by_partner'=>1
+                );
+                $response = $this->service_centers_model->update_spare_parts($where, $data);
+
+                    $booking['internal_status'] =NRN_APPROVED_BY_PARTNER;
+                    $booking['current_status'] = _247AROUND_PENDING;
+                    $actor="";
+                    $next_action="";
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING,NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);
+                
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
+                }
+                $this->booking_model->update_booking($booking_id, $booking);
+
+               $data_service_center=array(
+                        'current_status'=>_247AROUND_PENDING,
+                        'internal_status'=>NRN_APPROVED_BY_PARTNER
+                );
+               $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
+
+                $new_state=NRN_APPROVED_BY_PARTNER;
+                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor,$next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
+                echo "1";   
+        }else{
+           echo "0";
+        }
+       
+    }
    
 }
