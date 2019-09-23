@@ -78,7 +78,7 @@ class reporting_lib {
         $to = $email_template[1];
         $cc = $email_template[3];
         $bcc = $email_template[5];
-        $this->My_CI->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $csv, $newCSVFileName);
+        $this->My_CI->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $csv, $template);
     }
 
 }

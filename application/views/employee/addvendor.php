@@ -1348,7 +1348,9 @@
 <script type="text/javascript">
 
     $(document).ready(function(){
-        getRMs();
+        
+        var rm_id = '<?php if(!empty($rm) && !empty($rm[0]['agent_id'])) { echo $rm[0]['agent_id']; } else { echo ''; }; ?>'
+        getRMs(rm_id);
         get_brands();
     });
 
@@ -1377,13 +1379,13 @@ function manageAccountNameField(value){
        }
      });
     }
-        function getRMs() {
+        function getRMs(rm_id = '') {
         var state = $("#state").val();
         if(state != ''){
         $.ajax({
           type: 'POST',
           url: '<?php echo base_url(); ?>employee/vendor/getRMs',
-          data: {state: state},
+          data: {state: state, rm_id:rm_id},
           success: function (data) {
             $("#rm").html(data);
           }

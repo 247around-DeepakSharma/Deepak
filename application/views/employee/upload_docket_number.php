@@ -100,12 +100,12 @@
             if(data.status === true){
                 $("#file_success_msg_div").show();
                 $("#file_error_msg_div").hide(); 
-                $("#file_success_msg").text(data.message);
+                $("#file_success_msg").html(data.message);
             }
             else if(data.status === false){
                $("#file_error_msg_div").show();
                $("#file_success_msg_div").hide();
-               $("#file_error_msg").text(data.message);
+               $("#file_error_msg").html(data.message);
             }
             $('body').loadingModal('destroy');
             table.ajax.reload();

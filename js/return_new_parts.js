@@ -59,12 +59,16 @@ function remove_inventory(inventory_id, index){
 }
 
 function addInArray(inventory_id, qty, index){
-    
+    var is_micro = Number($("#wh_id").find(':selected').attr('data-warehose'));
+    var is_micro_wh = 2;
+    if(is_micro === 2){
+        is_micro_wh = 1;
+    }
     returnItemArray[index] = [];
         returnItemArray[index] = {
             'inventory_id': inventory_id,
             'quantity':qty,
-            'booking_partner_id':$('#partner_id').val(),
+            'booking_partner_id':((is_micro === 2) ? $("#wh_id").val() : $('#partner_id').val()),
             'services':$("#services_"+inventory_id).text(),
             'service_id':$("#serviceid_"+inventory_id).text(),
             'type':$("#type_"+inventory_id).text(),
@@ -75,7 +79,7 @@ function addInArray(inventory_id, qty, index){
             'total_amount':$("#total_amount_"+inventory_id).text(),
             'sub_total_amount': Number(qty) * Number($("#total_amount_"+inventory_id).text()),
             'warehouse_id': $("#wh_id").val(),
-            'is_micro': $("#wh_id").find(':selected').attr('data-id'),
+            'is_micro_wh': is_micro_wh,
             'shipping_quantity':qty,
         };
         
@@ -144,6 +148,7 @@ function crate_table(){
 }
 
 function open_selected_parts_to_return(){
+    $('#sellItem').attr('disabled',true);
     $('#radio_partner').prop('checked',true).change();
     if(returnItemArray.length > 0){
         $("#return_new_parts_data").show();
@@ -151,6 +156,7 @@ function open_selected_parts_to_return(){
         $('#myModal').modal('toggle');
     } else
     {
+        $('#sellItem').attr('disabled',false);
         $("#return_new_parts_data").remove();
         $("#sellItem").val("Return new Parts (0)");
         alert("Please add new parts to return");
@@ -211,7 +217,7 @@ function check_awb_exist(){
 }
 
 function return_new_parts(){
-   // $('#submit_courier_form').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true); 
+    $('#submit_courier_form').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
     var formData = new FormData(document.getElementById("courier_model_form"));
     
     formData.append('inventory_data',JSON.stringify(returnItemArray));  
@@ -223,7 +229,7 @@ function return_new_parts(){
     formData.append("from_gst_number", $("#from_gst_number").val());
     formData.append("receiver_id", $("#to_wh_id").val());
    // console.log(JSON.stringify(returnItemArray));
-
+    $("#courier_model_form")[0].reset();
     $.ajax({
         method:'POST',
         url: baseUrl + '/employee/user_invoice/generate_invoice_for_return_new_inventory',
@@ -250,6 +256,7 @@ function return_new_parts(){
                 location.reload();
             } else {
                 alert(data.message);
+                $('#submit_courier_form').html("Return New Parts").attr('disabled',false);
             }
             $('body').loadingModal('destroy');
         }

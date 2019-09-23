@@ -31,7 +31,7 @@
                              <input type="radio" name="part[<?php echo ($key +$count); ?>][shippingStatus]" required="" class="shippingStatus" id="<?php echo "l_shippingStatus_".($key +$count);?>" value="-1">To be Shipped
                       </label>
                     </div>
-                    
+                    <span id="error_<?php echo "shippingStatus_".($key +$count);?>" class="error" style="color: red;"></span>
                    
                 </div>
                 <div class="col-md-5">
@@ -58,6 +58,7 @@
                                         }?>  ><?php echo $inventory['part_name']; ?></option>
                                 <?php } ?>
                             </select>
+                            <span id="error_<?php echo "onpartName_".($key +$count);?>" class="error" style="color: red;"></span>
                         </div>
                     </div>
                     <div class="form-group">
@@ -65,6 +66,7 @@
                         <div class="col-md-6">
                             <input type="number" value="<?php echo $basic_price;?>" onkeyup="validateDecimal(this.id, this.value);booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control allowNumericWithDecimal onpartBasicPrice" id="<?php echo "onpartBasicPrice_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][part_total_price]"  placeholder=""  required >
                             <label for="<?php echo "onpartBasicPrice_".($key + $count);?>" id="lbl_<?php echo "onpartBasicPrice_".($key + $count);?>" class="error"></label>
+                            <span id="error_<?php echo "onpartBasicPrice_".($key + $count);?>" class="error" style="color: red;"></span>
                             <input type="hidden" value="1" class="form-control" id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity]"  placeholder=""  required readonly="">
                         </div>
                     </div>
@@ -154,7 +156,7 @@
                                       <input type="radio" id="shipping_status_3" value="-1">To be Shipped
                                </label>
                              </div>
-
+                            <span id="error_<?php echo "shippingStatus";?>" class="error" style="color: red;"></span>
 
                          </div>
                         
@@ -170,7 +172,7 @@
                                         <option value="<?php echo $inventory['part_name']; ?>" ><?php echo $inventory['part_name']; ?></option>
                                         <?php } ?>
                                     </select>
-                                     
+                                    <span id="error_<?php echo "onpartName";?>" class="error" style="color: red;"></span>
                                 </div>
                                
                             </div>
@@ -179,6 +181,7 @@
                                 <div class="col-md-6">
                                     <input type="text"  class="form-control allowNumericWithDecimal" id="onpartBasicPrice"  placeholder=""  required >
                                     <label for="onpartBasicPrice" id="lbl_onpartBasicPrice" class="error"></label>
+                                    <span id="error_onpartBasicPrice" class="error" style="color: red;"></span>
                                     <input type="hidden" value="1" class="form-control" id="onquantity" placeholder=""  required readonly="">
                                 </div>
                             </div>

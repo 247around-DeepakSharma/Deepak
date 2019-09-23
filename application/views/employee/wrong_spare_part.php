@@ -45,6 +45,7 @@
     function save_details() {
         var spare_id = '<?php echo $spare_part_detail_id; ?>';
         var wrong_part = $('#wrong_part').val();
+        var wrong_part_name = $('#wrong_part').children("option:selected").text();
         var remarks = $('#remarks').val();
         if(wrong_part == '' || wrong_part == null) {
             alert('Please select wrong part.');
@@ -57,8 +58,8 @@
 
         $.ajax({
             method: 'POST', dataType:'json',
-            url : '<?php echo base_url(); ?>employee/booking/wrong_spare_part/<?php echo $booking_id; ?>/<?php echo $spare_part_detail_id; ?>/<?php echo $part_name; ?>',
-            data: {wrong_flag:1, service_id: '<?php echo $service_id; ?>', wrong_part:wrong_part, remarks:remarks, part_name:'<?php echo $part_name; ?>'},
+            url : '<?php echo base_url(); ?>employee/booking/wrong_spare_part/<?php echo $booking_id; ?>',
+            data: {wrong_flag:1, service_id: '<?php echo $service_id; ?>', wrong_part:wrong_part, wrong_part_name:wrong_part_name, remarks:remarks, part_name:'<?php echo $part_name; ?>', spare_part_detail_id:spare_id},
         }).success(function(data){
             $('#wrong_part_'+spare_id).val(JSON.stringify(data));
             $('#WrongSparePartsModal').modal('toggle');

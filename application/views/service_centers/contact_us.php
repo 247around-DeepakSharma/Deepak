@@ -101,10 +101,10 @@
         <div class="col-md-12">
             <div class="card" style="width:40%;">
                 <div class="container">
-                    <h5><b>Miss. Geeta Gupta</b></h5> 
+                    <h5><b>Mr. Sonu Yadav</b></h5> 
                     <p><i class="fa fa-newspaper-o"></i> Delhi Office</p>
                     <p>‭<i class="fa fa-phone"></i> +91 9717165247</p>
-                    <p><i class="fa fa-envelope"></i> geetag@247around.com</p>
+                    <p><i class="fa fa-envelope"></i> sonuy@247around.com</p>
                 </div>
             </div>
         </div>

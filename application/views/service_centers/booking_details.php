@@ -386,9 +386,10 @@
                                 <th >Final Requested Parts </th>
 <!--                                <th > Requested Part Number </th>-->
                                 <th >Requested Parts Type</th>
+                                <th >Parts Warranty Status</th>
                                 <th >Requested Quantity</th>
-                                <th >Shipped Quantity</th>
                                 <th >Requested Date</th>
+                                <th >Date Of Purchase</th>
                                 <th >Invoice Image </th>
                                 <th >Serial Number Image </th>
                                 <th >Defective Front Part Image </th>
@@ -409,13 +410,22 @@
                             <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                             <tr>
                                 <td><?php echo $sp['model_number']; ?></td>
-                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><b>".$sp['original_parts_number']."</b>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
-                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><b>".$sp['part_number']."</b>"; }  ?></td>
+                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/".$sp['appliance_model_detail_id']."','".$sp['original_parts_number']."')\"><b>".$sp['original_parts_number']."</b></a>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/".$sp['appliance_model_detail_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>") : ''); } ?></td>
+                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/".$sp['appliance_model_detail_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>"; }  ?></td>
 <!--                                <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; }  ?></td>-->
                                 <td><?php echo $sp['parts_requested_type']; ?></td>
+                                <td><?php
+                                    if ($sp['part_warranty_status']==2){
+                                        echo "Out - Warranty";
+                                    }else if($sp['part_warranty_status']==1){
+                                        echo "In - Warranty";
+                                    }else{
+                                        echo "NA";
+                                    }
+                                ?></td>
                                 <td><?php echo $sp['quantity']; ?></td>
-                                 <td><?php echo $sp['shipped_quantity']; ?></td>
-                                <td><?php echo $sp['create_date']; ?></td>
+                                <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
+                                <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
                                 <td><?php if (!is_null($sp['invoice_pic'])) {
                                     if ($sp['invoice_pic'] != '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php }
                                     } ?>
@@ -452,7 +462,33 @@
                                 } if($sp['purchase_price'] > 0){ $estimate_given = TRUE; }  } ?>
                         </tbody>
                     </table>
-                
+<?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['wrong_part_name'])) { ?>
+                <div class="row">
+                    <div class="col-md-12" >
+                        <h1 style='font-size:24px;margin-top: 40px;'>Wrong Part Details</h1>
+                        <div class="col-md-12" style="padding-left:1px;">
+                            <table class="table  table-striped table-bordered" >
+                                <thead>
+                                    <th>S. No.</th>
+                                    <th>Requested Part Name</th>
+                                    <th>Wrong Part Name</th>
+                                    <th>Wrong Part Remarks</th>
+                                </thead>
+                                <tbody>
+                                    <?php foreach($booking_history['spare_parts'] as $kk => $spare_record) { ?>
+                                    <tr>
+                                        <td><?php echo $kk; ?></td>
+                                        <td><?php echo $spare_record['parts_requested']; ?></td>
+                                        <td><?php echo $spare_record['wrong_part_name']; ?></td>
+                                        <td><?php echo $spare_record['wrong_part_remarks']; ?></td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <?php } ?>                
             <?php 
                 if($estimate_given){ ?>
                         
@@ -493,6 +529,7 @@
                             <tr>
                                 <th>Shipped Parts </th>
                                 <th>Shipped Parts Number </th>
+                                <th>Shipped Quantity </th>
                                 <th>Pickup Request </th>
                                 <th>Pickup Schedule</th>
                                 <th>Courier Name</th>
@@ -510,6 +547,7 @@
                             <tr>
                                 <td><?php echo $sp['parts_shipped']; ?></td>
                                 <td><?php if(!empty($sp['shipped_part_number'])){echo $sp['shipped_part_number'];}else{echo 'Not Available';}  ?></td>
+                                <td><?php echo $sp['shipped_quantity']; ?></td>
                                 <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_REQUEST){    echo 'Pickup Requested';} ?></td>
                                 <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_SCHEDULE){    echo 'Pickup Schedule';} ?></td>
                                 <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
@@ -911,6 +949,37 @@
     }
 </style>
 <script>
+
+function openPartDetails(url, modelid)
+{
+    var param = { 'search': modelid};
+    OpenWindowWithPost(url, "", "NewFile", param);
+}
+function OpenWindowWithPost(url, windowoption, name, params)
+{
+ var form = document.createElement("form");
+ form.setAttribute("method", "post");
+ form.setAttribute("action", url);
+ form.setAttribute("target", name);
+ for (var i in params)
+ {
+   if (params.hasOwnProperty(i))
+   {
+     var input = document.createElement('input');
+     input.type = 'hidden';
+     input.name = i;
+     input.value = params[i];
+     form.appendChild(input);
+   }
+ }
+ document.body.appendChild(form);
+ //note I am using a post.htm page since I did not want to make double request to the page 
+ //it might have some Page_Load call which might screw things up.
+ window.open("post.htm", name, windowoption);
+ form.submit();
+ document.body.removeChild(form);
+}
+
     <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
              setTimeout(function(){ GetRoute(); }, 1000);
     <?php } ?>
@@ -1056,4 +1125,3 @@
         }
     }
 </script>
-

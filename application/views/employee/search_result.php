@@ -244,6 +244,13 @@
             <?php } if(isset($data['Pending'])){ ?>
             <h1 align="left">
                 <b>Pending Bookings</b>
+                <?php
+                    if(isset($booking_status) && $booking_status === 0){
+                        echo "<small class='text-danger'>(Booking Cancelled By SF)</small>";
+                    }else if($booking_status === 1){
+                        echo "<small class='text-danger'>(Booking Completed By SF)</small>";
+                    }
+                ?>
             </h1>
             <?php
                 if (isset($success) && $success !== 0) {

@@ -55,7 +55,7 @@ define("CANCEL_PAGE_SPARE_NOT_SHIPPED_FOR_PARTNER", "Spare Requested for this bo
 define("CANCEL_PAGE_SPARE_SHIPPED", "This booking can not be cancelled since spare part has already been shipped to SF.");
 
 define('PARTNER_SPARE_OOT_DAYS','30');
-define('SF_SPARE_OOT_DAYS','7');
+define('SF_SPARE_OOT_DAYS','15');
 
 //for now default warehouse id is 10 (sf = manish ji)
 define('DEFAULT_WAREHOUSE_ID',15);
@@ -132,6 +132,7 @@ define('MSL_TRANSFERED_BY_WAREHOUSE', "2");
 define('GAS_RECHARGE_IN_WARRANTY', 'Gas Recharge - In Warranty');
 define('GAS_RECHARGE_OUT_OF_WARRANTY', 'Gas Recharge - Out of Warranty');
 define('MSL_TRANSFERED_BY_PARTNER_BY_EXCEL', 'Msl send by partner by excel upload');
+
 define('AMC_PRICE_TAGS', 'AMC (Annual Maintenance Contract)');
 define('UNABLE_TO_COMPLETE_BOOKING_INVOICE_GENERATED_MSG', 'Invoice has been generated so booking can not be updated.');
 
@@ -145,15 +146,17 @@ define('SPARE_RECIEVED_NOT_USED', 'Spare recieved but not used');
 //MWH auto deliver consumption remove
 define('REMOVE_PART_CONSUMPTION', 'Consumed MSL Part Removed');
 
-// spare consumption status ids
-define('PART_CONSUMED_STATUS_ID', 1);
-define('PART_NOT_RECEIVED_STATUS_ID', 2);
-define('DAMAGE_BROKEN_PART_RECEIVED_STATUS_ID', 3);
-define('WRONG_PART_RECEIVED_STATUS_ID', 4);
-define('PART_SHIPPED_BUT_NOT_USED_STATUS_ID', 5);
-define('PART_CANCELLED_STATUS_ID', 6);
-define('PART_NRN_APPROVED_STATUS_ID', 7);
+define('DEFECTIVE_PARTS_SHIPPED_PENDING', 'All Defective Parts Not Shipped');
+
+
+// spare consumption status tags 
+define('PART_CONSUMED_TAG', 'part_consumed');
+define('PART_NOT_RECEIVED_COURIER_LOST_TAG', 'part_not_received_courier_lost');
+define('DAMAGE_BROKEN_PART_RECEIVED_TAG', 'damage_broken_part_received');
+define('WRONG_PART_RECEIVED_TAG', 'wrong_part_received');
+define('PART_SHIPPED_BUT_NOT_USED_TAG', 'ok_part_received_but_not_used');
+define('PART_CANCELLED_STATUS_TAG', 'part_cancelled');
+define('PART_NRN_APPROVED_STATUS_TAG', 'nrn_approved');
 
 define('OK_PART_TO_BE_SHIPPED', 'Ok Part To Be Shipped');
 define('DAMAGE_PART_TO_BE_SHIPPED', 'Damage Part To Be Shipped');
-

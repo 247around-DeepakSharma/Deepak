@@ -148,6 +148,7 @@
           	<th class="jumbotron">Permanent</th>
                 <th class="jumbotron">Add Pin Code</th>
                 <th class="jumbotron">Resend Login Details</th>
+                <th class="jumbotron">View Active/De-active History</th>
           </tr>
 
           
@@ -204,20 +205,20 @@
                         ?>
                     </td>
                     
-          	<td><?php if($row['active']==1)
-                {
-                  echo "<a id='edit' class='btn btn-small btn-danger' onclick =pendingBookings(".$row['id'].",'P', ".$row['is_micro_wh'].")>Deactivate</a>";                
-                }
+          	<td>
+                    
+               <?php if($row['active']==1) { ?>
+                  <a id='edit' class='btn btn-small btn-danger' onclick ="pendingBookings('<?php echo $row['id']?>','P', '<?php echo $row['is_micro_wh'] ?>')">Deactivate</a>           
+               <?php }
                 else
-                {
-                  echo "<a id='edit' class='btn btn-small btn-primary' "
-                                    . "href=" . base_url() . "employee/vendor/vendor_activate_deactivate/$row[id]/1>Activate</a>";                
-                }
+                { ?>
+                   <a id='edit' class='btn btn-small btn-primary' href="<?php echo base_url() ?>employee/vendor/vendor_activate_deactivate/<?php echo $row['id']?>/1">Activate</a>        
+              <?php  }
               ?>
             </td>
             <td><button type="button" class="btn btn-small btn-success" id="<?php echo $row['id']; ?>" data-toggle="modal" data-target="#pin_code" onclick="createPinCodeForm(this.id,<?php echo "'".$row['name']."'"  ?>)">Pin Code</button></td>
             <td><a class="btn btn-warning" href="<?php echo base_url();?>employee/vendor/resend_login_details/vendor/<?php echo $row['id']?>">Resend Login Details</a></td>
-<!--            <td>  <button type="button" class="btn btn-info btn-lg fa fa-eye" data-toggle="modal" data-target="#history_view" onclick="get_history_view(<?php echo $row['id']?>)" style="padding: 11px 6px;margin: 0px 10px;"></button></td>-->
+            <td>  <button type="button" class="btn btn-info btn-lg fa fa-history" data-toggle="modal" data-target="#on_off_history_view" onclick="get_on_off_history_view(<?php echo $row['id']?>)" style="padding: 11px 6px;margin: 0px 10px;"></button></td>
 
           </tr>	
           <?php } ?>
@@ -348,6 +349,27 @@
     </div>
   </div>
   
+  <!-- This model class is used Update On/Off History -->
+  <div class="modal fade" id="on_off_history_view" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Active/De-active History View</h4>
+        </div>
+        <div class="modal-body">
+            <div id="on_off_table_container"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
    <!-- This model is used send SMS to POC -->
     <div id="msg_poc" class="modal fade" role="dialog">
      <div class="modal-dialog">
@@ -455,6 +477,19 @@
             });
      }
      
+     /**
+      * Function to get on-off history
+      * @param {[[Number]]} vendorID [[service center id]]
+      */
+     function get_on_off_history_view(vendorID){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/vendor/get_partner_vendor_on_off_history_view/'+ vendorID,
+            success: function(response) {
+                $("#on_off_table_container").html(response);
+            }
+        });
+     }
       /** This function is used to send sms to poc  **/
      function send_sms_to_poc(){
         if($("#poc_msg").val()){

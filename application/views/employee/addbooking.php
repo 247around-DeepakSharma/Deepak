@@ -450,13 +450,37 @@
 
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
     //$(".purchase_date").datepicker({dateFormat: 'yy-mm-dd'});
-
+   function chkPrice(curval,maxval){
+    //alert(curval.val());
+    let flg=true;
+        if(!isNaN(curval.val())){
+            if(parseFloat(curval.val())<0) {
+                alert('Cannot be less than 0.00');
+               flg=false;
+            } else if(parseFloat(curval.val())>parseFloat(maxval)) {
+               alert('Cannot be more than Std.Charges');
+               flg=false;
+            }
+        } else {
+            alert('Enter numeric value');
+            flg=false;
+        }
+        if(!flg)
+        {
+        window.setTimeout(function () { 
+            curval.focus();
+        }, 0);
+            
+           }
+        
+    }
 </script>
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex = $(".clonedInput").length +1;
 
     function clone(){
+        $('.select-model').select2("destroy");
        $(this).parents(".clonedInput").clone()
            .appendTo(".cloned")
            .attr("id", "cat" +  cloneIndex)
@@ -481,6 +505,12 @@
                     $(this).removeClass('hasDatepicker');
                 } 
                  $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
+            });
+           
+            $('.select-model').each(function () {
+                $(this).select2({
+                    width:"239px"
+                });
             });
            
        cloneIndex++;
@@ -560,7 +590,7 @@ function check_booking_request()
         var model_number = $(".input-model").val();
     } 
     var dop = $("#purchase_date_1").val();
-    var partner_id = $("#source_code").val();
+    var partner_id = $("#source_code").find(':selected').attr('data-id');
     var service_id = $("#service_id").val();
     var booking_id = 1;
     var booking_create_date = "<?= date('Y-m-d')?>";
@@ -572,7 +602,7 @@ function check_booking_request()
     $("#submitform").attr("disabled", false);
     $('.errorMsg').html("");
 
-    if(model_number !== "" && model_number !== null && model_number !== undefined && dop !== "" && booking_request_types.length > 0){                               
+    if(dop !== "" && booking_request_types.length > 0){                               
         $.ajax({
             method:'POST',
             url:"<?php echo base_url(); ?>employee/booking/get_warranty_data/2",

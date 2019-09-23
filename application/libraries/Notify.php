@@ -193,13 +193,16 @@ class Notify {
 
 	    $this->sendEmail($from, $to, $cc, $bcc, $subject, $message, $attachment,$email['tag']);
 	} else {
-	    log_message('info', "Email Not Sent - Booking id: " . $email['booking_id'] . ",
-        		please recheck tag: '" . $email['tag'] . "' & Phone Number - " . $email['phone_no']);
-	    $subject = 'Booking Email not sent';
-	    $message = "Please check email tag and phone number. Booking id is : " .
-		$email['booking_id'] . " Tag is '" . $email['tag'] . "' & phone number is :" . $email['phone_no'];
-	    $to = NITS_ANUJ_EMAIL_ID;
-	    $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",'booking_email_not_sent');
+                       $permission = $this->My_CI->partner_model->get_partner_permission(array('permission_type' => DO_NOT_SEND_BOOKING_EMAIL_NOT_SENT_EMAIL, 'is_on' => 1));
+                       if(empty($permission)){
+                            log_message('info', "Email Not Sent - Booking id: " . $email['booking_id'] . ",
+                                        please recheck tag: '" . $email['tag'] . "' & Phone Number - " . $email['phone_no']);
+                            $subject = 'Booking Email not sent';
+                            $message = "Please check email tag and phone number. Booking id is : " .
+                                $email['booking_id'] . " Tag is '" . $email['tag'] . "' & phone number is :" . $email['phone_no'];
+                            $to = NITS_ANUJ_EMAIL_ID;
+                            $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",'booking_email_not_sent');
+                       }
 	}
     }
 

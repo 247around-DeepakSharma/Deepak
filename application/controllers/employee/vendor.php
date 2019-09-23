@@ -66,7 +66,7 @@ class vendor extends CI_Controller {
      * @param : void
      * @return : void
      */
-    function index() { 
+    function index() {
         $this->checkUserSession();
         $vendor = [];
         //Getting rm id from post data
@@ -2018,73 +2018,88 @@ class vendor extends CI_Controller {
         if ($engineer_id) {
             $is_phone = $this->engineer_model->get_engineers_details(array("phone" => $this->input->post('phone')), "id, name, phone");
             if (empty($is_phone) || $is_phone[0]['id'] == $engineer_id) {
-                $data['name'] = $this->input->post('name');
-                $data['phone'] = $this->input->post('phone');
-                $data['alternate_phone'] = $this->input->post('alternate_phone');             
-                $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
-                $data_identity['identity_proof_number'] = $this->input->post('identity_id_number');
-                
-                if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
-                    //Making process for file upload
-                    $tmpFile = $_FILES['file']['tmp_name'];
-                    $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_engidentityfile_' . date("Y-m-d-H-i-s") . "." . explode(".", $_FILES['file']['name'])[1];
-                    move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
+                $login_entity = $this->dealer_model->entity_login(array("entity" => _247AROUND_ENGINEER_STRING, "user_id" => $this->input->post('phone')));
+                if(empty($login_entity) || $login_entity[0]['user_id'] == $this->input->post('phone')){
+                    $data['name'] = $this->input->post('name');
+                    $data['phone'] = $this->input->post('phone');
+                    $data['alternate_phone'] = $this->input->post('alternate_phone');  
+                    if($this->input->post('identity_proof')){
+                        $data_identity['identity_proof_type'] = $this->input->post('identity_proof');
+                    }
+                    else{
+                        $data_identity['identity_proof_type'] = "";
+                    }
+                    $data_identity['identity_proof_number'] = $this->input->post('identity_id_number');
 
-                    //Upload files to AWS   
-                     $bucket = BITBUCKET_DIRECTORY;
-                    $directory_xls = "engineer-id-proofs/" . $pan_file;
-                    $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
-                    $data_identity['identity_proof_pic'] = $pan_file;
-                }
-               
-               
-//          $data['phone_type'] = $this->input->post('phone_type');
-//	    $data['bank_name'] = $this->input->post('bank_name');
-//	    $data['bank_ac_no'] = $this->input->post('bank_account_no');
-//	    $data['bank_ifsc_code'] = $this->input->post('bank_ifsc_code');
-//	    $data['bank_holder_name'] = $this->input->post('bank_holder_name');
-//            if($this->input->post('bank_proof_pic')){
-//	    $data['bank_proof_pic'] = $this->input->post('bank_proof_pic');
-//            }
-                //Get vendor ID from session if form sent thru vendor CRM
-                //Else from POST variable.
-                if ($this->session->userdata('userType') == 'service_center') {
-                    $data['service_center_id'] = $this->session->userdata('service_center_id');
-                } else {
-                    $data['service_center_id'] = $this->input->post('service_center_id');
-                }
+                    if (($_FILES['file']['error'] != 4) && !empty($_FILES['file']['tmp_name'])) { 
+                        //Making process for file upload
+                        $tmpFile = $_FILES['file']['tmp_name'];
+                        $pan_file = implode("", explode(" ", $this->input->post('name'))) . '_engidentityfile_' . date("Y-m-d-H-i-s") . "." . explode(".", $_FILES['file']['name'])[1];
+                        move_uploaded_file($tmpFile, TMP_FOLDER.$pan_file);
 
-                //applicable services for an engineer come as array in service_id field.
-                $service_id = $this->input->post('service_id');
-                
-                $data['update_date'] = date("Y-m-d H:i:s");
+                        //Upload files to AWS   
+                         $bucket = BITBUCKET_DIRECTORY;
+                        $directory_xls = "engineer-id-proofs/" . $pan_file;
+                        $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+                        $data_identity['identity_proof_pic'] = $pan_file;
+                    }
 
-                $where = array('id' => $engineer_id);
-                $engineer_update_id = $this->vendor_model->update_engineer($where, $data);
-                
-                $where_identity = array("entity_type" => "engineer", "entity_id" => $engineer_id);
-                $this->vendor_model->update_entity_identity_proof($where_identity, $data_identity);
-                
-                if($engineer_id){
+                    //Get vendor ID from session if form sent thru vendor CRM
+                    //Else from POST variable.
+                    if ($this->session->userdata('userType') == 'service_center') {
+                        $data['service_center_id'] = $this->session->userdata('service_center_id');
+                    } else {
+                        $data['service_center_id'] = $this->input->post('service_center_id');
+                    }
+
+                    //applicable services for an engineer come as array in service_id field.
+                    $service_id = $this->input->post('service_id');
+
+                    $data['update_date'] = date("Y-m-d H:i:s");
+
+                    $where = array('id' => $engineer_id);
+                    $engineer_update_id = $this->vendor_model->update_engineer($where, $data);
                     
-                    $this->engineer_model->update_engineer_appliance_mapping($engineer_id, $service_id);
-                }
+                    //Update user id and password in entity login table
+                    if($login_entity[0]['user_id'] != $this->input->post('phone')){
+                        $entity_data = array(
+                            "entity_name" => $this->input->post('name'),
+                            "user_id" => $this->input->post('phone'),
+                            "password" => md5($this->input->post('phone')),
+                            "clear_password" => $this->input->post('phone')
+                        );
+                        $this->partner_model->update_login_details($entity_data, array("entity" => _247AROUND_ENGINEER_STRING, "entity_id" => $engineer_id));
+                    }
+                    $where_identity = array("entity_type" => "engineer", "entity_id" => $engineer_id);
+                    $this->vendor_model->update_entity_identity_proof($where_identity, $data_identity);
 
-                log_message('info', __METHOD__ . "=> Engineer Details Added.");
+                    if($engineer_id){
 
-                $output = "Engineer Details Updated.";
-                $userSession = array('update_success' => $output);
+                        $this->engineer_model->update_engineer_appliance_mapping($engineer_id, $service_id);
+                    }
 
-                $this->session->set_userdata($userSession);
+                    log_message('info', __METHOD__ . "=> Engineer Details Added.");
 
-                if ($this->session->userdata('userType') == 'service_center') {
-                    log_message('info', __FUNCTION__ . " Engineer updation initiated By Service Center ID " . $engineer_id);
+                    $output = "Engineer Details Updated.";
+                    $userSession = array('update_success' => $output);
 
-                    redirect(base_url() . "employee/vendor/get_engineers");
-                } else {
-                    log_message('info', __FUNCTION__ . " Engineer updation initiated By 247around ID " . $engineer_id);
+                    $this->session->set_userdata($userSession);
 
-                    redirect(base_url() . "employee/vendor/get_engineers");
+                    if ($this->session->userdata('userType') == 'service_center') {
+                        log_message('info', __FUNCTION__ . " Engineer updation initiated By Service Center ID " . $engineer_id);
+
+                        redirect(base_url() . "employee/vendor/get_engineers");
+                    } else {
+                        log_message('info', __FUNCTION__ . " Engineer updation initiated By 247around ID " . $engineer_id);
+
+                        redirect(base_url() . "employee/vendor/get_engineers");
+                    }
+                } else{
+                    $output = "User-Id with this phone number is already exist.";
+                    $userSession = array('update_error' => $output);
+                    $this->session->set_userdata($userSession);
+
+                    $this->get_edit_engineer_form($engineer_id);
                 }
             } else {
                 $output = "This Phone has aloted to another Engineer.";
@@ -3078,7 +3093,7 @@ class vendor extends CI_Controller {
     function download_sf_list_excel(){
         //Getting only Active Vendors List
         //$vendor  = $this->vendor_model->viewvendor('',1);
-        $where = array('active' => '1','on_off' => '1');
+        $where = array('active' => '1','on_off' => '1', 'is_CP' => '0');
         $select = "*";
         $whereIN = array();
         if($this->session->userdata('user_group') == 'regionalmanager'){
@@ -3831,7 +3846,7 @@ class vendor extends CI_Controller {
      * 
      */
     function process_remove_penalty(){
-        
+        $this->checkUserSession();
         $id = $this->input->post('id');
         $status = $this->input->post('status');
         $booking_id = $this->input->post('booking_id');
@@ -4875,6 +4890,41 @@ class vendor extends CI_Controller {
       </tr>'; }}
    echo $table .= '</tbody></table>';
     }
+
+    /**
+     * get partner on off history.
+     */
+    function get_partner_vendor_on_off_history_view($vendor){
+        if(!is_numeric($vendor)){
+            echo "<div class='text-danger'>Invalid Service Centre.</div>";die;
+        }
+        $data = $this->miscelleneous->service_centre_on_off_history_view($vendor);
+        $table = '<table class="table table-striped table-bordered table-responsive">'
+                    .'<thead><tr><th>S.No.</th><th>Name</th><th>Status</th><th>Temporary/Permanent</th><th>Agent</th><th>Date</th></tr></thead>'
+                    .'<tbody>';
+
+        if(!empty($data) && count($data)>0){
+            $index = 1;
+            foreach($data as $key=>$entry){
+                if(isset($prev_state) && $prev_state == $entry['on_off']){
+                    continue;
+                }
+                $prev_state = $entry['on_off'];
+                $table .= "<tr><td>". $index. "</td>"
+                    ."<td>". $entry["name"]. "</td>"
+                    ."<td>". ($entry["on_off"]?"On":"Off"). "</td>"
+                    ."<td>". ($entry["active"]?"Temporary":"Permanent"). "</td>"
+                    ."<td class='text-capitalize'>". ($entry["agent"]?$entry['agent']:"NA"). "</td>"
+                    ."<td>". $entry["date"]. "</td></tr>";
+                $index++;
+            }
+        }
+
+        $table .= "</tbody></table>";
+        echo $table;
+        //echo "<pre>";print_r($table);die;
+    }
+
     function show_escalation_graph_by_sf($sfID,$startDate,$endDate){
             if($this->session->userdata('userType') == 'employee'){
         $this->miscelleneous->load_nav_header();
@@ -5827,9 +5877,10 @@ class vendor extends CI_Controller {
     
     function getRMs() {
         $data = $this->employee_model->get_state_wise_rm($this->input->post('state'));
-        $option = '<option value="" disabled '.(count($data) > 1 ? 'selected' : '').'>Select Regional Manager</option>';
+        $rm_id = $this->input->post('rm_id');
+        $option = '<option value="" disabled '.(empty($rm_id) && count($data) > 1 ? 'selected' : '').'>Select Regional Manager</option>';
         foreach ($data as $employee) {
-            $option .= "<option value='{$employee['id']}'>{$employee['full_name']}</option>";
+            $option .= "<option value='{$employee['id']}' ".(!empty($rm_id) && $rm_id == $employee['id'] ? 'selected' : '').">{$employee['full_name']}</option>";
         }
         
         echo $option;

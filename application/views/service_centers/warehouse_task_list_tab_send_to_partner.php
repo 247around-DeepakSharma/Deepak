@@ -43,7 +43,7 @@
                                    </form>                                
                             </div>
                             <div class="approved pull-right">
-                                <div class="btn btn-info btn-sm send_all_spare pull-right" style="margin-top: 11px;" onclick="process_send_all_spare();">Send spare to partner</div>
+                                <div class="btn btn-info btn-sm send_all_spare pull-right" id="send_spare_to_partner" style="margin-top: 11px;" onclick="process_send_all_spare();">Send spare to partner</div>
                             </div>
                         </div>
                     </section>
@@ -114,13 +114,15 @@
                                         <?php echo $row['remarks_defective_part_by_sf']; ?>
                                      </td>
 
-                                    <td>
-                                        <input type="number" min="1" value="<?php echo $row['shipped_quantity']?>" data-shipping_quantity="<?php echo $row['shipped_quantity']?>" id="spare<?php echo $row['id']?>" name="shipping_quantity">
+                                     <td><?php echo $row['shipped_quantity']?>
+                                     	
+                                     <input type="hidden" readonly="readonly" min="1" value="<?php echo $row['shipped_quantity']?>" data-shipping_quantity="<?php echo $row['shipped_quantity']?>" id="spare<?php echo $row['id']?>" name="shipping_quantity">
+
                                      </td>
+ 
                                     <td>
                                         
-                                        <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>"  data-shipped
-                                        -quantity = "<?php echo $row['shipped_quantity']?>" >
+                                        <input type="checkbox" class="check_single_row" data-is_micro_wh ="<?php echo $row['is_micro_wh'];?>" data-defective_return_to_entity_type ="<?php echo $row['defective_return_to_entity_type']; ?>" data-defective_return_to_entity_id="<?php echo $row['defective_return_to_entity_id'];?>" data-entity_type ="<?php echo $row['entity_type']; ?>" data-service_center_id ="<?php echo $row['service_center_id']; ?>" data-part_name ="<?php echo $row['defective_part_shipped']; ?>" data-model="<?php echo $row['model_number_shipped']; ?>" data-shipped_inventory_id = "<?php echo $row['shipped_inventory_id']?>" data-booking_id ="<?php echo $row['booking_id']?>" data-partner_id = "<?php echo $row['partner_id']?>" data-spare_id = "<?php echo $row['id']?>" data-booking_partner_id = "<?php echo $row['booking_partner_id']?>">
                                     </td>
                             </tr>
                             <?php $sn_no++; } ?>
@@ -381,7 +383,6 @@
             tmp_arr[key]['sent_entity_type'] = $(this).attr('data-entity_type');
             tmp_arr[key]['model'] = $(this).attr('data-model');
             tmp_arr[key]['booking_partner_id'] = $(this).attr('data-booking_partner_id');
-            tmp_arr[key]['shipped_quantity'] = $(this).attr('data-shipped_quantity');
             tmp_arr[key]['shipping_quantity'] = $("#spare"+$(this).attr('data-spare_id')).val();
             flag = true;
         });
@@ -403,7 +404,9 @@
         }
     }
     
-    $('#submit_courier_form').on('click',function(){ 
+    $('#submit_courier_form').on('click',function(){
+        $(".check_single_row").prop('checked', false);
+        $("#send_spare_to_partner").attr('disabled',true);
         $('#submit_courier_form').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
         postData['awb_by_wh'] = $('#awb_by_wh').val();
         postData['courier_name_by_wh'] = $('#courier_name_by_wh').val();
@@ -454,6 +457,7 @@
                 contentType: false,
                 processData: false,
                 success:function(response){
+                    $("#send_spare_to_partner").attr('disabled',false);
                     $('#submit_courier_form').html('Submit').attr('disabled',false);
                     $('#courier_model').modal('toggle');
                     obj = JSON.parse(response);
@@ -469,6 +473,7 @@
                 }
             });
         }else{
+            $("#send_spare_to_partner").attr('disabled',false);
             $('#submit_courier_form').html('Submit').attr('disabled',false);
             alert("Please enter all required field");
         }

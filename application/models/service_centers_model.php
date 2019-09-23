@@ -40,7 +40,7 @@ class Service_centers_model extends CI_Model {
             $booking = " AND bd.booking_id IN ('".$booking_id."') ";
         }
         $status = "";
-        for($i =1; $i < 4;$i++ ){
+        for($i =1; $i <= 4;$i++ ){
             if($booking_id !=""){
                 if($i==2){
                 //Future Booking
@@ -67,6 +67,9 @@ class Service_centers_model extends CI_Model {
                     // Rescheduled Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
                     $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending')  ";
+                } else if ($i== 4) {
+                    $day = " ";
+                    $status = " AND sc.current_status='InProcess' AND sc.internal_status IN (".$this->stored_internal_status().")";
                 }
                 
             }
@@ -98,6 +101,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.booking_alternate_contact_no, "
                 . " bd.request_type, "
                 . " bd.internal_status, "
+                . " bd.partner_internal_status, "   
                 . " bd.booking_remarks, bd.service_id,"
                 . " services, booking_files.file_name as booking_files_purchase_invoice, "
                 . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
@@ -455,9 +459,10 @@ class Service_centers_model extends CI_Model {
          //echo $this->db->last_query();
         return $query->result_array();
     }
-    
-    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL, $is_defective_required = false){
-        $this->_spare_parts_booking_query($where, $select,$state, $is_defective_required);
+
+    function get_spare_parts_booking($where, $select, $group_by = false, $order_by = false, $offset = false, $limit = false,$state=0,$download=NULL){
+        $this->_spare_parts_booking_query($where, $select,$state);
+
         if($group_by){
             $this->db->group_by($group_by);
         }
@@ -477,7 +482,7 @@ class Service_centers_model extends CI_Model {
     }
     }
     
-    function _spare_parts_booking_query($where, $select,$state=0, $is_defective_required = false){
+    function _spare_parts_booking_query($where, $select,$state=0){
         $this->db->select($select, false);
         $this->db->from('spare_parts_details');
         $this->db->join('booking_details','booking_details.booking_id = spare_parts_details.booking_id');
@@ -485,9 +490,8 @@ class Service_centers_model extends CI_Model {
         $this->db->join('service_centres', 'spare_parts_details.service_center_id =  service_centres.id');
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
         $this->db->join("services","booking_details.service_id = services.id", "left");
-        if(!empty($is_defective_required)) {
-            $this->db->join('spare_qty_mgmt', 'spare_parts_details.id =  spare_qty_mgmt.spare_id', 'left');
-        }
+        $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
+
         $this->db->where($where, false);  
         if($state == 1){
             $stateWhere['agent_filters.agent_id'] = $this->session->userdata('agent_id');
@@ -1158,14 +1162,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         
         return $this->db->query($sql)->result_array();     
     }
-
-    
-        /**
-     * @desc: Insert booking details for spare parts
-     * @param Array $data
-     * @return boolean
-     */
-    function insert_data_into_spare_invoice_details($data){
+function insert_data_into_spare_invoice_details($data){
         
        if(!empty($data)){
          $this->db->insert('spare_invoice_details', $data);  

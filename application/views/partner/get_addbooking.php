@@ -797,7 +797,7 @@
                 singleDatePicker: true,
                 showDropdowns: true,
                 minDate:"1998-01-01",
-                maxDate:today,
+                maxDate:'<?php echo date("Y-m-d"); ?>',
                 locale:{
                     format: 'YYYY-MM-DD'
                 }
@@ -1022,7 +1022,8 @@
                             $('.price_checkbox[data-price_tag="Small Stand"]').css('pointer-events', 'none');
                             $('.price_checkbox[data-price_tag="Drain Pipe Per Meter"]').css('pointer-events', 'none');
                             $('.price_checkbox[data-price_tag="22 Gauge Refrigerant Pipe, Insulation, Wire Set / ft"]').css('pointer-events', 'none');
-                            
+                            $('.price_checkbox[data-price_tag="Gas Recharge with Dryer (In Warranty)"]').prop('disabled', true);
+                            $('.price_checkbox[data-price_tag="Gas Recharge with Dryer (Out Warranty)"]').prop('disabled', true);
                         }
                      }
                 }

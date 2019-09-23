@@ -17,9 +17,6 @@
     display: inline-block;
     text-decoration: none;
     }
-    .error {
-        color:red;
-    }
 </style>
 <!-- page content -->
 <div id="page-wrapper" role="main">
@@ -176,7 +173,7 @@
                                                 <p class="text-center"><strong>Quantity</strong></p>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <p class="text-center"><strong>Basic Price</strong></p>
+                                                <p class="text-center"><strong>Total Basic Price</strong></p>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
                                                 <p class="text-center"><strong>HSN Code</strong></p>
@@ -273,7 +270,7 @@
                                         <hr>
                                         <div class="row">
                                             <div class="col-xs-5 col-md-4 col-md-offset-5">
-                                                <button type="submit" class="btn btn-success" id="submit_btn">Prevent</button>
+                                                <button type="submit" class="btn btn-success" id="submit_btn" name="submit_btn">Preview</button>
                                                 <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value=""/>
                                                 <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
                                                 <input type="hidden" id="confirmation" value="0">
@@ -493,8 +490,8 @@
                               <div id="clone_id" style="text-align: center;"></div>
                               <div class="modal-footer" style="margin-right: 389px;text-align: center;">
                                   <input type="hidden" id="mapped_model_table_id">
-                                  <button type="button" class="btn btn-success" id="sumit_msl">Submit</button>
-                                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                  <button type="button" class="btn btn-success" id="sumit_msl" name="sumit_msl">Submit</button>
+                                  <button type="button" class="btn btn-default" onclick="submit_btn.disabled = false;sumit_msl.disabled = false;" data-dismiss="modal">Cancel</button>
                               </div>
                           </form>
                   </div>
@@ -510,8 +507,23 @@
     });
     
     $("#sumit_msl").click(function(){
+        $("#sumit_msl,#submit_btn").attr('disabled',true);
         $("#confirmation").val('1');
         $("#spareForm").submit();
+    });
+    
+    $("input:text, input:file, select").on('change',function(){
+        $("#sumit_msl,#submit_btn,#on_submit_btn").attr('disabled',false);
+        $('label.error').css('display','none');
+    });
+    
+    $("input:text").on('input',function(){
+        $("#sumit_msl,#submit_btn,#on_submit_btn").attr('disabled',false);
+        $('label.error').css('display','none');
+    });
+    
+    $('#submit_btn').click(function(){
+        $("#sumit_msl").attr('disabled',false);
     });
     
     var date_before_15_days = new Date();
@@ -626,7 +638,9 @@
         //$("#spareForm").validate();    
         $("#spareForm").on('submit', function(e) {
             e.preventDefault();
+            $("#submit_btn").attr('disabled',true);
             var isvalid = $("#spareForm").valid();
+            var flag = true;
             if (isvalid) {
                 var wh_name = $('#wh_id option:selected').text();
                 $('#wh_name').val(wh_name);
@@ -634,32 +648,44 @@
                 var partner_name = $('#partner_id option:selected').text();
                 $('#partner_name').val(partner_name);
                 
-                var entered_invoice_amt = Number($('#invoice_amount').val());
-                var our_invoice_amt = Number($('#total_spare_invoice_price').text());
-                if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
-                    
-                    $(".part-total-price").each(function(i) {
+                $(".part-total-price").each(function(i) {
+                    if($.trim($('#partBasicPrice_'+i).val()) !== '') {
                         validateDecimal('partBasicPrice_'+i,$('#partBasicPrice_'+i).val());
     
                         if(Number($('#partBasicPrice_'+i).val()) == 0){
-                            showConfirmDialougeBox('Please enter basic price', 'warning');
+                            showConfirmDialougeBox('Please enter total basic price', 'warning');
                             $('#partBasicPrice_'+i).addClass('text-danger');
+                            flag = false;
                             return false;
                         }
 
                         if(Number($('#partHsnCode_'+i).val()) === ""){
-                            $('#partHsnCode_'+i).addClass('text-danger', 'warning');
-                            showConfirmDialougeBox('Please enter HSN Code');
+                            showConfirmDialougeBox('Please enter HSN Code', 'warning');
+                            $('#partHsnCode_'+i).addClass('text-danger');
+                            flag = false;
                             return false;
                         }
 
                         if(Number($('#partGstRate_'+i).val()) === ""){
-                            $('#partGstRate_'+i).addClass('text-danger', 'warning');
-                            showConfirmDialougeBox('Please enter Gst Rate');
+                            showConfirmDialougeBox('Please enter Gst Rate', 'warning');
+                            $('#partGstRate_'+i).addClass('text-danger');
+                            flag = false;
                             return false;
                         }
-                    });
+//                        else {
+//                            if((Number($('#partGstRate_'+i).val()) !== 5) && (Number($('#partGstRate_'+i).val()) !== 12) && (Number($('#partGstRate_'+i).val()) !== 18) && (Number($('#partGstRate_'+i).val()) !== 28) ){
+//                                showConfirmDialougeBox('Invalid Gst Rate', 'warning');
+//                                $('#partGstRate_'+i).addClass('text-danger');
+//                                flag = false;
+//                                return false;
+//                            }
+//                        }
+                    }
+                });
                 
+                var entered_invoice_amt = Number($('#invoice_amount').val());
+                var our_invoice_amt = Number($('#total_spare_invoice_price').text());
+                if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
                     $('#invoice_amount').css('border','1px solid #ccc');
                     $('#total_spare_invoice_price').removeClass('text-danger');
                     
@@ -672,13 +698,15 @@
                     $("#clone_id .select2-selection__rendered").css('background','#eee');
                     $("#clone_id .addButton").hide();
                     $("#clone_id .removeButton").hide(); 
-                    $('#map_appliance_model').modal('toggle');
                 
+                    if(flag == true){
+                        $('#map_appliance_model').modal('toggle');
+                    }
                    var c_status = $("#confirmation").val();
-                   if(c_status !=''&& c_status == '1'){
                        
+                   if((c_status !='')&& (c_status == '1')){
                     if(confirm('Are you sure to continue')){
-                        $('#submit_btn').attr('disabled',true);
+                        $('#sumit_msl,#submit_btn').attr('disabled',true);
                         $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
     
     
@@ -711,6 +739,8 @@
                             formData.append(element.name, element.value);
                         });
     
+                        $("#spareForm")[0].reset();
+                        $("#spareForm").find('input:text, input:file, select').val('');
                         $.ajax({
                             method:"POST",
                             url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
@@ -726,12 +756,13 @@
 //                                       window.location.href = "<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+""; 
 //                                    }
 //                                }                                
-                                $('#submit_btn').attr('disabled',false);
-                                $('#submit_btn').html("Prevent");                               
+                                $('#sumit_msl,#submit_btn').attr('disabled',false);
+                                $('#submit_btn').html("Preview");
                                 if(obj.status){
                                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                                     $('#success_msg').html(obj.message);
                                     $("#spareForm")[0].reset();
+                                    $("#spareForm").find('input:text, input:file, select').val('');
                                     $('#select2-partner_id-container').text('Select Partner');
                                     $('#select2-partner_id-container').attr('title','Select Partner');
                                     $('#select2-from_gst_number-container').text('Select From GST Number');
@@ -747,8 +778,10 @@
                                     $('#select2-partNumber_0-container').text('Select Part Number');
                                     $('#select2-partNumber_0-container').attr('title','Select Part Number');
                                     $('#total_spare_invoice_price').html('0');
+                                    $('label.error').css('display','none');
                                     $(".warehouse_print_address").css({'display':'block'});
                                     $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
+                                    $("#confirmation").val('0');
                                 }else{
                                     $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                                     $('#error_msg').html(obj.message);
@@ -758,7 +791,7 @@
                            }
                         });
                     }else{
-                    $("#confirmation").val('0');
+                        $("#confirmation").val('0');
                         return false;
                     }
                 }
@@ -808,6 +841,7 @@
                 index = $row.attr('data-part-index');
                 partIndex = partIndex -1;
             $row.remove();
+            calculate_total_price();
         });
     });
     
@@ -945,9 +979,11 @@
     function calculate_total_price() {
         var total_spare_invoice_price = 0;
         $(".part-total-price").each(function(i) {
-            total_spare_invoice_price += Number($('#partBasicPrice_'+i).val()) + (Number($('#partBasicPrice_'+i).val()) * Number($('#partGstRate_'+i).val())/100);
+            if($.trim($('#partBasicPrice_'+i).val()) !== '') {
+                total_spare_invoice_price += Number($('#partBasicPrice_'+i).val()) + (Number($('#partBasicPrice_'+i).val()) * Number($('#partGstRate_'+i).val())/100);
+            }
         });
-        $('#total_spare_invoice_price').html(Number(Math.round(total_spare_invoice_price)));
+        $('#total_spare_invoice_price').html(Number(total_spare_invoice_price.toFixed(2)));
     }
     
     function get_part_price(index){
@@ -974,7 +1010,7 @@
                             var parts_total_price = Number($('#quantity_'+index).val()) * Number(obj.price);
                             $('#inventoryId_'+index).val(obj.inventory_id);
                             
-                            $('#partBasicPrice_'+index).val(parts_total_price);
+                            $('#partBasicPrice_'+index).val(parts_total_price.toFixed(2));
                             $('#partGstRate_'+index).val(obj.gst_rate);
                             $('#partHsnCode_'+index).val(obj.hsn_code);
                             
@@ -1011,12 +1047,12 @@
                     var obj = JSON.parse(res);
                     if(obj.status === true){
                         $('#'+id).css('border','1px solid #ccc');
-                        $('#submit_btn').attr('disabled',false);
+                        $('#on_submit_btn').attr('disabled',false);
                         is_valid_booking = true;
                     }else{
                         is_valid_booking = false;
                         $('#'+id).css('border','1px solid red');
-                        $('#submit_btn').attr('disabled',true);
+                        $('#on_submit_btn').attr('disabled',true);
                         alert('Booking id not found');
                     }
                 }
@@ -1024,7 +1060,7 @@
         }else{
             is_valid_booking = true;
             $('#'+id).css('border','1px solid #ccc');
-            $('#submit_btn').attr('disabled',false);
+            $('#on_submit_btn').attr('disabled',false);
         }
     }
     
@@ -1186,7 +1222,7 @@
         function booking_calculate_total_price(id){
 
            var total_spare_invoice_price = Number($('#onpartBasicPrice_'+id).val()) + (Number($('#onpartBasicPrice_'+id).val()) * Number($('#onpartGstRate_'+id).val())/100);
-           $('#ontotal_amount_'+id).val(Number(Math.round(total_spare_invoice_price)));
+           $('#ontotal_amount_'+id).val(Number(total_spare_invoice_price.toFixed(2)));
         }
        
        function get_part_number_on_booking(index){
@@ -1259,51 +1295,17 @@
     
     $("#onBookingspareForm").on('submit', function(e) {
             e.preventDefault();
+            $("#on_submit_btn").attr('disabled',true);
             var isvalid = $("#onBookingspareForm").valid();
+            var flag = true;
             if (isvalid) {
-                var booking_id = $("#onbookingid_0").val();
-                if(booking_id !== ""){
-                    var wh_name = $('#on_wh_id option:selected').text();
-                    $('#on_wh_name').val(wh_name);
-                    var entered_invoice_amt = Number($('#on_invoice_amount').val());
-                    var our_invoice_amt = 0;
-                    $(".total_spare_amount").each(function (i) {
-                        if(Number($(this).val()) > 0){
-                            var sh_id = this.id;
-                            var split_id = sh_id.split('_');
-                            var c = split_id[2];
-
-                            if ($("#s_shippingStatus_" + c+":checked").val()) {
-                                var checked_shipped = $("#s_shippingStatus_" + c).val();
-                                 if(Number(checked_shipped) === 1 ){
-                                    our_invoice_amt += Number($(this).val());
-                                 }
-                             }
-                            
-                        }
-
-                    });
-                    if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
-
-                        onBookingshowConfirmDialougeBox('Are you sure you want to submit ?', 'info');
-
-                    }else{
-                        onBookingshowConfirmDialougeBox('Amount of invoice does not match with total price', 'warning');
-
-                        return false;
-                    }
-                } else {
-                    onBookingshowConfirmDialougeBox('Please Enter Booking ID', 'warning');
-
-                    return false;
-                }
-                
                 $(".onpartBasicPrice").each(function(i) {
                     validateDecimal('onpartBasicPrice_'+i,$('#onpartBasicPrice_'+i).val());
                     
                     if(Number($('#onpartBasicPrice_'+i).val()) === 0){
                         onBookingshowConfirmDialougeBox('Please enter basic price', 'warning');
                         $('#onpartBasicPrice_'+i).addClass('text-danger');
+                        flag = false;
                         return false;
                     }
 
@@ -1313,22 +1315,71 @@
                 $(".onpartGstRate").each(function(i) {
     
                     if(Number($('#onpartGstRate_'+i).val()) === ""){
-                        $('#onpartGstRate_'+i).addClass('text-danger', 'warning');
-                        onBookingshowConfirmDialougeBox('Please enter Gst Rate');
+                        $('#onpartGstRate_'+i).addClass('text-danger');
+                        onBookingshowConfirmDialougeBox('Please enter Gst Rate', 'warning');
+                        flag = false;
                         return false;
                     }
+//                    else {
+//                        if((Number($('#onpartGstRate_'+i).val()) !== 5) && (Number($('#onpartGstRate_'+i).val()) !== 12) && (Number($('#onpartGstRate_'+i).val()) !== 18) && (Number($('#onpartGstRate_'+i).val()) !== 28) ){
+//                            onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
+//                            $('#onpartGstRate_'+i).addClass('text-danger');
+//                            flag = false;
+//                            return false;
+//                        }
+//                    }
 
                 });
                 
                 $(".onpartHsnCode").each(function(i) {
     
                     if(Number($('#onpartHsnCode_'+i).val()) === ""){
-                        $('#onpartHsnCode_'+i).addClass('text-danger', 'warning');
-                        onBookingshowConfirmDialougeBox('Please enter HSN Code');
+                        $('#onpartHsnCode_'+i).addClass('text-danger');
+                        onBookingshowConfirmDialougeBox('Please enter HSN Code', 'warning');
+                        flag = false;
                         return false;
                     }
 
                 });
+                
+                if(flag == true) {
+                    var booking_id = $("#onbookingid_0").val();
+                    if(booking_id !== ""){
+                        var wh_name = $('#on_wh_id option:selected').text();
+                        $('#on_wh_name').val(wh_name);
+                        var entered_invoice_amt = Number($('#on_invoice_amount').val());
+                        var our_invoice_amt = 0;
+                        $(".total_spare_amount").each(function (i) {
+                            if(Number($(this).val()) > 0){
+                                var sh_id = this.id;
+                                var split_id = sh_id.split('_');
+                                var c = split_id[2];
+
+                                if ($("#s_shippingStatus_" + c+":checked").val()) {
+                                    var checked_shipped = $("#s_shippingStatus_" + c).val();
+                                     if(Number(checked_shipped) === 1 ){
+                                        our_invoice_amt += Number($(this).val());
+                                     }
+                                 }
+
+                            }
+
+                        });
+                        if((our_invoice_amt >= entered_invoice_amt - 10) && (our_invoice_amt <= entered_invoice_amt + 10) ){
+
+                            onBookingshowConfirmDialougeBox('Are you sure you want to submit ?', 'info');
+
+                        }else{
+                            onBookingshowConfirmDialougeBox('Amount of invoice does not match with total price', 'warning');
+
+                            return false;
+                        }
+                    } else {
+                        onBookingshowConfirmDialougeBox('Please Enter Booking ID', 'warning');
+
+                        return false;
+                    }
+                }
             }
         });
         
@@ -1386,6 +1437,7 @@
             showLoaderOnConfirm: true
         },
             function(){
+                 $("#on_submit_btn").attr('disabled',true);
                  submitBookingForm();
             });
         }else{
@@ -1406,6 +1458,7 @@
             showLoaderOnConfirm: true
         },
             function(){
+                 $("#submit_btn").attr('disabled',true);
                  $("#spareForm").submit();
             });
         }else{
@@ -1445,6 +1498,8 @@
         $(params).each(function (index, element) {
             formData.append(element.name, element.value);
         });
+        $("#onBookingspareForm")[0].reset();
+        $("#onBookingspareForm").find('input:text, input:file, select').val('');
         $.ajax({
             method:"POST",
             url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",

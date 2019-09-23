@@ -145,7 +145,7 @@ class Invoice_lib {
        
         if(isset($meta['main_company_seal_cell'])){
           if($meta['main_company_seal']){
-            $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_seal'];
+            $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/brand-logo/".$meta['main_company_seal'];
             if($this->remote_file_exists($main_seal_path)){
                 if(copy($main_seal_path, TMP_FOLDER . $meta['main_company_seal'])){
                     $seal_cell = $meta['main_company_seal_cell'];
@@ -794,7 +794,9 @@ class Invoice_lib {
         $spare_ids = explode(',',$spare_id);
         foreach ($spare_ids as  $spare_id) {
         $select = 'spare_parts_details.*';
-        $where = array('spare_parts_details.id' => $spare_id, "status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1);
+        $where = array('spare_parts_details.id' => $spare_id,
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".OK_PART_TO_BE_SHIPPED."')  " => NULL,
+            'defective_part_required' => 1);
         $spare_parts_details[] = $this->ci->partner_model->get_spare_parts_by_any($select, $where); 
         }
      
@@ -1003,18 +1005,14 @@ class Invoice_lib {
                 $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
 
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
-
                 if (!empty($unsettle)) {
                     $qty = (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1);//1;
                     $inventory_details = $this->ci->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $value['inventory_id']));
                     $value['part_name'] = $inventory_details[0]['part_name'];
 
                     foreach ($unsettle as $key => $b) {
-
                         $restQty = $b['qty'] - $b['settle_qty'];
                         if ($restQty == $qty) {
-
-
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             if (!empty($s)) {
@@ -1043,10 +1041,7 @@ class Invoice_lib {
                             }
                         } else if ($restQty < $qty) {
 
-
-
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
-
                             if (!empty($s)) {
                                 $this->ci->invoices_model->update_invoice_breakup(array('id' => $b['id']), array('is_settle' => 1, 'settle_qty' => $b['qty']));
                                 $mapping = array('incoming_invoice_id' => $b['invoice_id'], 'settle_qty' => $restQty, 'create_date' => date('Y-m-d H:i:s'), "inventory_id" => $value['inventory_id']);
@@ -1122,7 +1117,7 @@ class Invoice_lib {
             'booking_partner_id' => $booking_partner_id);
     }
 
-    function get_array_settle_data($b, $inventory_details, $restQty, $value){
+function get_array_settle_data($b, $inventory_details, $restQty, $value){
         
         $partner_gst = $this->ci->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $b['from_gst_number']));
         $around_gst = $this->ci->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $b['to_gst_number']));
@@ -1133,6 +1128,7 @@ class Invoice_lib {
             $around_address = !empty($around_gst[0]['address'])? $around_gst[0]['address']: "";
             $around_pincode = !empty($around_gst[0]['pincode'])? $around_gst[0]['pincode']: "";
             $around_city = !empty($around_gst[0]['city'])? $around_gst[0]['city']: "";
+            $around_seal_img = !empty($around_gst[0]['state_stamp_picture'])? $around_gst[0]['state_stamp_picture']: "";
             
             $partner_state_code = $partner_gst[0]['state'];
             $partner_gst_number = $partner_gst[0]['gst_number'];
@@ -1163,6 +1159,7 @@ class Invoice_lib {
             "from_address" => $around_address,
             "from_pincode" => $around_pincode,
             "from_city" => $around_city,
+            "state_stamp_pic" => $around_seal_img,
             "from_gst_number_id" => $b['to_gst_number'],
             "shipping_quantity" => (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1),
             );
@@ -1176,7 +1173,7 @@ class Invoice_lib {
      * @desc If there is no any un-settle invoice available then it will send a mail to developer or accountant
      * @param Array $data
      */
-    function invoices_not_found($data) {
+     function invoices_not_found($data) {
         log_message('info', __METHOD__ . " Invoice Qty Not found " . print_r($data, true));
 
         $template1 = array(
@@ -1187,7 +1184,7 @@ class Invoice_lib {
 
         $this->ci->table->set_heading(array('Part Name', 'Booking ID', "Inventory ID "));
         
-        $this->ci->table->add_row($data['part_name'], (isset($data['booking_id'])?$data['booking_id']:''), $data['inventory_id']);
+        $this->ci->table->add_row((isset($data['part_name'])?$data['part_name']:$data['description']), (isset($data['booking_id'])?$data['booking_id']:''), $data['inventory_id']);
         
 
         $this->ci->table->set_template($template1);
