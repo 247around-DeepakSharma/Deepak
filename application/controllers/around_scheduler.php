@@ -1267,7 +1267,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
             $where = array(
                 "spare_parts_details.defective_part_required" => 1,
                 "spare_parts_details.service_center_id" => $value['id'],
-                "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED . "')  " => NULL,
+                "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED . "', '".OK_PART_TO_BE_SHIPPED."')  " => NULL,
                 "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(spare_parts_details.update_date, '%Y-%m-%d')) > '" . SEND_DEFECTIVE_SPARE_PARTS_NOTIFICATION . "'" => NULL
             );
 
