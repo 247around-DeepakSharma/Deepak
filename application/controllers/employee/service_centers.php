@@ -5241,7 +5241,7 @@ function do_multiple_spare_shipping(){
                                                                      
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), $data);
 
-                            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],1);
+                            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$data['quantity']);
                         }
                     } else {
                         log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);
