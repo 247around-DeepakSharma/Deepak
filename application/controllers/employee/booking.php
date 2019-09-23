@@ -176,7 +176,6 @@ class Booking extends CI_Controller {
         $user['user_id'] = $user_id = $booking['user_id'];
         
         if ($booking) {
-
             // All category comming in array eg-- array([0]=> TV-LCD, [1]=> TV-LED)
             $appliance_category = $this->input->post('appliance_category');
             // All capacity comming in array eg-- array([0]=> 19-30, [1]=> 31-42)
@@ -202,7 +201,6 @@ class Booking extends CI_Controller {
 
             $partner_net_payable = $this->input->post('partner_paid_basic_charges');
             $appliance_description = $this->input->post('appliance_description');
-
             // All discount comming in array.  Array ( [BPL] => Array ( [100] => Array ( [0] => 200 ) [102] => Array ( [0] => 100 ) [103] => Array ( [0] => 0 ) ) .. Key is Appliance brand, unit id and discount value.
             $discount = $this->input->post('discount');
             // All prices comming in array with pricing table id
@@ -214,7 +212,7 @@ class Booking extends CI_Controller {
             $result = array();
             $result['DEFAULT_TAX_RATE'] = 0;
             foreach ($appliance_brand as $key => $value) {
-
+                
                 $services_details = array();
                 $appliances_details = array();
                 $appliances_details['user_id'] = $booking['user_id'];
@@ -240,7 +238,7 @@ class Booking extends CI_Controller {
                 /* if appliance id exist the initialize appliance id in array and update appliance 
                  * details other wise insert appliance details and return appliance id
                  * */
-                if (!empty($appliances_details['description'])) {
+                if (!empty($appliances_details['description'])) {  
                     // check appliance description exist
                     $check_product_type = $this->reusable_model->get_search_query('appliance_product_description','*',array('product_description' => trim($appliances_details['description'])),NULL,NULL,NULL,NULL,NULL)->result_array();
                     
@@ -301,6 +299,7 @@ class Booking extends CI_Controller {
                     $brand_id = "";
                 }
                 $price_tag = array();
+                
                 //Array ( ['brand'] => Array ( [0] => id_price ) )
                 if (!empty($pricesWithId[$brand_id][$key + 1])) { 
                 foreach ($pricesWithId[$brand_id][$key + 1] as $b_key => $values) {
@@ -333,16 +332,22 @@ class Booking extends CI_Controller {
                             $services_details['sf_model_number'] = $services_details['model_number'];
                             $services_details['sf_purchase_date'] = $services_details['purchase_date'];
                             // --------------------------------------------------------
-                            if(!empty($this->session->userdata('id'))){
+                            if(!empty($this->session->userdata('id'))){ 
                                 $agent_details['agent_id'] = $id =  $this->session->userdata('id');
                                 $agent_details['agent_type'] = $agentType = _247AROUND_EMPLOYEE_STRING;
                             }
                             else{
-                                    $agent_details['agent_id'] = $id =  $this->session->userdata('service_center_agent_id');
-                                    $agent_details['agent_type'] =  $agentType = _247AROUND_SF_STRING;
+                                    if(($this->input->post('call_from_api')) && ($this->input->post('sc_agent_id'))){
+                                        $agent_details['agent_id'] = $id =  $this->input->post('sc_agent_id');
+                                        $agent_details['agent_type'] =  $agentType = _247AROUND_SF_STRING;
+                                    }
+                                    else{
+                                        $agent_details['agent_id'] = $id =  $this->session->userdata('service_center_agent_id');
+                                        $agent_details['agent_type'] =  $agentType = _247AROUND_SF_STRING;
+                                    }
                             }
                             $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state'], $b_key,$agent_details);
-
+                            
                             array_push($updated_unit_id, $result['unit_id']);
                             array_push($price_tag, $result['price_tags']);
                             $booking_symptom = $this->booking_model->getBookingSymptom($booking_id);
@@ -648,10 +653,18 @@ class Booking extends CI_Controller {
                 $stateChangeSFID  = $this->session->userdata('service_center_id');
             }
             else{
-                $e_id = $this->session->userdata('id');
-                $employeeId = $this->session->userdata('employee_id');
-                $stateChangePartnerID = _247AROUND;
-                $stateChangeSFID  = NULL;
+                if(($this->input->post('call_from_api')) && ($this->input->post('sc_agent_id'))){
+                    $e_id = $this->input->post('sc_agent_id');
+                    $employeeId = "";
+                    $stateChangePartnerID = NULL;
+                    $stateChangeSFID  = $this->input->post('service_center_id');
+                }
+                else{
+                    $e_id = $this->session->userdata('id');
+                    $employeeId = $this->session->userdata('employee_id');
+                    $stateChangePartnerID = _247AROUND;
+                    $stateChangeSFID  = NULL;
+                }
             }
             
             $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $e_id,  $employeeId,$actor,$next_action,$stateChangePartnerID,$stateChangeSFID);
