@@ -712,11 +712,13 @@
         });
         if($('#technical_solution').val() == 0)
             $('#technical_solution').removeAttr('disabled');
-        
+        /*** This script is commented by Kalyani for showing auto selected booking status ***/
+        /*
         $(":radio").each(function() {
             $("#"+this.id).prop("checked",false);
         });
-        
+        */
+        /*** End ***/
         $('.priceList').children('tbody').next('tbody').children('tr').each(function(index){
             validateSerialNo(index);
     });
