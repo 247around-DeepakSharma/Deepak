@@ -2064,7 +2064,7 @@ class Inventory extends CI_Controller {
             "spare_parts_details.parts_shipped IS NOT NULL" => NULL,
             "spare_parts_details.is_micro_wh" => 0);
         $w['select'] = "spare_parts_details.id, spare_parts_details.part_warranty_status, spare_parts_details.booking_id, purchase_price, public_name,"
-                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id,booking_details.request_type, spare_parts_details.status,spare_invoice_details.invoice_id,spare_invoice_details.invoice_pdf";
+                . "purchase_invoice_id,sell_invoice_id, incoming_invoice_pdf, sell_price, booking_details.partner_id as booking_partner_id,booking_details.request_type, spare_parts_details.status,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.invoice_pdf";
         $data['spare'] = $this->inventory_model->get_spare_parts_query($w);
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/spare_invoice_list", $data);
