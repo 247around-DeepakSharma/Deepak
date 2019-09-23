@@ -712,6 +712,8 @@ class Spare_parts extends CI_Controller {
             $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);            
             if(!empty($wh_details)){
               $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
+            } else {
+                $spare_pending_on = 'Warehouse';
             }
         } else {
           $spare_pending_on = 'Partner';   
