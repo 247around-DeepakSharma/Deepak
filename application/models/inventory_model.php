@@ -2941,7 +2941,7 @@ class Inventory_model extends CI_Model {
 
         $this->db->select($select, false);
         $this->db->from('spare_parts_details');
-        $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id');
+        $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id','left');
 
         if (!empty($where)) {
             $this->db->where($where, false);
