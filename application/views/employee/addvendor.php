@@ -548,7 +548,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="name_on_pan"  class="col-md-4 vertical-align">PAN </label>
+                                        <label  for="name_on_pan"  class="col-md-4 vertical-align">PAN <?php if($saas_module) { echo '<span style="color:red;">*</span>';} ?></label>
                                         <div class="col-md-7">
                                             <input placeholder="Name on PAN CARD" type="text" class="form-control blockspacialchar"  id="name_on_pan" name="name_on_pan" value = "<?php
                                                 if (isset($query[0]['name_on_pan'])) {
@@ -598,17 +598,19 @@
                                         ?>
                                     <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                                     <?php if(isset($query[0]['pan_file']) && !empty($query[0]['pan_file'])){?>
-                                    <a href="javascript:void(0)" onclick="remove_image('pan_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['pan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                    <a href="javascript:void(0)" onclick="remove_image('pan_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['pan_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                     <?php }?>
                                 </div>
-                                <div class="col-md-2">
-                                    <div class="checkbox">
-                                        <label>
-                                        <b style="font-size: 18px;">Not Available</b> 
-                                        </label>
-                                        <input type="checkbox"  value="0" id="is_pan_doc" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;zoom:1.5"> 
-                                    </div>
-                                </div>
+                                    <?php if(!$saas_module) { ?>
+                                        <div class="col-md-2">
+                                            <div class="checkbox">
+                                                <label>
+                                                <b style="font-size: 18px;">Not Available</b> 
+                                                </label>
+                                                <input type="checkbox"  value="0" id="is_pan_doc" name ="is_pan_doc" <?php if(isset($query[0]['is_pan_doc'])){ if($query[0]['is_pan_doc'] == 0){ echo "checked" ;}}?> style="margin-left:16px;zoom:1.5"> 
+                                            </div>
+                                        </div>
+                                    <?php } ?>
                                     </div>
                                 <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
                                 <div class="col-md-12">
@@ -619,7 +621,7 @@
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label  for="gst_no" class="col-md-4">GST No.</label>
+                                        <label  for="gst_no" class="col-md-4">GST No. <?php if($saas_module) { echo '<span style="color:red;">*</span>';} ?></label>
                                         <div class="col-md-7">
                                             <input type="text" class="form-control blockspacialchar" style="text-transform: uppercase;"  id ="gst_no" name="gst_no" value = "<?php
                                                 if (isset($query[0]['gst_no'])) {
@@ -682,19 +684,21 @@
                                                 ?>
                                             <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
                                             <?php if(isset($query[0]['gst_file']) && !empty($query[0]['gst_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('gst_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['gst_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <a href="javascript:void(0)" onclick="remove_image('gst_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['gst_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-4" style="margin-left:0px;padding-left: 1%">
-                                    <div class="checkbox">
-                                        <label>
-                                        <b style="font-size: 18px;">Not Available</b>   
-                                        </label>
-                                        <input type="checkbox"  value="0" id="is_gst_doc" name ="is_gst_doc" <?php if(isset($query[0]['is_gst_doc'])){ if($query[0]['is_gst_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 17px;margin-top: 5px;zoom:1.5;">
+                                <?php if(!$saas_module) { ?>
+                                    <div class="col-md-4" style="margin-left:0px;padding-left: 1%">
+                                        <div class="checkbox">
+                                            <label>
+                                            <b style="font-size: 18px;">Not Available</b>   
+                                            </label>
+                                            <input type="checkbox"  value="0" id="is_gst_doc" name ="is_gst_doc" <?php if(isset($query[0]['is_gst_doc'])){ if($query[0]['is_gst_doc'] == 0){ echo "checked" ;}}?> style="    margin-left: 17px;margin-top: 5px;zoom:1.5;">
+                                        </div>
                                     </div>
-                                </div>
+                                <?php } ?>
                                         </div>
                             </div>
                                     <hr style="border: 1px solid;padding: 0px;margin: 10px;border-color: #9e9da7;">
@@ -714,7 +718,7 @@
                                                 ?>">
                                             <?php echo form_error('signature_file'); ?>
                                         </div>
-                                        <div class="col-md-1">
+                                        <div class="col-md-2">
                                             <?php
                                                 $src = base_url() . 'images/no_image.png';                                                $image_src = $src;
                                                 if (isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])) {
@@ -725,7 +729,7 @@
                                                 ?>
                                             <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black" /></a>
                                             <?php if(isset($query[0]['signature_file']) && !empty($query[0]['signature_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('signature_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['signature_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <a href="javascript:void(0)" onclick="remove_image('signature_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['signature_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
                                           
                                         </div>  
@@ -755,7 +759,7 @@
                                                 ?>
                                             <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-5px;" /></a>
                                             <?php if(isset($query[0]['address_proof_file']) && !empty($query[0]['address_proof_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('address_proof_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['address_proof_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <a href="javascript:void(0)" onclick="remove_image('address_proof_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['address_proof_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
                                         </div>
                                     </div>
@@ -793,7 +797,7 @@
                                                 ?>
                                             <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                                             <?php if(isset($query[0]['contract_file']) && !empty($query[0]['contract_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('contract_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['contract_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <a href="javascript:void(0)" onclick="remove_image('contract_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['contract_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
                                         </div>
                                     </div>
@@ -1112,7 +1116,7 @@
                                                 ?>
                                             <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                                             <?php if(isset($query[0]['id_proof_1_file']) && !empty($query[0]['id_proof_1_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('id_proof_1_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['id_proof_1_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <a href="javascript:void(0)" onclick="remove_image('id_proof_1_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['id_proof_1_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
                                         </div>
                                     </div>
@@ -1144,7 +1148,7 @@
                                                 ?>
                                             <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                                             <?php if(isset($query[0]['id_proof_2_file']) && !empty($query[0]['id_proof_2_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('id_proof_2_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['id_proof_2_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <a href="javascript:void(0)" onclick="remove_image('id_proof_2_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['id_proof_2_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
                                         </div>
                                     </div>
@@ -1312,7 +1316,7 @@
                                                 ?>
                                             <a href="<?php echo $src?>" target="_blank"><img src="<?php echo $image_src ?>" width="35px" height="35px" style="border:1px solid black;margin-left:-4px;" /></a>
                                             <?php if(isset($query[0]['cancelled_cheque_file']) && !empty($query[0]['cancelled_cheque_file'])){?>
-                                            <a href="javascript:void(0)" onclick="remove_image('cancelled_cheque_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['cancelled_cheque_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 50px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
+                                            <a href="javascript:void(0)" onclick="remove_image('cancelled_cheque_file',<?php echo $query[0]['id']?>,'<?php echo $query[0]['cancelled_cheque_file']?>')" class="btn btn-sm btn-primary" title="Remove Image" style="margin-left: 0px;margin-top: -46px;">  <i class="fa fa-times" aria-hidden="true"></i></a>
                                             <?php }?>
                                         </div>
                                     </div>
@@ -1515,11 +1519,20 @@ function manageAccountNameField(value){
 <!--page 1 validations end here-->
 <!--page 2 validations begin-->
 <script type="text/javascript">
+    var is_saas = '<?php if($saas_module) { echo '1'; } else { echo '0'; } ?>';
     var gstRegExp = /^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[0-9]{1}[a-zA-Z]{1}[a-zA-Z0-9]{1}/;
     $.validator.addMethod('gstregex', function (value, element, param) {
                 return this.optional(element) || gstRegExp.test( value);
             }, 'Please enter Valid GST Number'); 
      function validate_documents(){
+         
+        if(is_saas == '1') { // check all documents uploaded for kenstar.
+            var is_documents_submit = check_documents();
+            if(is_documents_submit === false) {
+                return false;
+            }
+        }
+         
             if($('#is_pan_doc').is(":checked")){
                if($('#pan_no').val()!== '' && $('#name_on_pan').val() != ''){
                    alert('Please Enter PAN Details or Tick "Not Available" checkbox');
@@ -1936,6 +1949,37 @@ function manageAccountNameField(value){
     function edit_form() {
         $('#container-1, .form-control, .select2, #submit_btn').css('pointer-events', 'auto');
         $('.form-control, .select2, .select2-container--default .select2-selection--single, .select2-container .select2-selection--multiple').css('background-color', 'white');
-        $('#submit_btn, .cancel, a[title="Remove Image"]').css('display', 'inline-block');
+        $('#submit_btn, .cancel, a[title="Remove Image"]').css('display', 'inline');
+    }
+    
+    function check_documents() {
+        var documents = ['name_on_pan', 'pan_no', 'gst_no'];
+        var bl_validate = 1;
+        $.each(documents, function( index, value ) {
+            if(value.includes('file')) { // check input type is file
+                var input_value = $('#'+value).attr('value');
+                if(input_value == '') {
+                    input_value = $('#'+value).val();
+                }
+            } else {
+                input_value = $('#'+value).val();
+            }
+
+            if(input_value == '') {
+                $('#'+value).css('border-color', 'red');
+                alert('Please fill the manadatory details.');
+                bl_validate = 0;
+                return false;
+            } else {
+                $('#'+value).css('border-color', 'white');
+            }
+        });
+        
+        if(bl_validate == 0) {
+            return false;
+        } else {
+            return true;
+        }
+
     }
 </script>

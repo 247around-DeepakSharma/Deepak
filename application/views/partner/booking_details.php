@@ -310,7 +310,6 @@
                                                             <th >Final Requested Parts </th>
                                                             <th >Requested Parts type </th>
                                                             <th>Requested Quantity</th>
-                                                            <th>Shipped Quantity</th>
                                                             <th >Requested Date</th>
                                                             <th >Date Of Purchase</th>
                                                             <th >Invoice Image </th>
@@ -335,13 +334,9 @@
                                                                 <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><b>".$sp['original_parts_number']."</b>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
                                                                 <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><b>".$sp['part_number']."</b>"; }  ?></td>
                                                                 <td><?php echo $sp['parts_requested_type']; ?></td>       
-
-                                                                <td><?php echo $sp['quantity']; ?></td>  
-                                                                <td><?php echo $sp['shipped_quantity']; ?></td> 
-
+                                                                <td><?php echo $sp['quantity']; ?></td>
                                                                 <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
                                                                 <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
-
                                                                 <td><?php
                                                                     if (!is_null($sp['invoice_pic'])) {
                                                                         if ($sp['invoice_pic'] != '0') {
@@ -462,6 +457,7 @@
                                                             <tr>
                                                                 <th>Part Shipped By Partner/Warehouse</th>
                                                                 <th >Shipped Parts </th>
+                                                                <th >Shipped Quantity </th>
                                                                 <th >Courier Name</th>
                                                                 <th >AWB </th>
                                                                 <th >Shipped date </th>
@@ -475,6 +471,7 @@
                                                                 <tr>
                                                                     <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                                                     <td><?php echo $sp['parts_shipped']; ?></td>
+                                                                    <th ><?php echo $sp['shipped_quantity']; ?></th>
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                                                     <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
@@ -505,6 +502,7 @@
                                                         <thead>
                                                             <tr>
                                                                 <th >Shipped Parts </th>
+                                                                <th >Shipped Quantity </th>
                                                                 <th >Courier Name </th>
                                                                 <th >AWB </th>
                                                                 <th> No. Of Boxes </th>
@@ -521,6 +519,7 @@
                                                             <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                                                 <tr>
                                                                     <td><?php echo $sp['defective_part_shipped']; ?></td>
+                                                                    <td><?php echo $sp['shipped_quantity']; ?></td>
                                                                     <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
                                                                             <?php
                                                                             $spareStatus = DELIVERED_SPARE_STATUS;

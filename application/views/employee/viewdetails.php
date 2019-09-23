@@ -804,7 +804,8 @@
                                     <tr>
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td> 
-                                        <td style="word-break: break-all;"><?php if(!empty($sp['shipped_part_number'])){echo $sp['shipped_part_number'];}else{echo 'Not Available';}  ?></td>   
+                                        <td style="word-break: break-all;"><?php if(!empty($sp['shipped_part_number'])){echo $sp['shipped_part_number'];}else{echo 'Not Available';}  ?></td> 
+                                        <td><?php echo $sp['shipped_quantity'];  ?></td>  
                                         <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_REQUEST){    echo 'Pickup Requested';} ?></td>
                                         <td style="word-break: break-all;"><?php if($sp['around_pickup_from_service_center'] == COURIER_PICKUP_SCHEDULE){    echo 'Pickup Schedule';} ?></td>
                                         <td>                                            
@@ -859,6 +860,7 @@
                                     <tr>
                                         <th >Shipped Parts </th>
                                         <th >Shipped Parts Number</th>
+                                        <th >Shipped Quantity</th>
                                         <th >Courier Name </th>
                                         <th>AWB </th>
                                         <th> No. Of Boxes </th>
@@ -878,6 +880,7 @@
                                     <tr>
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                         <td><?php if(!empty($sp['part_number'])){ echo $sp['part_number'];}else{echo 'Not Available';} ?></td>
+                                        <td><?php echo $sp['shipped_quantity']; ?></td>
                                         <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
                                         <?php
                                         $spareStatus = DELIVERED_SPARE_STATUS;
