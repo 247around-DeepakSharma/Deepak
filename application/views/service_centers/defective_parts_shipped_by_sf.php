@@ -60,17 +60,16 @@
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">Shipped Date</th>
-                         
-                            <th class="text-center">Remarks</th>
+                            <th class="text-center" style="width: 15% !important;">Remarks</th>
                             <th class="text-center">Consumption</th>
-                            <th class="text-center">Consumption Reason</th>                            
+                            <th class="text-center">Consumption Reason</th>                           
                             <th class="text-center">Received</th>
                             <th class="text-center">Reject</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php $sn_no=1;foreach ($spare_parts as $key => $row) { ?>
-                            <tr style="text-align: center;">
+                            <tr style="text-align: center;<?php if($row['defective_part_rejected_by_partner']==1){echo "background-color: #d89e9e !important;font-weight: 900";} ?>">
                                 <td>
                                     <?php echo $sn_no; ?>
                                 </td>

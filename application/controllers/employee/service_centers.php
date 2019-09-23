@@ -2392,6 +2392,7 @@ class Service_centers extends CI_Controller {
                     }
                     $data['quantity'] = $value['quantity'];
                     $data['parts_requested'] = $value['parts_name'];
+                    $data['quantity'] = $value['quantity'];
                     if (!empty($value['parts_type'])) {
                         $data['parts_requested_type'] = $value['parts_type'];
                     } else {
