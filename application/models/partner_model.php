@@ -1479,6 +1479,7 @@ function get_data_for_partner_callback($booking_id) {
         //$this->db->where('status',)
         $this->db->from('spare_parts_details');
         $this->db->join('spare_consumption_status','spare_parts_details.consumed_part_status_id = spare_consumption_status.id', 'left');
+	$this->db->join('appliance_model_details','appliance_model_details.model_number = spare_parts_details.model_number', 'left');
         //$this->db->join('symptom_spare_request', 'symptom_spare_request.id = spare_parts_details.spare_request_symptom', 'left');
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
