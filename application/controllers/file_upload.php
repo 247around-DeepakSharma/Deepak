@@ -114,6 +114,8 @@ class File_upload extends CI_Controller {
                      //send email
                     $this->send_email($data, $response);
                     if (isset($response['status']) && ($response['status'])) {
+                        $redirect_to = $response['redirect_to'];
+                        $this->session->set_flashdata('details',$response['message']); 
                         redirect(base_url() . $redirect_to);
                     }
                 } else {
@@ -460,6 +462,7 @@ class File_upload extends CI_Controller {
      * @param $return_data array
 
 **/
+
  function process_msl_upload_file($data) {
         log_message('info', __FUNCTION__ . " => process upload msl file");
         //  $partner_id = $this->input->post('partner_id');
@@ -622,7 +625,7 @@ class File_upload extends CI_Controller {
                             }
                         }
                     } else {
-                    	$error_type ="Error in header";
+                        $error_type ="Error in header";
                         $error_array[] = $error_type;
                         $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type);
                     }
@@ -637,7 +640,7 @@ class File_upload extends CI_Controller {
         $err_msg = $this->table->generate();
 
         if (empty($error_array)) {
-        	 
+             
         foreach ($post_data as $post) {
             
             $post_json = json_encode($post, true);
@@ -665,9 +668,11 @@ class File_upload extends CI_Controller {
          $this->load->view('employee/msl_excel_upload_errors',$response);
 
         }
+ 
 
         return $response;
     }
+
 
 
     function check_invoice_id_exists($invoice_id_temp) {
