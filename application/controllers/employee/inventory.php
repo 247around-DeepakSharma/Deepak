@@ -6103,7 +6103,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         }
 
         $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
-
+        
         $this->load->dbutil();
         $this->load->helper('file');
 
@@ -7289,7 +7289,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
         $partner_id = $this->input->post('partner_id');
         
-        $select = "invoice_details.invoice_id AS 'Invoice Id', date_format(invoice_details.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'Invoice Date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', part_number AS 'Part Number', "
+        $select = "invoice_details.invoice_id AS 'Invoice Id', date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'Invoice Date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', part_number AS 'Part Number', "
                 . "invoice_details.description AS 'Description', invoice_details.hsn_code AS 'HSN Code', invoice_details.qty AS 'Quantity', rate AS 'Rate', invoice_details.taxable_value AS 'Taxable Value', (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS 'GST Rate',"
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS 'GST Tax Amount', total_amount AS 'Total Amount', vendor_partner_invoices.type AS Type, entt_gst_dtl.gst_number AS 'From GST Number',entity_gst_details.gst_number AS 'To GST Number',"
                 . "vendor_partner_invoices.sub_category AS 'Sub Category',courier_details.AWB_no AS 'Awb_Number',courier_details.courier_name AS 'Courier Name',date_format(courier_details.shipment_date, \"%d-%m-%Y %H:%i:%s\") AS 'Shipment Date'";
@@ -7474,8 +7474,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $spare_id_array = $this->input->post("spare_id_array");
         if(!empty($spare_id_array)){
           $spare_ids = implode(',',$spare_id_array);
-          $select = 'spare_parts_details.booking_id,spare_invoice_details.id,spare_invoice_details.invoice_id,spare_invoice_details.spare_id,spare_invoice_details.invoice_date,spare_invoice_details.hsn_code,spare_invoice_details.invoice_amount,spare_invoice_details.gst_rate,spare_invoice_details.invoice_pdf';
-          $where = array("spare_invoice_details.spare_id IN(".$spare_ids.")" => NULL); 
+          $select = 'spare_parts_details.booking_id,oow_spare_invoice_details.id,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.spare_id,oow_spare_invoice_details.invoice_date,oow_spare_invoice_details.hsn_code,oow_spare_invoice_details.invoice_amount,oow_spare_invoice_details.gst_rate,oow_spare_invoice_details.invoice_pdf';
+          $where = array("oow_spare_invoice_details.spare_id IN(".$spare_ids.")" => NULL); 
           
           $invoice_details = $this->inventory_model->get_spare_invoice_details($select, $where); 
         }

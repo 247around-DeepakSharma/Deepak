@@ -949,7 +949,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                             `booking_details`.booking_id
                                             ) ) AS completed, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off 
                                             FROM `booking_details` , service_centres
-                                            WHERE !(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled')
+                                            WHERE !(current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') AND booking_details.service_center_closed_date is not null 
                                             " . $where . "
                                             AND DATE_FORMAT( booking_details.service_center_closed_date, '%m' ) = MONTH( CURDATE() ) 
                                             AND DATE_FORMAT( booking_details.service_center_closed_date, '%Y' ) = YEAR( CURDATE() )
@@ -959,7 +959,7 @@ function get_booking_by_service_center_query_data($where,$groupBY, $interval_in_
                                             `booking_details`.booking_id
                                             ) ) AS cancelled, service_centres.name AS service_center_name, service_centres.state, service_centres.district as city , service_centres.id as service_center_id , service_centres.active as active, service_centres.on_off as temporary_on_off 
                                             FROM `booking_details` , service_centres
-                                            WHERE (current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled')
+                                            WHERE (current_status = 'Cancelled' OR internal_status ='InProcess_Cancelled') AND booking_details.service_center_closed_date is not null 
                                             " . $where . "
                                             AND DATE_FORMAT( booking_details.service_center_closed_date, '%m' ) = MONTH( CURDATE() ) 
                                             AND DATE_FORMAT( booking_details.service_center_closed_date, '%Y' ) = YEAR( CURDATE() )

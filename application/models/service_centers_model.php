@@ -291,7 +291,7 @@ class Service_centers_model extends CI_Model {
         }
         
          if(!$select){
-             $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,booking_details.request_type,booking_details.city,booking_details.state"
+             $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,sc.sf_purchase_invoice,booking_details.request_type,booking_details.city,booking_details.state"
                 . ",STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
                 . ",STR_TO_DATE(booking_details.create_date,'%Y-%m-%d') as booking_create_date,booking_details.booking_primary_contact_no,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due $userSelect";
              $groupBy = "GROUP BY sc.booking_id";
@@ -324,6 +324,7 @@ class Service_centers_model extends CI_Model {
                     . ' service_center_booking_action.mismatch_pincode, '
                     . ' service_center_booking_action.is_sn_correct, '
                     . ' service_center_booking_action.sf_purchase_date, '
+                    . ' service_center_booking_action.sf_purchase_invoice, '
                     . ' service_center_booking_action.model_number');
             $this->db->where('service_center_booking_action.booking_id', $value['booking_id']); 
             $this->db->from('service_center_booking_action');
@@ -841,7 +842,7 @@ class Service_centers_model extends CI_Model {
     */
     function get_collateral_for_service_center_bookings($booking_id){
         $collateralData = array();
-       $bookingDataSql = "SELECT booking_details.booking_id,booking_details.partner_id,booking_details.service_id,appliance_brand,appliance_category,appliance_capacity,model_number,
+       $bookingDataSql = "SELECT booking_details.booking_id,booking_details.partner_id,booking_details.service_id,appliance_brand,appliance_category,appliance_capacity,case when sf_model_number is not null then sf_model_number else model_number end as model_number,
 CASE WHEN booking_details.request_type like 'Repair%' THEN 'repair' WHEN booking_details.request_type like 'Repeat%' THEN 'repair' ELSE 'installation'END as request_type
 FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = booking_unit_details.booking_id WHERE booking_details.booking_id='".$booking_id."' GROUP BY request_type";
         $query = $this->db->query($bookingDataSql);
@@ -1162,10 +1163,16 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         
         return $this->db->query($sql)->result_array();     
     }
-function insert_data_into_spare_invoice_details($data){
+    
+        /**
+     * @desc: Insert booking details for spare parts
+     * @param Array $data
+     * @return boolean
+     */
+    function insert_data_into_spare_invoice_details($data){
         
        if(!empty($data)){
-         $this->db->insert('spare_invoice_details', $data);  
+         $this->db->insert('oow_spare_invoice_details', $data);  
        }       
         log_message('info', __FUNCTION__ . '=> Insert Spare Parts: ' .$this->db->last_query());
         return $this->db->insert_id();  

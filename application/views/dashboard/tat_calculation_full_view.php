@@ -1,4 +1,4 @@
-]<style>
+<style>
     .col-md-2 {
         width: 16.666667%;
     }

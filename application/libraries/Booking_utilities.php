@@ -568,7 +568,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
                      </head><body>'.$css.'
                      <div style="margin-top: 30px;font-family:Helvetica;" class="container-fluid table-responsive">
-                         <table style="margin-bottom: 20px;border: 1px solid #ddd; border-collapse: collapse;" class="js-dynamitable">
+                         <table id="count_table" style="margin-bottom: 20px;border: 1px solid #ddd; border-collapse: collapse;" class="js-dynamitable">
                            <thead>
                              <tr style="padding: 8px;line-height: 1.42857143;vertical-align: top; border-top: 1px solid #ddd">
                                <th style="text-align: center;border: 1px solid #ddd;background:#EEEEEE;width:9%">Regional Manager</th>
@@ -708,21 +708,66 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
                          </table>";
        $html.="<table width='100%' style='margin-bottom: 20px;border: 1px solid #ddd; border-collapse: collapse;'><tbody><tr>" .
                "</td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:45%'>" . 'TOTAL' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_yesterday_booked . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_yesterday_completed . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_yesterday_cancelled . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_month_completed . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_month_cancelled . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_last_2_day . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_last_3_day . '<strong>' .
-               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong>" . $overall_greater_than_5_days . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong class='total_yesterday_booked'>" . $overall_yesterday_booked . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong class='total_yesterday_completed'>" . $overall_yesterday_completed . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong class='total_yesterday_cancelled'>" . $overall_yesterday_cancelled . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong class='total_month_completed'>" . $overall_month_completed . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong class='total_month_cancelled'>" . $overall_month_cancelled . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong class='total_last_2_day'>" . $overall_last_2_day . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong class='total_last_3_day'>" . $overall_last_3_day . '<strong>' .
+               " </td><td style='text-align: center;border: 1px solid #001D48;background:#FF9900;width:7%'><strong class='total_greater_than_5_days'>" . $overall_greater_than_5_days . '<strong>' .
                " </td></tr>";
 
        $html .= '</tbody>
                          </table></div>
                  <script src="'.  base_url().'js/dynamitable.jquery.min.js"></script>'
                . '<script type="text/javascript">$("select").select2();</script>';
-       $html .= '</body>
+       $html .= '<script>
+                    $("#count_table").on("change", function() {
+                        var yesterday_booked = 0;
+                        var yesterday_completed = 0;
+                        var yesterday_cancelled = 0;
+                        var month_completed = 0;
+                        var month_cancelled = 0;
+                        var last_2_day = 0;
+                        var last_3_day = 0;
+                        var greater_than_5_days = 0;
+                        
+                        $(".yesterday_booked").parent("tr[style!=\'display: none;\']").each(function(index, value) {
+                            yesterday_booked = yesterday_booked + parseInt($(this).children("td.yesterday_booked").text());
+                        });
+                        $(".yesterday_completed").parent("tr[style!=\'display: none;\']").each(function(index, value) {
+                            yesterday_completed = yesterday_completed + parseInt($(this).children("td.yesterday_completed").text());
+                        });                        
+                        $(".yesterday_cancelled").parent("tr[style!=\'display: none;\']").each(function(index, value) {
+                            yesterday_cancelled = yesterday_cancelled + parseInt($(this).children("td.yesterday_cancelled").text());
+                        });
+                        $(".month_completed").parent("tr[style!=\'display: none;\']").each(function(index, value) {
+                            month_completed = month_completed + parseInt($(this).children("td.month_completed").text());
+                        });
+                        $(".month_cancelled").parent("tr[style!=\'display: none;\']").each(function(index, value) {
+                            month_cancelled = month_cancelled + parseInt($(this).children("td.month_cancelled").text());
+                        });
+                        $(".last_2_day").parent("tr[style!=\'display: none;\']").each(function(index, value) {
+                            last_2_day = last_2_day + parseInt($(this).children("td.last_2_day").text());
+                        });
+                        $(".last_3_day").parent("tr[style!=\'display: none;\']").each(function(index, value) {
+                            last_3_day = last_3_day + parseInt($(this).children("td.last_3_day").text());
+                        });
+                        $(".greater_than_5_days").parent("tr[style!=\'display: none;\']").each(function(index, value) {
+                            greater_than_5_days = greater_than_5_days + parseInt($(this).children("td.greater_than_5_days").text());
+                        });
+                        
+                        $(".total_yesterday_booked").text(yesterday_booked);
+                        $(".total_yesterday_completed").text(yesterday_completed);
+                        $(".total_yesterday_cancelled").text(yesterday_cancelled);
+                        $(".total_month_completed").text(month_completed);
+                        $(".total_month_cancelled").text(month_cancelled);
+                        $(".total_last_2_day").text(last_2_day);
+                        $(".total_last_3_day").text(last_3_day);
+                        $(".total_greater_than_5_days").text(greater_than_5_days);
+                    });
+           </script></body>
                    </html>';
 
        return $html;

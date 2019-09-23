@@ -145,7 +145,7 @@
             data: {id: id, service_center_id: service_center_id},
             success: function (data) {
                 
-                if (data === 'success') {
+                if ($.trim(data) === 'success') {
                     if(active_flag === 1){
                         $('#show_success_msg').html('HQ Activated successfully');
                         $('.success').show().delay(5000).fadeOut();

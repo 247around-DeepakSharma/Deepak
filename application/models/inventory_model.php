@@ -350,7 +350,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('partners','partners.id = booking_details.partner_id', "left");
         $this->db->join('service_centres','service_centres.id = booking_details.assigned_vendor_id', "left");
         $this->db->join('users','users.user_id = booking_details.user_id', "left");
-        $this->db->join('inventory_master_list iml',"iml.part_name=spare_parts_details.parts_requested","left");
+        //$this->db->join('inventory_master_list iml',"iml.part_name=spare_parts_details.parts_requested","left");
         if(isset($post['is_inventory'])){
             
             $this->db->join('inventory_master_list','inventory_master_list.inventory_id = spare_parts_details.requested_inventory_id', "left");
@@ -362,7 +362,7 @@ class Inventory_model extends CI_Model {
         }
         
         if( isset($post['spare_invoice_flag']) && !empty($post['spare_invoice_flag'])){
-            $this->db->join('spare_invoice_details', 'spare_parts_details.id = spare_invoice_details.spare_id','left');  
+            $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id','left');  
         }
         
         $this->db->join('services', 'booking_details.service_id = services.id','left');
@@ -2941,7 +2941,7 @@ class Inventory_model extends CI_Model {
 
         $this->db->select($select, false);
         $this->db->from('spare_parts_details');
-        $this->db->join('spare_invoice_details', 'spare_parts_details.id = spare_invoice_details.spare_id');
+        $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id');
 
         if (!empty($where)) {
             $this->db->where($where, false);
