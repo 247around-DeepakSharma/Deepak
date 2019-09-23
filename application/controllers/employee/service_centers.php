@@ -730,6 +730,7 @@ class Service_centers extends CI_Controller {
                 
                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details','*',['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
                 $status = $spare_part_detail['status'];
+                $defective_part_required = $spare_part_detail['defective_part_required'];
                 
                 $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status','tag',['id' => $status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
                 
@@ -747,6 +748,7 @@ class Service_centers extends CI_Controller {
                 
                 if($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG) {
                     $status = OK_PART_TO_BE_SHIPPED;
+                    $defective_part_required = 1;
                 }
                 
                 if($consumption_status_tag == WRONG_PART_RECEIVED_TAG && !empty($post_data['wrong_part'])) {
@@ -765,6 +767,7 @@ class Service_centers extends CI_Controller {
                 
                 $this->reusable_model->update_table('spare_parts_details', [
                     'consumed_part_status_id' => $status_id,
+                    'defective_part_required' => $defective_part_required,
                     'status' => $status,
                 ], ['id' => $spare_id]);
             }
@@ -3036,7 +3039,7 @@ class Service_centers extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."')  " => NULL
             
         );
         
@@ -3114,7 +3117,7 @@ class Service_centers extends CI_Controller {
 
             $where = "spare_parts_details.service_center_id = '" . $service_center_id . "'  "
                     . " AND spare_parts_details.id = '" . $sp_id . "' AND spare_parts_details.defective_part_required = 1 "
-                    . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
+                    . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') ";
 
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking($where);
        //     $data['courier_info'] = $this->inventory_model->getCourierInfo();
@@ -3154,7 +3157,7 @@ class Service_centers extends CI_Controller {
         
         $where = "spare_parts_details.service_center_id = '" . $service_center_id . "'  "
                     . " AND spare_parts_details.id = '" . $value . "' AND spare_parts_details.defective_part_required = 1 "
-                    . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
+                    . " AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') ";
 
         $spare_part = $this->partner_model->get_spare_parts_booking($where);
         if (!empty($spare_part)) {
@@ -3281,7 +3284,7 @@ class Service_centers extends CI_Controller {
                        
                         $this->service_centers_model->insert_into_awb_details($awb_data);
                     }                    
-                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '") ' => NULL));
+                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '", "'.OK_PART_TO_BE_SHIPPED.'") ' => NULL));
 
                     //insert details into state change table   
                     if (empty($defective_part_pending_details)) {
@@ -5330,7 +5333,7 @@ class Service_centers extends CI_Controller {
                                                                      
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), $data);
 
-                            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],1);
+                            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$data['quantity']);
                         }
                     } else {
                         log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);
@@ -5599,7 +5602,7 @@ class Service_centers extends CI_Controller {
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
         $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND spare_parts_details.entity_type = '" . _247AROUND_SF_STRING . "'"
-                . " AND status IN ('".SPARE_DELIVERED_TO_SF."', '".SPARE_SHIPPED_BY_PARTNER."', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "')  ";
+                . " AND status IN ('".SPARE_DELIVERED_TO_SF."', '".SPARE_SHIPPED_BY_PARTNER."', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "', '".OK_PART_TO_BE_SHIPPED."')  ";
 
         $config['base_url'] = base_url() . 'service_center/get_shipped_parts_list';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
@@ -5987,7 +5990,7 @@ class Service_centers extends CI_Controller {
         }
 
         // get spare part detail.
-        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_detail', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if(!empty($spare_part_detail['consumed_part_status_id'])) {
             $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
             if(!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag, [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG])) {
@@ -6099,6 +6102,7 @@ class Service_centers extends CI_Controller {
         
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_REJECTED,
             'remarks_defective_part_by_partner' => $rejection_reason,
+            'defective_part_rejected_by_partner'=>1,
             'approved_defective_parts_by_partner' => '0'));
         
         if ($response) {
@@ -6456,7 +6460,7 @@ class Service_centers extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."')  " => NULL
             
         );
         $group_by = "spare_parts_details.service_center_id";

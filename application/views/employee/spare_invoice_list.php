@@ -5,7 +5,7 @@
             <h2 class="page-header" style="border: none;">Spare Invoice List</h2>
         </div>
         <div class="col-md-6">
-            <button onclick="open_create_invoice_form()" style="margin-top: 45px;float: right;" class="btn btn-md btn-primary">create</button>
+            <button onclick="open_create_invoice_form()" style="margin-top: 45px;float: right;" class="btn btn-md btn-primary" id="btn_create_invoice" name="btn_create_invoice">create</button>
         </div>
     </div>
     <div class="col-md-12">
@@ -45,7 +45,7 @@
                     <?php } ?>
                     </td>
                     <td><?php if(!empty($value->sell_invoice_id)){ echo $value->sell_invoice_id; } else { ?>
-                        <a href="<?php echo base_url();?>employee/invoice/generate_oow_parts_invoice/<?php echo $value->id; ?>" class="btn btn-md btn-success">Generate Sale Invoice</a>
+                        <a href="<?php echo base_url();?>employee/invoice/generate_oow_parts_invoice/<?php echo $value->id; ?>" id="btn_sell_invoice_<?php echo $value->id; ?>" onclick="disable_btn(this.id)" class="btn btn-md btn-success">Generate Sale Invoice</a>
                     <?php } ?></td>
                     <td><input type="checkbox" class="form-control spare_id" name="spare_id[]" data-partner_id="<?php echo $value->booking_partner_id; ?>" data-invoice_id ="<?php echo $value->invoice_id?>" data-spare_id="<?php echo $value->id; ?>" value="<?php echo $value->id; ?>" /></td>
                 </tr>
@@ -91,8 +91,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-success" onclick="genaerate_purchase_invoice()">Submit</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
+                <button type="submit" class="btn btn-success" id="btn_purchase_invoice" name="btn_purchase_invoice" onclick="genaerate_purchase_invoice()">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="btn_create_invoice.disabled=false;close_model()">Close</button>
             </div>
         </div>
     </div>
@@ -103,6 +103,7 @@
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
 
  function open_create_invoice_form(){
+        $('#btn_create_invoice').attr('disabled',true);
         var spare_id = [];
         var partner_id_array = [];
         var invoice_id_array = [];
@@ -123,13 +124,15 @@
         var flag = true;
         if(unique_invoice.length > 1){
           flag = false;
+          $('#btn_create_invoice').attr('disabled',false);
           alert("You Can not select different invoice id.");  
           return false;
         }
         
         if(unique_partner.length > 1){
              flag = false;
-             alert("You Can not sel ect multiple partner booking");
+             $('#btn_create_invoice').attr('disabled',false);
+             alert("You Can not select multiple partner booking");
              return false;
          } 
           if(flag){
@@ -169,6 +172,9 @@
                     $("#spare_inner_html").html(html);
                     $('#purchase_invoice').modal('toggle'); 
                     }
+                    else {
+                        $('#btn_create_invoice').attr('disabled',false);
+                    }
                      
                  }
             });  
@@ -187,7 +193,7 @@
     }
     
     function genaerate_purchase_invoice(){
-    
+        $('#btn_purchase_invoice,#btn_create_invoice').attr('disabled',true);
             swal({
                      title: "Do You Want To Continue?",
                      type: "warning",
@@ -196,7 +202,8 @@
                      closeOnConfirm: true
     
                  },
-                 function(){
+                 function(isConfirm) {
+                    if (isConfirm) {
                     
     
          var fd = new FormData(document.getElementById("purchase_invoice_form"));
@@ -236,12 +243,16 @@
                      } else {
                          swal("Oops", data, "error");
                          alert(data);
-    
+                         $('#btn_purchase_invoice,#btn_create_invoice').attr('disabled',false);
                      }
                       $('body').loadingModal('destroy');
     
-                 }
-             });
+                    }
+                });
+            } 
+            else {
+                 $('#btn_purchase_invoice,#btn_create_invoice').attr('disabled',false);
+            }
          });
      }
      
@@ -266,5 +277,9 @@
             });
             
         }
+    }
+    
+    function disable_btn(id){
+        $("#"+id).attr('disabled',true);
     }
 </script>

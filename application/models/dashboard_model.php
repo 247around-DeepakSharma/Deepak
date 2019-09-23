@@ -524,15 +524,14 @@ class dashboard_model extends CI_Model {
     function get_spare_details_count_group_by_sf($is_show_all,$partner_id){
         
         $select = "SELECT "
-                . "SUM(IF(spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') , 1, 0)) AS oot_defective_parts_count,"
+                . "count(spare_parts_details.booking_id) as oot_defective_parts_count,"
                 . "spare_parts_details.service_center_id,"
                 . "service_centres.name,"
                 . "GROUP_CONCAT(DISTINCT spare_parts_details.booking_id) as booking_id";
         
         $where = "spare_parts_details.defective_part_required = 1 "
-                . "AND DATEDIFF(CURRENT_DATE,service_center_booking_action.closed_date) > ".SF_SPARE_OOT_DAYS. " AND "
-                . "service_center_booking_action.current_status =  'InProcess' "
-                . "AND service_center_booking_action.closed_date IS NOT NULL ";
+                . "AND DATEDIFF(CURRENT_DATE,booking_details.service_center_closed_date) > ".DEFECTIVE_PART_PENDING_OOT_DAYS. " AND "
+                . "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') ";
         
         if(!empty($partner_id)){
             $where .= " AND spare_parts_details.partner_id = $partner_id";
@@ -540,7 +539,7 @@ class dashboard_model extends CI_Model {
         
         $sql = $select . " FROM spare_parts_details"
                 . " JOIN service_centres ON spare_parts_details.service_center_id = service_centres.id "
-                . " JOIN service_center_booking_action ON spare_parts_details.booking_id = service_center_booking_action.booking_id "
+                . " JOIN booking_details ON spare_parts_details.booking_id = booking_details.booking_id "
                 . " WHERE $where "
                 . " GROUP BY spare_parts_details.service_center_id "
                 . " HAVING oot_defective_parts_count > 0 "
@@ -569,7 +568,7 @@ class dashboard_model extends CI_Model {
                 . "WHERE booking_details.service_center_closed_date IS NOT NULL "
                 . "AND DATEDIFF(CURRENT_DATE,booking_details.service_center_closed_date) > '".SF_SPARE_OOT_DAYS."'"
                 . "AND spare_parts_details.defective_part_required = 1 "
-                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') "
+                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') "
                 . "GROUP BY booking_details.partner_id "
                 . " ORDER BY spare_count DESC";
         $query = $this->db->query($sql);
@@ -674,7 +673,7 @@ class dashboard_model extends CI_Model {
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,booking_details.service_center_closed_date) > ".SF_SPARE_OOT_DAYS. " "
                 . " AND spare_parts_details.parts_shipped IS NOT NULL "
-                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
+                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') ";
         
         if(!empty($partner_id)){
             $where .= " AND booking_details.partner_id = $partner_id";
@@ -720,7 +719,7 @@ class dashboard_model extends CI_Model {
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,spare_parts_details.shipped_date) > ".PARTNER_SPARE_OOT_DAYS. " "
                 . " AND spare_parts_details.parts_shipped IS NOT NULL "
-                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
+                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') ";
         
         if(!empty($partner_id)){
             $where .= " AND booking_details.partner_id = $partner_id";

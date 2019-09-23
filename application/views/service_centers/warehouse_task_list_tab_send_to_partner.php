@@ -43,7 +43,7 @@
                                    </form>                                
                             </div>
                             <div class="approved pull-right">
-                                <div class="btn btn-info btn-sm send_all_spare pull-right" style="margin-top: 11px;" onclick="process_send_all_spare();">Send spare to partner</div>
+                                <div class="btn btn-info btn-sm send_all_spare pull-right" id="send_spare_to_partner" style="margin-top: 11px;" onclick="process_send_all_spare();">Send spare to partner</div>
                             </div>
                         </div>
                     </section>
@@ -404,7 +404,9 @@
         }
     }
     
-    $('#submit_courier_form').on('click',function(){ 
+    $('#submit_courier_form').on('click',function(){
+        $(".check_single_row").prop('checked', false);
+        $("#send_spare_to_partner").attr('disabled',true);
         $('#submit_courier_form').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
         postData['awb_by_wh'] = $('#awb_by_wh').val();
         postData['courier_name_by_wh'] = $('#courier_name_by_wh').val();
@@ -455,6 +457,7 @@
                 contentType: false,
                 processData: false,
                 success:function(response){
+                    $("#send_spare_to_partner").attr('disabled',false);
                     $('#submit_courier_form').html('Submit').attr('disabled',false);
                     $('#courier_model').modal('toggle');
                     obj = JSON.parse(response);
@@ -470,6 +473,7 @@
                 }
             });
         }else{
+            $("#send_spare_to_partner").attr('disabled',false);
             $('#submit_courier_form').html('Submit').attr('disabled',false);
             alert("Please enter all required field");
         }

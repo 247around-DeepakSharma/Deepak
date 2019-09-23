@@ -4943,7 +4943,7 @@ class Invoice extends CI_Controller {
                     $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($invoice_details[0]['vendor_partner_id']); 
                     $get_owner_email = $this->vendor_model->getVendorDetails("owner_email", array('id' =>$invoice_details[0]['vendor_partner_id']));
                     $to = $get_owner_email[0]['owner_email'];
-                    $cc = $email_template[3].", ".$get_rm_email[0]['official_email'];
+                    $cc = $email_template[3].(!empty($get_rm_email[0]['official_email'])? ", ".$get_rm_email[0]['official_email']:"");
                     $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', CN_AGAINST_GST_DN);
                 }
                 
@@ -4963,7 +4963,7 @@ class Invoice extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $vendor_id,
-            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL,
+            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."')  " => NULL,
             "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".DEFECTIVE_PART_PENDING_OOT_DAYS."' " => NULL
             
         );
