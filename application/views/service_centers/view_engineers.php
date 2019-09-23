@@ -26,6 +26,7 @@
           	<th>Mobile</th>
           	<th>Alternate Mobile</th>
           	<th>ID Proof</th>
+                <th>Create Date</th>
                 <th>Verified</th>
           	<th>Status</th>
                 <th>Edit</th>
@@ -60,7 +61,7 @@
                     pageSize: 'LEGAL',
                     title: 'engineers',
                     exportOptions: {
-                       columns: [1,2,3,4,5],
+                       columns: [1,2,3,4,5,6],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'

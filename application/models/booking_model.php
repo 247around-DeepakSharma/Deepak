@@ -733,7 +733,8 @@ class Booking_model extends CI_Model {
         $post['is_inventory']=1;
         $post['is_original_inventory']=1;
         $post['spare_cancel_reason']=1;
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
+        $post['wrong_part'] = 1;
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed,appliance_model_details.id as appliance_model_detail_id, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
@@ -1745,7 +1746,7 @@ class Booking_model extends CI_Model {
         $oldRequestType =  $this->get_old_request_type($booking_id);
         if (!empty($price_tag)) {
             $results = array_filter($price_tag, function($value) {
-                if ((stripos($value, 'Installation') !== false) || stripos($value, 'Repair') !== false) {
+                if ((stripos($value, 'Installation') !== false) || stripos($value, 'Repair') !== false || stripos($value, 'Extended') !== false) {
                     return $value; 
                     
                 } else {
@@ -2853,4 +2854,32 @@ class Booking_model extends CI_Model {
             return 0;
         }
     }
+
+    /**
+     * [[get booking status from service_center_booking_action (scba)]]
+     * return: int (0-> cancelled, 1-> completed, 2-> pending)
+     *
+     */
+    function get_booking_cancel_complete_status_from_scba($bookingId){
+        $this->db->where("booking_id",$bookingId);
+        $this->db->select("internal_status");
+        $this->db->from("service_center_booking_action");
+        $query = $this->db->get();
+        $result = $query->result_array();
+        error_log("error : ". json_encode($result));
+        $res = 2;
+        if(!$result || empty($result)){
+            return $res;
+        }
+        foreach($result as $row){
+            if($row['internal_status'] == _247AROUND_COMPLETED || $row['internal_status'] == DEFECTIVE_PARTS_PENDING ){
+                $res = 1;
+                break;
+            }else if($row['internal_status'] == _247AROUND_CANCELLED ){
+                $res = 0;
+            }
+        }
+        return $res;
+    }
+
 }

@@ -73,7 +73,7 @@
             "language":{ 
                 "processing": "<center><img id='loader_gif_title' src='<?php echo base_url(); ?>images/loadring.gif'></center>",
             },
-            "serverSide": true, 
+             "serverSide": true, 
             "order": [], 
             "pageLength": 50,
             "ajax": {

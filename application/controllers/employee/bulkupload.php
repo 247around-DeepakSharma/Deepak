@@ -28,7 +28,7 @@ class Bulkupload extends CI_Controller {
         $this->load->view('employee/bulk_upload_check_warranty');
     }
 
-    function check_warranty_data() {
+     function check_warranty_data() {
         ini_set('display_errors', '1');
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', 36000);

@@ -2232,7 +2232,32 @@ class Miscelleneous {
         }
         return $finalData;
     }
+    /**
+     * Model to get on/off history
+     * @param  [[number]] $vendor_id
+     */
+    function service_centre_on_off_history_view($vendor_id){
 
+        $finalData =array();
+        $table = "trigger_service_centres";
+        $select = "$table.name, employee.full_name as 'agent', $table.on_off, $table.update_date as 'date',$table.active";
+        $where = "$table.id = $vendor_id";
+        $join = array("employee"=> "$table.agent_id = employee.id");
+        $joinType = array("employee"=>"left");
+        $orderBy = array("date"=>"desc");
+        $finalData = $this->My_CI->reusable_model->get_search_result_data($table, $select, $where, $join, null, $orderBy, null, $joinType, null);
+
+
+        $table = "service_centres";
+        $select = "$table.name, employee.full_name as 'agent', $table.on_off, $table.update_date as 'date',$table.active";
+        $where = "$table.id = $vendor_id";
+        $join = array("employee"=> "$table.agent_id = employee.id");
+        $originalTable = $this->My_CI->reusable_model->get_search_result_data($table, $select, $where, $join, null, null, null, $joinType, null);
+
+
+        array_unshift($finalData,$originalTable[0]);
+        return $finalData;
+    }
 // function send_completed_booking_email_to_customer($completedBookingsID){
 //      log_message('info', __FUNCTION__ . ' => Completed booking Email Send Function Entry');
 //        $completedBookingsData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.booking_id,users.name,users.user_email,partners.public_name as partner,booking_details.booking_date as booking_date",NULL,array('partners'=>'partners.id=booking_details.partner_id','users'=>'booking_details.user_id=users.user_id'),NULL,NULL,array('booking_id'=>$completedBookingsID),NULL);
@@ -3380,8 +3405,8 @@ function generate_image($base64, $image_name,$directory){
         $where['agent_filters.entity_type'] = _247AROUND_EMPLOYEE_STRING;
         
         $saas_module = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        if(isset($saas_module) && (!$saas_module)) { 
-            $where['e.groups'] = _247AROUND_RM;
+        if($saas_module) { 
+            $where['employee.groups'] = _247AROUND_RM;
         }
         
         if($state_check) {
@@ -4382,7 +4407,7 @@ function generate_image($base64, $image_name,$directory){
     /**
      * @desc This function is used to process spare transfer
      */
-    function spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id) {
+      function spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id) {
         $tcount = 0;
         $booking_error_array = array();
         $add_row = array();

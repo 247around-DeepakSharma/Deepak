@@ -179,13 +179,13 @@ class Payment extends CI_Controller {
         echo "<p style='text-align:center'>".$responseArray['status']."</p>";
         echo "<p style='text-align:center'>".$responseArray['status_msg']."<p>";
     }
-    function resend_QR_code($booking_id,$regenrate_flag){
+    function resend_QR_code($booking_id,$regenrate_flag,$partner_id){
         $msg = "SMS Sending Failed";
         $booking_details = $this->booking_model->getbooking_history($booking_id, "join");
         if($booking_details[0]['amount_due']>0){
             $is_sms = $this->booking_utilities->send_qr_code_sms($booking_details[0]['booking_id'], 
             $booking_details[0]['primary_contact_phone_1'], $booking_details[0]['user_id'], 
-            $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services'],$regenrate_flag);
+            $booking_details[0]['booking_primary_contact_no'], $booking_details[0]['services'],$regenrate_flag, $booking_details[0]['partner_id']);
             if($is_sms){
                 $msg = "SMS Send Successfully";
             }

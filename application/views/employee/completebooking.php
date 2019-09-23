@@ -292,6 +292,8 @@
                                          </div>
                                     </div>
                                 </div>
+                                    </div>
+                                </div>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label style="margin-left:8%;">Purchase Invoice</label>
@@ -518,7 +520,7 @@
                                                 <option value="" selected disabled>Select Reason</option>
                                                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
                                                     if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
-                                                    <option value="<?php echo $status['id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
+                                                    <option value="<?php echo $status['id']; ?>" <?php if(!empty($booking_history['spare_parts']) && $booking_history['spare_parts'][0]['consumed_part_status_id'] == $status['id']) { echo 'selected';} ?> data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
                                                 <?php $description_no++; } ?>
                                             </select>
                                         </td>
@@ -1347,7 +1349,7 @@
     function open_wrong_spare_part_model(spare_part_detail_id, booking_id, part_name, service_id) {
         $.ajax({
             type: 'POST',
-            url: '<?php echo base_url(); ?>employee/booking/wrong_spare_part/' + booking_id + "/" +spare_part_detail_id+'/'+part_name,
+            url: '<?php echo base_url(); ?>employee/booking/wrong_spare_part/' + booking_id,
             data: {spare_part_detail_id:spare_part_detail_id, booking_id:booking_id, part_name:part_name, service_id:service_id},
             success: function (data) {
                 $("#wrong_spare_part_model").children('.modal-content').children('.modal-body').html(data);   

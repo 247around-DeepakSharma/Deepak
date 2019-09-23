@@ -238,7 +238,7 @@
                                         <hr>
                                         <div class="row">
                                             <div class="col-xs-5 col-md-4 col-md-offset-5">
-                                                <button type="submit" class="btn btn-success" id="submit_btn">Preview</button>
+                                                <button type="submit" class="btn btn-success" id="submit_btn" name="submit_btn">Preview</button>
                                                 <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value=""/>
                                                 <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
                                                 <input type="hidden" class="form-control"  name="dated" id="dated" value="<?php echo date('Y-m-d');?>"/>
@@ -274,8 +274,8 @@
                               <div id="clone_id" style="text-align: center;"></div>
                               <div class="modal-footer" style="margin-right: 389px;text-align: center;">
                                   <input type="hidden" id="mapped_model_table_id">
-                                  <button type="button" class="btn btn-success" id="sumit_msl">Submit</button>
-                                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                  <button type="button" class="btn btn-success" id="sumit_msl" name="sumit_msl">Submit</button>
+                                  <button type="button" class="btn btn-default" onclick="submit_btn.disabled = false;sumit_msl.disabled = false;" data-dismiss="modal">Cancel</button>
                               </div>
                           </form>
                   </div>
@@ -292,8 +292,23 @@
     });
     
     $("#sumit_msl").click(function(){
+        $("#sumit_msl,#submit_btn").attr('disabled',true);
         $("#confirmation").val('1');
         $("#spareForm").submit();
+    });
+    
+    $("input:text, input:file, select").on('change',function(){
+        $("#sumit_msl,#submit_btn,#on_submit_btn").attr('disabled',false);
+        $('label.error').css('display','none');
+    });
+    
+    $("input:text").on('input',function(){
+        $("#sumit_msl,#submit_btn,#on_submit_btn").attr('disabled',false);
+        $('label.error').css('display','none');
+    });
+    
+    $('#submit_btn').click(function(){
+        $("#sumit_msl").attr('disabled',false);
     });
     
     var date_before_15_days = new Date();
@@ -397,6 +412,7 @@
         //$("#spareForm").validate();    
         $("#spareForm").on('submit', function(e) { 
             e.preventDefault();
+            $("#submit_btn").attr('disabled',true);
             var isvalid = $("#spareForm").valid();
             var flag = true;
             if (isvalid) {
@@ -430,14 +446,14 @@
                             flag = false;
                             return false;
                         }
-                        else {
-                            if((Number($('#partGstRate_'+i).val()) !== 5) && (Number($('#partGstRate_'+i).val()) !== 12) && (Number($('#partGstRate_'+i).val()) !== 18) && (Number($('#partGstRate_'+i).val()) !== 28) ){
-                                showConfirmDialougeBox('Invalid Gst Rate', 'warning');
-                                $('#partGstRate_'+i).addClass('text-danger');
-                                flag = false;
-                                return false;
-                            }
-                        }
+//                        else {
+//                            if((Number($('#partGstRate_'+i).val()) !== 5) && (Number($('#partGstRate_'+i).val()) !== 12) && (Number($('#partGstRate_'+i).val()) !== 18) && (Number($('#partGstRate_'+i).val()) !== 28) ){
+//                                showConfirmDialougeBox('Invalid Gst Rate', 'warning');
+//                                $('#partGstRate_'+i).addClass('text-danger');
+//                                flag = false;
+//                                return false;
+//                            }
+//                        }
                     }
                 });
                 
@@ -463,7 +479,7 @@
                    if((c_status !='')&& (c_status == '1')){
                     
                     if(confirm('Are you sure to continue')){
-                        $('#submit_btn').attr('disabled',true);
+                        $('#sumit_msl,#submit_btn').attr('disabled',true);
                         $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
     
     
@@ -493,6 +509,8 @@
                             formData.append(element.name, element.value);
                         });
                         
+                        $("#spareForm")[0].reset();
+                        $("#spareForm").find('input:text, input:file, select').val('');
                         $.ajax({
                             method:"POST",
                             url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
@@ -507,12 +525,13 @@
 //                                       window.location.href = "<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+""; 
 //                                    }
 //                                }                                
-                                $('#submit_btn').attr('disabled',false);
+                                $('#sumit_msl,#submit_btn').attr('disabled',false);
                                 $('#submit_btn').html("Submit");                               
                                 if(obj.status){
                                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                                     $('#success_msg').html(obj.message);
                                     $("#spareForm")[0].reset();
+                                    $("#spareForm").find('input:text, input:file, select').val('');
                                     $('#select2-partner_id-container').text('Select Partner');
                                     $('#select2-partner_id-container').attr('title','Select Partner');
                                     $('#select2-from_gst_number-container').text('Select From GST Number');
@@ -526,8 +545,10 @@
                                     $('#select2-partNumber_0-container').text('Select Part Number');
                                     $('#select2-partNumber_0-container').attr('title','Select Part Number');
                                     $('#total_spare_invoice_price').html('0');
+                                    $('label.error').css('display','none');
                                     $(".warehouse_print_address").css({'display':'block'});
                                     $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
+                                    $("#confirmation").val('0');
                                 }else{
                                     $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                                     $('#error_msg').html(obj.message);
@@ -536,6 +557,7 @@
                            }
                         });
                     }else{
+                        $("#confirmation").val('0');
                         return false;
                     }
                 }
@@ -671,7 +693,7 @@
         if(partner_id){
             $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url() ?>employee/inventory/get_parts_name',
+                url: '<?php echo base_url() ?>employee/inventory/get_parts_name_without_model_mapping',
                 data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,is_option_selected:true},
                 success: function (response) {
                     $('#partName_'+index).val('val', "");
@@ -801,12 +823,12 @@
                     var obj = JSON.parse(res);
                     if(obj.status === true){
                         $('#'+id).css('border','1px solid #ccc');
-                        $('#submit_btn').attr('disabled',false);
+                        $('#on_submit_btn').attr('disabled',false);
                         is_valid_booking = true;
                     }else{
                         is_valid_booking = false;
                         $('#'+id).css('border','1px solid red');
-                        $('#submit_btn').attr('disabled',true);
+                        $('#on_submit_btn').attr('disabled',true);
                         alert('Booking id not found');
                     }
                 }
@@ -814,7 +836,7 @@
         }else{
             is_valid_booking = true;
             $('#'+id).css('border','1px solid #ccc');
-            $('#submit_btn').attr('disabled',false);
+            $('#on_submit_btn').attr('disabled',false);
         }
     }
     
@@ -1049,6 +1071,7 @@
     
     $("#onBookingspareForm").on('submit', function(e) {
             e.preventDefault();
+            $("#on_submit_btn").attr('disabled',true);
             var isvalid = $("#onBookingspareForm").valid();
             var flag = true;
             if (isvalid) {
@@ -1073,14 +1096,14 @@
                         flag = false;
                         return false;
                     }
-                    else {
-                        if((Number($('#onpartGstRate_'+i).val()) !== 5) && (Number($('#onpartGstRate_'+i).val()) !== 12) && (Number($('#onpartGstRate_'+i).val()) !== 18) && (Number($('#onpartGstRate_'+i).val()) !== 28) ){
-                            onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
-                            $('#onpartGstRate_'+i).addClass('text-danger');
-                            flag = false;
-                            return false;
-                        }
-                    }
+//                    else {
+//                        if((Number($('#onpartGstRate_'+i).val()) !== 5) && (Number($('#onpartGstRate_'+i).val()) !== 12) && (Number($('#onpartGstRate_'+i).val()) !== 18) && (Number($('#onpartGstRate_'+i).val()) !== 28) ){
+//                            onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
+//                            $('#onpartGstRate_'+i).addClass('text-danger');
+//                            flag = false;
+//                            return false;
+//                        }
+//                    }
 
                 });
                 
@@ -1190,6 +1213,7 @@
             showLoaderOnConfirm: true
         },
             function(){
+                 $("#on_submit_btn").attr('disabled',true);
                  submitBookingForm();
             });
         }else{
@@ -1210,6 +1234,7 @@
             showLoaderOnConfirm: true
         },
             function(){
+                 $("#submit_btn").attr('disabled',true);
                  $("#spareForm").submit();
             });
         }else{
@@ -1249,6 +1274,8 @@
         $(params).each(function (index, element) {
             formData.append(element.name, element.value);
         });
+        $("#onBookingspareForm")[0].reset();
+        $("#onBookingspareForm").find('input:text, input:file, select').val('');
         $.ajax({
             method:"POST",
             url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",

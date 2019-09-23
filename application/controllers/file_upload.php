@@ -23,6 +23,7 @@ class File_upload extends CI_Controller {
         $this->load->library('table');
         $this->load->library('invoice_lib');
         $this->load->library('booking_utilities');
+        $this->load->library('session');
         
         //load model
         $this->load->model('inventory_model');
@@ -99,16 +100,18 @@ class File_upload extends CI_Controller {
                     //save file into database send send response based on file upload status  
 
                     if (isset($response['status']) && ($response['status'])) {
-
+                        
                         //save file and upload on s3
                         $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
+                        
+                        $this->session->set_userdata('file_success', $response['message']);
                     } else {
                         //save file and upload on s3
                         $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
                         $this->session->set_flashdata('file_error', $response['message']);
                     }
 
-                    //send email
+                     //send email
                     $this->send_email($data, $response);
                     if (isset($response['status']) && ($response['status'])) {
                         redirect(base_url() . $redirect_to);
@@ -343,15 +346,50 @@ class File_upload extends CI_Controller {
 
                     if ($is_file_contains_unique_data['status']) {
                         if(!empty($this->dataToInsert)){
-                            foreach ($this->dataToInsert as $key=>$val){                            
+                            foreach ($this->dataToInsert as $key=>$val){
+                                $part_type_return_val = null;
+                                $is_part_type_exists = false;
+
+                                if(isset($val['is_return'])){
+                                    $is_part_type_exists = true;
+                                    $part_type_return_val = $val['is_return'];
+                                    unset($val['is_return']);
+                                }
+
                                 $where = array('inventory_master_list.entity_id' => $partner_id, 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING , 'part_number' => $val['part_number']);//, 'service_id' => $val['service_id']
                                 $select = 'inventory_master_list.type, inventory_master_list.service_id, inventory_master_list.part_name, inventory_master_list.part_number';
                                 $inventory_details = $this->inventory_model->get_inventory_master_list_data($select, $where);
                                                                               
                                 if(empty($inventory_details)) {
                                     $insert_id = $this->inventory_model->insert_inventory_master_list_data($val);
+                                    log_message("info", __METHOD__. " safdsf ". $insert_id);
                                     if ($insert_id) {
                                         log_message("info", __METHOD__ . " inventory file data inserted succcessfully");
+                                        if($is_part_type_exists){
+                                            log_message("info", __METHOD__. " adding part type return mapping for the part type ", $val['type']);
+
+                                            $part_type_mapping_data = array();
+                                            $tmp_mapping_data = array();
+
+                                            $tmp_mapping_data['partner_id'] = $partner_id;
+                                            $tmp_mapping_data['appliance_id'] = $val['service_id'];
+                                            $tmp_mapping_data['inventory_id'] = $insert_id;
+                                            $tmp_mapping_data['part_type'] = $val['type'];
+                                            $tmp_mapping_data['is_return'] = $part_type_return_val;
+
+                                            array_push($part_type_mapping_data,$tmp_mapping_data);
+
+                                            $part_type_mapping_id = $this->inventory_model->insert_part_type_mapping_batch($part_type_mapping_data);
+
+                                            if($part_type_mapping_id){
+                                                log_message("info", __METHOD__ . " part type mapping added succcessfully for ". $val['type'] . " with mapping id ". $part_type_mapping_id);
+                                            }else{
+                                                log_message("info", __METHOD__ . " part type mapping not added succcessfully for ". $val['type'] . " with mapping id ". $part_type_mapping_id);
+                                            }
+                                        }else{
+                                            log_message("info", __METHOD__. " no value provided for part type return for part type ". $val['type']);
+                                        }
+                                        
                                     }
                                 } else {
                                     $rows_affected = 0;
@@ -422,9 +460,7 @@ class File_upload extends CI_Controller {
      * @param $return_data array
 
 **/
-
-
-    function process_msl_upload_file($data) {
+ function process_msl_upload_file($data) {
         log_message('info', __FUNCTION__ . " => process upload msl file");
         //  $partner_id = $this->input->post('partner_id');
         //  $service_id = $this->input->post('service_id');
@@ -474,7 +510,7 @@ class File_upload extends CI_Controller {
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                    if (!empty($rowData['sap_vendor_id']) && !empty($rowData['part_code'])  && !empty($rowData['quantity'])  && !empty($rowData['basic_price'])  &&!empty($rowData['hsn_code']) &&!empty($rowData['invoice_id']) &&!empty($rowData['gst_rate']) &&!empty($rowData['from_gst']) &&!empty($rowData['to_gst'])) {
+                    if (!empty($rowData['sap_vendor_id']) && !empty($rowData['part_code'])  && !empty($rowData['quantity'])  && !empty($rowData['basic_price'])  && !empty($rowData['hsn_code']) && !empty($rowData['invoice_id']) && !empty($rowData['gst_rate']) && !empty($rowData['from_gst']) && !empty($rowData['to_gst'])) {
                         $select = '*';
                         $where_part = array('part_number' => $rowData['part_code']);
                         $where_in_parts = array();
@@ -482,37 +518,49 @@ class File_upload extends CI_Controller {
                         $part_details = $this->inventory_model->get_inventory_master_list_data($select, $where_part, $where_in_parts);
                         if(empty($part_details)){
                           $error_type = "Part not found in inventory"; 
-                          $error_array[] =$error_type;  
+                          $error_array[] =$error_type;
+                          $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type);  
                         }
                         $from_gst_data = $this->inventory_model->get_entity_gst_data('*', $where = array('gst_number' => $rowData['from_gst']));
                         if(empty($from_gst_data)){
                           $error_type = "From gst details not found";  
                           $error_array[] =$error_type;
+                          $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type);
                         }
                         $to_gst_data = $this->inventory_model->get_entity_gst_data('*', $where = array('gst_number' => $rowData['to_gst']));
                         if(empty($to_gst_data)){
                           $error_type = "To gst details not found"; 
                           $error_array[] =$error_type;
+                          $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type);
                         }
                         $wh_details = $this->vendor_model->getVendorContact(trim($rowData['sap_vendor_id']));
                          if(empty($wh_details)){
                           $error_type = "Warehouse details not found"; 
-                          $error_array[] =$error_type; 
+                          $error_array[] =$error_type;
+                          $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type); 
                         }
 
 
                         $invoice_exist = $this->check_invoice_id_exists($rowData['invoice_id']);
                         if ($invoice_exist) {
                           $error_type = "Duplicate Invoice details  found"; 
-                          $error_array[] =$error_type; 
+                          $error_array[] =$error_type;
+                          $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type); 
                         }
+
+                        $vendors_array[] = $rowData['sap_vendor_id'];
 
                         if (!empty($part_details) && !empty($from_gst_data) && !empty($to_gst_data) && !empty($wh_details)  && !empty($part_details) ) {
                               
                             $reciver_entity_id = $wh_details[0]['id'];
-                            $is_wh_micro = $wh_details[0]['is_micro_wh'];    
+                            $is_wh_micro =0;
+                            if ($wh_details[0]['is_micro_wh']==1) {
+                               $is_wh_micro=2;
+                            }else if($wh_details[0]['is_wh']==1){
+                                $is_wh_micro=1;
+                            }
+
                             $invoice_price=0;
-                            // echo "<pre>";
 
                             if (isset($post_data[$rowData['invoice_id']])) {
                                 
@@ -529,6 +577,12 @@ class File_upload extends CI_Controller {
                                     'gst_rate' => $rowData['gst_rate'],
                                     'inventory_id' => $part_details[0]['inventory_id'],
                                 );
+                                if ($rowData['sap_vendor_id']!=$post_data[$rowData['invoice_id']]['wh_id']) {
+                                    $error_type = "Duplicate Invoice ID  found for Different Vendors";
+                                    $error_array[] =$error_type;
+                                    $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type); 
+
+                                }
                                 array_push($post_data[$rowData['invoice_id']]['part'], $part);
                             } else {
                                  
@@ -555,20 +609,17 @@ class File_upload extends CI_Controller {
                                 $post_data[$rowData['invoice_id']]['courier_shipment_date'] = $rowData['courier_shipment_date'];
                                 $post_data[$rowData['invoice_id']]['from_gst_number'] = $from_gst_data[0]['id'];
                                 $post_data[$rowData['invoice_id']]['to_gst_number'] = $to_gst_data[0]['id'];
-                                $post_data[$rowData['invoice_id']]['wh_id'] = $wh_details[0]['id'];
-                                $post_data[$rowData['invoice_id']]['partner_id'] = _247AROUND;
+                                $post_data[$rowData['invoice_id']]['wh_id'] =$wh_details[0]['id'];
+                                $post_data[$rowData['invoice_id']]['partner_id'] =_247AROUND;
                                 $post_data[$rowData['invoice_id']]['partner_name'] = $is_wh_micro;
                                 $post_data[$rowData['invoice_id']]['wh_name'] = $wh_details[0]['company_name'];
                                 $post_data[$rowData['invoice_id']]['invoice_tag'] = 'MSL';
-                                $post_data[$rowData['invoice_id']]['invoice_file_flag'] =false;
+                                $post_data[$rowData['invoice_id']]['invoice_file'] =false;
                                 $post_data[$rowData['invoice_id']]['transfered_by'] = MSL_TRANSFERED_BY_PARTNER;
                                 $post_data[$rowData['invoice_id']]['is_defective_part_return_wh'] = 1;
                                 $post_data[$rowData['invoice_id']]['part'] = array();
                                  array_push($post_data[$rowData['invoice_id']]['part'], $part);
                             }
-                        }else{
-                            
-                           $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type);  
                         }
                     } else {
                     	$error_type ="Error in header";
@@ -578,15 +629,15 @@ class File_upload extends CI_Controller {
                 }
             }
             
-             $err_msg = $this->table->generate();
+            
         } else {
-             $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $this->session->userdata('id'));
-             $this->session->set_flashdata('fail','Excel header is incorrect');
-             redirect(base_url() . "inventory/msl_excel_upload");
+         $this->table->add_row("-","-","-","Excel header is Incorrect");
         }
 
+        $err_msg = $this->table->generate();
+
         if (empty($error_array)) {
-        	
+        	 
         foreach ($post_data as $post) {
             
             $post_json = json_encode($post, true);
@@ -595,28 +646,28 @@ class File_upload extends CI_Controller {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post_json);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
-            // execute!
-            $response = curl_exec($ch);
-            // close the connection, release resources used
+            $response1 = curl_exec($ch);
             curl_close($ch);
         }
 
-       $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $this->session->userdata('id'));
-          //echo $err_msg;  exit;
-         $this->session->set_flashdata('details',$err_msg);
-         redirect(base_url() . "inventory/msl_excel_upload");
-
+         
+          $response['status'] = TRUE;
+          $response['message'] = $err_msg;
+          $response['bulk_msl'] = TRUE;
+          $response['redirect_to'] = 'inventory/msl_excel_upload';
+       
         }else{
+         $response['status'] = FALSE;
+         $response['message'] = $err_msg;
+         $response['redirect_to'] = 'inventory/msl_excel_upload';
+         // $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
+         $this->miscelleneous->load_nav_header();
+         $this->load->view('employee/msl_excel_upload_errors',$response);
 
-       $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "default", $data['post_data']['entity_type'], $this->session->userdata('id'));
-          //echo $err_msg;  exit;
-         $this->session->set_flashdata('details',$err_msg);
-         redirect(base_url() . "inventory/msl_excel_upload");
         }
 
-        //return $response;
+        return $response;
     }
-
 
 
     function check_invoice_id_exists($invoice_id_temp) {
@@ -742,6 +793,10 @@ class File_upload extends CI_Controller {
 
         $tmp_data['entity_id'] = $this->input->post('partner_id');
         $tmp_data['entity_type'] = _247AROUND_PARTNER_STRING;
+
+        if(isset($data['is_part_return'])){
+            $tmp_data['is_return'] = (strtolower($data['is_part_return']) == PART_TYPE_RETURN_MAPPING_FILE_VALUE) ? 1 : 0;
+        }
         
         array_push($this->dataToInsert, $tmp_data);
         

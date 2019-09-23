@@ -228,7 +228,8 @@
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Quantity *</label>
                                         <div class="col-md-6">
 
-                                            <input class="form-control quantity" type="number" min="1" value="<?php echo $sp->quantity; ?>" id="<?php echo "shippedquantity_".$skey;?>" name="part[<?php echo $skey;?>][shipped_quantity]" required />
+                                            <input class="form-control quantity" type="text" min="1" value="<?php echo $sp->quantity; ?>" id="<?php echo "shippedquantity_".$skey;?>" name="part[<?php echo $skey;?>][shipped_quantity]" readonly="" required />
+                                            <span id="error_span_0" style="color:red;" class="hide"></span>
 
                                             <?php echo form_error('quantity'); ?>
                                         </div>
@@ -321,8 +322,8 @@
                                         <div class="form-group ">
                                             <label for="shippedquantity" class="col-md-4">Shipped Quantity *</label>
                                             <div class="col-md-6">
-                                                <input type="number" min="1" class="form-control shippedquantity " value="1" id="shippedquantity"  />
-                                                <span id="spinner" style="display:none"></span>
+                                                <input type="text" min="1" class="form-control shippedquantity qua" readonly="" value="1" id="shippedquantity"  />
+                                                 <span id="error_span" style="color:red;" class="hide"></span>
                                             </div>
                                         </div>
                
@@ -546,15 +547,22 @@
         var max = parseInt($("#shippedpartsname_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
         if(val>max){
          $(this).val("1");
-        swal("Error !", "Maximum quantity'allowed to ship is : "+max);
+         
+           $("#error_span_"+indexId).text('Maximum quantity allowed to ship is : '+max);
+           $("#error_span_"+indexId).removeClass('hide');
+        }else{
+            $("#error_span_"+indexId).addClass('hide');
         } 
         }else{
         $(this).val("");
-        swal("Error !", "0 quantity or negative value not allowed");  
+          $("#error_span_"+indexId).text('0 quantity,special charcter or negative value not allowed ');
+          $("#error_span_"+indexId).removeClass('hide');
         }
         }else{
           $(this).val("");
-          swal("Error !", "Special chars not allowed");
+           $("#error_span_"+indexId).text('');
+           $("#error_span_"+indexId).text('Special chars not allowed');
+           $("#error_span_"+indexId).removeClass('hide');
         }
        });
     
@@ -596,6 +604,7 @@
         var model_number_id = $('#shippedmodelnumberid_' + sp_id).val();
         var part_type = $('#shippedparttype_' + sp_id).val();
         var requested_inventory_id = $("#requested_inventory_id_"+sp_id).val();
+       // $("#shippedquantity_"+sp_id).removeAttr("readonly");
         $('#spinner_' + sp_id).addClass('fa fa-spinner').show();
         if(model_number_id && part_type){
             $.ajax({
@@ -609,6 +618,7 @@
                     $('#shippedpartsname_' +sp_id).html(data).change();
                     $('#spinner_'+ sp_id).removeClass('fa fa-spinner').hide();
                         //change_shipped_part_number(sp_id);
+
                     }
             });
         }else{
@@ -650,6 +660,7 @@
                             $('#shippedpartsnumber_' +sp_id).html(data).change();
                             $('#spinner_'+ sp_id).removeClass('fa fa-spinner').hide();
                             $('#shippedpartsnumber_' + sp_id).select2();
+                            $("#shippedquantity_"+sp_id).removeAttr("readonly");
 
                             }
                     });
@@ -665,6 +676,7 @@
     function change_parts_name(sp_id){
         var model_number_id = $('#shippedmodelnumberid_' + sp_id).val();
         var part_name = $('#shippedpartsname_' +sp_id).val();
+
         var invetory_id=  $('#shippedpartsname_' +sp_id).find(':selected').attr('data-inventory');
         if(model_number_id && part_name){
             $.ajax({
@@ -678,6 +690,7 @@
                         $('#submit_form').attr('disabled',false);
                         $('#approx_value_'+ sp_id).val(obj.price);
                         $('#inventory_id_' +sp_id).val(invetory_id);
+                           $("#shippedquantity_"+sp_id).removeAttr("readonly");
                     }else{
                         alert("Inventory Details not found for the selected combination.");
                         $('#submit_form').attr('disabled',true);
@@ -711,8 +724,9 @@
                 .find('[id="remarks"]').attr('name', 'part[' + partIndex + '][remarks_by_partner]').attr('id','remarks_'+partIndex).end()
                 .find('[id="approx_value"]').attr('name', 'part[' + partIndex + '][approx_value]').attr('id','approx_value_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventory_id_'+partIndex).end()
-                .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','quantity'+partIndex).end()
-                .find('[id="shippedquantity"]').attr('name', 'part[' + partIndex + '][shipped_quantity]').attr('id','shippedquantity'+partIndex).end()
+                .find('[id="quantity"]').attr('name', 'part[' + partIndex + '][quantity]').attr('id','shippedquantity_'+partIndex).end()
+                .find('[id="shippedquantity"]').attr('name', 'part[' + partIndex + '][shipped_quantity]').attr('id','shippedquantity_'+partIndex).end()
+                .find('[id="error_span"]').addClass('hide').attr('id','error_span_'+partIndex).attr("required", true).end()
                 .find('[id="spare_id"]').attr('name', 'part[' + partIndex + '][spare_id]').attr('id','spare_id_'+partIndex).end()
                 .find('[id="part_warranty_status"]').attr('name', 'part[' + partIndex + '][part_warranty_status]').attr('id','part_warranty_status_'+partIndex).end();
         

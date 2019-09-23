@@ -32,8 +32,8 @@ class Warranty_utilities {
         
         foreach ($arrBookings as $booking_id => $rec_data) {
             // Calculate Purchase Date
-            // Used in case data is read from excel            
-            $purchase_date = date('Y-m-d', strtotime($rec_data['purchase_date']));            
+            // Used in case data is read from excel   
+            $purchase_date = date('Y-m-d', strtotime($rec_data['purchase_date']));   
             if ($is_excel && $rec_data['purchase_date'] != "0000-00-00" && DateTime::createFromFormat('d-m-Y', $rec_data['purchase_date']) === FALSE) {
                 $purchase_date = date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP($rec_data['purchase_date']));
             }
@@ -180,12 +180,11 @@ class Warranty_utilities {
         $arrBookingsWarrantyStatus = $this->get_bookings_warranty_status($arrBookings);   
         return $arrBookingsWarrantyStatus;
     }
-    
+
     function get_warranty_specific_data_of_bookings($arrBookingIds){
-        $arrWarrantySpecificData = $this->My_CI->warranty_model->get_warranty_specific_data_of_bookings($arrBookingIds);        
+        $arrWarrantySpecificData = $this->My_CI->warranty_model->get_warranty_specific_data_of_bookings($arrBookingIds);
         return $arrWarrantySpecificData;
     }
-
     
     function match_warranty_status_with_request_type($arrBookings, $arrBookingsWarrantyStatus){
         

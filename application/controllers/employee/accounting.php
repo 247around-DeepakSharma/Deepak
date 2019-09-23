@@ -1704,7 +1704,7 @@ class Accounting extends CI_Controller {
         }
         echo $this->accounting_model->update_taxpro_gstr2a_data($id, array('is_mapped'=>1));
     }
-
+    
     function add_charges_type(){
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/add_variable_charges_type_form');  
@@ -1742,7 +1742,7 @@ class Accounting extends CI_Controller {
         
     }
     
-     /*
+    /*
      * @desc - This function is used to add and update partner variable charges.
      * @param -  get form
      * @render on same page

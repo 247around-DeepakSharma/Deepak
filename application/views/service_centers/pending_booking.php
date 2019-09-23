@@ -1,5 +1,26 @@
 <script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap.min.js"></script>
+<style>
+    #msl_info{margin: 10px 15px;width: 98%;padding: 0px;}
+    #msl_info .x_title{color: black;}
+    #msl_info .x_title>h2{text-align: center; margin: 0px;padding: 5px 0px 5px 16px;font-size: 24px;}
+    #msl_info .x_body{
+        margin-top: 0px;
+        display: flex;
+        font-size: 25px;
+        border: 2px solid #ededed;
+        padding: 10px 0;
+        flex-direction: row;
+        justify-content: space-evenly;
+    }
+    #msl_info .x_body>div{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    #msl_info a{font-size:18px;color: #254d5d;}
+    #msl_info .count{text-decoration: underline;font-size: 36px;
+</style>
 <div class="container-fluid">
     <div class="row" >
         <?php 
@@ -27,6 +48,27 @@
             </div>';
             }
             ?>
+        <?php if($this->session->userdata("is_micro_wh")==1){ ?>
+        <div class="col-md-10 col-md-offset-2" id="msl_info">
+            <div class="x_title">
+                <h2><b>MSL Security Amount</b></h2>
+            </div>
+            <div class="x_body">
+                <div>
+                    <a><label>MSL Security Amount (Rs.)</label></a>
+                    <div class="count <?php if($msl['security']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
+                        <strong><?php echo $msl['security']; ?>/-</strong>
+                    </div>
+                </div>
+                <div>
+                    <a><label>MSL Amount (Rs.)</label></a>
+                    <div class="count <?php if($msl['amount']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
+                        <strong><?php echo $msl['amount']; ?>/-</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php } ?>
         <div class="col-md-10 col-md-offset-2">
             <div style="margin-top:10px; display: flex;font-size: 25px;">
                     <b>Rating:</b> &nbsp;
@@ -70,6 +112,7 @@
                 <?php if($this->session->userdata('is_update') == 1){ ?>
                 <li role="presentation"><a href="#tomorrow_booking" aria-controls="tomorrow_booking" role="tab" data-toggle="tab">Tomorrow Bookings</a></li>
                 <li role="presentation"><a href="#rescheduled_booking" aria-controls="rescheduled_booking" role="tab" data-toggle="tab">Rescheduled Bookings</a></li>
+                <li role="presentation"><a href="#inprogress_bookings" aria-controls="inprogress_bookings" role="tab" data-toggle="tab">InProcess Bookings</a></li>
                 <li role="presentation"><a href="#spare_required" aria-controls="spare_required" role="tab" data-toggle="tab">Spare Required Bookings</a></li>
                 <?php if($this->session->userdata('is_engineer_app') == 1){ ?>
                 <li role="presentation"><a href="#bookings_on_approval" aria-controls="bookings_on_approval" role="tab" data-toggle="tab">Bookings On Approval</a></li>
@@ -128,7 +171,7 @@
     </div>
 </div>
 <!-- Modal -->
-<div id="myModal1" class="modal fade" role="dialog">
+<div id="UpcountryModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg" id="open_model">
         <!-- Modal content-->
         <div class="modal-content" >
@@ -160,6 +203,11 @@
         
     
         $('#tomorrow_datatable').dataTable( {
+            "pageLength": 50,
+            "bFilter": false
+        } );
+    
+        $('#inprogress_datatable').dataTable( {
             "pageLength": 50,
             "bFilter": false
         } );
@@ -386,7 +434,7 @@ span.stars span {
       url: '<?php echo base_url(); ?>service_center/pending_booking_upcountry_price/' + booking_id+"/"+is_customer_paid +"/"+flat_upcountry,
       success: function (data) {
        $("#open_model").html(data);   
-       $('#myModal1').modal('toggle');
+       $('#UpcountryModal').modal('toggle');
     
       }
     });
@@ -504,7 +552,7 @@ span.stars span {
                    document.getElementById("spare_"+ block+ key).src="<?php echo base_url();?>images/spare_cancelled.png";
                }  else {
                     
-                    $("#spare_"+block + key).css("display", "none");
+                    $(".spare_"+block + key).css("display", "none");
                }
                //console.log(response);
 
@@ -525,7 +573,7 @@ span.stars span {
                }  else if(obj[0].status=='Spare Parts Delivered to SF') {
                     document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/spare_parts_delivered.png";
                }else{
-                $("#spare_delivered_"+block + key).css("display", "none");
+                $(".spare_delivered_"+block + key).css("display", "none");
                }
                
           }
@@ -543,7 +591,7 @@ span.stars span {
                    document.getElementById("spare_cost_given_"+ block+ key).src="<?php echo base_url();?>images/spare_estimate_arrived.png";
                }  else {
                     
-                    $("#spare_cost_given_"+block + key).css("display", "none");
+                    $(".spare_cost_given_"+block + key).css("display", "none");
                }
                //console.log(response);
 

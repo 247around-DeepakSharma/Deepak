@@ -55,7 +55,7 @@ define("CANCEL_PAGE_SPARE_NOT_SHIPPED_FOR_PARTNER", "Spare Requested for this bo
 define("CANCEL_PAGE_SPARE_SHIPPED", "This booking can not be cancelled since spare part has already been shipped to SF.");
 
 define('PARTNER_SPARE_OOT_DAYS','30');
-define('SF_SPARE_OOT_DAYS','7');
+define('SF_SPARE_OOT_DAYS','15');
 
 //for now default warehouse id is 10 (sf = manish ji)
 define('DEFAULT_WAREHOUSE_ID',15);
@@ -132,6 +132,7 @@ define('MSL_TRANSFERED_BY_WAREHOUSE', "2");
 define('GAS_RECHARGE_IN_WARRANTY', 'Gas Recharge - In Warranty');
 define('GAS_RECHARGE_OUT_OF_WARRANTY', 'Gas Recharge - Out of Warranty');
 define('MSL_TRANSFERED_BY_PARTNER_BY_EXCEL', 'Msl send by partner by excel upload');
+
 define('AMC_PRICE_TAGS', 'AMC (Annual Maintenance Contract)');
 define('UNABLE_TO_COMPLETE_BOOKING_INVOICE_GENERATED_MSG', 'Invoice has been generated so booking can not be updated.');
 
@@ -159,4 +160,3 @@ define('PART_NRN_APPROVED_STATUS_TAG', 'nrn_approved');
 
 define('OK_PART_TO_BE_SHIPPED', 'Ok Part To Be Shipped');
 define('DAMAGE_PART_TO_BE_SHIPPED', 'Damage Part To Be Shipped');
-

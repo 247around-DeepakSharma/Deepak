@@ -60,15 +60,16 @@
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">AWB</th>
                             <th class="text-center">Shipped Date</th>
-                            <th class="text-center">Defective Quantity</th>
                             <th class="text-center">Remarks</th>
+                            <th class="text-center">Consumption</th>
+                            <th class="text-center">Consumption Reason</th>                            
                             <th class="text-center">Received</th>
                             <th class="text-center">Reject</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php $sn_no=1;foreach ($spare_parts as $key => $row) { ?>
-                            <tr style="text-align: center;">
+                            <tr style="text-align: center;<?php if($row['defective_part_rejected_by_partner']==1){echo "background-color: #d89e9e !important;font-weight: 900";} ?>">
                                 <td>
                                     <?php echo $sn_no; ?>
                                 </td>
@@ -105,13 +106,14 @@
                                         echo date("d-m-Y", strtotime($row['defective_part_shipped_date']));
                                     } ?>
                                 </td>
-                                <td><?php echo $row['qty']; ?></td>
-                                <td>
+                                    <td>
                                 <?php echo $row['remarks_defective_part_by_sf']; ?>
                                 </td>
+                                <td><?php if($row['is_consumed'] == 1) { echo 'Yes'; } else { echo 'No';} ?></td>
+                                <td><?php echo $row['consumed_status']; ?></td>                                
                                 <td>
                                 <?php if (!empty($row['defective_part_shipped'])) { ?> 
-                                    <a  onclick="return confirm_received()"  class="btn btn-sm btn-primary recieve_defective" id="defective_parts" href="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/0/<?php echo $row['spare_qty_mgmt_id']; ?>" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a> <input type="checkbox" class="checkbox_revieve_class" name="revieve_checkbox"  data-url="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/1"  />
+                                    <a class="btn btn-sm btn-primary recieve_defective" id="defective_parts_<?php echo $row['id']; ?>" onclick="return confirm_received(this.id)" href="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/0" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a> <input type="checkbox" class="checkbox_revieve_class" name="revieve_checkbox"  data-url="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/1"  />
                                 <?php } ?>
                                 </td>
                                 <td>
@@ -121,7 +123,7 @@
                                                 <span class="caret"></span></a>
                                             <ul class="dropdown-menu" style="right: 0px;left: auto;">
                                                 <?php foreach ($internal_status as $value) { ?>
-                                                    <li><a href="<?php echo base_url(); ?>service_center/reject_defective_part/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo urlencode(base64_encode($row['partner_id'])); ?>/<?php echo urlencode(base64_encode($value->status)); ?>/<?php echo $row['spare_qty_mgmt_id']; ?>"><?php echo $value->status; ?></a></li>
+                                                    <li><a href="<?php echo base_url(); ?>service_center/reject_defective_part/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo urlencode(base64_encode($row['partner_id'])); ?>/<?php echo urlencode(base64_encode($value->status)); ?>"><?php echo $value->status; ?></a></li>
                                                     <li class="divider"></li>
                                                 <?php } ?>
 
@@ -142,19 +144,19 @@
 </div>
         <script>
             $('#defective_spare_shipped_by_sf').DataTable({
-                pageLength:75,
                 dom: 'Bfrtip',
                 buttons: [
                     {
                         extend: 'excel',
                         text: 'Export',
                         exportOptions: {
-                            columns: [ 0, 1, 2,3,4, 5,6,7,8,9]
+                            columns: [ 0, 1, 2,3,4, 5,6,7,8]
                         },
                         title: 'defective_spare_shipped_by_sf_to_wh'
                     }
                 ],
-                "bSortClasses": false
+                "bSortClasses": false,
+                "pageLength":2000,
             });
         </script>
 <?php if(empty($is_ajax)) { ?> 
@@ -164,33 +166,51 @@
 <div class="clearfix"></div>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <script type="text/javascript">
-function confirm_received(){
+function confirm_received(id){
+    $("#"+id).attr('disabled',true);
     var c = confirm("Continue?");
     if(!c){
+        $("#"+id).attr('disabled',false);
         return false;
     }
 }
 
 $("#revieve_multiple_parts_btn").click(function(){
+$("#revieve_multiple_parts_btn").attr('disabled',true);
+$(".recieve_defective").attr('disabled',true);
 $(".loader").css("display","block !important");
+var flag=false;
+var url = new Array();
 $('.checkbox_revieve_class').each(function () {
-        if (this.checked) { 
-         var url = $(this).attr("data-url");
-          $.ajax({
-           type: "POST",
-           url: url,
-           async: false,
-           success: function(data)
-           {
-               console.log("Receiving");
-           }
-           }); 
-           }
-}).promise().done(function () { 
-     swal("Received!", "Your all selected spares are received !.", "success");
-         $(".loader").css("display","none");
-         location.reload();
+    if (this.checked) { 
+        url.push($(this).attr("data-url"));
+        flag=true;
+    }
 });
+
+if(flag) {
+    $('.checkbox_revieve_class').prop('checked', false);
+    for (var index in url)
+    {
+        $.ajax({
+            type: "POST",
+            url: url[index],
+            async: false,
+            success: function(data)
+            {
+                console.log("Receiving");
+            }
+        });
+    }
+ swal("Received!", "Your all selected spares are received !.", "success");
+     $(".loader").css("display","none");
+     location.reload();
+}
+else {
+    alert("Please Select At Least One Checkbox");
+    $("#revieve_multiple_parts_btn").attr('disabled',false);
+    $(".recieve_defective").attr('disabled',false);
+}
 
 
 });

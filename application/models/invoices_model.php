@@ -322,7 +322,7 @@ class invoices_model extends CI_Model {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL,
+            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."')  " => NULL,
             "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".DEFECTIVE_PART_PENDING_OOT_DAYS."' " => NULL
             
         );
@@ -908,7 +908,7 @@ class invoices_model extends CI_Model {
      * @return Array
      */
     function generate_partner_invoice($partner_id, $from_date_tmp, $to_date_tmp) {
-        $from_date = date('Y-m-d', strtotime('-1 months', strtotime($from_date_tmp)));
+        $from_date = date('Y-m-d', strtotime('-4 months', strtotime($from_date_tmp)));
         $to_date = date('Y-m-d', strtotime('+1 day', strtotime($to_date_tmp)));
         log_message("info", $from_date . "- " . $to_date);
         $result_data = $this->get_partner_invoice_data($partner_id, $from_date, $to_date, $from_date_tmp);
@@ -1129,6 +1129,10 @@ class invoices_model extends CI_Model {
             } else {
                  return "Customer_Tax_Invoice_Inter_State.xlsx";  
             }
+            
+        } else if(empty($gst_number)){
+            
+            return "247around_bill_of_supply.xlsx";
             
         }else if(!empty($c_s_gst)){
             
@@ -1377,7 +1381,7 @@ class invoices_model extends CI_Model {
         // Calculate Upcountry booking details
         $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
         $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
-        $courier = $this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
+        $courier = array();//$this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
         $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, $to_date, "");
         $closed_date = "date_format(closed_date,'%d/%m/%Y') as closed_date";
         $misc_select = '"Misc" AS unit_id, "Completed" As internal_status,closed_date as closed_booking_date,"" As rating_stars,'
@@ -2162,17 +2166,15 @@ class invoices_model extends CI_Model {
                 ELSE '' END AS billable_weight,
                 CASE WHEN (defective_courier_receipt IS NOT NULL) THEN 
                 (concat('".S3_WEBSITE_URL."misc-images/',defective_courier_receipt)) ELSE '' END AS courier_receipt_link
-                FROM  booking_details as bd 
-                JOIN booking_unit_details as ud ON bd.booking_id = ud.booking_id 
+                FROM  booking_details as bd
                 JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id 
                 LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_sf 
                 WHERE
-                ud.booking_status =  '"._247AROUND_COMPLETED."'
+                bd.current_status =  '"._247AROUND_COMPLETED."'
                 AND bd.partner_id = '$partner_id'
-                AND ud.partner_id = '$partner_id'
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
-                AND ud.ud_closed_date >=  '$from_date'
-                AND ud.ud_closed_date <  '$to_date'
+                AND bd.closed_date >=  '$from_date'
+                AND bd.closed_date <  '$to_date'
                 AND `approved_defective_parts_by_partner` = 1
                 AND partner_courier_invoice_id IS NULL
                 AND awb_by_sf IS NOT NULL
@@ -2198,19 +2200,16 @@ class invoices_model extends CI_Model {
                 box_count, count(bd.booking_id) as count_of_booking,
                 '' AS courier_receipt_link
                 FROM  booking_details as bd 
-                JOIN  booking_unit_details as ud ON bd.booking_id = ud.booking_id 
                 JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id 
                 LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_partner
                 WHERE
-                 ud.booking_status =  '"._247AROUND_COMPLETED."'
-                     AND bd.partner_id = '$partner_id'
-                AND ud.partner_id = '$partner_id'
+                 bd.current_status =  '"._247AROUND_COMPLETED."'
+                AND bd.partner_id = '$partner_id'
                 AND sp.partner_id = '$partner_id'
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
                 AND sp.booking_id = bd.booking_id
-                AND bd.booking_id = ud.booking_id
-                AND ud.ud_closed_date >=  '$from_date'
-                AND ud.ud_closed_date <  '$to_date'
+                AND bd.closed_date >=  '$from_date'
+                AND bd.closed_date <  '$to_date'
                 AND `around_pickup_from_partner` = 1
                 AND partner_warehouse_courier_invoice_id IS NULL
                 AND awb_by_partner IS NOT NULL

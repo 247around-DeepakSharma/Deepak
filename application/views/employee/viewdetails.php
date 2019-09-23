@@ -712,6 +712,33 @@
                         </div>
                     </div>
                 </div>
+                <?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['wrong_part_name'])) { ?>
+                <div class="row">
+                    <div class="col-md-12" >
+                        <h1 style='font-size:24px;margin-top: 40px;'>Wrong Part Details</h1>
+                        <div class="col-md-12" style="padding-left:1px;">
+                            <table class="table  table-striped table-bordered" >
+                                <thead>
+                                    <th>S. No.</th>
+                                    <th>Requested Part Name</th>
+                                    <th>Wrong Part Name</th>
+                                    <th>Wrong Part Remarks</th>
+                                </thead>
+                                <tbody>
+                                    <?php foreach($booking_history['spare_parts'] as $kk => $spare_record) { ?>
+                                    <tr>
+                                        <td><?php echo ++$kk; ?></td>
+                                        <td><?php echo $spare_record['parts_requested']; ?></td>
+                                        <td><?php echo $spare_record['wrong_part_name']; ?></td>
+                                        <td><?php echo $spare_record['wrong_part_remarks']; ?></td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <?php } ?>
                 <?php 
                     if($estimate_given){ ?>
                 <div class="row">
@@ -1117,9 +1144,9 @@
                         </div>
                         <div style="background: #5bc0de;margin-bottom: 20px;">
                             <?php if($booking_history[0]['current_status'] != 'Cancelled' && $booking_history[0]['current_status'] != 'Completed'){ ?>
-                        <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/1" class="btn btn-success action_buton" 
+                        <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/1/<?php echo $booking_history[0]['partner_id']?>" class="btn btn-success action_buton" 
                            >Regenerate and send QR Code</a>
-                               <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0" class="btn btn-success action_buton">
+                               <a target="_blank" href="<?php echo base_url(); ?>payment/resend_QR_code/<?php echo $booking_history[0]['booking_id']?>/0/<?php echo $booking_history[0]['partner_id']?>" class="btn btn-success action_buton">
                                    Resend Same QR Code</a>
                             
 

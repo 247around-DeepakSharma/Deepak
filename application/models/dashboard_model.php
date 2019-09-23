@@ -408,7 +408,7 @@ class dashboard_model extends CI_Model {
         else{
           $where="where employee_relation.agent_id IS NULL and sf.active_flag=1 and sf.is_pincode_valid=1";  
         }
-       $sql='SELECT sf.pincode,sf.city,state_code.state,sf.service_id,employee_relation.agent_id,emp.full_name as full_name,partners.public_name,services.services '
+       $sql='SELECT sf.pincode,sf.city,state_code.state,services.services,emp.full_name as full_name '
                 .'FROM sf_not_exist_booking_details sf LEFT JOIN services ON sf.service_id=services.id LEFT JOIN state_code ON sf.state=state_code.id '
                 .'LEFT JOIN partners ON partners.id = sf.partner_id INNER JOIN employee_relation ON FIND_IN_SET(state_code.state_code,employee_relation.state_code)'
                . 'JOIN employee emp ON emp.id = employee_relation.agent_id '
@@ -524,7 +524,7 @@ class dashboard_model extends CI_Model {
     function get_spare_details_count_group_by_sf($is_show_all,$partner_id){
         
         $select = "SELECT "
-                . "SUM(IF(spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') , 1, 0)) AS oot_defective_parts_count,"
+                . "SUM(IF(spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') , 1, 0)) AS oot_defective_parts_count,"
                 . "spare_parts_details.service_center_id,"
                 . "service_centres.name,"
                 . "GROUP_CONCAT(DISTINCT spare_parts_details.booking_id) as booking_id";
@@ -569,7 +569,7 @@ class dashboard_model extends CI_Model {
                 . "WHERE booking_details.service_center_closed_date IS NOT NULL "
                 . "AND DATEDIFF(CURRENT_DATE,booking_details.service_center_closed_date) > '".SF_SPARE_OOT_DAYS."'"
                 . "AND spare_parts_details.defective_part_required = 1 "
-                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') "
+                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') "
                 . "GROUP BY booking_details.partner_id "
                 . " ORDER BY spare_count DESC";
         $query = $this->db->query($sql);
@@ -674,7 +674,7 @@ class dashboard_model extends CI_Model {
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,booking_details.service_center_closed_date) > ".SF_SPARE_OOT_DAYS. " "
                 . " AND spare_parts_details.parts_shipped IS NOT NULL "
-                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
+                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') ";
         
         if(!empty($partner_id)){
             $where .= " AND booking_details.partner_id = $partner_id";
@@ -720,7 +720,7 @@ class dashboard_model extends CI_Model {
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,spare_parts_details.shipped_date) > ".PARTNER_SPARE_OOT_DAYS. " "
                 . " AND spare_parts_details.parts_shipped IS NOT NULL "
-                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."') ";
+                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') ";
         
         if(!empty($partner_id)){
             $where .= " AND booking_details.partner_id = $partner_id";
