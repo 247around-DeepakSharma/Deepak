@@ -79,7 +79,7 @@
                             </tbody>
                         </table>
                         <div class="col-md-12  ">
-                            <button onclick="open_create_invoice_form()" class="btn btn-md btn-primary">Create Purchase Invoice</button>
+                            <button onclick="open_create_invoice_form()" class="btn btn-md btn-primary" id="btn_create_invoice" name="btn_create_invoice">Create Purchase Invoice</button>
                         </div>
                     </div>
                 </div>
@@ -585,8 +585,8 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="submit" class="btn btn-success" onclick="genaerate_purchase_invoice()">Submit</button>
-                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
+                <button type="submit" class="btn btn-success" id="btn_purchase_invoice" name="btn_purchase_invoice" onclick="genaerate_purchase_invoice()">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="btn_create_invoice.disabled=false;close_model()">Close</button>
             </div>
         </div>
     </div>
@@ -1149,6 +1149,7 @@
     });
     
     function open_create_invoice_form(){
+        $('#btn_create_invoice').attr('disabled',true);
         var spare_id = [];
         var partner_id_array = [];
         var data = [];
@@ -1167,6 +1168,7 @@
         if(spare_id.length > 0){
             var unique_partner = ArrayNoDuplicate(partner_id_array);
             if(unique_partner.length > 1){
+                $('#btn_create_invoice').attr('disabled',false);
                 alert("You Can not select multiple partner booking");
             } else {
                 var html  = '<input type="hidden" name="partner_id" value="'+unique_partner[0]+'" />';
@@ -1197,6 +1199,7 @@
                 $('#purchase_invoice').modal('toggle'); 
             }
         } else {
+            $('#btn_create_invoice').attr('disabled',false);
             alert("Please Select Atleast One Checkbox");
         }
     
@@ -1213,7 +1216,7 @@
     }
     
     function genaerate_purchase_invoice(){
-    
+        $('#btn_purchase_invoice,#btn_create_invoice').attr('disabled',true);
             swal({
                      title: "Do You Want To Continue?",
                      type: "warning",
@@ -1222,7 +1225,9 @@
                      closeOnConfirm: true
     
                  },
-                 function(){
+                 function(isConfirm) {
+                    if (isConfirm) {
+                
                     
     
          var fd = new FormData(document.getElementById("purchase_invoice_form"));
@@ -1261,12 +1266,16 @@
                      } else {
                          swal("Oops", data, "error");
                          alert(data);
-    
+                         $('#btn_purchase_invoice,#btn_create_invoice').attr('disabled',false);
                      }
                       $('body').loadingModal('destroy');
     
                  }
                });
+               } 
+               else {
+                    $('#btn_purchase_invoice,#btn_create_invoice').attr('disabled',false);
+               }
                });
      }
      
@@ -1473,4 +1482,8 @@
     $('#show_spare_list').click(function(){     
         spare_parts_requested_table.ajax.reload(null, false);       
     }); 
+    
+    function disable_btn(id){
+        $("#"+id).attr('disabled',true);
+    }
 </script>
