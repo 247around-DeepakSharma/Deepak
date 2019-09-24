@@ -5,7 +5,16 @@
 <div class="container-fluid">
    <div class="row" style="margin-top: 40px;">
       <div class="col-md-12">
- 
+      <?php if ($this->session->userdata('success')) {
+                    echo '<div class="alert alert-success alert-dismissible" role="alert" style="width: 60%;margin-left: 20%;margin-top: -49px;">
+
+                   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                       <span aria-hidden="true">&times;</span>
+                   </button>
+                   <strong>' . $this->session->userdata('success') . '</strong>
+               </div>';
+                }
+               ?> 
          <div class="panel panel-default">
             <div class="panel-heading">
                 <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Defective Parts Shipped</h1>

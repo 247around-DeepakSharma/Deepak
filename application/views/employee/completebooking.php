@@ -25,8 +25,7 @@
                     $enable_button = TRUE;
                 } 
                 ?>
-        <?php $required_sp_id = array(); $can_sp_id = array(); ?>
-        <?php $isModelMandatory =0 ; $dop_mendatory=0; $required_sp_id = array(); $can_sp_id = array(); ?>
+        <?php $isModelMandatory =0 ; $dop_mendatory=0; /* $required_sp_id = array(); */ $can_sp_id = array(); ?>
         <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
             foreach ($booking_history['spare_parts'] as  $value) {
                 if($value['status'] == _247AROUND_COMPLETED || $value['status'] == _247AROUND_CANCELLED){} else {
@@ -38,7 +37,7 @@
                                 case DEFECTIVE_PARTS_REJECTED:
                                 case DEFECTIVE_PARTS_PENDING:
                                     $flag = 1; 
-                                    array_push($required_sp_id, $value['id']); 
+                                  //  array_push($required_sp_id, $value['id']); 
                             }
                               
                         }
@@ -120,7 +119,7 @@
                                             }
                                             ?>" readonly="readonly">
                                         <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
-                                        <input type="hidden" id="sp_required_id" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
+<!--                                        <input type="hidden" id="sp_required_id" name="sp_required_id" value='<?php // echo json_encode($required_sp_id,TRUE); ?>' />-->
                                         <input type="hidden" name="can_sp_required_id" value='<?php echo json_encode($can_sp_id,TRUE); ?>' />
                                     </div>
                                 </div>

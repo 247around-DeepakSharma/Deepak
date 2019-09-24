@@ -125,7 +125,7 @@
                         </div>
                     </div>
                     <input type="hidden" name="days" value="<?php echo $days; ?>" />    
-                    <div class="row"><div class='col-md-2'></div><div class="col-md-10 errorMsg" style="font-weight:bold;padding:15px;"></div></div>
+                    <div class="row"><div class='col-md-2'></div><div class="col-md-10 errorMsg" style="font-weight:bold;padding:15px;color:red;"></div></div>
                     <div class="panel panel-default col-md-offset-2" id="hide_spare" >                        
                         <div class="panel-body">
                             <div class="row">
@@ -313,6 +313,7 @@
                                             <div class="col-md-6">
                                                 <input type="text"   min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
                                                 <span id="error_span_0" style="color:red;" class="hide"></span>
+
                                             </div>
 
                                         </div>
@@ -473,11 +474,7 @@
         </div>
     </div>
 </div>
-<?php $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];?>
 <script type="text/javascript">
-var arr_warranty_status = <?php echo json_encode($arr_warranty_status); ?>;    
-var arr_warranty_status_full_names = <?php echo json_encode(['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty']) ?>;    
-    
 function alpha(e) {
    var k;
    document.all ? k = e.keyCode : k = e.which;
@@ -1054,7 +1051,7 @@ function alpha(e) {
     });
 
     // function to cross check request type of booking with warranty status of booking 
-   function check_booking_request()
+    function check_booking_request()
     {
         var model_number = $('#model_number').val();
         var dop = $("#dop").val();
@@ -1065,7 +1062,7 @@ function alpha(e) {
         if(model_number !== "" && model_number !== null && dop !== "" && booking_request_type != "<?php echo REPEAT_BOOKING_TAG;?>" && booking_request_type != "<?php echo WARRANTY_TYPE_AMC;?>"){                               
             $.ajax({
                 method:'POST',
-                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data",
+                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2",
                 data:{
                     'bookings_data[0]' : {
                         'partner_id' : "<?= $bookinghistory[0]['partner_id']?>",
@@ -1074,39 +1071,16 @@ function alpha(e) {
                         'service_id' : service_id,
                         'model_number' : model_number,
                         'purchase_date' : dop, 
-                        'booking_request_type' : booking_request_type
+                        'booking_request_types' : [booking_request_type]
                     }
                 },
                 success:function(response){
-                    var warrantyData = JSON.parse(response);
-                    var warranty_status = warrantyData[booking_id];      
-                    var warranty_mismatch = false;
-                    if(typeof arr_warranty_status[warranty_status] !== 'undefined') {                         
-                        warranty_mismatch = true;
-                        for(var index in arr_warranty_status[warranty_status])
-                        {
-                            if(booking_request_type.indexOf(arr_warranty_status[warranty_status][index]) !== -1)
-                            {
-                                warranty_mismatch = false;
-                                break;
-                            }
-                        }
-                   }
-                   
-                   $("#submitform").attr("disabled", false);
-                   $(".errorMsg").html("");
-                   if(warranty_mismatch)
-                   {
-                       if((booking_request_type.indexOf('Out Of Warranty')) !== -1 || (booking_request_type.indexOf('Out Warranty') !== -1))
-                       {
-                           $(".errorMsg").html("<span style='color:orange'>Booking Warranty Status ("+arr_warranty_status_full_names[warranty_status]+") is not matching with current request type ("+booking_request_type+") of booking, but if needed you may proceed with current request type.</span>");
-                       }
-                       else
-                       {
-                            $("#submitform").attr("disabled", true);
-                            $(".errorMsg").html("<span style='color:red;'><i class='fa fa-warning'></i>&nbsp;Booking Warranty Status ("+arr_warranty_status_full_names[warranty_status]+") is not matching with current request type ("+booking_request_type+"), to request part please change request type of the Booking.</span>");
-                       }
-                   }
+                    var returnData = JSON.parse(response);
+                    $('.errorMsg').html(returnData['message']);
+                    if(returnData['status'] == 1)
+                    {
+                        $("#submitform").attr("disabled", true);                        
+                    }
                 }                            
             });
         }

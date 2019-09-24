@@ -3323,9 +3323,9 @@ class Inventory extends CI_Controller {
 //  
         $invoice_file_required =  $this->input->post('invoice_file');
                         
-        if (!$invoice_file_required) {
-           $invoice_file_required=0;      
-                        
+        if ($invoice_file_required) {
+           $invoice_file_required=0; 
+                           
         }else{
             $invoice_file_required=1;
                         
@@ -3676,7 +3676,7 @@ class Inventory extends CI_Controller {
                     'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
                     'sell_invoice_id' => (isset($ledger['micro_invoice_id'])? $ledger['micro_invoice_id'] : NULL),
                     'requested_inventory_id' => $ledger['inventory_id'],
-                    'shipped_quantity'=>$ledger_data['quantity'],
+                    'shipped_quantity'=>$ledger['quantity'],
                     'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
                 
@@ -4522,7 +4522,7 @@ class Inventory extends CI_Controller {
                 $where['service_center_id'] = $receiver_entity_id;
             }
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.status,spare_parts_details.quantity, spare_parts_details.entity_type, spare_parts_details.partner_id, requested_inventory_id", $where, false);
-            //$qty = 1;
+            $qty = $data->quantity;
             if (!empty($spare)) {
                 foreach ($spare as $value) {
                     if ($data->quantity >= $value['quantity']) {
