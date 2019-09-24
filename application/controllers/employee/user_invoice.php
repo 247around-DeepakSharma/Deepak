@@ -1049,7 +1049,7 @@ class User_invoice extends CI_Controller {
                         $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData);
                         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,state,address,company_name,name as public_name,district, pincode, owner_phone_1, primary_contact_email, owner_email", array("service_centres.id" => $receiver_entity_id));
                     }
-                    $gst_number = $entity_details[0]['gst_number'];
+                    $gst_number = (!empty($entity_details[0]['gst_number']) ? $entity_details[0]['gst_number'] : '');
                     if (empty($gst_number)) {
 
                         $gst_number = TRUE;
