@@ -2452,7 +2452,7 @@ class Booking extends CI_Controller {
         }
         
         // update spare parts.
-        $this->update_spare_consumption_status($this->input->post(), $booking_id);
+        $this->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details);
         
         // insert in booking files.
         $booking_file = [];
@@ -2525,7 +2525,7 @@ class Booking extends CI_Controller {
         }
         $this->booking_model->update_booking($booking_id, $booking);
         $this->miscelleneous->process_booking_tat_on_completion($booking_id);
-        $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, entity_type, spare_parts_details.partner_id, requested_inventory_id, spare_lost", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
+        $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.entity_type, spare_parts_details.partner_id, requested_inventory_id, spare_lost", array('booking_id' => $booking_id, 'status NOT IN ("Completed","Cancelled")' =>NULL ), false);
         foreach($spare as $sp){
             //Update Spare parts details table
             
@@ -2598,7 +2598,7 @@ class Booking extends CI_Controller {
      * @param type $post_data
      * @return boolean
      */
-    public function update_spare_consumption_status($post_data, $booking_id) {
+    public function update_spare_consumption_status($post_data, $booking_id, $service_center_details) {
         if(!empty($post_data['spare_consumption_status'])) {
             foreach($post_data['spare_consumption_status'] as $spare_id => $status_id) {
                 
@@ -2675,7 +2675,7 @@ class Booking extends CI_Controller {
                 if(!empty($defective_part_required) && $defective_part_required == 1) {
                     $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
-                        $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'));   
+                        $this->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id']);
                     }
                 }
                 
