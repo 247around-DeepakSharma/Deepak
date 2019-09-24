@@ -35,7 +35,8 @@ class Invoice_lib {
         if (!empty($invoice_array)) {
             foreach ($invoice_array as  $value) {
                  $explode = explode($invoice_id_tmp, $value['invoice_id']);
-                 array_push($int_invoice, $explode[1] + 1);
+                 array_push($int_invoice, str_pad(intval(trim($explode[1])) + 1,strlen($explode[1]),"0",STR_PAD_LEFT));
+//                 array_push($int_invoice, $explode[1] + 1);
             }
             rsort($int_invoice);
             $invoice_no = $int_invoice[0];
