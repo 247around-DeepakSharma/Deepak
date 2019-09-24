@@ -11,14 +11,17 @@
             </div>
         </div>
         <?php }?>
-        <?php $required_sp_id = array(); $can_sp_id = array(); ?>
+        <?php 
+            //$required_sp_id = array(); 
+            $can_sp_id = array(); 
+        ?>
         <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
             foreach ($booking_history['spare_parts'] as  $value) {
                 if($value['status'] == "Completed" || $value['status'] == "Cancelled"){} else {
                     if($value['defective_part_required'] == 1 && $value['status'] != SPARE_PARTS_REQUESTED){
                         if(!empty($value['parts_shipped'])){
                             $flag = 1; 
-                            array_push($required_sp_id, $value['id']);   
+                            //array_push($required_sp_id, $value['id']);   
                         }
                     }
                 }
@@ -130,7 +133,7 @@
                     <!-- row End  -->
                     
                     <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
-                    <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
+<!--                    <input type="hidden" name="sp_required_id" value='<?php //echo json_encode($required_sp_id,TRUE); ?>' />-->
                     <input type="hidden" name="can_sp_required_id" value='<?php echo json_encode($can_sp_id,TRUE); ?>' />
                     <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
                     <input type="hidden" name="user_id" value='<?php echo $booking_history[0]['user_id']; ?>' />
