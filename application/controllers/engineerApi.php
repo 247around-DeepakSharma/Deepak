@@ -1965,19 +1965,19 @@ class engineerApi extends CI_Controller {
                 if($value['document_type'] == "pdf"){
                     $pdf['document_type'] = $value['document_type'];
                     $pdf['document_description'] = $value['document_description'];
-                    $pdf['file'] = S3_WEBSITE_URL."vendor-partner-docs/".$value['file'];
+                    $pdf['file'] = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".urlencode($value['file']);
                     array_push($pdf_docs, $pdf);
                 }
                 else if($value['document_type'] == "video"){
                     $video['document_type'] = $value['document_type'];
                     $video['document_description'] = $value['document_description'];
-                    $video['file'] = S3_WEBSITE_URL."vendor-partner-docs/".$value['file'];
+                    $video['file'] = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".urlencode($value['file']);
                     array_push($video_docs, $video);
                 }
                 else{
                     $others['document_type'] = $value['document_type'];
                     $others['document_description'] = $value['document_description'];
-                    $others['file'] = S3_WEBSITE_URL."vendor-partner-docs/".$value['file'];
+                    $others['file'] = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".urlencode($value['file']);
                     array_push($other_docs, $others);
                 }
                 $i++;
@@ -2975,7 +2975,7 @@ class engineerApi extends CI_Controller {
     function submitWarrantyCheckerAndEditCallType(){
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-                            
+                
         $missing_key = "";
         $check = true;
         $check_request_type = array();
@@ -3065,8 +3065,13 @@ class engineerApi extends CI_Controller {
                         }
                 }
             } 
-           
+            
             if($edit_call_type){  
+                if(isset($requestData['sc_agent_id'])){
+                    $curl_data['sc_agent_id'] = $requestData['sc_agent_id'] = 1;
+                }
+                $curl_data['call_from_api'] = true;
+                $curl_data['service_center_id'] = $booking_details['booking_history'][0]['assigned_vendor_id'];
                 $curl_data['is_repeat'] = $booking_details['is_repeat'];
                 $curl_data['upcountry_data'] = ""; 
                 $curl_data['user_name'] = $booking_details['booking_history'][0]['name'];
@@ -3179,7 +3184,6 @@ class engineerApi extends CI_Controller {
                 ));
 
                 $curl_response = curl_exec($ch);
-               
                 //$this->asynchronous_lib->do_background_process($url, $curl_data);
                 $this->partner_cb->partner_callback($requestData["booking_id"]);
                 

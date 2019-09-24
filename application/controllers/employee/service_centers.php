@@ -1950,6 +1950,10 @@ class Service_centers extends CI_Controller {
                 if (isset($value['booking_id'])) {
                     $data['booking_id'] = $value['booking_id'];
                 }
+
+                if(isset($value['quantity'])){
+                    $data['quantity'] = $value['quantity'];
+                }
                 
                 
                 
@@ -1969,7 +1973,7 @@ class Service_centers extends CI_Controller {
             if ($previous_inventory_id != $current_inventory_id) {
                 $change_inventory_id = $current_inventory_id;
                 if (!empty($partner_id) && $entity_type == _247AROUND_SF_STRING) {
-                    $this->inventory_model->update_pending_inventory_stock_request($entity_type, $partner_id, $previous_inventory_id, -1);
+                    $this->inventory_model->update_pending_inventory_stock_request($entity_type, $partner_id, $previous_inventory_id, -$data['quantity']);
                 }
             } else {
                 $data['requested_inventory_id'] = $previous_inventory_id;
@@ -1984,13 +1988,13 @@ class Service_centers extends CI_Controller {
 
             $warehouse_details = $this->miscelleneous->check_inventory_stock($data['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $service_center_id, $data['model_number']);
 
-            if (!empty($warehouse_details)) {
+            if (!empty($warehouse_details) && $warehouse_details['stock']>=$data['quantity'] ) {
                 $data['partner_id'] = $warehouse_details['entity_id'];
                 $data['entity_type'] = $warehouse_details['entity_type'];
                 $data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
                 $data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
                 $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
-                $data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
+                $data['challan_approx_value'] = $warehouse_details['challan_approx_value']*$data['quantity'];
                 $data['parts_requested'] = $warehouse_details['part_name'];
                 $data['parts_requested_type'] = $warehouse_details['type'];
                 $data['requested_inventory_id'] = $warehouse_details['inventory_id'];
@@ -2031,6 +2035,7 @@ class Service_centers extends CI_Controller {
 
                 $data['spare_id'] = $this->input->post('spare_id');
                 $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
+                $data['shipped_quantity'] = $data['quantity'];
                 array_push($delivered_sp, $data);
             }
         $where = array('id' => $this->input->post('spare_id'));
@@ -2392,6 +2397,7 @@ class Service_centers extends CI_Controller {
                     }
                     $data['quantity'] = $value['quantity'];
                     $data['parts_requested'] = $value['parts_name'];
+                    $data['quantity'] = $value['quantity'];
                     if (!empty($value['parts_type'])) {
                         $data['parts_requested_type'] = $value['parts_type'];
                     } else {
@@ -2652,7 +2658,7 @@ class Service_centers extends CI_Controller {
             $data['parts_shipped'] = $value['parts_requested'];
             $data['shipped_parts_type'] = $value['parts_requested_type'];
             $data['shipped_date'] = $value['date_of_request'];
-            $data['shipped_date'] = $value['date_of_request'];
+            // $data['shipped_date'] = $value['date_of_request'];
             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
             $data['shipped_inventory_id'] = $value['requested_inventory_id'];
           
@@ -5227,7 +5233,7 @@ class Service_centers extends CI_Controller {
                     $spare_data['parts_requested'] = $value->parts_requested;
                     $spare_data['parts_requested_type'] = $value->parts_requested_type;
                     $spare_data['date_of_request'] = $value->date_of_request;
-                    $spare_data['shipped_inventory_id'] = $value->shipped_inventory_id;
+                    // $spare_data['shipped_inventory_id'] = $value->shipped_inventory_id;
                     $spare_data['requested_inventory_id'] = $value->requested_inventory_id;
                     $spare_data['service_center_id'] = $service_center_id;
                     $spare_data['booking_id'] = $booking_id;
@@ -5255,9 +5261,7 @@ class Service_centers extends CI_Controller {
 
                         $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);
                         
-                        
-                        
-                        if (!empty($warehouse_details) && $spare_data['quantity'] >=$warehouse_details['stock'] ) {
+                        if (!empty($warehouse_details) && $warehouse_details['stock'] >= $spare_data['quantity']) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
                             $data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
@@ -5290,7 +5294,6 @@ class Service_centers extends CI_Controller {
                         $is_micro_wh = 0;
                     }
 
- 
 
                     if ($entity_type == _247AROUND_SF_STRING) {
                         if ($is_micro_wh == 1) {
@@ -5309,6 +5312,7 @@ class Service_centers extends CI_Controller {
                             $data['shipped_date'] = $value->date_of_request;
                             $data['shipped_inventory_id'] = $value->requested_inventory_id;
                             $data['quantity'] = $value->quantity;
+                            $data['shipped_quantity'] = $data['quantity'];
 
                             $flag = false;
 
@@ -5318,6 +5322,7 @@ class Service_centers extends CI_Controller {
                             $this->service_centers_model->update_spare_parts($where, $data);
 
                          $spare_data['spare_id'] = $spare_id;
+                         $spare_data['shipped_inventory_id'] = $data['shipped_inventory_id'];
                          array_push($delivered_sp, $spare_data);
                          $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                          unset($data['spare_id']);
