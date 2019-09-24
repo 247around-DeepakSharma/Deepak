@@ -1036,6 +1036,9 @@ class Do_background_upload_excel extends CI_Controller {
 
                         $data['valid_data'][$key]['appliance'] = 'SHA';
                     }
+                    if (stristr($prod, "Mosquito Racquet")) {
+                        $data['valid_data'][$key]['appliance'] = 'Mosquito Racquet';
+                    }
                 }
                 else{
                      $data['valid_data'][$key]['appliance'] = $prod;
