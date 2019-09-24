@@ -514,6 +514,46 @@ function get_inventory_id(id){
         else
             return true;
     }
+
+
+             $(document).on('keyup', ".quantity", function(e)
+       {
+
+        var charCode = (e.which) ? e.which : e.keyCode;
+        if ((charCode > 47 && charCode < 58) || (charCode > 95 && charCode < 105) || charCode == 8) {
+     
+        var id = $(this).attr("id");
+        var str_arr =id.split("_");
+        var indexId = str_arr[2]; 
+        var val =$(this).val(); 
+        val = Math.floor(parseInt(val));
+        $(this).val(val);
+        if (val>0) {
+         var max = parseInt($("#parts_name_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
+        if(val>max){
+         $(this).val("1");
+        // swal("Error !", "Maximum quantity'allowed to ship is : "+max);
+           $("#error_span_"+indexId).text('Maximum quantity allowed to ship is : '+max);
+           $("#error_span_"+indexId).removeClass('hide');
+        }else{
+             $("#error_span_"+indexId).addClass('hide');
+        }
+        }else{
+          $(this).val("");
+        //  swal("Error !", "0 quantity or negative value not allowed");  
+          //$(this).css("border-color","red");
+          $("#error_span_"+indexId).text('0 quantity,special charcter or negative value not allowed ');
+          $("#error_span_"+indexId).removeClass('hide');
+        }
+        }else{
+          $(this).val("");
+          //swal("Error !", "Special chars not allowed");
+           $("#error_span_"+indexId).text('');
+           $("#error_span_"+indexId).text('Special chars not allowed');
+           $("#error_span_"+indexId).removeClass('hide');
+
+        }
+       });
     
 </script>
 <style type="text/css">
