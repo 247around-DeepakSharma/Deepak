@@ -382,6 +382,97 @@ class User extends CI_Controller {
         $this->load->view('employee/employee_add_edit', $data);
     }
     
+    
+    /**
+     * @Desc: This function is used for mapping rm to state
+     * @params: void
+     * @return: view
+     * @Developer: Pranjal
+     * @Date: 8/22/2019
+     */
+    function get_rm_state(){
+        $rmid = $this->input->post("rmid");
+        echo json_encode($this->employee_model->get_rm_mapped_state($rmid));
+    }
+    
+    /**
+     * @Desc: This function is used for mapping rm to state
+     * @params: void
+     * @return: view
+     * @Developer: Pranjal
+     * @Date: 8/22/2019
+     */
+    function rm_state_mapping($rmid=null){
+        if(empty($rmid)) {
+            $data['employee_rm'] = $this->employee_model->get_rm_details();
+        } else {
+            $data['employee_rm'] = $this->employee_model->get_rm_details_by_id($rmid);
+        }
+           
+        
+        $data['state'] = $this->employee_model->get_states();
+        $data['error'] = $this->session->flashdata('error');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/rm_state_mapping', $data);
+    }
+    /**
+     * @Desc: This function is used to process rm state mapping form
+     * @parmas: POST Array
+     * @return: void
+     * @Developer: Pranjal
+     * @Date: 8/22/2019
+     */
+    function process_rm_state_mapping(){
+        $data = $this->input->post();
+//        print_r($data);
+//        exit;
+         $res=$this->employee_model->chk_entry_in_employee_relation($data["rm_asm"]);
+         
+        $currentState=$this->employee_model->get_rm_mapped_state($data["rm_asm"]);
+
+        if(!empty($currentState)){
+           
+            $selState = array();
+           foreach ($data["state_name"] as $key => $value){
+              // $selState[]=array($value);  
+               array_push($selState, $value);
+            }
+            $selState1 = array();
+           foreach ($currentState as $key => $value){
+               
+               array_push($selState1, $value['state']);            
+            }
+
+             $diffState =array();
+           $diffState =array_diff($selState1,$selState);
+//          // print_r($selState);
+           if(!empty($diffState)){
+                foreach ($diffState as $key => $value){
+                    $res=   $this->employee_model->remove_all_rm_state_map($value);            
+                }
+           }
+           
+        }
+        
+        foreach ($data["state_name"] as $key => $value){
+               $res=   $this->employee_model->remove_all_rm_state_map($value);            
+        }
+        foreach ($data["state_name"] as $key => $value){
+            
+               $res=   $this->employee_model->update_rm_state_mapping($data["rm_asm"], $value);            
+        }
+
+        $res=$this->employee_model->update_asm_manager_mapping($data["rm_asm"]);
+        
+
+        $data["msg"]="Updated Successfully!";
+        $data['employee_rm'] = $this->employee_model->get_rm_details();
+        $data['state'] = $this->employee_model->get_states();
+        $data['error'] = $this->session->flashdata('error');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/rm_state_mapping', $data);
+        
+    }
     /**
      * @Desc: This function is used to process employee add form
      * @parmas: POST Array
@@ -417,7 +508,7 @@ class User extends CI_Controller {
         }while (count($row)>0);
         $data1['employee_id'] = $maxid;
         
-        $data2 = $data4 = array();
+        $data2 = $data4 = $emp_rel = array();
         
         if(!empty($data['subordinate'])) {
             $subordinate=$this->input->post('subordinate');
@@ -439,6 +530,8 @@ class User extends CI_Controller {
                     redirect(base_url() . "employee/user/add_employee");
                 }
             }
+            
+            //adding subordinate
             $this->employee_model->insertManagerData($data2);
         }
 
@@ -451,11 +544,27 @@ class User extends CI_Controller {
             
         }
         
+        
+        $id = $this->employee_model->insertData($data1);
+        
+
+        //adding managers
         if(count($data2) > 0) {
             $this->employee_model->insertManagerData($data2);
         }
         
-        $id = $this->employee_model->insertData($data1);
+        //add a blank row in employee_relation only when user is regional manager
+        //code updated dt: 8/21/2019 by PB
+        if($data1['groups'] == 'regionalmanager'){
+            
+            //add in relation table if not exist
+            $this->employee_model->chk_entry_in_employee_relation($id);
+           
+           //If the new added is RM and has subordinates it will update their mapping onto his
+           $res=$this->employee_model->update_new_rm_mapping($id);
+           
+        }
+        //*********END
         
         $tag='employee_login_details';
         if(!$this->process_mail_to_employee($tag,$id,$manager)) {
@@ -468,7 +577,11 @@ class User extends CI_Controller {
         
         $this->session->set_userdata('success','Employee Added Successfully.');
         
-        redirect(base_url() . "employee/user/show_employee_list");
+        if($data1['groups'] == 'regionalmanager'){
+            redirect(base_url() . "employee/user/rm_state_mapping/".$id);
+        }else {
+             redirect(base_url() . "employee/user/show_employee_list");
+        }
     }
     
     /**
@@ -646,7 +759,35 @@ class User extends CI_Controller {
         $this->load->view('employee/show_holiday_list',$data);
     }
     
-    /**
+ /**
+     * @desc function change password of admin.
+     * @author Ankit Rajvanshi.
+     * @since 17-May-2019.
+     */
+    function change_password() {
+        
+        if($this->input->is_ajax_request()) { // verify old password.
+            echo $this->user_model->verify_entity_password(_247AROUND_EMPLOYEE_STRING, $this->session->userdata['id'], $this->input->post('old_password'));exit;
+        } elseif($this->input->post()) {
+            // Update password.
+            $this->user_model->change_entity_password(_247AROUND_EMPLOYEE_STRING, $this->session->userdata['id'], $this->input->post('new_password'));
+            // send change password mail.
+            $to = (!empty($employee[0]['official_email']) ? $employee[0]['official_email'] : (!empty($employee[0]['personal_email']) ? $employee[0]['personal_email'] : NULL));
+            if(!empty($to)) :
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", "Password Changed", "Password has been changed successfully.", "", CHANGE_PASSWORD);
+                log_message('info', __FUNCTION__ . 'Change password mail sent.');
+            endif;            
+            
+            // setting feedback message for user.
+            $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
+            redirect(base_url() . "employee/user/change_password");
+        }
+        
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/change_password');
+    }
+    
+     /**
      *@Desc: This function is used to get random password of length 8 
      * @params: void
      * @return: void 
@@ -762,38 +903,6 @@ class User extends CI_Controller {
             $data = $this->employee_model->get_entity_role('role',$cond);
         }
         echo json_encode($data);
-    }
-     /* @desc function change password of admin.
-     * @author Ankit Rajvanshi.
-     * @since 17-May-2019.
-     */
-    function change_password() {
-        
-        if($_POST) :
-            // declaring variables.
-            $id = $this->session->userdata['id'];
-            $employee_id = $this->session->userdata['employee_id'];
-            $old_password = md5($_POST['old_password']);
-            // fetch record.
-            $employee = $this->reusable_model->get_search_result_data('employee', '*', ['id' => $id, 'employee_password' => $old_password],null,null,null,null,null,[]);
-        endif;
-        
-        if($this->input->is_ajax_request()) : // verify old password.
-            if(!empty($employee)) :
-                echo '1';exit;
-            else :
-                echo'0';exit;
-            endif;
-        elseif($_POST) :
-            // Update password.
-            $affected_rows = $this->reusable_model->update_table('employee', ['employee_password' => md5($_POST['new_password']), 'clear_password'=> $_POST['new_password']], ['id' => $id]);
-            // setting feedback message for user.
-            $this->session->set_userdata(['success' => 'Password has been changed successfully.']);
-            redirect(base_url() . "employee/user/change_password");
-        endif;
-        
-        $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/change_password');
     }
      
 }

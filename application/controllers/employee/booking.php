@@ -2649,6 +2649,7 @@ class Booking extends CI_Controller {
                 
                 if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
                     $status = DAMAGE_PART_TO_BE_SHIPPED;
+                    $defective_part_required = 1;
                     if(!empty($check_wrong_part_record_exist)) {
                         $this->reusable_model->delete_from_table('wrong_part_shipped_details', ['spare_id' => $spare_id]);
                     }

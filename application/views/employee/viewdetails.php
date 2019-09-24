@@ -621,8 +621,8 @@
                                           } 
                                          ?></span></td>
                                         <td><?php echo $sp['model_number']; ?></td>
-                                        <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><b>".$sp['original_parts_number']."</b>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
-                                        <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><b>".$sp['part_number']."</b>"; } ?></td>
+                                        <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."employee/inventory/inventory_master_list','".$sp['partner_id']."','".$booking_history[0]['service_id']."','".$sp['original_parts_number']."')\"><b>".$sp['original_parts_number']."</b></a>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><a href=\"javascript:openPartDetails('".base_url()."employee/inventory/inventory_master_list','".$sp['partner_id']."','".$booking_history[0]['service_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>") : ''); } ?></td>
+                                        <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."employee/inventory/inventory_master_list','".$sp['partner_id']."','".$booking_history[0]['service_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>"; } ?></td>
 <!--                                        <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; } ?></td>-->
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
                                         <td><?php if($sp['part_warranty_status']==2){echo 'Out Of Warranty';}else{echo 'In - Warranty';} ?></td> 
@@ -2100,6 +2100,36 @@ background-color: #f5f5f5;
     
       
     <script type="text/javascript">
+
+function openPartDetails(url, parnerid,serviceid,modelid)
+{
+    var param = { 'entity_id' : parnerid, 'service_id': serviceid,'entity_type':'<?php echo _247AROUND_PARTNER_STRING; ?>', 'search': modelid};
+    OpenWindowWithPost(url, "", "NewFile", param);
+}
+function OpenWindowWithPost(url, windowoption, name, params)
+{
+ var form = document.createElement("form");
+ form.setAttribute("method", "post");
+ form.setAttribute("action", url);
+ form.setAttribute("target", name);
+ for (var i in params)
+ {
+   if (params.hasOwnProperty(i))
+   {
+     var input = document.createElement('input');
+     input.type = 'hidden';
+     input.name = i;
+     input.value = params[i];
+     form.appendChild(input);
+   }
+ }
+ document.body.appendChild(form);
+ //note I am using a post.htm page since I did not want to make double request to the page 
+ //it might have some Page_Load call which might screw things up.
+ window.open("post.htm", name, windowoption);
+ form.submit();
+ document.body.removeChild(form);
+}
     $(document).ready(function(){
         $(".copy_booking_id").click(function(){
             var ids_string = $(this).attr('id');
