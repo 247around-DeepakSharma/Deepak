@@ -67,7 +67,7 @@
                             <input type="number" value="<?php echo $basic_price;?>" onkeyup="validateDecimal(this.id, this.value);booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control allowNumericWithDecimal onpartBasicPrice" id="<?php echo "onpartBasicPrice_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][part_total_price]"  placeholder=""  required >
                             <label for="<?php echo "onpartBasicPrice_".($key + $count);?>" id="lbl_<?php echo "onpartBasicPrice_".($key + $count);?>" class="error"></label>
                             <span id="error_<?php echo "onpartBasicPrice_".($key + $count);?>" class="error" style="color: red;"></span>
-                            <input type="hidden" value="1" class="form-control" id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity]"  placeholder=""  required readonly="">
+                            <input type="hidden" value="1" class="form-control" id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity_test]"  placeholder=""  required readonly="">
                         </div>
                     </div>
                     <div class="form-group">
@@ -75,6 +75,12 @@
                         <div class="col-md-6">
                             <input type="number" value="<?php echo $gst_rate;?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control allowNumericWithOutDecimal onpartGstRate" id="<?php echo "onpartGstRate_".($key + $count);?>" 
                                 name="part[<?php echo ($key +$count); ?>][gst_rate]"  placeholder="Please Enter GST rate" min="12" max="28"  required >
+                        </div>
+                    </div>
+                     <div class="form-group">
+                        <label for="GST rate" class="col-md-4">Quantity</label>
+                        <div class="col-md-6">
+                            <input type="number" value="<?php echo $value['quantity'];?>"  class="form-control  " id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity]"  placeholder="Please Enter Quantity"      required >
                         </div>
                     </div>
                 </div>
@@ -189,6 +195,13 @@
                                 <label for="GST rate" class="col-md-4">GST Rate</label>
                                 <div class="col-md-6">
                                     <input type="text" class="form-control allowNumericWithOutDecimal" id="onpartGstRate" placeholder="Please Enter GST rate" min="12" max="28"  required >
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="GST rate" class="col-md-4">Quantity</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control " name="quantity" id="onpartqty" placeholder="Please Enter Quantity"   required >
                                 </div>
                             </div>
                         </div>
