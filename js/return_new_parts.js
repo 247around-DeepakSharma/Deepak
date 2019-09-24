@@ -217,7 +217,6 @@ function check_awb_exist(){
 }
 
 function return_new_parts(){
-    $('#submit_courier_form').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
     var formData = new FormData(document.getElementById("courier_model_form"));
     
     formData.append('inventory_data',JSON.stringify(returnItemArray));  
@@ -229,7 +228,6 @@ function return_new_parts(){
     formData.append("from_gst_number", $("#from_gst_number").val());
     formData.append("receiver_id", $("#to_wh_id").val());
    // console.log(JSON.stringify(returnItemArray));
-    $("#courier_model_form")[0].reset();
     $.ajax({
         method:'POST',
         url: baseUrl + '/employee/user_invoice/generate_invoice_for_return_new_inventory',
@@ -237,8 +235,9 @@ function return_new_parts(){
         contentType: false,
         processData: false,
         beforeSend: function(){
-
-                $('body').loadingModal({
+            $('#submit_courier_form').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+            $("#courier_model_form")[0].reset();
+            $('body').loadingModal({
                 position: 'auto',
                 text: 'Loading Please Wait...',
                 color: '#fff',
@@ -256,9 +255,11 @@ function return_new_parts(){
                 location.reload();
             } else {
                 alert(data.message);
-                $('#submit_courier_form').html("Return New Parts").attr('disabled',false);
             }
             $('body').loadingModal('destroy');
+        },
+        complete: function() {
+            $('#submit_courier_form').html("Return New Parts").attr('disabled',false);
         }
     });
     
