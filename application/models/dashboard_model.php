@@ -531,7 +531,7 @@ class dashboard_model extends CI_Model {
         
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,booking_details.service_center_closed_date) > ".DEFECTIVE_PART_PENDING_OOT_DAYS. " AND "
-                . "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') ";
+                . "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."') ";
         
         if(!empty($partner_id)){
             $where .= " AND spare_parts_details.partner_id = $partner_id";
@@ -568,7 +568,7 @@ class dashboard_model extends CI_Model {
                 . "WHERE booking_details.service_center_closed_date IS NOT NULL "
                 . "AND DATEDIFF(CURRENT_DATE,booking_details.service_center_closed_date) > '".SF_SPARE_OOT_DAYS."'"
                 . "AND spare_parts_details.defective_part_required = 1 "
-                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') "
+                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."') "
                 . "GROUP BY booking_details.partner_id "
                 . " ORDER BY spare_count DESC";
         $query = $this->db->query($sql);
@@ -673,7 +673,7 @@ class dashboard_model extends CI_Model {
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,booking_details.service_center_closed_date) > ".SF_SPARE_OOT_DAYS. " "
                 . " AND spare_parts_details.parts_shipped IS NOT NULL "
-                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') ";
+                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."') ";
         
         if(!empty($partner_id)){
             $where .= " AND booking_details.partner_id = $partner_id";
@@ -719,7 +719,7 @@ class dashboard_model extends CI_Model {
         $where = "spare_parts_details.defective_part_required = 1 "
                 . "AND DATEDIFF(CURRENT_DATE,spare_parts_details.shipped_date) > ".PARTNER_SPARE_OOT_DAYS. " "
                 . " AND spare_parts_details.parts_shipped IS NOT NULL "
-                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."') ";
+                . "AND spare_parts_details.status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."') ";
         
         if(!empty($partner_id)){
             $where .= " AND booking_details.partner_id = $partner_id";
