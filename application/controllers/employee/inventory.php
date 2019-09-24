@@ -3680,7 +3680,7 @@ class Inventory extends CI_Controller {
                     'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
                     'sell_invoice_id' => (isset($ledger['micro_invoice_id'])? $ledger['micro_invoice_id'] : NULL),
                     'requested_inventory_id' => $ledger['inventory_id'],
-                    'shipped_quantity'=>$ledger_data['quantity'],
+                    'shipped_quantity'=>$ledger['quantity'],
                     'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
                 
