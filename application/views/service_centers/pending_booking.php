@@ -51,7 +51,7 @@
         <?php if($this->session->userdata("is_micro_wh")==1){ ?>
         <div class="col-md-10 col-md-offset-2" id="msl_info">
             <div class="x_title">
-                <h2><b>MSL Security Amount</b></h2>
+                <h2><b>MSL Summary</b></h2>
             </div>
             <div class="x_body">
                 <div>
@@ -61,7 +61,7 @@
                     </div>
                 </div>
                 <div>
-                    <a><label>MSL Amount (Rs.)</label></a>
+                    <a><label>MSL Balance (Rs.)</label></a>
                     <div class="count <?php if($msl['amount']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
                         <strong><?php echo $msl['amount']; ?>/-</strong>
                     </div>

@@ -35,7 +35,8 @@ class Invoice_lib {
         if (!empty($invoice_array)) {
             foreach ($invoice_array as  $value) {
                  $explode = explode($invoice_id_tmp, $value['invoice_id']);
-                 array_push($int_invoice, $explode[1] + 1);
+                 array_push($int_invoice, str_pad(intval(trim($explode[1])) + 1,strlen($explode[1]),"0",STR_PAD_LEFT));
+//                 array_push($int_invoice, $explode[1] + 1);
             }
             rsort($int_invoice);
             $invoice_no = $int_invoice[0];
@@ -795,7 +796,7 @@ class Invoice_lib {
         foreach ($spare_ids as  $spare_id) {
         $select = 'spare_parts_details.*';
         $where = array('spare_parts_details.id' => $spare_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".OK_PART_TO_BE_SHIPPED."')  " => NULL,
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."')  " => NULL,
             'defective_part_required' => 1);
         $spare_parts_details[] = $this->ci->partner_model->get_spare_parts_by_any($select, $where); 
         }

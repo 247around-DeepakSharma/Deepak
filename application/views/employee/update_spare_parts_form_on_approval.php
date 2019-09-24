@@ -198,7 +198,7 @@
                                         <label for="shipped_parts_name" class="col-md-4">Requested Quantity *</label>
                                         <div class="col-md-6">
 
-                                            <input class="form-control quantity" type="text" min="1" value="<?php echo $spare_parts_details['shipped_quantity'] ?>" id="" name="part[0][quantity]" readonly="" required />
+                                            <input class="form-control quantity" type="text" min="1" value="<?php echo $spare_parts_details['quantity'] ?>" id="requested_quantity_0" name="part[0][quantity]"  required />
                                             <span id="error_span_0" style="color:red;" class="hide"></span>
 
                                             <?php echo form_error('quantity'); ?>
@@ -261,6 +261,7 @@ $(document).ready(function(){
                     $('.parts_type').html(data);
                     //$('.parts_type option[value="<?php echo $spare_parts_details['parts_requested_type']; ?>"]').attr('selected','selected');
                     $("#parts_type").val("<?php echo $spare_parts_details['parts_requested_type']; ?>").change();
+                    $(".quantity").removeAttr("readonly");
                     
                 }
             });
@@ -512,6 +513,45 @@ function get_inventory_id(id){
         else
             return true;
     }
+
+         $(document).on('keyup', ".quantity", function(e)
+       {
+
+        var charCode = (e.which) ? e.which : e.keyCode;
+        if ((charCode > 47 && charCode < 58) || (charCode > 95 && charCode < 105) || charCode == 8) {
+     
+        var id = $(this).attr("id");
+        var str_arr =id.split("_");
+        var indexId = str_arr[2]; 
+        var val =$(this).val(); 
+        val = Math.floor(parseInt(val));
+        $(this).val(val);
+        if (val>0) {
+         var max = parseInt($("#parts_name_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
+        if(val>max){
+         $(this).val("1");
+        // swal("Error !", "Maximum quantity'allowed to ship is : "+max);
+           $("#error_span_"+indexId).text('Maximum quantity allowed to ship is : '+max);
+           $("#error_span_"+indexId).removeClass('hide');
+        }else{
+             $("#error_span_"+indexId).addClass('hide');
+        }
+        }else{
+          $(this).val("");
+        //  swal("Error !", "0 quantity or negative value not allowed");  
+          //$(this).css("border-color","red");
+          $("#error_span_"+indexId).text('0 quantity,special charcter or negative value not allowed ');
+          $("#error_span_"+indexId).removeClass('hide');
+        }
+        }else{
+          $(this).val("");
+          //swal("Error !", "Special chars not allowed");
+           $("#error_span_"+indexId).text('');
+           $("#error_span_"+indexId).text('Special chars not allowed');
+           $("#error_span_"+indexId).removeClass('hide');
+
+        }
+       });
     
 </script>
 <style type="text/css">

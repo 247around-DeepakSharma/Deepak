@@ -691,14 +691,14 @@ class Service_centers extends CI_Controller {
                     $this->cancel_spare_parts($partner_id, $booking_id);
 
                     if ($is_update_spare_parts) {
-                        foreach ($sp_required_id as $sp_id) {
-                            $sp['status'] = DEFECTIVE_PARTS_PENDING;
-                            $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $sp);
-                            $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-                            if (!$partner_on_saas) {
-                            $this->invoice_lib->generate_challan_file($sp_id, $this->session->userdata('service_center_id')); 
-                            }
-                          }
+//                        foreach ($sp_required_id as $sp_id) {
+//                            $sp['status'] = DEFECTIVE_PARTS_PENDING;
+//                            $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $sp);
+//                            $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+//                            if (!$partner_on_saas) {
+//                            $this->invoice_lib->generate_challan_file($sp_id, $this->session->userdata('service_center_id')); 
+//                            }
+//                          }
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
                         $this->session->set_userdata('success', "Updated Successfully!!");
 
@@ -727,16 +727,19 @@ class Service_centers extends CI_Controller {
      */
     public function update_spare_consumption_status($post_data, $booking_id) {
         if(!empty($post_data['spare_consumption_status'])) {
+            $partner_id = $post_data["partner_id"];
+            
             foreach($post_data['spare_consumption_status'] as $spare_id => $status_id) {
                 
                 $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details','*',['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
-                $status = $spare_part_detail['status'];
+                $status = "";
                 $defective_part_required = $spare_part_detail['defective_part_required'];
                 
                 $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status','tag',['id' => $status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
                 
-                if($consumption_status_tag == PART_CONSUMED_TAG && !empty($spare_part_detail['parts_shipped'])) {
+                if($consumption_status_tag == PART_CONSUMED_TAG) {
                     $status = DEFECTIVE_PARTS_PENDING;
+                    $defective_part_required = 1;
                 }
                 
                 if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
@@ -754,12 +757,15 @@ class Service_centers extends CI_Controller {
                 
                 if($consumption_status_tag == WRONG_PART_RECEIVED_TAG && !empty($post_data['wrong_part'])) {
                     $status = OK_PART_TO_BE_SHIPPED;
+                    $defective_part_required = 1;
+                    
                     $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
                     $this->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
                 }
                 
                 if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
                     $status = DAMAGE_PART_TO_BE_SHIPPED;
+                    $defective_part_required = 1;
                 }
 
 //                if($consumption_status_tag == PART_NRN_APPROVED_STATUS_TAG) {
@@ -771,6 +777,23 @@ class Service_centers extends CI_Controller {
                     'defective_part_required' => $defective_part_required,
                     'status' => $status,
                 ], ['id' => $spare_id]);
+                
+                if(!empty($defective_part_required) && $defective_part_required == 1) {
+                    $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                    if (!$partner_on_saas) {
+                        $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'));   
+                    }
+                }
+                
+            }
+            
+            if(!empty($status)) {
+                $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
+                if ($this->session->userdata('is_engineer_app') == 1) {
+                    $this->engineer_model->update_engineer_table(array("current_status" => "InProcess", "internal_status" => $status), $unitWhere1);
+                }
+                // update in service center booking action.
+                $this->vendor_model->update_service_center_action($booking_id, ['internal_status' => $status]);
             }
         }
         
@@ -3046,7 +3069,7 @@ class Service_centers extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."')  " => NULL
+            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."', '".COURIER_LOST."', '".DAMAGE_PART_TO_BE_SHIPPED."')  " => NULL
             
         );
         
@@ -5645,7 +5668,7 @@ class Service_centers extends CI_Controller {
             $where['where'] = array('spare_parts_details.booking_id' => $booking_id, "status" => SPARE_PARTS_REQUESTED, "spare_parts_details.entity_type" => _247AROUND_SF_STRING, 'spare_parts_details.partner_id' =>$this->session->userdata('service_center_id'), 'wh_ack_received_part' => 1 );
         }
         
-        $where['select'] = "booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested,iml.part_number, model_number,serial_number,date_of_purchase, invoice_pic,"
+        $where['select'] = $where['select'] = "booking_details.booking_id, users.name, defective_back_parts_pic,booking_primary_contact_no,parts_requested, model_number,serial_number,date_of_purchase, invoice_pic,"
                 . "serial_number_pic,defective_parts_pic,spare_parts_details.id,requested_inventory_id,parts_requested_type,spare_parts_details.part_warranty_status, booking_details.request_type, purchase_price, estimate_cost_given_date,booking_details.partner_id,booking_details.service_id,booking_details.assigned_vendor_id,booking_details.amount_due,parts_requested_type, inventory_invoice_on_booking";
 
         if(!empty($booking_id)){
