@@ -709,10 +709,6 @@
                        
                    if((c_status !='')&& (c_status == '1')){
                     if(confirm('Are you sure to continue')){
-                        $('#sumit_msl,#submit_btn').attr('disabled',true);
-                        $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
-    
-    
                         //Serializing all For Input Values (not files!) in an Array Collection so that we can iterate this collection later.
                         var params = $('#spareForm').serializeArray();
     
@@ -742,14 +738,20 @@
                             formData.append(element.name, element.value);
                         });
     
-                        $("#spareForm")[0].reset();
-                        $("#spareForm").find('input:text, input:file, select').val('');
                         $.ajax({
                             method:"POST",
                             url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
                             data:formData,
                             contentType: false,
                             processData: false,
+                            beforeSend: function(){
+                                // Handle the beforeSend event
+                                $('#sumit_msl,#submit_btn').attr('disabled',true);
+                                $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
+                                $("#spareForm")[0].reset();
+                                $("#spareForm").find('input:text, input:file, select').val('');
+                                $('label.error').css('color','white');
+                            },
                             success:function(response){
                                 console.log(response);
                                 obj = JSON.parse(response);
@@ -759,8 +761,6 @@
 //                                       window.location.href = "<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+""; 
 //                                    }
 //                                }                                
-                                $('#sumit_msl,#submit_btn').attr('disabled',false);
-                                $('#submit_btn').html("Preview");
                                 if(obj.status){
                                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                                     $('#success_msg').html(obj.message);
@@ -781,17 +781,21 @@
                                     $('#select2-partNumber_0-container').text('Select Part Number');
                                     $('#select2-partNumber_0-container').attr('title','Select Part Number');
                                     $('#total_spare_invoice_price').html('0');
-                                    $('label.error').css('display','none');
                                     $(".warehouse_print_address").css({'display':'block'});
                                     $("#print_warehouse_addr").attr("href","<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+"");
-                                    $("#confirmation").val('0');
                                 }else{
                                     $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                                     $('#error_msg').html(obj.message);
-                                    $("#confirmation").val('0');
                                 }
     
-                           }
+                            },
+                            complete: function() {
+                                $('#sumit_msl,#submit_btn').attr('disabled',false);
+                                $('#submit_btn').html("Preview");
+                                $('label.error').css('color','red');
+                                $('label.error').css('display','none');
+                                $("#confirmation").val('0');    
+                            }
                         });
                     }else{
                         $("#confirmation").val('0');
@@ -1473,8 +1477,6 @@
     }
     
     function submitBookingForm(){
-        $('#on_submit_btn').attr('disabled',true);
-        $('#on_submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
          //Serializing all For Input Values (not files!) in an Array Collection so that we can iterate this collection later.
         var params = $('#onBookingspareForm').serializeArray();
     
@@ -1501,14 +1503,19 @@
         $(params).each(function (index, element) {
             formData.append(element.name, element.value);
         });
-        $("#onBookingspareForm")[0].reset();
-        $("#onBookingspareForm").find('input:text, input:file, select').val('');
         $.ajax({
             method:"POST",
             url:"<?php echo base_url();?>employee/inventory/process_spare_invoice_tagging",
             data:formData,
             contentType: false,
             processData: false,
+            beforeSend: function(){
+                // Handle the beforeSend event
+                $('#on_submit_btn').attr('disabled',true);
+                $('#on_submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
+                $("#onBookingspareForm")[0].reset();
+                $("#onBookingspareForm").find('input:text, input:file, select').val('');
+            },
             success:function(response){
                 //console.log(response);
                 obj = JSON.parse(response);
