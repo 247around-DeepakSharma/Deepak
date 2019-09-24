@@ -39,8 +39,15 @@
                     <td><i class="fa fa-inr" aria-hidden="true"></i> <?php echo $value->sell_price; ?></td>
                     <td><?php echo $value->invoice_id; ?></td>
                     <td class="text-center">
-                        <?php if(!empty($value->invoice_pdf)){ ?>
-                        <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $value->invoice_pdf;  ?>">
+                    <?php
+                    if (!empty($value->invoice_pdf)) {
+                        $invoice_pdf = $value->invoice_pdf;
+                    } else {
+                        $invoice_pdf = $value->incoming_invoice_pdf;
+                    }
+                    if (!empty($invoice_pdf)) {
+                        ?>
+                        <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice_pdf;  ?>">
                             <img style="width:27px;" src="<?php echo base_url();?>images/invoice_icon.png"; /></a>
                     <?php } ?>
                     </td>
