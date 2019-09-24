@@ -198,7 +198,7 @@
                                         <label for="shipped_parts_name" class="col-md-4">Requested Quantity *</label>
                                         <div class="col-md-6">
 
-                                            <input class="form-control quantity" type="text" min="1" value="<?php echo $spare_parts_details['quantity'] ?>" id="" name="part[0][quantity]" readonly="" required />
+                                            <input class="form-control quantity" type="text" min="1" value="<?php echo $spare_parts_details['quantity'] ?>" id="" name="part[0][quantity]"  required />
                                             <span id="error_span_0" style="color:red;" class="hide"></span>
 
                                             <?php echo form_error('quantity'); ?>
