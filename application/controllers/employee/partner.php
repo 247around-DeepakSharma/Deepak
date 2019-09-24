@@ -2784,10 +2784,11 @@ class Partner extends CI_Controller {
         }
 
         $option = "";
+        $option = "<option selected disabled value=''>Select Brand</option>";
         foreach ($data as $value) {
             $option .= "<option ";
             if ($appliace_brand == $value['brand_name'] || count($data) == 1) {
-                $option .= " selected ";
+                $option .= " ";
             }
             else{
                  if($is_repeat){
