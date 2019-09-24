@@ -1744,6 +1744,7 @@ class Booking_model extends CI_Model {
             }
     }
     function update_request_type($booking_id, $price_tag,$oldPriceTag = array()) {
+        $newRequest = "";
         log_message('info', __METHOD__ . " Booking ID " . $booking_id . " Price Tags " . print_r($price_tag, true));
         $oldRequestType =  $this->get_old_request_type($booking_id);
         if (!empty($price_tag)) {
