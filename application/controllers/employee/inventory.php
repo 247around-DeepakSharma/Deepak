@@ -4522,7 +4522,7 @@ class Inventory extends CI_Controller {
                 $where['service_center_id'] = $receiver_entity_id;
             }
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.booking_id, spare_parts_details.status,spare_parts_details.quantity, spare_parts_details.entity_type, spare_parts_details.partner_id, requested_inventory_id", $where, false);
-            //$qty = 1;
+            $qty = $data->quantity;
             if (!empty($spare)) {
                 foreach ($spare as $value) {
                     if ($data->quantity >= $value['quantity']) {
