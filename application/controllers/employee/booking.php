@@ -6014,4 +6014,60 @@ class Booking extends CI_Controller {
         $this->load->view('employee/wrong_spare_part', $data);
     }    
 
+   /**
+     * @desc: This method finds the TAT of booking id and computes penalty on final amount for per
+     * puts penalty on the booking
+     * @param input $booking_id
+     * @return booking id
+     * @develop: Pranjal
+     * @date: 9/5/2019 (mm/dd/yyyy)
+     * 
+     */
+    public function update_tat_based_penalty($booking_id) {
+        $booking = $this->booking_model->get_booking_TAT($booking_id)[0];
+        $penalty = 0;
+        $res = $this->miscelleneous->get_SF_payout($booking_id, $booking["assigned_vendor_id"], $booking['amount_due'], $booking['flat_upcountry']);
+        $criteriaid=0;
+        if ($booking["is_upcountry"] == 1) //for upcounty call
+        {
+             if ($booking["TAT"] >= 48 && $booking["TAT"]<72) {
+                $criteriaid =_KENSTAR_PENALTY_UPCOUNTRY_48;
+                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_UPCOUNTRY_48)[0]["Penalty"];
+             }
+             else if ($booking["TAT"] >= 72 && $booking["TAT"]<120) {
+                $criteriaid =_KENSTAR_PENALTY_UPCOUNTRY_72;
+                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_UPCOUNTRY_72)[0]["Penalty"];
+             }
+             else if ($booking["TAT"] >= 120) {
+                $criteriaid =_KENSTAR_PENALTY_UPCOUNTRY_120;
+                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_UPCOUNTRY_120)[0]["Penalty"];
+            }
+        } else {
+            if ($booking["TAT"] >= 24 && $booking["TAT"]<48) {
+                $criteriaid =_KENSTAR_PENALTY_LOCAL_24;
+                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_LOCAL_24)[0]["Penalty"];
+            }
+            else if ($booking["TAT"] >= 48 && $booking["TAT"]<72) {
+                $criteriaid =_KENSTAR_PENALTY_LOCAL_48;
+                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_LOCAL_48)[0]["Penalty"];
+            }
+            else if ($booking["TAT"] >= 72) {
+                $criteriaid =_KENSTAR_PENALTY_LOCAL_72;
+                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_LOCAL_72)[0]["Penalty"];
+           }
+        }
+        if($penalty >0) {
+
+            $criteria = $this->reusable_model->get_search_result_data('penalty_details', 'criteria', ['id' => $criteriaid], NULL, NULL, NULL, NULL, NULL)[0];
+            $record = [];
+            $record['agent_id'] = _247AROUND_DEFAULT_AGENT;
+            $record['remarks'] = 'Booking Not Updated On Time';
+            $record = array('criteria' => $criteria, 'active' => '1');
+            $record['booking_id'] = $booking_id;
+            $record['assigned_vendor_id'] = $booking["assigned_vendor_id"];
+            $record['agent_type'] = 'admin';
+            $this->penalty_model->get_data_penalty_on_booking($record, $where,$penalty);
+        }
+
+    }
 }

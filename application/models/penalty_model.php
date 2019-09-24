@@ -129,7 +129,7 @@ class Penalty_model extends CI_Model {
      * @param Array $value
      * @param Array $where
      */
-    function get_data_penalty_on_booking($value, $where) {
+    function get_data_penalty_on_booking($value, $where,$penalty=null) {
         log_message('info', __FUNCTION__ . " value: " . print_r($value, TRUE) . " where: " . print_r($where, TRUE));
         $penalty_details = $this->get_penalty_details($where);
         if ($penalty_details) {
@@ -138,7 +138,14 @@ class Penalty_model extends CI_Model {
             $data['agent_id'] = isset($value['agent_id']) && !empty($value['agent_id']) ? $value['agent_id'] : NULL;
             $data['remarks'] = isset($value['remarks']) && !empty($value['remarks']) ? $value['remarks'] : NULL;
             $data['criteria_id'] = $penalty_details['id'];
-            $data['penalty_amount'] = $penalty_details['penalty_amount'];
+            if(!$penalty){
+               
+                $data['penalty_amount'] = $penalty_details['penalty_amount'];
+            }
+            else
+             {
+                $data['penalty_amount'] = $penalty;
+            }
             $data['active'] = 1;
             $data['create_date'] = date('Y-m-d H:i:s');
             $data['agent_type'] = $value['agent_type'];

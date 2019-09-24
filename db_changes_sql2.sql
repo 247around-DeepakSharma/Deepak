@@ -1078,9 +1078,7 @@ ALTER TABLE spare_parts_details ADD COLUMN consumed_part_status_id int(11) NULL 
 -- Kajal 29-08-2019
 ALTER TABLE `inventory_master_list` ADD `is_invoice` INT(1) NOT NULL DEFAULT '0' AFTER `part_image`;
 
---Pranjal 30-8-2019 - for adding link for RM Mapping
-insert into `header_navigation`(`entity_type`,`title`,`link`,`level`,`groups`,`nav_type`,`is_active`)
-values ('247Around','RM Mapping','employee/user/rm_state_mapping',1,'admin,developer','right_nav','1')
+
 -- Gorakh 31-08-2019
 ALTER TABLE `hsn_code_details` ADD `service_id` INT NULL DEFAULT NULL AFTER `agent_id`;
 CREATE TABLE `spare_invoice_details` (
@@ -1400,9 +1398,7 @@ VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s
 <br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
  
  
---Pranjal 30-8-2019 - for adding link for RM Mapping
-insert into `header_navigation`(`entity_type`,`title`,`link`,`level`,`groups`,`nav_type`,`is_active`)
-values ('247Around','RM Mapping','employee/user/rm_state_mapping',1,'admin,developer','right_nav','1')
+
 --Abhishek--2-sep-2019
 ALTER TABLE `spare_parts_details` ADD `shipped_to_partner_qty` INT(11) NOT NULL DEFAULT '1' AFTER `shipped_quantity`;
  
@@ -1494,3 +1490,15 @@ ALTER TABLE `part_type_return_mapping` ADD `inventory_id` INT(11) NOT NULL AFTER
 RENAME TABLE `boloaaka`.`spare_invoice_details` TO `boloaaka`.`oow_spare_invoice_details`; 
 --Ankit 24-09-2019
 ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1
+
+
+
+--Pranjal 9/5/2019 --
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, NUll, 'TAT Between 24 - 48 hrs', NULL, '30', '1');
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, NUll, 'TAT Between 48 - 72 hrs', NULL, '40', '1');
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, NUll, 'TAT Greater Than 72 hrs', NULL, '50', '1');
+
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, NUll, 'Upcountry SVC TAT Between 48 -72 hrs', NULL, '30', '1');
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, NUll, 'Upcountry SVC TAT Between 72 -120 hrs', NULL, '40', '1');
+INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, NUll, 'Upcountry SVC TAT Greater Than 120 hrs', NULL, '50', '1');
+

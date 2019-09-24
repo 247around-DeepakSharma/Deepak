@@ -677,5 +677,16 @@ define('REJECTED_FROM_REVIEW_STATUS','Rejected From Review');
 
 define('WARRANTY_TYPE_AMC', 'AMC (Annual Maintenance Contract)');
 define('DEFAULT_IN_WARRANTY_PERIOD', 12);
+// Constant to define rows of penalty for KENSTAR
+define('_KENSTAR_PENALTY_LOCAL_24', 16);
+define('_KENSTAR_PENALTY_LOCAL_48', 17);
+define('_KENSTAR_PENALTY_LOCAL_72', 18);
+
+
+define('_KENSTAR_PENALTY_UPCOUNTRY_48', 19);
+define('_KENSTAR_PENALTY_UPCOUNTRY_72', 20);
+define('_KENSTAR_PENALTY_UPCOUNTRY_120', 21);
+
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

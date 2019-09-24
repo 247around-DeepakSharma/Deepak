@@ -2882,5 +2882,34 @@ class Booking_model extends CI_Model {
         }
         return $res;
     }
-
+    
+         /**
+         * @Desc: This function is used to get TAT and IsCountry for Booking Id
+         * @params: array $booking_id
+         * @return: array TAT, is_upcountry,amount_due,flat_upcountry,assigned_vendor_id
+         * 
+         */
+        function get_booking_TAT($booking_id)
+        {
+            $this->db->select('SELECT HOUR(TIMEDIFF(`booking_details`.`service_center_closed_date` ,`booking_details`.`create_date`)) as `TAT`,`booking_details`.`assigned_vendor_id`,`booking_details`.`flat_upcountry`,`booking_details`.`amount_due`,`booking_details`.`is_upcountry`');
+            $this->db->from("booking_details");
+            $this->db->where("booking_id", $booking_id);
+            $query = $this->db->get();
+            return $query->result_array();
+        }
+    
+        /**
+         * @Desc: This function is used to compute penalty for KENSTAR
+         * @params: array $booking_id
+         * @return: array TAT, is_upcountry
+         * 
+         */
+        function compute_penalty($sfamount,$rowid)
+        {
+            $this->db->select('SELECT TRUNCATE((' + $sfamount + '*`unit_%_rate`)/100,2) as Penalty');
+            $this->db->from("penalty_details");
+            $this->db->where("id", $rowid);
+            $query = $this->db->get();
+            return $query->result_array();
+        }
 }
