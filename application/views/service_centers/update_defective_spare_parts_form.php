@@ -441,13 +441,15 @@
                         $("#aws_receipt").css("display", "block");
                         $("#courier_charges_by_sf").css("display", "block");
                         $("#same_awb").css("display", "none");
-                        $("#exist_courier_image").val("");
-    
+                        $("#exist_courier_image").removeAttr("readonly");
                         $("#courier_name_by_sf").val("");
+                        $("#courier_name_by_sf").val("");
+                        $("#courier_charges_by_sf").removeAttr('readonly');
                         $("#courier_charges_by_sf").val("");
                         $("#defective_part_shipped_date").val("");
                         $("#defective_parts_shipped_boxes_count").val("");
-    
+                        $("#defective_parts_shipped_weight_in_kg").removeAttr('readonly');
+                        $("#defective_parts_shipped_weight_in_gram").removeAttr('readonly');
                         $("#defective_parts_shipped_weight_in_kg").val("");
                         $("#defective_parts_shipped_weight_in_gram").val("");
                         $("#remarks").val("");
@@ -460,7 +462,30 @@
         }
    
     }
-    
+    function chkPrice(curval,maxval){
+    //alert(curval.val());
+    let flg=true;
+        if(!isNaN(curval.val())){
+            if(parseFloat(curval.val())<1) {
+                alert('Courier Charges cannot be less than 1.00');
+               flg=false;
+            } else if(parseFloat(curval.val())>parseFloat(maxval)) {
+               alert('Courier Charges cannot be more than '+maxval);
+               flg=false;
+            }
+        } else {
+            alert('Enter numeric value');
+            flg=false;
+        }
+        if(!flg)
+        {
+        window.setTimeout(function () { 
+            curval.focus();
+        }, 0);
+            
+           }
+        
+    }    
 </script>
 <?php
     if ($this->session->userdata('success')) {
