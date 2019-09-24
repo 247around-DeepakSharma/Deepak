@@ -51,6 +51,9 @@
             <div class="col-md-12">
                 <div class="panel panel-default">
                     <div class="panel-body" >
+                        <div class="col-md-12  ">
+                            <button onclick="open_create_invoice_form()" class="btn btn-md btn-primary" style="float: right;" id="btn_create_invoice" name="btn_create_invoice">Create Purchase Invoice</button>
+                        </div>
                         <table id="oow_part_shipped_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead >
                                 <th class="text-center" >No</th>
@@ -77,9 +80,6 @@
                             <tbody>
                             </tbody>
                         </table>
-                        <div class="col-md-12  ">
-                            <button onclick="open_create_invoice_form()" class="btn btn-md btn-primary" id="btn_create_invoice" name="btn_create_invoice">Create Purchase Invoice</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -1145,62 +1145,85 @@
         });
        
     });
-    
+     
     function open_create_invoice_form(){
         $('#btn_create_invoice').attr('disabled',true);
         var spare_id = [];
         var partner_id_array = [];
+        var invoice_id_array = [];
         var data = [];
         $('.spare_id:checked').each(function (i) {
             spare_id[i] = $(this).val();
             var partner_id  = $(this).attr('data-partner_id');
-            var booking_id  = $(this).attr('data-booking_id');
+            var invoice_id  = $(this).attr('data-invoice_id');
             partner_id_array.push(partner_id);
+            invoice_id_array.push(invoice_id);
             data[i] =[];
             data[i]['spare_id'] = spare_id[i];
             data[i]['partner_id'] = partner_id;
-            data[i]['booking_id'] = booking_id;
          
         });
-    
-        if(spare_id.length > 0){
-            var unique_partner = ArrayNoDuplicate(partner_id_array);
-            if(unique_partner.length > 1){
-                $('#btn_create_invoice').attr('disabled',false);
-                alert("You Can not select multiple partner booking");
-            } else {
-                var html  = '<input type="hidden" name="partner_id" value="'+unique_partner[0]+'" />';
-                for(k =0; k < data.length; k++){
-                    html +='<div class="col-md-12" >';
-                    html += '<div class="col-md-4 "> <div class="form-group col-md-12  "><label for="remarks">Booking ID *</label>';
-                    html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="bookingid_'+k+'" placeholder="Enter Booking ID" name="part['+data[k]["spare_id"]+'][booking_id]" value = "'+data[k]['booking_id']+'" >';
-                    html += '</div></div>';
-                    
-                    html += '<div class="col-md-3 " style="width: 18%"><div class="form-group col-md-12  ">';
-                    html += ' <label for="remarks">HSN Code *</label>';
-                    html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="hsncode_'+k+'" placeholder="HSN Code" name="part['+data[k]["spare_id"]+'][hsn_code]" value = "" >';
-                    html += '</div></div>';
-                    
-                    html += '<div class="col-md-3 " style="width: 17%"><div class="form-group col-md-12  ">';
-                    html += ' <label for="remarks">GST Rate *</label>';
-                    html += '<input required type="number" class="form-control" style="font-size: 13px;"  id="gstrate'+k+'" placeholder="GST Rate" name="part['+data[k]["spare_id"]+'][gst_rate]" value = "" >';
-                    html += '</div></div>';
-                    
-                    html += '<div class="col-md-4 " style="width: 30%"><div class="form-group col-md-12  ">';
-                    html += ' <label for="remarks">Basic Amount *</label>';
-                    html += '<input required type="number" step=".01" class="form-control" style="font-size: 13px;"  id="basic_amount'+k+'" placeholder="Enter Amount" name="part['+data[k]["spare_id"]+'][basic_amount]" value = "" >';
-                    html += '</div></div>';
-                    
-                    html += '</div>';
-                }
-                $("#spare_inner_html").html(html);
-                $('#purchase_invoice').modal('toggle'); 
-            }
-        } else {
-            $('#btn_create_invoice').attr('disabled',false);
-            alert("Please Select Atleast One Checkbox");
+        var unique_partner = ArrayNoDuplicate(partner_id_array);
+        var unique_invoice = ArrayNoDuplicate(invoice_id_array);
+        var flag = true;
+        if(unique_invoice.length > 1){
+          flag = false;
+          $('#btn_create_invoice').attr('disabled',false);
+          alert("You Can not select different invoice id.");  
+          return false;
         }
-    
+        
+        if(unique_partner.length > 1){
+             flag = false;
+             $('#btn_create_invoice').attr('disabled',false);
+             alert("You Can not select multiple partner booking");
+             return false;
+         } 
+          if(flag){
+            $.ajax({
+                 method:'POST',
+                 dataType: "json",
+                 url:'<?php echo base_url(); ?>employee/inventory/get_spare_invoice_details',
+                 data: { spare_id_array : spare_id },
+                 success:function(data){ 
+                     if(data.length > 0){
+                         $("#invoice_id").val(data[0]['invoice_id']);
+                         $("#invoice_date").val(data[0]['invoice_date']);
+                       var html  = '<input type="hidden" name="partner_id" value="'+unique_partner[0]+'" />';
+                       for(k =0; k < data.length; k++){
+                            html +='<div class="col-md-12" >';
+                            html += '<div class="col-md-4 "> <div class="form-group col-md-12  "><label for="remarks">Booking ID *</label>';
+                            html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="bookingid_'+k+'" placeholder="Enter Booking ID" name="part['+data[k]["spare_id"]+'][booking_id]" value = "'+data[k]['booking_id']+'" >';
+                            html += '</div></div>';
+
+                            html += '<div class="col-md-3 " style="width: 18%"><div class="form-group col-md-12  ">';
+                            html += ' <label for="remarks">HSN Code *</label>';
+                            html += '<input required type="text" class="form-control" style="font-size: 13px;"  id="hsncode_'+k+'" placeholder="HSN Code" name="part['+data[k]["spare_id"]+'][hsn_code]" value = "'+data[k]["hsn_code"]+'" >';
+                            html += '</div></div>';
+
+                            html += '<div class="col-md-3 " style="width: 17%"><div class="form-group col-md-12  ">';
+                            html += ' <label for="remarks">GST Rate *</label>';
+                            html += '<input required type="number" class="form-control" style="font-size: 13px;"  id="gstrate'+k+'" placeholder="GST Rate" name="part['+data[k]["spare_id"]+'][gst_rate]" value = "'+data[k]["gst_rate"]+'" >';
+                            html += '</div></div>';
+
+                            html += '<div class="col-md-4 " style="width: 30%"><div class="form-group col-md-12  ">';
+                            html += ' <label for="remarks">Basic Amount *</label>';
+                            html += '<input required type="number" step=".01" class="form-control" style="font-size: 13px;"  id="basic_amount'+k+'" placeholder="Enter Amount" name="part['+data[k]["spare_id"]+'][basic_amount]" value = "'+data[k]["invoice_amount"]+'" >';
+                            html += '</div></div>';
+                            html += '</div>';
+                       }  
+                       
+                    $("#spare_inner_html").html(html);
+                    $('#purchase_invoice').modal('toggle'); 
+                    }
+                    else {
+                        $('#btn_create_invoice').attr('disabled',false);
+                    }
+                     
+                 }
+            });  
+        }
+            
     }
     
     function ArrayNoDuplicate(a) {
