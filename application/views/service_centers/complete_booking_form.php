@@ -417,7 +417,7 @@
                                                                                     echo "checked";
                                                                                     }
                                                                                     else if($this->session->userdata('is_engineer_app') == 1 && isset($price['en_booking_status'])){
-                                                                                        if($price['en_booking_status'] == 0){
+                                                                                        if($price['en_booking_status'] == 0 && $price['en_current_status'] == "InProcess"){
                                                                                              echo "checked";
                                                                                         }
                                                                                     }

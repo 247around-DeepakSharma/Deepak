@@ -428,6 +428,7 @@ class Service_centers extends CI_Controller {
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_serial_number_pic'] = $en[0]['serial_number_pic'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_is_broken'] = $en[0]['is_broken'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_internal_status'] = $en[0]['internal_status'];
+                        $bookng_unit_details[$key1]['quantity'][$key2]['en_current_status'] = $en[0]['current_status'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_purchase_date'] = date('Y-m-d', strtotime($en[0]['sf_purchase_date']));
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_service_charge'] = $en[0]['service_charge'];
                         $bookng_unit_details[$key1]['quantity'][$key2]['en_additional_service_charge'] = $en[0]['additional_service_charge'];
