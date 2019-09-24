@@ -2050,34 +2050,46 @@ class Service_centers extends CI_Controller {
             $response = array();
         }
         $booking_id = $this->input->post('booking_id');
-        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($this->input->post('booking_id'), $this->input->post('service_center_closed_date'));
-        if ($is_booking_able_to_reschedule !== FALSE) {
+        $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($this->input->post('booking_id'));
+        if ($is_booking_able_to_reschedule === FALSE) {
             if(!$this->input->post("call_from_api")){
-               // Check form validation
-               $f_status = $this->checkvalidation_for_update_by_service_center();
+                $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
+                $this->update_booking_status(urlencode(base64_encode($booking_id)));
+            }
+            else{
+                $response['status'] = false;
+                $response['message'] = 'Booking can not be rescheduled because booking is already closed by service center.';
+            }
+        }
+        else{ 
+            if(!$this->input->post("call_from_api")){
+                // Check form validation
+                $f_status = $this->checkvalidation_for_update_by_service_center();
             }
             else{
                 $f_status = true;
             }
+        }
+
         if ($f_status) {
             $reason = $this->input->post('reason');
-
-
+            
+                               
             switch ($reason) {
-
-                CASE PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
-                CASE RESCHEDULE_FOR_UPCOUNTRY:
-                CASE SPARE_PARTS_NOT_DELIVERED_TO_SF:
-                    log_message('info', __FUNCTION__ . " " . $this->input->post('reason') . " Request: " . $this->session->userdata('service_center_id'));
-                    $this->save_reschedule_request();
-                    break;
-
+                
+                 CASE PRODUCT_NOT_DELIVERED_TO_CUSTOMER:
+                 CASE RESCHEDULE_FOR_UPCOUNTRY: 
+                 CASE SPARE_PARTS_NOT_DELIVERED_TO_SF: 
+                     log_message('info', __FUNCTION__ ." ". $this->input->post('reason') . " Request: " . $this->session->userdata('service_center_id'));
+                     $this->save_reschedule_request();
+                     break;
+               
                 CASE CUSTOMER_ASK_TO_RESCHEDULE:
-                    log_message('info', __FUNCTION__ . " " . $this->input->post('reason') . " Request: " . $this->session->userdata('service_center_id'));
+                    log_message('info', __FUNCTION__ ." ". $this->input->post('reason') . " Request: " . $this->session->userdata('service_center_id'));
                     $this->save_reschedule_request();
                     $booking_id = $this->input->post('booking_id');
                     $this->booking_model->increase_escalation_reschedule($booking_id, "count_reschedule");
-
+                    
                     break;
                 CASE ESTIMATE_APPROVED_BY_CUSTOMER:
                     log_message('info', __FUNCTION__ . ESTIMATE_APPROVED_BY_CUSTOMER . " Request: " . $this->session->userdata('service_center_id'));
@@ -2108,14 +2120,14 @@ class Service_centers extends CI_Controller {
                             $bcc = "";
                             $subject = "Auto Cancelled Booking - 3rd Day Customer Not Reachable.";
                             $message = "Auto Cancelled Booking " . $booking_id;
-                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "", AUTO_CANCELLED_BOOKING, "", $booking_id);
+                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $message, "",AUTO_CANCELLED_BOOKING, "", $booking_id);
                         } else {
                             $this->default_update(true, true);
                         }
                     } else {
                         $this->default_update(true, true);
                     }
-
+                    
                     break;
 
                 case ENGINEER_ON_ROUTE:
@@ -2139,16 +2151,6 @@ class Service_centers extends CI_Controller {
                 echo json_encode($response);
             }
         }
-        } else {
-            if(!$this->input->post("call_from_api")){
-                $this->session->set_userdata(['error' => 'Booking can not be rescheduled because booking is already closed by service center.']);
-                $this->update_booking_status(urlencode(base64_encode($booking_id)));
-            }else{
-               $response['status'] = false;
-               $response['message'] = 'Booking can not be rescheduled because booking is already closed by service center.';
-               echo json_encode($response);
-            }
-        }  
 
         log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $this->session->userdata('service_center_id'));
     }
