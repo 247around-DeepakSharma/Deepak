@@ -3321,7 +3321,6 @@ class Inventory extends CI_Controller {
 //        $str = '{"is_wh_micro":"2","247around_gst_number":"09AAFCB1281J1ZM","partner_id":"247130","wh_id":"870","awb_number":"12587455","courier_name":"gati-kwe","courier_shipment_date":"2019-07-04","from_gst_number":"7","part":[{"shippingStatus":"1","service_id":"37","part_name":"TRAY,BOTTOM,ER180I,INSTA","part_number":"1100023151","booking_id":"","quantity":"1","part_total_price":"158.25","hsn_code":"39239090","gst_rate":"18","inventory_id":"6011"},{"shippingStatus":"1","service_id":"37","part_name":"LEG,ADJUSTABLE,27MM L,ER180I,INSTA","part_number":"1100028374","booking_id":"","quantity":"2","part_total_price":"15","hsn_code":"84189900","gst_rate":"18","inventory_id":"7463"}],"partner_name":" Videocon","wh_name":" Amritsar Baldev Electronics - (Micro Warehouse) ","dated":"2019-07-04","sender_entity_type":"vendor","sender_entity_id":"15","invoice_tag":"MSL","transfered_by":"2"}';
  //        $_POST = json_decode($str, true);  
 //  
-         // print_r($_POST);  
         $invoice_file_required =  $this->input->post('invoice_file');
                         
         if (!$invoice_file_required) {
@@ -3330,8 +3329,7 @@ class Inventory extends CI_Controller {
         }else{
             $invoice_file_required=1;
                         
-        }   
-
+        } 
         $partner_id = $this->input->post('partner_id');
         $invoice_id = $this->input->post('invoice_id');
         $invoice_dated = $this->input->post('dated');
@@ -3678,6 +3676,7 @@ class Inventory extends CI_Controller {
                     'wh_ack_received_part' => 0, 'purchase_invoice_id' => $ledger['invoice_id'],
                     'sell_invoice_id' => (isset($ledger['micro_invoice_id'])? $ledger['micro_invoice_id'] : NULL),
                     'requested_inventory_id' => $ledger['inventory_id'],
+                    'shipped_quantity'=>$ledger_data['quantity'],
                     'inventory_invoice_on_booking' => 1, 'defective_return_to_entity_id' => $wh_id,
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
                 
@@ -6148,7 +6147,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
             if ($this->session->userdata('partner_id')) {
                 $where['spare_parts_details.partner_id'] = $this->session->userdata('partner_id');
             }
-            $data['data'] = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.requested_inventory_id, booking_details.partner_id,"
+            $data['data'] = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id,spare_parts_details.quantity, spare_parts_details.requested_inventory_id, booking_details.partner_id,"
                     . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number", $where, true);
             
             if (!empty($data['data'])) {

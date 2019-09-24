@@ -1964,19 +1964,19 @@ class engineerApi extends CI_Controller {
                 if($value['document_type'] == "pdf"){
                     $pdf['document_type'] = $value['document_type'];
                     $pdf['document_description'] = $value['document_description'];
-                    $pdf['file'] = S3_WEBSITE_URL."vendor-partner-docs/".$value['file'];
+                    $pdf['file'] = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".urlencode($value['file']);
                     array_push($pdf_docs, $pdf);
                 }
                 else if($value['document_type'] == "video"){
                     $video['document_type'] = $value['document_type'];
                     $video['document_description'] = $value['document_description'];
-                    $video['file'] = S3_WEBSITE_URL."vendor-partner-docs/".$value['file'];
+                    $video['file'] = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".urlencode($value['file']);
                     array_push($video_docs, $video);
                 }
                 else{
                     $others['document_type'] = $value['document_type'];
                     $others['document_description'] = $value['document_description'];
-                    $others['file'] = S3_WEBSITE_URL."vendor-partner-docs/".$value['file'];
+                    $others['file'] = "https://s3.amazonaws.com/bookings-collateral/vendor-partner-docs/".urlencode($value['file']);
                     array_push($other_docs, $others);
                 }
                 $i++;
