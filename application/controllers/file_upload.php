@@ -1161,7 +1161,7 @@ class File_upload extends CI_Controller {
         $partner_id = trim($this->input->post('partner_id'));
         $flag = false;
         if ($partner_id) {
-            $model_details = $this->inventory_model->get_appliance_model_details('id,model_number', array('entity_id' => trim($this->input->post('partner_id')), 'entity_type' => _247AROUND_PARTNER_STRING));
+            $model_details = $this->inventory_model->get_appliance_model_details('id,model_number', array('entity_id' => trim($this->input->post('partner_id')), 'entity_type' => _247AROUND_PARTNER_STRING, 'active' => 1));
             $part_number_details = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_number', array('entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING));
 
             $model = array();
