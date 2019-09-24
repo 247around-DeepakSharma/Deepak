@@ -17,6 +17,9 @@
     display: inline-block;
     text-decoration: none;
     }
+    label.error {
+        color:red;
+    }
 </style>
 <!-- page content -->
 <div id="page-wrapper"  role="main">
