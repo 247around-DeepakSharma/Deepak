@@ -206,7 +206,7 @@
                         </div>
 
                         <input type="hidden" name="courier_boxes_weight_flag" id="courier_boxes_weight_flag" value="0">
-                        <input type="hidden" name="courier_charges_by_sf" id="courier_charges_by_sf" value="0">
+                        <input type="hidden" name="courier_charges_by_sf_hidden" id="courier_charges_by_sf_hidden" value="0">
                         <input type="hidden" name="sp_ids" id="spareids" value="">
             </div>
             <div class="modal-footer">
