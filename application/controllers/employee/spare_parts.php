@@ -2080,7 +2080,6 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 $data['entity_type'] = $entity_type;
                 $data['partner_id'] = $partner_id;
                 $data['quantity'] = $spare_parts_details[0]['quantity'];
-                $data['shipped_quantity'] = $spare_parts_details[0]['shipped_quantity'];
                 $is_micro_wh = $data['is_micro_wh'] = $spare_parts_details[0]['is_micro_wh'];
                 
                 
@@ -2140,6 +2139,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                                 $spare_data['parts_requested_type'] = $warehouse_details['type'];
                                 $spare_data['quantity'] = $data['quantity'];
                                 $spare_data['requested_inventory_id'] = $warehouse_details['inventory_id'];
+                                //$data['shipped_quantity'] = $data['quantity'];
                                 // $spare_data['shipped_inventory_id'] = $warehouse_details['inventory_id'];
 
                             } else {
@@ -2203,7 +2203,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         $pcb['sp_id'] = $spare_id;
                         $pcb['gst_rate'] = $inventory_master_details[0]['gst_rate'];
 
-                        $pcb['estimate_cost'] = ($inventory_master_details[0]['price'] + ( $inventory_master_details[0]['price'] * $inventory_master_details[0]['gst_rate']) / 100);
+                        $pcb['estimate_cost'] = round((($inventory_master_details[0]['price'] + ( $inventory_master_details[0]['price'] * $inventory_master_details[0]['gst_rate']) / 100)*$data['quantity']),2);
                         $pcb['agent_id'] = $agent_id;
                         $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                     }
@@ -2231,6 +2231,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     if (isset($is_micro_wh) && $is_micro_wh == 1) {
                      
                         $data['spare_id'] = $spare_id;
+                        $data['shipped_quantity'] = $spare_data['quantity'];
                         $data['requested_inventory_id'] = $spare_data['requested_inventory_id'];
                         $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
                         array_push($delivered_sp, $data);

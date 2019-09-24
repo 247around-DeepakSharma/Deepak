@@ -206,7 +206,7 @@
                         </div>
 
                         <input type="hidden" name="courier_boxes_weight_flag" id="courier_boxes_weight_flag" value="0">
-
+                        <input type="hidden" name="courier_charges_by_sf" id="courier_charges_by_sf" value="0">
                         <input type="hidden" name="sp_ids" id="spareids" value="">
             </div>
             <div class="modal-footer">
@@ -234,6 +234,10 @@
     function submitForm(){
        event.preventDefault();
        $(".loader").removeClass('hide');
+       if( $("#courier_charges_by_sf_hidden").val()!=0)
+        {
+            $("#courier_charges_by_sf").val( $("#courier_charges_by_sf_hidden").val())
+        }
        var form_data = new FormData(document.getElementById("idForm"));
 
                $.ajax({
@@ -477,10 +481,10 @@ $("#spareids").val(yourArray);
                     var data = jQuery.parseJSON(response);
                     if (data.code === 247) {
     
-                        $("#same_awb").css({"color": "green", "font-weight": "900"});
+                        //$("#same_awb").css({"color": "green", "font-weight": "900"});
                         //  $("#same_awb").css("font-wight",900);
-                        alert("This AWB already used same price will be added");
-                        $("#same_awb").css("display", "block");
+                        //alert("This AWB already used same price will be added");
+                        //$("#same_awb").css("display", "block");
                         $('body').loadingModal('destroy');
     
                         
@@ -495,7 +499,8 @@ $("#spareids").val(yourArray);
                         $('#courier_name_by_sf').val(courier).trigger('change');
                         if(data.message[0].courier_charge > 0){
                             $("#courier_charges_by_sf").val(data.message[0].courier_charge);
-                            $("#courier_charges_by_sf").attr('readonly', "readonly");
+                            $("#courier_charges_by_sf_hidden").val(data.message[0].courier_charge);
+                           // $("#courier_charges_by_sf").attr('readonly', "readonly");
                         }
                         
                         
