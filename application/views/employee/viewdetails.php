@@ -621,7 +621,7 @@
                                           } 
                                          ?></span></td>
                                         <td><?php echo $sp['model_number']; ?></td>
-                                        <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."employee/inventory/inventory_master_list','".$sp['partner_id']."','".$booking_history[0]['service_id']."','".$sp['original_parts_number']."')\"><b>".$sp['original_parts_number']."</b></a>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><a href=\"javascript:openPartDetails('".base_url()."employee/inventory/inventory_master_list','".$sp['partner_id']."','".$booking_history[0]['service_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>") : ''); } ?></td>
+                                        <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."employee/inventory/inventory_master_list','".$sp['partner_id']."','".$booking_history[0]['service_id']."','".$sp['part_number']."')\"><b>".$sp['original_parts_number']."</b></a>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
                                         <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."employee/inventory/inventory_master_list','".$sp['partner_id']."','".$booking_history[0]['service_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>"; } ?></td>
 <!--                                        <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; } ?></td>-->
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
@@ -725,14 +725,14 @@
                                     <th>Wrong Part Remarks</th>
                                 </thead>
                                 <tbody>
-                                    <?php foreach($booking_history['spare_parts'] as $kk => $spare_record) { ?>
+                                    <?php foreach($booking_history['spare_parts'] as $kk => $spare_record) { if(!empty($spare_record['wrong_part_name'])) { ?>
                                     <tr>
                                         <td><?php echo ++$kk; ?></td>
                                         <td><?php echo $spare_record['parts_requested']; ?></td>
                                         <td><?php echo $spare_record['wrong_part_name']; ?></td>
                                         <td><?php echo $spare_record['wrong_part_remarks']; ?></td>
                                     </tr>
-                                    <?php } ?>
+                                    <?php } }?>
                                 </tbody>
                             </table>
                         </div>
