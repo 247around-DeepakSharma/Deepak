@@ -242,7 +242,7 @@
                                         } ?>">
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
                                         <div class="col-md-6">
-                                            <select class="form-control spare_parts shipped-part-name" onchange="change_parts_name('<?php echo $skey;?>')" id="<?php echo "shippedpartsname_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_parts_name]" required="" data-key="<?=$skey?>" >
+                                            <select class="form-control spare_parts shipped_parts_name" onchange="change_parts_name('<?php echo $skey;?>')" id="<?php echo "shippedpartsname_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_parts_name]" required="" data-key="<?=$skey?>" >
                                                 <!--                                        <option selected disabled >Select Part Name</option>-->
                                             </select>
                                             <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
@@ -302,7 +302,7 @@
                                         <div class="form-group ">
                                             <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
                                             <div class="col-md-6">
-                                                <select class="form-control spare_parts shipped-part-name"  id="shippedpartsname" >
+                                                <select class="form-control spare_parts shipped_parts_name"  id="shippedpartsname" >
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
