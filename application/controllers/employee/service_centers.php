@@ -3254,7 +3254,7 @@ class Service_centers extends CI_Controller {
         } else {
             
             $defective_courier_receipt = $this->input->post("sp_parts");
-            $spare_details = $this->partner_model->get_spare_parts_by_any("*",array('id'=>$sp_id));
+            $spare_details = $this->partner_model->get_spare_parts_by_any("*",array('spare_part_details.id'=>$sp_id));
             
             if (!empty($defective_courier_receipt)) {
                 if (!empty($sp_id)) {
