@@ -725,14 +725,14 @@
                                     <th>Wrong Part Remarks</th>
                                 </thead>
                                 <tbody>
-                                    <?php foreach($booking_history['spare_parts'] as $kk => $spare_record) { ?>
+                                    <?php foreach($booking_history['spare_parts'] as $kk => $spare_record) { if(!empty($spare_record['wrong_part_name'])) { ?>
                                     <tr>
                                         <td><?php echo ++$kk; ?></td>
                                         <td><?php echo $spare_record['parts_requested']; ?></td>
                                         <td><?php echo $spare_record['wrong_part_name']; ?></td>
                                         <td><?php echo $spare_record['wrong_part_remarks']; ?></td>
                                     </tr>
-                                    <?php } ?>
+                                    <?php } }?>
                                 </tbody>
                             </table>
                         </div>

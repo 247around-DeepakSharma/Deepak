@@ -5545,7 +5545,7 @@ class Partner extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."')  " => NULL
         );
         $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, "
                 . " spare_parts_details.booking_id, users.name,spare_parts_details.courier_name_by_partner,spare_parts_details.awb_by_partner, spare_parts_details.partner_challan_number, "
@@ -7024,7 +7024,7 @@ class Partner extends CI_Controller {
                $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "booking_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."')  " => NULL
         );
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');
