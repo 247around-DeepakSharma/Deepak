@@ -633,25 +633,13 @@
                             <div class="form-group col-md-6" style=" margin-left:-29px;">
                                 <label for="remark" class="col-md-12">Booking Remarks</label>
                                 <div class="col-md-12" >
-                                    <textarea class="form-control"  rows="2" name="booking_remarks" readonly><?php
-                                        if (isset($booking_history[0]['booking_remarks'])) {
-                                            echo str_replace("<br/>", "&#13;&#10;", $booking_history[0]['booking_remarks']);
-                                        }
-                                        ?></textarea>
+                                    <textarea class="form-control"  rows="2" name="booking_remarks" readonly><?php if (isset($booking_history[0]['booking_remarks'])) {echo str_replace("<br/>", "&#13;&#10;", $booking_history[0]['booking_remarks']);}?></textarea>
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="remark" class="col-md-12">Closing Remarks</label>
                                 <div class="col-md-12" >
-                                    <textarea class="form-control"  rows="2" name="closing_remarks" id="closing_remarks" required>
-                                        <?php 
-                                            if($this->session->userdata('is_engineer_app') == 1){ 
-                                                if(isset($bookng_unit_details[0]['en_closing_remark'])){
-                                                   echo $bookng_unit_details[0]['en_closing_remark'];
-                                                }
-                                            }
-                                        ?>
-                                    </textarea>
+                                    <textarea class="form-control"  rows="2" name="closing_remarks" id="closing_remarks" required><?php if($this->session->userdata('is_engineer_app') == 1){if(isset($bookng_unit_details[0]['en_closing_remark'])){echo $bookng_unit_details[0]['en_closing_remark'];}}?></textarea>
                                 </div>
                             </div>
                         </div>
