@@ -106,7 +106,7 @@
                                         echo date("d-m-Y", strtotime($row['defective_part_shipped_date']));
                                     } ?>
                                 </td>
-                                    <td>
+                                    <td style="width: 15% !important;">
                                 <?php echo $row['remarks_defective_part_by_sf']; ?>
                                 </td>
                                 <td><?php if($row['is_consumed'] == 1) { echo 'Yes'; } else { echo 'No';} ?></td>

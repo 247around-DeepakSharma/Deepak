@@ -1520,8 +1520,6 @@ function get_data_for_partner_callback($booking_id) {
         if(!empty($post['wrong_part'])) {
             $this->db->join('wrong_part_shipped_details','spare_parts_details.id = wrong_part_shipped_details.spare_id and wrong_part_shipped_details.active = 1', 'left');
         }
-        //$this->db->join('appliance_model_details','appliance_model_details.model_number = spare_parts_details.model_number', 'left');
-        //$this->db->join('symptom_spare_request', 'symptom_spare_request.id = spare_parts_details.spare_request_symptom', 'left');
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
         }
