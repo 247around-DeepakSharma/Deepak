@@ -1228,8 +1228,14 @@
        
         function booking_calculate_total_price(id){
 
-           var total_spare_invoice_price = (Number($('#onquantity_'+id).val()) * Number($('#onpartBasicPrice_'+id).val())) + (Number($('#onquantity_'+id).val()) * Number($('#onpartBasicPrice_'+id).val()) * Number($('#onpartGstRate_'+id).val())/100);
+           var total_spare_invoice_price = Number($('#onpartBasicPrice_'+id).val()) + (Number($('#onpartBasicPrice_'+id).val()) * Number($('#onpartGstRate_'+id).val())/100);
            $('#ontotal_amount_'+id).val(Number(total_spare_invoice_price.toFixed(2)));
+        }
+        
+        function booking_calculate_basic_price(id){
+           var qty = (($.trim($('#onquantity_'+id).val()) !== '') ? Number($('#onquantity_'+id).val()) : 1);
+           var spare_invoice_price = qty * Number($('#onpartBasic_'+id).val());
+           $('#onpartBasicPrice_'+id).val(Number(spare_invoice_price.toFixed(2)));
         }
        
        function get_part_number_on_booking(index){
@@ -1251,6 +1257,7 @@
                         $('#onpartNumber_'+index).html(obj.option);
                         $('#oninventoryId_'+index).val(obj.inventory_id);
                         $('#onpartBasicPrice_'+index).val(obj.basic_price);
+                        $('#onpartBasic_'+index).val(obj.basic_price);
                         $('#onpartGstRate_'+index).val(obj.gst_rate);
                         $('#onpartHsnCode_'+index).val(obj.hsn_code);
                         $('#onspareType_'+index).val(obj.type);
@@ -1293,6 +1300,7 @@
 
         $('#oninventoryId_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-inventory_id'));
         $('#onpartBasicPrice_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-basic_price'));
+        $('#onpartBasic_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-basic_price'));
         $('#onpartGstRate_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-gst_rate'));
         $('#onpartHsnCode_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-hsn_code'));
         $('#onspareType'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-type'));
@@ -1310,7 +1318,7 @@
                     validateDecimal('onpartBasicPrice_'+i,$('#onpartBasicPrice_'+i).val());
                     
                     if(Number($('#onpartBasicPrice_'+i).val()) === 0){
-                        onBookingshowConfirmDialougeBox('Please enter basic price', 'warning');
+                        onBookingshowConfirmDialougeBox('Please enter total basic price', 'warning');
                         $('#onpartBasicPrice_'+i).addClass('text-danger');
                         flag = false;
                         return false;
@@ -1407,9 +1415,10 @@
                .find('[id="shipping_status_2"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','n_shippingStatus_'+onBookingIndex).attr("required", true).end()
                .find('[id="shipping_status_3"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','l_shippingStatus_'+onBookingIndex).attr("required", true).end()
                .find('[id="onpartName"]').attr('name', 'part[' + onBookingIndex + '][part_name]').attr('id','onpartName_'+onBookingIndex).attr('onchange','get_part_number_on_booking("'+ onBookingIndex+'")').addClass('part_name').attr("required", true).end()
+               .find('[id="onpartBasic"]').attr('id','onpartBasic_'+onBookingIndex).end()
                .find('[id="onpartBasicPrice"]').attr('name', 'part[' + onBookingIndex + '][part_total_price]').attr('id','onpartBasicPrice_'+onBookingIndex).attr('onkeyup','validateDecimal(this.id, this.value);booking_calculate_total_price('+onBookingIndex+')').addClass('onpartBasicPrice').end()
                .find('[for="onpartBasicPrice"]').attr('for','onpartBasicPrice_'+onBookingIndex).attr('id','lbl_onpartBasicPrice_'+onBookingIndex).end()
-               .find('[id="onquantity"]').attr('name', 'part[' + onBookingIndex + '][quantity]').attr('id','onquantity_'+onBookingIndex).attr('onkeyup','booking_calculate_total_price('+onBookingIndex+')').end()
+               .find('[id="onquantity"]').attr('name', 'part[' + onBookingIndex + '][quantity]').attr('id','onquantity_'+onBookingIndex).attr('onkeyup','booking_calculate_basic_price('+onBookingIndex+');booking_calculate_total_price('+onBookingIndex+')').end()
                .find('[id="onpartGstRate"]').attr('name', 'part[' + onBookingIndex + '][gst_rate]').attr('id','onpartGstRate_'+onBookingIndex).addClass('onpartGstRate').attr('onkeyup','booking_calculate_total_price('+onBookingIndex+')').end()
                .find('[id="onpartNumber"]').attr('name', 'part[' + onBookingIndex + '][part_number]').attr('id','onpartNumber_'+onBookingIndex).attr('onchange', 'onchange_part_number("'+onBookingIndex+'")').end()
                .find('[id="onpartHsnCode"]').attr('name', 'part[' + onBookingIndex + '][hsn_code]').attr('id','onpartHsnCode_'+onBookingIndex).addClass('onpartHsnCode').end()

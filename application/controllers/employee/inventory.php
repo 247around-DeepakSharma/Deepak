@@ -3838,10 +3838,10 @@ class Inventory extends CI_Controller {
             $newdata['wh_ack_received_part'] = 0;
             $newdata['requested_inventory_id'] = $ledger['inventory_id'];
             $newdata['inventory_invoice_on_booking'] = 1;
-            if($ledger['is_micro_wh']==1){
+            if($ledger['is_wh_micro']==1){
             $newdata['is_micro_wh'] = 2;   
             }
-            if($ledger['is_micro_wh']==2){
+            if($ledger['is_wh_micro']==2){
             $newdata['is_micro_wh'] = 1;   
             }
             $newdata['part_warranty_status'] = 1;
