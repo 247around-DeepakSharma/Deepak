@@ -103,23 +103,20 @@ class Service_centers extends CI_Controller {
     }
 
 
-        function get_inventory_by_model($model_number_id = '', $service_id = '',$booking_id='') {
-            
-            if(!empty($booking_id)){
-             $booking_unit = $this->booking_model->getunit_details($booking_id,$service_id);
-            if(!empty($booking_unit)){
-               $sf_data['model'] = $booking_unit[0]['model_number'];  
-            }   
+    function get_inventory_by_model($model_number_id = '', $service_id = '', $booking_id = '') {
+
+        if (!empty($booking_id)) {
+            $booking_unit = $this->booking_model->getunit_details($booking_id, $service_id);
+            if (!empty($booking_unit)) {
+                $sf_data['model'] = $booking_unit[0]['model_number'];
             }
-            if(!empty($this->input->post('search')))
-            {
-                $sf_data['search'] = $this->input->post('search');
-            }
+        }
+
         if (!empty($model_number_id) && empty($service_id)) {
             $model_number_id = urldecode($model_number_id);
             $sf_data['model_number_id'] = $model_number_id;
             $sf_data['partner_id'] = '';
-            $sf_data['service_id'] = '';  
+            $sf_data['service_id'] = '';
             $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services', array('inventory_model_mapping.model_number_id' => $model_number_id, 'inventory_model_mapping.active' => 1));
         } else {
             $data['inventory_details'] = array();
@@ -127,7 +124,7 @@ class Service_centers extends CI_Controller {
             $sf_data['partner_id'] = urldecode($model_number_id);
             $sf_data['service_id'] = $service_id;
         }
-       $sf_data['saas_flag'] = $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $sf_data['saas_flag'] = $data['saas_flag'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if ($this->session->userdata('employee_id')) {
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/show_inventory_details_by_model', $data);
@@ -136,8 +133,8 @@ class Service_centers extends CI_Controller {
             $this->load->view('employee/show_inventory_details_by_model', $data);
             $this->load->view('partner/partner_footer');
         } else if ($this->session->userdata('userType') == 'service_center') {
-            
-            
+
+
             $this->load->view('service_centers/header');
             $this->load->view('service_centers/show_inventory_details_by_model', $sf_data);
         }
