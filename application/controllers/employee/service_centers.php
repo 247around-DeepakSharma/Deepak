@@ -2024,6 +2024,9 @@ class Service_centers extends CI_Controller {
                 $data['partner_id'] = $partner_id;
                 $data['entity_type'] = _247AROUND_PARTNER_STRING;
                 $data['is_micro_wh'] = 0;
+                if (isset($warehouse_details['challan_approx_value'])) {
+                $data['challan_approx_value'] = round($warehouse_details['challan_approx_value']*$data['quantity'],2);
+                }
                 $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                 $data['defective_return_to_entity_id'] = $partner_id;
                 $data['requested_inventory_id'] = $change_inventory_id;
@@ -2500,6 +2503,9 @@ class Service_centers extends CI_Controller {
                             if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
                                 $data['requested_inventory_id'] = $value['requested_inventory_id'];
 
+                            }
+                            if (isset($warehouse_details['challan_approx_value'])) {
+                                $data['challan_approx_value'] = round($warehouse_details['challan_approx_value']*$data['quantity'],2);
                             }
                         }
                     } else {
@@ -3075,7 +3081,7 @@ class Service_centers extends CI_Controller {
                 . " sf_challan_file as challan_file, "
                 . " remarks_defective_part_by_partner, "
                 . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
-                . " spare_parts_details.id,spare_parts_details.challan_approx_value ,i.part_number ";
+                . " spare_parts_details.id,spare_parts_details.challan_approx_value ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
         
         $group_by = "spare_parts_details.id";
         $order_by = "status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.booking_id ASC";
@@ -5301,6 +5307,9 @@ class Service_centers extends CI_Controller {
                             $data['entity_type'] = _247AROUND_PARTNER_STRING;
                             $entity_type = _247AROUND_PARTNER_STRING;
                             $data['is_micro_wh'] = 0;
+                            if (isset($warehouse_details['challan_approx_value'])) {
+                             $data['challan_approx_value'] = round(($warehouse_details['challan_approx_value']*$spare_data['quantity']),2);
+                            }
                             $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                             $data['defective_return_to_entity_id'] = $partner_id;
                             $is_micro_wh = 0;
