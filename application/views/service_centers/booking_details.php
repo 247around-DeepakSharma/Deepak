@@ -451,7 +451,7 @@
                                 <td><?php echo $sp['consumed_status']; ?></td>
                                 <?php if($this->session->userdata("is_micro_wh") == 1){ 
                                     if($sp['status'] == SPARE_DELIVERED_TO_SF && $sp['entity_type'] == _247AROUND_SF_STRING && $sp['partner_id'] == $this->session->userdata("service_center_id") && $sp['service_center_id'] == $this->session->userdata("service_center_id")){ ?>
-                                <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>)">Remove</button></td>
+                                <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>, <?php echo $sp['shipped_quantity']; ?>)">Remove</button></td>
                                 <?php }else{ ?>
                                     <td><button class="btn btn-primary" disabled>Remove</button></td>
                                 <?php } ?>
@@ -908,6 +908,7 @@
                     <input type="hidden" id="model_spare_id">
                     <input type="hidden" id="model_booking_id">
                     <input type="hidden" id="model_inventory_id">
+                    <input type="hidden" id="model_shipped_quantity">
                 </div>
                 <input type="hidden" id="url"></input>
                 <div class="modal-footer">
@@ -1041,7 +1042,7 @@
             });
         }
         
-    function open_model_for_remove_msl(spare_id, booking_id, inventory_id){
+    function open_model_for_remove_msl(spare_id, booking_id, inventory_id, quantity){
         /*
         $.ajax({
             method:"POST",
@@ -1059,7 +1060,8 @@
            
         $("#model_spare_id").val(spare_id);
         $("#model_booking_id").val(booking_id);
-        $("#model_inventory_id").val(inventory_id);
+        $("#model_inventory_id").val(inventory_id); 
+        $("#model_shipped_quantity").val(quantity);
         $("#msl_remove_reason").select2();
         $("#remove_msl_model").modal('show');
     }    
@@ -1080,7 +1082,7 @@
             $.ajax({
                 method:"POST",
                 url:'<?php echo base_url(); ?>employee/inventory/remove_msl_consumption',
-                data:{'spare_parts_id':spare_id, 'booking_id':booking_id, 'spare_cancel_reason': '<?php echo SPARE_RECIEVED_NOT_USED; ?>', 'remarks':$("#msl_remove_remark").val(), 'inventory_id':$("#model_inventory_id").val()},
+                data:{'spare_parts_id':spare_id, 'booking_id':booking_id, 'spare_cancel_reason': '<?php echo SPARE_RECIEVED_NOT_USED; ?>', 'remarks':$("#msl_remove_remark").val(), 'inventory_id':$("#model_inventory_id").val(), 'shipped_quantity':$("#model_shipped_quantity").val()},
                 success: function(response){
                     if(response){
                         alert("MSL removed successfully");

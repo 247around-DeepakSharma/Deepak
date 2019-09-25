@@ -41,7 +41,7 @@
                                         <?php echo $key +1; ?>
                                     </td>
                                      <td class="text-center">
-                                        <?php echo $row->booking_id; ?>
+                                         <a href="<?php echo base_url();?>service_center/booking_details/<?php echo urlencode(base64_encode($row->booking_id)); ?>"><?php echo $row->booking_id; ?></a>
                                     </td>
                                     <td class="text-center">
                                         <?php if(!empty($row->engineer_name)){ print_r($row->engineer_name[0]['name']);} ?>
