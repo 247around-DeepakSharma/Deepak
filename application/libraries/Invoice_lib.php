@@ -1186,7 +1186,7 @@ class Invoice_lib {
 
         $this->ci->table->set_heading(array('Part Name', 'Booking ID', "Inventory ID "));
         
-        $this->ci->table->add_row((isset($data['part_name'])?$data['part_name']:$data['description']), (isset($data['booking_id'])?$data['booking_id']:''), $data['inventory_id']);
+        $this->ci->table->add_row((isset($data['part_name'])?$data['part_name']:(isset($data['description'])?$data['description']:'')), (isset($data['booking_id'])?$data['booking_id']:''), $data['inventory_id']);
         
 
         $this->ci->table->set_template($template1);
