@@ -1039,6 +1039,12 @@ function set_upcountry() {
         }
     }
     $(document).ready(function(){
+        var is_spare_requested = $('#is_spare_requested').val();
+        if(is_spare_requested == 1){
+            $("input[data-price_tag='Installation & Demo (Free)']").prop("disabled", true);
+            $("input[data-price_tag='Installation & Demo (Paid)']").prop("disabled", true);            
+        }
+        
          $("#booking_pincode").keyup(function(event) {
        
             check_pincode();
