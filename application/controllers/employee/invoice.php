@@ -4991,7 +4991,7 @@ class Invoice extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status" => DEFECTIVE_PARTS_SHIPPED,
+            "spare_parts_details.status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL,
             "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".SHIPPED_DEFECTIVE_PARTS_AFTER_TAT_BREACH."' " => NULL
             
         );
@@ -5021,7 +5021,7 @@ class Invoice extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status" => DEFECTIVE_PARTS_SHIPPED,
+            "spare_parts_details.status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL,
             "DATEDIFF(CURRENT_TIMESTAMP, defective_part_shipped_date) > '".DEFECTIVE_PART_SHIPPED_OOT_DAYS."' " => NULL
             
         );
