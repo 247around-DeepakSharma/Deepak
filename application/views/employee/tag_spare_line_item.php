@@ -54,7 +54,8 @@
                                         $basic_price=  $inventory['price'];
                                         $inventory_id= $inventory['inventory_id'];
                                         $type = $inventory['type'];
-                                        $total_amount = sprintf("%.2f", $basic_price *( 1+ $gst_rate/100));
+                                        $qty = $value['quantity'];
+                                        $total_amount = sprintf("%.2f", $qty*$basic_price *( 1+ $gst_rate/100));
                                         }?>  ><?php echo $inventory['part_name']; ?></option>
                                 <?php } ?>
                             </select>
@@ -64,23 +65,23 @@
                     <div class="form-group">
                         <label for="Basic Price" class="col-md-4">Basic Price</label>
                         <div class="col-md-6">
-                            <input type="number" value="<?php echo $basic_price;?>" onkeyup="validateDecimal(this.id, this.value);booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control allowNumericWithDecimal onpartBasicPrice" id="<?php echo "onpartBasicPrice_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][part_total_price]"  placeholder=""  required >
+                            <input type="number" value="<?php echo $basic_price;?>" onkeyup="validateDecimal(this.id, this.value);booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control onpartBasicPrice" id="<?php echo "onpartBasicPrice_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][part_total_price]"  placeholder=""  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 46 || event.charCode == 13" >
                             <label for="<?php echo "onpartBasicPrice_".($key + $count);?>" id="lbl_<?php echo "onpartBasicPrice_".($key + $count);?>" class="error"></label>
                             <span id="error_<?php echo "onpartBasicPrice_".($key + $count);?>" class="error" style="color: red;"></span>
-                            <input type="hidden" value="1" class="form-control" id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity_test]"  placeholder=""  required readonly="">
+<!--                            <input type="hidden" value="<?php echo $value['quantity'];?>" class="form-control" id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity_test]"  placeholder=""  required readonly="">-->
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="GST rate" class="col-md-4">GST Rate</label>
                         <div class="col-md-6">
-                            <input type="number" value="<?php echo $gst_rate;?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control allowNumericWithOutDecimal onpartGstRate" id="<?php echo "onpartGstRate_".($key + $count);?>" 
-                                name="part[<?php echo ($key +$count); ?>][gst_rate]"  placeholder="Please Enter GST rate" min="12" max="28"  required >
+                            <input type="number" value="<?php echo $gst_rate;?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control onpartGstRate" id="<?php echo "onpartGstRate_".($key + $count);?>" 
+                                name="part[<?php echo ($key +$count); ?>][gst_rate]"  placeholder="Please Enter GST rate" min="12" max="28"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13" >
                         </div>
                     </div>
                      <div class="form-group">
-                        <label for="GST rate" class="col-md-4">Quantity</label>
+                        <label for="Quantity" class="col-md-4">Quantity</label>
                         <div class="col-md-6">
-                            <input type="number" value="<?php echo $value['quantity'];?>"  class="form-control  " id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity]"  placeholder="Please Enter Quantity"      required >
+                            <input type="number" value="<?php echo $value['quantity'];?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')"  class="form-control  " id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity]"  placeholder="Please Enter Quantity"  readonly=""    required >
                         </div>
                     </div>
                 </div>
@@ -103,8 +104,8 @@
                     <div class="form-group">
                         <label for="<?php echo "onpartHsnCode_".($key +$count);?>" class="col-md-4">HSN Code</label>
                         <div class="col-md-6">
-                            <input type="text" class="form-control onpartHsnCode allowNumericWithOutDecimal" id="<?php echo "onpartHsnCode_".($key +$count);?>" 
-                                name="part[<?php echo ($key +$count); ?>][hsn_code]" placeholder="Please Enter HSN Code" value="<?php echo $hsn_code;?>"  required >
+                            <input type="text" class="form-control onpartHsnCode" id="<?php echo "onpartHsnCode_".($key +$count);?>" 
+                                name="part[<?php echo ($key +$count); ?>][hsn_code]" placeholder="Please Enter HSN Code" value="<?php echo $hsn_code;?>"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13">
                         </div>
                     </div>
                     <input type="hidden" value="<?php echo $value['booking_id']; ?>" id="<?php echo "onbookingID_".($key +$count);?>" 
@@ -185,23 +186,23 @@
                             <div class="form-group">
                                 <label for="Basic Price" class="col-md-4">Basic Price</label>
                                 <div class="col-md-6">
-                                    <input type="text"  class="form-control allowNumericWithDecimal" id="onpartBasicPrice"  placeholder=""  required >
+                                    <input type="number"  class="form-control" id="onpartBasicPrice"  placeholder=""  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 46 || event.charCode == 13">
                                     <label for="onpartBasicPrice" id="lbl_onpartBasicPrice" class="error"></label>
                                     <span id="error_onpartBasicPrice" class="error" style="color: red;"></span>
-                                    <input type="hidden" value="1" class="form-control" id="onquantity" placeholder=""  required readonly="">
+<!--                                    <input type="hidden" value="1" class="form-control" id="onquantity" placeholder=""  required readonly="">-->
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label for="GST rate" class="col-md-4">GST Rate</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control allowNumericWithOutDecimal" id="onpartGstRate" placeholder="Please Enter GST rate" min="12" max="28"  required >
+                                    <input type="number" class="form-control" id="onpartGstRate" placeholder="Please Enter GST rate" min="12" max="28"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13">
                                 </div>
                             </div>
 
                             <div class="form-group">
-                                <label for="GST rate" class="col-md-4">Quantity</label>
+                                <label for="Quantity" class="col-md-4">Quantity</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control " name="quantity" id="onpartqty" placeholder="Please Enter Quantity"   required >
+                                    <input type="number" class="form-control" name="quantity" id="onquantity" placeholder="Please Enter Quantity"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13">
                                 </div>
                             </div>
                         </div>
@@ -221,7 +222,7 @@
                             <div class="form-group">
                                 <label for="onpartHsnCode" class="col-md-4">HSN Code</label>
                                 <div class="col-md-6">
-                                    <input type="text" class="form-control allowNumericWithOutDecimal" id="onpartHsnCode" placeholder="Please Enter HSN Code"  required >
+                                    <input type="text" class="form-control" id="onpartHsnCode" placeholder="Please Enter HSN Code"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13">
                                 </div>
                             </div>
                             <input type="hidden" value="<?php echo $data[0]['booking_id']; ?>" id="onbookingID" />

@@ -671,7 +671,7 @@
         
         $(".allowNumericWithOutDecimal").keydown(function (e) {
             // Allow: backspace, delete, tab, escape, enter
-            if ($.inArray(e.keyCode, [8, 9, 27, 13, 110, 190]) !== -1 ||
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13]) !== -1 ||
               // Allow: Ctrl+A,Ctrl+C,Ctrl+V, Command+A
               ((e.keyCode == 65 || e.keyCode == 86 || e.keyCode == 67) && (e.ctrlKey === true || e.metaKey === true)) ||
               // Allow: home, end, left, right, down, up
@@ -1620,7 +1620,7 @@
                .find('[id="error_onpartName"]').attr('id','error_onpartName_'+onBookingIndex).end()
                .find('[id="onpartBasicPrice"]').attr('name', 'part[' + onBookingIndex + '][part_total_price]').attr('id','onpartBasicPrice_'+onBookingIndex).attr('onkeyup','validateDecimal(this.id, this.value);booking_calculate_total_price('+onBookingIndex+')').addClass('onpartBasicPrice').end()
                .find('[id="error_onpartBasicPrice"]').attr('id','error_onpartBasicPrice_'+onBookingIndex).end()
-               .find('[id="onquantity"]').attr('name', 'part[' + onBookingIndex + '][quantity]').attr('id','onquantity_'+onBookingIndex).end()
+               .find('[id="onquantity"]').attr('name', 'part[' + onBookingIndex + '][quantity]').attr('id','onquantity_'+onBookingIndex).attr('onkeyup','booking_calculate_total_price('+onBookingIndex+')').end()
                .find('[id="onpartGstRate"]').attr('name', 'part[' + onBookingIndex + '][gst_rate]').attr('id','onpartGstRate_'+onBookingIndex).addClass('onpartGstRate').attr('onkeyup','booking_calculate_total_price('+onBookingIndex+')').end()
                .find('[id="onpartNumber"]').attr('name', 'part[' + onBookingIndex + '][part_number]').attr('id','onpartNumber_'+onBookingIndex).attr('onchange', 'onchange_part_number("'+onBookingIndex+'")').end()
                .find('[id="onpartHsnCode"]').attr('name', 'part[' + onBookingIndex + '][hsn_code]').attr('id','onpartHsnCode_'+onBookingIndex).addClass('onpartHsnCode').end()
@@ -1793,7 +1793,7 @@
        
        function booking_calculate_total_price(id){
           
-           var total_spare_invoice_price = Number($('#onpartBasicPrice_'+id).val()) + (Number($('#onpartBasicPrice_'+id).val()) * Number($('#onpartGstRate_'+id).val())/100);
+           var total_spare_invoice_price = (Number($('#onquantity_'+id).val()) * Number($('#onpartBasicPrice_'+id).val())) + (Number($('#onquantity_'+id).val()) * Number($('#onpartBasicPrice_'+id).val()) * Number($('#onpartGstRate_'+id).val())/100);
            $('#ontotal_amount_'+id).val(Number(total_spare_invoice_price.toFixed(2)));
        }
        
