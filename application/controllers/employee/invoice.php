@@ -4403,9 +4403,6 @@ class Invoice extends CI_Controller {
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
-
-                //Insert invoice Breakup
-                $this->insert_invoice_breakup($response);
             
                 log_message('info', __METHOD__ . ": Invoice ID inserted");
                 
