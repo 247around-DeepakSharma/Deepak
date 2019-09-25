@@ -1885,28 +1885,22 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"]) && !empty($requestData["booking_status"])) {
             if($requestData["booking_status"] == _247AROUND_CANCELLED || $requestData["booking_status"] == _247AROUND_COMPLETED){
-                $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
-                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id";
-            
-                $where = array(
-                    "assigned_vendor_id" => $requestData["service_center_id"],
-                    "assigned_engineer_id" => $requestData["engineer_id"],
-                );
-
                 if($requestData["booking_status"] == _247AROUND_CANCELLED){
-                    $where["engineer_booking_action.internal_status = '"._247AROUND_CANCELLED."'"] = NULL;
-                    $select .= ", engineer_booking_action.cancellation_reason, engineer_booking_action.cancellation_remark";
+                    $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, "
+                    . "engineer_booking_action.cancellation_reason, engineer_booking_action.cancellation_remark";
+            
+                    $where = array(
+                        "assigned_vendor_id" => $requestData["service_center_id"],
+                        "assigned_engineer_id" => $requestData["engineer_id"],
+                        "engineer_booking_action.internal_status = '"._247AROUND_CANCELLED."'" => NULL
+                    );
+                    $response['cancelledBookings'] = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false, true);
                 }
                 else{
-                    $where["engineer_booking_action.internal_status = '"._247AROUND_COMPLETED."'"] = NULL;
-                    $select .= ", engineer_booking_action.is_broken, engineer_booking_action.model_number, engineer_booking_action.sf_purchase_date, engineer_booking_action.serial_number,"
-                            . " engineer_booking_action.purchase_invoice, booking_details.request_type, engineer_booking_action.additional_service_charge, engineer_booking_action.parts_cost,"
-                            . " engineer_booking_action.booking_status, engineer_booking_action.symptom, engineer_booking_action.defect, engineer_booking_action.solution,"
-                            . " engineer_booking_action.closing_remark, engineer_table_sign.signature";
+                    $response['cancelledBookings'] = $this->engineer_model->engineer_completed_bookings_details($requestData["service_center_id"], $requestData["engineer_id"]);
                 }
                
-                $response['cancelledBookings'] = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false, true);
-                
                 if(!empty($response['cancelledBookings'])){
                     log_message("info", __METHOD__ . "Bookings Found Successfully");
                     $this->jsonResponseString['response'] = $response;
@@ -2935,7 +2929,7 @@ class engineerApi extends CI_Controller {
             $response['booking_details'] = $booking_details;
             
             /** get model number and date of purchase if spare part already ordered **/
-            $spare_details = $this->partner_model->get_spare_parts_by_any('model_number, date_of_purchase', array('booking_id' => $requestData["booking_id"]));
+            $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase', array('booking_id' => $requestData["booking_id"]));
             if(!empty($spare_details)){
                 $response['spare_parts'] = $spare_details[0];
             }
