@@ -63,9 +63,10 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="Basic Price" class="col-md-4">Basic Price</label>
+                        <label for="Basic Price" class="col-md-4">Total Basic Price</label>
                         <div class="col-md-6">
-                            <input type="number" value="<?php echo $basic_price;?>" onkeyup="validateDecimal(this.id, this.value);booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control onpartBasicPrice" id="<?php echo "onpartBasicPrice_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][part_total_price]"  placeholder=""  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 46 || event.charCode == 13" >
+                            <input type="hidden" value="<?php echo $basic_price;?>" class="form-control" id="<?php echo "onpartBasic_".($key + $count);?>" >
+                            <input type="number" value="<?php echo ($basic_price*$value['quantity']);?>" onkeyup="validateDecimal(this.id, this.value);booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control onpartBasicPrice" id="<?php echo "onpartBasicPrice_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][part_total_price]"  placeholder=""  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 46 || event.charCode == 13" >
                             <label for="<?php echo "onpartBasicPrice_".($key + $count);?>" id="lbl_<?php echo "onpartBasicPrice_".($key + $count);?>" class="error"></label>
                             <span id="error_<?php echo "onpartBasicPrice_".($key + $count);?>" class="error" style="color: red;"></span>
 <!--                            <input type="hidden" value="<?php echo $value['quantity'];?>" class="form-control" id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity_test]"  placeholder=""  required readonly="">-->
@@ -81,7 +82,7 @@
                      <div class="form-group">
                         <label for="Quantity" class="col-md-4">Quantity</label>
                         <div class="col-md-6">
-                            <input type="number" value="<?php echo $value['quantity'];?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')"  class="form-control  " id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity]"  placeholder="Please Enter Quantity"  readonly=""    required >
+                            <input type="number" value="<?php echo $value['quantity'];?>" onkeyup="booking_calculate_basic_price('<?php echo $key + $count;?>');booking_calculate_total_price('<?php echo $key + $count;?>')"  class="form-control  " id="<?php echo "onquantity_".($key + $count);?>" name="part[<?php echo ($key +$count); ?>][quantity]"  placeholder="Please Enter Quantity"  readonly=""    required >
                         </div>
                     </div>
                 </div>
@@ -184,8 +185,9 @@
                                
                             </div>
                             <div class="form-group">
-                                <label for="Basic Price" class="col-md-4">Basic Price</label>
+                                <label for="Basic Price" class="col-md-4">Total Basic Price</label>
                                 <div class="col-md-6">
+                                    <input type="hidden" class="form-control" id="onpartBasic" >
                                     <input type="number"  class="form-control" id="onpartBasicPrice"  placeholder=""  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 46 || event.charCode == 13">
                                     <label for="onpartBasicPrice" id="lbl_onpartBasicPrice" class="error"></label>
                                     <span id="error_onpartBasicPrice" class="error" style="color: red;"></span>
@@ -202,7 +204,7 @@
                             <div class="form-group">
                                 <label for="Quantity" class="col-md-4">Quantity</label>
                                 <div class="col-md-6">
-                                    <input type="number" class="form-control" name="quantity" id="onquantity" placeholder="Please Enter Quantity"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13">
+                                    <input type="number" class="form-control" value="1" name="quantity" id="onquantity" placeholder="Please Enter Quantity"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13">
                                 </div>
                             </div>
                         </div>

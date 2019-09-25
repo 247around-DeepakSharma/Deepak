@@ -556,14 +556,16 @@ class User_invoice extends CI_Controller {
                         $email_parts_name .= $value->spare_product_name."(".$booking_id.") ";
                         $amount = $value->confirm_prices;
                         $inventory_id = "";
+                        $where_cond = array('part_type' => $chech_spare[0]['parts_requested_type'],'inventory_parts_type.service_id' => $chech_spare[0]['service_id']);
                         if($chech_spare[0]['shipped_inventory_id']){
                             $inventory_id = $chech_spare[0]['shipped_inventory_id'];
+                            $where_cond = array('part_type' => $chech_spare[0]['parts_requested_type'],'service_id' => $chech_spare[0]['service_id']);
                          }
 //                        if($inventory_id){
 //                            $inventry_amount = $this->inventory_model->get_inventory_master_list_data("price", array("inventory_id"=>$inventory_id));
 //                            $amount = $inventry_amount[0]['price'] + ($inventry_amount[0]['price']*($value->gst_rates/100));
 //                        }
-                        $margin = $this->inventory_model->get_oow_margin($inventory_id, array('part_type' => $chech_spare[0]['parts_requested_type'],'service_id' => $chech_spare[0]['service_id']));
+                        $margin = $this->inventory_model->get_oow_margin($inventory_id, $where_cond);
                         $spare_oow_around_margin = $margin['oow_around_margin']/100;
                         $total_amount = ($amount + ($amount * $spare_oow_around_margin));
                         $hsn_code = $value->hsn_codes;
