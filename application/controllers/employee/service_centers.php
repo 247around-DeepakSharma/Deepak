@@ -3337,7 +3337,7 @@ class Service_centers extends CI_Controller {
                             "receiver_entity_type" => $this->input->post('defective_return_to_entity_type'),
                             "sender_entity_id" => $this->session->userdata('service_center_id'),
                             "sender_entity_type" => _247AROUND_SF_STRING,
-                            "quantity" => 1,
+                            "quantity" => $quantity,
                             "inventory_id" => $this->input->post("shipped_inventory_id"),
                             "agent_id" => $this->session->userdata('service_center_agent_id'),
                             "agent_type" => _247AROUND_SF_STRING,
