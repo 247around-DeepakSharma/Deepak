@@ -1517,4 +1517,6 @@ ALTER TABLE `part_type_return_mapping` ADD `inventory_id` INT(11) NOT NULL AFTER
 --Gorakh23-09-2019
 RENAME TABLE `boloaaka`.`spare_invoice_details` TO `boloaaka`.`oow_spare_invoice_details`; 
 --Ankit 24-09-2019
-ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1
+ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1;
+-- Prity Sharma 25-09-2019
+ALTER TABLE booking_unit_details CHANGE COLUMN sf_purchase_date sf_purchase_date date NULL DEFAULT NULL;
