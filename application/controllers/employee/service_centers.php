@@ -5931,22 +5931,23 @@ function do_multiple_spare_shipping(){
         // get spare part detail.
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if(!empty($spare_part_detail['consumed_part_status_id'])) {
-            $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
-            if(!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag, [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG])) {
-                // part stock in.
-                $in = [];
-                $in['receiver_entity_id'] = $this->session->userdata('service_center_id');
-                $in['receiver_entity_type'] = _247AROUND_SF_STRING;
-                $in['sender_entity_id'] = $spare_part_detail['service_center_id'];
-                $in['sender_entity_type'] = _247AROUND_SF_STRING;
-                $in['booking_id'] = $booking_id;
-                $in['inventory_id'] = $spare_part_detail['shipped_inventory_id'];
-                $in['agent_id'] = $this->session->userdata('service_center_id');    
-                $in['is_wh'] = TRUE;
-                $in['agent_type'] = _247AROUND_SF_STRING;
-                $in['stock'] = $spare_part_detail['shipped_quantity'];
+            $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
+            if(!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG])) {
+                //update inventory stocks
+                $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
+                if (!empty($is_entity_exist)) {
+                    $stock = "stock + '" . $spare_part_detail['shipped_quantity'] . "'";
+                    $update_stocks = $this->inventory_model->update_inventory_stock(array('id' => $is_entity_exist[0]['id']), $stock);
+                } else {
+                    $insert_data = [];
+                    $insert_data['entity_id'] = $this->session->userdata('service_center_id');
+                    $insert_data['entity_type'] = _247AROUND_SF_STRING;
+                    $insert_data['inventory_id'] = $spare_part_detail['shipped_quantity'];
+                    $insert_data['stock'] = $spare_part_detail['shipped_quantity'];
+                    $insert_data['create_date'] = date('Y-m-d H:i:s');
 
-                $this->miscelleneous->process_inventory_stocks($in);            
+                    $this->inventory_model->insert_inventory_stock($insert_data);
+                }
             }
         }
         
