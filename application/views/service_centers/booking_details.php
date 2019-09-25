@@ -410,9 +410,8 @@
                             <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                             <tr>
                                 <td><?php echo $sp['model_number']; ?></td>
-                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/".$sp['appliance_model_detail_id']."','".$sp['original_parts_number']."')\"><b>".$sp['original_parts_number']."</b></a>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/".$sp['appliance_model_detail_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>") : ''); } ?></td>
-                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/".$sp['appliance_model_detail_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>"; }  ?></td>
-<!--                                <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; }  ?></td>-->
+                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><b>".$sp['original_parts_number']."</b>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
+                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><b>".$sp['part_number']."</b>"; }  ?></td>
                                 <td><?php echo $sp['parts_requested_type']; ?></td>
                                 <td><?php
                                     if ($sp['part_warranty_status']==2){
