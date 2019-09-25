@@ -1885,21 +1885,21 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"]) && !empty($requestData["booking_status"])) {
             if($requestData["booking_status"] == _247AROUND_CANCELLED || $requestData["booking_status"] == _247AROUND_COMPLETED){
+                $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.request_type, booking_details.amount_due, "
+                        . "engineer_booking_action.amount_paid, CAST(engineer_booking_action.closed_date AS date) as closed_date";
+                $where = array(
+                    "assigned_vendor_id" => $requestData["service_center_id"],
+                    "assigned_engineer_id" => $requestData["engineer_id"],
+                );
+
                 if($requestData["booking_status"] == _247AROUND_CANCELLED){
-                    $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type,"
-                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, "
-                    . "engineer_booking_action.cancellation_reason, engineer_booking_action.cancellation_remark";
-            
-                    $where = array(
-                        "assigned_vendor_id" => $requestData["service_center_id"],
-                        "assigned_engineer_id" => $requestData["engineer_id"],
-                        "engineer_booking_action.internal_status = '"._247AROUND_CANCELLED."'" => NULL
-                    );
-                    $response['cancelledBookings'] = $this->engineer_model->get_engineer_booking_details($select, $where, true, true, true, false, false, true);
+                    $where["engineer_booking_action.internal_status = '"._247AROUND_CANCELLED."'"] = NULL;
                 }
                 else{
-                    $response['cancelledBookings'] = $this->engineer_model->engineer_completed_bookings_details($requestData["service_center_id"], $requestData["engineer_id"]);
+                    $where["engineer_booking_action.internal_status = '"._247AROUND_COMPLETED."'"] = NULL;
                 }
+               
+                $response['cancelledBookings'] = $this->engineer_model->get_engineer_booking_details($select, $where, true, false, false, false, false, false);
                
                 if(!empty($response['cancelledBookings'])){
                     log_message("info", __METHOD__ . "Bookings Found Successfully");
@@ -2418,7 +2418,7 @@ class engineerApi extends CI_Controller {
                 $bookng_unit_details[$key1]['is_broken'] = $broken;
                 $bookng_unit_details[$key1]['dop'] = $broken;
             }
-            $spare_details = $this->partner_model->get_spare_parts_by_any('model_number, date_of_purchase', array('booking_id' => $requestData["booking_id"]));
+            $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase, spare_parts_details.invoice_pic, spare_parts_details.serial_number_pic, spare_parts_details.serial_number', array('booking_id' => $requestData["booking_id"]));
             if(!empty($spare_details)){
                 $response['spare_parts'] = $spare_details[0];
             }
@@ -2929,7 +2929,7 @@ class engineerApi extends CI_Controller {
             $response['booking_details'] = $booking_details;
             
             /** get model number and date of purchase if spare part already ordered **/
-            $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase', array('booking_id' => $requestData["booking_id"]));
+            $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase, spare_parts_details.invoice_pic, spare_parts_details.serial_number_pic, spare_parts_details.serial_number', array('booking_id' => $requestData["booking_id"]));
             if(!empty($spare_details)){
                 $response['spare_parts'] = $spare_details[0];
             }
