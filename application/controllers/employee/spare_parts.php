@@ -1435,7 +1435,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         $data['defective_return_to_entity_type'] = $warehouse_details['defective_return_to_entity_type'];
                         $data['defective_return_to_entity_id'] = $warehouse_details['defective_return_to_entity_id'];
                         $data['is_micro_wh'] = $warehouse_details['is_micro_wh'];
-                        $data['challan_approx_value'] = $warehouse_details['challan_approx_value'];
+                        $data['challan_approx_value'] = round($warehouse_details['challan_approx_value']*$req_quantity,2);
                         $data['invoice_gst_rate'] = $warehouse_details['gst_rate'];
                         $data['parts_requested'] = $warehouse_details['part_name'];
                         $data['parts_requested_type'] = $warehouse_details['type'];
@@ -1451,6 +1451,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         $data['partner_id'] = $partner_id;
                         $data['entity_type'] = _247AROUND_PARTNER_STRING;
                         $data['is_micro_wh'] = 0;
+                        if (isset($warehouse_details['challan_approx_value'])) {
+                        $data['challan_approx_value'] = round($warehouse_details['challan_approx_value']*$req_quantity,2);   
+                        }
                         $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                         $data['defective_return_to_entity_id'] = $partner_id;
                         array_push($parts_stock_not_found, array('model_number' => $spare_parts_list[0]['model_number'], 'part_type' => $spare_parts_list[0]['parts_requested_type'], 'part_name' => $spare_parts_list[0]['parts_requested']));
@@ -2157,6 +2160,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                                 $spare_data['partner_id'] = $partner_id;
                                 $spare_data['entity_type'] = _247AROUND_PARTNER_STRING;
                                 $is_micro_wh = $spare_data['is_micro_wh'] = 0;
+                                if (isset($warehouse_details['challan_approx_value'])) {
+                                 $spare_data['challan_approx_value'] = round(($warehouse_details['challan_approx_value']*$data['quantity']),2);   
+                                }
                                 $spare_data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                                 $spare_data['defective_return_to_entity_id'] = $partner_id;
                             }

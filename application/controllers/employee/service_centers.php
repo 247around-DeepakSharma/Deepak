@@ -1989,6 +1989,9 @@ class Service_centers extends CI_Controller {
                 $data['partner_id'] = $partner_id;
                 $data['entity_type'] = _247AROUND_PARTNER_STRING;
                 $data['is_micro_wh'] = 0;
+                if (isset($warehouse_details['challan_approx_value'])) {
+                $data['challan_approx_value'] = round($warehouse_details['challan_approx_value']*$data['quantity'],2);
+                }
                 $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                 $data['defective_return_to_entity_id'] = $partner_id;
                 $data['requested_inventory_id'] = $change_inventory_id;
@@ -2460,6 +2463,9 @@ class Service_centers extends CI_Controller {
                             if (isset($value['requested_inventory_id']) && !empty($value['requested_inventory_id'])) {
                                 $data['requested_inventory_id'] = $value['requested_inventory_id'];
 
+                            }
+                            if (isset($warehouse_details['challan_approx_value'])) {
+                                $data['challan_approx_value'] = round($warehouse_details['challan_approx_value']*$data['quantity'],2);
                             }
                         }
                     } else {
@@ -5218,6 +5224,9 @@ function do_multiple_spare_shipping(){
                             $data['entity_type'] = _247AROUND_PARTNER_STRING;
                             $entity_type = _247AROUND_PARTNER_STRING;
                             $data['is_micro_wh'] = 0;
+                            if (isset($warehouse_details['challan_approx_value'])) {
+                             $data['challan_approx_value'] = round(($warehouse_details['challan_approx_value']*$spare_data['quantity']),2);
+                            }
                             $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
                             $data['defective_return_to_entity_id'] = $partner_id;
                             $is_micro_wh = 0;
