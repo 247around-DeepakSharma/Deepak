@@ -158,12 +158,13 @@
                     
                     d.partner_id = entity_details.partner_id,
                     d.service_id = entity_details.service_id,
-                    <?php if(!empty($search)){ ?>
-                    d.model_number_id = entity_details.model_number_id,
-                    d.search =   entity_details.search
-                    <?php } else { ?>
-                        d.model_number_id = entity_details.model_number_id
-                    <?php } ?>                   
+                    d.model_number_id = entity_details.model_number_id
+//                    <?php //if(!empty($search)){ ?>
+//                    d.model_number_id = entity_details.model_number_id,
+//                    d.search =   entity_details.search
+//                    <?php// } else { ?>
+//                        d.model_number_id = entity_details.model_number_id
+//                    <?php// } ?>                   
                 }
             },
             "deferRender": true
@@ -172,21 +173,12 @@
     
     function get_entity_details(){
 
-        <?php if(!empty($search)){ ?>
-            var data = {
-            'partner_id': '<?php echo $partner_id; ?>',
-            'service_id' : '<?php echo $service_id; ?>',   
-            'model_number_id' : $("#model_number_id").val(),
-            'search':{'value': '<?php echo $search; ?>'}
-        };
-    <?php } else { ?>
         var data = {
             'partner_id': '<?php echo $partner_id; ?>',
             'service_id' : '<?php echo $service_id; ?>',   
             'model_number_id' : $("#model_number_id").val(),
             
         };
-    <?php } ?>
         
         return data;
     }
