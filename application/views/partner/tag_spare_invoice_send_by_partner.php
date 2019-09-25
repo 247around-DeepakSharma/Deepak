@@ -221,7 +221,7 @@
                                             <input type="text" class="form-control allowNumericWithOutDecimal" name="part[0][hsn_code]" id="partHsnCode_0" value="" />
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="number" class="form-control allowNumericWithOutDecimal" onkeyup="calculate_total_price()" name="part[0][gst_rate]" id="partGstRate_0" min="12" max="28" value=""/>
+                                            <input type="number" class="form-control allowNumericWithOutDecimal" onkeyup="calculate_total_price()" name="part[0][gst_rate]" id="partGstRate_0" min="5" max="28" value=""/>
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
                                             <input type="hidden" class="form-control" name="part[0][inventory_id]" id="inventoryId_0" value=""/>
@@ -258,7 +258,7 @@
                                             <input type="text" class="form-control allowNumericWithOutDecimal" id="partHsnCode" value="" />
                                         </div>
                                         <div class="col-xs-12 col-sm-6 col-md-1">
-                                            <input type="number" class="form-control allowNumericWithOutDecimal" id="partGstRate" value="" min="12" max="28" />
+                                            <input type="number" class="form-control allowNumericWithOutDecimal" id="partGstRate" value="" min="5" max="28" />
                                         </div>
                                         
                                         <div class="col-xs-12 col-sm-6 col-md-1">
