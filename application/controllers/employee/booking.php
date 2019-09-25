@@ -2615,14 +2615,14 @@ class Booking extends CI_Controller {
                     $status = DEFECTIVE_PARTS_PENDING;
                     $defective_part_required = 1;
                     if(!empty($check_wrong_part_record_exist[0])) {
-                        $this->reusable_model->delete_from_table('wrong_part_shipped_details', ['spare_id' => $spare_id]);
+                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
                     }
                 }
                 
                 if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
                     $status = COURIER_LOST;
                     if(!empty($check_wrong_part_record_exist[0])) {
-                        $this->reusable_model->delete_from_table('wrong_part_shipped_details', ['spare_id' => $spare_id]);
+                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
                     }
                 }
                 
@@ -2634,7 +2634,7 @@ class Booking extends CI_Controller {
                     $status = OK_PART_TO_BE_SHIPPED;
                     $defective_part_required = 1;
                     if(!empty($check_wrong_part_record_exist[0])) {
-                        $this->reusable_model->delete_from_table('wrong_part_shipped_details', ['spare_id' => $spare_id]);
+                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
                     }
                 }
                 
@@ -2652,7 +2652,7 @@ class Booking extends CI_Controller {
 
                     $defective_part_required = 1;
                     if(!empty($check_wrong_part_record_exist[0])) {
-                        $this->reusable_model->delete_from_table('wrong_part_shipped_details', ['spare_id' => $spare_id]);
+                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
                     }
                 }
 

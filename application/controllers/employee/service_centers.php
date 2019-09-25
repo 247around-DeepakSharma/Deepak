@@ -3033,8 +3033,7 @@ class Service_centers extends CI_Controller {
                 . " sf_challan_file as challan_file, "
                 . " remarks_defective_part_by_partner, "
                 . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
-                . " spare_parts_details.id,spare_parts_details.challan_approx_value ,i.part_number ";
-
+                . " spare_parts_details.id,spare_parts_details.challan_approx_value ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
         $group_by = "spare_parts_details.id";
         $order_by = "status = '" . DEFECTIVE_PARTS_REJECTED . "', spare_parts_details.booking_id ASC";
 
