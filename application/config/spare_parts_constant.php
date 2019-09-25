@@ -160,3 +160,4 @@ define('PART_NRN_APPROVED_STATUS_TAG', 'nrn_approved');
 define('OK_PART_TO_BE_SHIPPED', 'Ok Part To Be Shipped');
 define('DAMAGE_PART_TO_BE_SHIPPED', 'Damage Part To Be Shipped');
 
+define('OK_PARTS_SHIPPED','Ok Part Shipped By SF');
