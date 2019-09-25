@@ -7390,7 +7390,7 @@ class Inventory extends CI_Controller {
             "receiver_entity_id" => $this->session->userdata("service_center_id"),
             "sender_entity_type" => _247AROUND_SF_STRING,
             "sender_entity_id" => $this->session->userdata("service_center_id"),
-            "stock" => 1,
+            "stock" => $this->input->post("shipped_quantity"),
             "booking_id" => $this->input->post("booking_id"),
             "inventory_id" => $this->input->post("inventory_id"),
             "agent_id" => $this->session->userdata("service_center_agent_id"),
