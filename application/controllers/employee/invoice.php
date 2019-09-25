@@ -4240,7 +4240,7 @@ class Invoice extends CI_Controller {
                 . "spare_parts_details.partner_id,spare_parts_details.shipped_inventory_id, "
                 . "spare_parts_details.shipped_inventory_id as inventory_id, service_center_id,"
                 . "spare_parts_details.is_micro_wh, spare_parts_details.booking_id,"
-                . "spare_parts_details.id, service_centres.gst_no as gst_number, reverse_purchase_invoice_id, spare_parts_details.shipped_quantity as shipping_quantity", array('spare_parts_details.id' => $spare_id), TRUE, FALSE);
+                . "spare_parts_details.id, reverse_purchase_invoice_id, spare_parts_details.shipped_quantity as shipping_quantity", array('spare_parts_details.id' => $spare_id), TRUE, FALSE);
 
 
         if (!empty($spare)) {
