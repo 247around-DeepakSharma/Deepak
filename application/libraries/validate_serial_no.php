@@ -849,11 +849,11 @@ class Validate_serial_no {
     }
     
     function sharp_serialNoValidation($partnerID,$serialNo){
-        if(preg_match('/^[0-9]{9}$/', $serialNo)){
+        if((preg_match('/^[0-9]{9}$/', $serialNo)) && ((int) $serialNo != 0)){
             return array('code' => SUCCESS_CODE);
         }
         else{
-            return array('code' => FAILURE_CODE, "message" => "Serial Number should be 9 digit numeric value");
+            return array('code' => FAILURE_CODE, "message" => "Serial Number should be a valid 9 digit numeric value");
         }
     }     
 }

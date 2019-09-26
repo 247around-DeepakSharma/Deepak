@@ -1871,12 +1871,10 @@ class Service_centers extends CI_Controller {
                 }
                 
                 $data['unit_model_number'] = $model_nunmber;
-                $data['unit_serial_number'] = $serial_number; 
-                $data['purchase_date'] = $dateofpurchase; 
-                $data['unit_serial_number_pic'] = $serial_number_pic; 
-
-
-                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'], 'inventory_model_mapping.active' => 1);
+                $data['unit_serial_number'] = $serial_number;
+                $data['purchase_date'] = $dateofpurchase;
+                $data['unit_serial_number_pic'] = $serial_number_pic;
+                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'], 'inventory_model_mapping.active' => 1,'appliance_model_details.active' => 1);
                 $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
@@ -1907,7 +1905,7 @@ class Service_centers extends CI_Controller {
 
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, TRUE, false);
         $data['spare_parts_details'] = $spare_parts_details[0];
-        $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1);
+        $where1 = array('entity_id' => $spare_parts_details[0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $spare_parts_details[0]['service_id'], 'inventory_model_mapping.active' => 1,'appliance_model_details.active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where1);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/get_update_spare_parts_required_form', $data);
@@ -5694,8 +5692,12 @@ class Service_centers extends CI_Controller {
 
                 
        if(!empty($data['spare_parts'])){
-        $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
-        $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
+           
+//        $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'active' => 1);
+//        $data['inventory_details'] = $this->inventory_model->get_appliance_model_details('id,model_number',$where);
+                
+        $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id, 'inventory_model_mapping.active' => 1,'appliance_model_details.active' => 1,'appliance_model_details.active' => 1);
+        $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);        
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $data['is_wh'] = $this->partner_model->getpartner_details('is_wh',array('partners.id' => $data['spare_parts'][0]->partner_id))[0]['is_wh'];        
        }        
@@ -5743,7 +5745,7 @@ class Service_centers extends CI_Controller {
                 $status = false;
                 $can_status = false;                
 
-                foreach ($part as $key => $part_details) {                  
+                foreach ($part as $key => $part_details) { 
                     if ($part_details['shippingStatus'] == 1) {
 
                         $is_shipped_stock_available = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $part_details['inventory_id'], 'inventory_stocks.stock > 0' => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();                                               
@@ -5768,7 +5770,9 @@ class Service_centers extends CI_Controller {
                             $data['remarks_by_partner'] = $part_details['remarks_by_partner'];
                             $data['shipped_date'] = $this->input->post('shipment_date');
                             $data['shipped_quantity'] = $part_details['shipped_quantity'];
-                            $data['challan_approx_value'] = $part_details['approx_value'] * $part_details['shipped_quantity'];
+                            $price_with_gst = round($part_details['approx_value'] * ( 1 + $part_details['gst_rate'] / 100), 0);
+                            $price_with_around_margin = round($price_with_gst * ( 1 + $part_details['oow_around_margin'] / 100), 0);
+                            $data['challan_approx_value'] = ($price_with_around_margin * $part_details['shipped_quantity']);
                             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                        
                             if ($part_details['spare_id'] == "new") {
@@ -5793,6 +5797,9 @@ class Service_centers extends CI_Controller {
                                 $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
                                 $data['part_warranty_status'] = $part_details['part_warranty_status'];
                                 $data['is_micro_wh'] = 2;
+                                $data['partner_id'] =$sf_id;
+                                $data['defective_return_to_entity_type']=_247AROUND_SF_STRING;
+                                $data['defective_return_to_entity_id']=$sf_id;
                                 if (!empty($part_details['shipped_part_type'])) {
                                     $data['parts_requested_type'] = $part_details['shipped_part_type'];
                                 } else {
@@ -7802,43 +7809,8 @@ class Service_centers extends CI_Controller {
                 echo json_encode($arrBookingsWarrantyStatus);
             break;
             case 2:
-                $selected_booking_request_types = $arrBookings[0]['booking_request_types'];
-                $booking_request_type = $this->booking_utilities->get_booking_request_type($selected_booking_request_types);        
-                $booking_id = $arrBookings[0]['booking_id'];
-                $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'Out of Warranty'], 'EW' => ['Extended', 'AMC', 'Repeat']];
-                $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
-                $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
-                $warranty_mismatch = 0;
-                $returnMessage = "";
-                
-                if(!empty($arr_warranty_status[$warranty_checker_status]))
-                {
-                    $warranty_mismatch = 1;
-                    foreach($arr_warranty_status[$warranty_checker_status] as $request_types)
-                    {
-                        if(strpos(strtoupper(str_replace(" ","",$booking_request_type)), strtoupper(str_replace(" ","",$request_types))) !== false)
-                        {
-                            $warranty_mismatch = 0;
-                            break;
-                        }
-                    }
-                }
-                
-                if(!empty($warranty_mismatch))
-                {
-                    if((strpos(strtoupper(str_replace(" ","",$booking_request_type)), 'OUTOFWARRANTY') !== false))
-                    {
-                        $warranty_mismatch = 0;
-                        $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";
-                    }
-                    else
-                    { 
-                        $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
-                    }   
-                }
-                $arrReturn['status'] = $warranty_mismatch;
-                $arrReturn['message'] = $returnMessage;
-                echo json_encode($arrReturn);
+                $warranty_result = $this->warranty_utilities->match_warranty_status_with_request_type($arrBookings, $arrBookingsWarrantyStatus);
+                echo $warranty_result;
             break;
         }        
     }
