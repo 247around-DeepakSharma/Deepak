@@ -3042,7 +3042,7 @@ class Inventory extends CI_Controller {
 
         if ($part_number && $entity_id && $entity_type && $service_id) {
             $where = array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id, 'part_number' => $part_number);
-            $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate', $where);
+            $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate, inventory_master_list.oow_around_margin', $where);
             if (!empty($inventory_details)) {
                 if($this->session->userdata('userType')=='service_center'){
                 $select_stock = "*";
@@ -3060,11 +3060,13 @@ class Inventory extends CI_Controller {
                 $data['inventory_id'] = $inventory_details[0]['inventory_id'];
                 $data['gst_rate'] = $inventory_details[0]['gst_rate'];
                 $data['hsn_code'] = $inventory_details[0]['hsn_code'];
+                $data['oow_around_margin'] = $inventory_details[0]['oow_around_margin'];
             } else {
                 $data['price'] = '';
                 $data['inventory_id'] = '';
                 $data['gst_rate'] = '';
                 $data['hsn_code'] = '';
+                $data['oow_around_margin'] = '';
                 $data['total_stock'] = 0;
             }
         } else {
@@ -3072,6 +3074,7 @@ class Inventory extends CI_Controller {
             $data['inventory_id'] = '';
             $data['gst_rate'] = '';
             $data['hsn_code'] = '';
+            $data['oow_around_margin'] = '';
             $data['total_stock'] = 0;
 
             //Getting template from Database
@@ -4814,7 +4817,7 @@ class Inventory extends CI_Controller {
         $booking_id_array = array();
         foreach ($partner_spare as $value) {
 
-            $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH,'shipped_to_partner_qty'=>$value['shipping_quantity']));
+            $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH));
             array_push($booking_id_array, $value['booking_id']);
         }
 

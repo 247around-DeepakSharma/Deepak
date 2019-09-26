@@ -76,7 +76,7 @@
                         <label for="GST rate" class="col-md-4">GST Rate</label>
                         <div class="col-md-6">
                             <input type="number" value="<?php echo $gst_rate;?>" onkeyup="booking_calculate_total_price('<?php echo $key + $count;?>')" class="form-control onpartGstRate" id="<?php echo "onpartGstRate_".($key + $count);?>" 
-                                name="part[<?php echo ($key +$count); ?>][gst_rate]"  placeholder="Please Enter GST rate" min="12" max="28"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13" >
+                                name="part[<?php echo ($key +$count); ?>][gst_rate]"  placeholder="Please Enter GST rate" min="5" max="28"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13" >
                         </div>
                     </div>
                      <div class="form-group">
@@ -197,7 +197,7 @@
                             <div class="form-group">
                                 <label for="GST rate" class="col-md-4">GST Rate</label>
                                 <div class="col-md-6">
-                                    <input type="number" class="form-control" id="onpartGstRate" placeholder="Please Enter GST rate" min="12" max="28"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13">
+                                    <input type="number" class="form-control" id="onpartGstRate" placeholder="Please Enter GST rate" min="5" max="28"  required  onkeypress="return (event.charCode > 47 && event.charCode < 58) || event.charCode == 13">
                                 </div>
                             </div>
 

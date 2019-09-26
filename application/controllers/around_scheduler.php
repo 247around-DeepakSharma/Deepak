@@ -2318,7 +2318,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                 . "UPPER(spare_parts_details.courier_name_by_sf) as courier_name,"
                 . "spare_parts_details.defective_part_shipped_date as spare_shipped_date,"
                 . " 'Reverse Pickup' as shipment_type";
-        $where1 = array("spare_parts_details.status" => DEFECTIVE_PARTS_SHIPPED, "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) > 4" => NULL, "( spare_parts_details.awb_by_sf <> '' OR spare_parts_details.awb_by_sf IS NOT NULL )" => NULL);
+        $where1 = array("spare_parts_details.status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL, "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) > 4" => NULL, "( spare_parts_details.awb_by_sf <> '' OR spare_parts_details.awb_by_sf IS NOT NULL )" => NULL);
         
                 
         $post2['select'] = "UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
@@ -2384,7 +2384,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $post1['select'] = "UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id, UPPER(spare_parts_details.courier_name_by_sf) as courier_name,"
                 . "spare_parts_details.defective_part_shipped_date as spare_shipped_date,"
                 . " 'Reverse Pickup' as shipment_type ";
-        $where1 = array("status" => DEFECTIVE_PARTS_SHIPPED, "(DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) > 7 )" => NULL , "( spare_parts_details.awb_by_sf <> '' OR spare_parts_details.awb_by_sf IS NOT NULL )" => NULL,);
+        $where1 = array("status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL, "(DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(defective_part_shipped_date, '%Y-%m-%d')) > 7 )" => NULL , "( spare_parts_details.awb_by_sf <> '' OR spare_parts_details.awb_by_sf IS NOT NULL )" => NULL,);
         
         $post2['select'] = "UPPER(service_centres.company_name) as sf_name, service_centres.district as city_name, service_centres.state as state_name, spare_parts_details.booking_id,"
                 . "UPPER(spare_parts_details.courier_name_by_sf) as courier_name,"
