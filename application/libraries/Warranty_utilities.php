@@ -202,7 +202,11 @@ class Warranty_utilities {
         $booking_id = $arrBookings[0]['booking_id'];
         $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
         $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
-        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
+        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
+        // If no data found against warranty, consider booking as of Out Warranty
+        if($warranty_checker_status != 'IW' && $warranty_checker_status != 'EW'):
+            $warranty_checker_status = "OW";
+        endif;
         $warranty_mismatch = 0;
         $returnMessage = "";
 
