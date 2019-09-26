@@ -393,6 +393,10 @@ class engineerApi extends CI_Controller {
                 $this->submitWarrantyCheckerAndEditCallType();
                 break;
             
+            case 'getBookingDetails':
+                $this->getBookingDetails();
+                break;
+            
             default:
                 break;
             
@@ -1171,11 +1175,19 @@ class engineerApi extends CI_Controller {
                         $data["is_broken"] = 1;
                     }
                     if(isset($value["purchase_invoice"])){
-                        $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".date("YmdHis").".png";
-
-                        $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "misc-images");
-
-                        $data["purchase_invoice"] = $purchase_inv_url;
+                        if($value["purchase_invoice"]){
+                            $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".date("YmdHis").".png";
+                            $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "misc-images");
+                            $data["purchase_invoice"] = $purchase_inv_url;
+                        }
+                    }
+                    else{
+                        if(isset($value["existing_purchase_invoice"])){
+                            if($value["existing_purchase_invoice"]){
+                               $existing_purchase_inv_url = explode("misc-images/", $value["existing_purchase_invoice"]);
+                               $data["purchase_invoice"] = $existing_purchase_inv_url[1];
+                            }
+                        }
                     }
                     
                     if($value['pod'] == "1"){
@@ -1185,7 +1197,15 @@ class engineerApi extends CI_Controller {
                                 $sn_pic_url = $requestData['booking_id']."_" . $unit_id ."_serialNO_".rand(10,100).".png";
                                 $this->miscelleneous->generate_image($unitDetails[0]["serial_number_pic"],$sn_pic_url, SERIAL_NUMBER_PIC_DIR);
                             }
-                        } 
+                        }
+                        else{
+                            if(isset($value["existing_serial_number_pic"])){
+                                if($value["existing_serial_number_pic"]){
+                                   $existing_serial_number_pic_url = explode(SERIAL_NUMBER_PIC_DIR."/", $value["existing_serial_number_pic"]);
+                                   $sn_pic_url = $existing_serial_number_pic_url[1];
+                                }
+                            }
+                        }
                     }
                     $data['serial_number'] = $serial_number_text;
                     $data["serial_number_pic"] = $sn_pic_url;
@@ -1219,6 +1239,10 @@ class engineerApi extends CI_Controller {
                     $data["parts_cost"] = $parts_cost;
                     $data["amount_paid"] = $requestData['amount_paid'];
                     $this->engineer_model->update_engineer_table($data, array("unit_details_id" => $unit_id, "booking_id" =>$requestData["booking_id"] ));
+                    
+                    /*Update model number and purchase date in booking unit details*/
+                    $booking_update_data = array("sf_model_number" => $unitDetails[0]['model_number'], "sf_purchase_date" => $requestData['purchase_date']);
+                    $this->booking_model->update_booking_unit_details($requestData["booking_id"], $booking_update_data);
                 }
             }
         
@@ -2034,7 +2058,17 @@ class engineerApi extends CI_Controller {
                 $response['sparePartsOrder']['partTypeList'] = $parts_type_details;
                 $response['sparePartsOrder']['getPartOnModel'] = false;
             }
-           
+            
+            if(isset($requestData["booking_id"])){
+                $spare_select = 'spare_parts_details.serial_number, '
+                        . 'CONCAT("https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/", spare_parts_details.invoice_pic) as invoice_pic, '
+                        . 'CONCAT("https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/'.SERIAL_NUMBER_PIC_DIR.'/", spare_parts_details.serial_number_pic) as serial_number_pic';
+                $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"]));
+                if(!empty($spare_details)){
+                    $response['sparePartsOrder']['spare_parts'] = $spare_details[0];
+                }
+            }
+            
             log_message("info", __METHOD__ . "Model Number or Part Type found successfully");
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', 'success'));
@@ -2417,7 +2451,11 @@ class engineerApi extends CI_Controller {
                 $bookng_unit_details[$key1]['is_broken'] = $broken;
                 $bookng_unit_details[$key1]['dop'] = $broken;
             }
-            $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase, spare_parts_details.invoice_pic, spare_parts_details.serial_number_pic, spare_parts_details.serial_number', array('booking_id' => $requestData["booking_id"]));
+            $spare_select = 'spare_parts_details.model_number, spare_parts_details.date_of_purchase, spare_parts_details.serial_number, '
+                    . 'CONCAT("https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/", spare_parts_details.invoice_pic) as invoice_pic, '
+                    . 'CONCAT("https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/'.SERIAL_NUMBER_PIC_DIR.'/", spare_parts_details.serial_number_pic) as serial_number_pic';
+            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"]));
+            
             if(!empty($spare_details)){
                 $response['spare_parts'] = $spare_details[0];
             }
@@ -2828,6 +2866,7 @@ class engineerApi extends CI_Controller {
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $is_est_approved = false;
+        $check_spare_flag = false;
         if (!empty($requestData["booking_id"])) {
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData["booking_id"]));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($requestData["booking_id"]);
@@ -2856,14 +2895,17 @@ class engineerApi extends CI_Controller {
                             || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY)
                             || stristr($value['price_tags'], AMC_PRICE_TAGS)
                             || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
-                        $response["spare_flag"] = 1;
-                        $response["message"] = "Success";
                         
+                        $check_spare_flag = true;
                     }
-                    else{
-                        $response["spare_flag"] = 0;
-                        $response["message"] = "You can not request spare part for this booking";
-                    }
+                }
+                if($check_spare_flag){
+                    $response["spare_flag"] = 1;
+                    $response["message"] = "Success";
+                }
+                else{
+                    $response["spare_flag"] = 0;
+                    $response["message"] = "You can not request spare part for this booking";
                 }
                 log_message("info", "Spare parts flag found");
                 $this->jsonResponseString['response'] = $response;
@@ -2928,7 +2970,7 @@ class engineerApi extends CI_Controller {
             $response['booking_details'] = $booking_details;
             
             /** get model number and date of purchase if spare part already ordered **/
-            $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase, spare_parts_details.invoice_pic, spare_parts_details.serial_number_pic, spare_parts_details.serial_number', array('booking_id' => $requestData["booking_id"]));
+            $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase', array('booking_id' => $requestData["booking_id"]));
             if(!empty($spare_details)){
                 $response['spare_parts'] = $spare_details[0];
             }
@@ -3180,6 +3222,7 @@ class engineerApi extends CI_Controller {
                 //$this->asynchronous_lib->do_background_process($url, $curl_data);
                 $this->partner_cb->partner_callback($requestData["booking_id"]);
                 
+                /*Update model number and purchase date in booking unit details*/
                 $booking_update_data = array("sf_model_number" => $requestData["model_number"], "sf_purchase_date" => $requestData["purchase_date"]);
                 $this->booking_model->update_booking_unit_details($requestData["booking_id"], $booking_update_data);
                 
