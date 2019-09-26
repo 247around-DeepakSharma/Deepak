@@ -4814,7 +4814,7 @@ class Inventory extends CI_Controller {
         $booking_id_array = array();
         foreach ($partner_spare as $value) {
 
-            $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH,'shipped_to_partner_qty'=>$value['shipping_quantity']));
+            $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH));
             array_push($booking_id_array, $value['booking_id']);
         }
 
