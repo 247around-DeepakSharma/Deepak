@@ -3041,7 +3041,7 @@ class Inventory extends CI_Controller {
 
         if ($part_number && $entity_id && $entity_type && $service_id) {
             $where = array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id, 'part_number' => $part_number);
-            $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate', $where);
+            $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate, inventory_master_list.oow_around_margin', $where);
             if (!empty($inventory_details)) {
                 if($this->session->userdata('userType')=='service_center'){
                 $select_stock = "*";
@@ -3059,11 +3059,13 @@ class Inventory extends CI_Controller {
                 $data['inventory_id'] = $inventory_details[0]['inventory_id'];
                 $data['gst_rate'] = $inventory_details[0]['gst_rate'];
                 $data['hsn_code'] = $inventory_details[0]['hsn_code'];
+                $data['oow_around_margin'] = $inventory_details[0]['oow_around_margin'];
             } else {
                 $data['price'] = '';
                 $data['inventory_id'] = '';
                 $data['gst_rate'] = '';
                 $data['hsn_code'] = '';
+                $data['oow_around_margin'] = '';
                 $data['total_stock'] = 0;
             }
         } else {
@@ -3071,6 +3073,7 @@ class Inventory extends CI_Controller {
             $data['inventory_id'] = '';
             $data['gst_rate'] = '';
             $data['hsn_code'] = '';
+            $data['oow_around_margin'] = '';
             $data['total_stock'] = 0;
 
             //Getting template from Database
