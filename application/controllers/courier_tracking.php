@@ -482,7 +482,7 @@ class Courier_tracking extends CI_Controller {
             $booking_id = $parts_details[2];
             $spare_id = $parts_details[0];
             $awb_number = $data->tracking_number;
-            $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_id, status", array("spare_parts_details.id" => $spare_id, "status" => DEFECTIVE_PARTS_SHIPPED, 
+            $getsparedata = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_id, status", array("spare_parts_details.id" => $spare_id, "status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL, 
                 "defactive_part_received_date_by_courier_api IS NULL"=>NULL));
             if (!empty($getsparedata)) {
                 $response = $this->service_centers_model->update_spare_parts(array('booking_id' => $booking_id,"awb_by_sf"=>$awb_number), array('defactive_part_received_date_by_courier_api' => date("Y-m-d H:i:s")));

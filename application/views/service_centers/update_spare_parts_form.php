@@ -525,7 +525,7 @@
     
     
     $('.shipped_model_number_id').select2();
-    $('.shipped_parts_name').select2({
+    $($('.shipped_parts_name')[0]).select2({
         placeholder:'Select Part Name',
         allowClear:true
     });
@@ -630,7 +630,7 @@
     }
     
     $(document).ready(function(){
-        $(document).on("change",".shipped-part-name",function(){
+        $(document).on("change",".shipped_parts_name",function(){
         //function change_shipped_part_number(sp_id){
             var sp_id = $(this).data("key");
             if(typeof sp_id=="undefined" || sp_id === null){
