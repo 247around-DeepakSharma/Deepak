@@ -38,6 +38,12 @@
                                 case DEFECTIVE_PARTS_PENDING:
                                     $flag = 1; 
                                   //  array_push($required_sp_id, $value['id']); 
+                                    break;
+                                case _247AROUND_COMPLETED:
+                                if(empty($value['defective_part_shipped_date'])) {
+                                    $flag = 1; 
+                                }
+                                break;
                             }
                               
                         }
