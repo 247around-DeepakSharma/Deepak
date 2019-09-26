@@ -974,7 +974,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
      * @return: id
      */
     function insert_into_awb_details($data){
-        $this->db->insert('courier_company_invoice_details',$data);
+        $this->db->insert_ignore('courier_company_invoice_details',$data);
         return $this->db->insert_id();
     }
     /**
