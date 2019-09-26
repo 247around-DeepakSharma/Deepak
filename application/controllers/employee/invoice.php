@@ -4060,7 +4060,7 @@ class Invoice extends CI_Controller {
                 if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) { 
                     if (!empty($spare[0]['shipped_inventory_id'])) {
                         if (empty($spare[0]['gst_number'])) {
-                            $spare[0]['gst_number'] = TRUE;
+                            $spare[0]['gst_number'] = FALSE;
                         }
                         $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
                         $spare[0]['spare_id'] = $spare_id;
