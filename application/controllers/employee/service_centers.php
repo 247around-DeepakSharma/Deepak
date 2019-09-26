@@ -5785,6 +5785,9 @@ class Service_centers extends CI_Controller {
                                 $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
                                 $data['part_warranty_status'] = $part_details['part_warranty_status'];
                                 $data['is_micro_wh'] = 2;
+                                $data['partner_id'] =$sf_id;
+                                $data['defective_return_to_entity_type']=_247AROUND_SF_STRING;
+                                $data['defective_return_to_entity_id']=$sf_id;
                                 if (!empty($part_details['shipped_part_type'])) {
                                     $data['parts_requested_type'] = $part_details['shipped_part_type'];
                                 } else {
