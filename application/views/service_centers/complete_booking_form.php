@@ -889,16 +889,17 @@
                         prediv = appdiv;
                         serial_number_tmp.push(serial_number);
                     }
-                    
                     if (serial_number === "") {
     
                         document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                        document.getElementById('error_serial_no' + div_no[2]).innerHTML = "Please Enter Serial Number";                        
                         flag = 1;
                         
                     }
     
                     if (serial_number === "0") {
                         document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                        document.getElementById('error_serial_no' + div_no[2]).innerHTML = "Enter Valid Serial Number"; 
                         flag = 1;
                         
                     }
@@ -907,9 +908,12 @@
                     if (numberRegex.test(serial_number)) {
                         if (serial_number > 0) {
                             flag = 0;
+                            document.getElementById('serial_number' + div_no[2]).style.borderColor = "#ccc";
+                            document.getElementById('error_serial_no' + div_no[2]).innerHTML = "";
                         } else {
                             
                             document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                            document.getElementById('error_serial_no' + div_no[2]).innerHTML = "Enter Valid Serial Number";
                             flag = 1;
                             
                         }
@@ -1306,6 +1310,7 @@
     function validateSerialNo(index){
        var model_number = '';
        var temp = $("#serial_number" +index).val();
+       $('#serial_number' + index).css("border-color", "#ccc");
        if($.trim(temp) === ''){
            return;
        }
