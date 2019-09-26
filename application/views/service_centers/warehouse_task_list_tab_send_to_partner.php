@@ -60,6 +60,7 @@
                             <th class="text-center">Booking Id</th>
                             <th class="text-center">User Name</th>
                             <th class="text-center">Defective Parts Shipped</th>
+                            <th class="text-center">Appliance</th>
                             <th class="text-center">Parts Code</th>
                             <th class="text-center">Model</th>
                             <th class="text-center">Shipped Date</th>
@@ -89,7 +90,9 @@
                                     <td style="word-break: break-all;">
                                         <?php echo $row['defective_part_shipped']; ?>
                                     </td>
-                                    
+                                    <td style="word-break: break-all;">
+                                        <?php echo $row['services']; ?>
+                                    </td>
                                     <td style="word-break: break-all;">
                                         <?php echo $row['part_number']; ?>
                                     </td>
@@ -282,7 +285,7 @@
                 extend: 'excel',
                 text: 'Export',
                 exportOptions: {
-                    columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10]
+                    columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11]
                 },
                 title: 'defective_parts_send_to_partner'
             }
