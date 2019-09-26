@@ -44,6 +44,9 @@ class Validate_serial_no {
                 if($method == 'jeeves_serialNoValidation'){
                     return $this->$method($partnerID, $serialNo, $booking_id);
                 }
+                if($method == 'sharp_serialNoValidation'){
+                    return $this->$method($partnerID, $serialNo, $booking_id);
+                }
                 return $this->$method($partnerID, $serialNo);
 
             } else{
@@ -71,6 +74,7 @@ class Validate_serial_no {
         $logic[BURLY_ID]='burly_serialNoValidation';
         $logic[VIDEOCON_ID]='videocon_serialNoValidation';
         $logic[KENSTAR_ID]='kenstar_serialNoValidation';
+        $logic[SHARP_ID]='sharp_serialNoValidation';
 
         
 	if (isset($logic[$partnerID])) {
@@ -843,5 +847,14 @@ class Validate_serial_no {
              return array('code' => FAILURE_CODE, "message" => "Serial Number Length should be 18");
          }
     }
+    
+    function sharp_serialNoValidation($partnerID,$serialNo){
+        if(preg_match('/^[0-9]{9}$/', $serialNo)){
+            return array('code' => SUCCESS_CODE);
+        }
+        else{
+            return array('code' => FAILURE_CODE, "message" => "Serial Number should be 9 digit numeric value");
+        }
+    }     
 }
 
