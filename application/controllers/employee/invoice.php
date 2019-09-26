@@ -4100,7 +4100,6 @@ class Invoice extends CI_Controller {
                                     $data[0]['from_address'] = $value['to_address'];
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
-                                    $data[0]['from_pincode'] = $value['to_city'];
                                     $data[0]['state_stamp_pic'] = $value['state_stamp_pic'];
                                     $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare);
                                     if ($a) {
@@ -4139,6 +4138,7 @@ class Invoice extends CI_Controller {
         if(isset($data[0]['from_gst_number_id']) && !empty($data[0]['from_gst_number_id'])){
             $response['meta']['main_company_gst_number'] = $data[0]['main_gst_number'];
             $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $data[0]['from_state_code']))[0]['state'];
+            $response['meta']['main_company_state_code'] = $data[0]['from_state_code'];
             $response['meta']['main_company_address'] = $data[0]['from_address'] . "," 
                         . $data[0]['from_city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
                         . $data[0]['from_pincode'];
@@ -4243,7 +4243,7 @@ class Invoice extends CI_Controller {
                 . "spare_parts_details.partner_id,spare_parts_details.shipped_inventory_id, "
                 . "spare_parts_details.shipped_inventory_id as inventory_id, service_center_id,"
                 . "spare_parts_details.is_micro_wh, spare_parts_details.booking_id,"
-                . "spare_parts_details.id, service_centres.gst_no as gst_number, reverse_purchase_invoice_id, spare_parts_details.shipped_quantity as shipping_quantity", array('spare_parts_details.id' => $spare_id), TRUE, FALSE);
+                . "spare_parts_details.id, reverse_purchase_invoice_id, spare_parts_details.shipped_quantity as shipping_quantity", array('spare_parts_details.id' => $spare_id), TRUE, FALSE);
 
 
         if (!empty($spare)) {
@@ -4406,9 +4406,6 @@ class Invoice extends CI_Controller {
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
-
-                //Insert invoice Breakup
-                $this->insert_invoice_breakup($response);
             
                 log_message('info', __METHOD__ . ": Invoice ID inserted");
                 
