@@ -873,11 +873,13 @@
                 if (serial_number === "") {
                     alert("Please Enter Serial Number");
                     document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                    document.getElementById('error_serial_no' + div_no[2]).innerHTML = "Please Enter Serial Number";                        
                     flag = 1;
                 }
     
                 if (serial_number === "0") {
                     document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                    document.getElementById('error_serial_no' + div_no[2]).innerHTML = "Enter Valid Serial Number"; 
                     flag = 1;
                 }
                 if($('#sno_required'+ div_no[2]).val() === '1' && !$('#sn_remarks').val()){
@@ -1277,6 +1279,7 @@
     postData['partner_id'] = $("#partner_id").val();
     postData['appliance_id'] = '<?php echo $booking_history[0]['service_id'];?>';
     $("#submitform").attr("disabled",false);
+    $('#serial_number' + count).css("border-color", "#ccc");
     if(postData['serial_number'] !== ''){
         $.ajax({
                 type: 'POST',

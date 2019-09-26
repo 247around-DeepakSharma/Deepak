@@ -3217,7 +3217,7 @@ class Service_centers extends CI_Controller {
                $_POST['courier_boxes_weight_flag'] = $count_spare;
 
              }
- 
+
           $this->process_update_defective_parts($value); 
         }
 
@@ -3253,6 +3253,8 @@ class Service_centers extends CI_Controller {
             $this->update_defective_parts($sp_id);
         } else {
             
+            $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $sp_id], NULL, NULL, NULL, NULL, NULL)[0];
+            
             $defective_courier_receipt = $this->input->post("sp_parts");
             $spare_details = $this->partner_model->get_spare_parts_by_any("*",array('spare_parts_details.id'=>$sp_id));
             
@@ -3265,7 +3267,13 @@ class Service_centers extends CI_Controller {
                     $data['remarks_defective_part_by_sf'] = $this->input->post('remarks_defective_part');
                     $data['defective_part_shipped_date'] = $this->input->post('defective_part_shipped_date');
                     $data['defective_courier_receipt'] = $defective_courier_receipt;
-                    $data['status'] = DEFECTIVE_PARTS_SHIPPED;
+                    
+                    if($spare_part_detail['status'] == OK_PART_TO_BE_SHIPPED) {
+                        $data['status'] = OK_PARTS_SHIPPED;
+                    } else {
+                        $data['status'] = DEFECTIVE_PARTS_SHIPPED;
+                    }
+                    
                     $data['courier_name_by_sf'] = $this->input->post('courier_name_by_sf');
                     $data['defective_part_shipped'] = $defective_part_shipped[$sp_id];
                     $is_p = $this->booking_utilities->check_feature_enable_or_not(AUTO_APPROVE_DEFECTIVE_PARTS_COURIER_CHARGES);
@@ -5608,7 +5616,7 @@ class Service_centers extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             "spare_parts_details.defective_return_to_entity_id" => $sf_id,
             "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
-            "status IN ('".DEFECTIVE_PARTS_SHIPPED."','". DEFECTIVE_PARTS_PENDING."','". COURIER_LOST."','". OK_PART_TO_BE_SHIPPED ."','". DAMAGE_PART_TO_BE_SHIPPED."')" => NULL,
+            "status IN ('".DEFECTIVE_PARTS_SHIPPED."','". DEFECTIVE_PARTS_PENDING."','". COURIER_LOST."','". OK_PART_TO_BE_SHIPPED ."','". DAMAGE_PART_TO_BE_SHIPPED."', '".OK_PARTS_SHIPPED."')" => NULL,
         );
 
 
@@ -5639,7 +5647,7 @@ class Service_centers extends CI_Controller {
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
         $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND spare_parts_details.entity_type = '" . _247AROUND_SF_STRING . "'"
-                . " AND status IN ('".SPARE_DELIVERED_TO_SF."', '".SPARE_SHIPPED_BY_PARTNER."', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."')  ";
+                . " AND status IN ('".SPARE_DELIVERED_TO_SF."', '".SPARE_SHIPPED_BY_PARTNER."', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."', '".OK_PARTS_SHIPPED."')  ";
 
         $config['base_url'] = base_url() . 'service_center/get_shipped_parts_list';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
@@ -7417,7 +7425,7 @@ class Service_centers extends CI_Controller {
            log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
            $service_center_id = $this->session->userdata('service_center_id');
            $where = "spare_parts_details.service_center_id = '".$service_center_id."' "
-                . "  AND status='".DEFECTIVE_PARTS_SHIPPED."'";
+                . "  AND status IN ('".DEFECTIVE_PARTS_SHIPPED."', '".OK_PARTS_SHIPPED."')";
 
            $config['base_url'] = base_url() . 'service_center/defective_part_shipped_by_sf';
            $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
@@ -7680,7 +7688,7 @@ class Service_centers extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status" => DEFECTIVE_PARTS_SHIPPED
+            "spare_parts_details.status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL,	
         );
          
         $select = "booking_details.service_center_closed_date,booking_details.booking_primary_contact_no as mobile, parts_shipped, "
