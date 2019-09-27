@@ -1502,6 +1502,13 @@ function get_data_for_partner_callback($booking_id) {
         return $query->result_array();
     }
     
+    
+    function get_appliance_model_details($modelno,$entityid)
+    {
+        $query = $this->db->query("SELECT id FROM `appliance_model_details` where model_number='".$modelno."' and entity_id='".$entityid."' LIMIT 1");
+        return $query->result_array();
+    }
+    
     /**
      * @Desc: This function is used to get the spare part details by any option
      * @params: $select string
@@ -1520,6 +1527,7 @@ function get_data_for_partner_callback($booking_id) {
         if(!empty($post['wrong_part'])) {
             $this->db->join('wrong_part_shipped_details','spare_parts_details.id = wrong_part_shipped_details.spare_id and wrong_part_shipped_details.active = 1', 'left');
         }
+
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
         }
