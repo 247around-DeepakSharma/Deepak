@@ -3042,7 +3042,7 @@ class Inventory extends CI_Controller {
 
         if ($part_number && $entity_id && $entity_type && $service_id) {
             $where = array('entity_id' => $entity_id, 'entity_type' => $entity_type, 'service_id' => $service_id, 'part_number' => $part_number);
-            $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate', $where);
+            $inventory_details = $this->inventory_model->get_inventory_master_list_data('inventory_master_list.price as price,inventory_master_list.inventory_id, hsn_code,gst_rate, inventory_master_list.oow_around_margin', $where);
             if (!empty($inventory_details)) {
                 if($this->session->userdata('userType')=='service_center'){
                 $select_stock = "*";
@@ -3060,11 +3060,13 @@ class Inventory extends CI_Controller {
                 $data['inventory_id'] = $inventory_details[0]['inventory_id'];
                 $data['gst_rate'] = $inventory_details[0]['gst_rate'];
                 $data['hsn_code'] = $inventory_details[0]['hsn_code'];
+                $data['oow_around_margin'] = $inventory_details[0]['oow_around_margin'];
             } else {
                 $data['price'] = '';
                 $data['inventory_id'] = '';
                 $data['gst_rate'] = '';
                 $data['hsn_code'] = '';
+                $data['oow_around_margin'] = '';
                 $data['total_stock'] = 0;
             }
         } else {
@@ -3072,6 +3074,7 @@ class Inventory extends CI_Controller {
             $data['inventory_id'] = '';
             $data['gst_rate'] = '';
             $data['hsn_code'] = '';
+            $data['oow_around_margin'] = '';
             $data['total_stock'] = 0;
 
             //Getting template from Database
@@ -4770,10 +4773,8 @@ class Inventory extends CI_Controller {
             if ($value['is_micro_wh'] == 0 ) {
                 //Partner Sent this part
                 array_push($partner_spare, $value);
-            } else if ($value['is_micro_wh'] == 1) {
+            } else {
 
-                array_push($micro_spare, $value);
-            } else if ($value['is_micro_wh'] == 2) {
                 array_push($warehouse_spare, $value);
             }
         }
@@ -4781,8 +4782,8 @@ class Inventory extends CI_Controller {
         $booking_id_array = array();
         
         if (!empty($partner_spare)) {
-            $m = $this->update_partner_sent_spare_to_warehouse($partner_spare, $micro_spare);
-            $booking_id_array = $m;
+//            $m = $this->update_partner_sent_spare_to_warehouse($partner_spare);
+//            $booking_id_array = $m;
         }
         if (!empty($warehouse_spare)) { 
             $w = $this->generate_inventory_invoice($postData1, $sender_entity_id, $sender_entity_type, $courier_id);
@@ -4809,28 +4810,28 @@ class Inventory extends CI_Controller {
      * @param Array $micro_spare
      * @return Array
      */
-    function update_partner_sent_spare_to_warehouse($partner_spare, $micro_spare) {
-        log_message('info', __METHOD__);
-        $booking_id_array = array();
-        foreach ($partner_spare as $value) {
-
-            $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH,'shipped_to_partner_qty'=>$value['shipping_quantity']));
-            array_push($booking_id_array, $value['booking_id']);
-        }
-
-        if (!empty($micro_spare)) {
-            foreach ($micro_spare as $value) {
-
-                $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH,'shipped_to_partner_qty'=>$value['shipping_quantity']));
-                array_push($booking_id_array, $value['booking_id']);
-            }
-
-            $sendUrl = base_url() . 'employee/invoice/generate_micro_reverse_sale_invoice';
-            $this->asynchronous_lib->do_background_process($sendUrl, array('spare_id' => $micro_spare));
-        }
-
-        return $booking_id_array;
-    }
+//    function update_partner_sent_spare_to_warehouse($partner_spare) {
+//        log_message('info', __METHOD__);
+//        $booking_id_array = array();
+//        foreach ($partner_spare as $value) {
+//
+//            $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH,'shipped_to_partner_qty'=>$value['shipping_quantity']));
+//            array_push($booking_id_array, $value['booking_id']);
+//        }
+//
+//        if (!empty($micro_spare)) {
+//            foreach ($micro_spare as $value) {
+//
+//                $this->service_centers_model->update_spare_parts(array('id' => $value['spare_id']), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH,'shipped_to_partner_qty'=>$value['shipping_quantity']));
+//                array_push($booking_id_array, $value['booking_id']);
+//            }
+//
+//            $sendUrl = base_url() . 'employee/invoice/generate_micro_reverse_sale_invoice';
+//            $this->asynchronous_lib->do_background_process($sendUrl, array('spare_id' => $micro_spare));
+//        }
+//
+//        return $booking_id_array;
+//    }
 
     /**
      * @desc This is used to generate inventory invoice
@@ -4931,6 +4932,7 @@ class Inventory extends CI_Controller {
                 $response['booking'][0]['invoice_id'] = $response['meta']['invoice_id'];
                 $response['meta']['main_company_gst_number'] = $invoiceValue['data'][0]['from_gst_number'];
                 $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $invoiceValue['data'][0]['from_state_code']))[0]['state'];
+                $response['meta']['main_company_state_code'] = $invoiceValue['data'][0]['from_state_code'];
                 $response['meta']['main_company_address'] = $invoiceValue['data'][0]['from_address'] . "," 
                             . $invoiceValue['data'][0]['from_city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
                             . $invoiceValue['data'][0]['from_pincode'];

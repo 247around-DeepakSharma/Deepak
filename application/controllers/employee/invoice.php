@@ -4055,7 +4055,7 @@ class Invoice extends CI_Controller {
         if (!empty($spare_id)) { 
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
-                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1 ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
+                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity  ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
             if (!empty($spare)) {
                 if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) { 
                     if (!empty($spare[0]['shipped_inventory_id'])) {
@@ -4108,7 +4108,6 @@ class Invoice extends CI_Controller {
                                     $data[0]['from_address'] = $value['to_address'];
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
-                                    $data[0]['from_pincode'] = $value['to_city'];
                                     $data[0]['state_stamp_pic'] = $value['state_stamp_pic'];
                                     $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare);
                                     if ($a) {
@@ -4147,6 +4146,7 @@ class Invoice extends CI_Controller {
         if(isset($data[0]['from_gst_number_id']) && !empty($data[0]['from_gst_number_id'])){
             $response['meta']['main_company_gst_number'] = $data[0]['main_gst_number'];
             $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $data[0]['from_state_code']))[0]['state'];
+            $response['meta']['main_company_state_code'] = $data[0]['from_state_code'];
             $response['meta']['main_company_address'] = $data[0]['from_address'] . "," 
                         . $data[0]['from_city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
                         . $data[0]['from_pincode'];
@@ -4254,7 +4254,7 @@ class Invoice extends CI_Controller {
                 . "spare_parts_details.partner_id,spare_parts_details.shipped_inventory_id, "
                 . "spare_parts_details.shipped_inventory_id as inventory_id, service_center_id,"
                 . "spare_parts_details.is_micro_wh, spare_parts_details.booking_id,"
-                . "spare_parts_details.id", array('spare_parts_details.id' => $spare_id), TRUE, FALSE);
+                . "spare_parts_details.id, reverse_purchase_invoice_id, spare_parts_details.shipped_quantity as shipping_quantity", array('spare_parts_details.id' => $spare_id), TRUE, FALSE);
 
 
         if (!empty($spare)) {
@@ -4417,9 +4417,6 @@ class Invoice extends CI_Controller {
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
-
-                //Insert invoice Breakup
-                $this->insert_invoice_breakup($response);
             
                 log_message('info', __METHOD__ . ": Invoice ID inserted");
                 
@@ -5005,7 +5002,7 @@ class Invoice extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status" => DEFECTIVE_PARTS_SHIPPED,
+            "spare_parts_details.status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL,
             "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".SHIPPED_DEFECTIVE_PARTS_AFTER_TAT_BREACH."' " => NULL
             
         );
@@ -5035,7 +5032,7 @@ class Invoice extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status" => DEFECTIVE_PARTS_SHIPPED,
+            "spare_parts_details.status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL,
             "DATEDIFF(CURRENT_TIMESTAMP, defective_part_shipped_date) > '".DEFECTIVE_PART_SHIPPED_OOT_DAYS."' " => NULL
             
         );
