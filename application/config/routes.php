@@ -56,6 +56,7 @@ $route['service_center/completed_booking/(:any)'] = 'employee/service_centers/co
 $route['service_center/cancelled_booking'] = 'employee/service_centers/cancelled_booking';
 $route['service_center/cancelled_booking/(:any)'] = 'employee/service_centers/cancelled_booking/$1';
 $route['service_center/booking_details/(:any)'] = 'employee/service_centers/booking_details/$1';
+$route['service_center/get_appliance_details'] = 'employee/service_centers/get_appliance_details';
 $route['service_center/cancel_booking_form/(:any)'] = 'employee/service_centers/cancel_booking_form/$1';
 $route['service_center/complete_booking_form/(:any)'] = 'employee/service_centers/complete_booking_form/$1';
 $route['service_center/add_engineer'] = 'employee/vendor/add_engineer';

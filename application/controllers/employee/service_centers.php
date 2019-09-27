@@ -3667,6 +3667,14 @@ class Service_centers extends CI_Controller {
        }
     }
     
+    function get_appliance_details()
+    {
+        $modelno = $this->input->post('modelno');
+        $entityid = $this->input->post('entityid');
+        $data= $this->partner_model->get_appliance_model_details($modelno,$entityid);
+        echo json_encode($data, true);
+    }
+    
      /**
      * @desc: It's used to generate SF Challan
      * @param String $generate_challan

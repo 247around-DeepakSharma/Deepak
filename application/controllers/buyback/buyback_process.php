@@ -1498,7 +1498,7 @@ class Buyback_process extends CI_Controller {
                 //get total data and divide it from 500 to insert only 500 data at a time in one csv
                 $total_data = $this->service_centre_charges_model->get_bb_charges($where, 'count(bb_charges.id) as total_data', true, true,null,null,false,$where_in);
                 if (!empty($total_data)) {
-                    $row_limit = 498;
+                    $row_limit = 99998;
                     $counter = ceil($total_data[0]['total_data'] / $row_limit);
                     $offset = 0;
                     for ($i = 0; $i < $counter; $i++) {
@@ -1516,7 +1516,7 @@ class Buyback_process extends CI_Controller {
                             $file_name = $csv_file_name . "_" . $i . ".csv";
                             $csv_file[$file_name] = $this->generate_bb_csv_price_list($file_name, $data);
                         }
-                        $offset += 498;
+                        $offset += 99998;
                     }
                 }
             }
