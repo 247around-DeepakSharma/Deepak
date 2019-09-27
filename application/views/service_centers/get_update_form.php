@@ -995,8 +995,12 @@ function alpha(e) {
         }
         
     }
-    
 
+
+     $(document).on('keyup', ".parts_name", function(e){
+        $(".quantity").removeAttr("readonly");
+     });
+    
      $(document).on('keyup', ".quantity", function(e)
        {
 

@@ -4060,7 +4060,7 @@ class Invoice extends CI_Controller {
                 if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) { 
                     if (!empty($spare[0]['shipped_inventory_id'])) {
                         if (empty($spare[0]['gst_number'])) {
-                            $spare[0]['gst_number'] = FALSE;
+                           // $spare[0]['gst_number'] = TRUE;
                         }
                         $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
                         $spare[0]['spare_id'] = $spare_id;
@@ -4077,7 +4077,7 @@ class Invoice extends CI_Controller {
                 
                                 foreach ($invoiceValue['data'] as $value) {
                                     $data[0]['description'] = ucwords($value['part_name']) . " (" . $spare[0]['booking_id'] . ") ";
-                                    $data[0]['taxable_value'] = $value['rate']*$value['qty'];
+                                    
                                     $data[0]['product_or_services'] = "Product";
                                     $data[0]['gst_number'] = $spare[0]['gst_number'];
                                     $data[0]['main_gst_number'] = $value['to_gst_number'];
@@ -4091,7 +4091,15 @@ class Invoice extends CI_Controller {
                                     $data[0]['district'] = $spare[0]['district'];
                                     $data[0]['pincode'] = $spare[0]['pincode'];
                                     $data[0]['state'] = $spare[0]['state'];
-                                    $data[0]['rate'] = $value['rate'];
+                                    if(empty($spare[0]['gst_number'])){
+                                        $data[0]['rate'] =  $value['rate'] + ($value['rate'] * $value['gst_rate']/100);
+                                        $data[0]['taxable_value'] = ( $data[0]['rate'] * $value['qty']);
+                                        
+                                    } else {
+                                        $data[0]['taxable_value'] = $value['rate'] * $value['qty'];
+                                        $data[0]['rate'] = $value['rate'];
+                                    }
+
                                     $data[0]['qty'] = $value['qty'];//1;
                                     $data[0]['hsn_code'] = $value['hsn_code'];
                                     $sd = $ed = $invoice_date = date("Y-m-d");
@@ -4148,14 +4156,17 @@ class Invoice extends CI_Controller {
         }
         $response['meta']['invoice_id'] = $invoice_id;
         
-        
-        
-        $c_s_gst = $this->invoices_model->check_gst_tax_type($spare[0]['state']);
-        if ($c_s_gst) {
-            $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
+        if(empty($response['meta']['gst_number'])){
+            $response['meta']['invoice_template'] = "SF_FOC_Bill_of_Supply-v1.xlsx";
         } else {
-            $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
+            $c_s_gst = $this->invoices_model->check_gst_tax_type($spare[0]['state']);
+        if ($c_s_gst) {
+                $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
+            } else {
+                $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
+            }
         }
+        
         $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         if ($status) {
             log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $spare[0]['service_center_id']);
