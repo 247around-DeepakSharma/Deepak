@@ -2819,11 +2819,13 @@ class engineerApi extends CI_Controller {
             if((strpos(strtoupper(str_replace(" ","",$booking_request_type)), 'OUTOFWARRANTY') !== false))
             {
                 $warranty_mismatch = 0;
-                $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";
+                //$returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";
+                $returnMessage = "Warranty Status is ".$arr_warranty_status_full_names[$warranty_checker_status].", But you can continue";
             }
             else
             { 
-                $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
+                //$returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
+                $returnMessage = "Warranty Status is ".$arr_warranty_status_full_names[$warranty_checker_status].", Change request type";
             }   
         }
         $arrReturn['warranty_flag'] = $warranty_mismatch;
