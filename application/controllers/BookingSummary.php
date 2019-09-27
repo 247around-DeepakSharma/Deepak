@@ -995,7 +995,7 @@ EOD;
                     //Getting RM to SF relation
                     $where = "";
                     $sf_list = $this->vendor_model->get_employee_relation($value['id']);
-                    if (!empty($sf_list)) {
+                    if (!empty($sf_list) && !empty($sf_list[0]['service_centres_id'])) {
                         $sf_list = $sf_list[0]['service_centres_id'];
                         $where = "AND service_centres.id IN (" . $sf_list . ")";
                     }

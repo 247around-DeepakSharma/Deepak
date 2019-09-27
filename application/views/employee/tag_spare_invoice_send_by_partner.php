@@ -17,6 +17,9 @@
     display: inline-block;
     text-decoration: none;
     }
+    label.error {
+        color:red;
+    }
 </style>
 <!-- page content -->
 <div id="page-wrapper" role="main">
@@ -211,7 +214,7 @@
                                                 <input type="text" class="form-control allowNumericWithOutDecimal" name="part[0][hsn_code]" id="partHsnCode_0" value=""/>
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="number" class="form-control allowNumericWithOutDecimal" name="part[0][gst_rate]" onkeyup="calculate_total_price()" id="partGstRate_0" min="12" max="28" value="" />
+                                                <input type="number" class="form-control allowNumericWithOutDecimal" name="part[0][gst_rate]" onkeyup="calculate_total_price()" id="partGstRate_0" min="5" max="28" value="" />
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
                                                 <input type="hidden" class="form-control" name="part[0][inventory_id]" id="inventoryId_0" value=""/>
@@ -248,7 +251,7 @@
                                                 <input type="text" class="form-control allowNumericWithOutDecimal" id="partHsnCode" value="" />
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
-                                                <input type="number" class="form-control allowNumericWithOutDecimal" id="partGstRate" value="" min="12" max="28" />
+                                                <input type="number" class="form-control allowNumericWithOutDecimal" id="partGstRate" value="" min="5" max="28" />
                                             </div>
                                             <div class="col-xs-12 col-sm-6 col-md-1">
                                                 <input type="hidden" class="form-control" id="inventory_id"  value=""/>
@@ -270,7 +273,7 @@
                                         <hr>
                                         <div class="row">
                                             <div class="col-xs-5 col-md-4 col-md-offset-5">
-                                                <button type="submit" class="btn btn-success" id="submit_btn">Preview</button>
+                                                <button type="submit" class="btn btn-success" id="submit_btn" name="submit_btn">Preview</button>
                                                 <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value=""/>
                                                 <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
                                                 <input type="hidden" id="confirmation" value="0">
@@ -490,8 +493,8 @@
                               <div id="clone_id" style="text-align: center;"></div>
                               <div class="modal-footer" style="margin-right: 389px;text-align: center;">
                                   <input type="hidden" id="mapped_model_table_id">
-                                  <button type="button" class="btn btn-success" id="sumit_msl">Submit</button>
-                                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                                  <button type="button" class="btn btn-success" id="sumit_msl" name="sumit_msl">Submit</button>
+                                  <button type="button" class="btn btn-default" onclick="submit_btn.disabled = false;sumit_msl.disabled = false;" data-dismiss="modal">Cancel</button>
                               </div>
                           </form>
                   </div>
@@ -507,8 +510,23 @@
     });
     
     $("#sumit_msl").click(function(){
+        $("#sumit_msl,#submit_btn").attr('disabled',true);
         $("#confirmation").val('1');
         $("#spareForm").submit();
+    });
+    
+    $("input:text, input:file, select").on('change',function(){
+        $("#sumit_msl,#submit_btn,#on_submit_btn").attr('disabled',false);
+        $('label.error').css('display','none');
+    });
+    
+    $("input:text").on('input',function(){
+        $("#sumit_msl,#submit_btn,#on_submit_btn").attr('disabled',false);
+        $('label.error').css('display','none');
+    });
+    
+    $('#submit_btn').click(function(){
+        $("#sumit_msl").attr('disabled',false);
     });
     
     var date_before_15_days = new Date();
@@ -606,7 +624,7 @@
     
         $(".allowNumericWithOutDecimal").keydown(function (e) {
             // Allow: backspace, delete, tab, escape, enter
-            if ($.inArray(e.keyCode, [8, 9, 27, 13, 110, 190]) !== -1 ||
+            if ($.inArray(e.keyCode, [46, 8, 9, 27, 13]) !== -1 ||
               // Allow: Ctrl+A,Ctrl+C,Ctrl+V, Command+A
               ((e.keyCode == 65 || e.keyCode == 86 || e.keyCode == 67) && (e.ctrlKey === true || e.metaKey === true)) ||
               // Allow: home, end, left, right, down, up
@@ -623,6 +641,7 @@
         //$("#spareForm").validate();    
         $("#spareForm").on('submit', function(e) {
             e.preventDefault();
+            $("#submit_btn").attr('disabled',true);
             var isvalid = $("#spareForm").valid();
             var flag = true;
             if (isvalid) {
@@ -656,14 +675,14 @@
                             flag = false;
                             return false;
                         }
-                        else {
-                            if((Number($('#partGstRate_'+i).val()) !== 5) && (Number($('#partGstRate_'+i).val()) !== 12) && (Number($('#partGstRate_'+i).val()) !== 18) && (Number($('#partGstRate_'+i).val()) !== 28) ){
-                                showConfirmDialougeBox('Invalid Gst Rate', 'warning');
-                                $('#partGstRate_'+i).addClass('text-danger');
-                                flag = false;
-                                return false;
-                            }
-                        }
+//                        else {
+//                            if((Number($('#partGstRate_'+i).val()) !== 5) && (Number($('#partGstRate_'+i).val()) !== 12) && (Number($('#partGstRate_'+i).val()) !== 18) && (Number($('#partGstRate_'+i).val()) !== 28) ){
+//                                showConfirmDialougeBox('Invalid Gst Rate', 'warning');
+//                                $('#partGstRate_'+i).addClass('text-danger');
+//                                flag = false;
+//                                return false;
+//                            }
+//                        }
                     }
                 });
                 
@@ -690,10 +709,6 @@
                        
                    if((c_status !='')&& (c_status == '1')){
                     if(confirm('Are you sure to continue')){
-                        $('#submit_btn').attr('disabled',true);
-                        $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
-    
-    
                         //Serializing all For Input Values (not files!) in an Array Collection so that we can iterate this collection later.
                         var params = $('#spareForm').serializeArray();
     
@@ -729,6 +744,14 @@
                             data:formData,
                             contentType: false,
                             processData: false,
+                            beforeSend: function(){
+                                // Handle the beforeSend event
+                                $('#sumit_msl,#submit_btn').attr('disabled',true);
+                                $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
+                                $("#spareForm")[0].reset();
+                                $("#spareForm").find('input:text, input:file, select').val('');
+                                $('label.error').css('color','white');
+                            },
                             success:function(response){
                                 console.log(response);
                                 obj = JSON.parse(response);
@@ -738,12 +761,11 @@
 //                                       window.location.href = "<?php echo base_url();?>employee/inventory/print_warehouse_address/"+obj['partner_id']+"/"+obj['warehouse_id']+"/"+obj['total_quantity']+""; 
 //                                    }
 //                                }                                
-                                $('#submit_btn').attr('disabled',false);
-                                $('#submit_btn').html("Preview");
                                 if(obj.status){
                                     $('.success_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".success_msg_div").slideUp(1000);});   
                                     $('#success_msg').html(obj.message);
                                     $("#spareForm")[0].reset();
+                                    $("#spareForm").find('input:text, input:file, select').val('');
                                     $('#select2-partner_id-container').text('Select Partner');
                                     $('#select2-partner_id-container').attr('title','Select Partner');
                                     $('#select2-from_gst_number-container').text('Select From GST Number');
@@ -764,10 +786,16 @@
                                 }else{
                                     $('.error_msg_div').fadeTo(8000, 500).slideUp(500, function(){$(".error_msg_div").slideUp(1000);});
                                     $('#error_msg').html(obj.message);
-                                    $("#confirmation").val('0');
                                 }
     
-                           }
+                            },
+                            complete: function() {
+                                $('#sumit_msl,#submit_btn').attr('disabled',false);
+                                $('#submit_btn').html("Preview");
+                                $('label.error').css('color','red');
+                                $('label.error').css('display','none');
+                                $("#confirmation").val('0');    
+                            }
                         });
                     }else{
                         $("#confirmation").val('0');
@@ -1026,12 +1054,12 @@
                     var obj = JSON.parse(res);
                     if(obj.status === true){
                         $('#'+id).css('border','1px solid #ccc');
-                        $('#submit_btn').attr('disabled',false);
+                        $('#on_submit_btn').attr('disabled',false);
                         is_valid_booking = true;
                     }else{
                         is_valid_booking = false;
                         $('#'+id).css('border','1px solid red');
-                        $('#submit_btn').attr('disabled',true);
+                        $('#on_submit_btn').attr('disabled',true);
                         alert('Booking id not found');
                     }
                 }
@@ -1039,7 +1067,7 @@
         }else{
             is_valid_booking = true;
             $('#'+id).css('border','1px solid #ccc');
-            $('#submit_btn').attr('disabled',false);
+            $('#on_submit_btn').attr('disabled',false);
         }
     }
     
@@ -1203,6 +1231,12 @@
            var total_spare_invoice_price = Number($('#onpartBasicPrice_'+id).val()) + (Number($('#onpartBasicPrice_'+id).val()) * Number($('#onpartGstRate_'+id).val())/100);
            $('#ontotal_amount_'+id).val(Number(total_spare_invoice_price.toFixed(2)));
         }
+        
+        function booking_calculate_basic_price(id){
+           var qty = (($.trim($('#onquantity_'+id).val()) !== '') ? Number($('#onquantity_'+id).val()) : 1);
+           var spare_invoice_price = qty * Number($('#onpartBasic_'+id).val());
+           $('#onpartBasicPrice_'+id).val(Number(spare_invoice_price.toFixed(2)));
+        }
        
        function get_part_number_on_booking(index){
             var partner_id = $('#onpartnerId_'+index).val();
@@ -1223,6 +1257,7 @@
                         $('#onpartNumber_'+index).html(obj.option);
                         $('#oninventoryId_'+index).val(obj.inventory_id);
                         $('#onpartBasicPrice_'+index).val(obj.basic_price);
+                        $('#onpartBasic_'+index).val(obj.basic_price);
                         $('#onpartGstRate_'+index).val(obj.gst_rate);
                         $('#onpartHsnCode_'+index).val(obj.hsn_code);
                         $('#onspareType_'+index).val(obj.type);
@@ -1265,6 +1300,7 @@
 
         $('#oninventoryId_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-inventory_id'));
         $('#onpartBasicPrice_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-basic_price'));
+        $('#onpartBasic_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-basic_price'));
         $('#onpartGstRate_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-gst_rate'));
         $('#onpartHsnCode_'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-hsn_code'));
         $('#onspareType'+index).val($("#onpartNumber_"+index).find(':selected').attr('data-type'));
@@ -1274,6 +1310,7 @@
     
     $("#onBookingspareForm").on('submit', function(e) {
             e.preventDefault();
+            $("#on_submit_btn").attr('disabled',true);
             var isvalid = $("#onBookingspareForm").valid();
             var flag = true;
             if (isvalid) {
@@ -1281,7 +1318,7 @@
                     validateDecimal('onpartBasicPrice_'+i,$('#onpartBasicPrice_'+i).val());
                     
                     if(Number($('#onpartBasicPrice_'+i).val()) === 0){
-                        onBookingshowConfirmDialougeBox('Please enter basic price', 'warning');
+                        onBookingshowConfirmDialougeBox('Please enter total basic price', 'warning');
                         $('#onpartBasicPrice_'+i).addClass('text-danger');
                         flag = false;
                         return false;
@@ -1298,14 +1335,14 @@
                         flag = false;
                         return false;
                     }
-                    else {
-                        if((Number($('#onpartGstRate_'+i).val()) !== 5) && (Number($('#onpartGstRate_'+i).val()) !== 12) && (Number($('#onpartGstRate_'+i).val()) !== 18) && (Number($('#onpartGstRate_'+i).val()) !== 28) ){
-                            onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
-                            $('#onpartGstRate_'+i).addClass('text-danger');
-                            flag = false;
-                            return false;
-                        }
-                    }
+//                    else {
+//                        if((Number($('#onpartGstRate_'+i).val()) !== 5) && (Number($('#onpartGstRate_'+i).val()) !== 12) && (Number($('#onpartGstRate_'+i).val()) !== 18) && (Number($('#onpartGstRate_'+i).val()) !== 28) ){
+//                            onBookingshowConfirmDialougeBox('Invalid Gst Rate', 'warning');
+//                            $('#onpartGstRate_'+i).addClass('text-danger');
+//                            flag = false;
+//                            return false;
+//                        }
+//                    }
 
                 });
                 
@@ -1378,9 +1415,10 @@
                .find('[id="shipping_status_2"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','n_shippingStatus_'+onBookingIndex).attr("required", true).end()
                .find('[id="shipping_status_3"]').attr('name', 'part[' + onBookingIndex + '][shippingStatus]').attr('id','l_shippingStatus_'+onBookingIndex).attr("required", true).end()
                .find('[id="onpartName"]').attr('name', 'part[' + onBookingIndex + '][part_name]').attr('id','onpartName_'+onBookingIndex).attr('onchange','get_part_number_on_booking("'+ onBookingIndex+'")').addClass('part_name').attr("required", true).end()
+               .find('[id="onpartBasic"]').attr('id','onpartBasic_'+onBookingIndex).end()
                .find('[id="onpartBasicPrice"]').attr('name', 'part[' + onBookingIndex + '][part_total_price]').attr('id','onpartBasicPrice_'+onBookingIndex).attr('onkeyup','validateDecimal(this.id, this.value);booking_calculate_total_price('+onBookingIndex+')').addClass('onpartBasicPrice').end()
                .find('[for="onpartBasicPrice"]').attr('for','onpartBasicPrice_'+onBookingIndex).attr('id','lbl_onpartBasicPrice_'+onBookingIndex).end()
-               .find('[id="onquantity"]').attr('name', 'part[' + onBookingIndex + '][quantity]').attr('id','onquantity_'+onBookingIndex).end()
+               .find('[id="onquantity"]').attr('name', 'part[' + onBookingIndex + '][quantity]').attr('id','onquantity_'+onBookingIndex).attr('onkeyup','booking_calculate_basic_price('+onBookingIndex+');booking_calculate_total_price('+onBookingIndex+')').end()
                .find('[id="onpartGstRate"]').attr('name', 'part[' + onBookingIndex + '][gst_rate]').attr('id','onpartGstRate_'+onBookingIndex).addClass('onpartGstRate').attr('onkeyup','booking_calculate_total_price('+onBookingIndex+')').end()
                .find('[id="onpartNumber"]').attr('name', 'part[' + onBookingIndex + '][part_number]').attr('id','onpartNumber_'+onBookingIndex).attr('onchange', 'onchange_part_number("'+onBookingIndex+'")').end()
                .find('[id="onpartHsnCode"]').attr('name', 'part[' + onBookingIndex + '][hsn_code]').attr('id','onpartHsnCode_'+onBookingIndex).addClass('onpartHsnCode').end()
@@ -1415,6 +1453,7 @@
             showLoaderOnConfirm: true
         },
             function(){
+                 $("#on_submit_btn").attr('disabled',true);
                  submitBookingForm();
             });
         }else{
@@ -1435,6 +1474,7 @@
             showLoaderOnConfirm: true
         },
             function(){
+                 $("#submit_btn").attr('disabled',true);
                  $("#spareForm").submit();
             });
         }else{
@@ -1446,8 +1486,6 @@
     }
     
     function submitBookingForm(){
-        $('#on_submit_btn').attr('disabled',true);
-        $('#on_submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
          //Serializing all For Input Values (not files!) in an Array Collection so that we can iterate this collection later.
         var params = $('#onBookingspareForm').serializeArray();
     
@@ -1480,6 +1518,13 @@
             data:formData,
             contentType: false,
             processData: false,
+            beforeSend: function(){
+                // Handle the beforeSend event
+                $('#on_submit_btn').attr('disabled',true);
+                $('#on_submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
+                $("#onBookingspareForm")[0].reset();
+                $("#onBookingspareForm").find('input:text, input:file, select').val('');
+            },
             success:function(response){
                 //console.log(response);
                 obj = JSON.parse(response);

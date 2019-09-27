@@ -11,14 +11,17 @@
             </div>
         </div>
         <?php }?>
-        <?php $required_sp_id = array(); $can_sp_id = array(); ?>
+        <?php 
+            //$required_sp_id = array(); 
+            $can_sp_id = array(); 
+        ?>
         <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
             foreach ($booking_history['spare_parts'] as  $value) {
                 if($value['status'] == "Completed" || $value['status'] == "Cancelled"){} else {
                     if($value['defective_part_required'] == 1 && $value['status'] != SPARE_PARTS_REQUESTED){
                         if(!empty($value['parts_shipped'])){
                             $flag = 1; 
-                            array_push($required_sp_id, $value['id']);   
+                            //array_push($required_sp_id, $value['id']);   
                         }
                     }
                 }
@@ -130,7 +133,7 @@
                     <!-- row End  -->
                     
                     <input type="hidden" id="spare_parts_required" name="spare_parts_required" value="<?php echo $flag;?>" />
-                    <input type="hidden" name="sp_required_id" value='<?php echo json_encode($required_sp_id,TRUE); ?>' />
+<!--                    <input type="hidden" name="sp_required_id" value='<?php //echo json_encode($required_sp_id,TRUE); ?>' />-->
                     <input type="hidden" name="can_sp_required_id" value='<?php echo json_encode($can_sp_id,TRUE); ?>' />
                     <input type="hidden" name="partner_id" value='<?php echo $booking_history[0]['partner_id']; ?>' />
                     <input type="hidden" name="user_id" value='<?php echo $booking_history[0]['user_id']; ?>' />
@@ -417,7 +420,7 @@
                                                                                     echo "checked";
                                                                                     }
                                                                                     else if($this->session->userdata('is_engineer_app') == 1 && isset($price['en_booking_status'])){
-                                                                                        if($price['en_booking_status'] == 0){
+                                                                                        if($price['en_booking_status'] == 0 && $price['en_current_status'] == "InProcess"){
                                                                                              echo "checked";
                                                                                         }
                                                                                     }
@@ -630,25 +633,13 @@
                             <div class="form-group col-md-6" style=" margin-left:-29px;">
                                 <label for="remark" class="col-md-12">Booking Remarks</label>
                                 <div class="col-md-12" >
-                                    <textarea class="form-control"  rows="2" name="booking_remarks" readonly><?php
-                                        if (isset($booking_history[0]['booking_remarks'])) {
-                                            echo str_replace("<br/>", "&#13;&#10;", $booking_history[0]['booking_remarks']);
-                                        }
-                                        ?></textarea>
+                                    <textarea class="form-control"  rows="2" name="booking_remarks" readonly><?php if (isset($booking_history[0]['booking_remarks'])) {echo str_replace("<br/>", "&#13;&#10;", $booking_history[0]['booking_remarks']);}?></textarea>
                                 </div>
                             </div>
                             <div class="form-group col-md-6">
                                 <label for="remark" class="col-md-12">Closing Remarks</label>
                                 <div class="col-md-12" >
-                                    <textarea class="form-control"  rows="2" name="closing_remarks" id="closing_remarks" required>
-                                        <?php 
-                                            if($this->session->userdata('is_engineer_app') == 1){ 
-                                                if(isset($bookng_unit_details[0]['en_closing_remark'])){
-                                                   echo $bookng_unit_details[0]['en_closing_remark'];
-                                                }
-                                            }
-                                        ?>
-                                    </textarea>
+                                    <textarea class="form-control"  rows="2" name="closing_remarks" id="closing_remarks" required><?php if($this->session->userdata('is_engineer_app') == 1){if(isset($bookng_unit_details[0]['en_closing_remark'])){echo $bookng_unit_details[0]['en_closing_remark'];}}?></textarea>
                                 </div>
                             </div>
                         </div>
@@ -712,11 +703,13 @@
         });
         if($('#technical_solution').val() == 0)
             $('#technical_solution').removeAttr('disabled');
-        
+        /*** This script is commented by Kalyani for showing auto selected booking status ***/
+        /*
         $(":radio").each(function() {
             $("#"+this.id).prop("checked",false);
         });
-        
+        */
+        /*** End ***/
         $('.priceList').children('tbody').next('tbody').children('tr').each(function(index){
             validateSerialNo(index);
     });
@@ -896,16 +889,17 @@
                         prediv = appdiv;
                         serial_number_tmp.push(serial_number);
                     }
-                    
                     if (serial_number === "") {
     
                         document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                        document.getElementById('error_serial_no' + div_no[2]).innerHTML = "Please Enter Serial Number";                        
                         flag = 1;
                         
                     }
     
                     if (serial_number === "0") {
                         document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                        document.getElementById('error_serial_no' + div_no[2]).innerHTML = "Enter Valid Serial Number"; 
                         flag = 1;
                         
                     }
@@ -914,9 +908,12 @@
                     if (numberRegex.test(serial_number)) {
                         if (serial_number > 0) {
                             flag = 0;
+                            document.getElementById('serial_number' + div_no[2]).style.borderColor = "#ccc";
+                            document.getElementById('error_serial_no' + div_no[2]).innerHTML = "";
                         } else {
                             
                             document.getElementById('serial_number' + div_no[2]).style.borderColor = "red";
+                            document.getElementById('error_serial_no' + div_no[2]).innerHTML = "Enter Valid Serial Number";
                             flag = 1;
                             
                         }
@@ -1313,6 +1310,7 @@
     function validateSerialNo(index){
        var model_number = '';
        var temp = $("#serial_number" +index).val();
+       $('#serial_number' + index).css("border-color", "#ccc");
        if($.trim(temp) === ''){
            return;
        }

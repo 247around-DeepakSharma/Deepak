@@ -34,7 +34,7 @@ class Warranty_utilities {
             // Calculate Purchase Date
             // Used in case data is read from excel   
             $purchase_date = date('Y-m-d', strtotime($rec_data['purchase_date']));   
-            if ($is_excel && $rec_data['purchase_date'] != "0000-00-00" && DateTime::createFromFormat('d-m-Y', $rec_data['purchase_date']) === FALSE) {
+            if ($is_excel && $rec_data['purchase_date'] != "0000-00-00" && DateTime::createFromFormat('d-m-Y', $rec_data['purchase_date']) === FALSE && is_numeric($rec_data['purchase_date'])) {
                 $purchase_date = date('Y-m-d', PHPExcel_Shared_Date::ExcelToPHP($rec_data['purchase_date']));
             }
             
@@ -109,10 +109,17 @@ class Warranty_utilities {
         $arrBookingWiseWarrantyStatus = [];                 
         if(!empty($arrBookingsWarrantyData)){
             $arrBookingWiseWarrantyStatus = array_map(function($recWarrantyData) {
+                $warranty_found = !empty($recWarrantyData['in_warranty_period']) ? true : false;
                 $in_warranty_period = !empty($recWarrantyData['in_warranty_period']) ? $recWarrantyData['in_warranty_period'] : 12;
                 $extended_warranty_period = !empty($recWarrantyData['extended_warranty_period']) ? $recWarrantyData['extended_warranty_period'] : 0;
-                $warrantyStatus = $this->get_warranty_status($in_warranty_period, $extended_warranty_period, $recWarrantyData['purchase_date'], $recWarrantyData['booking_create_date']);
-                return $warrantyStatus;
+                $warrantyStatus = $this->get_warranty_status($in_warranty_period, $extended_warranty_period, $recWarrantyData['purchase_date'], $recWarrantyData['booking_create_date'], $warranty_found);
+                if($recWarrantyData['purchase_date'] == '1970-01-01'):
+                    return "DOP Not Valid";
+                elseif($recWarrantyData['booking_create_date'] == '1970-01-01'):
+                    return "Booking Create Date Not Valid";
+                else:
+                    return $warrantyStatus;
+                endif;                
             }, $arrBookingsWarrantyData);
         }  
         return $arrBookingWiseWarrantyStatus;
@@ -129,7 +136,7 @@ class Warranty_utilities {
      * @param type $create_date
      * @return string
      */
-    public function get_warranty_status($in_warranty_period, $extended_warranty_period, $purchase_date, $create_date)
+    public function get_warranty_status($in_warranty_period, $extended_warranty_period, $purchase_date, $create_date, $warranty_found = true)
     {
         $create_date = date('Y-m-d', strtotime($create_date));
         $warrantyStatus = 'OW';
@@ -150,7 +157,9 @@ class Warranty_utilities {
         if (strtotime($create_date) <= $in_warranty_end_period) :
             $warrantyStatus = 'IW';      
         elseif (strtotime($create_date) <= $warranty_end_period) :
-            $warrantyStatus = 'EW';      
+            $warrantyStatus = 'EW'; 
+        elseif(!$warranty_found):
+            $warrantyStatus = 'No Data Found'; 
         endif; 
         return $warrantyStatus;
     }
@@ -193,7 +202,11 @@ class Warranty_utilities {
         $booking_id = $arrBookings[0]['booking_id'];
         $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
         $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
-        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
+        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
+        // If no data found against warranty, consider booking as of Out Warranty
+        if($warranty_checker_status != 'IW' && $warranty_checker_status != 'EW'):
+            $warranty_checker_status = "OW";
+        endif;
         $warranty_mismatch = 0;
         $returnMessage = "";
 

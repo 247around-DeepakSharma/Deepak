@@ -156,9 +156,11 @@
     function booking_search_waiting(){
              waiting_defactive_parts.ajax.reload();
         }
-function confirm_received(){
+function confirm_received(id){
+    $("#"+id).attr('disabled',true);
     var c = confirm("Continue?");
     if(!c){
+        $("#"+id).attr('disabled',false);
         return false;
     }
 }

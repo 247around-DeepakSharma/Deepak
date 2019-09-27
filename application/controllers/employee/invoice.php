@@ -4055,12 +4055,12 @@ class Invoice extends CI_Controller {
         if (!empty($spare_id)) { 
             $spare = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*, booking_details.partner_id as booking_partner_id, service_centres.gst_no as gst_number,service_centres.sc_code,"
                     . "service_centres.state,service_centres.address as company_address,service_centres.company_name,"
-                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1 ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
+                    . "service_centres.district, service_centres.pincode, service_centres.is_wh, spare_parts_details.is_micro_wh,owner_phone_1, spare_parts_details.shipped_quantity as shipping_quantity  ", array('spare_parts_details.id' => $spare_id), TRUE, TRUE);
             if (!empty($spare)) {
                 if ($spare[0]['is_micro_wh'] == 1 && ($spare[0]['partner_id'] == $spare[0]['service_center_id'])) { 
                     if (!empty($spare[0]['shipped_inventory_id'])) {
                         if (empty($spare[0]['gst_number'])) {
-                            $spare[0]['gst_number'] = TRUE;
+                           // $spare[0]['gst_number'] = TRUE;
                         }
                         $invoice_id = $this->invoice_lib->create_invoice_id($spare[0]['sc_code']);
                         $spare[0]['spare_id'] = $spare_id;
@@ -4077,7 +4077,7 @@ class Invoice extends CI_Controller {
                 
                                 foreach ($invoiceValue['data'] as $value) {
                                     $data[0]['description'] = ucwords($value['part_name']) . " (" . $spare[0]['booking_id'] . ") ";
-                                    $data[0]['taxable_value'] = $value['rate']*$value['qty'];
+                                    
                                     $data[0]['product_or_services'] = "Product";
                                     $data[0]['gst_number'] = $spare[0]['gst_number'];
                                     $data[0]['main_gst_number'] = $value['to_gst_number'];
@@ -4091,7 +4091,15 @@ class Invoice extends CI_Controller {
                                     $data[0]['district'] = $spare[0]['district'];
                                     $data[0]['pincode'] = $spare[0]['pincode'];
                                     $data[0]['state'] = $spare[0]['state'];
-                                    $data[0]['rate'] = $value['rate'];
+                                    if(empty($spare[0]['gst_number'])){
+                                        $data[0]['rate'] =  $value['rate'] + ($value['rate'] * $value['gst_rate']/100);
+                                        $data[0]['taxable_value'] = ( $data[0]['rate'] * $value['qty']);
+                                        
+                                    } else {
+                                        $data[0]['taxable_value'] = $value['rate'] * $value['qty'];
+                                        $data[0]['rate'] = $value['rate'];
+                                    }
+
                                     $data[0]['qty'] = $value['qty'];//1;
                                     $data[0]['hsn_code'] = $value['hsn_code'];
                                     $sd = $ed = $invoice_date = date("Y-m-d");
@@ -4100,7 +4108,6 @@ class Invoice extends CI_Controller {
                                     $data[0]['from_address'] = $value['to_address'];
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
-                                    $data[0]['from_pincode'] = $value['to_city'];
                                     $data[0]['state_stamp_pic'] = $value['state_stamp_pic'];
                                     $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare);
                                     if ($a) {
@@ -4139,6 +4146,7 @@ class Invoice extends CI_Controller {
         if(isset($data[0]['from_gst_number_id']) && !empty($data[0]['from_gst_number_id'])){
             $response['meta']['main_company_gst_number'] = $data[0]['main_gst_number'];
             $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $data[0]['from_state_code']))[0]['state'];
+            $response['meta']['main_company_state_code'] = $data[0]['from_state_code'];
             $response['meta']['main_company_address'] = $data[0]['from_address'] . "," 
                         . $data[0]['from_city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
                         . $data[0]['from_pincode'];
@@ -4148,14 +4156,17 @@ class Invoice extends CI_Controller {
         }
         $response['meta']['invoice_id'] = $invoice_id;
         
-        
-        
-        $c_s_gst = $this->invoices_model->check_gst_tax_type($spare[0]['state']);
-        if ($c_s_gst) {
-            $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
+        if(empty($response['meta']['gst_number'])){
+            $response['meta']['invoice_template'] = "SF_FOC_Bill_of_Supply-v1.xlsx";
         } else {
-            $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
+            $c_s_gst = $this->invoices_model->check_gst_tax_type($spare[0]['state']);
+        if ($c_s_gst) {
+                $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
+            } else {
+                $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
+            }
         }
+        
         $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         if ($status) {
             log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $spare[0]['service_center_id']);
@@ -4243,7 +4254,7 @@ class Invoice extends CI_Controller {
                 . "spare_parts_details.partner_id,spare_parts_details.shipped_inventory_id, "
                 . "spare_parts_details.shipped_inventory_id as inventory_id, service_center_id,"
                 . "spare_parts_details.is_micro_wh, spare_parts_details.booking_id,"
-                . "spare_parts_details.id", array('spare_parts_details.id' => $spare_id), TRUE, FALSE);
+                . "spare_parts_details.id, reverse_purchase_invoice_id, spare_parts_details.shipped_quantity as shipping_quantity", array('spare_parts_details.id' => $spare_id), TRUE, FALSE);
 
 
         if (!empty($spare)) {
@@ -4406,9 +4417,6 @@ class Invoice extends CI_Controller {
                 );
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
-
-                //Insert invoice Breakup
-                $this->insert_invoice_breakup($response);
             
                 log_message('info', __METHOD__ . ": Invoice ID inserted");
                 
@@ -4943,7 +4951,7 @@ class Invoice extends CI_Controller {
                     $get_rm_email =$this->vendor_model->get_rm_sf_relation_by_sf_id($invoice_details[0]['vendor_partner_id']); 
                     $get_owner_email = $this->vendor_model->getVendorDetails("owner_email", array('id' =>$invoice_details[0]['vendor_partner_id']));
                     $to = $get_owner_email[0]['owner_email'];
-                    $cc = $email_template[3].", ".$get_rm_email[0]['official_email'];
+                    $cc = $email_template[3].(!empty($get_rm_email[0]['official_email'])? ", ".$get_rm_email[0]['official_email']:"");
                     $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, '', CN_AGAINST_GST_DN);
                 }
                 
@@ -4963,7 +4971,7 @@ class Invoice extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $vendor_id,
-            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL,
+            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."')  " => NULL,
             "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".DEFECTIVE_PART_PENDING_OOT_DAYS."' " => NULL
             
         );
@@ -4994,7 +5002,7 @@ class Invoice extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status" => DEFECTIVE_PARTS_SHIPPED,
+            "spare_parts_details.status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL,
             "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".SHIPPED_DEFECTIVE_PARTS_AFTER_TAT_BREACH."' " => NULL
             
         );
@@ -5024,7 +5032,7 @@ class Invoice extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status" => DEFECTIVE_PARTS_SHIPPED,
+            "spare_parts_details.status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL,
             "DATEDIFF(CURRENT_TIMESTAMP, defective_part_shipped_date) > '".DEFECTIVE_PART_SHIPPED_OOT_DAYS."' " => NULL
             
         );

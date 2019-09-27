@@ -223,6 +223,9 @@ class Partner extends CI_Controller {
 
                                 $lead_details['Product'] = 'SHA';
                             }
+                            if (stristr($prod, "Mosquito Racquet")) {
+                                $lead_details['Product'] = 'Mosquito Racquet';
+                            }
 
 
                                 log_message('info', 'Product type matched: ' . $lead_details['Product']);

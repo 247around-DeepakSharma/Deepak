@@ -532,14 +532,17 @@ class Miscelleneous {
                 $booking['sf_upcountry_rate'] = $data['sf_upcountry_rate'];
                 $booking['amount_due'] = $cus_net_payable;
                 $booking['upcountry_remarks'] = $data['upcountry_remarks'];
-
                 $this->My_CI->booking_model->update_booking($booking_id, $booking);
-
-                $to = ANUJ_EMAIL_ID . ", sales@247around.com , ". $rm_email;
-                $cc = "abhaya@247around.com";
+                $is_saas = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                if($is_saas){
+                    $to = ANUJ_EMAIL_ID . " , ". $rm_email;
+                }
+                else{
+                    $to = ANUJ_EMAIL_ID . ", sales@247around.com , ". $rm_email;
+                    $cc = "abhaya@247around.com";
+                }
                 $message1 = "Upcountry did not calculate for " . $booking_id;
                 $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", 'Upcountry Failed', $message1, "",UPCOUNTRY_DISTANCE_CAN_NOT_CALCULATE_EMAIL_TAG);
-
                 $return_status = TRUE;
                 break;
         }

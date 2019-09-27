@@ -410,8 +410,8 @@
                             <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
                             <tr>
                                 <td><?php echo $sp['model_number']; ?></td>
-                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/".$sp['appliance_model_detail_id']."','".$sp['original_parts_number']."')\"><b>".$sp['original_parts_number']."</b></a>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/".$sp['appliance_model_detail_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>") : ''); } ?></td>
-                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."service_center/inventory/inventory_list_by_model/".$sp['appliance_model_detail_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>"; }  ?></td>
+                                <td style=" word-break: break-all;"><?php if(isset($sp['original_parts'])){ echo $sp['original_parts']."<br><br><b>".$sp['original_parts_number']."</b>"; } else { echo $sp['parts_requested'].(isset($sp['part_number']) ? ("<br><br><b>".$sp['part_number']."</b>") : ''); } ?></td>
+                                <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><b>".$sp['part_number']."</b>"; }  ?></td>
 <!--                                <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; }  ?></td>-->
                                 <td><?php echo $sp['parts_requested_type']; ?></td>
                                 <td><?php
@@ -451,7 +451,7 @@
                                 <td><?php echo $sp['consumed_status']; ?></td>
                                 <?php if($this->session->userdata("is_micro_wh") == 1){ 
                                     if($sp['status'] == SPARE_DELIVERED_TO_SF && $sp['entity_type'] == _247AROUND_SF_STRING && $sp['partner_id'] == $this->session->userdata("service_center_id") && $sp['service_center_id'] == $this->session->userdata("service_center_id")){ ?>
-                                <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>)">Remove</button></td>
+                                <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>, <?php echo $sp['shipped_quantity']; ?>)">Remove</button></td>
                                 <?php }else{ ?>
                                     <td><button class="btn btn-primary" disabled>Remove</button></td>
                                 <?php } ?>
@@ -475,14 +475,14 @@
                                     <th>Wrong Part Remarks</th>
                                 </thead>
                                 <tbody>
-                                    <?php foreach($booking_history['spare_parts'] as $kk => $spare_record) { ?>
+                                    <?php foreach($booking_history['spare_parts'] as $kk => $spare_record) { if(!empty($spare_record['wrong_part_name'])) { ?>
                                     <tr>
                                         <td><?php echo ++$kk; ?></td>
                                         <td><?php echo $spare_record['parts_requested']; ?></td>
                                         <td><?php echo $spare_record['wrong_part_name']; ?></td>
                                         <td><?php echo $spare_record['wrong_part_remarks']; ?></td>
                                     </tr>
-                                    <?php } ?>
+                                    <?php } } ?>
                                 </tbody>
                             </table>
                         </div>
@@ -908,6 +908,7 @@
                     <input type="hidden" id="model_spare_id">
                     <input type="hidden" id="model_booking_id">
                     <input type="hidden" id="model_inventory_id">
+                    <input type="hidden" id="model_shipped_quantity">
                 </div>
                 <input type="hidden" id="url"></input>
                 <div class="modal-footer">
@@ -949,37 +950,6 @@
     }
 </style>
 <script>
-
-function openPartDetails(url, modelid)
-{
-    var param = { 'search': modelid};
-    OpenWindowWithPost(url, "", "NewFile", param);
-}
-function OpenWindowWithPost(url, windowoption, name, params)
-{
- var form = document.createElement("form");
- form.setAttribute("method", "post");
- form.setAttribute("action", url);
- form.setAttribute("target", name);
- for (var i in params)
- {
-   if (params.hasOwnProperty(i))
-   {
-     var input = document.createElement('input');
-     input.type = 'hidden';
-     input.name = i;
-     input.value = params[i];
-     form.appendChild(input);
-   }
- }
- document.body.appendChild(form);
- //note I am using a post.htm page since I did not want to make double request to the page 
- //it might have some Page_Load call which might screw things up.
- window.open("post.htm", name, windowoption);
- form.submit();
- document.body.removeChild(form);
-}
-
     <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
              setTimeout(function(){ GetRoute(); }, 1000);
     <?php } ?>
@@ -1072,7 +1042,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
             });
         }
         
-    function open_model_for_remove_msl(spare_id, booking_id, inventory_id){
+    function open_model_for_remove_msl(spare_id, booking_id, inventory_id, quantity){
         /*
         $.ajax({
             method:"POST",
@@ -1090,7 +1060,8 @@ function OpenWindowWithPost(url, windowoption, name, params)
            
         $("#model_spare_id").val(spare_id);
         $("#model_booking_id").val(booking_id);
-        $("#model_inventory_id").val(inventory_id);
+        $("#model_inventory_id").val(inventory_id); 
+        $("#model_shipped_quantity").val(quantity);
         $("#msl_remove_reason").select2();
         $("#remove_msl_model").modal('show');
     }    
@@ -1111,7 +1082,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
             $.ajax({
                 method:"POST",
                 url:'<?php echo base_url(); ?>employee/inventory/remove_msl_consumption',
-                data:{'spare_parts_id':spare_id, 'booking_id':booking_id, 'spare_cancel_reason': '<?php echo SPARE_RECIEVED_NOT_USED; ?>', 'remarks':$("#msl_remove_remark").val(), 'inventory_id':$("#model_inventory_id").val()},
+                data:{'spare_parts_id':spare_id, 'booking_id':booking_id, 'spare_cancel_reason': '<?php echo SPARE_RECIEVED_NOT_USED; ?>', 'remarks':$("#msl_remove_remark").val(), 'inventory_id':$("#model_inventory_id").val(), 'shipped_quantity':$("#model_shipped_quantity").val()},
                 success: function(response){
                     if(response){
                         alert("MSL removed successfully");

@@ -547,7 +547,7 @@ class User_invoice extends CI_Controller {
             if($value->spare_detail_ids){
                 $spare_parts_detail_ids[] = $value->spare_detail_ids;
                 $where = array('spare_parts_details.id' => $value->spare_detail_ids);
-                $chech_spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.sell_invoice_id, spare_parts_details.is_micro_wh, booking_details.partner_id, shipped_inventory_id, parts_requested_type, service_id, shipped_quantity', $where, true);
+                $chech_spare = $this->partner_model->get_spare_parts_by_any('spare_parts_details.sell_invoice_id, spare_parts_details.is_micro_wh, booking_details.partner_id, shipped_inventory_id, parts_requested_type, booking_details.service_id, shipped_quantity', $where, true);
                 $partner_id = $chech_spare[0]['partner_id'];
                 if(!$chech_spare[0]['sell_invoice_id'] && $chech_spare[0]['is_micro_wh'] != 1){
                         if($chech_spare[0]['is_micro_wh'] == 0){
@@ -556,6 +556,7 @@ class User_invoice extends CI_Controller {
                         $email_parts_name .= $value->spare_product_name."(".$booking_id.") ";
                         $amount = $value->confirm_prices;
                         $inventory_id = "";
+                        $where_cond = array('part_type' => $chech_spare[0]['parts_requested_type'],'service_id' => $chech_spare[0]['service_id']);
                         if($chech_spare[0]['shipped_inventory_id']){
                             $inventory_id = $chech_spare[0]['shipped_inventory_id'];
                          }
@@ -563,7 +564,10 @@ class User_invoice extends CI_Controller {
 //                            $inventry_amount = $this->inventory_model->get_inventory_master_list_data("price", array("inventory_id"=>$inventory_id));
 //                            $amount = $inventry_amount[0]['price'] + ($inventry_amount[0]['price']*($value->gst_rates/100));
 //                        }
-                        $margin = $this->inventory_model->get_oow_margin($inventory_id, array('part_type' => $chech_spare[0]['parts_requested_type'],'service_id' => $chech_spare[0]['service_id']));
+                        if(empty($inventory_id)) {
+                            $where_cond = array('part_type' => $chech_spare[0]['parts_requested_type'],'inventory_parts_type.service_id' => $chech_spare[0]['service_id']);
+                        }
+                        $margin = $this->inventory_model->get_oow_margin($inventory_id, $where_cond);
                         $spare_oow_around_margin = $margin['oow_around_margin']/100;
                         $total_amount = ($amount + ($amount * $spare_oow_around_margin));
                         $hsn_code = $value->hsn_codes;
@@ -1049,7 +1053,7 @@ class User_invoice extends CI_Controller {
                         $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData);
                         $entity_details = $this->vendor_model->getVendorDetails("gst_no as gst_number, sc_code,state,address,company_name,name as public_name,district, pincode, owner_phone_1, primary_contact_email, owner_email", array("service_centres.id" => $receiver_entity_id));
                     }
-                    $gst_number = $entity_details[0]['gst_number'];
+                    $gst_number = (!empty($entity_details[0]['gst_number']) ? $entity_details[0]['gst_number'] : '');
                     if (empty($gst_number)) {
 
                         $gst_number = TRUE;
@@ -1289,8 +1293,8 @@ class User_invoice extends CI_Controller {
             
             $list = $this->inventory_model->get_inventory_stock_list($post,$select);
             
-            $invoice[$key]['rate'] = sprintf("%.2f", $value['rate'] * ( 1 + $list[0]['oow_around_margin']));
-            $invoice[$key]['taxable_value'] = sprintf("%.2f", $value['taxable_value'] * ( 1 + $list[0]['oow_around_margin']));
+            $invoice[$key]['rate'] = sprintf("%.2f", $value['rate'] * ( 1 + (!empty($list[0]['oow_around_margin']) ? $list[0]['oow_around_margin'] : 0)));
+            $invoice[$key]['taxable_value'] = sprintf("%.2f", $value['taxable_value'] * ( 1 + (!empty($list[0]['oow_around_margin']) ? $list[0]['oow_around_margin'] : 0)));
             $invoice[$key]['invoice_id'] = $invoice_id;
         }
 
@@ -1474,6 +1478,7 @@ class User_invoice extends CI_Controller {
                 $partner_id = $spare_data[0]['partner_id'];
                 $vendor_email_parts_name .= $value->spare_product_name.",";
                 $inventory_id = 0;
+                $where_cond = array('part_type' => $spare_data[0]['parts_requested_type'],'service_id' => $spare_data[0]['service_id']);
                 if($spare_data[0]['is_micro_wh'] == 0){
                     $email_parts_name_partner .= $value->spare_product_name.", ";
                 }
@@ -1483,7 +1488,10 @@ class User_invoice extends CI_Controller {
                 else{
                    $inventory_id = $spare_data[0]['requested_inventory_id']; 
                 }
-                $margin = $this->inventory_model->get_oow_margin($inventory_id, array('part_type' => $spare_data[0]['parts_requested_type'],'service_id' => $spare_data[0]['service_id']));
+                if(empty($inventory_id)) {
+                    $where_cond = array('part_type' => $spare_data[0]['parts_requested_type'],'inventory_parts_type.service_id' => $spare_data[0]['service_id']);
+                }
+                $margin = $this->inventory_model->get_oow_margin($inventory_id, $where_cond);
                 $spare_oow_est_margin = $margin['oow_est_margin']/100;
                 $spare_oow_around_margin = $margin['oow_around_margin']/100;
                 $repair_oow_vendor_percentage = $margin['oow_vendor_margin'];

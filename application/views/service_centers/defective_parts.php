@@ -31,8 +31,11 @@
                             <th class="text-center">Age of Pending</th>
                             <th class="text-center">Parts Received</th>
                             <th class="text-center">Parts Code </th>
+                            <th class="text-center">Quantity</th>
                              <th class="text-center">Amount</th>
                             <th class="text-center">Remarks By Partner</th>
+                            <th class="text-center">Consumption</th>
+                            <th class="text-center">Consumption Reason</th>
                             <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
                             <th class="text-center" >Challan<input type="checkbox" id="selectall_challan_file" > </th>   
                             <th class="text-center" >Bulk Send<input type="checkbox" id="selectall_send_courier" > </th>                          
@@ -41,7 +44,7 @@
                        </thead>
                        <tbody>
                            <tbody>
-                                <?php  foreach($spare_parts as $key =>$row){ ?>
+                                <?php foreach($spare_parts as $key =>$row){ ?>
                                <tr style="text-align: center;<?php if(!is_null($row['remarks_defective_part_by_partner'])){ echo "color:red"; }?>">
                                     <td>
                                         <?php echo $sn_no; ?>
@@ -61,6 +64,9 @@
                                     <td style="word-break: break-all;">
                                         <?php echo $row['part_number']; ?>
                                     </td>
+                                     <td style="word-break: break-all;">
+                                        <?php echo $row['shipped_quantity']; ?>
+                                    </td>
                                     <td>
                                         <?php echo $row['challan_approx_value']; ?>
                                     </td>
@@ -68,6 +74,8 @@
                                     <td>
                                         <?php if(!is_null($row['remarks_defective_part_by_partner'])){  echo $row['remarks_defective_part_by_partner']; } else { echo $row['remarks_by_partner'];} ?>
                                     </td>
+                                    <td><?php if($row['is_consumed'] == 1) { echo 'Yes'; } else { echo 'No'; } ?></td>
+                                    <td><?php echo $row['consumed_status']; ?></td>
                                     <td>
                                         <input type="checkbox" class="form-control checkbox_address" onclick="remove_select_all()" name="download_address[]"  value="<?php echo $row['id'];?>" />
                                     </td>

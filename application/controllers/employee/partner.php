@@ -1998,7 +1998,7 @@ class Partner extends CI_Controller {
         
         $where = array();
         if(!empty($data['spare_parts'])) {
-            $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'inventory_model_mapping.active' => 1);
+            $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id,'inventory_model_mapping.active' => 1,'appliance_model_details.active' => 1);
         }
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number',$where);
         if(!empty($data['spare_parts'])) {
@@ -3977,7 +3977,7 @@ class Partner extends CI_Controller {
             $select = "spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
             $where = array('spare_parts_details.partner_id' => $partner['id'],
                 'defective_part_shipped_date IS NOT NULL' => null,
-                "spare_parts_details.status IN ('".DEFECTIVE_PARTS_SHIPPED."')" => null,
+                "spare_parts_details.status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL,		
                 "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => null);
             $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where, true);
 
@@ -4029,7 +4029,7 @@ class Partner extends CI_Controller {
                 'spare_parts_details.defective_part_rejected_by_partner'=>0,
                 'spare_parts_details.defective_return_to_entity_type' => _247AROUND_PARTNER_STRING,
                 'DATEDIFF(defective_part_shipped_date,now()) <= -14' => null,
-                "spare_parts_details.status IN ('".DEFECTIVE_PARTS_SHIPPED."')" => null,
+                "spare_parts_details.status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL,		
                 "booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."')" => null);
             
             $defective_parts_acknowledge_data = $this->partner_model->get_spare_parts_by_any($select, $where, true);
@@ -5312,7 +5312,7 @@ class Partner extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             "spare_parts_details.defective_return_to_entity_id" => $partner_id,
             "spare_parts_details.defective_return_to_entity_type" => _247AROUND_PARTNER_STRING,
-            "status IN ('" . DEFECTIVE_PARTS_SHIPPED . "')  " => NULL
+            "status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL
         );
         $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, "
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
@@ -5545,7 +5545,7 @@ class Partner extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."')  " => NULL
         );
         $select = "CONCAT( '', GROUP_CONCAT((parts_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, "
                 . " spare_parts_details.booking_id, users.name,spare_parts_details.courier_name_by_partner,spare_parts_details.awb_by_partner, spare_parts_details.partner_challan_number, "
@@ -6592,13 +6592,14 @@ class Partner extends CI_Controller {
             $state = 1;
             $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
         }
-        $select = "spare_parts_details.booking_id,spare_parts_details.quantity,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
+        $select = "spare_parts_details.booking_id,services.services, i.part_number, GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested) as parts_requested, users.name, "
                 . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
                 . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
                 . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
                 . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
+                . " GROUP_CONCAT(DISTINCT spare_parts_details.quantity) as quantity, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.model_number) as model_number, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
@@ -6685,7 +6686,7 @@ class Partner extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             '((spare_parts_details.defective_return_to_entity_id ="'.$partner_id.'" '
             . 'AND spare_parts_details.defective_return_to_entity_type = "'._247AROUND_PARTNER_STRING.'" '
-            . ' AND status = "'.DEFECTIVE_PARTS_SHIPPED.'" ) OR '
+            . ' AND status IN ("'.DEFECTIVE_PARTS_SHIPPED.'", "'.OK_PARTS_SHIPPED.'") ) OR '
             . '(booking_details.current_status ="'._247AROUND_COMPLETED.'" AND '
             . 'spare_parts_details.defective_return_to_entity_type = "'._247AROUND_SF_STRING.'"'
             . 'AND booking_details.partner_id = "'.$partner_id.'" '
@@ -6755,12 +6756,12 @@ class Partner extends CI_Controller {
                             }
                             
                         if($row['status'] == DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH){
-                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
+                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" id="defective_parts_'.$row['id'].'" onclick="return confirm_received(this.id)" class="btn btn-sm btn-primary"
                                                href='.base_url().'partner/acknowledge_defective_parts_sent_by_wh/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
                     
                             
                         } else {
-                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" onclick="return confirm_received()" class="btn btn-sm btn-primary" id="defective_parts"
+                            $tempString4 = '<a style="background: #2a3f54; border-color: #2a3f54;" id="defective_parts_'.$row['id'].'" onclick="return confirm_received(this.id)" class="btn btn-sm btn-primary"
                                                href='.base_url().'partner/acknowledge_received_defective_parts/'.$row['id'].'/'.$row['booking_id'].'/'.$this->session->userdata("partner_id").' '.$tempString5.'>Receive</a>';
                     
                         }
@@ -7023,7 +7024,7 @@ class Partner extends CI_Controller {
                $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "booking_details.partner_id" => $partner_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."')  " => NULL
         );
        if($this->input->post('state')){
            $where['booking_details.state'] = $this->input->post('state');

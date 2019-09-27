@@ -242,7 +242,7 @@
                                         } ?>">
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
                                         <div class="col-md-6">
-                                            <select class="form-control spare_parts shipped-part-name" onchange="change_parts_name('<?php echo $skey;?>')" id="<?php echo "shippedpartsname_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_parts_name]" required="" data-key="<?=$skey?>" >
+                                            <select class="form-control spare_parts shipped_parts_name shipped-part-name" onchange="change_parts_name('<?php echo $skey;?>')" id="<?php echo "shippedpartsname_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_parts_name]" required="" data-key="<?=$skey?>" >
                                                 <!--                                        <option selected disabled >Select Part Name</option>-->
                                             </select>
                                             <span id="<?php echo "spinner_". $skey;?>" style="display:none"></span>
@@ -269,6 +269,9 @@
                         <input type="hidden" name="part[<?php echo $skey;?>][approx_value]" id="<?php echo "approx_value_".$skey;?>" value="">
                         <input type="hidden" name="part[<?php echo $skey; ?>][inventory_id]" id="<?php echo "inventory_id_".$skey; ?>">
                         <input type="hidden" name="part[<?php echo $skey; ?>][spare_id]" value="<?php echo $sp->id;?>" id="<?php echo "spare_id_".$skey; ?>">
+                        <input type="hidden" name="part[<?php echo $skey; ?>][gst_rate]" id="<?php echo "gst_rate_".$skey; ?>">
+                        <input type="hidden" name="part[<?php echo $skey; ?>][oow_around_margin]" id="<?php echo "oow_around_margin_".$skey; ?>">
+                        
                     </div>
                     <?php } ?>
                     <div id="template" class="hide">
@@ -302,7 +305,7 @@
                                         <div class="form-group ">
                                             <label for="shipped_parts_name" class="col-md-4">Shipped Parts *</label>
                                             <div class="col-md-6">
-                                                <select class="form-control spare_parts shipped-part-name"  id="shippedpartsname" >
+                                                <select class="form-control spare_parts shipped_parts_name shipped-part-name"  id="shippedpartsname" >
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
                                             </div>
@@ -522,7 +525,7 @@
     
     
     $('.shipped_model_number_id').select2();
-    $('.shipped_parts_name').select2({
+    $($('.shipped_parts_name')[0]).select2({
         placeholder:'Select Part Name',
         allowClear:true
     });
@@ -627,7 +630,7 @@
     }
     
     $(document).ready(function(){
-        $(document).on("change",".shipped-part-name",function(){
+        $(document).on("change",".shipped_parts_name",function(){
         //function change_shipped_part_number(sp_id){
             var sp_id = $(this).data("key");
             if(typeof sp_id=="undefined" || sp_id === null){
@@ -690,7 +693,10 @@
                         $('#submit_form').attr('disabled',false);
                         $('#approx_value_'+ sp_id).val(obj.price);
                         $('#inventory_id_' +sp_id).val(invetory_id);
-                           $("#shippedquantity_"+sp_id).removeAttr("readonly");
+                        $('#gst_rate_' +sp_id).val(obj.gst_rate);
+                        $('#oow_around_margin_' +sp_id).val(obj.oow_around_margin); 
+                        
+                        $("#shippedquantity_"+sp_id).removeAttr("readonly");
                     }else{
                         alert("Inventory Details not found for the selected combination.");
                         $('#submit_form').attr('disabled',true);

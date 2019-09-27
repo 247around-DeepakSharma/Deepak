@@ -55,7 +55,7 @@ define("CANCEL_PAGE_SPARE_NOT_SHIPPED_FOR_PARTNER", "Spare Requested for this bo
 define("CANCEL_PAGE_SPARE_SHIPPED", "This booking can not be cancelled since spare part has already been shipped to SF.");
 
 define('PARTNER_SPARE_OOT_DAYS','30');
-define('SF_SPARE_OOT_DAYS','7');
+define('SF_SPARE_OOT_DAYS','15');
 
 //for now default warehouse id is 10 (sf = manish ji)
 define('DEFAULT_WAREHOUSE_ID',15);
@@ -160,3 +160,4 @@ define('PART_NRN_APPROVED_STATUS_TAG', 'nrn_approved');
 define('OK_PART_TO_BE_SHIPPED', 'Ok Part To Be Shipped');
 define('DAMAGE_PART_TO_BE_SHIPPED', 'Damage Part To Be Shipped');
 
+define('OK_PARTS_SHIPPED','Ok Part Shipped By SF');

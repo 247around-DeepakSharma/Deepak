@@ -540,6 +540,7 @@
                 $('#mapping_categorynew').html(response);
                 $('#mapping_categorynew').select2();
                 $('#mapping_capacitynew').select2();
+                get_partner_mapping_capacity();
             }
         });
     }
