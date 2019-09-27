@@ -1441,12 +1441,13 @@ class Booking_model extends CI_Model {
     }
 
     function check_price_tags_status($booking_id, $unit_id_array,$inventory_details){
-        
+        if(!empty($booking_id) && !empty($unit_id_array))
+        {
         $this->db->select('id, price_tags,appliance_capacity');
         $this->db->like('booking_id', $booking_id);
         $this->db->where_not_in('id', $unit_id_array);
         $query = $this->db->get('booking_unit_details');
-        if($query->num_rows>0){
+        if($query->num_rows>0 && $query->num_rows<10){
             $result = $query->result_array();
             foreach ($result as $value) {
                 $this->db->where('id', $value['id']);
@@ -1475,7 +1476,7 @@ class Booking_model extends CI_Model {
                 }
             }
         }
-       
+    }
         return;
     }
 
