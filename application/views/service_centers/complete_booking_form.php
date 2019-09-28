@@ -202,12 +202,12 @@
                                            
                                             <input type="file" name="sf_purchase_invoice" 
                                                    onchange="update_purchase_invoice_for_unit('<?php echo $key1?>')"  id="<?php echo "purchase_invoice_".$key1?>" class="form-control purchase-invoice"
-                                                   value="<?php if($this->session->userdata('is_engineer_app') == 1 && !is_null($bookng_unit_details[0]['en_purchase_invoice'])){ echo $bookng_unit_details[0]['en_purchase_invoice']; } else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {  echo $booking_history['spare_parts'][0]['invoice_pic']; } ?>"
+                                                   value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_purchase_invoice']) && !is_null($bookng_unit_details[0]['en_purchase_invoice'])){ echo $bookng_unit_details[0]['en_purchase_invoice']; } else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {  echo $booking_history['spare_parts'][0]['invoice_pic']; } ?>"
                                             >
                                             
                                             <?php $src = base_url() . 'images/no_image.png';
                                             $image_src = $src;
-                                            if($this->session->userdata('is_engineer_app') == 1 && !is_null($bookng_unit_details[0]['en_purchase_invoice'])){
+                                            if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_purchase_invoice']) && !is_null($bookng_unit_details[0]['en_purchase_invoice'])){
                                                 $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$bookng_unit_details[0]['en_purchase_invoice'];
                                             } 
                                             else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])) {
@@ -215,7 +215,7 @@
                                                 $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$booking_history['spare_parts'][0]['invoice_pic'];
                                             }
                                             ?>
-                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?php if($this->session->userdata('is_engineer_app') == 1 && !is_null($bookng_unit_details[0]['en_purchase_invoice'])){ echo "View Purchase Invoice Pic"; } else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])){ echo "View Purchase Invoice Pic"; } else{ echo ""; } ?></small></a>
+                                            <a id="a_order_support_file_0" href="<?php  echo $src?>" target="_blank"><small style="white-space:nowrap;"><?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_purchase_invoice']) && !is_null($bookng_unit_details[0]['en_purchase_invoice'])){ echo "View Purchase Invoice Pic"; } else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])){ echo "View Purchase Invoice Pic"; } else{ echo ""; } ?></small></a>
                                             
                                             
                                         </div>
@@ -542,7 +542,7 @@
                                 <div class="col-md-12">
                                     <div class="input-group">
                                         <div class="input-group-addon">Rs.</div>
-                                        <input type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php if($this->session->userdata('is_engineer_app') == 1 && !is_null($bookng_unit_details[0]['en_amount_paid'])){ echo $bookng_unit_details[0]['en_amount_paid']; }else{ echo $paid_basic_charges + $paid_additional_charges + $paid_parts_cost; } ?>" placeholder="Total Price" readonly>
+                                        <input type="text" class="form-control"  name="grand_total_price" id="grand_total_price" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_amount_paid']) && !is_null($bookng_unit_details[0]['en_amount_paid'])){ echo $bookng_unit_details[0]['en_amount_paid']; }else{ echo $paid_basic_charges + $paid_additional_charges + $paid_parts_cost; } ?>" placeholder="Total Price" readonly>
                                     </div>
                                 </div>
                             </div>
@@ -606,9 +606,9 @@
                             </div>
                         </div>
                     </div>
-                    <input type="hidden" id="engineer_symptom" value="<?php if($this->session->userdata('is_engineer_app') == 1){ echo $bookng_unit_details[0]['en_symptom_id']; }else{ echo 0; } ?>">
-                    <input type="hidden" id="engineer_defect" value="<?php if($this->session->userdata('is_engineer_app') == 1){ if(!is_null($bookng_unit_details[0]['en_defect_id'])){ echo $bookng_unit_details[0]['en_defect_id']; }else{ echo 0; } }else{ echo 0; } ?>">
-                    <input type="hidden" id="engineer_solution" value="<?php if($this->session->userdata('is_engineer_app') == 1){if(!is_null($bookng_unit_details[0]['en_solution_id'])){ echo $bookng_unit_details[0]['en_solution_id']; }else{ echo 0; }}else{ echo 0; } ?>">
+                    <input type="hidden" id="engineer_symptom" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_symptom_id'])){ echo $bookng_unit_details[0]['en_symptom_id']; }else{ echo 0; } ?>">
+                    <input type="hidden" id="engineer_defect" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_defect_id'])){ if(!is_null($bookng_unit_details[0]['en_defect_id'])){ echo $bookng_unit_details[0]['en_defect_id']; }else{ echo 0; } }else{ echo 0; } ?>">
+                    <input type="hidden" id="engineer_solution" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_solution_id'])){if(!is_null($bookng_unit_details[0]['en_solution_id'])){ echo $bookng_unit_details[0]['en_solution_id']; }else{ echo 0; }}else{ echo 0; } ?>">
                     <div class="row">
                         <?php 
                         if($booking_history[0]['is_upcountry'] == '1' 
