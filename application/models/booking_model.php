@@ -736,7 +736,7 @@ class Booking_model extends CI_Model {
         $post['is_original_inventory']=1;
         $post['spare_cancel_reason']=1;
         $post['wrong_part'] = 1;
-        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
+        $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, wrong_part_shipped_details.part_name as wrong_part_name, wrong_part_shipped_details.remarks as wrong_part_remarks', array('booking_id' => $booking_id),false,false,false,$post);//, symptom_spare_request.spare_request_symptom
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
@@ -1440,12 +1440,13 @@ class Booking_model extends CI_Model {
     }
 
     function check_price_tags_status($booking_id, $unit_id_array,$inventory_details){
-        
+        if(!empty($booking_id) && !empty($unit_id_array))
+        {
         $this->db->select('id, price_tags,appliance_capacity');
         $this->db->like('booking_id', $booking_id);
         $this->db->where_not_in('id', $unit_id_array);
         $query = $this->db->get('booking_unit_details');
-        if($query->num_rows>0){
+        if($query->num_rows>0 && $query->num_rows<10){
             $result = $query->result_array();
             foreach ($result as $value) {
                 $this->db->where('id', $value['id']);
@@ -1474,7 +1475,7 @@ class Booking_model extends CI_Model {
                 }
             }
         }
-       
+    }
         return;
     }
 

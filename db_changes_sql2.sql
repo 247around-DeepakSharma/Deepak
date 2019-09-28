@@ -1520,3 +1520,5 @@ RENAME TABLE `boloaaka`.`spare_invoice_details` TO `boloaaka`.`oow_spare_invoice
 ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1;
 -- Prity Sharma 25-09-2019
 ALTER TABLE booking_unit_details CHANGE COLUMN sf_purchase_date sf_purchase_date date NULL DEFAULT NULL;
+-- Ankit 27-09-2019
+ALTER TABLE partners ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER auth_token;

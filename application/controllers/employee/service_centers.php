@@ -3667,6 +3667,14 @@ class Service_centers extends CI_Controller {
        }
     }
     
+    function get_appliance_details()
+    {
+        $modelno = $this->input->post('modelno');
+        $entityid = $this->input->post('entityid');
+        $data= $this->partner_model->get_appliance_model_details($modelno,$entityid);
+        echo json_encode($data, true);
+    }
+    
      /**
      * @desc: It's used to generate SF Challan
      * @param String $generate_challan
@@ -4907,22 +4915,22 @@ class Service_centers extends CI_Controller {
         $where['length'] = -1;
         $data = array();
         //get delivered charges by month
-        $where['where_in'] = array('current_status' => array('Delivered', 'Completed'));
+        $where['where_in'] = array('bb_order_details.current_status' => array('Delivered', 'Completed'));
         $select = "SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
                 ELSE (bb_unit_details.cp_basic_charge) END ) as cp_delivered_charge, count(bb_order_details.partner_order_id) as total_delivered_order";
         for ($i = 0; $i < 3; $i++) {
             if ($i == 0) {
                 //$delivery_date = "bb_order_details.delivery_date >=  '" . date('Y-m-01') . "'";
-                $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN `bb_order_details`.`acknowledge_date` >= '" . date('Y-m-01') . "' ELSE `bb_order_details`.`delivery_date` >= '" . date('Y-m-01') . "'  END)";
+                $delivery_date = "(CASE WHEN bb_order_details.acknowledge_date IS NOT Null THEN `bb_order_details`.`acknowledge_date` >= '" . date('Y-m-01') . "' ELSE `bb_order_details`.`delivery_date` >= '" . date('Y-m-01') . "'  END)";
                 $select .= ", date(now()) As month";
             }else if ($i == 1) {
-                $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+                $delivery_date = "(CASE WHEN bb_order_details.acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
 			    AND bb_order_details.acknowledge_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ELSE bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
 			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() ,'%Y-%m-01') END) ";
                 $select .= ", DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as month";
             }else if ($i == 2) {
-                $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+                $delivery_date = "(CASE WHEN bb_order_details.acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
 			    AND bb_order_details.acknowledge_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') ELSE bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
 			    AND bb_order_details.delivery_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') END)";
                 $select .= ", DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01') as month";
@@ -4938,7 +4946,7 @@ class Service_centers extends CI_Controller {
         
         
         //get in_transit data by month
-        $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+        $where['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $select_in_transit = "SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
                 ELSE (bb_unit_details.cp_basic_charge) END ) as cp_in_transit_charge,count(bb_order_details.partner_order_id) as total_inTransit_order";
