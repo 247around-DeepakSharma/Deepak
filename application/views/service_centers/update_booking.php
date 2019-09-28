@@ -655,7 +655,7 @@
     postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
     postData['capacity'] = $("#appliance_capacity_1").val();
     postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
-    $('#submitform').attr('disabled',true);
+//    $('#submitform').attr('disabled',true);
 
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
         console.log(data);
