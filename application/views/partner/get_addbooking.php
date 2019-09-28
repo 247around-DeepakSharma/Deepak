@@ -197,6 +197,9 @@
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">
+                    <div class="col-md-12" style="margin-bottom:10px;padding:10px;">
+                        <span style="color:red;text-align: center;font-size: 16px;font-weight:bold;" class="errorMsg"></span>
+                    </div>
                     <div class="col-md-12">
                         <div  class="form-group col-md-12">
                             <table class="table priceList table-striped table-bordered" id="priceList">
@@ -1634,6 +1637,51 @@
         }
         return -1;
     }
+    
+    // function to cross check request type of booking with warranty status of booking 
+    function check_booking_request()
+    {
+        $(".price_checkbox").attr("disabled", false);
+        var model_number = $(".select-model").val();
+        var dop = $("#purchase_date").val();
+        var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
+        var service_id = $("#service_name").val();
+        var booking_id = 1;
+        var booking_create_date = "<?= date('Y-m-d')?>";
+        var booking_request_types = []; 
+        $(".price_checkbox:checked").each(function(){
+            var price_tag = $(this).attr('data-price_tag');
+            booking_request_types.push(price_tag);
+        });
+        $("#submitform").attr("disabled", false);
+        $('.errorMsg').html("");
+        if(model_number !== "" && model_number !== null && model_number !== undefined && dop !== "" && booking_request_types.length > 0){                               
+            $.ajax({
+                method:'POST',
+                url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2",
+                data:{
+                    'bookings_data[0]' : {
+                        'partner_id' : partner_id,
+                        'booking_id' : booking_id,
+                        'booking_create_date' : booking_create_date,
+                        'service_id' : service_id,
+                        'model_number' : model_number,
+                        'purchase_date' : dop, 
+                        'booking_request_types' : booking_request_types
+                    }
+                },
+                success:function(response){
+                    var returnData = JSON.parse(response);
+                    $('.errorMsg').html(returnData['message']);
+                    if(returnData['status'] == 1)
+                    {
+                        $("#submitform").attr("disabled", true);                        
+                    }
+                }                           
+            });
+        }
+    }
+// function ends here ---------------------------------------------------------------- 
     
 </script>
  
