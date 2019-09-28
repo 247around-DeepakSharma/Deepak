@@ -605,7 +605,10 @@
         } else {
            display_message("purchase_date","error_purchase_date","green",""); 
         }
-        if(symptom === "" || symptom === "Please Select Any Symptom"){
+        if((symptom == 0) || (symptom == '0')) {
+
+        }
+        else if(symptom === "" || symptom === "Please Select Any Symptom"){
             alert("Please Enter Symptom");
             return false;
         }

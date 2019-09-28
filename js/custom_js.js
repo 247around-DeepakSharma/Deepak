@@ -495,7 +495,10 @@ function addBookingDialog(chanel = '') {
         return false;
     }
     
-    if(symptom === "" || symptom === "Please Select Any Symptom"){
+    if((symptom == 0) || (symptom == '0')) {
+        
+    }
+    else if(symptom === "" || symptom === "Please Select Any Symptom"){
         alert("Please Enter Symptom");
         return false;
     }
@@ -533,7 +536,7 @@ function addBookingDialog(chanel = '') {
             return false;
         }
         //If Repeat Booking is Selected than Repeat Reason Should not be blank
-        if(!repeat_reason){
+        if(!is_sf_panel && !repeat_reason){
             alert("Please Write the Repeat Reason");
             return false;
         }
