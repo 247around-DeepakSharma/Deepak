@@ -1023,12 +1023,22 @@
                         //console.log(data);
                         $('#shippedparttype_' +key ).val('val', "");
                         $('#shippedparttype_' + key).val('Select Part Type').change();
-                        $('#shippedparttype_' + key).select2().html(data);
-                        $('#spinner_' + key).removeClass('fa fa-spinner').hide();                    
+                        $('#shippedparttype_' + key).html(data).select2();
+                        $('#spinner_' + key).removeClass('fa fa-spinner').hide();
+                        /*
+                            NOTE: this part will fill part type
+                            however this is not recommended to fill with ajax here will be removed soon
+                            and will come prefilled from server. ~Priyank
+                            */
                         var part_type = $("#requestedpartstype_"+key).val();
                         request_part_type = ucword(part_type);
                         if(request_part_type){
-                            $('#shippedparttype_' +key).val(request_part_type).change(); 
+                            $('#shippedparttype_0 option').each(function(){
+                                if (this.value.toLowerCase() == request_part_type.toLowerCase()) {
+                                    $('#shippedparttype_' +key).val(this.value).change();
+                                    return false;
+                                }
+                            });
                         }
                     }
                 });
