@@ -71,6 +71,7 @@
                     <input type="hidden" name="appliance_id[]" value="<?php if(isset($unit_details[0]['appliance_id'])){echo $unit_details[0]['appliance_id'];} ?>"/>
                     <input type="hidden" value="<?php echo $redirect_url ?>" name="redirect_url" id="redirect_url">
                     <input type="hidden" value="<?php echo $booking_history['is_spare_requested'] ?>" name="is_spare_requested" id="is_spare_requested">                    
+                    <input type="hidden" value="<?php echo (!empty($this->session->userdata('service_center_id')) ? $this->session->userdata('service_center_id') : '') ?>" name="is_sf_panel" id="is_sf_panel">                                       
                     <input checked="checked" style ='visibility: hidden;' id="booking" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Booking')" name="type" value="Booking" <?php if($is_repeat){ echo "checked"; } ?> required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                     
                     
@@ -478,7 +479,6 @@
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex= $(".clonedInput").length +1;
-    var arr_warranty_status = <?php echo json_encode(['OW' => ['Repair - In Warranty', 'Presale', 'Installation'], 'IW' => ['Extended'], 'EW' => ['Repair - In Warranty', 'Presale']]); ?>;
     
     // function to cross check request type of booking with warranty status of booking 
     function check_booking_request()
@@ -654,8 +654,8 @@
     postData['clone_number'] = 1;
     postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
     postData['capacity'] = $("#appliance_capacity_1").val();
-    postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
-    $('#submitform').attr('disabled',true);
+    postData['partner_id'] = $("#source_code").val();
+//    $('#submitform').attr('disabled',true);
 
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
         console.log(data);

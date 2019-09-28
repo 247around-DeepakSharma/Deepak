@@ -639,7 +639,7 @@ define('_247AROUND_TAX_INVOICE_SIGN_CELL', 'K26');
 define('_247AROUND_COMPLETED_APPROVED','Completed_Approved');
 //constant to define Admin Approved Completed bookings
 define('_247AROUND_COMPLETED_REJECTED','Completed_Rejected');
-define('_247AROUND_WRONG_PINCODE_CANCEL_REASON', 'The Custoner has given wrong pincode');
+define('_247AROUND_WRONG_PINCODE_CANCEL_REASON', 'The Customer has given wrong pincode');
 //constant to define Admin Rejected cancelled bookings
 define('_247AROUND_CANCELED_REJECTED','Cancelled_Rejected');
 //constant to define Admin Approved canceled bookings

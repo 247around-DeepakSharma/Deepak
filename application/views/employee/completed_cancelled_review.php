@@ -296,9 +296,7 @@
       </div>
    </div>
 
-<?php $arr_warranty_status = ['IW' => ['In Warranty'], 'OW' => ['Out Of Warranty', 'Out Warranty'], 'EW' => ['Extended']];?>
 <script>
-    var arr_warranty_status = <?php echo json_encode($arr_warranty_status); ?>;
     $('#cancellation_reason').select2({
        placeholder: 'Cancellation Reason'
     }); 
@@ -327,11 +325,7 @@
                   if(outputArray.includes('no')){
                         alert("Review Booking Listing Contains Booking WIth Wrong Serial number All Wrong Serial number booking will be auto unselected");
                   }
-                  if(outputArray.includes('mismatch'))
-                  {
-                      alert("Review Booking Listing Contains Booking whose booking request type mismatches with booking warranty status, these bookings will be auto unselected");
                   }
-          }
          });
         
         // this ajax fetches the warranty status of showed bookings
@@ -357,23 +351,8 @@
            bulkalert = false;
        }
        temp = true;
-       warranty_mismatch = false;
        booking_sn_div_id =  "sn_"+booking_id;
        current_div_booking =  "app_"+booking_id;
-       warranty_status = $("."+"booking_warranty_status_"+booking_id).val();
-       booking_request_type = $("."+"booking_request_type_"+booking_id).val();
-       if(typeof arr_warranty_status[warranty_status] !== 'undefined') {
-            warranty_mismatch = true;
-            for(var index in arr_warranty_status[warranty_status])
-            {
-                if(booking_request_type.indexOf(arr_warranty_status[warranty_status][index]) !== -1)
-                {
-                    warranty_mismatch = false;
-                    break;
-                }
-            }           
-       }
-
         $('.'+booking_sn_div_id).each(function() {
             if($(this).val() == 0){
                 temp = false;
@@ -383,20 +362,8 @@
         if(!temp && !bulkalert){
                 alert("Booking "+ booking_id + " Contains Wrong Serial number It can not be approved in Bulk Approval, Booking automatic will be unselected");
         }
-        
-        if(warranty_mismatch){
-                $("."+current_div_booking).prop("checked", false);
-                if(!bulkalert){
-                    alert("Booking Request type and Warranty status mismatched!");
-                }                
-        }
-        
         if(!temp){
             return 'no';
-        }
-        else if(warranty_mismatch)
-        {
-            return 'mismatch';
         }
         else{
              return 'yes';

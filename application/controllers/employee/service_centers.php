@@ -4834,29 +4834,30 @@ function do_multiple_spare_shipping(){
         $where['length'] = -1;
         $data = array();
         //get delivered charges by month
-        $where['where_in'] = array('current_status' => array('Delivered', 'Completed'));
+        $where['where_in'] = array('bb_order_details.current_status' => array('Delivered', 'Completed'));
         $select = "SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
                 ELSE (bb_unit_details.cp_basic_charge) END ) as cp_delivered_charge, count(bb_order_details.partner_order_id) as total_delivered_order";
         for ($i = 0; $i < 3; $i++) {
             if ($i == 0) {
                 //$delivery_date = "bb_order_details.delivery_date >=  '" . date('Y-m-01') . "'";
-                $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN `bb_order_details`.`acknowledge_date` >= '" . date('Y-m-01') . "' ELSE `bb_order_details`.`delivery_date` >= '" . date('Y-m-01') . "'  END)";
+                $delivery_date = "(CASE WHEN bb_order_details.acknowledge_date IS NOT Null THEN `bb_order_details`.`acknowledge_date` >= '" . date('Y-m-01') . "' ELSE `bb_order_details`.`delivery_date` >= '" . date('Y-m-01') . "'  END)";
                 $select .= ", date(now()) As month";
-            } else if ($i == 1) {
-                $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
+            }else if ($i == 1) {
+                $delivery_date = "(CASE WHEN bb_order_details.acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
                 AND bb_order_details.acknowledge_date < DATE_FORMAT(NOW() ,'%Y-%m-01') ELSE bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01')
                 AND bb_order_details.delivery_date < DATE_FORMAT(NOW() ,'%Y-%m-01') END) ";
                 $select .= ", DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') as month";
-            } else if ($i == 2) {
-                $delivery_date = "(CASE WHEN acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
+            }else if ($i == 2) {
+                $delivery_date = "(CASE WHEN bb_order_details.acknowledge_date IS NOT Null THEN bb_order_details.acknowledge_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
                 AND bb_order_details.acknowledge_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') ELSE bb_order_details.delivery_date  >=  DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01')
                 AND bb_order_details.delivery_date < DATE_FORMAT(NOW() - INTERVAL 1 MONTH, '%Y-%m-01') END)";
                 $select .= ", DATE_FORMAT(NOW() - INTERVAL 2 MONTH, '%Y-%m-01') as month";
             }
-
-            $where['where'] = array('assigned_cp_id' => $cp_id, "$delivery_date" => NULL);
+            
+            $where['where'] = array('assigned_cp_id' => $cp_id,"$delivery_date" => NULL);
             $cp_delivered_charge[$i] = $this->bb_model->get_bb_order_list($where, $select);
+            
         }
 
         //get total delivered charges data
@@ -4864,7 +4865,7 @@ function do_multiple_spare_shipping(){
 
 
         //get in_transit data by month
-        $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+        $where['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $select_in_transit = "SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
                 ELSE (bb_unit_details.cp_basic_charge) END ) as cp_in_transit_charge,count(bb_order_details.partner_order_id) as total_inTransit_order";
@@ -7676,43 +7677,8 @@ function do_multiple_spare_shipping(){
                 echo json_encode($arrBookingsWarrantyStatus);
             break;
             case 2:
-                $selected_booking_request_types = $arrBookings[0]['booking_request_types'];
-                $booking_request_type = $this->booking_utilities->get_booking_request_type($selected_booking_request_types);        
-                $booking_id = $arrBookings[0]['booking_id'];
-                $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'Out of Warranty'], 'EW' => ['Extended', 'AMC', 'Repeat']];
-                $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
-                $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
-                $warranty_mismatch = 0;
-                $returnMessage = "";
-                
-                if(!empty($arr_warranty_status[$warranty_checker_status]))
-                {
-                    $warranty_mismatch = 1;
-                    foreach($arr_warranty_status[$warranty_checker_status] as $request_types)
-                    {
-                        if(strpos(strtoupper(str_replace(" ","",$booking_request_type)), strtoupper(str_replace(" ","",$request_types))) !== false)
-                        {
-                            $warranty_mismatch = 0;
-                            break;
-                        }
-                    }
-                }
-                
-                if(!empty($warranty_mismatch))
-                {
-                    if((strpos(strtoupper(str_replace(" ","",$booking_request_type)), 'OUTOFWARRANTY') !== false))
-                    {
-                        $warranty_mismatch = 0;
-                        $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type.") of booking, but if needed you may proceed with current request type.";
-                    }
-                    else
-                    { 
-                        $returnMessage = "Booking Warranty Status (".$arr_warranty_status_full_names[$warranty_checker_status].") is not matching with current request type (".$booking_request_type."), to request part please change request type of the Booking.";
-                    }   
-                }
-                $arrReturn['status'] = $warranty_mismatch;
-                $arrReturn['message'] = $returnMessage;
-                echo json_encode($arrReturn);
+                $warranty_result = $this->warranty_utilities->match_warranty_status_with_request_type($arrBookings, $arrBookingsWarrantyStatus);
+                echo $warranty_result;
             break;
         }        
     }

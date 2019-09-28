@@ -547,8 +547,13 @@ class Booking extends CI_Controller {
             }
         }
         
+        if($this->session->userdata('service_center_id')){
+            $validate_order_id = true;
+
+        } else {
+            $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
+        }
         
-        $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
       
         if ($validate_order_id) {
             $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id'], $booking['state']);
@@ -1031,7 +1036,7 @@ class Booking extends CI_Controller {
                     $upcountry_price = isset($service_center_data[0]['upcountry_charges']) ? $service_center_data[0]['upcountry_charges'] : "";
                 }
                 
-                if(!empty($price_tag['partner_invoice_id']) && empty($data['is_invoice_generated'])) {
+                if(!empty($price_tag['partner_invoice_id']) && empty($data['is_invoice_generated']) && in_array($data['booking_history'][0]['current_status'], [_247AROUND_COMPLETED, _247AROUND_CANCELLED])) {
                     $data['is_invoice_generated'] = TRUE;
                 }
             }

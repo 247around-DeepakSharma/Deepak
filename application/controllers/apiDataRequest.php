@@ -223,9 +223,8 @@ class ApiDataRequest extends CI_Controller {
             $gst_rate = $this->input->post('gst_rate');
             $spare_data = $this->partner_model->get_spare_parts_by_any('parts_requested_type, booking_details.service_id, requested_inventory_id', array('spare_parts_details.id' => $id), true);
             if (!empty($spare_data)) {
-                
                 $margin = $this->inventory_model->get_oow_margin($spare_data[0]['requested_inventory_id'], array('part_type' => $spare_data[0]['parts_requested_type'],
-                    'service_id' => $spare_data[0]['service_id']));
+                    'inventory_parts_type.service_id' => $spare_data[0]['service_id']));
                
                 $spare_oow_est_margin = $margin['oow_est_margin']/100;
                 $repair_oow_vendor_percentage = $margin['oow_vendor_margin'];

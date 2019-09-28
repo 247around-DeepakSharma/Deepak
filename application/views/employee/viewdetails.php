@@ -785,6 +785,7 @@
                                         <th>Part Shipped By Partner/Warehouse</th>
                                         <th>Shipped Parts </th>
                                         <th>Shipped  Parts Number</th>
+                                        <th>Shipped  Quantity</th>
                                         <th>Pickup Request </th>
                                         <th>Pickup Schedule</th>
                                         <th>Courier Name</th>
