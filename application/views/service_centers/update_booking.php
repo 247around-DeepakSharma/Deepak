@@ -479,7 +479,6 @@
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex= $(".clonedInput").length +1;
-    var arr_warranty_status = <?php echo json_encode(['OW' => ['Repair - In Warranty', 'Presale', 'Installation'], 'IW' => ['Extended'], 'EW' => ['Repair - In Warranty', 'Presale']]); ?>;
     
     // function to cross check request type of booking with warranty status of booking 
     function check_booking_request()
