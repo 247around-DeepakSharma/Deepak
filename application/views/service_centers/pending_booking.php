@@ -552,7 +552,9 @@ span.stars span {
                    document.getElementById("spare_"+ block+ key).src="<?php echo base_url();?>images/spare_cancelled.png";
                }  else {
                     
-                    $(".spare_"+block + key).css("display", "none");
+                $(".spare_"+block + key).css("display", "none");
+                $("#spare_delivered_rescheduled"+key).css("display","none !important");
+                $("#spare_tomorrow"+key).css("display","none !important");
                }
                //console.log(response);
 
@@ -574,7 +576,8 @@ span.stars span {
                     document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/spare_parts_delivered.png";
                }else{
                 $(".spare_delivered_"+block + key).css("display", "none");
-                $("#spare_delivered_rescheduled"+key).css("display","none");
+                $("#spare_delivered_rescheduled"+key).css("display","none !important");
+                $("#spare_tomorrow"+key).css("display","none !important");
                }
                
           }
@@ -592,7 +595,9 @@ span.stars span {
                    document.getElementById("spare_cost_given_"+ block+ key).src="<?php echo base_url();?>images/spare_estimate_arrived.png";
                }  else {
                     
-                    $(".spare_cost_given_"+block + key).css("display", "none");
+                $(".spare_cost_given_"+block + key).css("display", "none");
+                $("#spare_delivered_rescheduled"+key).css("display","none !important");
+                $("#spare_tomorrow"+key).css("display","none !important");
                }
                //console.log(response);
 
@@ -611,6 +616,8 @@ span.stars span {
                }  else {
                     
                     $("#rejected_from_review_"+block + key).css("display", "none");
+                    $("#spare_delivered_rescheduled"+key).css("display","none !important");
+                   $("#spare_tomorrow"+key).css("display","none !important");
                }
                //console.log(response);
 
