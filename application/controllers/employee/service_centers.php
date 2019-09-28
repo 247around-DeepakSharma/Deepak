@@ -4915,7 +4915,7 @@ class Service_centers extends CI_Controller {
         $where['length'] = -1;
         $data = array();
         //get delivered charges by month
-        $where['where_in'] = array('current_status' => array('Delivered', 'Completed'));
+        $where['where_in'] = array('bb_order_details.current_status' => array('Delivered', 'Completed'));
         $select = "SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
                 ELSE (bb_unit_details.cp_basic_charge) END ) as cp_delivered_charge, count(bb_order_details.partner_order_id) as total_delivered_order";
@@ -4946,7 +4946,7 @@ class Service_centers extends CI_Controller {
         
         
         //get in_transit data by month
-        $where['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+        $where['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $select_in_transit = "SUM(CASE WHEN ( bb_unit_details.cp_claimed_price > 0) 
                 THEN (bb_unit_details.cp_claimed_price) 
                 ELSE (bb_unit_details.cp_basic_charge) END ) as cp_in_transit_charge,count(bb_order_details.partner_order_id) as total_inTransit_order";
