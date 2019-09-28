@@ -568,7 +568,7 @@ class partner_sd_cb {
         log_message("info", __METHOD__. " Callback failed ". $this->jsonRequestData);
         $subject = "CallBack API failed. Please Check";
         $message = " POST Data ".$this->jsonRequestData. "<br/> Callback Response ". $this->jsonResponseString['response'];
-        $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, "abhaya@247around.com", "", "", $subject, $message, "","CALLBACK Failed");
+        //$this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, "abhaya@247around.com", "", "", $subject, $message, "","CALLBACK Failed");
     }
     
     function test() {

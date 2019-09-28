@@ -1360,7 +1360,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         var partner_id = $("#source_code").find(':selected').attr('data-id');
         var service_id = $("#service_id").val();
         var booking_id = 1;
-        var booking_create_date = "<?= date('Y-m-d')?>";
+        var booking_create_date = "<?= $booking_history[0]['create_date']?>";
         var booking_request_types = []; 
         $(".price_checkbox:checked").each(function(){
             var price_tag = $(this).attr('data-price_tag');
