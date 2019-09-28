@@ -555,6 +555,7 @@ span.stars span {
                 $(".spare_"+block + key).css("display", "none");
                 $("#spare_delivered_rescheduled"+key).css("display","none !important");
                 $("#spare_tomorrow"+key).css("display","none !important");
+                $("#spare_delivered_tomorrow"+key).css("display","none !important");
                }
                //console.log(response);
 
@@ -578,6 +579,7 @@ span.stars span {
                 $(".spare_delivered_"+block + key).css("display", "none");
                 $("#spare_delivered_rescheduled"+key).css("display","none !important");
                 $("#spare_tomorrow"+key).css("display","none !important");
+                $("#spare_delivered_tomorrow"+key).css("display","none !important");
                }
                
           }
@@ -598,6 +600,7 @@ span.stars span {
                 $(".spare_cost_given_"+block + key).css("display", "none");
                 $("#spare_delivered_rescheduled"+key).css("display","none !important");
                 $("#spare_tomorrow"+key).css("display","none !important");
+                $("#spare_delivered_tomorrow"+key).css("display","none !important");
                }
                //console.log(response);
 
@@ -618,6 +621,7 @@ span.stars span {
                     $("#rejected_from_review_"+block + key).css("display", "none");
                     $("#spare_delivered_rescheduled"+key).css("display","none !important");
                    $("#spare_tomorrow"+key).css("display","none !important");
+                   $("#spare_delivered_tomorrow"+key).css("display","none !important");
                }
                //console.log(response);
 
