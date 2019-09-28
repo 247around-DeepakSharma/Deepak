@@ -2798,7 +2798,11 @@ class engineerApi extends CI_Controller {
 
         $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
         $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
-        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
+        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
+        // If no data found against warranty, consider booking as of Out Warranty
+        if($warranty_checker_status != 'IW' && $warranty_checker_status != 'EW'):
+            $warranty_checker_status = "OW";
+        endif;
         $warranty_mismatch = 0;
         $returnMessage = "";
 
@@ -2829,6 +2833,7 @@ class engineerApi extends CI_Controller {
                 $returnMessage = "Warranty Status is ".$arr_warranty_status_full_names[$warranty_checker_status].", Change request type";
             }   
         }
+        
         $arrReturn['warranty_flag'] = $warranty_mismatch;
         $arrReturn['message'] = $returnMessage;
         return $arrReturn;
@@ -3013,7 +3018,6 @@ class engineerApi extends CI_Controller {
     function submitWarrantyCheckerAndEditCallType(){
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-                
         $missing_key = "";
         $check = true;
         $check_request_type = array();
