@@ -304,6 +304,7 @@ function addBookingDialog(chanel = '') {
     var is_active = $("#is_active").val();
     var div_count = $('.purchase_date').length;
     var partner_id = $("#source_code").find(':selected').attr('data-id');
+    var is_sf_panel = $("#is_sf_panel").val();
    if(chanel == "sf_update"){
          var partner_id = $("#source_code").val();
     }
@@ -433,12 +434,12 @@ function addBookingDialog(chanel = '') {
         return false;
     }
 
-    if (p_contact_no !== "" && !p_contact_no.match(exp1)) {
+    if (!is_sf_panel && p_contact_no !== "" && !p_contact_no.match(exp1)) {
         alert("Enter Valid Phone Number Only");
         return false;
     }
     
-    if (alternate_contact_no !== "" && !alternate_contact_no.match(exp1)) {
+    if (!is_sf_panel && alternate_contact_no !== "" && !alternate_contact_no.match(exp1)) {
         alert("Enter Valid Alternate Phone Number Only");
         return false;
     }
@@ -476,7 +477,7 @@ function addBookingDialog(chanel = '') {
                 old_type = $("#booking_old_type_holder").text();
                 if(!(chanel == 'admin_update' && old_type == 'Booking' && type == 'Booking')){
                     var order_id = $('#order_id').val();
-                    if (order_id === "" && dealer_phone_number === "") {
+                    if (!is_sf_panel && order_id === "" && dealer_phone_number === "") {
                         alert('Please Fill Order Id Or Dealer Phone Number');
                         return false;
                     }
@@ -494,7 +495,10 @@ function addBookingDialog(chanel = '') {
         return false;
     }
     
-    if(symptom === "" || symptom === "Please Select Any Symptom"){
+    if((symptom == 0) || (symptom == '0')) {
+        
+    }
+    else if(symptom === "" || symptom === "Please Select Any Symptom"){
         alert("Please Enter Symptom");
         return false;
     }
@@ -532,7 +536,7 @@ function addBookingDialog(chanel = '') {
             return false;
         }
         //If Repeat Booking is Selected than Repeat Reason Should not be blank
-        if(!repeat_reason){
+        if(!is_sf_panel && !repeat_reason){
             alert("Please Write the Repeat Reason");
             return false;
         }

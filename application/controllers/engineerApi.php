@@ -2797,7 +2797,11 @@ class engineerApi extends CI_Controller {
 
         $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
         $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
-        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
+        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
+        // If no data found against warranty, consider booking as of Out Warranty
+        if($warranty_checker_status != 'IW' && $warranty_checker_status != 'EW'):
+            $warranty_checker_status = "OW";
+        endif;
         $warranty_mismatch = 0;
         $returnMessage = "";
 
@@ -2828,6 +2832,7 @@ class engineerApi extends CI_Controller {
                 $returnMessage = "Warranty Status is ".$arr_warranty_status_full_names[$warranty_checker_status].", Change request type";
             }   
         }
+        
         $arrReturn['warranty_flag'] = $warranty_mismatch;
         $arrReturn['message'] = $returnMessage;
         return $arrReturn;
@@ -3012,7 +3017,7 @@ class engineerApi extends CI_Controller {
     function submitWarrantyCheckerAndEditCallType(){
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-                
+        
         $missing_key = "";
         $check = true;
         $check_request_type = array();
@@ -3141,7 +3146,7 @@ class engineerApi extends CI_Controller {
                 $curl_data['grand_total_price'] = 0;
                 $curl_data['booking_timeslot'] = $booking_details['booking_history'][0]['booking_timeslot'];
                 $curl_data['booking_request_symptom'] = $booking_details['booking_history'][0]['booking_request_symptom']; 
-                $curl_data['query_remarks'] = $booking_details['booking_history'][0]['query_remarks']; 
+                $curl_data['query_remarks'] = $booking_details['booking_history'][0]['booking_remarks']; 
                 $curl_data['repeat_reason'] = $booking_details['booking_history'][0]['repeat_reason'];
                 $curl_data['internal_status'] = $booking_details['booking_history'][0]['internal_status'];
                 
@@ -3206,7 +3211,7 @@ class engineerApi extends CI_Controller {
                 $curl_data['order_item_id'] = $order_item_ids;
                 $curl_data['purchase_date'] = $purchase_dates;
                 $curl_data['model_number'] = $model_numbers;
-              
+                            
                 $url = base_url() . "employee/booking/Api_getAllBookingInput/".$booking_details['booking_history'][0]['user_id']."/".$requestData["booking_id"];
                 $ch = curl_init($url);
 
