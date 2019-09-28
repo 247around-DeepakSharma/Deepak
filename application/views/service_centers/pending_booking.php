@@ -574,6 +574,7 @@ span.stars span {
                     document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/spare_parts_delivered.png";
                }else{
                 $(".spare_delivered_"+block + key).css("display", "none");
+                $("#spare_rescheduled"+key).css("display","none");
                }
                
           }
