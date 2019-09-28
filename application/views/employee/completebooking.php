@@ -675,7 +675,7 @@
                         <?php } else { ?>
                         <center>
                             <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
-                            <?php if($enable_button){
+                            <?php if($enable_button && empty($is_invoice_generated)){
                             ?>
                             <input type="submit" id="submitform" onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $k_count; ?>')" class="btn btn-info" value="Complete Booking">
                             <?php } else {
