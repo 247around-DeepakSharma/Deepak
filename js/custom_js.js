@@ -289,7 +289,7 @@ function addBookingDialog(chanel = '') {
     var alternate_contact_no = $('#booking_alternate_contact_no').val();
     var address = $('#booking_address').val();
     var service = $("#service_id option:selected").text();
-    if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
+    if(chanel == "sf_update"){
          var service = $("#service_id").val();
     }
     var pincode = $("#booking_pincode").val();
@@ -304,7 +304,7 @@ function addBookingDialog(chanel = '') {
     var is_active = $("#is_active").val();
     var div_count = $('.purchase_date').length;
     var partner_id = $("#source_code").find(':selected').attr('data-id');
-   if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
+   if(chanel == "sf_update"){
          var partner_id = $("#source_code").val();
     }
     var parant_id = $('#parent_id').val();
@@ -312,11 +312,11 @@ function addBookingDialog(chanel = '') {
     var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
     var isServiceChecked = $('.Service:checkbox:checked').length;
     var symptom = $('#booking_request_symptom option:selected').text();
-    if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
+    if(chanel == "sf_update"){
        symptom =  $('#booking_request_symptom').val();
     }
    // var customer_paid = $("#grand_total_price").val()
-     if(chanel != SF_UPDATE_FORM_VALIDATION_TEXT){
+     if(chanel != "sf_update"){
         if($('.appliance_capacity').length > 0) {
             var count1=0;
             $(".appliance_capacity").each(function(){
