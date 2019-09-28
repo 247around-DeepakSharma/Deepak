@@ -474,9 +474,10 @@ function addBookingDialog(chanel = '') {
             }
             else{
                 old_type = $("#booking_old_type_holder").text();
+                var is_sf_panel = $("#is_sf_panel").val();
                 if(!(chanel == 'admin_update' && old_type == 'Booking' && type == 'Booking')){
                     var order_id = $('#order_id').val();
-                    if (order_id === "" && dealer_phone_number === "") {
+                    if (!is_sf_panel && order_id === "" && dealer_phone_number === "") {
                         alert('Please Fill Order Id Or Dealer Phone Number');
                         return false;
                     }
