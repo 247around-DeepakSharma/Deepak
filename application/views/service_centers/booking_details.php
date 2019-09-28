@@ -1109,6 +1109,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
             alert("Please fill remarks");
         }
         else{
+            $("#reject_btn").prop("disabled", true);
             $.ajax({
                 method:"POST",
                 url:'<?php echo base_url(); ?>employee/inventory/remove_msl_consumption',
