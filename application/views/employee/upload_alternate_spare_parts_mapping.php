@@ -37,7 +37,7 @@
                     <div class="col-md-6">
 
 <!--                        <form class="form-horizontal" onsubmit="return submit_Form();" id="fileinfo" name="fileinfo"  method="POST" enctype="multipart/form-data" >-->
-                        <form class="form-horizontal" action="#" onsubmit="return submit_Form();"  id="fileinfo" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                        <form class="form-horizontal" action="#" onsubmit="return submitForm();"  id="fileinfo" name="fileinfo"  method="POST" enctype="multipart/form-data">
                             <div class="form-group <?php if( form_error('partner_id') ) { echo 'has-error';} ?>">
                                 <label for="partner_id" class="col-md-3">Select Partner</label>
                                 <div class="col-md-9">
@@ -95,7 +95,7 @@
     
     var table;    
     function submitForm() {
-        
+              
         var partner_id = $('#partner_id').val();
         var alternate_parts_file = $("#alternate_parts_file").val();
         if(partner_id == '' || partner_id == null){
