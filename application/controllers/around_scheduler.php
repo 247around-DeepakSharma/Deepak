@@ -791,7 +791,7 @@ class Around_scheduler extends CI_Controller {
      */
     function assign_tat_breach_order() {
         $post['length'] = -1;
-        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted', 'Lost'),
+        $post['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted', 'Lost'),
             'internal_status' => array('In-Transit', 'New Item In-transit', 'Attempted', 'Lost'));
         $post['column_order'] = array(NULL, NULL, 'services', 'city', 'order_date', 'current_status');
         $post['where'] = array('order_date <= ' => date('Y-m-d', strtotime(TAT_BREACH_DAYS)));

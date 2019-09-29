@@ -151,7 +151,7 @@ class Buyback_process extends CI_Controller {
        
         $post = $this->get_bb_post_view_data();
         $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL, 'order_date >= ' => date('Y-m-d',strtotime(TAT_BREACH_DAYS)));
-        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
+        $post['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
@@ -253,7 +253,7 @@ class Buyback_process extends CI_Controller {
         //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where'] = array('assigned_cp_id IS NOT NULL' => NULL);
-        $post['where_in'] = array('current_status' => array('Delivered'), 'internal_status' => array('Delivered'));
+        $post['where_in'] = array('bb_order_details.current_status' => array('Delivered'), 'internal_status' => array('Delivered'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'delivery_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','delivery_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
@@ -277,7 +277,7 @@ class Buyback_process extends CI_Controller {
         //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where'] = array('assigned_cp_id IS NULL' => NULL, 'order_date >= ' => date('Y-m-d', strtotime(TAT_BREACH_DAYS)));
-        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
+        $post['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','bb_order_details.partner_tracking_id','services', 'city','order_date','current_status');
         $list = $this->bb_model->get_bb_order_list($post);
@@ -330,7 +330,7 @@ class Buyback_process extends CI_Controller {
         //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
         $post['where_in'] = array(
-            'current_status' => array('Cancelled', 'Rejected'), 
+            'bb_order_details.current_status' => array('Cancelled', 'Rejected'), 
             'internal_status' => array(TO_BE_CLAIMED));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
@@ -357,7 +357,7 @@ class Buyback_process extends CI_Controller {
         $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array(
-            'current_status' => array('Cancelled', 'Rejected'), 
+            'bb_order_details.current_status' => array('Cancelled', 'Rejected'), 
             'internal_status' => array(CLAIM_SUBMITTED));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
@@ -385,7 +385,7 @@ class Buyback_process extends CI_Controller {
         $post = $this->get_bb_post_view_data();
        
         $post['where_in'] = array(
-            'current_status' => array('Cancelled', 'Rejected'), 
+            'bb_order_details.current_status' => array('Cancelled', 'Rejected'), 
             'internal_status' => array(CLAIM_SETTLED_BY_AMAZON));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id','services', 'city','order_date','current_status');
@@ -412,7 +412,7 @@ class Buyback_process extends CI_Controller {
         //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
-        $post['where_in'] = array('current_status' => array(_247AROUND_BB_TO_BE_CLAIMED),
+        $post['where_in'] = array('bb_order_details.current_status' => array(_247AROUND_BB_TO_BE_CLAIMED),
             'internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['where'] = array();
@@ -438,7 +438,7 @@ class Buyback_process extends CI_Controller {
         //log_message("info",__METHOD__);
         $post = $this->get_bb_post_view_data();
        
-        $post['where_in'] = array('current_status' => array(_247AROUND_BB_DELIVERED,_247AROUND_BB_TO_BE_CLAIMED),
+        $post['where_in'] = array('bb_order_details.current_status' => array(_247AROUND_BB_DELIVERED,_247AROUND_BB_TO_BE_CLAIMED),
             'internal_status' => array(_247AROUND_BB_ORDER_NOT_RECEIVED_INTERNAL_STATUS,_247AROUND_BB_REPORT_ISSUE_INTERNAL_STATUS,_247AROUND_BB_NOT_DELIVERED,_247AROUND_BB_ORDER_MISMATCH));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['where'] = array();
@@ -481,12 +481,12 @@ class Buyback_process extends CI_Controller {
                 $post['where'] = array();
                 break;
             case CLAIM_SETTLED:
-                $post['where_in'] = array('current_status' => array(CLAIM_SETTLED),
+                $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_SETTLED),
                     'internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
                 $post['where'] = array();
                 break;
             case CLAIM_DEBIT_NOTE_RAISED:
-                $post['where_in'] = array('current_status' => array(CLAIM_DEBIT_NOTE_RAISED),
+                $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_DEBIT_NOTE_RAISED),
                     'internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
                 $post['where'] = array();
                 break;
@@ -516,7 +516,7 @@ class Buyback_process extends CI_Controller {
         //log_message("info",__METHOD__);
          $post = $this->get_bb_post_view_data();
        
-        $post['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
+        $post['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Lost', 'Unknown'),
             'internal_status' => array(CLAIM_SETTLED_BY_AMAZON));
         $post['column_order'] = array( NULL, NULL,'services', 'city','order_date', 'current_status');
         $post['where'] = array();
@@ -1192,7 +1192,7 @@ class Buyback_process extends CI_Controller {
     function assigned_bb_unassigned_data(){
         log_message("info",__METHOD__);
         $array['where'] = array('assigned_cp_id IS NULL' => NULL);
-        $array['where_in'] = array('current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
+        $array['where_in'] = array('bb_order_details.current_status' => array('In-Transit', 'New Item In-transit', 'Attempted','Delivered'));
         $array['column_order'] = array();
         $array['column_search'] = array();
         $array['length'] = -1;
