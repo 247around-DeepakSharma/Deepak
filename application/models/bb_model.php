@@ -168,7 +168,7 @@ class Bb_model extends CI_Model {
      * @param type $status_flag
      * @return Object
      */
-    function get_bb_order_list($post, $select = "",$cp_name = 0) {
+    function get_bb_order_list($post, $select = "",$cp_name = 0,$cp_join_not_required = NULL) {
         $this->_get_bb_order_list_query($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -176,7 +176,9 @@ class Bb_model extends CI_Model {
         if($cp_name){
            $this->db->join('service_centres', 'service_centres.id = bb_order_details.assigned_cp_id');
         }
-        $this->db->join('bb_cp_order_action', 'bb_cp_order_action.partner_order_id = bb_order_details.partner_order_id');
+        if(!$cp_join_not_required){
+            $this->db->join('bb_cp_order_action', 'bb_cp_order_action.partner_order_id = bb_order_details.partner_order_id');
+        }
         $query = $this->db->get();
         return $query->result();
     }
