@@ -529,7 +529,7 @@ function get_inventory_id(id){
         val = Math.floor(parseInt(val));
         $(this).val(val);
         if (val>0) {
-         var max = parseInt($("#parts_name_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
+         var max = parseInt($("#parts_name option").filter(":selected").attr("data-maxquantity"));
         if(val>max){
          $(this).val("1");
         // swal("Error !", "Maximum quantity'allowed to ship is : "+max);
