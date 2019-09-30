@@ -3204,7 +3204,7 @@ function do_multiple_spare_shipping(){
             $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $sp_id], NULL, NULL, NULL, NULL, NULL)[0];
             
             $defective_courier_receipt = $this->input->post("sp_parts");
-            $spare_details = $this->partner_model->get_spare_parts_by_any("*",array('spare_parts_details.id'=>$sp_id));
+            $spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*",array('spare_parts_details.id'=>$sp_id));
             
             if (!empty($defective_courier_receipt)) {
                 if (!empty($sp_id)) {
@@ -5691,7 +5691,7 @@ function do_multiple_spare_shipping(){
                        
                             if ($part_details['spare_id'] == "new") {
                        
-                                $sp_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $booking_id));
+                                $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $booking_id));
                                   
                                 $data['entity_type'] = _247AROUND_SF_STRING;
                                 $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
@@ -7173,7 +7173,7 @@ function do_multiple_spare_shipping(){
         $from = trim($this->input->post('frombooking'));
         $to = trim($this->input->post('tobooking'));
         // $where=array('booking_id',$from);
-        $from_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $from, 'entity_type' => _247AROUND_SF_STRING, 'wh_ack_received_part' => 1,
+        $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'entity_type' => _247AROUND_SF_STRING, 'wh_ack_received_part' => 1,
             'status' => SPARE_PARTS_REQUESTED));
         $frominventory_req_id = $from_details[0]['requested_inventory_id'];
         $to_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $to,
@@ -7404,8 +7404,8 @@ function do_multiple_spare_shipping(){
         if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to)) {
             echo 'fail';
         } else {
-            $form_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $from_spare_id));
-            $to_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $to_spare_id));
+            $form_details = $this->partner_model->get_spare_parts_by_any(".spare_parts_details.*", array('spare_parts_details.id' => $from_spare_id));
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $to_spare_id));
             if (empty($form_details) || empty($to_details) || ($form_details[0]['service_center_id'] != $to_details[0]['service_center_id'])) {
                 echo 'fail';
             } else {
