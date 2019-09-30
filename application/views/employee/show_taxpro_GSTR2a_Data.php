@@ -12,7 +12,7 @@
     content:"\f14a";
     }
 </style>
-<script src="https://rawgit.com/wasikuss/select2-multi-checkboxes/master/select2.multi-checkboxes.js"></script>
+<script src="<?php echo base_url();?>js/select2_multi_checkbox.js?v=<?=mt_rand()?>"></script>
 <style type="text/css">
     #booking_form .form-group label.error {
     margin:4px 0 5px !important;

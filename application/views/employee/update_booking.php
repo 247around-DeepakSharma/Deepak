@@ -38,7 +38,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     <?php } ?>
     
     <?php if(!empty($str_disabled)) { ?> 
-    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, .select2-selection, .select2-container--default{
+    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model{
         pointer-events : none !important;
         background : #eee !important;
     }    
