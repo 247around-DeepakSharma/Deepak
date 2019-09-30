@@ -1841,9 +1841,12 @@ class vendor extends CI_Controller {
      * @desc: This method loads add engineer view. It gets active vendor and appliance to display in a form
      * This  function is used by vendor panel and admin panel to load add engineer view
      */
-    function add_engineer(){
+    function add_engineer($booking_id = false){
         $data['service_center'] = $this->vendor_model->getactive_vendor();
         $data['services'] = $this->booking_model->selectservice();
+        if($booking_id){
+            $data['booking_id'] = base64_decode(urldecode($booking_id));
+        }
         if($this->session->userdata('userType') == 'service_center'){
 
             $this->load->view('service_centers/header');
@@ -1983,11 +1986,14 @@ class vendor extends CI_Controller {
 
                     if ($this->session->userdata('userType') == 'service_center') {
                         log_message('info', __FUNCTION__ . " Engineer addition initiated By Service Center");
-
-                        redirect(base_url() . "service_center/add_engineer");
+                        if($this->input->post("booking_id")){ 
+                            redirect(base_url() . "service_center/pending_booking/".$this->input->post("booking_id"));
+                        }
+                        else{
+                            redirect(base_url() . "service_center/add_engineer");
+                        }
                     } else {
                         log_message('info', __FUNCTION__ . " Engineer addition initiated By 247around");
-
                         redirect(base_url() . "employee/vendor/add_engineer");
                     }
                 } else {
