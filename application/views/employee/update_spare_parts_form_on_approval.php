@@ -138,7 +138,7 @@
                                             <label for="parts_name" class="col-md-4">Part Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control spare_parts parts_name shipped-part-name" id="parts_name_0" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
+                                                <select class="form-control spare_parts parts_name shipped-part-name" id="parts_name" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
                                                     <option selected disabled>Select Part Name</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>                                                
