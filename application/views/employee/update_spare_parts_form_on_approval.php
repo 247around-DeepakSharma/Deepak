@@ -326,7 +326,7 @@ $(document).ready(function(){
                 $('#model_number').val(model_number);
                 $.ajax({
                     method:'POST',
-                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type/1',
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type/',
                     data: { model_number_id:model_number_id},
                     success:function(data){                       
                         $('#parts_type').html(data);
