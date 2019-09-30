@@ -170,8 +170,8 @@
                                     ?>">
                                     <label for="courier" class="col-md-4">Weight *</label>
                                     <div class="col-md-6">
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_gram"   value=""   name="defective_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
+                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="spare_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_gram"   value=""   name="spare_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
                                     </div>
                                     <?php echo form_error('courier_name_by_sf'); ?>
                                 </div>
@@ -225,6 +225,10 @@
         $(this).val('');
     });
     
+    $('#courier_name_by_sf').select2({
+        placeholder:'Select Courier Name',
+        allowClear:true
+    });
     
     $("#defective_parts_shipped_weight_in_kg").on({
         "click": function () {
@@ -447,6 +451,9 @@
                         $("#exist_courier_image").removeAttr("readonly");
                         $("#courier_name_by_sf").val("");
                         $("#courier_name_by_sf").val("");
+                        $("#courier_name_by_sf").removeAttr("readonly");
+                        $("#courier_name_by_sf").removeAttr("style");
+                        
                         $("#courier_charges_by_sf").removeAttr('readonly');
                         $("#courier_charges_by_sf").val("");
                         $("#defective_part_shipped_date").val("");

@@ -1514,7 +1514,7 @@ INSERT INTO `courier_file_upload_header_mapping` (`id`, `courier_partner_id`, `d
 CREATE TABLE `boloaaka`.`part_type_return_mapping` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `partner_id` INT(11) NOT NULL , `appliance_id` INT(11) NOT NULL , `part_type` VARCHAR(128) NOT NULL , `is_return` BOOLEAN NULL DEFAULT NULL , `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
 ALTER TABLE `part_type_return_mapping` ADD `inventory_id` INT(11) NOT NULL AFTER `appliance_id`;
---Gorakh23-09-2019
+--Gorakh 23-09-2019
 RENAME TABLE `boloaaka`.`spare_invoice_details` TO `boloaaka`.`oow_spare_invoice_details`; 
 --Ankit 24-09-2019
 ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1;
@@ -1522,3 +1522,5 @@ ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEF
 ALTER TABLE booking_unit_details CHANGE COLUMN sf_purchase_date sf_purchase_date date NULL DEFAULT NULL;
 -- Ankit 27-09-2019
 ALTER TABLE partners ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER auth_token;
+--Gorakh 28-09-2019
+ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` VARCHAR(20) NOT NULL;
