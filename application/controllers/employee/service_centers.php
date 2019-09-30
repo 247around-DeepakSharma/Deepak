@@ -3254,7 +3254,7 @@ class Service_centers extends CI_Controller {
             $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $sp_id], NULL, NULL, NULL, NULL, NULL)[0];
             
             $defective_courier_receipt = $this->input->post("sp_parts");
-            $spare_details = $this->partner_model->get_spare_parts_by_any("*",array('spare_parts_details.id'=>$sp_id));
+            $spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*",array('spare_parts_details.id'=>$sp_id));
             
             if (!empty($defective_courier_receipt)) {
                 if (!empty($sp_id)) {
@@ -5785,7 +5785,7 @@ class Service_centers extends CI_Controller {
                        
                             if ($part_details['spare_id'] == "new") {
                        
-                                $sp_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $booking_id));
+                                $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $booking_id));
                                   
                                 $data['entity_type'] = _247AROUND_SF_STRING;
                                 $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
@@ -7334,34 +7334,33 @@ class Service_centers extends CI_Controller {
     }
     
     
-    function booking_spare_list(){
+    function booking_spare_list() {
         $data = array();
-        $from =trim($this->input->post('frombooking'));
-        $to =trim($this->input->post('tobooking'));
-      // $where=array('booking_id',$from);
-        $from_details=$this->partner_model->get_spare_parts_by_any("*",array('booking_id'=>$from,'entity_type'=>_247AROUND_SF_STRING,'wh_ack_received_part'=>1,
+        $from = trim($this->input->post('frombooking'));
+        $to = trim($this->input->post('tobooking'));
+        // $where=array('booking_id',$from);
+        $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'entity_type' => _247AROUND_SF_STRING, 'wh_ack_received_part' => 1,
             'status' => SPARE_PARTS_REQUESTED));
         $frominventory_req_id = $from_details[0]['requested_inventory_id'];
-        $to_details=$this->partner_model->get_spare_parts_by_any("*",array('booking_id'=>$to,
-            'entity_type'=>_247AROUND_PARTNER_STRING,'purchase_invoice_id'=>NULL,'wh_ack_received_part'=>1, 'status' => SPARE_PARTS_REQUESTED));
-            
-            // print_r($this->db->last_query());exit;
+        $to_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $to,
+            'entity_type' => _247AROUND_PARTNER_STRING, 'purchase_invoice_id' => NULL, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
+
+        // print_r($this->db->last_query());exit;
         $toinventory_req_id = $to_details[0]['requested_inventory_id'];
-        if (empty($from_details) || empty($to_details)){
+        if (empty($from_details) || empty($to_details)) {
             $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");
             redirect('service_center/spare_transfer');
-        }else{
-           // $this->load->view('service_centers/spare_part_transfer');
-            $data['from_booking']=$from_details;
-            $data['to_booking']=$to_details;
-            $data['frombooking']=$from_details[0]['booking_id'];
-            $data['tobooking']=$to_details[0]['booking_id'];
+        } else {
+            // $this->load->view('service_centers/spare_part_transfer');
+            $data['from_booking'] = $from_details;
+            $data['to_booking'] = $to_details;
+            $data['frombooking'] = $from_details[0]['booking_id'];
+            $data['tobooking'] = $to_details[0]['booking_id'];
             $this->load->view('service_centers/header');
-           // $this->load->view('service_centers/booking_spare_list',$data);
-            $this->load->view('service_centers/spare_part_transfer',$data);   
+            // $this->load->view('service_centers/booking_spare_list',$data);
+            $this->load->view('service_centers/spare_part_transfer', $data);
         }
     }
-    
     
   
         /*
@@ -7575,8 +7574,8 @@ class Service_centers extends CI_Controller {
         if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to)) {
             echo 'fail';
         } else {
-            $form_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $from_spare_id));
-            $to_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $to_spare_id));
+            $form_details = $this->partner_model->get_spare_parts_by_any(".spare_parts_details.*", array('spare_parts_details.id' => $from_spare_id));
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $to_spare_id));
             if (empty($form_details) || empty($to_details) || ($form_details[0]['service_center_id'] != $to_details[0]['service_center_id'])) {
                 echo 'fail';
             } else {
