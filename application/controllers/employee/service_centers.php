@@ -5657,8 +5657,8 @@ function do_multiple_spare_shipping(){
                 $amount_due = $this->input->post('amount_due');
                 $service_center_id = $this->input->post('assigned_vendor_id');
                 $status = false;
-                $can_status = false;                
-
+                $can_status = false;   
+              
                 foreach ($part as $key => $part_details) { 
                     if ($part_details['shippingStatus'] == 1) {
 
