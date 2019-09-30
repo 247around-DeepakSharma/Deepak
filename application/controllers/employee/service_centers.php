@@ -7369,63 +7369,60 @@ class Service_centers extends CI_Controller {
      */
   
     
-    function do_spare_transfer(){
+     function do_spare_transfer() {
         $frominventory = $this->input->post('frominventry');
         $toinventory = $this->input->post('toinventory');
         $frombooking = $this->input->post('frombooking');
         $tobooking = $this->input->post('tobooking');
         $fromspdetailid = $this->input->post('inventoryidfrom');
         $tospdetailid = $this->input->post('inventoryidto');
-        $data['frombooking']=$frombooking;
-        $data['tobooking']=$tobooking;
-       // print_r($_POST);exit;
-        if(empty($frombooking) || empty($tobooking) || $fromspdetailid!=$tospdetailid ){
-            
-            $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");
-            redirect('service_center/spare_transfer'); 
-        }else{
-         $form_details=$this->partner_model->get_spare_parts_by_any("*",array('id'=>$frominventory));
-         $to_details=$this->partner_model->get_spare_parts_by_any("*",array('id'=>$toinventory));
-         if(empty($form_details) || empty($to_details)){
-               $this->session->set_flashdata('error_msg', "Booking spare details not found. Spare transfer not allowed");
-               redirect('service_center/spare_transfer'); 
-         }else{        
-              $fromservicecenter_id = $form_details[0]['service_center_id'] ;
-              $inventory_stock = $this->inventory_model->get_inventory_stock_count_details('*',array('inventory_id'=>$fromspdetailid,'entity_id'=>$fromservicecenter_id));
-              // print_r($inventory_stock);echo $fromservicecenter_id;exit;
-              $inventory_stockcount=$inventory_stock[0]['stock'];
-              $inventory_stock_requested=$inventory_stock[0]['pending_request_count'];
-              $remaining_inventory = ($inventory_stockcount-$inventory_stock_requested);
-                   $data_update=array(
-                   'defective_return_to_entity_id'=>$form_details[0]['defective_return_to_entity_id'] ,
-                   'defective_return_to_entity_type'=>$form_details[0]['defective_return_to_entity_type'],
-                   'entity_type'=>_247AROUND_SF_STRING,
-                   'purchase_invoice_id'=>$form_details[0]['purchase_invoice_id'],
-                   'partner_id'=>$form_details[0]['partner_id']
-                  );
-                  $this->service_centers_model->update_spare_parts(array('id'=>$toinventory),$data_update);
-                  if($remaining_inventory<1){
-                      $data_from=array(
-                      'entity_type'=>_247AROUND_PARTNER_STRING,
-                      'partner_id' => $to_details[0]['defective_return_to_entity_id'],
-                      'purchase_invoice_id'=>NULL,
-                      'defective_return_to_entity_id'=>$to_details[0]['defective_return_to_entity_id'],
-                      'defective_return_to_entity_type'=>$to_details[0]['defective_return_to_entity_type']
-                      );
-                  $this->service_centers_model->update_spare_parts(array('id'=>$frominventory),$data_from);
-                  }
-                  if($this->db->affected_rows()>0){
-                  $this->session->set_flashdata('success', "Spare Successfully transfered ");
-                  redirect('service_center/spare_transfer');
-                  }else{
-                  $this->session->set_flashdata('error_msg', "Spare not  transfered ");
-                  redirect('service_center/spare_transfer');
-                  }
+        $data['frombooking'] = $frombooking;
+        $data['tobooking'] = $tobooking;
+        // print_r($_POST);exit;
+        if (empty($frombooking) || empty($tobooking) || $fromspdetailid != $tospdetailid) {
 
-         }
-            
+            $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");
+            redirect('service_center/spare_transfer');
+        } else {
+            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $frominventory));
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $toinventory));
+            if (empty($form_details) || empty($to_details)) {
+                $this->session->set_flashdata('error_msg', "Booking spare details not found. Spare transfer not allowed");
+                redirect('service_center/spare_transfer');
+            } else {
+                $fromservicecenter_id = $form_details[0]['service_center_id'];
+                $inventory_stock = $this->inventory_model->get_inventory_stock_count_details('*', array('inventory_id' => $fromspdetailid, 'entity_id' => $fromservicecenter_id));
+                // print_r($inventory_stock);echo $fromservicecenter_id;exit;
+                $inventory_stockcount = $inventory_stock[0]['stock'];
+                $inventory_stock_requested = $inventory_stock[0]['pending_request_count'];
+                $remaining_inventory = ($inventory_stockcount - $inventory_stock_requested);
+                $data_update = array(
+                    'defective_return_to_entity_id' => $form_details[0]['defective_return_to_entity_id'],
+                    'defective_return_to_entity_type' => $form_details[0]['defective_return_to_entity_type'],
+                    'entity_type' => _247AROUND_SF_STRING,
+                    'purchase_invoice_id' => $form_details[0]['purchase_invoice_id'],
+                    'partner_id' => $form_details[0]['partner_id']
+                );
+                $this->service_centers_model->update_spare_parts(array('id' => $toinventory), $data_update);
+                if ($remaining_inventory < 1) {
+                    $data_from = array(
+                        'entity_type' => _247AROUND_PARTNER_STRING,
+                        'partner_id' => $to_details[0]['defective_return_to_entity_id'],
+                        'purchase_invoice_id' => NULL,
+                        'defective_return_to_entity_id' => $to_details[0]['defective_return_to_entity_id'],
+                        'defective_return_to_entity_type' => $to_details[0]['defective_return_to_entity_type']
+                    );
+                    $this->service_centers_model->update_spare_parts(array('id' => $frominventory), $data_from);
+                }
+                if ($this->db->affected_rows() > 0) {
+                    $this->session->set_flashdata('success', "Spare Successfully transfered ");
+                    redirect('service_center/spare_transfer');
+                } else {
+                    $this->session->set_flashdata('error_msg', "Spare not  transfered ");
+                    redirect('service_center/spare_transfer');
+                }
+            }
         }
-        
     }
     
         /*
