@@ -101,17 +101,17 @@
                                         <?php 
                                         $booking_model_number = !empty($unit_details[0]['sf_model_number']) ?  $unit_details[0]['sf_model_number'] : "";
                                         $booking_model_purchase_date = (!empty($unit_details[0]['sf_purchase_date']) && $unit_details[0]['sf_purchase_date'] != '0000-00-00') ?  $unit_details[0]['sf_purchase_date'] : "";
-                                        if(empty($booking_model_number) && !empty($booking_history['spare_parts'][0]['model_number'])){
+                                        if(!empty($booking_history['spare_parts'][0]['model_number'])){
                                             $booking_model_number = $booking_history['spare_parts'][0]['model_number'];
                                         }
-                                        if(empty($booking_model_purchase_date) && !empty($booking_history['spare_parts'][0]['date_of_purchase'])){
+                                        if(!empty($booking_history['spare_parts'][0]['date_of_purchase'])){
                                             $booking_model_purchase_date = $booking_history['spare_parts'][0]['date_of_purchase'];
                                         }
                                         if(!empty($booking_model_number) && !empty($model[0]) && $booking_history['is_spare_requested']){
                                             $arrModels = array_column($model[0], 'model');
                                             if(!in_array($booking_model_number, $arrModels)){ ?>
                                                 <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
-                                                    <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $booking_model_number ?>' filled during Spare Request is not mapped with the partner! Please Contact 247 around team.</span>
+                                                    <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $booking_model_number ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
                                                 </div>
                                             <?php }
                                         }

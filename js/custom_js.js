@@ -393,13 +393,13 @@ function addBookingDialog(chanel = '') {
 
     } else {
         if (type === "Booking") {
-            if (address === "") {
+            if (!is_sf_panel && address === "") {
 
                 alert("Please fill Address ");
                 return false;
             } else {
 
-                if (pincode === "") {
+                if (!is_sf_panel && pincode === "") {
 
                     alert("Please fill pincode ");
                     return false;
@@ -428,7 +428,7 @@ function addBookingDialog(chanel = '') {
         }
     }
 
-    if (p_contact_no === "") {
+    if (!is_sf_panel && p_contact_no === "") {
 
         alert("Please fill Phone Number ");
         return false;
@@ -444,7 +444,7 @@ function addBookingDialog(chanel = '') {
         return false;
     }
 
-    if (city === "" || city === "Select City") {
+    if (!is_sf_panel && city === "" || city === "Select City") {
 
         alert("Please fill city ");
         return false;
@@ -485,12 +485,12 @@ function addBookingDialog(chanel = '') {
             }
         }
     }
-    if(dealer_phone_number !=="" && !dealer_phone_number.match(exp1)){
+    if(!is_sf_panel && dealer_phone_number !=="" && !dealer_phone_number.match(exp1)){
         alert('Please Enter Valid Dealer Phone Number');   
         return false;
     }
     
-    if(dealer_phone_number !=="" && dealer_name === ""){
+    if(!is_sf_panel && dealer_phone_number !=="" && dealer_name === ""){
         alert("Please Enter Dealer Name");
         return false;
     }
@@ -498,7 +498,7 @@ function addBookingDialog(chanel = '') {
     if((symptom == 0) || (symptom == '0')) {
         
     }
-    else if(symptom === "" || symptom === "Please Select Any Symptom"){
+    else if(!is_sf_panel && symptom === "" || symptom === "Please Select Any Symptom"){
         alert("Please Enter Symptom");
         return false;
     }
