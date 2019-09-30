@@ -7176,7 +7176,7 @@ function do_multiple_spare_shipping(){
         $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'entity_type' => _247AROUND_SF_STRING, 'wh_ack_received_part' => 1,
             'status' => SPARE_PARTS_REQUESTED));
         $frominventory_req_id = $from_details[0]['requested_inventory_id'];
-        $to_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $to,
+        $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to,
             'entity_type' => _247AROUND_PARTNER_STRING, 'purchase_invoice_id' => NULL, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
 
         // print_r($this->db->last_query());exit;
