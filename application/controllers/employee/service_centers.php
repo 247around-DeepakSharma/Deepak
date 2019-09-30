@@ -7215,8 +7215,8 @@ function do_multiple_spare_shipping(){
             $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");
             redirect('service_center/spare_transfer');
         } else {
-            $form_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $frominventory));
-            $to_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $toinventory));
+            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $frominventory));
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $toinventory));
             if (empty($form_details) || empty($to_details)) {
                 $this->session->set_flashdata('error_msg', "Booking spare details not found. Spare transfer not allowed");
                 redirect('service_center/spare_transfer');
