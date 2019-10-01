@@ -466,28 +466,28 @@ class Buyback_process extends CI_Controller {
         
         switch ($claimed_type){
             case CLAIM_SUBMITTED:
-                $post['where_in'] = array('current_status' => array(CLAIM_SUBMITTED),
-                                          'internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
+                $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_SUBMITTED),
+                                          'bb_order_details.internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
                 $post['where'] = array();
                 break;
             case CLAIM_APPROVED:
-                $post['where_in'] = array('current_status' => array(CLAIM_APPROVED),
-                    'internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
+                $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_APPROVED),
+                    'bb_order_details.internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
                 $post['where'] = array();
                 break;
             case CLAIM_REJECTED:
-                $post['where_in'] = array('current_status' => array(CLAIM_REJECTED),
-                    'internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
+                $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_REJECTED),
+                    'bb_order_details.internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
                 $post['where'] = array();
                 break;
             case CLAIM_SETTLED:
                 $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_SETTLED),
-                    'internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
+                    'bb_order_details.internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
                 $post['where'] = array();
                 break;
             case CLAIM_DEBIT_NOTE_RAISED:
                 $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_DEBIT_NOTE_RAISED),
-                    'internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
+                    'bb_order_details.internal_status' => array(_247AROUND_BB_ORDER_TAT_BREACH));
                 $post['where'] = array();
                 break;
                 
@@ -2013,27 +2013,27 @@ class Buyback_process extends CI_Controller {
         
         switch ($claimed_type){
             case CLAIM_SUBMITTED:
-                $post['where_in'] = array('current_status' => array(CLAIM_SUBMITTED),
+                $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_SUBMITTED),
                     'bb_order_details.internal_status' => array(_247AROUND_BB_NOT_DELIVERED,_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN));
                 $post['where'] = array();
                 break;
             case CLAIM_APPROVED:
-                $post['where_in'] = array('current_status' => array(CLAIM_APPROVED),
+                $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_APPROVED),
                     'bb_order_details.internal_status' => array(_247AROUND_BB_NOT_DELIVERED,_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN));
                 $post['where'] = array();
                 break;
             case CLAIM_REJECTED:
-                $post['where_in'] = array('current_status' => array(CLAIM_REJECTED),
+                $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_REJECTED),
                     'bb_order_details.internal_status' => array(_247AROUND_BB_NOT_DELIVERED,_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN));
                 $post['where'] = array();
                 break;
             case CLAIM_SETTLED:
-                $post['where_in'] = array('current_status' => array(CLAIM_SETTLED),
+                $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_SETTLED),
                     'bb_order_details.internal_status' => array(_247AROUND_BB_NOT_DELIVERED,_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN));
                 $post['where'] = array();
                 break;
             case CLAIM_DEBIT_NOTE_RAISED:
-                $post['where_in'] = array('current_status' => array(CLAIM_DEBIT_NOTE_RAISED),
+                $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_DEBIT_NOTE_RAISED),
                     'bb_order_details.internal_status' => array(_247AROUND_BB_NOT_DELIVERED,_247AROUND_BB_TAG_CLAIMED_SUBMITTED_BROKEN));
                 $post['where'] = array();
                 break;
@@ -2079,7 +2079,7 @@ class Buyback_process extends CI_Controller {
      */
     function get_bb_claimed_raised_order_data() {
         $post = $this->get_bb_post_view_data();
-        $post['where_in'] = array('current_status' => array(CLAIM_DEBIT_NOTE_RAISED));
+        $post['where_in'] = array('bb_order_details.current_status' => array(CLAIM_DEBIT_NOTE_RAISED));
         $post['where'] = array();
         $post['column_order'] = array(NULL, NULL, 'services', 'city', 'order_date', 'current_status','internal_status');
         $post['column_search'] = array('bb_unit_details.partner_order_id', 'services', 'city', 'order_date', 'current_status','internal_status');
