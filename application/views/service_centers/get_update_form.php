@@ -154,11 +154,11 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group" >
-                                        <label for="dop" class="col-md-4">Date of Purchase *</label>
+                                        <label for="dop" class="col-md-4" id="dat_of_puchase">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
                                                 <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ echo date('Y-m-d', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
-                                                <span class="input-group-addon add-on" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
+                                                <span class="input-group-addon add-on" id="dop_calendar" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
                                     </div>
@@ -176,7 +176,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label for="serial_number_pic" class="col-md-4">Serial Number Picture <?php if((!isset($unit_serial_number_pic) || empty($unit_serial_number_pic)) && empty($on_saas)){echo '*';}  ?></label>
+                                        <label for="serial_number_pic" class="col-md-4" id="serial_text">Serial Number Picture <?php if((!isset($unit_serial_number_pic) || empty($unit_serial_number_pic)) && empty($on_saas)){echo '*';}  ?></label>
                                         <div class="col-md-6">
                                             <input type="file" class="form-control spare_parts" id="serial_number_pic" name="serial_number_pic" >
                                             <input type="hidden" value="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo $unit_serial_number_pic;}  ?>"  name="serial_number_pic_exist" >
@@ -1089,6 +1089,40 @@ function alpha(e) {
             });
         }
     }
+    
+    $(document).ready(function(){
+        var model_number = $("#model_number_id option:selected").val();
+        if(model_number !=''){
+            $("#model_number_id").select2('destroy'); 
+            $("#model_number_id").attr('readonly',"readonly");
+            $("#model_number_id").css("cursor", "not-allowed");
+            $("#model_number_id").css("pointer-events","none");
+            
+        }
+    });
+        
+    <?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ ?>
+        $("#dop").attr('readonly', 'readonly');
+        $("#dop").css("cursor", "not-allowed");
+        $("#dop").css("pointer-events","none");
+        $("#dat_of_puchase").css("cursor", "not-allowed");
+        $("#dat_of_puchase").css("pointer-events","none");
+        $("#dop_calendar").attr("onclick", "").unbind("click");
+        
+     <?php } ?>
+         
+    <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ ?>
+        $("#serial_number_pic").attr('readonly', 'readonly');
+        $("#serial_number_pic").css("cursor", "not-allowed");
+        $("#serial_number_pic").css("pointer-events","none");
+        $("#serial_text").css("cursor", "not-allowed");
+        $("#serial_text").css("pointer-events","none");
+    <?php } ?>
+    <?php if(isset($unit_serial_number) && !empty($unit_serial_number)){ ?> 
+        $("#serial_number").attr('readonly', 'readonly');
+        $("#serial_number").css("cursor", "not-allowed");
+        $("#serial_number").css("pointer-events","none");
+    <?php }  ?>
     // function ends here ---------------------------------------------------------------- 
 </script>
 <style type="text/css">
