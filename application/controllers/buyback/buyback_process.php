@@ -231,11 +231,11 @@ class Buyback_process extends CI_Controller {
              $post['where_in']['service_id'] = !is_array($service_id)?explode(',', $service_id):$service_id;
         }
         if(!empty($internal_status)){
-             $post['where_in']['internal_status'] = !is_array($internal_status)?explode(',', $internal_status):$internal_status;;
+             $post['where_in']['bb_order_details.internal_status'] = !is_array($internal_status)?explode(',', $internal_status):$internal_status;;
         }
        
         if(!empty($current_status)){
-             $post['where_in']['current_status'] = !is_array($current_status)?explode(',', $current_status):$current_status;;
+             $post['where_in']['bb_order_details.current_status'] = !is_array($current_status)?explode(',', $current_status):$current_status;;
         }
         
         if(!empty($cp_id)){
