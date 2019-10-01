@@ -2249,7 +2249,7 @@ class Spare_parts extends CI_Controller {
                 } else {
                     //Send Push Notification 
                     if($is_micro_wh == 1 || $is_micro_wh == 2){
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $spare_data['partner_id'], $spare_data['requested_inventory_id'],$spare_data['quantity']); 
+                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $spare_data['partner_id'], $spare_data['requested_inventory_id'],$data['quantity']); 
                     }
                     
                     if (!empty($spare_data['status'])) {
