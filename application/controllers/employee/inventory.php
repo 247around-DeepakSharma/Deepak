@@ -4648,6 +4648,34 @@ class Inventory extends CI_Controller {
                 }
             }
         }
+		
+		
+	  //  After all process stock update . Spare transfer run so that alternate can be mapped if partner send alter spare part //
+	  
+	    $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id,spare_parts_details.model_number, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
+                . " requested_inventory_id";
+        $post['where'] = array('spare_parts_details.requested_inventory_id' =>$data->quantity,'spare_parts_details.status'=>SPARE_PARTS_REQUESTED);
+		$entity_array=array(_247AROUND_SF_STRING,_247AROUND_PARTNER_STRING);
+        $post['where_in'] = array('spare_parts_details.entity_type' => $entity_array);
+        $post['is_inventory'] = true;
+        $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
+		
+			
+		$agentid='';
+        $agent_name='';
+        $login_partner_id='';
+        $login_service_center_id='';
+        if($this->session->userdata('userType') == 'service_center'){
+            $agentid=$this->session->userdata('service_center_agent_id');
+            $agent_name =$this->session->userdata('service_center_name');
+            $login_service_center_id = $this->session->userdata('service_center_id');
+            $login_partner_id =NULL;
+           
+        }
+		
+      $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
+	
+	
     }
 
     /**

@@ -507,7 +507,7 @@ class Service_centers extends CI_Controller {
      * @param: booking id
      * @return: void
      */
-    function process_complete_booking($booking_id) {
+    function process_complete_booking($booking_id) { 
         log_message('info', __FUNCTION__ . ' booking_id: ' . $booking_id . " Json data " . json_encode($this->input->post(), true));
         $this->checkUserSession();
         $this->form_validation->set_rules('customer_basic_charge', 'Basic Charge', 'required');
@@ -548,7 +548,6 @@ class Service_centers extends CI_Controller {
                     $broken = $this->input->post("appliance_broken");
                     $mismatch_pincode = $this->input->post("mismatch_pincode");
                     $is_update_spare_parts = FALSE;
-                    $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
                     //is_sn_correct
                     $is_sn_correct = $this->input->post('is_sn_correct');
 
@@ -687,15 +686,20 @@ class Service_centers extends CI_Controller {
                     //This is used to cancel those spare parts who has not shipped by partner.        
                     $this->cancel_spare_parts($partner_id, $booking_id);
 
-                    if ($is_update_spare_parts) {
-//                        foreach ($sp_required_id as $sp_id) {
+                    if ($is_update_spare_parts) {                        
+//                        foreach ($sp_required_id as $val) {
+//                            $sp_id = $val['spare_id'];
+//                            if ($val['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
+//                               $defective_return_to_entity_id = $val['defective_return_to_entity_id'];
+//                            }
 //                            $sp['status'] = DEFECTIVE_PARTS_PENDING;
 //                            $this->service_centers_model->update_spare_parts(array('id' => $sp_id), $sp);
-//                            $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+//                            $partner_on_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
 //                            if (!$partner_on_saas) {
-//                            $this->invoice_lib->generate_challan_file($sp_id, $this->session->userdata('service_center_id')); 
+//                                $this->invoice_lib->generate_challan_file($sp_id, $this->session->userdata('service_center_id'));
+//                                $this->invoice_lib->generate_challan_file_to_partner($sp_id, $defective_return_to_entity_id);
 //                            }
-//                          }
+//                        }
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
                         $this->session->set_userdata('success', "Updated Successfully!!");
 
@@ -722,7 +726,7 @@ class Service_centers extends CI_Controller {
      * @param type $post_data
      * @return boolean
      */
-    public function update_spare_consumption_status($post_data, $booking_id) {
+    public function update_spare_consumption_status($post_data, $booking_id) {        
         if(!empty($post_data['spare_consumption_status'])) {
             $partner_id = $post_data["partner_id"];
             
@@ -778,6 +782,12 @@ class Service_centers extends CI_Controller {
                 if(!empty($defective_part_required) && $defective_part_required == 1) {
                     $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
+                        if ($spare_part_detail['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
+                            $defective_return_to_entity_id = $spare_part_detail['defective_return_to_entity_id'];
+                        }
+                        if(!empty($defective_return_to_entity_id)){
+                        $this->invoice_lib->generate_challan_file_to_partner($spare_part_detail['id'], $defective_return_to_entity_id);
+                        }
                         $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'));   
                     }
                 }
@@ -2337,9 +2347,8 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('serial_number_pic', 'Invoice Image', 'callback_validate_serial_number_pic_upload_file');
 
         $is_same_parts_type = $this->is_part_already_requested();
-        $access = $this->partner_model->get_partner_permission(array('partner_id' => $this->input->post('partner_id'),
-            'permission_type' => PARTNER_ON_SAAS, 'is_on' => 1));
-
+        $access = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        
         if (empty($is_same_parts_type)) { 
                        
             if(!$this->input->post("call_from_api")){
@@ -2412,7 +2421,7 @@ class Service_centers extends CI_Controller {
 //                print_r($warehouse_details['stock']);
 //                exit;
                 foreach ($parts_requested as $value) {
-
+                    
                     $delivered_sp = array();
                     if (array_key_exists("spare_id", $data)) {
                         unset($data['spare_id']);
@@ -2520,6 +2529,13 @@ class Service_centers extends CI_Controller {
                     if($this->input->post("call_from_api")){
                         $data['part_requested_by_engineer'] = 1;
                     }
+                    
+                    if (empty($access)) {
+                        if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                            $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                            $data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
+                        }
+                    }
 
                     $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data);
                     $this->miscelleneous->process_booking_tat_on_spare_request($booking_id, $spare_id);
@@ -2544,8 +2560,15 @@ class Service_centers extends CI_Controller {
                     $notificationTextArray['msg'] = array(implode(",", $requested_part_name), $booking_id);
                     $this->push_notification_lib->create_and_send_push_notiifcation(SPARE_PART_REQUEST_TO_PARTNER, $receiverArray, $notificationTextArray);
                     //End Push Notification
-
-                    $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc'], "not_define", "not_define");
+                    if($this->input->post("call_from_api")){
+                        if($this->input->post("sc_agent_id")){
+                            $agent_id = $this->input->post("sc_agent_id");
+                        }
+                        $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUIRED, "", $reason, $agent_id, "", "not_define", "not_define", NULL, $service_center_id);
+                    }
+                    else{
+                        $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc'], "not_define", "not_define");
+                    }
                     $sc_data['current_status'] = "InProcess";
 
                     if (!empty($booking_date)) {
