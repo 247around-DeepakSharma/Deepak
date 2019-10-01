@@ -2198,6 +2198,15 @@ class Spare_parts extends CI_Controller {
                     $spare_data['defective_part_required'] = 0;
                 }
                 
+                $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                
+                if (empty($is_saas)) {
+                    if ($spare_data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                        $spare_data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                        $spare_data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
+                    }
+                }
+
                 $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
 
                 if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED ) {
@@ -2240,7 +2249,7 @@ class Spare_parts extends CI_Controller {
                 } else {
                     //Send Push Notification 
                     if($is_micro_wh == 1 || $is_micro_wh == 2){
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $spare_data['partner_id'], $spare_data['requested_inventory_id'],$spare_data['quantity']); 
+                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $spare_data['partner_id'], $spare_data['requested_inventory_id'],$data['quantity']); 
                     }
                     
                     if (!empty($spare_data['status'])) {

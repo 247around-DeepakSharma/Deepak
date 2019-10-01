@@ -334,20 +334,20 @@ function addBookingDialog(chanel = '') {
             }
         }
      }
-    if (!is_sf_panel && user_name == "" || user_name.trim().length ==0 || user_name == null) {
+    if (user_name == "" || user_name.trim().length ==0 || user_name == null) {
 
         alert("Please Enter User Name");
 
         return false;
     }
-    if (!is_sf_panel && pincode.length !== 6) {
+    if (pincode.length !== 6) {
 
         alert("Please Select 6 Digit Valid Pincode Number");
 
         return false;
     }
 
-    if (!is_sf_panel && source_code === "Select Booking Source") {
+    if (source_code === "Select Booking Source") {
 
         alert("Please Select Booking Source");
 

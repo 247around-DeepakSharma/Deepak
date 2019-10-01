@@ -69,6 +69,7 @@
                             <th class="text-center">Courier Name</th>
                             <th class="text-center">Remarks</th>
                             <th class="text-center">Quantity</th>
+                            <th class="text-center">Download Challa</th>
                             <th class="text-center">
                                 Send To Partner
                                 <input type="checkbox" id="send_all">
@@ -122,6 +123,14 @@
                                      <input type="hidden" readonly="readonly" min="1" value="<?php echo $row['shipped_quantity']?>" data-shipping_quantity="<?php echo $row['shipped_quantity']?>" id="spare<?php echo $row['id']?>" name="shipping_quantity">
 
                                      </td>
+                                     <td>
+                                      <?php if (!empty($row['wh_challan_file'])) { ?>
+                                          <a style="background-color:#0edf0e;" title="Download Challan" target="_blank" class="btn btn-sm btn-success" href="<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/<?php echo $row['wh_challan_file']; ?>"><span ><i class="fa fa-download" aria-hidden="true" ></i></span></a>  
+                                        <?php }else{ ?>
+                                         <a href="#" title="Challan not available" style="background-color:red;border-color: red;" class="challan_not_generated btn btn-sm btn-success"><span style=" "><i class="fa fa-remove" aria-hidden="true"></i></span></a>
+
+                                        <?php } ?>                              
+                                    </td>
  
                                     <td>
                                         
