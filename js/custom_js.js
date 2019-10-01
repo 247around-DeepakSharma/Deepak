@@ -289,7 +289,7 @@ function addBookingDialog(chanel = '') {
     var alternate_contact_no = $('#booking_alternate_contact_no').val();
     var address = $('#booking_address').val();
     var service = $("#service_id option:selected").text();
-    if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
+    if(chanel == "sf_update"){
          var service = $("#service_id").val();
     }
     var pincode = $("#booking_pincode").val();
@@ -304,7 +304,8 @@ function addBookingDialog(chanel = '') {
     var is_active = $("#is_active").val();
     var div_count = $('.purchase_date').length;
     var partner_id = $("#source_code").find(':selected').attr('data-id');
-   if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
+    var is_sf_panel = $("#is_sf_panel").val();
+   if(chanel == "sf_update"){
          var partner_id = $("#source_code").val();
     }
     var parant_id = $('#parent_id').val();
@@ -312,11 +313,11 @@ function addBookingDialog(chanel = '') {
     var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
     var isServiceChecked = $('.Service:checkbox:checked').length;
     var symptom = $('#booking_request_symptom option:selected').text();
-    if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
+    if(chanel == "sf_update"){
        symptom =  $('#booking_request_symptom').val();
     }
    // var customer_paid = $("#grand_total_price").val()
-     if(chanel != SF_UPDATE_FORM_VALIDATION_TEXT){
+     if(chanel != "sf_update"){
         if($('.appliance_capacity').length > 0) {
             var count1=0;
             $(".appliance_capacity").each(function(){
@@ -392,13 +393,13 @@ function addBookingDialog(chanel = '') {
 
     } else {
         if (type === "Booking") {
-            if (address === "") {
+            if (!is_sf_panel && address === "") {
 
                 alert("Please fill Address ");
                 return false;
             } else {
 
-                if (pincode === "") {
+                if (!is_sf_panel && pincode === "") {
 
                     alert("Please fill pincode ");
                     return false;
@@ -427,23 +428,23 @@ function addBookingDialog(chanel = '') {
         }
     }
 
-    if (p_contact_no === "") {
+    if (!is_sf_panel && p_contact_no === "") {
 
         alert("Please fill Phone Number ");
         return false;
     }
 
-    if (p_contact_no !== "" && !p_contact_no.match(exp1)) {
+    if (!is_sf_panel && p_contact_no !== "" && !p_contact_no.match(exp1)) {
         alert("Enter Valid Phone Number Only");
         return false;
     }
     
-    if (alternate_contact_no !== "" && !alternate_contact_no.match(exp1)) {
+    if (!is_sf_panel && alternate_contact_no !== "" && !alternate_contact_no.match(exp1)) {
         alert("Enter Valid Alternate Phone Number Only");
         return false;
     }
 
-    if (city === "" || city === "Select City") {
+    if (!is_sf_panel && city === "" || city === "Select City") {
 
         alert("Please fill city ");
         return false;
@@ -476,7 +477,7 @@ function addBookingDialog(chanel = '') {
                 old_type = $("#booking_old_type_holder").text();
                 if(!(chanel == 'admin_update' && old_type == 'Booking' && type == 'Booking')){
                     var order_id = $('#order_id').val();
-                    if (order_id === "" && dealer_phone_number === "") {
+                    if (!is_sf_panel && order_id === "" && dealer_phone_number === "") {
                         alert('Please Fill Order Id Or Dealer Phone Number');
                         return false;
                     }
@@ -484,17 +485,20 @@ function addBookingDialog(chanel = '') {
             }
         }
     }
-    if(dealer_phone_number !=="" && !dealer_phone_number.match(exp1)){
+    if(!is_sf_panel && dealer_phone_number !=="" && !dealer_phone_number.match(exp1)){
         alert('Please Enter Valid Dealer Phone Number');   
         return false;
     }
     
-    if(dealer_phone_number !=="" && dealer_name === ""){
+    if(!is_sf_panel && dealer_phone_number !=="" && dealer_name === ""){
         alert("Please Enter Dealer Name");
         return false;
     }
     
-    if(symptom === "" || symptom === "Please Select Any Symptom"){
+    if((symptom == 0) || (symptom == '0')) {
+        
+    }
+    else if(!is_sf_panel && symptom === "" || symptom === "Please Select Any Symptom"){
         alert("Please Enter Symptom");
         return false;
     }
@@ -532,7 +536,7 @@ function addBookingDialog(chanel = '') {
             return false;
         }
         //If Repeat Booking is Selected than Repeat Reason Should not be blank
-        if(!repeat_reason){
+        if(!is_sf_panel && !repeat_reason){
             alert("Please Write the Repeat Reason");
             return false;
         }

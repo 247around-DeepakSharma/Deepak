@@ -176,7 +176,7 @@ class Bb_model extends CI_Model {
         if($cp_name){
            $this->db->join('service_centres', 'service_centres.id = bb_order_details.assigned_cp_id');
         }
-        $this->db->join('bb_cp_order_action', 'bb_cp_order_action.partner_order_id = bb_order_details.partner_order_id');
+        $this->db->join('bb_cp_order_action', 'bb_order_details.partner_order_id = bb_cp_order_action.partner_order_id', 'left');
         $query = $this->db->get();
         return $query->result();
     }
