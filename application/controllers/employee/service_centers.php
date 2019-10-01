@@ -2560,8 +2560,15 @@ class Service_centers extends CI_Controller {
                     $notificationTextArray['msg'] = array(implode(",", $requested_part_name), $booking_id);
                     $this->push_notification_lib->create_and_send_push_notiifcation(SPARE_PART_REQUEST_TO_PARTNER, $receiverArray, $notificationTextArray);
                     //End Push Notification
-
-                    $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc'], "not_define", "not_define");
+                    if($this->input->post("call_from_api")){
+                        if($this->input->post("sc_agent_id")){
+                            $agent_id = $this->input->post("sc_agent_id");
+                        }
+                        $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUIRED, "", $reason, $agent_id, "", "not_define", "not_define", NULL, $service_center_id);
+                    }
+                    else{
+                        $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc'], "not_define", "not_define");
+                    }
                     $sc_data['current_status'] = "InProcess";
 
                     if (!empty($booking_date)) {
