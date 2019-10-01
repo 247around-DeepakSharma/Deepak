@@ -1201,10 +1201,10 @@ class User_invoice extends CI_Controller {
                     echo json_encode(array('status' => true, 'message' => 'Invoice generated successfully'), true);
                     }
                     else {
-                        echo json_encode(array('status' => false, 'message' => 'There is no inventory invoice to tag with your selected inventory.'), true);
+                        echo json_encode(array('status' => false, 'message' => 'There is no inventory invoice to tag with your selected inventory, Please contact to 247Around Team'), true);
                     }
                 } else {
-                    echo json_encode(array('status' => false, 'message' => 'There is no inventory invoice to tag with your selected inventory.'), true);
+                    echo json_encode(array('status' => false, 'message' => 'There is no inventory invoice to tag with your selected inventory, Please contact to 247Around Team'), true);
                 }
             } else {
                 echo json_encode(array('status' => false, 'message' => 'Please Upload Courier Receipt less than 2 MB'), true);
