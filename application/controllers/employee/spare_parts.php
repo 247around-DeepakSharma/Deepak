@@ -2981,7 +2981,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $this->table->set_template($template);
         $this->table->set_heading(array('Booking ID', 'Part Name','Spare part ID'));
 
-        list($tcount, $booking_error_array, $add_row) = $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id, $bookings_spare['model_number']);
+        list($tcount, $booking_error_array, $add_row) = $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
 
         foreach($add_row as $row_values) {
             $this->table->add_row($row_values);
