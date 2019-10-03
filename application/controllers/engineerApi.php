@@ -2200,6 +2200,12 @@ class engineerApi extends CI_Controller {
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
             $curl_response = curl_exec($ch);
             curl_close($ch);
+            if($curl_response){
+                log_message("info", __METHOD__ . "Part  Updated successfully");
+                $this->jsonResponseString['response'] = $response->message;
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            /*
             $response = json_decode($curl_response);
             if($response->status){
                 log_message("info", __METHOD__ . "Part  Updated successfully");
@@ -2210,6 +2216,7 @@ class engineerApi extends CI_Controller {
                 log_message("info", __METHOD__ . "Part Not Updated Error - ".$response->message);
                 $this->sendJsonResponse(array('0035', $response->message));
             }
+            */
         }
         else{
             log_message("info", __METHOD__ . "Request validation failed ".$validation['message']);
