@@ -7517,7 +7517,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 if($partner[0]['is_wh']){
                     $part_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.inventory_id as id,inventory_master_list.type as part_type', array('inventory_master_list.service_id' => $service_id,'inventory_model_mapping.active' => 1));
                 }else{
-                    $x = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id as id,inventory_parts_type.part_type as part_type', array('service_id' => $service_id), TRUE);;
+                    $x = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id as id,inventory_parts_type.part_type as part_type', array('inventory_parts_type.service_id' => $service_id), TRUE);;
                 }
 
                 echo json_encode($part_type);
