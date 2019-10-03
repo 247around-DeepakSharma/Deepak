@@ -1,7 +1,8 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <?php
-$str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
+//$str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
+$str_disabled = "";
 ?>
 <style>
     #dealer_list{
