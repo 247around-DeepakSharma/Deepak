@@ -5845,7 +5845,7 @@ class Inventory extends CI_Controller {
     function get_inventory_by_model($model_number_id) {      
         if ($model_number_id) {
             $model_number_id = urldecode($model_number_id);
-            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services,inventory_model_mapping.id', array('inventory_model_mapping.model_number_id' => $model_number_id,'inventory_model_mapping.active' => 1));
+            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services,inventory_model_mapping.id, inventory_model_mapping.bom_main_part,inventory_model_mapping.create_date', array('inventory_model_mapping.model_number_id' => $model_number_id,'inventory_model_mapping.active' => 1,'appliance_model_details.active'=> 1));
         } else {
             $data['inventory_details'] = array();
         }
