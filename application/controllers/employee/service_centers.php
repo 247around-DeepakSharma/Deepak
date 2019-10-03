@@ -6875,6 +6875,7 @@ function do_multiple_spare_shipping(){
             NULL,NULL,NULL,
             array(
                 "sub_category"=>array(
+                    MSL,
                     MSL_SECURITY_AMOUNT,
                     MSL_NEW_PART_RETURN,
                     MSL_DEFECTIVE_RETURN
@@ -6887,10 +6888,11 @@ function do_multiple_spare_shipping(){
             if(!empty($row['sub_category']) && $row['sub_category']==MSL_SECURITY_AMOUNT){
                 $mslSecurityAmount += floatval($row['amount']);
             }else if(!empty($row['sub_category']) && ($row['sub_category']==MSL_DEFECTIVE_RETURN || $row['sub_category']==MSL_NEW_PART_RETURN)){
+                $mslAmount -= floatval($row['amount']);
+            }else if($row['sub_category'] == MSL){
                 $mslAmount += floatval($row['amount']);
             }
         }
-        $mslAmount = $mslSecurityAmount-$mslAmount;
         $msl = array(
             'security'=>sprintf("%01.2f", $mslSecurityAmount),
             'amount'=>sprintf("%01.2f", $mslAmount)
