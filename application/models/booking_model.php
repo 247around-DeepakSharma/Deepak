@@ -1953,12 +1953,19 @@ class Booking_model extends CI_Model {
      * 
      */
     function delete_mail_template_by_id($id) {
-        $this->db->where('id', $id);
-        $this->db->delete('247around_email_template');
+        if(!empty($id))
+        {
+            $this->db->where('id', $id);
+            $this->db->delete('247around_email_template');
 
-        if ($this->db->affected_rows() > 0) {
-            return true;
-        } else {
+            if ($this->db->affected_rows() > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        else
+        {
             return false;
         }
     }
@@ -2797,12 +2804,17 @@ class Booking_model extends CI_Model {
     function delete_booking_file($where = array()) {
         if(!empty($where)){
             $this->db->where($where);
-        }
+        
         $result =  $this->db->delete('booking_files');
 
         log_message ('info', __METHOD__ . "=> Delete Booking Supporting File  SQL ". $this->db->last_query());
 
         return $result;
+    }
+    else 
+    {
+        return false;
+    }
         
     }
     /**
