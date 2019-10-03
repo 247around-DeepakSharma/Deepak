@@ -88,13 +88,16 @@ class Employee_model extends CI_Model{
    */
 
     function delete($id){
-        $this->db->where('id',$id);
-        $this->db->delete('handyman');
-        $client = new Elasticsearch\Client();
-        $indexParams['index']  = "boloaaka";
-        $indexParams['type']   = "handyman";
-        $indexParams['id'] = $id;
-        $retDelete = $client->delete($indexParams);
+        if(!empty($id))
+        {
+            $this->db->where('id',$id);
+            $this->db->delete('handyman');
+            $client = new Elasticsearch\Client();
+            $indexParams['index']  = "boloaaka";
+            $indexParams['type']   = "handyman";
+            $indexParams['id'] = $id;
+            $retDelete = $client->delete($indexParams);
+        }
     }
 
   /**
@@ -104,8 +107,10 @@ class Employee_model extends CI_Model{
    */
 
     function deleteemployee($id){
-        $this->db->where('id',$id);
-        $this->db->delete('employee');
+        if(!empty($id)){
+            $this->db->where('id',$id);
+            $this->db->delete('employee');
+        }
     }
 
     /**
@@ -243,8 +248,10 @@ class Employee_model extends CI_Model{
    */
 
    function deleteManager($cond){
-   	$query =  "DELETE FROM employee_hierarchy_mapping where ".$cond." ";
-        $result=$this->db->query($query);
+       if(!empty($cond)){
+   	        $query =  "DELETE FROM employee_hierarchy_mapping where ".$cond." ";
+            $result=$this->db->query($query);
+        }
    }
    /**
    * @desc : This funtion for update employee managerial mapping
