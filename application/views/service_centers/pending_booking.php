@@ -55,13 +55,13 @@
             </div>
             <div class="x_body">
                 <div>
-                    <a><label>MSL Security Amount (Rs.)</label></a>
+                    <a><label>MSL Security</label></a>
                     <div class="count <?php if($msl['security']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
                         <strong><?php echo $msl['security']; ?>/-</strong>
                     </div>
                 </div>
                 <div>
-                    <a><label>MSL Balance (Rs.)</label></a>
+                    <a><label>MSL Spare</label>  <label class="badge badge-success text-danger" style="vertical-align:middle;" data-toggle="tooltip" title="MSL spares worth Rs <?php echo $msl['amount']; ?> are with SF and have to be returned."><small><i class="fa fa-info"></i></small></label></a>
                     <div class="count <?php if($msl['amount']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
                         <strong><?php echo $msl['amount']; ?>/-</strong>
                     </div>
@@ -346,6 +346,11 @@ span.stars span {
 </style>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <script type="text/javascript">
+    $(document).ready(function(){
+        $(document).ready(function(){
+          $('[data-toggle="tooltip"]').tooltip();
+        });
+    });
     $(function() { $( "#datepicker" ).datepicker({  minDate: new Date });});
     $(document).ready(function() {
     get_header_summary();
