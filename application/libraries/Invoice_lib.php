@@ -146,7 +146,7 @@ class Invoice_lib {
        
         if(isset($meta['main_company_seal_cell'])){
           if($meta['main_company_seal']){
-            $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/brand-logo/".$meta['main_company_seal'];
+            $main_seal_path = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$meta['main_company_seal'];
             if($this->remote_file_exists($main_seal_path)){
                 if(copy($main_seal_path, TMP_FOLDER . $meta['main_company_seal'])){
                     $seal_cell = $meta['main_company_seal_cell'];
@@ -891,7 +891,94 @@ class Invoice_lib {
     }
 
 
+ /**
+     * @desc Generate Challan To partner
+     * @param type $booking_id
+     * @return boolean
+     */
+    function generate_challan_file_to_partner($spare_id, $service_center_id, $service_center_closed_date = "") {
 
+        $spare_parts_details=array();
+        $spare_ids = explode(',',$spare_id);
+        foreach ($spare_ids as  $spare_id) {
+        $select = 'spare_parts_details.*,booking_details.partner_id as booking_partner_id';
+        $where = array('spare_parts_details.id' => $spare_id, "status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1);
+        $spare_parts_details[] = $this->ci->partner_model->get_spare_parts_by_any($select, $where,true); 
+        }
+               
+        if (!empty($spare_parts_details)) {
+            $partner_challan_number = trim(implode(',', array_column($spare_parts_details, 'partner_challan_number')), ',');
+
+          
+            $shipped_inventory_id ='';
+            foreach ($spare_parts_details as $spare_key =>  $spare_parts_details_value) {
+                
+                if (!empty($spare_parts_details_value[0]['shipped_inventory_id']) && !empty($spare_parts_details_value[0]['parts_shipped'])) {
+                   $shipped_inventory_id = $spare_parts_details_value[0]['shipped_inventory_id'];
+        
+                  if (!empty($shipped_inventory_id)){
+                  $whereinventory = array('inventory_id'=>$shipped_inventory_id);
+                  $inventory_master_data = $this->ci->inventory_model->get_inventory_master_list_data('part_number', $whereinventory);
+                   $spare_parts_details[0][$spare_key]['part_number']=$inventory_master_data[0]['part_number'];   
+                  }else{
+                 $spare_parts_details[0][$spare_key]['part_number']='-';    
+                 }
+                }else{
+                  $requested_inventory_id = $spare_parts_details_value[0]['requested_inventory_id'];
+                  $whereinventory = array('inventory_id'=>$requested_inventory_id);
+                  $inventory_master_data = $this->ci->inventory_model->get_inventory_master_list_data('part_number', $whereinventory);
+                  if(!empty($inventory_master_data)){
+                    $spare_parts_details[0][$spare_key]['part_number']=$inventory_master_data[0]['part_number'];
+                  }else{
+                     $spare_parts_details[0][$spare_key]['part_number']='-';
+                  }
+
+                }
+  
+            }
+            
+            $sf_details = $this->ci->vendor_model->getVendorDetails('name as company_name,address,sc_code,is_gst_doc,owner_name,signature_file,gst_no,gst_no as gst_number, is_signature_doc,primary_contact_name as contact_person_name,primary_contact_phone_1 as contact_number', array('id' => $service_center_id));
+
+            $select = "concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address,contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number";
+
+            $where = array('contact_person.entity_id' => $spare_parts_details[0][0]['defective_return_to_entity_id'],
+                'contact_person.entity_type' => $spare_parts_details[0][0]['defective_return_to_entity_type']);
+            $wh_address_details = $this->ci->inventory_model->get_warehouse_details($select, $where, false, true);
+
+            $partner_details = array();
+
+            if ($spare_parts_details[0][0]['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
+                $partner_details = $this->ci->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name', array('partners.id' => $spare_parts_details[0][0]['booking_partner_id']));
+            } 
+                     
+            $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
+                       
+            log_message('info', __FUNCTION__ . 'sf challan debugging spare_id: ' . $spare_id, true);
+
+            $wh_challan_number = $spare_parts_details[0][0]['wh_challan_number'];
+
+            if (empty($wh_challan_number)) {
+                $wh_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
+            }
+                        
+            $wh_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $wh_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
+
+            $data['wh_challan_number'] = $wh_challan_number;
+            $data['wh_challan_file'] = $wh_challan_file;
+            
+            foreach ($spare_parts_details as $value) {
+                $this->ci->service_centers_model->update_spare_parts(array('id' => $value[0]['id']), $data);
+            }
+        }
+           $partner_on_saas = $this->ci->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            if ($partner_on_saas) {
+                return $sf_challan_file;
+            }else{
+                return true; 
+            }
+
+       
+    }
 
 
  function force_generate_challan_file($spare_id, $service_center_id, $service_center_closed_date = "") {
@@ -1006,15 +1093,18 @@ class Invoice_lib {
                 $order_by = array('column_name' => "(qty -settle_qty)", 'param' => 'asc');
 
                 $unsettle = $this->ci->invoices_model->get_unsettle_inventory_invoice('invoice_details.*', $where, $order_by);
-
                 if (!empty($unsettle)) {
                     $qty = (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1);//1;
+
                     $inventory_details = $this->ci->inventory_model->get_inventory_master_list_data('*', array('inventory_id' => $value['inventory_id']));
                     $value['part_name'] = $inventory_details[0]['part_name'];
 
                     foreach ($unsettle as $key => $b) {
+
                         $restQty = $b['qty'] - $b['settle_qty'];
                         if ($restQty == $qty) {
+
+
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             if (!empty($s)) {
@@ -1042,6 +1132,8 @@ class Invoice_lib {
                                 log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                             }
                         } else if ($restQty < $qty) {
+
+
 
                             $s = $this->get_array_settle_data($b, $inventory_details, $restQty, $value);
                             if (!empty($s)) {
@@ -1093,7 +1185,7 @@ class Invoice_lib {
                                 array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
                                 log_message('info', __METHOD__ . " Unsettle Invoice is not Found. Spare Invoice is not generating for booking id " . (isset($value['booking_id'])?$value['booking_id']:'') . " Inventory id " . $value['inventory_id']);
                             }
-                        } else { 
+                        } else {
                             if ($qty > 0) {
                                 $this->invoices_not_found($value);
                                 array_push($not_updated, (isset($value['booking_id'])?$value['booking_id']:''));
@@ -1130,7 +1222,6 @@ class Invoice_lib {
             $around_address = !empty($around_gst[0]['address'])? $around_gst[0]['address']: "";
             $around_pincode = !empty($around_gst[0]['pincode'])? $around_gst[0]['pincode']: "";
             $around_city = !empty($around_gst[0]['city'])? $around_gst[0]['city']: "";
-            $around_seal_img = !empty($around_gst[0]['state_stamp_picture'])? $around_gst[0]['state_stamp_picture']: "";
             
             $partner_state_code = $partner_gst[0]['state'];
             $partner_gst_number = $partner_gst[0]['gst_number'];
@@ -1161,7 +1252,6 @@ class Invoice_lib {
             "from_address" => $around_address,
             "from_pincode" => $around_pincode,
             "from_city" => $around_city,
-            "state_stamp_pic" => $around_seal_img,
             "from_gst_number_id" => $b['to_gst_number'],
             "shipping_quantity" => (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1),
             );

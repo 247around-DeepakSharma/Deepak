@@ -153,7 +153,7 @@ $str_disabled = "";
                                     <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="service" id="services"/>
-                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService();" readonly required>
+                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService();" required>
                                             <option disabled>Select Service</option>
                                             <?php foreach ($services as $key => $values) { ?>
                                             <option <?php if($booking_history[0]['service_id'] == $values->id ){ echo "selected"; } ?> value=<?= $values->id; ?>>

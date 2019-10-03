@@ -3,7 +3,7 @@
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading"><h3>SF Penalty Summary </h3> </div>
                 <div class="panel-body">
-                    <form method="post" action="<?php echo base_url() ?>employee/vendor/download_vendor_penalty_summary">
+                    <form method="post" onsubmit="return validate_form()" action="<?php echo base_url() ?>employee/vendor/download_vendor_penalty_summary">
                     <table class="table table-striped table-bordered">
                         <tr>
                             <th>Select Service Center</th>
@@ -50,6 +50,14 @@
             endDate: '<?php echo date('Y-m-d'); ?>'
         });
     });
+    
+    function validate_form() {
+        if($('#service_center').val() === null || $('#service_center').val() === '') {
+            alert('Please select service center.');
+            return false;
+        }
+        return true;
+    }
 </script>
 
 

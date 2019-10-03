@@ -886,7 +886,7 @@ function get_data_for_partner_callback($booking_id) {
                     . "booking_details.amount_due,booking_details.state, booking_details.service_center_closed_date, booking_details.request_type, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state as sf_state, service_centres.gst_no, "
                 . " service_centres.pincode, service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, service_centres.primary_contact_phone_1,"
-                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name,(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as nrn_status,(CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as spare_warranty_status";
+                . " DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, sc.name as warehouse_name,(CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as nrn_status,(CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as spare_warranty_status, spare_consumption_status.is_consumed";
             if($end){
                 $limit = "LIMIT $start, $end";
             }
@@ -913,6 +913,7 @@ function get_data_for_partner_callback($booking_id) {
                     . ' JOIN users ON users.user_id = booking_details.user_id '.$join
                     . ' LEFT JOIN inventory_stocks ON spare_parts_details.requested_inventory_id = inventory_stocks.inventory_id'
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
+                    . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
                     . " WHERE $where $group_by "
                     . " ORDER BY spare_parts_details.purchase_invoice_id DESC,spare_parts_details.create_date $limit";
         }else{
@@ -927,6 +928,7 @@ function get_data_for_partner_callback($booking_id) {
                 . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                 . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                 . ' LEFT JOIN services ON booking_details.service_id=services.id '
+                . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
                 . "  WHERE users.user_id = booking_details.user_id "
                 . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
             }
@@ -941,6 +943,7 @@ function get_data_for_partner_callback($booking_id) {
                     . ' LEFT JOIN inventory_master_list as i on i.inventory_id = spare_parts_details.requested_inventory_id '
                     . ' LEFT JOIN inventory_master_list as shipped_inventory on shipped_inventory.inventory_id = spare_parts_details.shipped_inventory_id '
                     . ' LEFT JOIN services ON booking_details.service_id=services.id '
+                    . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
                     . " WHERE booking_details.booking_id = spare_parts_details.booking_id"
                     . " AND users.user_id = booking_details.user_id AND service_centres.id = spare_parts_details.service_center_id "
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
@@ -1031,13 +1034,17 @@ function get_data_for_partner_callback($booking_id) {
      * 
      */
     function delete_partner_operation_region($partner_id){
-        $this->db->where('partner_id',$partner_id);
-        $this->db->delete('partner_operation_region');
-        if($this->db->affected_rows() > 0 ){
-            return TRUE;
-        }else{
-            return FALSE;
+    if(!empty($partner_id)){
+            $this->db->where('partner_id',$partner_id);
+            $this->db->delete('partner_operation_region');
+            if($this->db->affected_rows() > 0 ){
+                return TRUE;
+            }else{
+                return FALSE;
+            }
         }
+        else
+        return FALSE;
     }
     
     /**
@@ -1047,16 +1054,20 @@ function get_data_for_partner_callback($booking_id) {
      * 
      */
     function delete_partner_brand_relation($partner_id,$service_id = ''){
-        $this->db->where('partner_id',$partner_id);
-        if(!empty($service_id)){
-            $this->db->where('service_id',$service_id);
+        if(!empty($partner_id)){
+            $this->db->where('partner_id',$partner_id);
+            if(!empty($service_id)){
+                $this->db->where('service_id',$service_id);
+            }
+            $this->db->delete('partner_appliance_details');
+            if($this->db->affected_rows() > 0 ){
+                return TRUE;
+            }else{
+                return FALSE;
+            }
         }
-        $this->db->delete('partner_appliance_details');
-        if($this->db->affected_rows() > 0 ){
-            return TRUE;
-        }else{
+        else
             return FALSE;
-        }
     }
     
     function get_tollfree_and_contact_persons(){
@@ -2509,10 +2520,14 @@ function get_data_for_partner_callback($booking_id) {
      * @return string 
      */
     function delete_partner_appliances($data){
-        $this->db->delete('partner_appliance_mapping', array('id' => $data['mappingId'])); 
-        if(!empty($this->db->affected_rows())){
-            return 'success';  
-        }        
+        if(!empty($data)){
+            $this->db->delete('partner_appliance_mapping', array('id' => $data['mappingId'])); 
+            if(!empty($this->db->affected_rows())){
+                return 'success';  
+            }  
+        } 
+        else
+            return '';     
     }
 
     /**

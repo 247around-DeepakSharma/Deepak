@@ -1031,7 +1031,6 @@ VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s
 ALTER TABLE `inventory_alternate_spare_parts_mapping` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `alt_inventory_id`;
 ALTER TABLE `alternate_inventory_set` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `inventory_id`;
 -- Ankit 03-09-2019
-
 ALTER TABLE spare_consumption_status ADD COLUMN status_description text NULL DEFAULT NULL AFTER consumed_status; 
 
 -- Kajal 04-09-2019
@@ -1522,5 +1521,11 @@ ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEF
 ALTER TABLE booking_unit_details CHANGE COLUMN sf_purchase_date sf_purchase_date date NULL DEFAULT NULL;
 -- Ankit 27-09-2019
 ALTER TABLE partners ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER auth_token;
+ALTER TABLE service_centres ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER is_wh;
 --Gorakh 28-09-2019
 ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` VARCHAR(20) NOT NULL;
+ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1
+ --Gorakh 20-09-2019
+ALTER TABLE `spare_parts_details` ADD `wh_challan_number` VARCHAR(128) NULL DEFAULT NULL AFTER `sf_challan_number`;
+ALTER TABLE `spare_parts_details` ADD `wh_challan_file` VARCHAR(128) NULL DEFAULT NULL AFTER `sf_challan_file`;
+
