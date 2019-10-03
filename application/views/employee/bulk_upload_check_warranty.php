@@ -37,10 +37,18 @@
                     <div class="col-md-6">
                         <form class="form-horizontal" id="fileinfo" name="fileinfo"  method="POST" enctype="multipart/form-data" onsubmit="return validateForm()" action="<?php echo base_url(); ?>employee/bulkupload/check_warranty_data">                            
                             <input type="hidden" name="redirect_url" id="redirect_url" value="check_warranty">
-                            
-                            <div class="form-group">
-                                <label for="excel" class="col-md-3">Upload File</label>
-                                <div class="col-md-9">
+                            <div class="row">
+                                <label for="file_type" class="col-md-4">Check Status Using</label>
+                                <div class="col-md-8">
+                                    <select class="form-control" name="file_type" id="file_type" required>
+                                        <option value=0 <?php echo(empty($file_type) ? "selected" : "");?>>Using Sample File</option>
+                                        <option value=1 <?php echo(!empty($file_type) ? "selected" : "");?>>Using Booking Id Only</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row" style="padding-top: 10px;">
+                                <label for="excel" class="col-md-4">Upload File</label>
+                                <div class="col-md-8">
                                     <input type="file" class="form-control"  name="file" required="" accept=".xlsx, .xls, .csv">
                                     <?php
                                     if (form_error('file')) {
