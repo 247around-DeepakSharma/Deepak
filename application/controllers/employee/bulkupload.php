@@ -28,12 +28,18 @@ class Bulkupload extends CI_Controller {
         $this->load->view('employee/bulk_upload_check_warranty');
     }
 
+    /**
+     * THis function is used to check warranty status of bulk bookings by reading from Excel
+     * @author Prity Bhardwaj
+     * @date 03-07-2019
+     * 
+     */
     function check_warranty_data() {
         ini_set('display_errors', '1');
         ini_set('memory_limit', '-1');
         ini_set('max_execution_time', 36000);
-
         $returnArray = [];
+        $fileType = !empty($this->input->post('file_type')) ? 1 : 0;
         if(!empty($_FILES['file']['tmp_name'])){  
             $file['file'] = $_FILES['file'];
             $excelArray = $this->miscelleneous->excel_to_Array_converter($file);
@@ -56,9 +62,12 @@ class Bulkupload extends CI_Controller {
             }
             
             $excelArray = array_chunk($excelArray, 200);
-            foreach ($excelArray as $key => $arrBookings) {   
-//                $arrBookingIds = array_column($arrBookings, 'booking_id');
-//                $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings($arrBookingIds);            
+            foreach ($excelArray as $key => $arrBookings) {  
+                if(!empty($fileType))
+                {                    
+                    $arrBookingIds = array_column($arrBookings, 'booking_id');
+                    $arrBookings = $this->warranty_utilities->get_warranty_specific_data_of_bookings($arrBookingIds);     
+                }       
                 $arrWarrantyData = $this->warranty_utilities->get_warranty_data($arrBookings, true);  
                 $arrModelWiseWarrantyData = $this->warranty_utilities->get_model_wise_warranty_data($arrWarrantyData);
                 foreach($arrBookings as $key => $arrBooking)
@@ -89,7 +98,7 @@ class Bulkupload extends CI_Controller {
             }
         }
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/bulk_upload_check_warranty', ['data' => $returnArray]);
+        $this->load->view('employee/bulk_upload_check_warranty', ['data' => $returnArray, 'file_type' => $fileType]);
     }
 
     /**

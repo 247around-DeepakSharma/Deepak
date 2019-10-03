@@ -2311,20 +2311,20 @@ function get_data_for_partner_callback($booking_id) {
         else{
             $meta['main_company_name'] = "Blackmelon Advance Technology Co. Pvt. Ltd.";
             $meta['main_company_public_name'] = "247Around";
-            $meta['main_company_address'] = "A-1/7, F/F A BLOCK, KRISHNA NAGAR Pincode - 110051, DELHI";
-            $meta['main_company_state'] = "DELHI";
-            $meta['main_company_pincode'] = "110051";
+            $meta['main_company_address'] = "A-34, FIRST FLOOR, SECTOR-63, NOIDA, UTTAR PRADESH, Pincode - 201301";
+            $meta['main_company_state'] = "UTTAR PRADESH";
+            $meta['main_company_pincode'] = "201301";
             $meta['main_company_email'] = "billing@247around.com";
             $meta['main_company_phone'] = "";
             $meta['main_company_bank_name'] = "ICICI Bank";
             $meta['main_company_bank_account'] = "102405500277";
             $meta['main_company_ifsc_code'] = "ICIC0001024";
-            $meta['main_company_seal'] = "247aroundstamp.jpg";
+            $meta['main_company_seal'] = "seal_09.jpg";
             $meta['main_company_signature'] = "anujsign.jpg";
             $meta['main_company_logo'] = "logo.jpg";
             $meta['main_company_description'] = _247AROUND_INVOICE_TEMPLATE_DESCRIPTION;
-            $meta['main_company_gst_number'] = "07AAFCB1281J1ZQ";
-            $meta['main_company_state_code'] = "07";
+            $meta['main_company_gst_number'] = "09AAFCB1281J1ZM";
+            $meta['main_company_state_code'] = "09";
         }
         return $meta;
     }

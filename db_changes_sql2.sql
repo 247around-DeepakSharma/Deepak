@@ -1529,3 +1529,7 @@ ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEF
 ALTER TABLE `spare_parts_details` ADD `wh_challan_number` VARCHAR(128) NULL DEFAULT NULL AFTER `sf_challan_number`;
 ALTER TABLE `spare_parts_details` ADD `wh_challan_file` VARCHAR(128) NULL DEFAULT NULL AFTER `sf_challan_file`;
 
+--Kajal 01-10-2019
+UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_07.jpg' WHERE `entity_gst_details`.`id` = 2;
+UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_09.jpg' WHERE `entity_gst_details`.`id` = 7;
+UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_27.jpg' WHERE `entity_gst_details`.`id` = 6;

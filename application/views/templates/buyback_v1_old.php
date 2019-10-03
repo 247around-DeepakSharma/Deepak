@@ -16,7 +16,7 @@
             </tr>
             <tr style="">
                 <td colspan="1" align="left" style="padding-top: 0px !important;"><img style="width:30%" src="<?php echo base_url(); ?>images/logo.jpg"></td>
-                <td colspan="4" align="center" style="border:hidden; padding-top: 0px !important;">A-1/7, F/F A BLOCK, KRISHNA NAGAR, DELHI, 110051<br>Email: seller@247around.com<br><br><b>GSTIN :  07AAFCB1281J1ZQ</td>
+                <td colspan="4" align="center" style="border:hidden; padding-top: 0px !important;">A-34, FIRST FLOOR, SECTOR-63, NOIDA, UTTAR PRADESH, 201301<br>Email: billing@247around.com<br><br><b>GSTIN :  09AAFCB1281J1ZM</td>
                 <td  colspan="1" style="text-align: center; width: 20%; border-left: hidden; padding-top: 0px !important; border-right: 2px solid;"><b>(<?php echo $meta['recipient_type']; ?>)</td>
             </tr>
             <tr style="height: 50px; background-color: rgb(211,211,211);">	
@@ -85,7 +85,7 @@
             </tr>
             <tr style="text-align: center;">
                 <td rowspan="3" align="center">Declaration: We declare that this invoice shows the actual price of the goods and services described and that all particulars are true and correct.</td>
-                <td rowspan="3" colspan="2" align="center"><img  src="<?php echo base_url()."images/247aroundstamp.png"; ?>" style="width: 120px;"></td>
+                <td rowspan="3" colspan="2" align="center"><img  src="<?php echo base_url()."images/UP.jpg"; ?>" style="width: 120px;"></td>
                 <td colspan="4" style="background-color: rgb(211,211,211); font-weight: bold;">For <?php echo $meta['company_name']; ?></td>
             </tr>
 

@@ -17,7 +17,7 @@
             </tr>
             <tr style="">
                 <td align="left" style="border-right: hidden;"><img style="padding: 5px;" src="<?php echo base_url();?>images/logo.jpg"></td>
-                <td colspan="5" align="center" style="border:hidden;">A-1/7, F/F A BLOCK, KRISHNA NAGAR, DELHI, 110051<br>Email: seller@247around.com<br><br><b>GSTIN: 07AAFCB1281J1ZQ</b></td>
+                <td colspan="5" align="center" style="border:hidden;">A-34, FIRST FLOOR, SECTOR-63, NOIDA, UTTAR PRADESH, 201301<br>Email: billing@247around.com<br><br><b>GSTIN: 09AAFCB1281J1ZM</b></td>
                 <td colspan="2" style="text-align: right;  border-left: hidden;"><b>(<?php echo $meta['recipient_type'];?>)</td>
             </tr>
             <tr style="text-align: center; height: 50px; font-size: 40px;background-color: rgb(211,211,211);">
@@ -104,7 +104,7 @@
             </tr>
             <tr>
                 <td align="center" style="background-color: rgb(211,211,211); width:30%"><b>Bank Details</td>
-                <td rowspan="6" colspan="3" align="center" style="width: 60%;"><img  src="<?php echo base_url()."images/247aroundstamp.png"; ?>" style="width: 68%;"></td>
+                <td rowspan="6" colspan="3" align="center" style="width: 60%;"><img  src="<?php echo base_url()."images/UP.jpg"; ?>" style="width: 68%;"></td>
                 <td align="left" colspan="3"><b>GST on Reverse Charge</td>
                 <td align="left" colspan="1">0</td>
             </tr>
