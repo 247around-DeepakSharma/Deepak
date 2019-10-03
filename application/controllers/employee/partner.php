@@ -5502,7 +5502,7 @@ class Partner extends CI_Controller {
             $tempArray[] = "No";   
              }
             
-             if($sparePartBookings['consumption']==1){
+             if($sparePartBookings['is_consumed']==1){
             $tempArray[] = "Yes";   
              }else{
             $tempArray[] = "No";   
