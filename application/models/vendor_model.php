@@ -186,8 +186,11 @@ class vendor_model extends CI_Model {
      * @return: void
      */
     function delete($id) {
-        $sql = "Delete from service_centres where id='$id'";
-        $this->db->query($sql);
+        if(!empty($id))
+        {
+            $sql = "Delete from service_centres where id='$id'";
+            $this->db->query($sql);
+        }
     }
 
     /**
@@ -1398,13 +1401,17 @@ class vendor_model extends CI_Model {
      * return: Boolean
      */
     function delete_tax_rate_template($id) {
-        $this->db->where('id', $id);
-        $this->db->delete('tax_rates');
-        if($this->db->affected_rows() > 0){
-            return true;
-        }else{
-            return false;
+        if(!empty($id)){
+            $this->db->where('id', $id);
+            $this->db->delete('tax_rates');
+            if($this->db->affected_rows() > 0){
+                return true;
+            }else{
+                return false;
+            }
         }
+        else
+            return false;
     }
     
     
@@ -1429,13 +1436,17 @@ class vendor_model extends CI_Model {
      * return: Boolean
      */
     function delete_sms_template($id) {
-        $this->db->where('id', $id);
-        $this->db->delete('sms_template');
-        if($this->db->affected_rows() > 0){
-            return true;
-        }else{
-            return false;
+        if(!empty($id)){
+            $this->db->where('id', $id);
+            $this->db->delete('sms_template');
+            if($this->db->affected_rows() > 0){
+                return true;
+            }else{
+                return false;
+            }
         }
+        else
+            return false;
     }
     
     /**
@@ -1512,13 +1523,17 @@ class vendor_model extends CI_Model {
      * return: Boolean
      */
     function delete_vandor_escalation_policy_template($id) {
-        $this->db->where('id', $id);
-        $this->db->delete('vendor_escalation_policy');
-        if($this->db->affected_rows() > 0){
-            return true;
-        }else{
-            return false;
+        if(!empty($id)){
+            $this->db->where('id', $id);
+            $this->db->delete('vendor_escalation_policy');
+            if($this->db->affected_rows() > 0){
+                return true;
+            }else{
+                return false;
+            }
         }
+        else
+            return false;
     }
     
     
@@ -1904,8 +1919,10 @@ class vendor_model extends CI_Model {
     }
     
     function delete_vendor_pin_codes($where){
+        if(!empty($where)){
           $this->db->where($where);
-          return $this->db->delete('vendor_pincode_mapping'); 
+          return $this->db->delete('vendor_pincode_mapping');
+        } 
     }
     
     function insert_vendor_pincode_in_bulk($data){
@@ -1959,8 +1976,10 @@ class vendor_model extends CI_Model {
       * Delete data from vendor_pincode_mapping on the basis of ids
       */
      function delete_vendor_pin_codes_in_bulk($whereIN){
+         if(!empty($whereIN)){
           $this->db->where_in('id', $whereIN);
           return $this->db->delete('vendor_pincode_mapping'); 
+        }
     }
     
     function getvendor_escalation_log($where, $select){
@@ -2214,7 +2233,10 @@ class vendor_model extends CI_Model {
                 }
             }
         } else {
-            $this->db->delete('service_center_brand_mapping', array('service_center_id' => $sf_id));
+            if(!empty($sf_id))
+            {    
+                $this->db->delete('service_center_brand_mapping', array('service_center_id' => $sf_id));
+            }
         }
         
         if(!empty($data)) {
