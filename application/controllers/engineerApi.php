@@ -2203,7 +2203,7 @@ class engineerApi extends CI_Controller {
             curl_close($ch);
             if($curl_response){
                 log_message("info", __METHOD__ . "Part  Updated successfully");
-                $this->jsonResponseString['response'] = $response->message;
+                $this->jsonResponseString['response'] = "Booking Updated Successfully";
                 $this->sendJsonResponse(array('0000', 'success'));
             }
             /*
