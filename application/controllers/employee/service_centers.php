@@ -7032,6 +7032,10 @@ class Service_centers extends CI_Controller {
                 $mslAmount += floatval($row['amount']);
             }
         }
+        //negate this value as it will be returned by SF
+        $mslAmount = -1 * $mslAmount;
+        //negetive value -> sf have pending defective or new part to return
+        //positive value -> rare, represent 247 have to pay to sf.
         $msl = array(
             'security'=>sprintf("%01.2f", $mslSecurityAmount),
             'amount'=>sprintf("%01.2f", $mslAmount)
