@@ -1222,6 +1222,7 @@ class Invoice_lib {
             $around_address = !empty($around_gst[0]['address'])? $around_gst[0]['address']: "";
             $around_pincode = !empty($around_gst[0]['pincode'])? $around_gst[0]['pincode']: "";
             $around_city = !empty($around_gst[0]['city'])? $around_gst[0]['city']: "";
+            $around_seal_img = !empty($around_gst[0]['state_stamp_picture'])? $around_gst[0]['state_stamp_picture']: "";
             
             $partner_state_code = $partner_gst[0]['state'];
             $partner_gst_number = $partner_gst[0]['gst_number'];
@@ -1252,6 +1253,7 @@ class Invoice_lib {
             "from_address" => $around_address,
             "from_pincode" => $around_pincode,
             "from_city" => $around_city,
+            "state_stamp_pic" => $around_seal_img,
             "from_gst_number_id" => $b['to_gst_number'],
             "shipping_quantity" => (!empty($value['shipping_quantity']) ? $value['shipping_quantity'] : 1),
             );
