@@ -155,7 +155,7 @@
                         extend: 'excel',
                         text: 'Export',
                         exportOptions: {
-                            columns: [ 0, 1, 2,3,4, 5,6,7,8]
+                            columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11,12,13]
                         },
                         title: 'defective_spare_shipped_by_sf_to_wh'
                     }

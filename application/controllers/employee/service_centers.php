@@ -2503,9 +2503,15 @@ class Service_centers extends CI_Controller {
                     $notificationTextArray['msg'] = array(implode(",", $requested_part_name), $booking_id);
                     $this->push_notification_lib->create_and_send_push_notiifcation(SPARE_PART_REQUEST_TO_PARTNER, $receiverArray, $notificationTextArray);
                     //End Push Notification
-
-                    $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc'], "not_define", "not_define");
-
+                    if($this->input->post("call_from_api")){
+                        if($this->input->post("sc_agent_id")){
+                            $agent_id = $this->input->post("sc_agent_id");
+                        }
+                        $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUIRED, "", $reason, $agent_id, "", "not_define", "not_define", NULL, $service_center_id);
+                    }
+                    else{
+                        $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc'], "not_define", "not_define");
+                    }
                     $sc_data['current_status'] = "InProcess";
 
                     if (!empty($booking_date)) {
@@ -3204,7 +3210,7 @@ function do_multiple_spare_shipping(){
             $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $sp_id], NULL, NULL, NULL, NULL, NULL)[0];
             
             $defective_courier_receipt = $this->input->post("sp_parts");
-            $spare_details = $this->partner_model->get_spare_parts_by_any("*",array('spare_parts_details.id'=>$sp_id));
+            $spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*",array('spare_parts_details.id'=>$sp_id));
             
             if (!empty($defective_courier_receipt)) {
                 if (!empty($sp_id)) {
@@ -5262,10 +5268,10 @@ function do_multiple_spare_shipping(){
                             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                             $data['date_of_request'] = date('Y-m-d');
                             $data['model_number_shipped'] = $value->model_number;
-                            $data['parts_shipped'] = $value->parts_requested;
-                            $data['shipped_parts_type'] = $value->parts_requested_type;
-                            $data['shipped_date'] = $value->date_of_request;
-                            $data['shipped_inventory_id'] = $value->requested_inventory_id;
+                            $data['parts_shipped'] = $data['parts_requested'];
+                            $data['shipped_parts_type'] = $data['parts_requested_type'];
+                            $data['shipped_date'] = date('Y-m-d');
+                            $data['shipped_inventory_id'] = $data['requested_inventory_id'];
                             $data['quantity'] = $value->quantity;
                             $data['shipped_quantity'] = $data['quantity'];
 
@@ -5278,6 +5284,11 @@ function do_multiple_spare_shipping(){
 
                          $spare_data['spare_id'] = $spare_id;
                          $spare_data['shipped_inventory_id'] = $data['shipped_inventory_id'];
+                         $spare_data['model_number'] = $data['model_number_shipped'];
+                         $spare_data['parts_requested_type'] = $data['shipped_parts_type'];
+                         $spare_data['parts_requested'] = $data['parts_shipped'];
+                         $spare_data['date_of_request'] = $data['date_of_request'];
+                         $spare_data['requested_inventory_id'] = $data['requested_inventory_id'];
                          array_push($delivered_sp, $spare_data);
                          $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                          unset($data['spare_id']);
@@ -5293,7 +5304,7 @@ function do_multiple_spare_shipping(){
                                                                      
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), $data);
 
-                            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$data['quantity']);
+                            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$spare_data['quantity']);
                         }
                     } else {
                         log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);
@@ -5691,7 +5702,7 @@ function do_multiple_spare_shipping(){
                        
                             if ($part_details['spare_id'] == "new") {
                        
-                                $sp_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $booking_id));
+                                $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $booking_id));
                                   
                                 $data['entity_type'] = _247AROUND_SF_STRING;
                                 $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
@@ -7173,10 +7184,10 @@ function do_multiple_spare_shipping(){
         $from = trim($this->input->post('frombooking'));
         $to = trim($this->input->post('tobooking'));
         // $where=array('booking_id',$from);
-        $from_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $from, 'entity_type' => _247AROUND_SF_STRING, 'wh_ack_received_part' => 1,
+        $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'entity_type' => _247AROUND_SF_STRING, 'wh_ack_received_part' => 1,
             'status' => SPARE_PARTS_REQUESTED));
         $frominventory_req_id = $from_details[0]['requested_inventory_id'];
-        $to_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $to,
+        $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to,
             'entity_type' => _247AROUND_PARTNER_STRING, 'purchase_invoice_id' => NULL, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
 
         // print_r($this->db->last_query());exit;
@@ -7215,8 +7226,8 @@ function do_multiple_spare_shipping(){
             $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");
             redirect('service_center/spare_transfer');
         } else {
-            $form_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $frominventory));
-            $to_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $toinventory));
+            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $frominventory));
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $toinventory));
             if (empty($form_details) || empty($to_details)) {
                 $this->session->set_flashdata('error_msg', "Booking spare details not found. Spare transfer not allowed");
                 redirect('service_center/spare_transfer');
@@ -7404,8 +7415,8 @@ function do_multiple_spare_shipping(){
         if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to)) {
             echo 'fail';
         } else {
-            $form_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $from_spare_id));
-            $to_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $to_spare_id));
+            $form_details = $this->partner_model->get_spare_parts_by_any(".spare_parts_details.*", array('spare_parts_details.id' => $from_spare_id));
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $to_spare_id));
             if (empty($form_details) || empty($to_details) || ($form_details[0]['service_center_id'] != $to_details[0]['service_center_id'])) {
                 echo 'fail';
             } else {

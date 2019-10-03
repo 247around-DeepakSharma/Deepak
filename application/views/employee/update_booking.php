@@ -1,7 +1,8 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <?php
-$str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
+//$str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
+$str_disabled = "";
 ?>
 <style>
     #dealer_list{
@@ -38,7 +39,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     <?php } ?>
     
     <?php if(!empty($str_disabled)) { ?> 
-    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, .select2-selection, .select2-container--default{
+    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model{
         pointer-events : none !important;
         background : #eee !important;
     }    

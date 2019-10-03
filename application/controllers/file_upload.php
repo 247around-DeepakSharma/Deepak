@@ -1360,7 +1360,7 @@ function remap_in_bom_map($remap_bom_array){
                             $where_in = array(trim($rowData['part_code']), trim($rowData['alt_part_code']));
                             $select = 'inventory_master_list.inventory_id, inventory_master_list.part_number';
                             $inventory_id_details = $this->inventory_model->get_inventory_master_list_data($select, $where, $where_in);
-                            $model = $this->inventory_model->get_appliance_model_details("*", array('model_number' => trim($rowData['model_number'])));
+                            $model = $this->inventory_model->get_appliance_model_details("*", array('model_number' => trim($rowData['model_number']), "entity_id" =>$partner_id ));
                             if (!empty($model)) {
                                 if (!empty($inventory_id_details) && count($inventory_id_details) > 1) {
                                     $tmp_arr = array();
@@ -1456,8 +1456,8 @@ function remap_in_bom_map($remap_bom_array){
                             (!empty($insertUpdateFlag) ?  ++$count : array_push($notInserted, $val));
                         }
                         
-                        $insert_inventory = $this->insert_Inventory_Model_Data(trim($val['inventory_id']), trim($val['model_id']));
-                        $insert_alt_inventory = $this->insert_Inventory_Model_Data(trim($val['alt_inventory_id']), trim($val['model_id']));
+                        $insert_inventory = $this->insert_Inventory_Model_Data(trim($val['inventory_id']), trim($val['model_id']), 1);
+                        $insert_alt_inventory = $this->insert_Inventory_Model_Data(trim($val['alt_inventory_id']), trim($val['model_id']), 0);
                         if ($insert_inventory && $insert_alt_inventory) {
                             log_message("info", __METHOD__ . " inventory model mapping created succcessfully");
                             $response['status'] = TRUE;
@@ -2027,14 +2027,14 @@ function remap_in_bom_map($remap_bom_array){
      * @param $inventory_id, $alt_inventory_id
      * @return $insert_id
      */
-    function insert_Inventory_Model_Data($inventory_id, $model_id) {
+    function insert_Inventory_Model_Data($inventory_id, $model_id, $bom_main) {
         $data_model_mapping = array();
         $inventory_details = $this->inventory_model->get_inventory_model_data("*", array('inventory_id' => $inventory_id, 'model_number_id' => $model_id));
         if(empty($inventory_details)) {
             $tmp = array();
             $tmp['model_number_id'] = $model_id;
             $tmp['inventory_id'] = trim($inventory_id);
-            $tmp['bom_main_part'] = 0;
+            $tmp['bom_main_part'] = $bom_main;
             array_push($data_model_mapping, $tmp);
             
             return $this->inventory_model->insert_batch_inventory_model_mapping($data_model_mapping);

@@ -138,7 +138,7 @@
                                             <label for="parts_name" class="col-md-4">Part Name *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control spare_parts parts_name shipped-part-name" id="parts_name_0" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
+                                                <select class="form-control spare_parts parts_name shipped-part-name" id="parts_name" name="part[0][parts_name]" onchange="get_inventory_id(this.id)">
                                                     <option selected disabled>Select Part Name</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>                                                
@@ -326,7 +326,7 @@ $(document).ready(function(){
                 $('#model_number').val(model_number);
                 $.ajax({
                     method:'POST',
-                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type/1',
+                    url:'<?php echo base_url(); ?>employee/inventory/get_parts_type/',
                     data: { model_number_id:model_number_id},
                     success:function(data){                       
                         $('#parts_type').html(data);
@@ -529,7 +529,7 @@ function get_inventory_id(id){
         val = Math.floor(parseInt(val));
         $(this).val(val);
         if (val>0) {
-         var max = parseInt($("#parts_name_"+indexId+" option").filter(":selected").attr("data-maxquantity"));
+         var max = parseInt($("#parts_name option").filter(":selected").attr("data-maxquantity"));
         if(val>max){
          $(this).val("1");
         // swal("Error !", "Maximum quantity'allowed to ship is : "+max);
