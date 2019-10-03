@@ -2728,7 +2728,7 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["bookingID"])) {
 
             $response = $this->paytm_payment_lib->generate_qr_code($requestData["bookingID"], QR_CHANNEL_APP, 
-                    $requestData["amountPaid"], $requestData["engineerNo"]);
+                    $requestData["amountPaid"], "");
             $result = json_decode($response, TRUE);
             if ($result['status'] == SUCCESS_STATUS) {
                 $this->jsonResponseString['QrImageUrl'] = S3_WEBSITE_URL . $result['qr_url'];
@@ -2895,6 +2895,7 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $is_est_approved = false;
         $check_spare_flag = false;
+        $est_approved_msg = "";
         if (!empty($requestData["booking_id"])) {
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData["booking_id"]));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($requestData["booking_id"]);
@@ -2909,12 +2910,10 @@ class engineerApi extends CI_Controller {
                 foreach ($unit_details as $value) {
                     if (strcasecmp($value['price_tags'], REPAIR_OOW_TAG) == 0) {
                         if(!$is_est_approved){
-                           $response["spare_flag"] = 1;
-                           $response["message"] = "Success";
+                           $check_spare_flag = true;
                         }
                         else{
-                            $response["spare_flag"] = 0;
-                            $response["message"] = "Spare estimate cost given. Please update Approved by customer and then order spare part";  
+                            $est_approved_msg = "Spare estimate cost given. Please update Approved by customer and then order spare part";  
                         }
                     } else if (stristr($value['price_tags'], "Repair") 
                             || stristr($value['price_tags'], "Repeat")
@@ -2933,7 +2932,12 @@ class engineerApi extends CI_Controller {
                 }
                 else{
                     $response["spare_flag"] = 0;
-                    $response["message"] = "You can not request spare part for this booking";
+                    if($est_approved_msg){
+                        $response["message"] = $est_approved_msg;
+                    }
+                    else{
+                        $response["message"] = "You can not request spare part for this booking";
+                    }
                 }
                 log_message("info", "Spare parts flag found");
                 $this->jsonResponseString['response'] = $response;
