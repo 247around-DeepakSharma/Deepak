@@ -14,6 +14,7 @@
                         <form name="myForm" class="form-horizontal" method='post'> 
                             <div class="row">
                                 <div class="col-md-3">
+                                    <label for="partner">Partner</label>
                                     <select class="form-control" name="partner" id="partner" required onchange='get_appliance()'>
                                         <option selected disabled value="">Select Partner</option>
                                         <?php
@@ -29,28 +30,41 @@
                                     </select>
                                 </div>
                                 <div class="col-md-3">
+                                    <label for="service_id">Product</label>
                                     <select class="form-control" id="service_id" required name="service_id" onchange='get_brand_model()'>
                                         <option selected disabled value="">Select Product</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
+                                    <label for="brand">Brand</label>
                                     <select class="form-control" id="brand" required name="brand">
                                         <option selected disabled value="">Select Brand</option>
                                     </select> 
                                 </div>
                                 <div class="col-md-3">
+                                    <label for="model">Model</label>
                                     <select class="form-control" id="model" required="required" name="model">
                                         <option selected disabled value="">Select Model</option>
                                     </select>
+                                </div>                                
+                                <div class="col-md-3 pull-right">
+                                    <button type="button" name='show' id='show' class='btn btn-primary'>Show</button>
                                 </div>
+                            </div>
+                            <div class="row" style="padding-top: 10px;">
                                 <div class="col-md-3">
+                                    <label for="purchase_date">Purchase Date</label>
                                     <div class="input-group input-append date" >                                        
                                         <input type="text" class="form-control purchase_date"  name="purchase_date"  id="purchase_date" required readonly placeholder="Purchase Date"  onfocus="(this.type='date')">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div> 
                                 </div>
                                 <div class="col-md-3">
-                                    <button type="button" name='show' id='show' class='btn btn-primary'>Show</button>
+                                    <label for="create_date">Booking Create Date</label>
+                                    <div class="input-group input-append date" >                                        
+                                        <input type="text" class="form-control create_date"  name="create_date"  id="create_date" required readonly placeholder="Booking Create Date"  onfocus="(this.type='date')" value="<?php echo date('d-m-Y')?>">
+                                        <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
+                                    </div> 
                                 </div>
                             </div>
                             <hr/>
@@ -220,6 +234,7 @@
                 d.model = $("#model option:selected").val();
                 d.brand = $("#brand option:selected").val();
                 d.purchase_date = $("#purchase_date").val();
+                d.create_date = $("#create_date").val();
             },
             "dataSrc" : function (json) {
                 if(json.activeInWarrantyPlans > 0)
@@ -259,6 +274,7 @@
 
     $("#partner,#service_id,#brand,#model").select2();
     $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd', maxDate: new Date(), changeMonth: true, changeYear: true});
+    $("#create_date").datepicker({dateFormat: 'yy-mm-dd', maxDate: new Date(), changeMonth: true, changeYear: true});
 
     $('#show').click(function () {
         validateform();
@@ -293,7 +309,8 @@
                         $('#model').select2().trigger('change'); 
                     }, 500);
                 }, 500);
-                $('#purchase_date').datepicker('setDate', warrantyData[0]['purchase_date']);                
+                $('#purchase_date').datepicker('setDate', warrantyData[0]['purchase_date']); 
+                $('#create_date').datepicker('setDate', warrantyData[0]['booking_create_date']); 
             }                            
         });
     }
