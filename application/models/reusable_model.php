@@ -25,8 +25,12 @@ class reusable_model extends CI_Model {
      * @output - number of affected rows by executed query
      */
     function execute_custom_insert_update_delete_query($sql){
+        if(!empty($sql)){
        $this->db->query($sql);
        return $this->db->affected_rows();
+        }
+        else 
+            return 0;
     }
      /*
      * This function use to get query on the basis of input 
@@ -128,8 +132,10 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_r
         return $query->result_array();
     }
     function delete_from_table($table,$where){
-        $this->db->where($where);
-        $this->db->delete($table);
+        if(!empty($table) && !empty($where)){
+            $this->db->where($where);
+            $this->db->delete($table);
+        }
     }
     
      /**
