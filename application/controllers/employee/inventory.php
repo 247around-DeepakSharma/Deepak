@@ -3938,9 +3938,6 @@ class Inventory extends CI_Controller {
         if(!empty($around_gst[0]['email_id'])){
             $response['meta']['main_company_phone'] = $around_gst[0]['contact_number'];
         }
-        if(!empty($around_gst[0]['state_stamp_picture'])){
-            $response['meta']['main_company_seal'] = $around_gst[0]['state_stamp_picture'];
-        }
         $response['meta']['invoice_id'] = $invoice_id;
         $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         if ($status) {
@@ -4967,8 +4964,7 @@ class Inventory extends CI_Controller {
                             . $invoiceValue['data'][0]['from_pincode'];
 
                 $response['meta']['main_company_pincode'] = $invoiceValue['data'][0]['from_pincode'];
-                $response['meta']['main_company_seal'] = $invoiceValue['data'][0]['state_stamp_pic'];
-
+                
                 $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
                 if ($status) {
 
