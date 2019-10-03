@@ -2743,9 +2743,11 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_alternet_parts($select, $where = array()) {
+        $this->db->distinct();
         $this->db->select($select,false);
         $this->db->from('inventory_master_list');
         $this->db->join('alternate_inventory_set','alternate_inventory_set.inventory_id = inventory_master_list.inventory_id');
+        $this->db->join('appliance_model_details','appliance_model_details.id = alternate_inventory_set.model_id');
         $this->db->group_by("group_id");
         if (!empty($where)) {
             $this->db->where($where,false);
