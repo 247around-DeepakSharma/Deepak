@@ -1034,13 +1034,17 @@ function get_data_for_partner_callback($booking_id) {
      * 
      */
     function delete_partner_operation_region($partner_id){
-        $this->db->where('partner_id',$partner_id);
-        $this->db->delete('partner_operation_region');
-        if($this->db->affected_rows() > 0 ){
-            return TRUE;
-        }else{
-            return FALSE;
+    if(!empty($partner_id)){
+            $this->db->where('partner_id',$partner_id);
+            $this->db->delete('partner_operation_region');
+            if($this->db->affected_rows() > 0 ){
+                return TRUE;
+            }else{
+                return FALSE;
+            }
         }
+        else
+        return FALSE;
     }
     
     /**
