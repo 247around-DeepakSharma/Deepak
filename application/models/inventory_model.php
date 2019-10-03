@@ -1742,9 +1742,10 @@ class Inventory_model extends CI_Model {
         $this->db->trans_begin();
         
         //delete old wh state mapping
-        $this->db->where('warehouse_id', $data['wh_id']);
-        $this->db->delete('warehouse_state_relationship');
-        
+        if(!empty($data)){
+            $this->db->where('warehouse_id', $data['wh_id']);
+            $this->db->delete('warehouse_state_relationship');
+        }
         //create new warehouse and state mapping
         $wh_state_mapping_data = array();
         foreach ($data['new_wh_state_mapping'] as $value) {
