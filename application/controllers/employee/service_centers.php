@@ -7014,6 +7014,7 @@ class Service_centers extends CI_Controller {
             NULL,NULL,NULL,
             array(
                 "sub_category"=>array(
+                    MSL,
                     MSL_SECURITY_AMOUNT,
                     MSL_NEW_PART_RETURN,
                     MSL_DEFECTIVE_RETURN
@@ -7026,10 +7027,15 @@ class Service_centers extends CI_Controller {
             if(!empty($row['sub_category']) && $row['sub_category']==MSL_SECURITY_AMOUNT){
                 $mslSecurityAmount += floatval($row['amount']);
             }else if(!empty($row['sub_category']) && ($row['sub_category']==MSL_DEFECTIVE_RETURN || $row['sub_category']==MSL_NEW_PART_RETURN)){
+                $mslAmount -= floatval($row['amount']);
+            }else if($row['sub_category'] == MSL){
                 $mslAmount += floatval($row['amount']);
             }
         }
-        $mslAmount = $mslSecurityAmount-$mslAmount;
+        //negate this value as it will be returned by SF
+        $mslAmount = -1 * $mslAmount;
+        //negetive value -> sf have pending defective or new part to return
+        //positive value -> rare, represent 247 have to pay to sf.
         $msl = array(
             'security'=>sprintf("%01.2f", $mslSecurityAmount),
             'amount'=>sprintf("%01.2f", $mslAmount)

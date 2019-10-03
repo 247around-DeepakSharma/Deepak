@@ -902,6 +902,7 @@ class Partner extends CI_Controller {
             $return_data['upcountry_bill_to_partner'] = 0;
         }
 //        $partner_data_final['partner'] = $return_data;
+        $return_data['is_booking_close_by_app_only'] = $this->input->post('is_booking_close_by_app_only');
         return $return_data;
     }
 
@@ -5501,7 +5502,7 @@ class Partner extends CI_Controller {
             $tempArray[] = "No";   
              }
             
-             if($sparePartBookings['consumption']==1){
+             if($sparePartBookings['is_consumed']==1){
             $tempArray[] = "Yes";   
              }else{
             $tempArray[] = "No";   
