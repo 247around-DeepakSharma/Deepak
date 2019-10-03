@@ -1051,16 +1051,20 @@ function get_data_for_partner_callback($booking_id) {
      * 
      */
     function delete_partner_brand_relation($partner_id,$service_id = ''){
-        $this->db->where('partner_id',$partner_id);
-        if(!empty($service_id)){
-            $this->db->where('service_id',$service_id);
+        if(!empty($partner_id)){
+            $this->db->where('partner_id',$partner_id);
+            if(!empty($service_id)){
+                $this->db->where('service_id',$service_id);
+            }
+            $this->db->delete('partner_appliance_details');
+            if($this->db->affected_rows() > 0 ){
+                return TRUE;
+            }else{
+                return FALSE;
+            }
         }
-        $this->db->delete('partner_appliance_details');
-        if($this->db->affected_rows() > 0 ){
-            return TRUE;
-        }else{
+        else
             return FALSE;
-        }
     }
     
     function get_tollfree_and_contact_persons(){
@@ -2502,10 +2506,14 @@ function get_data_for_partner_callback($booking_id) {
      * @return string 
      */
     function delete_partner_appliances($data){
-        $this->db->delete('partner_appliance_mapping', array('id' => $data['mappingId'])); 
-        if(!empty($this->db->affected_rows())){
-            return 'success';  
-        }        
+        if(!empty($data)){
+            $this->db->delete('partner_appliance_mapping', array('id' => $data['mappingId'])); 
+            if(!empty($this->db->affected_rows())){
+                return 'success';  
+            }  
+        } 
+        else
+            return '';     
     }
 
     /**
