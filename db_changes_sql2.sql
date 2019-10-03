@@ -1510,3 +1510,8 @@ ALTER TABLE partners ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL
 ALTER TABLE service_centres ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER is_wh;
 --Gorakh 28-09-2019
 ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` VARCHAR(20) NOT NULL;
+
+--Kajal 01-10-2019
+UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_07.jpg' WHERE `entity_gst_details`.`id` = 2;
+UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_09.jpg' WHERE `entity_gst_details`.`id` = 7;
+UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_27.jpg' WHERE `entity_gst_details`.`id` = 6;
