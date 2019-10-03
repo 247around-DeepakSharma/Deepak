@@ -5378,10 +5378,10 @@ class Service_centers extends CI_Controller {
                             $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                             $data['date_of_request'] = date('Y-m-d');
                             $data['model_number_shipped'] = $value->model_number;
-                            $data['parts_shipped'] = $value->parts_requested;
-                            $data['shipped_parts_type'] = $value->parts_requested_type;
-                            $data['shipped_date'] = $value->date_of_request;
-                            $data['shipped_inventory_id'] = $value->requested_inventory_id;
+                            $data['parts_shipped'] = $data['parts_requested'];
+                            $data['shipped_parts_type'] = $data['parts_requested_type'];
+                            $data['shipped_date'] = date('Y-m-d');
+                            $data['shipped_inventory_id'] = $data['requested_inventory_id'];
                             $data['quantity'] = $value->quantity;
                             $data['shipped_quantity'] = $data['quantity'];
 
@@ -5394,6 +5394,11 @@ class Service_centers extends CI_Controller {
 
                          $spare_data['spare_id'] = $spare_id;
                          $spare_data['shipped_inventory_id'] = $data['shipped_inventory_id'];
+                         $spare_data['model_number'] = $data['model_number_shipped'];
+                         $spare_data['parts_requested_type'] = $data['shipped_parts_type'];
+                         $spare_data['parts_requested'] = $data['parts_shipped'];
+                         $spare_data['date_of_request'] = $data['date_of_request'];
+                         $spare_data['requested_inventory_id'] = $data['requested_inventory_id'];
                          array_push($delivered_sp, $spare_data);
                          $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                          unset($data['spare_id']);
@@ -5409,7 +5414,7 @@ class Service_centers extends CI_Controller {
                                                                      
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), $data);
 
-                            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$data['quantity']);
+                            $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$spare_data['quantity']);
                         }
                     } else {
                         log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);
