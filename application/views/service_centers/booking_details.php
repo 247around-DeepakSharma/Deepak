@@ -951,8 +951,7 @@
     }
 </style>
 <script>
-<<<<<<< Updated upstream
-=======
+
 
 function openPartDetails(url, partid,modelnumber,partnerid)
 {
@@ -1002,7 +1001,6 @@ function OpenWindowWithPost(url, windowoption, name, params)
  document.body.removeChild(form);
 }
 
->>>>>>> Stashed changes
     <?php if($booking_history[0]['is_upcountry'] == 1){  ?>  
              setTimeout(function(){ GetRoute(); }, 1000);
     <?php } ?>
@@ -1132,6 +1130,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
             alert("Please fill remarks");
         }
         else{
+            $("#reject_btn").prop("disabled", true);
             $.ajax({
                 method:"POST",
                 url:'<?php echo base_url(); ?>employee/inventory/remove_msl_consumption',

@@ -246,6 +246,9 @@
                     </div>
                 </div>
             </div>-->
+            <?php if(isset($booking_id)){ ?>
+            <input type="hidden" name="booking_id" value="<?php echo $booking_id; ?>">
+            <?php } ?>
             <div class="col-md-4 col-md-offset-4" style="margin-bottom: 50px;">
                 <center>
             <input type="submit" class="btn btn-primary"  onclick="return validate_bank_ac()" value="<?php echo isset($data)?'Update Engineer':'Save Engineer'?>" />

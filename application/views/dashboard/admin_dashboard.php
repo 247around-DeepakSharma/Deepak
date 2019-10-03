@@ -8,7 +8,8 @@
         color: #4b5561 !important;
         float:right;
     }
-    tr[id^='arm_table_']{
+    tr[id^='arm_table_'],
+    tr[id^='arm_open_call_table_']{
         background-color:#5997aa !important;
     }
     .sub-table{
@@ -179,7 +180,7 @@
                                {{completedBookingByRM.TAT[$index].TAT_16}} ({{completedBookingByRM.TAT[$index].TAT_16_per}}%) </td>
                                <td></td>
                         </tr>
-                        <tr data-rm-row-id="{{x.id}}" ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 == undefined'>
+                        <tr class="tat-report" data-rm-row-id="{{x.id}}" ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 == undefined'>
                            <td>{{$index+1}}</td>
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">{{x.entity}}</button></td>
@@ -192,8 +193,8 @@
                            <td>{{x.TAT_8}}  ({{x.TAT_8_per}}%)</td>
                            <td>{{x.TAT_16}}  ({{x.TAT_16_per}}%)</td>
                            <td ng-if="x.id == '00'"></td>
-                           <td ng-if="x.id != '00'"e>
-                                <span class="collape_icon toggle-arm-details" data-rm-id="{{x.id}}" onclick="get_arm_details_for_rm($(this).data('rm-id'))">
+                           <td ng-if="x.id != '00'">
+                                <span class="tat-report collape_icon toggle-arm-details" data-rm-id="{{x.id}}" onclick="get_arm_details_for_rm($(this).data('rm-id'))">
                                     <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>
                                 </span>
                             </td>
@@ -315,10 +316,11 @@
                              <th>D8 - D15</th>
                              <th>>D15</th>
                              <th>Total</th>
+                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity !== 'Total'">
+                        <tr class="open-call-report" data-rm-row-id="{{x.id}}" ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity !== 'Total'">
                            <td>{{$index+1}}</td>
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
                                        onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')">{{x.entity}}</button></td>
@@ -361,6 +363,12 @@
                                             <input type="submit" value="{{x.TAT_16}} ({{x.TAT_16_per}}%)" ng-if="x.TAT_16 <= 0" class="btn btn-success">
                                              </form></td>
                            <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
+                           <td ng-if="x.id == '00'"></td>
+                           <td ng-if="x.id != '00'">
+                                <span class="open-call-report collape_icon toggle-arm-details" data-rm-id="{{x.id}}" onclick="get_arm_open_call_details_for_rm($(this).data('rm-id'))">
+                                    <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>
+                                </span>
+                            </td>
                         </tr>
                         <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity == 'Total'">
                             <td>{{$index+1}}</td>
@@ -375,6 +383,7 @@
                            <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
                            <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
                             <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>
@@ -1737,16 +1746,16 @@
     function get_arm_details_for_rm(rm_id){
         if($("#arm_table_"+ rm_id).length>0){
             if($("#arm_table_"+ rm_id).is(":hidden")){
-                $("span[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-up");
+                $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-up");
             }else{
-                $("span[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-up").addClass("fa-chevron-circle-down");
+                $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-up").addClass("fa-chevron-circle-down");
             }
             $("#arm_table_"+ rm_id).slideToggle();
             return false;
         }
-        $("span[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-up");
+        $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-up");
         var html = "<tr id='arm_table_"+ rm_id +"'><td class='text-center' colspan=11><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
-        $("tr[data-rm-row-id='"+ rm_id+ "']").after(html);
+        $("tr.tat-report[data-rm-row-id='"+ rm_id+ "']").after(html);
         dateRange = $("#completed_daterange_id").val();
         dateArray = dateRange.split(" - ");
         startDate = dateArray[0];
@@ -1804,7 +1813,116 @@
             $("#arm_table_"+ tableRow).empty().html(html);
         }else{
             $("#arm_table_"+ tableRow).remove();
-            $("span[data-rm-id='"+ tableRow+ "']").find("i").removeClass("fa-chevron-circle-up").addClass("fa-chevron-circle-down");
+            $("span.tat-report[data-rm-id='"+ tableRow+ "']").find("i").removeClass("fa-chevron-circle-up").addClass("fa-chevron-circle-down");
+            alert("No/Invalid data recieved from server. Please try again.");
+        }
+    }
+
+    function get_arm_open_call_details_for_rm(rm_id){
+        if($("#arm_open_call_table_"+ rm_id).length>0){
+            if($("#arm_open_call_table_"+ rm_id).is(":hidden")){
+                $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-up");
+            }else{
+                $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-up").addClass("fa-chevron-circle-down");
+            }
+            $("#arm_open_call_table_"+ rm_id).slideToggle();
+            return false;
+        }
+        $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-up");
+        var html = "<tr id='arm_open_call_table_"+ rm_id +"'><td class='text-center' colspan=12><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
+        $("tr.open-call-report[data-rm-row-id='"+ rm_id+ "']").after(html);
+        dateRange = $("#pending_daterange_id_rm").val();
+        dateArray = dateRange.split(" - ");
+        startDate = dateArray[0];
+        endDate = dateArray[1];
+        service_id = $("#service_id_rm_pending").val();
+        partner_id = $("#partner_id_rm_pending").val();
+        request_type = getMultipleSelectedValues("request_type_rm_pending");
+        free_paid = $("#free_paid_rm_pending").val();
+        upcountry = getMultipleSelectedValues("upcountry_rm_pending");
+        status = getMultipleSelectedValues("pending_dependency");
+        if(!status){
+            status = "not_set";
+        }
+        if(!service_id){
+            service_id = "not_set";
+        }
+        if(!request_type){
+            request_type = "not_set";
+        }
+        if(!free_paid){
+            free_paid = "not_set";
+        }
+         if(!upcountry){
+            upcountry = "not_set";
+        }
+        if(!partner_id){
+            partner_id = "not_set";
+        }
+
+        url =  baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/ARM/Pending/"+partner_id;
+        var data = {rm:rm_id};
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_arm_open_call_tat_report_table(rm_id, JSON.parse(response));
+        });
+    }
+    function create_arm_open_call_tat_report_table(tableRow,data){
+        if(!!data && data.length>0){
+            html='<table class="table table-striped table-bordered sub-table">'
+                    +'<thead><tr><th>S.no</th><th>RM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th><th>Total</th></tr></thead>';
+            for(var i in data){
+                var total = 0;
+                html += '<tr>';
+                html += "<td>"+ (parseInt(i)+1)+ "</td>";
+                html += "<td><button type='button' id='vendor_"+ data[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')\">"+ data[i].entity+ "</button></td>";
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_0_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)"  class="btn btn-success">'
+                             +'</form></td>';
+                total += data[i].TAT_0;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_1_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_1+ ' ('+ data[i].TAT_1_per+ '%)"  class="btn btn-success">'
+                             +'</form></td>';
+                total += data[i].TAT_1;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_2_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_2+ ' ('+ data[i].TAT_2_per+ '%)"  class="btn btn-'+ ((data[i].TAT_2<1)?'success':'danger')+ '">'
+                             +'</form></td>';
+                total += data[i].TAT_2;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_3_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_3+ ' ('+ data[i].TAT_3_per+ '%)"  class="btn btn-'+ ((data[i].TAT_3<1)?'success':'danger')+ '">'
+                             +'</form></td>';
+                total += data[i].TAT_3;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_4_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_4+ ' ('+ data[i].TAT_4_per+ '%)"  class="btn btn-'+ ((data[i].TAT_4<1)?'success':'danger')+ '">'
+                             +'</form></td>';
+                total += data[i].TAT_4;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_5_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_5+ ' ('+ data[i].TAT_5_per+ '%)"  class="btn btn-'+ ((data[i].TAT_5<1)?'success':'danger')+ '">'
+                             +'</form></td>';
+                total += data[i].TAT_5;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_8_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_8+ ' ('+ data[i].TAT_8_per+ '%)"  class="btn btn-'+ ((data[i].TAT_8<1)?'success':'danger')+ '">'
+                             +'</form></td>';
+                total += data[i].TAT_8;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_16_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)"  class="btn btn-'+ ((data[i].TAT_16<1)?'success':'danger')+ '">'
+                             +'</form></td>';
+                total += data[i].TAT_16;
+                html += '<td>'+ data[i].Total_Pending + " ("+ data[i].TAT_total_per+ "%) </td>";
+                html += '</tr>';
+            }
+            html = "<td colspan=12>"+ html+ "</td>"
+            $("#arm_open_call_table_"+ tableRow).empty().html(html);
+        }else{
+            $("#arm_open_call_table_"+ tableRow).remove();
+            $("span.open-call-report[data-rm-id='"+ tableRow+ "']").find("i").removeClass("fa-chevron-circle-up").addClass("fa-chevron-circle-down");
             alert("No/Invalid data recieved from server. Please try again.");
         }
     }

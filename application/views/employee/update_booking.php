@@ -1,7 +1,8 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <?php
-$str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
+//$str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
+$str_disabled = "";
 ?>
 <style>
     #dealer_list{
@@ -38,7 +39,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     <?php } ?>
     
     <?php if(!empty($str_disabled)) { ?> 
-    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, .select2-selection, .select2-container--default{
+    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model{
         pointer-events : none !important;
         background : #eee !important;
     }    
@@ -111,6 +112,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                         <input type="hidden" name="booking_type" id="booking_type" value="<?php echo $booking_history[0]["type"];?>" />
                                         <input type="hidden" name="partner_id" value="<?php echo $booking_history[0]['partner_id'];?>" id="partner_id" />
                                         <input type="hidden" name="assigned_vendor_id" value="<?php if(!empty($booking_history[0]['assigned_vendor_id'])){ echo $booking_history[0]['assigned_vendor_id']; } else { echo '';} ?>" id="assigned_vendor_id" />
+                                        <input type="hidden" value="<?php echo (!empty($this->session->userdata('service_center_id')) ? $this->session->userdata('service_center_id') : '') ?>" name="is_sf_panel" id="is_sf_panel">                                       
                                         <input type="text" class="form-control"  id="booking_primary_contact_no" name="booking_primary_contact_no" value = "<?php echo $booking_history[0]['booking_primary_contact_no']?>" required  <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>/>
                                     </div>
                                     <?php if($c2c) { ?>
@@ -151,7 +153,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                     <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="service" id="services"/>
-                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService();" readonly required>
+                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService();" required>
                                             <option disabled>Select Service</option>
                                             <?php foreach ($services as $key => $values) { ?>
                                             <option <?php if($booking_history[0]['service_id'] == $values->id ){ echo "selected"; } ?> value=<?= $values->id; ?>>
@@ -1360,7 +1362,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
         var partner_id = $("#source_code").find(':selected').attr('data-id');
         var service_id = $("#service_id").val();
         var booking_id = 1;
-        var booking_create_date = "<?= date('Y-m-d')?>";
+        var booking_create_date = "<?= $booking_history[0]['create_date']?>";
         var booking_request_types = []; 
         $(".price_checkbox:checked").each(function(){
             var price_tag = $(this).attr('data-price_tag');

@@ -71,6 +71,7 @@
                     <input type="hidden" name="appliance_id[]" value="<?php if(isset($unit_details[0]['appliance_id'])){echo $unit_details[0]['appliance_id'];} ?>"/>
                     <input type="hidden" value="<?php echo $redirect_url ?>" name="redirect_url" id="redirect_url">
                     <input type="hidden" value="<?php echo $booking_history['is_spare_requested'] ?>" name="is_spare_requested" id="is_spare_requested">                    
+                    <input type="hidden" value="<?php echo (!empty($this->session->userdata('service_center_id')) ? $this->session->userdata('service_center_id') : '') ?>" name="is_sf_panel" id="is_sf_panel">                                       
                     <input checked="checked" style ='visibility: hidden;' id="booking" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Booking')" name="type" value="Booking" <?php if($is_repeat){ echo "checked"; } ?> required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                     
                     
@@ -100,17 +101,17 @@
                                         <?php 
                                         $booking_model_number = !empty($unit_details[0]['sf_model_number']) ?  $unit_details[0]['sf_model_number'] : "";
                                         $booking_model_purchase_date = (!empty($unit_details[0]['sf_purchase_date']) && $unit_details[0]['sf_purchase_date'] != '0000-00-00') ?  $unit_details[0]['sf_purchase_date'] : "";
-                                        if(empty($booking_model_number) && !empty($booking_history['spare_parts'][0]['model_number'])){
+                                        if(!empty($booking_history['spare_parts'][0]['model_number'])){
                                             $booking_model_number = $booking_history['spare_parts'][0]['model_number'];
                                         }
-                                        if(empty($booking_model_purchase_date) && !empty($booking_history['spare_parts'][0]['date_of_purchase'])){
+                                        if(!empty($booking_history['spare_parts'][0]['date_of_purchase'])){
                                             $booking_model_purchase_date = $booking_history['spare_parts'][0]['date_of_purchase'];
                                         }
                                         if(!empty($booking_model_number) && !empty($model[0]) && $booking_history['is_spare_requested']){
                                             $arrModels = array_column($model[0], 'model');
                                             if(!in_array($booking_model_number, $arrModels)){ ?>
                                                 <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
-                                                    <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $booking_model_number ?>' filled during Spare Request is not mapped with the partner! Please Contact 247 around team.</span>
+                                                    <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $booking_model_number ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
                                                 </div>
                                             <?php }
                                         }
@@ -478,7 +479,6 @@
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
     var cloneIndex= $(".clonedInput").length +1;
-    var arr_warranty_status = <?php echo json_encode(['OW' => ['Repair - In Warranty', 'Presale', 'Installation'], 'IW' => ['Extended'], 'EW' => ['Repair - In Warranty', 'Presale']]); ?>;
     
     // function to cross check request type of booking with warranty status of booking 
     function check_booking_request()
@@ -655,7 +655,7 @@
     postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
     postData['capacity'] = $("#appliance_capacity_1").val();
     postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
-    $('#submitform').attr('disabled',true);
+//    $('#submitform').attr('disabled',true);
 
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
         console.log(data);

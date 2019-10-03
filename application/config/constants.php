@@ -639,7 +639,7 @@ define('_247AROUND_TAX_INVOICE_SIGN_CELL', 'K26');
 define('_247AROUND_COMPLETED_APPROVED','Completed_Approved');
 //constant to define Admin Approved Completed bookings
 define('_247AROUND_COMPLETED_REJECTED','Completed_Rejected');
-define('_247AROUND_WRONG_PINCODE_CANCEL_REASON', 'The Custoner has given wrong pincode');
+define('_247AROUND_WRONG_PINCODE_CANCEL_REASON', 'The Customer has given wrong pincode');
 //constant to define Admin Rejected cancelled bookings
 define('_247AROUND_CANCELED_REJECTED','Cancelled_Rejected');
 //constant to define Admin Approved canceled bookings
@@ -676,5 +676,7 @@ define('REJECTED_FROM_REVIEW_STATUS','Rejected From Review');
 
 define('WARRANTY_TYPE_AMC', 'AMC (Annual Maintenance Contract)');
 define('DEFAULT_IN_WARRANTY_PERIOD', 12);
+// Warehouse Aurangabad id
+define('_247AROUND_WAREHOUSE_ID', 15);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

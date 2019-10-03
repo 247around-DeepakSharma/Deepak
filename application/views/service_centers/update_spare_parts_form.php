@@ -402,6 +402,17 @@
                                     <?php echo form_error('awb'); ?>
                                 </div>
                             </div>
+                            <div class="form-group">
+                            <label for="awb" class="col-md-4">No Of Boxes *</label>
+                            <div class="col-md-6">
+                                <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
+                                    <option selected="" disabled="" value="">Select Boxes</option>
+                                    <?php for ($i = 1; $i < 11; $i++) { ?>
+                                    <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                            </div>
                             <div class="form-group <?php
                                 if (form_error('shipment_date')) { echo 'has-error';} ?>">
                                 <label for="shipment_date" class="col-md-4">Shipment Date</label>
@@ -434,6 +445,13 @@
                                     </select>
                                     <?php echo form_error('courier_name'); ?>
                                 </div>
+                            </div>
+                            <div class="form-group">
+                            <label for="courier" class="col-md-4">Weight *</label>
+                            <div class="col-md-6">
+                                <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="spare_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="spare_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
+                            </div>
                             </div>
                             <div class="form-group <?php
                                 if (form_error('courier_price_by_partner')) { echo 'has-error';} ?>">
@@ -770,17 +788,37 @@
                         console.log(response);
                         var data = jQuery.parseJSON(response);
                         if(data.code === 247){
+                            //alert(data);
                             alert("This AWB already used same price will be added");
                             $("#same_awb").css("display","block");
                             $('body').loadingModal('destroy');
                             $("#shipment_date").val(data.message[0].shipped_date);
                             $("#courier_name").val(data.message[0].courier_name_by_partner).trigger('change');
-                            $("#courier_price_by_partner").val("0");
+                            
                             $("#courier_price_by_partner").css("display","none");
                             if(data.message[0].courier_pic_by_partner){
                                 $("#exist_courier_image").val(data.message[0].courier_pic_by_partner);
                                 $("#courier_image").css("display","none");
                             }
+                            
+                        if(data.message[0].courier_charge > 0){
+                            $("#courier_price_by_partner").val(data.message[0].courier_charge);
+                        } 
+                        
+                        $('#shipped_spare_parts_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
+                        if (data.message[0]['box_count'] === 0) {
+                            $('#shipped_spare_parts_boxes_count').val("");
+                            
+                        } else {
+                            $('#shipped_spare_parts_boxes_count').val(data.message[0]['box_count']).trigger('change');
+    
+                        }
+                        var wt = Number(data.message[0]['billable_weight']);
+                        if(wt > 0){
+                        var wieght = data.message[0]['billable_weight'].split(".");
+                            $("#shipped_spare_parts_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
+                            $("#shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
+                        }
     
                         } else {
     

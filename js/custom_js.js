@@ -289,7 +289,7 @@ function addBookingDialog(chanel = '') {
     var alternate_contact_no = $('#booking_alternate_contact_no').val();
     var address = $('#booking_address').val();
     var service = $("#service_id option:selected").text();
-    if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
+    if(chanel == "sf_update"){
          var service = $("#service_id").val();
     }
     var pincode = $("#booking_pincode").val();
@@ -304,7 +304,8 @@ function addBookingDialog(chanel = '') {
     var is_active = $("#is_active").val();
     var div_count = $('.purchase_date').length;
     var partner_id = $("#source_code").find(':selected').attr('data-id');
-   if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
+    var is_sf_panel = $("#is_sf_panel").val();
+   if(chanel == "sf_update"){
          var partner_id = $("#source_code").val();
     }
     var parant_id = $('#parent_id').val();
@@ -312,11 +313,11 @@ function addBookingDialog(chanel = '') {
     var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
     var isServiceChecked = $('.Service:checkbox:checked').length;
     var symptom = $('#booking_request_symptom option:selected').text();
-    if(chanel == SF_UPDATE_FORM_VALIDATION_TEXT){
+    if(chanel == "sf_update"){
        symptom =  $('#booking_request_symptom').val();
     }
    // var customer_paid = $("#grand_total_price").val()
-     if(chanel != SF_UPDATE_FORM_VALIDATION_TEXT){
+     if(chanel != "sf_update"){
         if($('.appliance_capacity').length > 0) {
             var count1=0;
             $(".appliance_capacity").each(function(){
@@ -333,20 +334,20 @@ function addBookingDialog(chanel = '') {
             }
         }
      }
-    if (user_name == "" || user_name.trim().length ==0 || user_name == null) {
+    if (!is_sf_panel && user_name == "" || user_name.trim().length ==0 || user_name == null) {
 
         alert("Please Enter User Name");
 
         return false;
     }
-    if (pincode.length !== 6) {
+    if (!is_sf_panel && pincode.length !== 6) {
 
         alert("Please Select 6 Digit Valid Pincode Number");
 
         return false;
     }
 
-    if (source_code === "Select Booking Source") {
+    if (!is_sf_panel && source_code === "Select Booking Source") {
 
         alert("Please Select Booking Source");
 
@@ -392,13 +393,13 @@ function addBookingDialog(chanel = '') {
 
     } else {
         if (type === "Booking") {
-            if (address === "") {
+            if (!is_sf_panel && address === "") {
 
                 alert("Please fill Address ");
                 return false;
             } else {
 
-                if (pincode === "") {
+                if (!is_sf_panel && pincode === "") {
 
                     alert("Please fill pincode ");
                     return false;
@@ -420,30 +421,31 @@ function addBookingDialog(chanel = '') {
             if ($('input[name=internal_status]:checked').length > 0) {
                 // something when checked
             } else {
-
-                alert("For Query, Internal Status is MANDATORY.");
-                return false;
+                if (!is_sf_panel){
+                    alert("For Query, Internal Status is MANDATORY.");
+                    return false;
+                }                
             }
         }
     }
 
-    if (p_contact_no === "") {
+    if (!is_sf_panel && p_contact_no === "") {
 
         alert("Please fill Phone Number ");
         return false;
     }
 
-    if (p_contact_no !== "" && !p_contact_no.match(exp1)) {
+    if (!is_sf_panel && p_contact_no !== "" && !p_contact_no.match(exp1)) {
         alert("Enter Valid Phone Number Only");
         return false;
     }
     
-    if (alternate_contact_no !== "" && !alternate_contact_no.match(exp1)) {
+    if (!is_sf_panel && alternate_contact_no !== "" && !alternate_contact_no.match(exp1)) {
         alert("Enter Valid Alternate Phone Number Only");
         return false;
     }
 
-    if (city === "" || city === "Select City") {
+    if (!is_sf_panel && city === "" || city === "Select City") {
 
         alert("Please fill city ");
         return false;
@@ -467,7 +469,7 @@ function addBookingDialog(chanel = '') {
                         secondPartLengthValidation = false;
                     }
                 }
-                if(!(firstPartNumaricValidation && secondPartNumaricValidation && firstPartLengthValidation && secondPartLengthValidation)){
+                if(!is_sf_panel && !(firstPartNumaricValidation && secondPartNumaricValidation && firstPartLengthValidation && secondPartLengthValidation)){
                     alert("Please Enter Correct Order ID , Space Should not be there in Order ID");
                     return false;
                 }
@@ -476,7 +478,7 @@ function addBookingDialog(chanel = '') {
                 old_type = $("#booking_old_type_holder").text();
                 if(!(chanel == 'admin_update' && old_type == 'Booking' && type == 'Booking')){
                     var order_id = $('#order_id').val();
-                    if (order_id === "" && dealer_phone_number === "") {
+                    if (!is_sf_panel && order_id === "" && dealer_phone_number === "") {
                         alert('Please Fill Order Id Or Dealer Phone Number');
                         return false;
                     }
@@ -484,17 +486,20 @@ function addBookingDialog(chanel = '') {
             }
         }
     }
-    if(dealer_phone_number !=="" && !dealer_phone_number.match(exp1)){
+    if(!is_sf_panel && dealer_phone_number !=="" && !dealer_phone_number.match(exp1)){
         alert('Please Enter Valid Dealer Phone Number');   
         return false;
     }
     
-    if(dealer_phone_number !=="" && dealer_name === ""){
+    if(!is_sf_panel && dealer_phone_number !=="" && dealer_name === ""){
         alert("Please Enter Dealer Name");
         return false;
     }
     
-    if(symptom === "" || symptom === "Please Select Any Symptom"){
+    if((symptom == 0) || (symptom == '0')) {
+        
+    }
+    else if(!is_sf_panel && symptom === "" || symptom === "Please Select Any Symptom"){
         alert("Please Enter Symptom");
         return false;
     }
@@ -527,12 +532,12 @@ function addBookingDialog(chanel = '') {
             return false;
         }
         //If anyone select repeat booking than parent ID Shoud not blank
-        if(!parant_id){
+        if(!is_sf_panel && !parant_id){
             alert("Please Select Parent ID");
             return false;
         }
         //If Repeat Booking is Selected than Repeat Reason Should not be blank
-        if(!repeat_reason){
+        if(!is_sf_panel && !repeat_reason){
             alert("Please Write the Repeat Reason");
             return false;
         }
@@ -560,7 +565,7 @@ function addBookingDialog(chanel = '') {
 //        }
     }
 
-    if (timeslot === null) {
+    if (!is_sf_panel && timeslot === null) {
 
         alert('Please Select Booking Time Slot');
         return false;
@@ -884,7 +889,7 @@ function formatDate(date) {
 
 function set_upcountry() {
     var upcountry_data = $("#upcountry_data").val();
-    
+    var is_sf_panel = $("#is_sf_panel").val();
     is_upcountry = 0;
     non_upcountry = 0;
     n = 0;
@@ -942,16 +947,24 @@ function set_upcountry() {
                         $("#upcountry_charges").val("0");
                         $('#submitform').attr('disabled', false);
                         final_price();
-                        alert("This is upcountry call. Please inform to customer that booking will be completed in 3 Days");
+                        if(!is_sf_panel)
+                        {
+                            alert("This is upcountry call. Please inform to customer that booking will be completed in 3 Days");
+                        }       
 
                     } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 0) {
-                        
-                        $('#submitform').attr('disabled', true);
-                        alert("This is out station Booking, not allow to submit Booking/Query. Upcountry Distance " + data1.upcountry_distance + " KM");
+                        if(!is_sf_panel)
+                        {
+                            $('#submitform').attr('disabled', true);
+                            alert("This is out station Booking, not allow to submit Booking/Query. Upcountry Distance " + data1.upcountry_distance + " KM");
+                        }
                     } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
                         $("#upcountry_charges").val("0");
-                        alert("This is out station boking, Waiting for Partner Approval. Upcountry Distance " + data1.upcountry_distance + " KM");
-                        $('#submitform').attr('disabled', false);
+                        if(!is_sf_panel)
+                        {
+                            alert("This is out station boking, Waiting for Partner Approval. Upcountry Distance " + data1.upcountry_distance + " KM");
+                            $('#submitform').attr('disabled', false);
+                        }
                     } else {
                         // $("#upcountry_charges").val("0");
                         $('#submitform').attr('disabled', false);

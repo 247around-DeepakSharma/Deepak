@@ -1185,16 +1185,17 @@ class engineerApi extends CI_Controller {
                     else{
                         if(isset($value["existing_purchase_invoice"])){
                             if($value["existing_purchase_invoice"]){
-                               $existing_purchase_inv_url = explode("misc-images/", $value["existing_purchase_invoice"]);
-                               $data["purchase_invoice"] = $existing_purchase_inv_url[1];
+                               $existing_purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".date("YmdHis").".png";
+                                $this->miscelleneous->generate_image($value["existing_purchase_invoice"],$existing_purchase_inv_url, "misc-images");
+                               $data["purchase_invoice"] = $existing_purchase_inv_url;
                             }
                         }
                     }
 
                     if($value['pod'] == "1"){
+                        $serial_number_text = $unitDetails[0]["serial_number"];
                         if(isset($value["serial_number"])){
                             if(!$sn_pic_url){
-                                $serial_number_text = $unitDetails[0]["serial_number"];
                                 $sn_pic_url = $requestData['booking_id']."_" . $unit_id ."_serialNO_".rand(10,100).".png";
                                 $this->miscelleneous->generate_image($unitDetails[0]["serial_number_pic"],$sn_pic_url, SERIAL_NUMBER_PIC_DIR);
                             }
@@ -1202,8 +1203,8 @@ class engineerApi extends CI_Controller {
                         else{
                             if(isset($value["existing_serial_number_pic"])){
                                 if($value["existing_serial_number_pic"]){
-                                   $existing_serial_number_pic_url = explode(SERIAL_NUMBER_PIC_DIR."/", $value["existing_serial_number_pic"]);
-                                   $sn_pic_url = $existing_serial_number_pic_url[1];
+                                   $sn_pic_url = $requestData['booking_id']."_" . $unit_id ."_serialNO_".rand(10,100).".png";
+                                   $this->miscelleneous->generate_image($value["existing_serial_number_pic"],$sn_pic_url, SERIAL_NUMBER_PIC_DIR);
                                 }
                             }
                         }
@@ -2159,16 +2160,36 @@ class engineerApi extends CI_Controller {
             }
         
         
-            if($requestData['serial_number_pic_exist']){
-                $serial_number_pic = "serial_number_pic_".date("YmdHis").".png";
-                $this->miscelleneous->generate_image($requestData['serial_number_pic_exist'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
-                $requestData['serial_number_pic'] = $serial_number_pic;
+            if(isset($requestData['serial_number_pic_exist'])){
+                if($requestData['serial_number_pic_exist']){
+                    $serial_number_pic = "serial_number_pic_".date("YmdHis").".png";
+                    $this->miscelleneous->generate_image($requestData['serial_number_pic_exist'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
+                    $requestData['serial_number_pic'] = $serial_number_pic;
+                }
+            }
+            else{
+                if(isset($requestData['existing_serial_number_pic'])){
+                    if($requestData['existing_serial_number_pic']){
+                        $serial_number_pic = "serial_number_pic_".date("YmdHis").".png";
+                        $this->miscelleneous->generate_image($requestData['existing_serial_number_pic'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
+                        $requestData['serial_number_pic'] = $serial_number_pic;
+                    }
+                }
             }
 
-            if($requestData['invoice_number_pic_exist']){
-                $invoice_pic = "invoice_".$requestData['booking_id']."_".date("YmdHis").".png";
-                $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "misc-images");
-                $requestData['invoice_pic'] = $invoice_pic;
+            if(isset($requestData['invoice_number_pic_exist'])){
+                if($requestData['invoice_number_pic_exist']){
+                    $invoice_pic = "invoice_".$requestData['booking_id']."_".date("YmdHis").".png";
+                    $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "misc-images");
+                    $requestData['invoice_pic'] = $invoice_pic;
+                }
+            }
+            else{
+                if($requestData['existing_purchase_invoice']){
+                    $invoice_pic = "invoice_".$requestData['booking_id']."_".date("YmdHis").".png";
+                    $this->miscelleneous->generate_image($requestData['existing_purchase_invoice'], $invoice_pic, "misc-images");
+                    $requestData['invoice_pic'] = $invoice_pic;
+                }
             }
             
             //Call curl for updating spare parts using code from where service center ask for spare parts
@@ -2798,7 +2819,11 @@ class engineerApi extends CI_Controller {
 
         $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
         $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
-        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];      
+        $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
+        // If no data found against warranty, consider booking as of Out Warranty
+        if($warranty_checker_status != 'IW' && $warranty_checker_status != 'EW'):
+            $warranty_checker_status = "OW";
+        endif;
         $warranty_mismatch = 0;
         $returnMessage = "";
 
@@ -2829,6 +2854,7 @@ class engineerApi extends CI_Controller {
                 $returnMessage = "Warranty Status is ".$arr_warranty_status_full_names[$warranty_checker_status].", Change request type";
             }   
         }
+        
         $arrReturn['warranty_flag'] = $warranty_mismatch;
         $arrReturn['message'] = $returnMessage;
         return $arrReturn;
@@ -3013,7 +3039,7 @@ class engineerApi extends CI_Controller {
     function submitWarrantyCheckerAndEditCallType(){
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-                
+        
         $missing_key = "";
         $check = true;
         $check_request_type = array();
@@ -3106,7 +3132,7 @@ class engineerApi extends CI_Controller {
             
             if($edit_call_type){  
                 if(isset($requestData['sc_agent_id'])){
-                    $curl_data['sc_agent_id'] = $requestData['sc_agent_id'] = 1;
+                    $curl_data['sc_agent_id'] = $requestData['sc_agent_id'];
                 }
                 $curl_data['call_from_api'] = true;
                 $curl_data['service_center_id'] = $booking_details['booking_history'][0]['assigned_vendor_id'];
@@ -3142,7 +3168,7 @@ class engineerApi extends CI_Controller {
                 $curl_data['grand_total_price'] = 0;
                 $curl_data['booking_timeslot'] = $booking_details['booking_history'][0]['booking_timeslot'];
                 $curl_data['booking_request_symptom'] = $booking_details['booking_history'][0]['booking_request_symptom']; 
-                $curl_data['query_remarks'] = $booking_details['booking_history'][0]['query_remarks']; 
+                $curl_data['query_remarks'] = $booking_details['booking_history'][0]['booking_remarks']; 
                 $curl_data['repeat_reason'] = $booking_details['booking_history'][0]['repeat_reason'];
                 $curl_data['internal_status'] = $booking_details['booking_history'][0]['internal_status'];
                 
@@ -3207,7 +3233,7 @@ class engineerApi extends CI_Controller {
                 $curl_data['order_item_id'] = $order_item_ids;
                 $curl_data['purchase_date'] = $purchase_dates;
                 $curl_data['model_number'] = $model_numbers;
-              
+                            
                 $url = base_url() . "employee/booking/Api_getAllBookingInput/".$booking_details['booking_history'][0]['user_id']."/".$requestData["booking_id"];
                 $ch = curl_init($url);
 
