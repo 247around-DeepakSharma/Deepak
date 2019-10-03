@@ -44,6 +44,7 @@ class Warranty extends CI_Controller {
         $data = array();
         $no = $post['start'];
         $date_period_start = $post_data['purchase_date'];
+        $create_date = $post_data['create_date'];
         $InWarrantyTimePeriod = 12; // Make it 0 if want to take in-warranty data from table.
         $InWarrantyGracePeriod = 0;
         $activeInWarrantyPlans = 0;
@@ -58,13 +59,13 @@ class Warranty extends CI_Controller {
         else
         {
             $no++;
-            $row =  $this->in_warranty_data($no, $post_data['purchase_date'], $activeInWarrantyPlans);
+            $row =  $this->in_warranty_data($no, $post_data['purchase_date'], $activeInWarrantyPlans, $create_date);
             $data[] = $row;
         }
              
         foreach ($list as $key => $value) {
             $no++;
-            $row =  $this->warranty_data($list[$key], $no, $date_period_start, $InWarrantyTimePeriod, $InWarrantyGracePeriod, $activeInWarrantyPlans, $activeExtendedWarrantyPlans);
+            $row =  $this->warranty_data($list[$key], $no, $date_period_start, $InWarrantyTimePeriod, $InWarrantyGracePeriod, $activeInWarrantyPlans, $activeExtendedWarrantyPlans, $create_date);
             $data[] = $row;
         }
         
@@ -93,7 +94,7 @@ class Warranty extends CI_Controller {
         return $post;
     }
     
-    function warranty_data($warranty_list, $no, $period_start, $InWarrantyTimePeriod, $InWarrantyGracePeriod, &$activeInWarrantyPlans,&$activeExtendedWarrantyPlans){
+    function warranty_data($warranty_list, $no, $period_start, $InWarrantyTimePeriod, $InWarrantyGracePeriod, &$activeInWarrantyPlans,&$activeExtendedWarrantyPlans, $create_date){
         $warranty_end_period = $period_start;
         $in_warranty_end_period = $period_start;
         $warranty_period = $warranty_list['warranty_period'];
@@ -114,6 +115,7 @@ class Warranty extends CI_Controller {
         }
         $warranty_end_period = strtotime(date("Y-m-d", $warranty_end_period) . " -1 day");
         $in_warranty_end_period = strtotime(date("Y-m-d", $in_warranty_end_period) . " -1 day");
+        $date_booking_creation = strtotime(date("Y-m-d", strtotime($create_date)));
         
         $row = array();
         $row[] = $no;
@@ -127,13 +129,13 @@ class Warranty extends CI_Controller {
         $row[] = (!empty($warranty_list['warranty_type']) && $warranty_list['warranty_type'] == 1) ? "In Warranty" : "Extended Warranty";
         $row[] = $warranty_list['warranty_period']. " Month(s)";
         $row[] = $warranty_list['warranty_grace_period']. " Day(s)";
-        if($warranty_end_period < strtotime(date("Y-m-d")))
+        if($warranty_end_period < $date_booking_creation)
         {
             $row[] = date('d-M-Y', $warranty_end_period)."<p style='color: #f30;font-weight:bold;'>Expired</p>";
         }
         else
         {
-            if(($warranty_list['warranty_type'] == 1) || ($in_warranty_end_period >= strtotime(date("Y-m-d"))))
+            if(($warranty_list['warranty_type'] == 1) || ($in_warranty_end_period >= $date_booking_creation))
             {
                 $activeInWarrantyPlans++;
             }
@@ -145,10 +147,11 @@ class Warranty extends CI_Controller {
         return $row;        
     }
     
-    function in_warranty_data($no, $purchase_date, &$activeInWarrantyPlans){  
+    function in_warranty_data($no, $purchase_date, &$activeInWarrantyPlans, $create_date){  
         $warranty_start_period = date('d-M-Y', strtotime($purchase_date));
         $warranty_end_period = date('d-m-Y', strtotime(date("Y-m-d", strtotime($purchase_date)) . " +1 year"));
         $warranty_end_period = date('d-M-Y', strtotime(date("Y-m-d", strtotime($warranty_end_period)) . " -1 day"));
+        $date_booking_creation = strtotime(date("Y-m-d", strtotime($create_date)));
         $row = array();
         $row[] = $no;
         $row[] = 'In Warranty';
@@ -161,7 +164,7 @@ class Warranty extends CI_Controller {
         $row[] = "In Warranty";
         $row[] = "12 Month(s)";
         $row[] = "0 Day(s)";
-        if(strtotime($warranty_end_period) < strtotime(date("Y-m-d")))
+        if(strtotime($warranty_end_period) < $date_booking_creation)
         {
             $row[] = date('d-M-Y', strtotime($warranty_end_period))."<p style='color: #f30;font-weight:bold;'>Expired</p>";
         }

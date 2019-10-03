@@ -136,7 +136,6 @@
                             <th>D5 - D7</th>
                              <th>D8 - D15</th>
                              <th>> D15</th>
-                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -183,7 +182,14 @@
                         <tr class="tat-report" data-rm-row-id="{{x.id}}" ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 == undefined'>
                            <td>{{$index+1}}</td>
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">{{x.entity}}</button></td>
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">{{x.entity}}</button>
+                                <span ng-if="x.id == '00'"></span>
+                                <span ng-if="x.id != '00'">
+                                    <span class="tat-report collape_icon toggle-arm-details" data-rm-id="{{x.id}}" onclick="get_arm_details_for_rm($(this).data('rm-id'))">
+                                        <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                            </td>
                            <td> {{x.TAT_0}}  ({{x.TAT_0_per}}%) </td>
                            <td>{{x.TAT_1}}  ({{x.TAT_1_per}}%) </td>
                            <td>{{x.TAT_2}}  ({{x.TAT_2_per}}%)</td>
@@ -192,12 +198,7 @@
                            <td>{{x.TAT_5}}  ({{x.TAT_5_per}}%) </td>
                            <td>{{x.TAT_8}}  ({{x.TAT_8_per}}%)</td>
                            <td>{{x.TAT_16}}  ({{x.TAT_16_per}}%)</td>
-                           <td ng-if="x.id == '00'"></td>
-                           <td ng-if="x.id != '00'">
-                                <span class="tat-report collape_icon toggle-arm-details" data-rm-id="{{x.id}}" onclick="get_arm_details_for_rm($(this).data('rm-id'))">
-                                    <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>
-                                </span>
-                            </td>
+
                         </tr>
                     </tbody>
                 </table>
@@ -316,18 +317,25 @@
                              <th>D8 - D15</th>
                              <th>>D15</th>
                              <th>Total</th>
-                             <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr class="open-call-report" data-rm-row-id="{{x.id}}" ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity !== 'Total'">
                            <td>{{$index+1}}</td>
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')">{{x.entity}}</button></td>
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')">{{x.entity}}</button>
+                                 <span ng-if="x.id == '00'"></span>
+                                 <span ng-if="x.id != '00'">
+                                    <span class="open-call-report collape_icon toggle-arm-details" data-rm-id="{{x.id}}" onclick="get_arm_open_call_details_for_rm($(this).data('rm-id'))">
+                                        <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                            </td>
                                        <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
                                             <input type="hidden" name="booking_id_status" value=" {{x.TAT_0_bookings}}">
                                             <input type="submit" value="{{x.TAT_0}} ({{x.TAT_0_per}}%)"  class="btn btn-success">
-                                             </form></td>
+                                             </form>
+                                             </td>
                                               <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
                                             <input type="hidden" name="booking_id_status" value=" {{x.TAT_1_bookings}}">
                                             <input type="submit" value="{{x.TAT_1}} ({{x.TAT_1_per}}%)" class="btn btn-success">
@@ -363,12 +371,6 @@
                                             <input type="submit" value="{{x.TAT_16}} ({{x.TAT_16_per}}%)" ng-if="x.TAT_16 <= 0" class="btn btn-success">
                                              </form></td>
                            <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
-                           <td ng-if="x.id == '00'"></td>
-                           <td ng-if="x.id != '00'">
-                                <span class="open-call-report collape_icon toggle-arm-details" data-rm-id="{{x.id}}" onclick="get_arm_open_call_details_for_rm($(this).data('rm-id'))">
-                                    <i class="fa fa-chevron-circle-down" aria-hidden="true"></i>
-                                </span>
-                            </td>
                         </tr>
                         <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity == 'Total'">
                             <td>{{$index+1}}</td>
@@ -1746,15 +1748,15 @@
     function get_arm_details_for_rm(rm_id){
         if($("#arm_table_"+ rm_id).length>0){
             if($("#arm_table_"+ rm_id).is(":hidden")){
-                $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-up");
+                $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
             }else{
-                $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-up").addClass("fa-chevron-circle-down");
+                $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
             }
             $("#arm_table_"+ rm_id).slideToggle();
             return false;
         }
-        $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-up");
-        var html = "<tr id='arm_table_"+ rm_id +"'><td class='text-center' colspan=11><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
+        $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
+        var html = "<tr id='arm_table_"+ rm_id +"' class='arm-tat-table'><td class='text-center' colspan=10><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
         $("tr.tat-report[data-rm-row-id='"+ rm_id+ "']").after(html);
         dateRange = $("#completed_daterange_id").val();
         dateArray = dateRange.split(" - ");
@@ -1794,11 +1796,15 @@
     function create_arm_tat_report_table(tableRow,data){
         if(!!data.TAT && data.TAT.length>0){
             html='<table class="table table-striped table-bordered sub-table">'
-                    +'<thead><tr><th>S.no</th><th>RM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
+                    +'<thead><tr><th>S.no</th><th>ARM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
             for(var i in data.TAT){
                 html += '<tr>';
                 html += "<td>"+ (parseInt(i)+1)+ "</td>";
-                html += "<td><button type='button' id='vendor_"+ data.TAT[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')\">"+ data.TAT[i].entity+ "</button></td>";
+                if(data.TAT[i].id === "00"){
+                    html += "<td><button class='btn btn-info'>"+ data.TAT[i].entity+ "</button></td>";
+                }else{
+                    html += "<td><button type='button' id='vendor_"+ data.TAT[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')\">"+ data.TAT[i].entity+ "</button></td>";
+                }
                 html += "<td>"+ data.TAT[i].TAT_0+ "("+ data.TAT[i].TAT_0_per+ "%)</td>";
                 html += "<td>"+ data.TAT[i].TAT_1+ "("+ data.TAT[i].TAT_1_per+ "%)</td>";
                 html += "<td>"+ data.TAT[i].TAT_2+ "("+ data.TAT[i].TAT_2_per+ "%)</td>";
@@ -1809,11 +1815,11 @@
                 html += "<td>"+ data.TAT[i].TAT_16+ "("+ data.TAT[i].TAT_16_per+ "%)</td>";
                 html += '</tr>';
             }
-            html = "<td colspan=11>"+ html+ "</td>"
+            html = "<td colspan=10>"+ html+ "</td>"
             $("#arm_table_"+ tableRow).empty().html(html);
         }else{
             $("#arm_table_"+ tableRow).remove();
-            $("span.tat-report[data-rm-id='"+ tableRow+ "']").find("i").removeClass("fa-chevron-circle-up").addClass("fa-chevron-circle-down");
+            $("span.tat-report[data-rm-id='"+ tableRow+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
             alert("No/Invalid data recieved from server. Please try again.");
         }
     }
@@ -1821,15 +1827,15 @@
     function get_arm_open_call_details_for_rm(rm_id){
         if($("#arm_open_call_table_"+ rm_id).length>0){
             if($("#arm_open_call_table_"+ rm_id).is(":hidden")){
-                $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-up");
+                $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
             }else{
-                $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-up").addClass("fa-chevron-circle-down");
+                $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
             }
             $("#arm_open_call_table_"+ rm_id).slideToggle();
             return false;
         }
-        $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-chevron-circle-down").addClass("fa-chevron-circle-up");
-        var html = "<tr id='arm_open_call_table_"+ rm_id +"'><td class='text-center' colspan=12><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
+        $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
+        var html = "<tr id='arm_open_call_table_"+ rm_id +"' class='arm-open-call-table'><td class='text-center' colspan=11><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
         $("tr.open-call-report[data-rm-row-id='"+ rm_id+ "']").after(html);
         dateRange = $("#pending_daterange_id_rm").val();
         dateArray = dateRange.split(" - ");
@@ -1869,12 +1875,16 @@
     function create_arm_open_call_tat_report_table(tableRow,data){
         if(!!data && data.length>0){
             html='<table class="table table-striped table-bordered sub-table">'
-                    +'<thead><tr><th>S.no</th><th>RM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th><th>Total</th></tr></thead>';
+                    +'<thead><tr><th>S.no</th><th>ARM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th><th>Total</th></tr></thead>';
             for(var i in data){
                 var total = 0;
                 html += '<tr>';
                 html += "<td>"+ (parseInt(i)+1)+ "</td>";
-                html += "<td><button type='button' id='vendor_"+ data[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')\">"+ data[i].entity+ "</button></td>";
+                if(data[i].id === "00"){
+                    html += "<td><button class='btn btn-info'>"+ data[i].entity+ "</button></td>";
+                }else{
+                    html += "<td><button type='button' id='vendor_"+ data[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')\">"+ data[i].entity+ "</button></td>";
+                }
                 html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
                             +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_0_bookings+ '">'
                             +'<input type="submit" value="'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)"  class="btn btn-success">'
@@ -1918,11 +1928,11 @@
                 html += '<td>'+ data[i].Total_Pending + " ("+ data[i].TAT_total_per+ "%) </td>";
                 html += '</tr>';
             }
-            html = "<td colspan=12>"+ html+ "</td>"
+            html = "<td colspan=11>"+ html+ "</td>"
             $("#arm_open_call_table_"+ tableRow).empty().html(html);
         }else{
             $("#arm_open_call_table_"+ tableRow).remove();
-            $("span.open-call-report[data-rm-id='"+ tableRow+ "']").find("i").removeClass("fa-chevron-circle-up").addClass("fa-chevron-circle-down");
+            $("span.open-call-report[data-rm-id='"+ tableRow+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
             alert("No/Invalid data recieved from server. Please try again.");
         }
     }

@@ -88,13 +88,16 @@ class Employee_model extends CI_Model{
    */
 
     function delete($id){
-        $this->db->where('id',$id);
-        $this->db->delete('handyman');
-        $client = new Elasticsearch\Client();
-        $indexParams['index']  = "boloaaka";
-        $indexParams['type']   = "handyman";
-        $indexParams['id'] = $id;
-        $retDelete = $client->delete($indexParams);
+        if(!empty($id))
+        {
+            $this->db->where('id',$id);
+            $this->db->delete('handyman');
+            $client = new Elasticsearch\Client();
+            $indexParams['index']  = "boloaaka";
+            $indexParams['type']   = "handyman";
+            $indexParams['id'] = $id;
+            $retDelete = $client->delete($indexParams);
+        }
     }
 
   /**
@@ -104,8 +107,10 @@ class Employee_model extends CI_Model{
    */
 
     function deleteemployee($id){
-        $this->db->where('id',$id);
-        $this->db->delete('employee');
+        if(!empty($id)){
+            $this->db->where('id',$id);
+            $this->db->delete('employee');
+        }
     }
 
     /**
@@ -243,8 +248,10 @@ class Employee_model extends CI_Model{
    */
 
    function deleteManager($cond){
-   	$query =  "DELETE FROM employee_hierarchy_mapping where ".$cond." ";
-        $result=$this->db->query($query);
+       if(!empty($cond)){
+   	        $query =  "DELETE FROM employee_hierarchy_mapping where ".$cond." ";
+            $result=$this->db->query($query);
+        }
    }
    /**
    * @desc : This funtion for update employee managerial mapping
@@ -381,9 +388,9 @@ FROM
         left join 
         (SELECT `manager_id` as `id`,  GROUP_CONCAT(`individual_service_centres_id` SEPARATOR ',')  as `center_id`, GROUP_CONCAT(`state_code` SEPARATOR ',') as `state_id` FROM `employee_relation` 
         left JOIN `employee_hierarchy_mapping` on `employee_relation`.`agent_id`=`employee_hierarchy_mapping`.`employee_id`
-        where `employee_hierarchy_mapping`.`manager_id` = ".$id.") as a on (a.id=employee_relation.agent_id)
-        set `service_centres_id`=a.`center_id` , `state_code`=a.`state_id`
-        where `agent_id`=a.id";
+        where `employee_hierarchy_mapping`.`manager_id` = ".$id.") as tempq on (tempq.id=employee_relation.agent_id)
+        set `service_centres_id`=tempq.`center_id` , `state_code`=tempq.`state_id`
+        where `agent_id`=tempq.id";
        return $this->db->query($sql);
    }
    
@@ -403,7 +410,7 @@ FROM
                . "set `employee_relation`.`state_code`= if((`employee_relation`.`state_code` is null or `employee_relation`.`state_code` =''),a.`state_code`,concat(`employee_relation`.`state_code`, concat(',',a.`state_code`) )), "
                . "`employee_relation`.`service_centres_id`=if((`employee_relation`.`service_centres_id` is null or `employee_relation`.`service_centres_id` =''),a.`individual_service_centres_id`,concat(`employee_relation`.`service_centres_id`,concat(',',a.`individual_service_centres_id`)) ) "
                . "where `employee_relation`.`agent_id`=a.id";
-       print_r($sql);
+       //print_r($sql);
        return $this->db->query($sql);
    }
    
@@ -436,26 +443,26 @@ FROM
     * @return type
     */
    function remove_all_rm_state_map($state) {
-        $sql_individual_service_centres_id = "UPDATE `employee_relation` as a "
-                ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , a.`state_code`) "
+        $sql_individual_service_centres_id = "UPDATE `employee_relation` as emp_rel "
+                ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , emp_rel.`state_code`) "
                 ."LEFT JOIN `service_centres` on (`state_code`.`state` = `service_centres`.`state`) "
-                ."SET a.`individual_service_centres_id` = ( "
+                ."SET emp_rel.`individual_service_centres_id` = ( "
                 ."select TRIM(BOTH ',' FROM REPLACE(CONCAT(',',b.`individual_service_centres_id`, ','), "
                 ."CONCAT(\",\",GROUP_CONCAT(`service_centres`.`id` ORDER BY `service_centres`.`id` SEPARATOR ','),\",\"), ',')) from `employee_relation` b "
                 ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` ,b.`state_code`) "
                 ."LEFT JOIN `service_centres` on (`state_code`.`state` = `service_centres`.`state`) "
-                ."WHERE `state_code`.`state` = '".trim($state)."' and   b.`agent_id` = a.agent_id) " 
+                ."WHERE `state_code`.`state` = '".trim($state)."' and   b.`agent_id` = emp_rel.agent_id) " 
                 ."WHERE `state_code`.`state` = '".trim($state)."'";
         
-        $sql_service_centres_id = "UPDATE `employee_relation` as a "
-                ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , a.`state_code`) "
+        $sql_service_centres_id = "UPDATE `employee_relation` as emp_rel "
+                ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , emp_rel.`state_code`) "
                 ."LEFT JOIN `service_centres` on (`state_code`.`state` = `service_centres`.`state`) "
-                ."SET a.`service_centres_id` = ( "
+                ."SET emp_rel.`service_centres_id` = ( "
                 ."select TRIM(BOTH ',' FROM REPLACE(CONCAT(',',b.`service_centres_id`, ','), "
                 ."CONCAT(\",\",GROUP_CONCAT(`service_centres`.`id` ORDER BY `service_centres`.`id` SEPARATOR ','),\",\"), ',')) from `employee_relation` b "
                 ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` ,b.`state_code`) "
                 ."LEFT JOIN `service_centres` on (`state_code`.`state` = `service_centres`.`state`) "
-                ."WHERE `state_code`.`state` = '".trim($state)."' and   b.`agent_id` = a.agent_id) "
+                ."WHERE `state_code`.`state` = '".trim($state)."' and   b.`agent_id` = emp_rel.agent_id) "
                 ."WHERE `state_code`.`state` = '".trim($state)."'";
         
         $sql_state_code = "UPDATE `employee_relation` 

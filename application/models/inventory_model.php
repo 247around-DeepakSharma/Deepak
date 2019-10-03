@@ -1742,9 +1742,10 @@ class Inventory_model extends CI_Model {
         $this->db->trans_begin();
         
         //delete old wh state mapping
-        $this->db->where('warehouse_id', $data['wh_id']);
-        $this->db->delete('warehouse_state_relationship');
-        
+        if(!empty($data)){
+            $this->db->where('warehouse_id', $data['wh_id']);
+            $this->db->delete('warehouse_state_relationship');
+        }
         //create new warehouse and state mapping
         $wh_state_mapping_data = array();
         foreach ($data['new_wh_state_mapping'] as $value) {
@@ -2743,9 +2744,11 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_alternet_parts($select, $where = array()) {
+        $this->db->distinct();
         $this->db->select($select,false);
         $this->db->from('inventory_master_list');
         $this->db->join('alternate_inventory_set','alternate_inventory_set.inventory_id = inventory_master_list.inventory_id');
+        $this->db->join('appliance_model_details','appliance_model_details.id = alternate_inventory_set.model_id');
         $this->db->group_by("group_id");
         if (!empty($where)) {
             $this->db->where($where,false);
