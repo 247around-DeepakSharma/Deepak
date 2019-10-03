@@ -4450,7 +4450,7 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__);
         $where = array(
             'spare_parts_details.entity_type' => _247AROUND_SF_STRING,
-            'partner_id' => $receiver_entity_id,
+            'spare_parts_details.partner_id' => $receiver_entity_id,
             'wh_ack_received_part' => 0,
             'requested_inventory_id' => $data->inventory_id
         );
