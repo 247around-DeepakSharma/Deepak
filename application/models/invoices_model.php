@@ -374,8 +374,10 @@ class invoices_model extends CI_Model {
      * @return:
      */
     function delete_banktransaction($transaction_id) {
-        $this->db->where('id', $transaction_id);
-        $this->db->delete("bank_transactions");
+        if(!empty($transaction_id)){
+            $this->db->where('id', $transaction_id);
+            $this->db->delete("bank_transactions");
+        }
     }
 
     /**
