@@ -182,13 +182,18 @@ class Dealer_model extends CI_Model {
      * @return boolean
      */
     function delete_dealer_brand_mapping($where){
-        $this->db->where($where);
-        $this->db->delete('dealer_brand_mapping');
-        if($this->db->affected_rows() > 0 ){
-            return TRUE;
-        }else{
-            return FALSE;
+        if(!empty($where))
+        {
+            $this->db->where($where);
+            $this->db->delete('dealer_brand_mapping');
+            if($this->db->affected_rows() > 0 ){
+                return TRUE;
+            }else{
+                return FALSE;
+            }
         }
+        else
+             return false;
     }
     function get_entity_login_details($data){
       $this->db->select("entity_role.is_filter_applicable,entity_role.role,contact_person.id,contact_person.official_email,"
