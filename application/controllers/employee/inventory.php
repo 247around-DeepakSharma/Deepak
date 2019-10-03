@@ -3933,12 +3933,16 @@ class Inventory extends CI_Controller {
                     . $around_gst[0]['pincode'];
         
         $response['meta']['main_company_pincode'] = $around_gst[0]['pincode'];
+        $response['meta']['main_company_state_code'] = $around_gst[0]['state'];
         if(!empty($around_gst[0]['email_id'])){
             $response['meta']['main_company_email'] = $around_gst[0]['email_id'];
         }
-        if(!empty($around_gst[0]['email_id'])){
+        if(!empty($around_gst[0]['contact_number'])){
             $response['meta']['main_company_phone'] = $around_gst[0]['contact_number'];
-        }  
+        }
+        if(!empty($around_gst[0]['state_stamp_picture'])){
+            $response['meta']['main_company_seal'] = $around_gst[0]['state_stamp_picture'];
+        }
         $response['meta']['invoice_id'] = $invoice_id;
         $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         if ($status) {
@@ -4869,9 +4873,7 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . " Data " . print_r($postData, TRUE) . " Entity id " . $sender_entity_id);
         $from_gst_id = $this->input->post('from_gst_number');
         $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id);
-       
         
-       
         $booking_id_array = array();
         $sp_id = array();
         if (!empty($invoiceData['processData'])) {
@@ -4965,6 +4967,7 @@ class Inventory extends CI_Controller {
                             . $invoiceValue['data'][0]['from_pincode'];
 
                 $response['meta']['main_company_pincode'] = $invoiceValue['data'][0]['from_pincode'];
+                $response['meta']['main_company_seal'] = $invoiceValue['data'][0]['state_stamp_pic'];
 
                 $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
                 if ($status) {
@@ -5842,7 +5845,7 @@ class Inventory extends CI_Controller {
     function get_inventory_by_model($model_number_id) {      
         if ($model_number_id) {
             $model_number_id = urldecode($model_number_id);
-            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services,inventory_model_mapping.id', array('inventory_model_mapping.model_number_id' => $model_number_id,'inventory_model_mapping.active' => 1));
+            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services,inventory_model_mapping.id, inventory_model_mapping.bom_main_part,inventory_model_mapping.create_date', array('inventory_model_mapping.model_number_id' => $model_number_id,'inventory_model_mapping.active' => 1,'appliance_model_details.active'=> 1));
         } else {
             $data['inventory_details'] = array();
         }

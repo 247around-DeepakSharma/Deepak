@@ -29,13 +29,13 @@ include("247around_tax_invoice_variables_interstate.php");
 	<tr>
 		<td style="text-align: center;border-bottom: hidden; " colspan="8" ><h1>Blackmelon Advance Technology Co. Pvt. Ltd.</h1></td></tr>
 	<tr style="border-bottom:hidden;"><td rowspan="2" width="20%" align="left" style="border-right: hidden;"><img style="padding: 5px;" src="https://aroundhomzapp.com/images/logo.jpg"></td>
-		<td colspan="6" width="75%" align="center0" style="border:hidden; padding-left: 5%">A-1/7, F/F A BLOCK, KRISHNA NAGAR, DELHI, 110051</td>
+		<td colspan="6" width="75%" align="center0" style="border:hidden; padding-left: 5%">A-34, FIRST FLOOR, SECTOR-63, NOIDA, UTTAR PRADESH, 201301</td>
 		<td rowspan="3" colspan="1" style="text-align: right; width: 20%; border-left: hidden;"><b>(<?php echo "$recipient_type";?>)</td>
 	</tr>
 	<tr style="border: hidden;"><td colspan="6" align="center" style="padding-right: 15%; border-right: hidden;">Email: billing@247around.com</td></tr>
 <!-- 	<tr><td style="border-bottom: hidden;border-top: hidden;border-right: hidden;padding: 1%">shmskjdhlskdjls</td>	
  -->	
- 	<tr style="text-align: center;" ><td colspan="8"><b>GSTIN: 07AAFCB1281J1ZQ</td></tr>
+ 	<tr style="text-align: center;" ><td colspan="8"><b>GSTIN: 09AAFCB1281J1ZM</td></tr>
 	
 
 	<tr style="text-align: center; height: 50px; font-size: 40px;background-color: rgb(211,211,211);">	
