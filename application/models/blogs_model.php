@@ -169,8 +169,10 @@ class Blogs_model extends CI_Model {
      * @return: void
      */
     function delete($id) {
-	$sql = "Delete FROM blogs WHERE id='$id'";
-        $this->db->query($sql);
+        if(!empty($id)){
+	        $sql = "Delete FROM blogs WHERE id='$id'";
+            $this->db->query($sql);
+        }
     }
 
     /*
