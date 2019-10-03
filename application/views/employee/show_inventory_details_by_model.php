@@ -41,13 +41,15 @@
                                     <th>Type</th>
                                     <th>Name</th>
                                     <th>Number</th>
+                                    <th>part is</th>
                                     <th>HSN</th>
                                     <th>Basic Price</th>
                                     <th>GST Rate</th>
                                     <th>Total Price</th>
                                     <th>Vendor Margin</th>
                                     <th>Around Margin</th>
-                                     <th>Customer Price</th>
+                                    <th>Customer Price</th>
+                                    <th>Created Date Time</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -58,6 +60,15 @@
                                     <td><?php echo $value['type']; ?></td>
                                     <td><?php echo $value['part_name']; ?></td>
                                     <td><?php echo $value['part_number']; ?></td>
+                                    <td>
+                                        <?php
+                                            if (!empty($value['bom_main_part']) && $value['bom_main_part'] == 1) {
+                                                echo 'Main Part';
+                                            } else {
+                                                echo 'Alternate Part';
+                                            }
+                                        ?>
+                                    </td>
                                     <td><?php echo $value['hsn_code']; ?></td>
                                     <td><?php echo $value['price']; ?></td>
                                     <td><?php echo $value['gst_rate']; ?></td>
@@ -74,6 +85,7 @@
 
 
                                     <td><?php echo $customertot; ?></td>
+                                    <td><?php echo date("d-m-Y H:i:s", strtotime($value['create_date'])); ?></td>
                                     
                                 </tr>
                                 <?php $sn++;} ?>
