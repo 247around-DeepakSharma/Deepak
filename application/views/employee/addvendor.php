@@ -424,27 +424,41 @@
                 <div class="panel panel-info">
                         <div class="panel-heading"  style="background-color:#ECF0F1"><b>Vendor Type*</b></div>
                         <div class="panel-body">
-                            <div class="col-md-12">
-                                <label class="checkbox-inline col-md-2">
+                            <div class="row">
+                                <div class="col-md-2">
+                                <label class="checkbox-inline">
                                     <input type="checkbox" id="is_sf" <?php if(isset($query[0]['is_sf'])) { if($query[0]['is_sf'] == 1){ echo "checked";}}?> name="is_sf" value="1"><b>Service Center</b>
                                 </label>
+                                    </div>
                                                 <?php if(!$saas_module){ ?>
-                                <label class="checkbox-inline col-md-2">
+                                <div class="col-md-2">
+                                <label class="checkbox-inline">
                                     <input type="checkbox" id="is_cp" name="is_cp" <?php if(isset($query[0]['is_cp'])) { if($query[0]['is_cp'] == 1){ echo "checked";}}?> value="1"><b>Collection Partner</b>
                                 </label>
+                                </div>
                                                 <?php }?>
-                                <label class="checkbox-inline col-md-2">
+                                <div class="col-md-2">
+                                <label class="checkbox-inline">
                                     <input type="checkbox" id="is_wh" name="is_wh" <?php if(isset($query[0]['is_wh'])) { if($query[0]['is_wh'] == 1){ echo "checked";}}?> value="1"><b>Warehouse</b>
                                 </label>
+                                </div>
                                   <?php if(!$saas_module){ ?>
-                                <label class="checkbox-inline col-md-2">
+                                <div class="col-md-2">
+                                <label class="checkbox-inline">
                                     <input type="checkbox" id="is_buyback_gst_invoice" name="is_buyback_gst_invoice" <?php if(isset($query[0]['is_buyback_gst_invoice'])) { if($query[0]['is_buyback_gst_invoice'] == 1){ echo "checked";}}?> value="1"><b>Buyback Invoice on GST</b>
                                 </label>
+                                </div>
                                   <?php } ?>
-                                
-                                <label class="checkbox-inline col-md-2">
+                                <div class="col-md-2">
+                                <label class="checkbox-inline">
                                     <input type="checkbox" id="is_engineer" <?php if(isset($query[0]['isEngineerApp'])) { if($query[0]['isEngineerApp'] == 1){ echo "checked";}}?> name="is_engineer" value="1"><b>Engineer App</b>
                                 </label>
+                                </div>
+                                <div class="col-md-2">
+                                <label class="checkbox-inline col-md-2">
+                                    <input type="checkbox" id="is_booking_close_by_app_only" <?php if(isset($query[0]['is_booking_close_by_app_only'])) { if($query[0]['is_booking_close_by_app_only'] == 1){ echo "checked";}}?> name="is_booking_close_by_app_only" value="1"><b style="white-space: nowrap;">Booking Close By App Only</b>
+                                </label>
+                                </div>
                             </div>
                         </div>
                 </div>
