@@ -7655,7 +7655,7 @@ class Service_centers extends CI_Controller {
         if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to)) {
             echo 'fail';
         } else {
-            $form_details = $this->partner_model->get_spare_parts_by_any(".spare_parts_details.*", array('spare_parts_details.id' => $from_spare_id));
+            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $from_spare_id));
             $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $to_spare_id));
             if (empty($form_details) || empty($to_details) || ($form_details[0]['service_center_id'] != $to_details[0]['service_center_id'])) {
                 echo 'fail';
