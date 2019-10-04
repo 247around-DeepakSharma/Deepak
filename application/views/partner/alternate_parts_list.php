@@ -104,6 +104,7 @@
                                     <th>Type</th>
                                     <th>Name</th>
                                     <th>Parts Number</th>
+                                    <th>Model Number</th>
                                     <th>Description</th>
                                     <th>Size</th>
                                     <th>HSN</th>
@@ -201,7 +202,8 @@
                     d.entity_id = entity_details.entity_id,
                     d.entity_type = entity_details.entity_type,
                     d.inventory_id = entity_details.inventory_id,
-                    d.service_id = entity_details.service_id
+                    d.service_id = entity_details.service_id,
+                    d.request_type = true;
                 }
             },
             "deferRender": true       
