@@ -2682,7 +2682,9 @@ class Booking extends CI_Controller {
                 if(!empty($defective_part_required) && $defective_part_required == 1 && !empty($service_center_details[0])) {
                     $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
+                        if(empty($spare_part_detail['sf_challan_file'])){
                         $this->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id']);
+                        }
                     }
                 }
             }
