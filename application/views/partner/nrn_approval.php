@@ -69,11 +69,12 @@
 <script>
     $(document).ready(function () {
         nrn_table = $('#nrn_table').DataTable({
-            "processing": true,
+            "processing": false,
             "language":{ 
                 "processing": "<center><img id='loader_gif_title' src='<?php echo base_url(); ?>images/loadring.gif'></center>",
             },
-             "serverSide": true, 
+
+            "serverSide": false, 
             "order": [], 
             "pageLength": 50,
             "ajax": {
