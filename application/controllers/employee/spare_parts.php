@@ -3379,17 +3379,17 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
          redirect(base_url() . "employee/login");
         }
     
-        $agentid='';
-        $agent_name='';
-        $login_partner_id='';
+        $agentid=_247AROUND_DEFAULT_AGENT;
+        $agent_name=_247AROUND_DEFAULT_AGENT_NAME;
+        $login_partner_id=_247AROUND;
         $login_service_center_id='';
         if ($this->session->userdata('userType') == 'employee') {
-            $agentid=$this->session->userdata('employee_id');
+            $agentid=$this->session->userdata('id');
             $agent_name =$this->session->userdata('emp_name');
             $login_partner_id = _247AROUND;
             $login_service_center_id =NULL;
         }else if($this->session->userdata('userType') == 'service_center'){
-            $agentid=$this->session->userdata('service_center_id');
+            $agentid=$this->session->userdata('service_center_agent_id');
             $agent_name =$this->session->userdata('service_center_name');
             $login_service_center_id = $this->session->userdata('service_center_id');
             $login_partner_id =NULL;
@@ -3485,21 +3485,8 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
 	           if($booking['entity_type']==_247AROUND_SF_STRING && $data['entity_type'] ==_247AROUND_PARTNER_STRING){
 					
 	            $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
-                    $spare_pending_on='';
-                    $wh_details = $this->vendor_model->getVendorContact($data['entity_id']);
-                    if(!empty($wh_details)){
-                    $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
-                    }else{
-                    $spare_pending_on = ' Warehouse'; 
-                    }
-
-                    $spare_pending_on2='';
-                    $wh_details = $this->vendor_model->getVendorContact($booking['partner_id']);
-                    if(!empty($wh_details)){
-                    $spare_pending_on2 = $wh_details[0]['district'] . ' Warehouse';   
-                    }else{
-                    $spare_pending_on2= ' Warehouse'; 
-                    }
+                    $spare_pending_on=_247AROUND_PARTNER_STRING;
+                    $spare_pending_on2='Warehouse';
 
                     $actor = 'Warehouse';
                     $new_state = 'Spare Part Transferred to ' . $spare_pending_on;
