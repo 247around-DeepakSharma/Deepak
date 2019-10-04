@@ -1919,6 +1919,7 @@ class engineerApi extends CI_Controller {
 
                 if($requestData["booking_status"] == _247AROUND_CANCELLED){
                     $where["engineer_booking_action.internal_status = '"._247AROUND_CANCELLED."'"] = NULL;
+                    $where["engineer_booking_action.booking_id in (select DISTINCT booking_id from engineer_booking_action group by booking_id having count(DISTINCT internal_status)=1)"] = NULL;
                 }
                 else{
                     $where["engineer_booking_action.internal_status = '"._247AROUND_COMPLETED."'"] = NULL;
