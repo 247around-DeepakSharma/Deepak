@@ -1260,7 +1260,8 @@ class Spare_parts extends CI_Controller {
             $post['where']['booking_details.partner_id'] = $this->input->post('partner_id');
         }
         
-        if( isset($post['where']['status']) && in_array($post['where']['status'], [OK_PARTS_SHIPPED, DEFECTIVE_PARTS_SHIPPED])){
+        if( isset($post['where']['status']) && $post['where']['status'] ==  DEFECTIVE_PARTS_SHIPPED){
+            $post['where_in']['status'] = [DEFECTIVE_PARTS_SHIPPED, OK_PARTS_SHIPPED];
             $post['where']['approved_defective_parts_by_admin'] = $this->input->post('approved_defective_parts_by_admin');
         }
         
