@@ -317,7 +317,7 @@
                                                                     $image_src = $src;
                                                                     $pic_name = '';
                                                                     if($this->session->userdata('is_engineer_app') == 1){ 
-                                                                        if (($price['product_or_services'] != "Service" && $price['customer_net_payable'] > 0) ){ 
+                                                                        if (($price['product_or_services'] != "Product" && $price['customer_net_payable'] > 0) ){ 
                                                                             if(isset($price['en_service_charge'])){
                                                                                 $customer_basic_charge = $price['en_service_charge'];
                                                                             }
