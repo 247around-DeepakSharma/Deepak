@@ -1178,7 +1178,7 @@ class engineerApi extends CI_Controller {
                     if(isset($value["purchase_invoice"])){
                         if($value["purchase_invoice"]){
                             $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".date("YmdHis").".png";
-                            $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "misc-images");
+                            $this->miscelleneous->generate_image($value["purchase_invoice"],$purchase_inv_url, "misc-images");
                             $data["purchase_invoice"] = $purchase_inv_url;
                         }
                     }
@@ -1192,12 +1192,12 @@ class engineerApi extends CI_Controller {
                         }
                     }
 
-                    if($value['pod'] == "1"){
-                        $serial_number_text = $unitDetails[0]["serial_number"];
+                    if(isset($value["serial_number"])){
+                        $serial_number_text = $value["serial_number"];
                         if(isset($value["serial_number_pic"])){
                             if(!$sn_pic_url){
                                 $sn_pic_url = $requestData['booking_id']."_" . $unit_id ."_serialNO_".rand(10,100).".png";
-                                $this->miscelleneous->generate_image($unitDetails[0]["serial_number_pic"],$sn_pic_url, SERIAL_NUMBER_PIC_DIR);
+                                $this->miscelleneous->generate_image($value["serial_number_pic"],$sn_pic_url, SERIAL_NUMBER_PIC_DIR);
                             }
                         }
                         else{
@@ -1920,6 +1920,7 @@ class engineerApi extends CI_Controller {
 
                 if($requestData["booking_status"] == _247AROUND_CANCELLED){
                     $where["engineer_booking_action.internal_status = '"._247AROUND_CANCELLED."'"] = NULL;
+                    $where["engineer_booking_action.booking_id in (select DISTINCT booking_id from engineer_booking_action group by booking_id having count(DISTINCT internal_status)=1)"] = NULL;
                 }
                 else{
                     $where["engineer_booking_action.internal_status = '"._247AROUND_COMPLETED."'"] = NULL;

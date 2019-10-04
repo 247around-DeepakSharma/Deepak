@@ -728,6 +728,7 @@ class Service_centers extends CI_Controller {
      */
     public function update_spare_consumption_status($post_data, $booking_id) {        
         if(!empty($post_data['spare_consumption_status'])) {
+            $courier_lost_spare = [];
             $partner_id = $post_data["partner_id"];
             
             foreach($post_data['spare_consumption_status'] as $spare_id => $status_id) {
@@ -745,6 +746,7 @@ class Service_centers extends CI_Controller {
                 
                 if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
                     $status = COURIER_LOST;
+                    $courier_lost_spare[] = $spare_part_detail;
                 }
                 
 //                if($consumption_status_tag == PART_CANCELLED_STATUS_TAG && empty($spare_part_detail['parts_shipped'])) {
@@ -804,6 +806,10 @@ class Service_centers extends CI_Controller {
             }
         }
         
+        if(!empty($courier_lost_spare)) {
+            $this->service_centers_model->get_courier_lost_email_template($booking_id, $courier_lost_spare);
+        }
+
         return true;
     }
     
