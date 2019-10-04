@@ -1193,7 +1193,7 @@ class engineerApi extends CI_Controller {
                     
                     if($value['pod'] == "1"){
                         $serial_number_text = $unitDetails[0]["serial_number"];
-                        if(isset($value["serial_number"])){
+                        if(isset($value["serial_number_pic"])){
                             if(!$sn_pic_url){
                                 $sn_pic_url = $requestData['booking_id']."_" . $unit_id ."_serialNO_".rand(10,100).".png";
                                 $this->miscelleneous->generate_image($unitDetails[0]["serial_number_pic"],$sn_pic_url, SERIAL_NUMBER_PIC_DIR);
