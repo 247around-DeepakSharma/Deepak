@@ -747,7 +747,7 @@ class invoices_model extends CI_Model {
 
         if (!empty($packaging_charge)) {
             $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG, 'fixed_charges > 0' => NULL));
+                "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1));
             if (!empty($packaging)) {
                 $c_data = array();
                 $c_data[0]['description'] = $packaging[0]['description'];
@@ -823,7 +823,7 @@ class invoices_model extends CI_Model {
 
             
             $fixed_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.is_fixed" => 1));
+                "entity_id" => $partner_id, "variable_charges_type.is_fixed" => 1, "vendor_partner_variable_charges.status" => 1));
             if (!empty($fixed_charges)) {
                 foreach ($fixed_charges as $value) {
                     $c_data = array();
@@ -841,7 +841,7 @@ class invoices_model extends CI_Model {
             }
             
             $micro_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.type" => MICRO_WAREHOUSE_CHARGES_TYPE));
+                "entity_id" => $partner_id, "variable_charges_type.type" => MICRO_WAREHOUSE_CHARGES_TYPE, "vendor_partner_variable_charges.status" => 1));
             if (!empty($micro_charges)) {
                 foreach ($micro_charges as $key => $value) {
                     $micro_wh_lists = $this->invoices_model->calculate_active_microwarehouse($partner_id, $tmp_from_date, $to_date);
