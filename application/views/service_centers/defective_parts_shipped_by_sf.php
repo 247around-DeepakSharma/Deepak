@@ -69,7 +69,15 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php $sn_no=1;foreach ($spare_parts as $key => $row) { ?>
+                        <?php 
+                            $sn_no = 1;
+                        foreach ($spare_parts as $key => $row) {
+
+                            $spareStatus = DELIVERED_SPARE_STATUS;
+                            if (!$row['defactive_part_received_date_by_courier_api']) {
+                                $spareStatus = $row['status'];
+                            }
+                            ?>
                             <tr style="text-align: center;<?php if($row['defective_part_rejected_by_partner']==1){echo "background-color: #d89e9e !important;font-weight: 900";} ?>">
                                 <td>
                                     <?php echo $sn_no; ?>
@@ -104,7 +112,8 @@
                                     <?php echo $row['courier_name_by_sf']; ?>
                                 </td>
                                 <td>
-                                    <?php echo $row['awb_by_sf']; ?>
+                                    <a href="javascript:void(0)" onclick="get_awb_details('<?php echo $row['courier_name_by_sf']; ?>','<?php echo $row['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sn_no; ?>')"><?php echo $row['awb_by_sf']; ?></a> 
+                                    <span id="<?php echo "awb_loader_".$sn_no; ?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
                                 </td>
                                 <td>
                                     <?php if (!is_null($row['defective_part_shipped_date'])) {
@@ -219,6 +228,26 @@ else {
 
 
 });
+
+
+function get_awb_details(courier_code,awb_number,status,id){
+        if(courier_code && awb_number && status){
+            $('#'+id).show();
+            $.ajax({
+                method:"POST",
+                data : {courier_code: courier_code, awb_number: awb_number, status: status},
+                url:'<?php echo base_url(); ?>courier_tracking/get_awb_real_time_tracking_details',
+                success: function(res){
+                    $('#'+id).hide();
+                    $('#gen_model_title').html('<h3> AWB Number : ' + awb_number + '</h3>');
+                    $('#gen_model_body').html(res);
+                    $('#gen_model').modal('toggle');
+                }
+            });
+        }else{
+            alert('Something Wrong. Please Refresh Page...');
+        }
+    }
 
 
 

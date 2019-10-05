@@ -1178,7 +1178,7 @@ class engineerApi extends CI_Controller {
                     if(isset($value["purchase_invoice"])){
                         if($value["purchase_invoice"]){
                             $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".date("YmdHis").".png";
-                            $this->miscelleneous->generate_image($unitDetails[0]["purchase_invoice"],$purchase_inv_url, "misc-images");
+                            $this->miscelleneous->generate_image($value["purchase_invoice"],$purchase_inv_url, "misc-images");
                             $data["purchase_invoice"] = $purchase_inv_url;
                         }
                     }
@@ -1192,12 +1192,12 @@ class engineerApi extends CI_Controller {
                         }
                     }
 
-                    if($value['pod'] == "1"){
-                        $serial_number_text = $unitDetails[0]["serial_number"];
-                        if(isset($value["serial_number"])){
+                    if(isset($value["serial_number"])){
+                        $serial_number_text = $value["serial_number"];
+                        if(isset($value["serial_number_pic"])){
                             if(!$sn_pic_url){
                                 $sn_pic_url = $requestData['booking_id']."_" . $unit_id ."_serialNO_".rand(10,100).".png";
-                                $this->miscelleneous->generate_image($unitDetails[0]["serial_number_pic"],$sn_pic_url, SERIAL_NUMBER_PIC_DIR);
+                                $this->miscelleneous->generate_image($value["serial_number_pic"],$sn_pic_url, SERIAL_NUMBER_PIC_DIR);
                             }
                         }
                         else{
@@ -1816,6 +1816,7 @@ class engineerApi extends CI_Controller {
                     "assigned_vendor_id" => $service_center_id,
                     "assigned_engineer_id" => $engineer_id,
                     "engineer_booking_action.internal_status != '"._247AROUND_CANCELLED."'" => NULL,
+                    "engineer_booking_action.internal_status != '"._247AROUND_COMPLETED."'" => NULL,
                     "service_center_booking_action.current_status = '"._247AROUND_PENDING."'" => NULL,
                     "(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) = -1)" => NULL,
                     "(booking_details.current_status = '"._247AROUND_PENDING."' OR booking_details.current_status = '"._247AROUND_RESCHEDULED."')" => NULL
@@ -1919,6 +1920,7 @@ class engineerApi extends CI_Controller {
 
                 if($requestData["booking_status"] == _247AROUND_CANCELLED){
                     $where["engineer_booking_action.internal_status = '"._247AROUND_CANCELLED."'"] = NULL;
+                    $where["engineer_booking_action.booking_id in (select DISTINCT booking_id from engineer_booking_action group by booking_id having count(DISTINCT internal_status)=1)"] = NULL;
                 }
                 else{
                     $where["engineer_booking_action.internal_status = '"._247AROUND_COMPLETED."'"] = NULL;
@@ -2201,6 +2203,12 @@ class engineerApi extends CI_Controller {
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
             $curl_response = curl_exec($ch);
             curl_close($ch);
+            if($curl_response){
+                log_message("info", __METHOD__ . "Part  Updated successfully");
+                $this->jsonResponseString['response'] = "Booking Updated Successfully";
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            /*
             $response = json_decode($curl_response);
             if($response->status){
                 log_message("info", __METHOD__ . "Part  Updated successfully");
@@ -2211,6 +2219,7 @@ class engineerApi extends CI_Controller {
                 log_message("info", __METHOD__ . "Part Not Updated Error - ".$response->message);
                 $this->sendJsonResponse(array('0035', $response->message));
             }
+            */
         }
         else{
             log_message("info", __METHOD__ . "Request validation failed ".$validation['message']);

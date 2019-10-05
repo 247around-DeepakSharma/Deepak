@@ -139,3 +139,4 @@ define('SF_INVOICE_SUMMARY', 'sf_invoice_summary');
 define('PARTNER_INVOICE_SUMMARY', 'partner_invoice_summary');
 define('DEFECTIVE_SPARE_SEND_BY_WH_TO_PARTNER','defective_spare_send_by_wh_to_partner');
 define('MSL_SEND_BY_MICROWH_TO_WH','msl_send_by_microwh_to_wh');
+define('COURIER_LOST_SPARE_PARTS', 'courier_lost_spare_parts');
