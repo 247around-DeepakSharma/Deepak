@@ -2243,8 +2243,8 @@ class invoices_model extends CI_Model {
                 return FALSE;
             }
         } else {
-            if ((strcasecmp($state, "DELHI") == 0) ||
-                    (strcasecmp($state, "New Delhi") == 0)) {
+            if ((strcasecmp($state, "UTTAR PRADESH") == 0) ||
+                    (strcasecmp($state, "NOIDA") == 0)) {
                 //If matched return true;
                 // CGST & SGST
                 return TRUE;
