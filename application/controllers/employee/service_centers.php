@@ -2075,6 +2075,7 @@ class Service_centers extends CI_Controller {
                 $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
                 $data['shipped_quantity'] = $data['quantity'];
                 array_push($delivered_sp, $data);
+                unset($data['spare_id']);
             }
         $where = array('id' => $this->input->post('spare_id'));
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
