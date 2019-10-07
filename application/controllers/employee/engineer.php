@@ -182,7 +182,11 @@ class Engineer extends CI_Controller {
             }
             else{
                 $response['status'] = false;
-                $response['html'] = "<a href='".base_url()."service_center/add_engineer' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user' aria-hidden='true'></i></a>";
+                $link = base_url()."service_center/add_engineer";
+                if($this->input->post("booking_id")){
+                    $link = $link."/".urlencode(base64_encode($this->input->post("booking_id")));
+                }
+                $response['html'] = "<a href='".$link."' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user' aria-hidden='true'></i></a>";
                 echo json_encode($response);
             }
         }
