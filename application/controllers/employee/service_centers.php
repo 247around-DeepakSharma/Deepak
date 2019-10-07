@@ -2072,7 +2072,7 @@ class Service_centers extends CI_Controller {
         if($data['is_micro_wh']==1){
 
                 $data['spare_id'] = $this->input->post('spare_id');
-                $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
+                $data['shipped_inventory_id'] = $data['requested_inventory_id'];
                 $data['shipped_quantity'] = $data['quantity'];
                 array_push($delivered_sp, $data);
                 unset($data['spare_id']);
