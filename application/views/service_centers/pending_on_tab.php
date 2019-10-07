@@ -1142,12 +1142,13 @@ echo 'disabled';} ?>><i class='fa fa-times' aria-hidden='true'></i></a>
         $(".engineer_select").each(function(){  
             var service_id = $(this).attr("service-id");
             var engineer_id = $(this).attr("engineer-id");
+            var booking_id = $(this).attr("booking-id");
             var id = $(this).attr("id");
             if(service_id){
                 $.ajax({
                     type: 'post',
                     url: '<?php echo base_url()  ?>employee/engineer/get_service_based_engineer',
-                    data: {'service_id':service_id, 'engineer_id':engineer_id, 'service_center_id':<?php echo $this->session->userdata('service_center_id'); ?>},
+                    data: {'service_id':service_id, 'engineer_id':engineer_id, 'booking_id':booking_id, 'service_center_id':<?php echo $this->session->userdata('service_center_id'); ?>},
                     success: function (response) {
                         response = JSON.parse(response);
                         if(response.status){
