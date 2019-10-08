@@ -2488,7 +2488,7 @@ class Booking extends CI_Controller {
         }
 
         $booking['booking_id'] = $booking_id;
-        $booking['upcountry_paid_by_customer'] = $upcountry_charges;
+        $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
 
         // check partner status
         $actor = $next_action = 'NULL';
