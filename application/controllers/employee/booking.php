@@ -1036,7 +1036,7 @@ class Booking extends CI_Controller {
                     $upcountry_price = isset($service_center_data[0]['upcountry_charges']) ? $service_center_data[0]['upcountry_charges'] : "";
                 }
                 
-                if(!empty($price_tag['partner_invoice_id']) && empty($data['is_invoice_generated']) && in_array($data['booking_history'][0]['current_status'], [_247AROUND_COMPLETED, _247AROUND_CANCELLED])) {
+                if($this->session->userdata['user_group'] != _247AROUND_ADMIN && !empty($price_tag['partner_invoice_id']) && empty($data['is_invoice_generated']) && in_array($data['booking_history'][0]['current_status'], [_247AROUND_COMPLETED, _247AROUND_CANCELLED])) {
                     $data['is_invoice_generated'] = TRUE;
                 }
             }
@@ -1119,7 +1119,7 @@ class Booking extends CI_Controller {
         }
         
         $check_invoice_generated = array_column($this->reusable_model->get_search_result_data('booking_unit_details', 'partner_invoice_id', ['booking_id' => $booking_id], NULL, NULL, NULL, NULL, NULL), 'partner_invoice_id');
-        if(!empty(array_filter($check_invoice_generated))) {
+        if(!empty(array_filter($check_invoice_generated)) && $this->session->userdata['user_group'] != _247AROUND_ADMIN) {
             $data['is_invoice_generated'] = TRUE;
         } else {
             $data['is_invoice_generated'] = FALSE;
