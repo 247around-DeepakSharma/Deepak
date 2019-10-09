@@ -2019,9 +2019,10 @@ class Service_centers extends CI_Controller {
         $delivered_sp =array();
         if($data['is_micro_wh']==1){
                 $data['spare_id'] = $this->input->post('spare_id');
-                $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
+                $data['shipped_inventory_id'] = $data['requested_inventory_id'];
                 $data['shipped_quantity'] = $data['quantity'];
                 array_push($delivered_sp, $data);
+                unset($data['spare_id']);
             }
         $where = array('id' => $this->input->post('spare_id'));
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
@@ -6843,6 +6844,7 @@ function do_multiple_spare_shipping(){
             NULL,NULL,NULL,
             array(
                 "sub_category"=>array(
+                    MSL,
                     MSL_SECURITY_AMOUNT,
                     MSL_NEW_PART_RETURN,
                     MSL_DEFECTIVE_RETURN
@@ -6855,10 +6857,15 @@ function do_multiple_spare_shipping(){
             if(!empty($row['sub_category']) && $row['sub_category']==MSL_SECURITY_AMOUNT){
                 $mslSecurityAmount += floatval($row['amount']);
             }else if(!empty($row['sub_category']) && ($row['sub_category']==MSL_DEFECTIVE_RETURN || $row['sub_category']==MSL_NEW_PART_RETURN)){
+                $mslAmount -= floatval($row['amount']);
+            }else if($row['sub_category'] == MSL){
                 $mslAmount += floatval($row['amount']);
             }
         }
-        $mslAmount = $mslSecurityAmount-$mslAmount;
+        //negate this value as it will be returned by SF
+        $mslAmount = -1 * $mslAmount;
+        //negetive value -> sf have pending defective or new part to return
+        //positive value -> rare, represent 247 have to pay to sf.
         $msl = array(
             'security'=>sprintf("%01.2f", $mslSecurityAmount),
             'amount'=>sprintf("%01.2f", $mslAmount)
@@ -7415,7 +7422,7 @@ function do_multiple_spare_shipping(){
         if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to)) {
             echo 'fail';
         } else {
-            $form_details = $this->partner_model->get_spare_parts_by_any(".spare_parts_details.*", array('spare_parts_details.id' => $from_spare_id));
+            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $from_spare_id));
             $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $to_spare_id));
             if (empty($form_details) || empty($to_details) || ($form_details[0]['service_center_id'] != $to_details[0]['service_center_id'])) {
                 echo 'fail';

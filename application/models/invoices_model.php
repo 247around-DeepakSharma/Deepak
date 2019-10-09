@@ -745,7 +745,7 @@ class invoices_model extends CI_Model {
 
         if (!empty($packaging_charge)) {
             $packaging = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG, 'fixed_charges > 0' => NULL));
+                "entity_id" => $partner_id, "variable_charges_type.type" => PACKAGING_RATE_TAG, 'fixed_charges > 0' => NULL, "vendor_partner_variable_charges.status" => 1));
             if (!empty($packaging)) {
                 $c_data = array();
                 $c_data[0]['description'] = $packaging[0]['description'];
@@ -821,7 +821,7 @@ class invoices_model extends CI_Model {
 
             
             $fixed_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.is_fixed" => 1));
+                "entity_id" => $partner_id, "variable_charges_type.is_fixed" => 1, "vendor_partner_variable_charges.status" => 1));
             if (!empty($fixed_charges)) {
                 foreach ($fixed_charges as $value) {
                     $c_data = array();
@@ -838,7 +838,7 @@ class invoices_model extends CI_Model {
                 
             }
             $micro_charges = $this->get_fixed_variable_charge(array('entity_type' => _247AROUND_PARTNER_STRING,
-                "entity_id" => $partner_id, "variable_charges_type.type" => MICRO_WAREHOUSE_CHARGES_TYPE));
+                "entity_id" => $partner_id, "variable_charges_type.type" => MICRO_WAREHOUSE_CHARGES_TYPE, "vendor_partner_variable_charges.status" => 1));
             if (!empty($micro_charges)) {
                 foreach ($micro_charges as $key => $value) {
                     $micro_wh_lists = $this->invoices_model->calculate_active_microwarehouse($partner_id, $tmp_from_date, $to_date);
@@ -1358,6 +1358,7 @@ class invoices_model extends CI_Model {
                 WHERE  
                 
                 ud.booking_status =  'Completed'
+                AND bd.current_status =  'Completed'
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
@@ -1783,7 +1784,7 @@ class invoices_model extends CI_Model {
                     AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND pay_from_sf = 1
                     $is_invoice_null
                     AND assigned_vendor_id = '" . $vendor_id . "' "
-                    . " AND `booking_unit_details`.booking_status = 'Completed' $where";
+                    . " AND `booking_unit_details`.booking_status = 'Completed' AND booking_details.current_status = 'Completed'  $where";
 
 
             $query = $this->db->query($sql);
@@ -1817,6 +1818,7 @@ class invoices_model extends CI_Model {
                 FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
                 WHERE ud.booking_status =  'Completed'
                 AND ud.booking_id = bd.booking_id
+                
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'

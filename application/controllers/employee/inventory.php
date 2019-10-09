@@ -3329,9 +3329,9 @@ class Inventory extends CI_Controller {
 //  
         $invoice_file_required =  $this->input->post('invoice_file');
                         
-        if ($invoice_file_required) {
-           $invoice_file_required=0; 
-                           
+        if (!$invoice_file_required) {
+           $invoice_file_required=0;      
+                        
         }else{
             $invoice_file_required=1;
                         
@@ -5817,7 +5817,7 @@ class Inventory extends CI_Controller {
     function get_inventory_by_model($model_number_id) {      
         if ($model_number_id) {
             $model_number_id = urldecode($model_number_id);
-            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services,inventory_model_mapping.id', array('inventory_model_mapping.model_number_id' => $model_number_id,'inventory_model_mapping.active' => 1));
+            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services,inventory_model_mapping.id, inventory_model_mapping.bom_main_part,inventory_model_mapping.create_date', array('inventory_model_mapping.model_number_id' => $model_number_id,'inventory_model_mapping.active' => 1,'appliance_model_details.active'=> 1));
         } else {
             $data['inventory_details'] = array();
         }
@@ -7517,7 +7517,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 if($partner[0]['is_wh']){
                     $part_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.inventory_id as id,inventory_master_list.type as part_type', array('inventory_master_list.service_id' => $service_id,'inventory_model_mapping.active' => 1));
                 }else{
-                    $x = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id as id,inventory_parts_type.part_type as part_type', array('service_id' => $service_id), TRUE);;
+                    $x = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id as id,inventory_parts_type.part_type as part_type', array('inventory_parts_type.service_id' => $service_id), TRUE);;
                 }
 
                 echo json_encode($part_type);

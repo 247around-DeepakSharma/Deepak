@@ -75,6 +75,10 @@
             success:function(response){
                 $('#partner_id').html(response);
                 $('#partner_id').select2();
+                 var partner_id = $("#partner_id  option:selected").val();
+                 if(partner_id !=''){
+                     get_services(partner_id);
+                 }
             }
         });
     }
