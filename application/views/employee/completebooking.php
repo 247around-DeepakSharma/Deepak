@@ -361,7 +361,7 @@
                                                             <input type="file" style="margin: 10px 0px;"  id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>"   />
                                                             <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
                                                                     <?php
-                                                                    $selected_model = !empty($booking_history['spare_parts'][0]['model_number']) ? $booking_history['spare_parts'][0]['model_number'] : $unit_details['sf_model_number'];                                                                        
+                                                                    $selected_model = (!empty($booking_history['spare_parts'][0]['model_number']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED) ? $booking_history['spare_parts'][0]['model_number'] : $unit_details['sf_model_number'];                                                                        
                                                                     if(isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ 
                                                                         $isModelMandatory =1 ;
                                                                         $arrModels = array_column($unit_details['model_dropdown'], 'model_number');
