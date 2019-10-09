@@ -364,8 +364,8 @@
                                                                     $selected_model = !empty($booking_history['spare_parts'][0]['model_number']) ? $booking_history['spare_parts'][0]['model_number'] : $unit_details['sf_model_number'];                                                                        
                                                                     if(isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ 
                                                                         $isModelMandatory =1 ;
-                                                                        $arrModels = array_column($unit_details['model_dropdown'], 'model');
-                                                                        if(!in_array($selected_model, $arrModels)){ ?>
+                                                                        $arrModels = array_column($unit_details['model_dropdown'], 'model_number');
+                                                                        if(!empty($selected_model) && !in_array($selected_model, $arrModels)){ ?>
                                                                             <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
                                                                                 <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $selected_model ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
                                                                             </div>
