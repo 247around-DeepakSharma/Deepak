@@ -101,7 +101,7 @@
                                         <?php 
                                         $booking_model_number = !empty($unit_details[0]['sf_model_number']) ?  $unit_details[0]['sf_model_number'] : "";
                                         $booking_model_purchase_date = (!empty($unit_details[0]['sf_purchase_date']) && $unit_details[0]['sf_purchase_date'] != '0000-00-00') ?  $unit_details[0]['sf_purchase_date'] : "";
-                                        if(!empty($booking_history['spare_parts'][0]['model_number'])){
+                                        if(!empty($booking_history['spare_parts'][0]['model_number']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED){
                                             $booking_model_number = $booking_history['spare_parts'][0]['model_number'];
                                         }
                                         if(!empty($booking_history['spare_parts'][0]['date_of_purchase'])){
