@@ -7049,6 +7049,58 @@ class Service_centers extends CI_Controller {
         return $msl;
     }
     
+        /**
+     * msl summary details -> page to show MSL Security deposits of SF till now
+     */
+    function msl_security_details(){
+        $this->checkUserSession();
+        $data= array();
+        $select = "invoice_id, type, date_format(invoice_date,'%d-%m-%Y') as 'invoice_date', parts_count, vertical, category, sub_category,(total_amount_collected-amount_paid) as 'amount'";
+        $data['msl_security'] = $this->reusable_model->get_search_result_data(
+            'vendor_partner_invoices',
+            $select,
+            array(
+                "vendor_partner"=> "vendor",
+                "vendor_partner_id"=> $this->session->userdata('service_center_id')
+            ),
+            NULL,NULL,NULL,
+            array(
+                "sub_category"=>array(
+                    MSL_SECURITY_AMOUNT
+                )
+            ),NULL,array()
+        );
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/msl_summary',$data);
+    }
+
+    /**
+     * [[Description-> page to show MSL sent to SF and parts returned by SF]]
+     */
+    function msl_spare_details(){
+        $this->checkUserSession();
+        $data= array();
+        $select = "invoice_id, type, date_format(invoice_date,'%d-%m-%Y') as 'invoice_date', parts_count, vertical, category, sub_category,(total_amount_collected-amount_paid) as 'amount'";
+        $data['msl_spare'] = $this->reusable_model->get_search_result_data(
+            'vendor_partner_invoices',
+            $select,
+            array(
+                "vendor_partner"=> "vendor",
+                "vendor_partner_id"=> $this->session->userdata('service_center_id')
+            ),
+            NULL,NULL,NULL,
+            array(
+                "sub_category"=>array(
+                    MSL,
+                    MSL_NEW_PART_RETURN,
+                    MSL_DEFECTIVE_RETURN
+                )
+            ),NULL,array()
+        );
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/msl_summary',$data);
+    }
+
     function check_warehouse_shipped_awb_exist(){
         $awb = $this->input->post('awb');
         
