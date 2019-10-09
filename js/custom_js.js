@@ -178,6 +178,7 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         postData['add_booking'] = add_booking;
         postData['is_repeat'] = (($("#is_repeat").val()) ? $("#is_repeat").val(): 0);
         if(postData['is_repeat'] !== 1) {
+            console.log("is_repeat");
             $('#submitform').attr('disabled', true);
         }
 
@@ -919,7 +920,7 @@ function set_upcountry() {
             n =1;
         }
     });
-    if (count > 0) {
+    if (count > 0 && upcountry_data != "") {
         var data1 = jQuery.parseJSON(upcountry_data);
         switch(data1.message) {
             case 'UPCOUNTRY BOOKING':
@@ -1018,6 +1019,7 @@ function set_upcountry() {
     } else {
         final_price();
         $("#upcountry_charges").val("0");
+        console.log("Upcountry Charges 0");
         $('#submitform').attr('disabled', true);
     }
 }
@@ -1029,7 +1031,6 @@ function set_upcountry() {
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
-                  
                     $('#submitform').attr('disabled', true); 
                 },
                 url: baseUrl +'/employee/vendor/check_pincode_exist_in_india_pincode/'+ pincode,          
@@ -1174,7 +1175,10 @@ function escapeRegExp(string){
 }
 
 function replaceAll(str, term, replacement) {
-    return str.replace(new RegExp(escapeRegExp(term), 'g'), replacement);
+    if(str !== undefined)
+    {
+        return str.replace(new RegExp(escapeRegExp(term), 'g'), replacement);
+    }
 }
  
 function get_symptom(symptom_id = ""){
