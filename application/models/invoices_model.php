@@ -1821,7 +1821,7 @@ class invoices_model extends CI_Model {
                 FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
                 WHERE ud.booking_status =  'Completed'
                 AND ud.booking_id = bd.booking_id
-                
+                AND bd.current_status =  'Completed'
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
