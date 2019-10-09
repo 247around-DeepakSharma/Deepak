@@ -317,7 +317,7 @@
                                                                     $image_src = $src;
                                                                     $pic_name = '';
                                                                     if($this->session->userdata('is_engineer_app') == 1){ 
-                                                                        if (($price['product_or_services'] != "Service" && $price['customer_net_payable'] > 0) ){ 
+                                                                        if (($price['product_or_services'] != "Product" && $price['customer_net_payable'] > 0) ){ 
                                                                             if(isset($price['en_service_charge'])){
                                                                                 $customer_basic_charge = $price['en_service_charge'];
                                                                             }
@@ -519,7 +519,7 @@
                                                 <option value="" selected disabled>Select Reason</option>
                                                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
                                                     if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
-                                                    <option value="<?php echo $status['id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
+                                                    <option value="<?php echo $status['id']; ?>" data-shipped_inventory_id="<?php echo $spare_part_detail['shipped_inventory_id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
                                                 <?php $description_no++; } ?>
                                             </select>
                                         </td>
@@ -719,7 +719,7 @@
         
         $('.spare_consumption_status').on('change', function() {
             if($(this).children("option:selected").data('tag') == '<?php echo WRONG_PART_RECEIVED_TAG; ?>') {
-                open_wrong_spare_part_model($(this).children("option:selected").data('spare_id'), '<?php echo $booking_history[0]['booking_id']; ?>', $(this).children("option:selected").data('part_number'), '<?php echo $booking_history[0]['service_id']; ?>');
+                open_wrong_spare_part_model($(this).children("option:selected").data('spare_id'), '<?php echo $booking_history[0]['booking_id']; ?>', $(this).children("option:selected").data('part_number'), '<?php echo $booking_history[0]['service_id']; ?>', $(this).children("option:selected").data('shipped_inventory_id'));
             }
         })
         
@@ -1226,11 +1226,11 @@
     });
     
     })(jQuery, window, document);
-    function open_wrong_spare_part_model(spare_part_detail_id, booking_id, part_name, service_id) {
+    function open_wrong_spare_part_model(spare_part_detail_id, booking_id, part_name, service_id, shipped_inventory_id = '') {
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/service_centers/wrong_spare_part/' + booking_id,
-            data: {spare_part_detail_id:spare_part_detail_id, booking_id:booking_id, part_name:part_name, service_id:service_id},
+            data: {spare_part_detail_id:spare_part_detail_id, booking_id:booking_id, part_name:part_name, service_id:service_id, shipped_inventory_id:shipped_inventory_id},
             success: function (data) {
                 $("#wrong_spare_part_model").children('.modal-content').children('.modal-body').html(data);   
                 $('#WrongSparePartsModal').modal({backdrop: 'static', keyboard: false});

@@ -915,7 +915,7 @@ class Invoice extends CI_Controller {
                 'total_amount_collected' => $meta['sub_total_amount'],
                 'rating' => $meta['t_rating'],
                 'around_royalty' => $meta['sub_total_amount'],
-                'upcountry_price' => $meta['upcountry_distance'],
+                'upcountry_price' => $meta['upcountry_charge'],
                 'upcountry_distance' => $meta['upcountry_distance'],
                 'upcountry_booking' => $meta['upcountry_booking'],
                 //Service tax which needs to be paid
@@ -958,6 +958,14 @@ class Invoice extends CI_Controller {
              */
 
              $this->update_invoice_id_in_unit_details($data, $meta['invoice_id'], $invoice_type, "vendor_cash_invoice_id");
+             
+             foreach ($invoices_d['upcountry'] as $value) {
+                 if(!empty($value['booking_id'])){
+                     $this->booking_model->update_booking(trim($value['booking_id']), array('upcountry_vendor_invoice_id' => $meta['invoice_id']));
+                 }
+             }
+             
+             
         } else {
             
             $this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_file_main);
@@ -4111,7 +4119,6 @@ class Invoice extends CI_Controller {
                                     $data[0]['from_address'] = $value['to_address'];
                                     $data[0]['from_pincode'] = $value['to_pincode'];
                                     $data[0]['from_city'] = $value['to_city'];
-                                    $data[0]['state_stamp_pic'] = $value['state_stamp_pic'];
                                     $a = $this->_reverse_sale_invoice($invoice_id, $data, $sd, $ed, $invoice_date, $spare);
                                     if ($a) {
                                         
@@ -4155,7 +4162,6 @@ class Invoice extends CI_Controller {
                         . $data[0]['from_pincode'];
 
             $response['meta']['main_company_pincode'] = $data[0]['from_pincode'];
-            $response['meta']['main_company_seal'] = $data[0]['state_stamp_pic'];
         }
         $response['meta']['invoice_id'] = $invoice_id;
         

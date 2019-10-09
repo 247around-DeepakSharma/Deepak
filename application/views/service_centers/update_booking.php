@@ -461,7 +461,24 @@
     </div>
         </div>
 </div>
-
+<!-- Repeat Booking Model  -->
+<div class="modal fade" id="repeat_booking_model" tabindex="-1" role="dialog" aria-labelledby="repeat_booking_model" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Select Parent Booking</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <div class="modal-body" id="repeat_booking_body" style="padding: 3px;   font-size: 13px;">
+      </div>
+<!--      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>-->
+    </div>
+  </div>
+</div>
 <script>
 
    
@@ -765,6 +782,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
                           if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){
                               alert("There is not any Possible Parent booking for this booking, It can not be a repeat booking");
                               $('.repeat_Service:checked').prop('checked', false);
+                              $('.repeat_Service').prop('disabled', true);
                               $("#repeat_reason_holder").hide();
                           }
                          else if(obj.status  == <?Php echo _ONE_REPEAT_BOOKING_FLAG; ?>){
