@@ -196,11 +196,15 @@ class Warranty_utilities {
     }
     
     function match_warranty_status_with_request_type($arrBookings, $arrBookingsWarrantyStatus){
-        
+        $arrReturn = [];
         $selected_booking_request_types = $arrBookings[0]['booking_request_types'];
+        if(empty($selected_booking_request_types))
+        {
+            return json_encode($arrReturn);
+        }
         $booking_request_type = $this->My_CI->booking_utilities->get_booking_request_type($selected_booking_request_types); 
         $booking_id = $arrBookings[0]['booking_id'];
-        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
+        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'PDI'], 'EW' => ['Extended', 'AMC', 'Repeat', 'PDI']];
         $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
         $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
         // If no data found against warranty, consider booking as of Out Warranty

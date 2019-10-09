@@ -1,7 +1,8 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <?php
-$str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
+//$str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
+$str_disabled = "";
 ?>
 <style>
     #dealer_list{
@@ -152,7 +153,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                     <label for="service_name" class="col-md-4">Appliance *</label>
                                     <div class="col-md-6">
                                         <input type="hidden" name="service" id="services"/>
-                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService();" readonly required>
+                                        <select type="text" class="form-control"  id="service_id" name="service_id" value = "<?php echo set_value('service_id'); ?>" onChange="getBrandForService();" required>
                                             <option disabled>Select Service</option>
                                             <?php foreach ($services as $key => $values) { ?>
                                             <option <?php if($booking_history[0]['service_id'] == $values->id ){ echo "selected"; } ?> value=<?= $values->id; ?>>

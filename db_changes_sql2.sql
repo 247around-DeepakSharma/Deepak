@@ -1031,7 +1031,6 @@ VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s
 ALTER TABLE `inventory_alternate_spare_parts_mapping` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `alt_inventory_id`;
 ALTER TABLE `alternate_inventory_set` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `inventory_id`;
 -- Ankit 03-09-2019
-
 ALTER TABLE spare_consumption_status ADD COLUMN status_description text NULL DEFAULT NULL AFTER consumed_status; 
 
 -- Kajal 04-09-2019
@@ -1514,7 +1513,7 @@ INSERT INTO `courier_file_upload_header_mapping` (`id`, `courier_partner_id`, `d
 CREATE TABLE `boloaaka`.`part_type_return_mapping` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `partner_id` INT(11) NOT NULL , `appliance_id` INT(11) NOT NULL , `part_type` VARCHAR(128) NOT NULL , `is_return` BOOLEAN NULL DEFAULT NULL , `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
 
 ALTER TABLE `part_type_return_mapping` ADD `inventory_id` INT(11) NOT NULL AFTER `appliance_id`;
---Gorakh23-09-2019
+--Gorakh 23-09-2019
 RENAME TABLE `boloaaka`.`spare_invoice_details` TO `boloaaka`.`oow_spare_invoice_details`; 
 --Ankit 24-09-2019
 ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1;
@@ -1522,3 +1521,18 @@ ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEF
 ALTER TABLE booking_unit_details CHANGE COLUMN sf_purchase_date sf_purchase_date date NULL DEFAULT NULL;
 -- Ankit 27-09-2019
 ALTER TABLE partners ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER auth_token;
+ALTER TABLE service_centres ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER is_wh;
+--Gorakh 28-09-2019
+ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` VARCHAR(20) NOT NULL;
+ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1
+ --Gorakh 20-09-2019
+ALTER TABLE `spare_parts_details` ADD `wh_challan_number` VARCHAR(128) NULL DEFAULT NULL AFTER `sf_challan_number`;
+ALTER TABLE `spare_parts_details` ADD `wh_challan_file` VARCHAR(128) NULL DEFAULT NULL AFTER `sf_challan_file`;
+
+--Kajal 01-10-2019
+UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_07.jpg' WHERE `entity_gst_details`.`id` = 2;
+UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_09.jpg' WHERE `entity_gst_details`.`id` = 7;
+UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_27.jpg' WHERE `entity_gst_details`.`id` = 6;
+
+-- Ankit 10-04-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'courier_lost_spare_parts', NULL, ' ', 'noreply@247around.com', 'ankitr@247around.com', '', '', '1', '', CURRENT_TIMESTAMP);

@@ -41,7 +41,7 @@
 <!--            <tr style="border: hidden;"><td colspan="6" align="center" style=" border-right: hidden;padding-right: 5%">Email: seller@247around.com</td></tr>-->
     <!-- 	<tr><td style="border-bottom: hidden;border-top: hidden;border-right: hidden;padding: 1%">shmskjdhlskdjls</td>	
             -->	
-<!--            <tr style="text-align: center;" ><td colspan="10" style="padding-top: 0px;"><b>GSTIN: 07AAFCB1281J1ZQ</td></tr>-->
+<!--            <tr style="text-align: center;" ><td colspan="10" style="padding-top: 0px;"><b>GSTIN: 09AAFCB1281J1ZM</td></tr>-->
             <tr style="text-align: center; height: 50px; font-size: 40px;background-color: rgb(211,211,211);">	
                 <td colspan="10" style="border-right: 0px solid;" align="center"><b><?php echo $meta['invoice_type']; ?></b></td>
             </tr>

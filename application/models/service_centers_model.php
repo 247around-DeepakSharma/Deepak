@@ -102,7 +102,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.request_type, "
                 . " bd.internal_status, "
                 . " bd.booking_remarks, bd.service_id,"
-                . " services, booking_files.file_name as booking_files_purchase_invoice, "
+                . " services, booking_files.file_name as booking_files_purchase_invoice, partners.is_booking_close_by_app_only as partner_booking_close_flag, s.is_booking_close_by_app_only as sf_booking_close_flag, "
                 . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
                 . " (SELECT GROUP_CONCAT(model_number) FROM booking_unit_details brand WHERE booking_id = bd.booking_id) as model_numbers,"
                  . "CASE WHEN (SELECT Distinct 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
@@ -135,6 +135,7 @@ class Service_centers_model extends CI_Model {
                 . " JOIN booking_details as bd ON bd.booking_id =  sc.booking_id "
                 . " JOIN users ON bd.user_id = users.user_id "
                 . " JOIN services ON bd.service_id = services.id "
+                . " LEFT JOIN partners ON bd.partner_id = partners.id "     
                 . " JOIN service_centres AS s ON s.id = bd.assigned_vendor_id "
                 . " LEFT JOIN booking_files ON booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = bd.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )"
                 . " WHERE sc.service_center_id = '$service_center_id' "
@@ -1180,5 +1181,60 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
        }       
         log_message('info', __FUNCTION__ . '=> Insert Spare Parts: ' .$this->db->last_query());
         return $this->db->insert_id();  
+    }
+    
+    /**
+     * Function sends mail for courier lost spare part.
+     * @param type $booking_id
+     * @param type $courier_lost_spare
+     */
+    function get_courier_lost_email_template($booking_id, $courier_lost_spare) {
+        
+        if(!empty($courier_lost_spare)) {
+            // generate data in table format.
+            $table = '<table border="1" style="border-collapse:collapse">';
+            $table .= '<thead><tr>
+                        <th style="text-align:left;">S. No.</th>
+                        <th style="text-align:left;">From</th>
+                        <th style="text-align:left;">Part Number</th>
+                        <th style="text-align:left;">Part Name</th>
+                        <th style="text-align:left;">Part Type</th>
+                        <th style="text-align:left;">Spare Status</th>
+                </tr></thead>';
+            
+            foreach($courier_lost_spare as $sno => $d) {
+                $table .= '<tr>';
+                $table .= '<td>'.++$sno.'</td>';
+                $table .= '<td>'.($d['entity_type'] == 'vendor' ? 'Warehouse' : 'Partner').'</td>';
+                if(!empty($d['requested_inventory_id'])) {
+                    $part_number = $this->db->query("Select part_number from inventory_master_list where inventory_id = {$d['requested_inventory_id']}")->result_array()[0]['part_number'];
+                    $table .= '<td>'.$part_number.'</td>';
+                } else {
+                    $table .= '<td></td>';
+                }
+                $table .= '<td>'.$d['parts_requested'].'</td>';
+                $table .= '<td>'.$d['parts_requested_type'].'</td>';
+                $table .= '<td>'.$d['status'].'</td>';
+                $table .= '</tr>';
+            }
+
+            $table .= '</table>';
+
+            $email_template = $this->booking_model->get_booking_email_template(COURIER_LOST_SPARE_PARTS);
+
+            // prepare mail
+            $to = $email_template[1];
+            $from = $email_template[2];
+            if(!empty($email_template[3])) {
+                $cc = $email_template[3];
+            }
+            $subject = 'Spare Lost Notification';
+
+            $body = '<p>Dear Team,<br />
+                    SF has updated <b>Courier Lost</b> for the booking id : <b>'.$booking_id.'</b></p><br /><br />'.$table;
+           
+            $this->notify->sendEmail($from, $to, $cc, NULL, $subject, $body, NULL, NULL);
+        }
+        
     }
 }

@@ -902,6 +902,7 @@ class Partner extends CI_Controller {
             $return_data['upcountry_bill_to_partner'] = 0;
         }
 //        $partner_data_final['partner'] = $return_data;
+        $return_data['is_booking_close_by_app_only'] = $this->input->post('is_booking_close_by_app_only');
         return $return_data;
     }
 
@@ -1449,6 +1450,14 @@ class Partner extends CI_Controller {
         if($this->input->post("escalation_reason_id")){
             $escalation_reason_id = $this->input->post("escalation_reason_id");
             $booking_id= $this->input->post('booking_id');
+
+
+            $bookingNRNstatus = $this->booking_model->get_bookings_count_by_any('internal_status',array('booking_id'=>$booking_id,'internal_status'=>NRN_APPROVED_BY_PARTNER));
+            if (!empty($bookingNRNstatus)) {
+                $this->form_validation->set_message('check_escalation_already_applied', 'NRN is approved for this booking . Escalation is not applied .');
+                    return false;
+            }
+
             if(!empty($escalation_reason_id)){
                 $where = array("booking_id" => $booking_id, "escalation_reason" => $escalation_reason_id,
                 "create_date >=  curdate() " => NULL,  "create_date  between (now() - interval ".PARTNER_PENALTY_NOT_APPLIED_WITH_IN." minute) and now()" => NULL);
@@ -1494,6 +1503,8 @@ class Partner extends CI_Controller {
         log_message('info', __FUNCTION__ . ' booking_id: ' . $booking_id);
         $this->checkUserSession();
         $this->form_validation->set_rules('escalation_reason_id', 'Escalation Reason', 'callback_check_escalation_already_applied');
+
+
 
         if ($this->form_validation->run() == FALSE) {
             echo validation_errors();
@@ -5501,7 +5512,7 @@ class Partner extends CI_Controller {
             $tempArray[] = "No";   
              }
             
-             if($sparePartBookings['consumption']==1){
+             if($sparePartBookings['is_consumed']==1){
             $tempArray[] = "Yes";   
              }else{
             $tempArray[] = "No";   

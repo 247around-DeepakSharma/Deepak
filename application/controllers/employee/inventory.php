@@ -3933,10 +3933,11 @@ class Inventory extends CI_Controller {
                     . $around_gst[0]['pincode'];
         
         $response['meta']['main_company_pincode'] = $around_gst[0]['pincode'];
+        $response['meta']['main_company_state_code'] = $around_gst[0]['state'];
         if(!empty($around_gst[0]['email_id'])){
             $response['meta']['main_company_email'] = $around_gst[0]['email_id'];
         }
-        if(!empty($around_gst[0]['email_id'])){
+        if(!empty($around_gst[0]['contact_number'])){
             $response['meta']['main_company_phone'] = $around_gst[0]['contact_number'];
         }
         if(!empty($around_gst[0]['state_stamp_picture'])){
@@ -4450,7 +4451,7 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__);
         $where = array(
             'spare_parts_details.entity_type' => _247AROUND_SF_STRING,
-            'partner_id' => $receiver_entity_id,
+            'spare_parts_details.partner_id' => $receiver_entity_id,
             'wh_ack_received_part' => 0,
             'requested_inventory_id' => $data->inventory_id
         );
@@ -4648,6 +4649,34 @@ class Inventory extends CI_Controller {
                 }
             }
         }
+		
+		
+	  //  After all process stock update . Spare transfer run so that alternate can be mapped if partner send alter spare part //
+	  
+	    $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id,spare_parts_details.model_number, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
+                . " requested_inventory_id";
+        $post['where'] = array('spare_parts_details.requested_inventory_id' =>$data->quantity,'spare_parts_details.status'=>SPARE_PARTS_REQUESTED);
+		$entity_array=array(_247AROUND_SF_STRING,_247AROUND_PARTNER_STRING);
+        $post['where_in'] = array('spare_parts_details.entity_type' => $entity_array);
+        $post['is_inventory'] = true;
+        $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
+		
+			
+		$agentid='';
+        $agent_name='';
+        $login_partner_id='';
+        $login_service_center_id='';
+        if($this->session->userdata('userType') == 'service_center'){
+            $agentid=$this->session->userdata('service_center_agent_id');
+            $agent_name =$this->session->userdata('service_center_name');
+            $login_service_center_id = $this->session->userdata('service_center_id');
+            $login_partner_id =NULL;
+           
+        }
+		
+      $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
+	
+	
     }
 
     /**
@@ -5816,7 +5845,7 @@ class Inventory extends CI_Controller {
     function get_inventory_by_model($model_number_id) {      
         if ($model_number_id) {
             $model_number_id = urldecode($model_number_id);
-            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services,inventory_model_mapping.id', array('inventory_model_mapping.model_number_id' => $model_number_id,'inventory_model_mapping.active' => 1));
+            $data['inventory_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.*,appliance_model_details.model_number,services.services,inventory_model_mapping.id, inventory_model_mapping.bom_main_part,inventory_model_mapping.create_date', array('inventory_model_mapping.model_number_id' => $model_number_id,'inventory_model_mapping.active' => 1,'appliance_model_details.active'=> 1));
         } else {
             $data['inventory_details'] = array();
         }
@@ -7517,7 +7546,7 @@ class Inventory extends CI_Controller {
                 if($partner[0]['is_wh']){
                     $part_type = $this->inventory_model->get_inventory_model_mapping_data('inventory_master_list.inventory_id as id,inventory_master_list.type as part_type', array('inventory_master_list.service_id' => $service_id,'inventory_model_mapping.active' => 1));
                 }else{
-                    $x = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id as id,inventory_parts_type.part_type as part_type', array('service_id' => $service_id), TRUE);;
+                    $x = $this->inventory_model->get_inventory_parts_type_details('inventory_parts_type.id as id,inventory_parts_type.part_type as part_type', array('inventory_parts_type.service_id' => $service_id), TRUE);;
                 }
 
                 echo json_encode($part_type);

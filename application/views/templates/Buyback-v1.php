@@ -27,7 +27,7 @@
             <tr>
                 <td style="text-align: center;border-bottom: hidden; border-right: 1px solid;" colspan="6" ><h1 style="margin: 0px;">Blackmelon Advance Technology Co. Pvt. Ltd.</h1></td></tr>
             <tr style="">
-                <td colspan="5" align="center" style="padding-left: 20%">A-1/7, F/F A BLOCK, KRISHNA NAGAR, DELHI, 110051<br>Phone:  9555000247</td>
+                <td colspan="5" align="center" style="padding-left: 20%">A-34, FIRST FLOOR, SECTOR-63, NOIDA, UTTAR PRADESH, 201301<br>Phone:  9555000247</td>
                 <td colspan="1" style="text-align: center; width: 20%; border-left: hidden; border-right: 2px solid;"><b>(<?php echo $meta['recipient_type']; ?>)</td>
             </tr>
 <!--            <tr style="font-weight: bold;"><td colspan="6" style="text-align: center;">Phone:  <?php //echo "$owner_phone_1"; ?></td></tr>-->
@@ -98,7 +98,7 @@
             <tr style="text-align: center;">
                 <td style="width: 40%;" rowspan="3" align="center">Declaration: We declare that this invoice shows the actual price of the goods and services described and that all particulars are true and correct.</td>
 <!--                <td rowspan="3" colspan="2"></td>-->
-                <td rowspan="3" colspan="2" align="center"><img  src="<?php echo base_url()."images/247aroundstamp.jpg"; ?>" style="width: 120px;"></td>
+                <td rowspan="3" colspan="2" align="center"><img  src="<?php echo base_url()."images/UP.jpg"; ?>" style="width: 120px;"></td>
                 <td colspan="4" class="bold" style="background-color: rgb(211,211,211);">For <?php echo $meta['company_name']; ?></td>
             </tr>
 

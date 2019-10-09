@@ -1534,7 +1534,7 @@ class Inventory_model extends CI_Model {
                 WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
                 WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.booking_id,i.invoice_id,invoice_details.description,
                 invoice_details.hsn_code,invoice_details.qty,invoice_details.rate as basic_price,invoice_details.total_amount as total_amount,
-                invoice_details.igst_tax_rate as gst_rate,i.create_date
+                (invoice_details.cgst_tax_rate+invoice_details.sgst_tax_rate+invoice_details.igst_tax_rate) as gst_rate,i.create_date
                 FROM `inventory_ledger` as i LEFT JOIN service_centres as sc on (sc.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'vendor') Left JOIN partners as p on (p.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'partner') LEFT JOIN employee as e ON (e.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'employee')  
                 LEFT JOIN service_centres as sc1 on (sc1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'vendor') 
                 Left JOIN partners as p1 on (p1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'partner') 
@@ -1742,9 +1742,10 @@ class Inventory_model extends CI_Model {
         $this->db->trans_begin();
         
         //delete old wh state mapping
-        $this->db->where('warehouse_id', $data['wh_id']);
-        $this->db->delete('warehouse_state_relationship');
-        
+        if(!empty($data)){
+            $this->db->where('warehouse_id', $data['wh_id']);
+            $this->db->delete('warehouse_state_relationship');
+        }
         //create new warehouse and state mapping
         $wh_state_mapping_data = array();
         foreach ($data['new_wh_state_mapping'] as $value) {
@@ -2743,9 +2744,11 @@ class Inventory_model extends CI_Model {
      * 
      */
     function get_alternet_parts($select, $where = array()) {
+        $this->db->distinct();
         $this->db->select($select,false);
         $this->db->from('inventory_master_list');
         $this->db->join('alternate_inventory_set','alternate_inventory_set.inventory_id = inventory_master_list.inventory_id');
+        $this->db->join('appliance_model_details','appliance_model_details.id = alternate_inventory_set.model_id');
         $this->db->group_by("group_id");
         if (!empty($where)) {
             $this->db->where($where,false);

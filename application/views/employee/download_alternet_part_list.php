@@ -75,6 +75,10 @@
             success:function(response){
                 $('#partner_id').html(response);
                 $('#partner_id').select2();
+                 var partner_id = $("#partner_id  option:selected").val();
+                 if(partner_id !=''){
+                     get_services(partner_id);
+                 }
             }
         });
     }
@@ -88,17 +92,24 @@
         }
     });
     
-    
+        
     function get_services(partner_id){
-        $.ajax({
-            type:'GET',
-            async: false,
-            url:'<?php echo base_url();?>employee/booking/get_service_id_by_partner',
-            data:{is_option_selected:true,partner_id:partner_id},
-            success:function(response){
-                $('#inventory_service_id').html(response);
+         if(partner_id){
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url() ?>employee/service_centre_charges/get_partner_data',
+                    data:{partner:partner_id},
+                    success: function (response) {
+                        if(response){
+                            $('#inventory_service_id').html(response);
+                        }else{
+                            console.log(response);
+                        }
+                    }
+                });
+            }else{
+                alert('Please Select Partner');
             }
-        });
     }
   
     function download_alternate_data(){

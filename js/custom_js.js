@@ -178,6 +178,7 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         postData['add_booking'] = add_booking;
         postData['is_repeat'] = (($("#is_repeat").val()) ? $("#is_repeat").val(): 0);
         if(postData['is_repeat'] !== 1) {
+            console.log("is_repeat");
             $('#submitform').attr('disabled', true);
         }
 
@@ -334,20 +335,20 @@ function addBookingDialog(chanel = '') {
             }
         }
      }
-    if (user_name == "" || user_name.trim().length ==0 || user_name == null) {
+    if (!is_sf_panel && user_name == "" || user_name.trim().length ==0 || user_name == null) {
 
         alert("Please Enter User Name");
 
         return false;
     }
-    if (pincode.length !== 6) {
+    if (!is_sf_panel && pincode.length !== 6) {
 
         alert("Please Select 6 Digit Valid Pincode Number");
 
         return false;
     }
 
-    if (source_code === "Select Booking Source") {
+    if (!is_sf_panel && source_code === "Select Booking Source") {
 
         alert("Please Select Booking Source");
 
@@ -421,9 +422,10 @@ function addBookingDialog(chanel = '') {
             if ($('input[name=internal_status]:checked').length > 0) {
                 // something when checked
             } else {
-
-                alert("For Query, Internal Status is MANDATORY.");
-                return false;
+                if (!is_sf_panel){
+                    alert("For Query, Internal Status is MANDATORY.");
+                    return false;
+                }                
             }
         }
     }
@@ -468,7 +470,7 @@ function addBookingDialog(chanel = '') {
                         secondPartLengthValidation = false;
                     }
                 }
-                if(!(firstPartNumaricValidation && secondPartNumaricValidation && firstPartLengthValidation && secondPartLengthValidation)){
+                if(!is_sf_panel && !(firstPartNumaricValidation && secondPartNumaricValidation && firstPartLengthValidation && secondPartLengthValidation)){
                     alert("Please Enter Correct Order ID , Space Should not be there in Order ID");
                     return false;
                 }
@@ -531,7 +533,7 @@ function addBookingDialog(chanel = '') {
             return false;
         }
         //If anyone select repeat booking than parent ID Shoud not blank
-        if(!parant_id){
+        if(!is_sf_panel && !parant_id){
             alert("Please Select Parent ID");
             return false;
         }
@@ -564,7 +566,7 @@ function addBookingDialog(chanel = '') {
 //        }
     }
 
-    if (timeslot === null) {
+    if (!is_sf_panel && timeslot === null) {
 
         alert('Please Select Booking Time Slot');
         return false;
@@ -888,7 +890,7 @@ function formatDate(date) {
 
 function set_upcountry() {
     var upcountry_data = $("#upcountry_data").val();
-    
+    var is_sf_panel = $("#is_sf_panel").val();
     is_upcountry = 0;
     non_upcountry = 0;
     n = 0;
@@ -918,7 +920,7 @@ function set_upcountry() {
             n =1;
         }
     });
-    if (count > 0) {
+    if (count > 0 && upcountry_data != "") {
         var data1 = jQuery.parseJSON(upcountry_data);
         switch(data1.message) {
             case 'UPCOUNTRY BOOKING':
@@ -946,16 +948,24 @@ function set_upcountry() {
                         $("#upcountry_charges").val("0");
                         $('#submitform').attr('disabled', false);
                         final_price();
-                        alert("This is upcountry call. Please inform to customer that booking will be completed in 3 Days");
+                        if(!is_sf_panel)
+                        {
+                            alert("This is upcountry call. Please inform to customer that booking will be completed in 3 Days");
+                        }       
 
                     } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 0) {
-                        
-                        $('#submitform').attr('disabled', true);
-                        alert("This is out station Booking, not allow to submit Booking/Query. Upcountry Distance " + data1.upcountry_distance + " KM");
+                        if(!is_sf_panel)
+                        {
+                            $('#submitform').attr('disabled', true);
+                            alert("This is out station Booking, not allow to submit Booking/Query. Upcountry Distance " + data1.upcountry_distance + " KM");
+                        }
                     } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
                         $("#upcountry_charges").val("0");
-                        alert("This is out station boking, Waiting for Partner Approval. Upcountry Distance " + data1.upcountry_distance + " KM");
-                        $('#submitform').attr('disabled', false);
+                        if(!is_sf_panel)
+                        {
+                            alert("This is out station boking, Waiting for Partner Approval. Upcountry Distance " + data1.upcountry_distance + " KM");
+                            $('#submitform').attr('disabled', false);
+                        }
                     } else {
                         // $("#upcountry_charges").val("0");
                         $('#submitform').attr('disabled', false);
@@ -1009,6 +1019,7 @@ function set_upcountry() {
     } else {
         final_price();
         $("#upcountry_charges").val("0");
+        console.log("Upcountry Charges 0");
         $('#submitform').attr('disabled', true);
     }
 }
@@ -1020,7 +1031,6 @@ function set_upcountry() {
             $.ajax({
                 type: 'POST',
                 beforeSend: function(){
-                  
                     $('#submitform').attr('disabled', true); 
                 },
                 url: baseUrl +'/employee/vendor/check_pincode_exist_in_india_pincode/'+ pincode,          
@@ -1165,7 +1175,10 @@ function escapeRegExp(string){
 }
 
 function replaceAll(str, term, replacement) {
-    return str.replace(new RegExp(escapeRegExp(term), 'g'), replacement);
+    if(str !== undefined)
+    {
+        return str.replace(new RegExp(escapeRegExp(term), 'g'), replacement);
+    }
 }
  
 function get_symptom(symptom_id = ""){

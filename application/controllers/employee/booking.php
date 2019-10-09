@@ -1958,10 +1958,10 @@ class Booking extends CI_Controller {
      */
     function get_edit_booking_form($booking_id, $appliance_id = "",$is_repeat = NULL) {
         log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
-        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);
-        $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);        
-        if($booking){
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);      
+        if($booking){            
+            $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);  
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
         }
@@ -2488,7 +2488,7 @@ class Booking extends CI_Controller {
         }
 
         $booking['booking_id'] = $booking_id;
-        $booking['upcountry_paid_by_customer'] = $upcountry_charges;
+        $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
 
         // check partner status
         $actor = $next_action = 'NULL';
@@ -2675,7 +2675,9 @@ class Booking extends CI_Controller {
                 if(!empty($defective_part_required) && $defective_part_required == 1 && !empty($service_center_details[0])) {
                     $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
-                        $this->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id']);
+                        if(empty($spare_part_detail['sf_challan_file'])){
+                            $this->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id']);
+                        }
                     }
                 }
                 
@@ -5997,6 +5999,7 @@ class Booking extends CI_Controller {
         $data['spare_part_detail_id'] = $post_data['spare_part_detail_id'];
         $data['part_name'] = $post_data['part_name'];
         $data['service_id'] = $post_data['service_id'];
+        $data['shipped_inventory_id'] = $post_data['shipped_inventory_id'];
         $data['parts'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name', ['service_id' => $data['service_id'], 'inventory_id not in (1,2)' => NULL]);
         
         if(!empty($post_data['wrong_flag'])) {
@@ -6004,7 +6007,11 @@ class Booking extends CI_Controller {
             $wrong_part_detail = [];
             $wrong_part_detail['spare_id'] = $data['spare_part_detail_id'];
             $wrong_part_detail['part_name'] = $post_data['wrong_part_name'];
-            $wrong_part_detail['inventory_id'] = $post_data['wrong_part'];
+            if(!empty($data['shipped_inventory_id'])) {
+                $wrong_part_detail['inventory_id'] = $post_data['wrong_part'];
+            } else {
+                $wrong_part_detail['inventory_id'] = NULL;
+            }
             $wrong_part_detail['remarks'] = $post_data['remarks'];
             echo json_encode($wrong_part_detail);exit;
             

@@ -1260,7 +1260,8 @@ class Spare_parts extends CI_Controller {
             $post['where']['booking_details.partner_id'] = $this->input->post('partner_id');
         }
         
-        if( isset($post['where']['status']) && $post['where']['status'] == DEFECTIVE_PARTS_SHIPPED){
+        if( isset($post['where']['status']) && $post['where']['status'] ==  DEFECTIVE_PARTS_SHIPPED){
+            $post['where_in']['status'] = [DEFECTIVE_PARTS_SHIPPED, OK_PARTS_SHIPPED];
             $post['where']['approved_defective_parts_by_admin'] = $this->input->post('approved_defective_parts_by_admin');
         }
         
@@ -2073,9 +2074,17 @@ class Spare_parts extends CI_Controller {
             $select = 'spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.shipped_quantity,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.status,'
                     . 'spare_parts_details.requested_inventory_id,spare_parts_details.original_inventory_id,spare_parts_details.purchase_price,spare_parts_details.service_center_id,spare_parts_details.invoice_gst_rate, spare_parts_details.part_warranty_status,'
                     . 'spare_parts_details.is_micro_wh,spare_parts_details.model_number,spare_parts_details.serial_number,spare_parts_details.shipped_inventory_id,spare_parts_details.date_of_request,'
-                    . 'booking_details.partner_id as booking_partner_id,booking_details.amount_due,booking_details.next_action,booking_details.internal_status, booking_details.service_id';
+                    . 'booking_details.partner_id as booking_partner_id,booking_details.amount_due,booking_details.next_action,booking_details.internal_status, booking_details.service_id,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic';
 
-            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_id), TRUE, TRUE, false);                                    
+            $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_id), TRUE, TRUE, false);
+
+            $data_unit_details['sf_model_number']= $spare_parts_details[0]['model_number'];  
+            $data_unit_details['serial_number']=$spare_parts_details[0]['serial_number'];
+            $data_unit_details['serial_number_pic']=$spare_parts_details[0]['serial_number_pic'];  
+            //SF_PURCHASE_INVOICE_FILE_TYPE  
+            $data_booking_file['booking_id']= $spare_parts_details[0]['booking_id'];
+            $data_booking_file['file_description_id']=SF_PURCHASE_INVOICE_FILE_TYPE;
+            $data_booking_file['file_name']= $spare_parts_details[0]['invoice_pic'];                              
             if (!empty($spare_parts_details)) {
 
                 $partner_id = $spare_parts_details[0]['booking_partner_id'];
@@ -2190,6 +2199,15 @@ class Spare_parts extends CI_Controller {
                     $spare_data['defective_part_required'] = 0;
                 }
                 
+                $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                
+                if (empty($is_saas)) {
+                    if ($spare_data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                        $spare_data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                        $spare_data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
+                    }
+                }
+
                 $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
 
                 if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED ) {
@@ -2232,7 +2250,7 @@ class Spare_parts extends CI_Controller {
                 } else {
                     //Send Push Notification 
                     if($is_micro_wh == 1 || $is_micro_wh == 2){
-                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $spare_data['partner_id'], $spare_data['requested_inventory_id'],$spare_data['quantity']); 
+                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $spare_data['partner_id'], $spare_data['requested_inventory_id'],$data['quantity']); 
                     }
                     
                     if (!empty($spare_data['status'])) {
@@ -2253,7 +2271,6 @@ class Spare_parts extends CI_Controller {
                     if (isset($is_micro_wh) && $is_micro_wh == 1) {
                      
                         $data['spare_id'] = $spare_id;
-                        $data['shipped_quantity'] = $spare_data['quantity'];
                         $data['requested_inventory_id'] = $spare_data['requested_inventory_id'];
                         $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
                         array_push($delivered_sp, $data);
@@ -2275,7 +2292,11 @@ class Spare_parts extends CI_Controller {
                     $this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, $reason_text, $reason, $agent_id, $agent_name, $actor, $next_action, _247AROUND, NULL);
                     if (!empty($booking_id)) {
                         $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
-			if (isset($is_micro_wh) && $is_micro_wh == 1) {
+
+                        $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => trim($booking_id)),$data_unit_details);
+                        $this->booking_model->insert_booking_file($data_booking_file);
+
+		         	if (isset($is_micro_wh) && $is_micro_wh == 1) {
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                         unset($data['spare_id']);
 
@@ -2350,11 +2371,12 @@ class Spare_parts extends CI_Controller {
                 $data['shipped_date'] = $value['date_of_request'];
                 $data['status'] = SPARE_SHIPPED_BY_PARTNER;
                 $data['shipped_inventory_id'] = $value['requested_inventory_id'];
+                $data['shipped_quantity'] = $value['quantity'];
 
                 $where = array('id' => $value['spare_id']);
                 $this->service_centers_model->update_spare_parts($where, $data);
 
-                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $value['partner_id'], $value['requested_inventory_id'], -1);
+                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $value['partner_id'], $value['requested_inventory_id'], -$value['quantity']);
 
                 $in['receiver_entity_id'] = $value['service_center_id'];
                 $in['receiver_entity_type'] = _247AROUND_SF_STRING;
@@ -2971,7 +2993,7 @@ class Spare_parts extends CI_Controller {
             'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
             'spare_parts_details.requested_inventory_id IS NOT NULL ' => NULL
         );
-        $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id,spare_parts_details.model_number, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
+        $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id,spare_parts_details.model_number, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,spare_parts_details.service_center_id,spare_parts_details.date_of_request,"
                 . " requested_inventory_id";
         $post['where_in'] = array('spare_parts_details.booking_id' => $bookigs);
         $post['is_inventory'] = true;
@@ -2986,7 +3008,7 @@ class Spare_parts extends CI_Controller {
         $this->table->set_template($template);
         $this->table->set_heading(array('Booking ID', 'Part Name','Spare part ID'));
 
-        list($tcount, $booking_error_array, $add_row) = $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id, $bookings_spare['model_number']);
+        list($tcount, $booking_error_array, $add_row) = $this->miscelleneous->spareTransfer($bookings_spare, $agentid, $agent_name, $login_partner_id, $login_service_center_id);
 
         foreach($add_row as $row_values) {
             $this->table->add_row($row_values);
@@ -3372,17 +3394,17 @@ class Spare_parts extends CI_Controller {
          redirect(base_url() . "employee/login");
         }
     
-        $agentid='';
-        $agent_name='';
-        $login_partner_id='';
+        $agentid=_247AROUND_DEFAULT_AGENT;
+        $agent_name=_247AROUND_DEFAULT_AGENT_NAME;
+        $login_partner_id=_247AROUND;
         $login_service_center_id='';
         if ($this->session->userdata('userType') == 'employee') {
-            $agentid=$this->session->userdata('employee_id');
+            $agentid=$this->session->userdata('id');
             $agent_name =$this->session->userdata('emp_name');
             $login_partner_id = _247AROUND;
             $login_service_center_id =NULL;
         }else if($this->session->userdata('userType') == 'service_center'){
-            $agentid=$this->session->userdata('service_center_id');
+            $agentid=$this->session->userdata('service_center_agent_id');
             $agent_name =$this->session->userdata('service_center_name');
             $login_service_center_id = $this->session->userdata('service_center_id');
             $login_partner_id =NULL;
@@ -3414,9 +3436,10 @@ class Spare_parts extends CI_Controller {
         $this->table->set_template($template);
         $this->table->set_heading(array('Booking ID', 'Part Name','Spare part ID'));
         foreach ($bookings_spare as $booking) {
-            
-            $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $booking['state'], "",$booking['model_number']);
-            if (!empty($data) && $data['stock'] > $booking['quantity']) {
+            $dataupdate=array();
+            $delivered_sp=array();
+            $data = $this->miscelleneous->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $booking['state'], $booking['service_center_id'],$booking['model_number']);
+            if (!empty($data) && $data['stock'] >= $booking['quantity']) {
                 $dataupdate = array(
                         'is_micro_wh' => $data['is_micro_wh'],
                         'entity_type' => $data['entity_type'],
@@ -3428,7 +3451,7 @@ class Spare_parts extends CI_Controller {
                         'parts_requested' => $data['part_name'],
                         'parts_requested_type' => $data['type']
                     );                              
-                $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
+                    $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
 
                     $spare_pending_on='';
                     $wh_details = $this->vendor_model->getVendorContact($data['entity_id']);
@@ -3443,7 +3466,7 @@ class Spare_parts extends CI_Controller {
                     if(!empty($wh_details)){
                     $spare_pending_on2 = $wh_details[0]['district'] . ' Warehouse';   
                     }else{
-                    $spare_pending_on2= ' Warehouse'; 
+                    $spare_pending_on2= 'Partner'; 
                     }
 
                     $actor = 'Warehouse';
@@ -3455,8 +3478,26 @@ class Spare_parts extends CI_Controller {
                          $this->inventory_model->update_spare_courier_details($booking['id'], $dataupdate);
                          $remarks = $new_state;
                          $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
+
+
+                         if ($data['is_micro_wh']==2) {
                          $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], $booking['quantity']);
                          $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -$booking['quantity']);
+                         }
+
+
+                         if ($data['is_micro_wh']==1) {
+
+                            $dataupdate['spare_id']=$value['id'];
+                            $dataupdate['quantity']=$value['quantity'];
+                            $dataupdate['model_number']=$booking['model_number'];
+                            $dataupdate['date_of_request']=date('Y-m-d');
+                            $dataupdate['service_center_id']=$booking['service_center_id'];
+                            array_push($delivered_sp,$dataupdate);
+                            $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
+                         }
+
+
                     } else if($data['entity_id'] != $booking['partner_id']){
                          $this->inventory_model->update_spare_courier_details($booking['id'], $dataupdate);
                          $remarks = $new_state;
@@ -3473,10 +3514,37 @@ class Spare_parts extends CI_Controller {
                 }
                     
             } else {
-                $this->inventory_model->update_spare_courier_details($booking['id'], $dataupdate);
+				
+				
+	           if($booking['entity_type']==_247AROUND_SF_STRING && $data['entity_type'] ==_247AROUND_PARTNER_STRING){
+					
+	            $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
+                    $spare_pending_on=_247AROUND_PARTNER_STRING;
+                    $spare_pending_on2='Warehouse';
+
+                    $actor = 'Warehouse';
+                    $new_state = 'Spare Part Transferred to ' . $spare_pending_on;
+                    $old_state = 'Spare Part Transferred from ' . $spare_pending_on2;	
+                    $dataupdate = array(
+                        'is_micro_wh' => $data['is_micro_wh'],
+                        'entity_type' => $data['entity_type'],
+                        'defective_return_to_entity_id' => $data['defective_return_to_entity_id'],
+                        'partner_id' => $data['entity_id'],
+                        'defective_return_to_entity_type' => $data['defective_return_to_entity_type'],
+                        'challan_approx_value' => $data['challan_approx_value'],
+                        'requested_inventory_id' => $data['inventory_id'],
+                        'parts_requested' => $data['part_name'],
+                        'parts_requested_type' => $data['type']
+                    ); 
+						
+			    $this->inventory_model->update_spare_courier_details($booking['id'], $dataupdate);
                 $remarks = $new_state;
                 $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
-                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -$booking['quantity']);
+                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -$booking['quantity']);	
+					
+		}
+						
+
             }
         }
       
@@ -3503,17 +3571,18 @@ class Spare_parts extends CI_Controller {
         $data = array();
         $partner_id = $this->input->post("partner_id"); 
         $service_id = $this->input->post("service_id"); 
-        $select = "inventory_master_list.inventory_id, inventory_master_list.service_id, group_concat(inventory_master_list.part_number) as part_number";
-        $where = array("entity_type" => _247AROUND_PARTNER_STRING, "entity_id" => $partner_id, "service_id" => $service_id);
+        $select = "inventory_master_list.inventory_id, inventory_master_list.service_id, group_concat(inventory_master_list.part_number) as part_number,appliance_model_details.model_number";
+        $where = array("inventory_master_list.entity_type" => _247AROUND_PARTNER_STRING, "inventory_master_list.entity_id" => $partner_id, "inventory_master_list.service_id" => $service_id,'alternate_inventory_set.status' => 1);
         $alternate_parts = $this->inventory_model->get_alternet_parts($select, $where);
         foreach ($alternate_parts as $alternates) {
+            $model_number = $alternates['model_number'];
             $parts_array = explode(",", $alternates['part_number']);
             foreach ($parts_array as $key => $value){
                 $main_part = $value;
                 for($i=$key; $i<count($parts_array); $i++){
                     $parts = $parts_array[$i];
                     if($main_part != $parts){ 
-                       array_push($data, array("main_part_code"=>$main_part, "alternate_part_code"=>$parts));   
+                       array_push($data, array("main_part_code"=>$main_part, "alternate_part_code"=>$parts, "model_number" => $model_number ));   
                     }
                 }
                 /*
@@ -3525,7 +3594,7 @@ class Spare_parts extends CI_Controller {
                 */
             }
         }
-        $headings = array("Main Part Code", "Alternate Part Code");
+        $headings = array("Main Part Code", "Alternate Part Code","Model Number");
         $this->miscelleneous->downloadCSV($data, $headings, "alternate_spare_parts");
     }
 
