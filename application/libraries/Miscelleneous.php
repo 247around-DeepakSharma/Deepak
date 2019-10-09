@@ -4435,10 +4435,10 @@ function generate_image($base64, $image_name,$directory){
             $spareid = $booking['id'];
             $partner_id = $booking['partner_id'];
             $state = $booking['state'];
-            
+            $delivered_sp=array();
             $requested_inventory = $booking['requested_inventory_id'];
             
-            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state, "",$booking['model_number']);
+            $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state,$booking['service_center_id'],$booking['model_number']);
             if (!empty($data)) {
                  
                 if ($data['stock']>=$booking['quantity']) {
@@ -4464,14 +4464,13 @@ function generate_image($base64, $image_name,$directory){
                     $spare_pending_on_to = ' Warehouse'; 
                     }   
                     }else{
-                        $spare_pending_on=$data['entity_id'];
+                        $spare_pending_on_to=$data['entity_id'];
                     }
 
-  
 
                     $spare_pending_on='';
                     if ($data['entity_id']==_247AROUND_SF_STRING) {
-                    $wh_details = $this->vendor_model->getVendorContact($partner_id);
+                    $wh_details = $this->vendor_model->getVendorContact($data['entity_id']);
                     if(!empty($wh_details)){
                     $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
                     }else{
@@ -4479,7 +4478,7 @@ function generate_image($base64, $image_name,$directory){
                     }
                     }else{
 
-                       $spare_pending_on=$data['entity_id']; 
+                       $spare_pending_on="Partner - ".$data['entity_id']; 
                     }
                     $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
                     $actor = 'Warehouse';
@@ -4488,9 +4487,36 @@ function generate_image($base64, $image_name,$directory){
                     $this->My_CI->inventory_model->update_spare_courier_details($spareid, $dataupdate);
                     if ($data['entity_type'] == _247AROUND_SF_STRING) {
                         $remarks = _247AROUND_TRANSFERED_TO_VENDOR;
-                        $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
-                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], $booking['quantity']);
-                        $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -$booking['quantity']);
+                        
+
+                        if ($data['is_micro_wh']==2 && ($requested_inventory!=$data['inventory_id'])) {
+                            $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], $booking['quantity']);
+                           $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -$booking['quantity']);  
+                        }else if($data['is_micro_wh']==2 && ($requested_inventory==$data['inventory_id'])){
+                           
+                            $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], $booking['quantity']);
+                        }
+
+
+
+                         $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
+
+
+                        if ($data['is_micro_wh']==1) {
+                           //$dataupdate; 
+                            $dataupdate['spare_id']=$value['id'];
+                            $dataupdate['model_number']=$booking['model_number'];
+                            $dataupdate['quantity']=$booking['quantity'];
+                            $dataupdate['date_of_request']=date('Y-m-d');
+                            $dataupdate['service_center_id']=$booking['service_center_id'];
+                            array_push($delivered_sp,$dataupdate); 
+
+                         $this->auto_delivered_for_micro_wh($delivered_sp,$partner_id);
+
+                        }
+
+
+
                     } else if ($data['entity_type'] == _247AROUND_PARTNER_STRING && $booking['entity_type'] != _247AROUND_PARTNER_STRING) {
                         $remarks = _247AROUND_TRANSFERED_TO_PARTNER;
                         $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
@@ -4512,6 +4538,49 @@ function generate_image($base64, $image_name,$directory){
         
         return array($tcount, $booking_error_array, $add_row);
     }
+
+
+
+    function auto_delivered_for_micro_wh($delivered_sp, $partner_id){
+                log_message('info', __METHOD__);
+        foreach ($delivered_sp as $value) { 
+            $data = array();
+            $data['model_number_shipped'] = $value['model_number'];
+            $data['parts_shipped'] = $value['parts_requested'];
+            $data['shipped_parts_type'] = $value['parts_requested_type'];
+            $data['shipped_date'] = $value['date_of_request'];
+            // $data['shipped_date'] = $value['date_of_request'];
+            $data['status'] = SPARE_SHIPPED_BY_PARTNER;
+            $data['shipped_inventory_id'] = $value['requested_inventory_id'];
+          
+            $where = array('id' => $value['spare_id']);
+            $this->service_centers_model->update_spare_parts($where, $data);
+            
+            $in['receiver_entity_id'] = $value['service_center_id'];
+            $in['receiver_entity_type'] = _247AROUND_SF_STRING;
+            $in['sender_entity_id'] = $value['service_center_id'];
+            $in['sender_entity_type'] = _247AROUND_SF_STRING;
+            $in['stock'] = -$value['quantity']; //-1;
+            $in['booking_id'] = $value['booking_id'];
+            if($this->session->userdata('userType') == 'service_center'){
+             $in['agent_id'] = $this->session->userdata('service_center_id');            
+            }else{
+              $in['agent_id'] = $this->session->userdata('agent_id');   
+            }
+            $in['agent_type'] = _247AROUND_SF_STRING;
+            $in['is_wh'] = TRUE;
+            $in['inventory_id'] = $data['shipped_inventory_id'];
+
+            $this->miscelleneous->process_inventory_stocks($in); 
+
+           // $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id,true, FALSE);
+            $url = base_url() . "employee/service_centres/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $value['service_center_id']."/".$value['spare_id']."/".$partner_id."/"."0"."1";
+            $async_data['booking'] = array();
+            $this->My_CI->asynchronous_lib->do_background_process($url, $async_data);
+ 
+        }
+    }
+
  
     function pull_service_centre_close_date($booking_id,$partner_id){
        $access = $this->My_CI->partner_model->get_partner_permission(array('partner_id' => $partner_id,'permission_type' => DO_NOT_PULL_SERVICE_CENTRE_CLOSED_DATE, 'is_on' => 1));

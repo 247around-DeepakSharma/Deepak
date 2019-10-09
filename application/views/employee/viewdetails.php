@@ -2342,9 +2342,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                     $("#reject_btn").attr("onclick","reject_parts()");
                     $('#myModal2').modal('hide');
                     alert("Approved Successfully");
-                    spare_parts_requested_table.ajax.reload( function ( json ) { 
-                      $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
-                    },false );
+                    location.reload();
                     
                 } else {
                     alert("Spare Parts Cancellation Failed!");
@@ -2373,7 +2371,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                   //  $("#"+booking_id+"_1").hide()
                     $('#myModal2').modal('hide');
                     alert("Updated Successfully");
-                    load_table(table_type);
+                    location.reload();
                 } else {
                     alert("Spare Parts Cancellation Failed!");
                 }
