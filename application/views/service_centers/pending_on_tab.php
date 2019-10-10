@@ -642,7 +642,6 @@ echo 'disabled';}} ?>><i class='fa fa-times' aria-hidden='true'></i></a>
                                 </thead>
                                 <tbody>
                                     
-                                    <?php $sn_no = 1; ?>
                                     <?php foreach($bookings[4] as $key =>$row){
                                         ?>
                                     <tr  style="text-align: center;"  >
