@@ -642,7 +642,6 @@ echo 'disabled';}} if(!empty($row->service_center_closed_date)) { echo 'disabled
                                 </thead>
                                 <tbody>
                                     
-                                    <?php $sn_no = 1; ?>
                                     <?php foreach($bookings[4] as $key =>$row){
                                         ?>
                                     <tr  style="text-align: center;"  >
