@@ -991,6 +991,7 @@ class vendor extends CI_Controller {
         $sf_status = $this->input->post("sf_status");
         $count = 0;
        
+        if(!empty($service_center)){
         foreach ($service_center as $booking_id => $service_center_id) {
             if(!empty($booking_id) || $booking_id != '0'){
            
@@ -1020,7 +1021,7 @@ class vendor extends CI_Controller {
                     }
                 }
             }
-        }
+        }}
 
         //Send mail /SMS to SF and and update upcountry in background
         $async_data['booking_id'] = $service_center;
