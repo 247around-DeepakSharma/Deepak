@@ -111,6 +111,7 @@
                                         if(!empty($booking_model_number) && !empty($model[0]) && $booking_history['is_spare_requested']){
                                             $arrModels = array_column($model[0], 'model');
                                             if(!in_array($booking_model_number, $arrModels)){ ?>
+                                                <input type="hidden" name="model_not_mapped" id="model_not_mapped" value="1"/>
                                                 <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
                                                     <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $booking_model_number ?>' filled during Spare Request is not mapped with the partner! Please Contact 247 around team.</span>
                                                 </div>
@@ -486,6 +487,10 @@
 </script>
 <script>
     check_pincode();
+    if($("#model_not_mapped").val() != 1)
+    {
+        $(".select-model").select2();
+    }
     $(".booking_source").select2();
     //$("#service_id").select2();
     $('#service_id').css('pointer-events','none'); 
