@@ -2720,11 +2720,27 @@ class Inventory extends CI_Controller {
             $list = $this->inventory_model->get_inventory_stock_list($post, $select);
             $data = array();
             $no = $post['start'];
+            $rowSums = array(
+                "colCount"=>0,
+                "colData"=>array(
+                    0=> 'Total',
+                    6=>0,                   //stock total occurs in col 7 in datatable
+                    10=>0.00,               //total occurs in col 11 in datatable
+                    11=>0.00                //customer total in col 11
+                )
+            );
             foreach ($list as $inventory_list) {
                 $no++;
                 $row = $this->get_inventory_stocks_details_table($inventory_list, $no);
                 $data[] = $row;
+
+                $tSum = $this->get_inventory_stock_total($inventory_list);
+                $rowSums['colData'][6] += $tSum['stocks'];
+                $rowSums['colData'][10] += $tSum['total'];
+                $rowSums['colData'][11] += $tSum['customerTotal'];
+                $rowSums["colCount"] = (count($row)>$rowSums['colCount'])?count($row):$rowSums["colCount"];
             }
+            $data[] = $this->draw_table_footer($rowSums);
             $post['length'] = -1;
             $countlist = $this->inventory_model->get_inventory_stock_list($post, "sum(inventory_stocks.stock) as stock");
 
@@ -2745,6 +2761,42 @@ class Inventory extends CI_Controller {
             );
         }
         echo json_encode($output);
+    }
+
+    private function draw_table_footer($rowData){
+        $res = array();
+        for($i=0;$i<$rowData['colCount'];$i++){
+            $res[$i] = '';
+            if(isset($rowData['colData'])){
+                if(isset($rowData['colData'][$i])){
+                    $res[$i] = (is_float($rowData['colData'][$i]))?number_format($rowData['colData'][$i],2):$rowData['colData'][$i];
+                }
+            }
+        }
+        return $res;
+    }
+
+    private function get_inventory_stock_total($inventory){
+        $res = array();
+        $res['stocks'] = (isset($inventory->stock))?$inventory->stock:0;
+
+        if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
+            $repair_oow_around_percentage_vendor = $inventory->oow_around_margin / 100;
+            $res['total'] = (float) (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor), 0) + (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor), 0) * ($inventory->gst_rate / 100)));
+        } else {
+            $res['total'] = (float) ($inventory->price + ($inventory->price * ($inventory->gst_rate / 100)));
+        }
+        if ($this->session->userdata('userType') == 'service_center') {
+            $repair_oow_around_percentage_vendor1 = $inventory->oow_vendor_margin / 100;
+            $totalpriceforsf = number_format((float) (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) + (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) * ($inventory->gst_rate / 100))), 2, '.', '');
+            $res['customerTotal'] = $inventory->inventory_id . '">' . number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '');
+        } else {
+            $totalpricepartner = (float) ($inventory->price + ($inventory->price * ($inventory->gst_rate / 100)));
+            $repair_oow_around_percentage_vendor2 = $inventory->oow_vendor_margin + $inventory->oow_around_margin;
+            $totpartner = $totalpricepartner + ($totalpricepartner * $repair_oow_around_percentage_vendor2 / 100);
+            $res['customerTotal'] = (float) ($totpartner);
+        }
+        return $res;
     }
 
     function inventory_stock_list() {

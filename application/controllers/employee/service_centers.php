@@ -728,6 +728,7 @@ class Service_centers extends CI_Controller {
      */
     public function update_spare_consumption_status($post_data, $booking_id) {        
         if(!empty($post_data['spare_consumption_status'])) {
+            $courier_lost_spare = [];
             $partner_id = $post_data["partner_id"];
             
             foreach($post_data['spare_consumption_status'] as $spare_id => $status_id) {
@@ -745,6 +746,7 @@ class Service_centers extends CI_Controller {
                 
                 if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
                     $status = COURIER_LOST;
+                    $courier_lost_spare[] = $spare_part_detail;
                 }
                 
 //                if($consumption_status_tag == PART_CANCELLED_STATUS_TAG && empty($spare_part_detail['parts_shipped'])) {
@@ -804,6 +806,10 @@ class Service_centers extends CI_Controller {
             }
         }
         
+        if(!empty($courier_lost_spare)) {
+            $this->service_centers_model->get_courier_lost_email_template($booking_id, $courier_lost_spare);
+        }
+
         return true;
     }
     
@@ -2066,9 +2072,10 @@ class Service_centers extends CI_Controller {
         if($data['is_micro_wh']==1){
 
                 $data['spare_id'] = $this->input->post('spare_id');
-                $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
+                $data['shipped_inventory_id'] = $data['requested_inventory_id'];
                 $data['shipped_quantity'] = $data['quantity'];
                 array_push($delivered_sp, $data);
+                unset($data['spare_id']);
             }
         $where = array('id' => $this->input->post('spare_id'));
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
@@ -7117,6 +7124,58 @@ class Service_centers extends CI_Controller {
         return $msl;
     }
     
+        /**
+     * msl summary details -> page to show MSL Security deposits of SF till now
+     */
+    function msl_security_details(){
+        $this->checkUserSession();
+        $data= array();
+        $select = "invoice_id, type, date_format(invoice_date,'%d-%m-%Y') as 'invoice_date', parts_count, vertical, category, sub_category,(total_amount_collected-amount_paid) as 'amount'";
+        $data['msl_security'] = $this->reusable_model->get_search_result_data(
+            'vendor_partner_invoices',
+            $select,
+            array(
+                "vendor_partner"=> "vendor",
+                "vendor_partner_id"=> $this->session->userdata('service_center_id')
+            ),
+            NULL,NULL,NULL,
+            array(
+                "sub_category"=>array(
+                    MSL_SECURITY_AMOUNT
+                )
+            ),NULL,array()
+        );
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/msl_summary',$data);
+    }
+
+    /**
+     * [[Description-> page to show MSL sent to SF and parts returned by SF]]
+     */
+    function msl_spare_details(){
+        $this->checkUserSession();
+        $data= array();
+        $select = "invoice_id, type, date_format(invoice_date,'%d-%m-%Y') as 'invoice_date', parts_count, vertical, category, sub_category,(total_amount_collected-amount_paid) as 'amount'";
+        $data['msl_spare'] = $this->reusable_model->get_search_result_data(
+            'vendor_partner_invoices',
+            $select,
+            array(
+                "vendor_partner"=> "vendor",
+                "vendor_partner_id"=> $this->session->userdata('service_center_id')
+            ),
+            NULL,NULL,NULL,
+            array(
+                "sub_category"=>array(
+                    MSL,
+                    MSL_NEW_PART_RETURN,
+                    MSL_DEFECTIVE_RETURN
+                )
+            ),NULL,array()
+        );
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/msl_summary',$data);
+    }
+
     function check_warehouse_shipped_awb_exist(){
         $awb = $this->input->post('awb');
         
@@ -7611,7 +7670,7 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
         $booking_id = base64_decode(urldecode($booking_id));
         $redirect_url = !empty($redirect_url) ? base64_decode(urldecode($redirect_url)) : "";
-        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL);
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL,true);
         $booking['booking_history']['redirect_url'] = $redirect_url;
         if($booking){
             if(($booking['booking_history'][0]['assigned_vendor_id'] == $this->session->userdata('service_center_id'))){
@@ -7992,6 +8051,7 @@ class Service_centers extends CI_Controller {
         $data['spare_part_detail_id'] = $post_data['spare_part_detail_id'];
         $data['part_name'] = $post_data['part_name'];
         $data['service_id'] = $post_data['service_id'];
+        $data['shipped_inventory_id'] = $post_data['shipped_inventory_id'];
         $data['parts'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name', ['service_id' => $data['service_id'], 'inventory_id not in (1,2)' => NULL]);
         
         if(!empty($post_data['wrong_flag'])) {
@@ -7999,7 +8059,11 @@ class Service_centers extends CI_Controller {
             $wrong_part_detail = [];
             $wrong_part_detail['spare_id'] = $data['spare_part_detail_id'];
             $wrong_part_detail['part_name'] = $post_data['wrong_part_name'];
-            $wrong_part_detail['inventory_id'] = $post_data['wrong_part'];
+            if(!empty($data['shipped_inventory_id'])) {
+                $wrong_part_detail['inventory_id'] = $post_data['wrong_part'];
+            } else {
+                $wrong_part_detail['inventory_id'] = NULL;
+            }
             $wrong_part_detail['remarks'] = $post_data['remarks'];
             echo json_encode($wrong_part_detail);exit;
             
