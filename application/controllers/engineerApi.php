@@ -269,6 +269,7 @@ class engineerApi extends CI_Controller {
         log_message('info', "Entering: " . __METHOD__ . ", Request type UPDATED: " . $this->requestUrl);
         
         switch ($this->requestUrl) {
+            /*
             case 'getCancellationReasons':
                 $this->processGetCancellationReasons();
                 break;
@@ -276,11 +277,11 @@ class engineerApi extends CI_Controller {
             case 'cancelBooking':
                 $this->processCancelBooking();
                 break;
-
+            
             case 'rescheduleBooking':
                 $this->processRescheduleBooking();
                 break;
-
+            */
             case 'engineerLogin':
                 $this->processEngineerLogin();
                 break;
@@ -1041,6 +1042,7 @@ class engineerApi extends CI_Controller {
      * @description: Get booking calcellation reasons
      * @output:
      */
+    /*
     function processGetCancellationReasons() {
         log_message('info', "Entering: " . __METHOD__);
 
@@ -1055,12 +1057,13 @@ class engineerApi extends CI_Controller {
         $this->jsonResponseString['response'] = $reasons;
         $this->sendJsonResponse(array('0000', 'success'));
     }
-
+    */
     /**
      * @input: Booking ID to be rescheduled, new date and time
      * @description: Cancel pre-existing booking
      * @output:
      */
+    /*
     function processRescheduleBooking() {
         log_message('info', "Entering: " . __METHOD__);
 
@@ -1113,6 +1116,7 @@ class engineerApi extends CI_Controller {
         $this->sendJsonResponse(array('0000', 'success'));
         
     }
+    */
 
     function processEngineerLogin(){ 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
@@ -1155,6 +1159,7 @@ class engineerApi extends CI_Controller {
         $validation = true;
         $sn_pic_url = "";
         $serial_number_text = "";
+        $sc_agent_id = "";
         if($validation){
             foreach($unitDetails as $value){
                 $data = array();
@@ -1287,8 +1292,19 @@ class engineerApi extends CI_Controller {
                 $next_action = $booking['next_action'] = $partner_status[3];
             }
             $this->booking_model->update_booking($booking_id, $booking);
+            
+            if(isset($requestData['sc_agent_id'])){
+                $sc_agent_id = $requestData['sc_agent_id'];
+            }
+            else{
+                $sc_agent = $this->service_centers_model->get_sc_login_details_by_id($requestData['service_center_id']);
+                if(!empty($sc_agent)){
+                    $sc_agent_id = $sc_agent[0]['id'];
+                }
+            }
+            
             $this->notify->insert_state_change($booking_id, ENGINEER_COMPLETE_STATUS, _247AROUND_PENDING, "Booking Updated By Engineer From App", 
-                    $requestData['engineer_id'], "", $actor,$next_action,NULL, $requestData['service_center_id']);
+                    $sc_agent_id, "", $actor,$next_action,NULL, $requestData['service_center_id']);
             
             $this->sendJsonResponse(array('0000', 'Booking Completed Successfully'));
         } else {
