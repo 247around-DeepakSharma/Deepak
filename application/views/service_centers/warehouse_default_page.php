@@ -40,7 +40,13 @@
                             </li>
                             <li role="presentation">
                                 <a href="#tabs-5" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/send_to_partner_list">
-                                    Send To Partner
+                                    Send To Partner On Invoice
+                                </a>
+                            </li>
+                            
+                            <li role="presentation">
+                                <a href="#tabs-8" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/send_to_partner_on_challan">
+                                   Send To Partner On Delivery Challan 
                                 </a>
                             </li>
 
@@ -50,6 +56,7 @@
                             <div class="tab-pane" id="tabs-5"></div>
                             <div class="tab-pane" id="tabs-3"></div>     
                             <div class="tab-pane" id="tabs-7"></div>
+                            <div class="tab-pane" id="tabs-8"></div>
                             <div class="tab-pane active" id="tabs-6">
                                 <div class="right_col" role="main">
                                     <div class="row">
