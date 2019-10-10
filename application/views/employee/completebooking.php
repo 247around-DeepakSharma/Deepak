@@ -361,11 +361,11 @@
                                                             <input type="file" style="margin: 10px 0px;"  id="<?php echo "upload_serial_number_pic" . $count ?>"   class="form-control" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>"   />
                                                             <span style="color:red;" id="<?php echo 'error_serial_no'.$count;?>"></span>
                                                                     <?php
-                                                                    $selected_model = !empty($booking_history['spare_parts'][0]['model_number']) ? $booking_history['spare_parts'][0]['model_number'] : $unit_details['sf_model_number'];                                                                        
+                                                                    $selected_model = (!empty($booking_history['spare_parts'][0]['model_number']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED) ? $booking_history['spare_parts'][0]['model_number'] : $unit_details['sf_model_number'];                                                                        
                                                                     if(isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ 
                                                                         $isModelMandatory =1 ;
-                                                                        $arrModels = array_column($unit_details['model_dropdown'], 'model');
-                                                                        if(!in_array($selected_model, $arrModels)){ ?>
+                                                                        $arrModels = array_column($unit_details['model_dropdown'], 'model_number');
+                                                                        if(!empty($selected_model) && !in_array($selected_model, $arrModels)){ ?>
                                                                             <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
                                                                                 <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $selected_model ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
                                                                             </div>
@@ -537,7 +537,7 @@
                                                 <option value="" selected disabled>Select Reason</option>
                                                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
                                                     if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
-                                                    <option value="<?php echo $status['id']; ?>" <?php if(!empty($spare_part_detail['consumed_part_status_id']) && $spare_part_detail['consumed_part_status_id'] == $status['id']) { echo 'selected';} ?> data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
+                                                    <option value="<?php echo $status['id']; ?>" <?php if(!empty($spare_part_detail['consumed_part_status_id']) && $spare_part_detail['consumed_part_status_id'] == $status['id']) { echo 'selected';} ?> data-tag="<?php echo $status['tag']; ?>" data-shipped_inventory_id="<?php echo $spare_part_detail['shipped_inventory_id']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
                                                 <?php $description_no++; } ?>
                                             </select>
                                         </td>
@@ -757,7 +757,7 @@
         
         $('.spare_consumption_status').on('change', function() {
             if($(this).children("option:selected").data('tag') == '<?php echo WRONG_PART_RECEIVED_TAG; ?>') {
-                open_wrong_spare_part_model($(this).children("option:selected").data('spare_id'), '<?php echo $booking_history[0]['booking_id']; ?>', $(this).children("option:selected").data('part_number'), '<?php echo $booking_history[0]['service_id']; ?>');
+                open_wrong_spare_part_model($(this).children("option:selected").data('spare_id'), '<?php echo $booking_history[0]['booking_id']; ?>', $(this).children("option:selected").data('part_number'), '<?php echo $booking_history[0]['service_id']; ?>', $(this).children("option:selected").data('shipped_inventory_id'));
             }
         })
         
@@ -1366,11 +1366,11 @@
          }).datepicker('show');
     }
     
-    function open_wrong_spare_part_model(spare_part_detail_id, booking_id, part_name, service_id) {
+    function open_wrong_spare_part_model(spare_part_detail_id, booking_id, part_name, service_id, shipped_inventory_id = '') {
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/booking/wrong_spare_part/' + booking_id,
-            data: {spare_part_detail_id:spare_part_detail_id, booking_id:booking_id, part_name:part_name, service_id:service_id},
+            data: {spare_part_detail_id:spare_part_detail_id, booking_id:booking_id, part_name:part_name, service_id:service_id, shipped_inventory_id:shipped_inventory_id},
             success: function (data) {
                 $("#wrong_spare_part_model").children('.modal-content').children('.modal-body').html(data);   
                 $('#WrongSparePartsModal').modal({backdrop: 'static', keyboard: false});

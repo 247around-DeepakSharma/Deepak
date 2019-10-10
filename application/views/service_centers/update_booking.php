@@ -101,7 +101,7 @@
                                         <?php 
                                         $booking_model_number = !empty($unit_details[0]['sf_model_number']) ?  $unit_details[0]['sf_model_number'] : "";
                                         $booking_model_purchase_date = (!empty($unit_details[0]['sf_purchase_date']) && $unit_details[0]['sf_purchase_date'] != '0000-00-00') ?  $unit_details[0]['sf_purchase_date'] : "";
-                                        if(!empty($booking_history['spare_parts'][0]['model_number'])){
+                                        if(!empty($booking_history['spare_parts'][0]['model_number']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED){
                                             $booking_model_number = $booking_history['spare_parts'][0]['model_number'];
                                         }
                                         if(!empty($booking_history['spare_parts'][0]['date_of_purchase'])){
@@ -110,6 +110,7 @@
                                         if(!empty($booking_model_number) && !empty($model[0]) && $booking_history['is_spare_requested']){
                                             $arrModels = array_column($model[0], 'model');
                                             if(!in_array($booking_model_number, $arrModels)){ ?>
+                                                <input type="hidden" name="model_not_mapped" id="model_not_mapped" value="1"/>
                                                 <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
                                                     <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $booking_model_number ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
                                                 </div>
@@ -461,13 +462,34 @@
     </div>
         </div>
 </div>
-
+<!-- Repeat Booking Model  -->
+<div class="modal fade" id="repeat_booking_model" tabindex="-1" role="dialog" aria-labelledby="repeat_booking_model" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Select Parent Booking</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+        <div class="modal-body" id="repeat_booking_body" style="padding: 3px;   font-size: 13px;">
+      </div>
+<!--      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>-->
+    </div>
+  </div>
+</div>
 <script>
 
    
 </script>
 <script>
     check_pincode();
+    if($("#model_not_mapped").val() != 1)
+    {
+        $(".select-model").select2();
+    }
     $(".booking_source").select2();
     //$("#service_id").select2();
     $('#service_id').css('pointer-events','none'); 
@@ -765,6 +787,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
                           if(obj.status  == <?Php echo _NO_REPEAT_BOOKING_FLAG; ?>){
                               alert("There is not any Possible Parent booking for this booking, It can not be a repeat booking");
                               $('.repeat_Service:checked').prop('checked', false);
+                              $('.repeat_Service').prop('disabled', true);
                               $("#repeat_reason_holder").hide();
                           }
                          else if(obj.status  == <?Php echo _ONE_REPEAT_BOOKING_FLAG; ?>){
