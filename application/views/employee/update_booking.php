@@ -1343,7 +1343,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
            }
         
     }
-    //get_symptom('<?php echo (!empty($symptom[0]['symptom'])?$symptom[0]['symptom']:'');?>');
+
     $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
 
     // function to cross check request type of booking with warranty status of booking 
