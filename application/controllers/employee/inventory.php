@@ -4784,6 +4784,110 @@ class Inventory extends CI_Controller {
 
         echo json_encode($res);
     }
+    
+     /**
+     *  @desc : This function is used to send defective spare by WH to partner
+     *  @param : void
+     *  @return :$res JSON
+     */
+    function send_defective_to_partner_from_wh_on_challan() {
+        log_message("info", __METHOD__ . json_encode($this->input->post(), true));
+        $this->check_WH_UserSession();
+        $postData = json_decode($this->input->post('data'), true);
+        $awb_by_wh = $this->input->post('awb_by_wh');
+        $courier_name_by_wh = $this->input->post('courier_name_by_wh');
+        $courier_price_by_wh = $this->input->post('courier_price_by_wh');
+        $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
+        $kilo_gram = $this->input->post('shipped_spare_parts_weight_in_kg') ?: '0';
+        $gram = $this->input->post('shipped_spare_parts_weight_in_gram') ?: '00';
+
+        $billable_weight = $kilo_gram . "." . $gram;
+        
+        $postData = json_decode($this->input->post('data'), true);
+        //$wh_name = $this->input->post('wh_name');
+        if (!empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
+            $this->upload_defective_spare_pic();
+            $booking_id = $postData[0]['booking_id'];
+            $exist_courier_image = $this->input->post("exist_courier_image");
+            $data['defective_part_shipped_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
+            $data['courier_name_by_partner'] = $this->input->post('courier_name_by_wh');
+            $data['courier_price_by_partner'] = $courier_price_by_wh;
+            $data['awb_by_partner'] = $awb_by_wh;
+            $data['status'] = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
+            if (!empty($exist_courier_image)) {
+                $data['defective_courier_receipt'] = $exist_courier_image;
+            } else {
+                $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $awb_by_wh), array());
+                if (empty($exist_courier_details)) {
+                    $awb_data = array(
+                        'awb_number' => trim($awb_by_wh),
+                        'company_name' => trim($courier_name_by_wh),
+                        'courier_charge' => trim($courier_price_by_wh),
+                        'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')), //defective_parts_shipped_gram
+                        'billable_weight' => trim($billable_weight),
+                        'actual_weight' => trim($billable_weight),
+                        'basic_billed_charge_to_partner' => trim($courier_price_by_wh),
+                        'booking_id' => trim($booking_id),
+                        'courier_invoice_file' => trim($this->input->post("sp_parts")),
+                        'shippment_date' => trim($this->input->post('defective_parts_shippped_date_by_wh')), //defective_part_shipped_date
+                        'created_by' => 2,
+                        'is_exist' => 0
+                    );
+
+                    $this->service_centers_model->insert_into_awb_details($awb_data);
+                }
+            }
+
+            foreach ($postData as $key => $val) {
+                if (!empty($val['spare_id'])) {
+                    $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
+                    $agent_id = $this->session->userdata('service_center_agent_id');
+                    $agent_name = $this->session->userdata('service_center_name');
+                    $service_center_id = $this->session->userdata('service_center_id');
+                    $actor = ACTOR_NOT_DEFINE;
+                    $next_action = NEXT_ACTION_NOT_DEFINE;
+                    $this->notify->insert_state_change($val['booking_id'], DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id);
+                    log_message("info", "Booking State change inserted");
+                }
+            }
+
+            if ($affected_id) {
+                $res['status'] = TRUE;
+                $res['message'] = 'Details Updated Successfully';
+            } else {
+                $res['status'] = TRUE;
+                $res['message'] = 'Details Not Updated';
+            }
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'All fields are required';
+        }
+
+        echo json_encode($res);
+    }
+
+    /**
+     *  @desc : This function is used to upload courier image
+     */
+    function upload_defective_spare_pic() {
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $booking_id = $this->input->post("booking_id");
+        $exist_courier_image = $this->input->post("exist_courier_image");
+
+        if (!empty($exist_courier_image)) {
+            $_POST['sp_parts'] = $exist_courier_image;
+            return true;
+        } else {
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["file"], "defective_courier_receipt", $allowedExts, $booking_id, "misc-images", "sp_parts");
+            if ($defective_courier_receipt) {
+                return true;
+            } else {
+                $this->form_validation->set_message('upload_defective_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
+        }
+    }
 
     /**
      * @desc This function is used to settle inventor invoice and insert into inventory invoice leadger
