@@ -7411,7 +7411,7 @@ function do_multiple_spare_shipping(){
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
         $booking_id = base64_decode(urldecode($booking_id));
         $redirect_url = !empty($redirect_url) ? base64_decode(urldecode($redirect_url)) : "";
-        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL);
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL,true);
         $booking['booking_history']['redirect_url'] = $redirect_url;
         if($booking){
             if(($booking['booking_history'][0]['assigned_vendor_id'] == $this->session->userdata('service_center_id'))){
