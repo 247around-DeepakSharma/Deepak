@@ -96,7 +96,7 @@
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
-                             page : 'current',      // 'all',     'current'
+                             page : 'all',      // 'all',     'current'
                              search : 'none'     // 'none',    'applied', 'removed'
                          }
                     }
