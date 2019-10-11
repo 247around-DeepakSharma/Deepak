@@ -113,19 +113,9 @@
                     <tr>
                             <td><?php echo ($key+1).'.'?></td>
                             <td style="text-align: center"><?php echo $value['phone'];?></td>
-                            <td style="text-align: center"><?php 
-                                    $old_date_timestamp = strtotime($value['action_date']);
-                                    echo date('j M, Y g:i A', $old_date_timestamp);  
-                                ?>
-                            </td>
+                            <td style="text-align: center"><?php echo $this->miscelleneous->get_formatted_date($value['action_date'], true); ?></td>
                             <td style="text-align: center"><?php echo $value['counter'];?></td>
-                            <td style="text-align: center"><?php 
-                                    $old_date_timestamp = strtotime($value['update_date']);
-                                    if($value['counter'] != 0){
-                                        echo date('j M, Y g:i A', $old_date_timestamp);  
-                                    }
-                                ?>
-                            </td>
+                            <td style="text-align: center"><?php if($value['counter'] != 0){ echo $this->miscelleneous->get_formatted_date($value['action_date'], true); } else { echo '-'; } ?></td>
                             <td style="text-align: center"><?php echo $value['updation_reason'];?></td>
                             <td style="text-align: center">
                                 <a href="#" onclick="return update_partner_missed_calls(<?php echo $value['id']?>,<?php echo $value['phone']?>)" class="btn btn-sm btn-success" title="Create Booking" > <i class="fa fa-book" aria-hidden="true"></i></a>
