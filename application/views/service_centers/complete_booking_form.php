@@ -301,7 +301,7 @@
 <!--                                                                    onblur="validateSerialNo('<?php //echo $count;?>')" -->
                                                                     <input type="text" style="text-transform: uppercase;" id="<?php echo "serial_number" . $count ?>" onblur="validateSerialNo('<?php echo $count;?>')" class="form-control" name="<?php echo "serial_number[" . $price['unit_id'] . "]" ?>"  
                                                                         value="<?php if(isset($price['en_serial_number'])){ echo $price['en_serial_number'];}
-                                                                        elseif(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number'];} else {echo $price["serial_number"];}  ?>" placeholder="Enter Serial No" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8"   />
+                                                                        elseif(!empty($booking_history['spare_parts'][0]['serial_number']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED){ echo $booking_history['spare_parts'][0]['serial_number'];} else {echo $price["serial_number"];}  ?>" placeholder="Enter Serial No" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 8"   />
                                                                     <input type="hidden" id="<?php echo "pod" . $count ?>" class="form-control" name="<?php echo "pod[" . $price['unit_id'] . "]" ?>" value="<?php echo $price['pod']; ?>"   />
                                                                     <input type="hidden" id="<?php echo "sno_required" . $count ?>" class="form-control" name="<?php echo "is_sn_file[" . $price['unit_id'] . "]" ?>" value="0"   />
                                                                     <input type="hidden" id="<?php echo "duplicate_sno_required" . $count ?>" class="form-control" name="<?php echo "is_dupliacte[" . $price['unit_id'] . "]" ?>" value="0"   />
@@ -311,7 +311,7 @@
                                                                     <input style="margin-top: 10px;" type="file" id="<?php echo "upload_serial_number_pic" . $count ?>"   
                                                                         class="form-control serialNumberPic" name="<?php echo "upload_serial_number_pic[" . $price['unit_id'] . "]" ?>"  
                                                                         value="<?php if(isset($price['en_serial_number_pic'])){ echo $price['en_serial_number_pic'];}
-                                                                        elseif(!empty($booking_history['spare_parts'])){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>"
+                                                                        elseif(!empty($booking_history['spare_parts'][0]['serial_number_pic']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED){ echo $booking_history['spare_parts'][0]['serial_number_pic'];} else {echo $price["serial_number_pic"];}  ?>"
                                                                     />
                                                                     <?php $src = base_url() . 'images/no_image.png';
                                                                     $image_src = $src;
@@ -1403,3 +1403,6 @@
          }).datepicker('show');
     }
 </script>
+<!-- end alert message -->
+<?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+<?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
