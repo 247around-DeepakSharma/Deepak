@@ -1282,6 +1282,9 @@ class Upload_booking_file extends CI_Controller {
         foreach ($list as $file_list) {
             $no++;
             $file_list->file_source = $this->input->post('file_source');
+            if($this->input->post("show_amt_paid")) {
+                $file_list->show_amt_paid = $this->input->post('show_amt_paid');
+            }
             $row =  $this->upload_file_table_data($file_list, $no);
             $table_data[] = $row;
         }
@@ -1338,6 +1341,9 @@ class Upload_booking_file extends CI_Controller {
             else{
                 $row[] = '';
             }
+        }
+        if(isset($file_list->show_amt_paid) && $file_list->show_amt_paid) {
+            $row[] = $file_list->amount_paid;
         }
         $row[] = $result;
         
