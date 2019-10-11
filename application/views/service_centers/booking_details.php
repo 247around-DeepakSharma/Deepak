@@ -644,6 +644,51 @@
             <?php } else{ ?> 
             <div class="text-danger">Spare Part Not Requested</div>
             <?php } ?>
+             <div class="row">
+                    <div class="col-md-12">
+                        <h1 style='font-size:24px;'>Invoice Id Details</h1>
+                        <div class="col-md-12" style="padding-left:1px;">
+                            <table class="table  table-striped table-bordered" >
+                                <thead>
+                                    <tr>
+                                        <th> Model Number </th>
+                                        <th> Requested Parts </th>
+                                        <th> Requested Parts Number</th>
+                                        <th>Parts Type</th>
+                                        <th> Purchase Invoice Id </th>
+                                        <th>Sale Invoice Id</th>
+                                        <th>Reverse Purchase Invoice Id</th>
+                                        <th>Reverse Sale Invoice Id </th>
+                                        <th>Warehouse Courier Invoice Id</th>
+                                        <th>Partner Courier Invoice Id</th>
+                                        <th>Vendor Courier Invoice Id</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                    
+                                    if(!empty($booking_history['spare_parts'])){
+                                    foreach ($booking_history['spare_parts'] as $sp) {
+                                     ?>
+                                    <tr>
+                                        <td><?php echo $sp['model_number']; ?></td>
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                        <td style=" word-break: break-all;"><?php if(!empty($sp['part_number'])){ echo $sp['part_number'];}else{echo 'Not Available';} ?></td>
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
+                                        <td><?php echo $sp['purchase_invoice_id']; ?></td>
+                                        <td><?php echo $sp['sell_invoice_id']; ?></td>  
+                                        <td><?php echo $sp['reverse_purchase_invoice_id']; ?></td>  
+                                        <td><?php echo $sp['reverse_sale_invoice_id']; ?></td>
+                                        <td><?php echo $sp['warehouse_courier_invoice_id']; ?></td> 
+                                        <td><?php echo $sp['partner_courier_invoice_id']; ?></td> 
+                                        <td><?php echo $sp['vendor_courier_invoice_id']; ?></td> 
+                                    </tr>
+                                    <?php } }?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
         </div>
         <div class="tab-pane fade in" id="tab4">
             <?php if (isset($booking_state_change_data)) { ?>
