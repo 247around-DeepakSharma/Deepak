@@ -513,8 +513,16 @@ class Invoice extends CI_Controller {
 
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
 
-        $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
-
+        $this->invoice_lib->generate_invoice_excel($template, $meta, $misc_data['Completed']['annexure'], $output_file_excel);
+        
+        // Generate Pending Bookings Excel
+        if (!empty($misc_data['Pending'])) {
+            $pending_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-Pending-detailed.xlsx";
+            $this->invoice_lib->generate_invoice_excel($template, $meta, $misc_data['Pending']['annexure'], $pending_file_excel);
+            array_push($files, $pending_file_excel);
+            log_message('info', __METHOD__ . "=> File created " . $pending_file_excel);
+        }
+        
         // Generate Upcountry Excel
         if (!empty($misc_data['upcountry'])) {
             $meta['total_upcountry_price'] = $misc_data['upcountry'][0]['total_upcountry_price'];
@@ -3322,12 +3330,19 @@ class Invoice extends CI_Controller {
 
             // Copy worksheets from $objPHPExcel2 to $objPHPExcel1
             foreach ($objPHPExcel2->getAllSheets() as $sheet) {
+                if(strpos($file_path, 'Pending') !== false) {
+                    $objPHPExcel1->getActiveSheet()->setTitle("Completed");
+                }
                 $objPHPExcel1->addExternalSheet($sheet);
+                if(strpos($file_path, 'Pending') !== false) {
+                    $objPHPExcel1->setActiveSheetIndex($objPHPExcel1->getActiveSheetIndex()+1);
+                    $objPHPExcel1->getActiveSheet()->setTitle("Pending");
+                }
             }
             
             
         }
-        
+        $objPHPExcel1->setActiveSheetIndex(0);
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, "Excel2007");
         // Save $objPHPExcel1 to browser as an .xls file
         $objWriter->save($details_excel);
