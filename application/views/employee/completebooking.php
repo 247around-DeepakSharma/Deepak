@@ -71,6 +71,11 @@
         <div class="panel panel-info" style="margin-top:20px;">
             <div class="panel-heading">Complete Booking <span class="pull-right"><input id="enable_change_unit" type="checkbox" onchange="update_brand_details()" name="enable_change_unit"> <span>Change Brand Details</span></span></div>
             <div class="panel-body">
+                <?php if(!in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE])) { ?>
+                <div class="alert alert-warning">
+                    <span style="font-weight:bold;">You don't have permission to complete booking.</span>
+                </div>
+                <?php  } ?>
                 <?php if($requestedParts || !$enable_button || $is_invoice_generated) { ?>
             <div class="alert alert-warning">
                 <span><?php if($requestedParts) { ?><span style="color:red; font-weight: bold;" ><?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?></span><?php } ?></span>
@@ -682,7 +687,7 @@
                         <?php } else { ?>
                         <center>
                             <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
-                            <?php if($enable_button && empty($is_invoice_generated)){
+                            <?php if($enable_button && empty($is_invoice_generated) && in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE])){
                             ?>
                             <input type="submit" id="submitform" onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $k_count; ?>')" class="btn btn-info" value="Complete Booking">
                             <?php } else {

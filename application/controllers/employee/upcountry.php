@@ -88,6 +88,7 @@ class Upcountry extends CI_Controller {
         }
         if (!empty($flag)) {
             if (!empty($data)) {
+                $data = array_unique($data, SORT_REGULAR);
                 $response = $this->upcountry_model->insert_batch_sub_sc_details($data);
                 $this->vendor_model->edit_vendor(array('is_upcountry' => '1'), $service_center_id);
                 if ($response) {

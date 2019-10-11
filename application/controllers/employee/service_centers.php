@@ -759,6 +759,12 @@ class Service_centers extends CI_Controller {
                 if(!empty($defective_part_required) && $defective_part_required == 1) {
                     $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
+//                        if ($spare_part_detail['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
+//                            $defective_return_to_entity_id = $spare_part_detail['defective_return_to_entity_id'];
+//                        }
+//                        if(!empty($defective_return_to_entity_id)){
+//                        $this->invoice_lib->generate_challan_file_to_partner($spare_part_detail['id'], $defective_return_to_entity_id);
+//                        }
                         $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'));   
                     }
                 }
@@ -3382,6 +3388,48 @@ function do_multiple_spare_shipping(){
         }
     }
 
+     /**
+     * @desc This function is used to download partner challan/Address
+     */
+    
+    function process_partner_challan_file(){        
+      log_message('info', __METHOD__ . json_encode($_POST, true));
+        
+               $challan_booking_id = $this->input->post('download_challan');
+               
+                $delivery_challan_file_name_array = array();
+                foreach ($challan_booking_id as $partner_id => $spare_and_service) {
+                    $sp_id = implode(',', $spare_and_service);
+                    $data['wh_challan_file']= $this->invoice_lib->generate_challan_file_to_partner($sp_id, $this->session->userdata('service_center_id'));
+                    array_push($delivery_challan_file_name_array, $data['wh_challan_file']);
+                }
+                ////  ZIP The Challan files ///
+                $challan_file = 'challan_file' . date('dmYHis');
+                if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+                    unlink(TMP_FOLDER . $challan_file . '.zip');
+                }
+                $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
+
+                foreach ($delivery_challan_file_name_array as $value1) {
+                    $zip .= " " . TMP_FOLDER . $value1 . " ";
+                }
+                $challan_file_zip = $challan_file . ".zip";
+                $res = 0;
+                system($zip, $res);
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
+                $res2 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
+                readfile(TMP_FOLDER . $challan_file . '.zip');
+                if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+                    unlink(TMP_FOLDER . $challan_file . '.zip');
+                    foreach ($delivery_challan_file_name_array as $value_unlink) {
+                        unlink(TMP_FOLDER . $value_unlink);
+                    }
+                }
+    }
+
     /**
      * @desc This function is used to download challan/Address
      */
@@ -3435,7 +3483,7 @@ function do_multiple_spare_shipping(){
             }
         }
     }
-
+    
     /**
      * @desc This function is used to download SF challan file in zip
      */
@@ -6422,7 +6470,39 @@ function do_multiple_spare_shipping(){
             $this->load->view('service_centers/warehouse_task_list_tab_send_to_partner', $data);
         }
     }
-
+    
+     /**
+     * @desc: This method is used to display list of Received Defective Parts by Partner id
+     * @param Integer $offset
+     */
+    function warehouse_send_to_partner_on_challan($offset = 0) {        
+        $this->check_WH_UserSession();
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+               
+        if($this->input->post('partner_id')){
+            $partner_id = $this->input->post('partner_id');
+            $data['filtered_partner'] = $this->input->post('partner_id');
+            $sf_id = $this->session->userdata('service_center_id');
+            $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "') ";
+            $where .= " AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
+            $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
+            
+        } else {
+            $data['spare_parts'] = array();
+        }
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $gst_where = array(
+            "entity_type" => _247AROUND_PARTNER_STRING,
+            "entity_id" => _247AROUND,
+            );
+        $data['from_gst_number'] = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $gst_where);
+                  
+        $this->load->view('service_centers/send_to_partner_on_challan', $data);
+       
+        
+    }
+    
     /**
      * @desc: This function is used to download SF declaration who don't have GST number hen Partner update spare parts
      * @params: String $sf_id
@@ -6911,6 +6991,58 @@ function do_multiple_spare_shipping(){
         return $msl;
     }
     
+        /**
+     * msl summary details -> page to show MSL Security deposits of SF till now
+     */
+    function msl_security_details(){
+        $this->checkUserSession();
+        $data= array();
+        $select = "invoice_id, type, date_format(invoice_date,'%d-%m-%Y') as 'invoice_date', parts_count, vertical, category, sub_category,(total_amount_collected-amount_paid) as 'amount'";
+        $data['msl_security'] = $this->reusable_model->get_search_result_data(
+            'vendor_partner_invoices',
+            $select,
+            array(
+                "vendor_partner"=> "vendor",
+                "vendor_partner_id"=> $this->session->userdata('service_center_id')
+            ),
+            NULL,NULL,NULL,
+            array(
+                "sub_category"=>array(
+                    MSL_SECURITY_AMOUNT
+                )
+            ),NULL,array()
+        );
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/msl_summary',$data);
+    }
+
+    /**
+     * [[Description-> page to show MSL sent to SF and parts returned by SF]]
+     */
+    function msl_spare_details(){
+        $this->checkUserSession();
+        $data= array();
+        $select = "invoice_id, type, date_format(invoice_date,'%d-%m-%Y') as 'invoice_date', parts_count, vertical, category, sub_category,(total_amount_collected-amount_paid) as 'amount'";
+        $data['msl_spare'] = $this->reusable_model->get_search_result_data(
+            'vendor_partner_invoices',
+            $select,
+            array(
+                "vendor_partner"=> "vendor",
+                "vendor_partner_id"=> $this->session->userdata('service_center_id')
+            ),
+            NULL,NULL,NULL,
+            array(
+                "sub_category"=>array(
+                    MSL,
+                    MSL_NEW_PART_RETURN,
+                    MSL_DEFECTIVE_RETURN
+                )
+            ),NULL,array()
+        );
+        $this->load->view('service_centers/header');
+        $this->load->view('service_centers/msl_summary',$data);
+    }
+
     function check_warehouse_shipped_awb_exist(){
         $awb = $this->input->post('awb');        
          if (!empty($awb)) {
@@ -6926,6 +7058,7 @@ function do_multiple_spare_shipping(){
                     $data[0]['billable_weight'] = $courier_boxes_weight_details[0]['billable_weight'];
                     $data[0]['box_count'] = $courier_boxes_weight_details[0]['box_count'];
                     $data[0]['courier_charge'] = $courier_boxes_weight_details[0]['courier_charge'];  //defective_courier_receipt
+                    $data[0]['courier_invoice_file'] = $courier_boxes_weight_details[0]['courier_invoice_file']; 
                 } else {
 
                     $data[0]['billable_weight'] = '0.00';
@@ -7359,7 +7492,7 @@ function do_multiple_spare_shipping(){
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
         $booking_id = base64_decode(urldecode($booking_id));
         $redirect_url = !empty($redirect_url) ? base64_decode(urldecode($redirect_url)) : "";
-        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL);
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL,true);
         $booking['booking_history']['redirect_url'] = $redirect_url;
         if($booking){
             if(($booking['booking_history'][0]['assigned_vendor_id'] == $this->session->userdata('service_center_id'))){
