@@ -220,7 +220,7 @@ class Engineer_model extends CI_Model {
         return $query->result_array();
     }
     
-    function get_engineer_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false, $is_partner = false, $is_vendor = false, $is_sign = false){
+    function get_engineer_booking_details($select="*", $where = array(), $is_user = false, $is_service = false, $is_unit = false, $is_partner = false, $is_vendor = false, $is_sign = false, $is_symptom = false){
         $this->db->distinct();
         $this->db->select($select, false);
         $this->db->from('engineer_booking_action');
@@ -245,6 +245,11 @@ class Engineer_model extends CI_Model {
         if($is_sign){
             $this->db->join('engineer_table_sign', 'engineer_table_sign.booking_id = engineer_booking_action.booking_id'); 
         }
+        if($is_symptom){
+            $this->db->join('booking_symptom_defect_details', 'booking_symptom_defect_details.booking_id = engineer_booking_action.booking_id', 'left');
+            $this->db->join('symptom', 'symptom.id = booking_symptom_defect_details.symptom_id_booking_creation_time', 'left');
+        }
+        $this->db->order_by("engineer_booking_action.closed_date", "DESC");
         $query = $this->db->get();
         //echo $this->db->last_query(); die();
         return $query->result_array();

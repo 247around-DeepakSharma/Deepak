@@ -134,7 +134,7 @@
                         </tr>
                         <tr>
                             <th>Booking Date/ Timeslot </th>
-                            <td><?php echo $booking_history[0]['booking_date']." / ".$booking_history[0]['booking_timeslot']; ?></td>
+                            <td><?php echo $this->miscelleneous->get_formatted_date($booking_history[0]['booking_date'])." / ".$booking_history[0]['booking_timeslot']; ?></td>
                             <th>Amount Due / Paid  </th>
                             <td><i class="fa fa-rupee"></i> <?php echo $booking_history[0]['amount_due']." / ".$booking_history[0]['amount_paid']; ?>
                             <button style="background-color: #2C9D9C;color:#fff;border-color: #2C9D9C;" type="button" class="btn btn-default" data-toggle="modal" data-target="#paytm_transaction" onclick="get_transaction_status(<?php echo "'".$booking_history[0]['booking_id']."'"?>)">Get Paytm Transaction Status</button>
@@ -174,9 +174,9 @@
                         <?php } ?>
                         <tr>
                             <th>Booking Create / Closed Dated </th>
-                            <td><?php if(!empty($booking_history[0]['closed_date'])){ echo date("jS M, Y", strtotime($booking_history[0]['create_date'])).
-                                " / ".date("jS M, Y", strtotime($booking_history[0]['service_center_closed_date'])); } 
-                                else  { echo date("jS M, Y", strtotime($booking_history[0]['create_date'])); } ?></td>
+                            <td><?php if(!empty($booking_history[0]['closed_date'])){ echo $this->miscelleneous->get_formatted_date($booking_history[0]['create_date']).
+                                " / ".$this->miscelleneous->get_formatted_date($booking_history[0]['service_center_closed_date']); } 
+                                else  { echo $this->miscelleneous->get_formatted_date($booking_history[0]['create_date']); } ?></td>
                             <th>EDD / Delivery Date</th>
                             <td><?php echo $booking_history[0]['estimated_delivery_date']." / ".$booking_history[0]['delivery_date']; ?></td>
                         </tr>
