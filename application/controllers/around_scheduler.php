@@ -2029,7 +2029,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
            'credit_generated'=>0,
            'vertical'=>_247AROUND_SERVICE_STRING,
            'category'=>_247AROUND_INSTALLATION_AND_REPAIR_STRING,
-           '`sub-category`'=>_247AROUND_GST_DEBIT_NOTE_STRING,
+           'sub_category'=>_247AROUND_GST_DEBIT_NOTE_STRING,
         );
         $post['group_by'] = 'vendor_partner_id';
         $invoices = $this->invoices_model->searchInvoicesdata($select, $post);
@@ -2048,7 +2048,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                $gst_amt =  sprintf("%.2f",($value['igst_tax_amount'] + $value['cgst_tax_amount'] + $value['sgst_tax_amount']));
                $taxable_value =  sprintf("%.2f",($value['total_amount_collected'] - $gst_amt));
                $total_amount_collected = sprintf("%.2f", $value['total_amount_collected']);
-               $this->table->add_row($value['invoice_id'], $value['invoice_date'], $taxable_value, $value['cgst_tax_amount'], $value['sgst_tax_amount'], $value['igst_tax_amount'], $gst_amt, $total_amount_collected);
+               $this->table->add_row($value['invoice_id'], $this->miscelleneous->get_formatted_date($value['invoice_date']), $taxable_value, $value['cgst_tax_amount'], $value['sgst_tax_amount'], $value['igst_tax_amount'], $gst_amt, $total_amount_collected);
             }
             $email_template = $this->booking_model->get_booking_email_template(VENDOR_GST_RETURN_WARNING);
             if(!empty($email_template)){
