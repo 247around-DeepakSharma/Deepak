@@ -226,7 +226,7 @@ class Booking extends CI_Controller {
                 $appliances_details['model_number'] = $services_details['model_number'] = $model_number[$key];
                 // get appliance tag from appliance_tag array for only specific key such as $appliance_tag[0].
                 //$appliances_details['tag']  = $appliance_tags[$key];
-                $appliances_details['purchase_date'] = $services_details['purchase_date'] =  date("Y-m-d", strtotime($purchase_date[$key]));
+                $appliances_details['purchase_date'] = $services_details['purchase_date'] =  $this->miscelleneous->convert_date_to_database_format($purchase_date[$key]);
                 $services_details['booking_id'] = $booking['booking_id'];
                 //$appliances_details['serial_number'] = $services_details['serial_number'] = $serial_number[$key];
                 $appliances_details['description'] = $services_details['appliance_description'] = $appliance_description[$key];
@@ -2315,7 +2315,7 @@ class Booking extends CI_Controller {
             }
             $data['sf_purchase_date'] = NULL;
             if (!empty($purchase_date[0])) {
-                $data['sf_purchase_date'] = $purchase_date[0];
+                $data['sf_purchase_date'] = $this->miscelleneous->convert_date_to_database_format($purchase_date[0]);
             }
             
             if (!empty($purchase_invoice[$unit_id]) || !empty($purchase_invoice_file_name)) {
