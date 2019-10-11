@@ -45,7 +45,7 @@ class Validate_serial_no {
                     return $this->$method($partnerID, $serialNo, $booking_id);
                 }
                 if($method == 'sharp_serialNoValidation'){
-                    return $this->$method($partnerID, $serialNo, $booking_id);
+                    return $this->$method($partnerID, $serialNo, $applianceID);
                 }
                 return $this->$method($partnerID, $serialNo);
 
@@ -848,12 +848,17 @@ class Validate_serial_no {
          }
     }
     
-    function sharp_serialNoValidation($partnerID,$serialNo){
-        if((preg_match('/^[0-9]{9}$/', $serialNo)) && ((int) $serialNo != 0)){
-            return array('code' => SUCCESS_CODE);
-        }
-        else{
-            return array('code' => FAILURE_CODE, "message" => "Serial Number should be a valid 9 digit numeric value");
+    function sharp_serialNoValidation($partnerID,$serialNo,$applianceID){
+        switch ($applianceID) {
+            case _247AROUND_WATER_PURIFIER_SERVICE_ID:
+                if((preg_match('/^[0-9]{9}$/', $serialNo)) && ((int) $serialNo != 0)){
+                    return array('code' => SUCCESS_CODE);
+                }
+                else{
+                    return array('code' => FAILURE_CODE, "message" => "Serial Number should be a valid 9 digit numeric value");
+                }
+            default:
+                return array('code' => SUCCESS_CODE);
         }
     }     
 }
