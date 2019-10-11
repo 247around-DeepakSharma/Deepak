@@ -76,6 +76,12 @@
                             <strong>' . $this->session->userdata('error') . '</strong>
                         </div>';
         }
+        if ($this->session->userdata('warning')) {
+            echo '<div class="alert alert-warning alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>' . $this->session->userdata('warning') . '</div>';
+        }
       if(validation_errors()){?>
         <div class="panel panel-danger" style="margin-top:10px;margin-bottom:-10px;">
             <div class="panel-heading" style="padding:7px 0px 0px 13px">
@@ -4502,6 +4508,7 @@
 </style>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+<?php if($this->session->userdata('warning')){$this->session->unset_userdata('warning');} ?>
 <script type="text/javascript">
     $('#contact_person_states').select2({
         placeholder: "Select State",
