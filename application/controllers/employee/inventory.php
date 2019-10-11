@@ -1870,6 +1870,45 @@ class Inventory extends CI_Controller {
         $data['stock_details'] = $this->inventory_model->get_inventory_stock_list($post, $select);
         echo $this->load->view('employee/inventory_stock_details', $data);
     }
+    /**
+     * Get inventory stock with vendor and inventory
+     * @param  integer $inventory_id
+     * @param  integer $vendor_id
+     * @prints json encoded array
+     */
+    function get_inventory_stocks_by_inventory_id(){
+        $inventory_id = $this->input->get("inventory_id");
+        $vendor_id = $this->input->get("vendor_id");
+        $res =array();
+        if(empty($inventory_id) || !intval($inventory_id)){
+            $res['error'] = true;
+            $res['errorMessage'] = "No inventory provided to get stocks.";
+            echo json_encode($res);die();
+        }
+        if(empty($vendor_id) || !intval($vendor_id)){
+            $res['error'] = true;
+            $res['errorMessage'] = "No SF provided to get stocks.";
+            echo json_encode($res);die();
+        }
+        $post = array(
+            "where"=> array(
+                'inventory_stocks.entity_id'=> $vendor_id,
+                'inventory_stocks.inventory_id'=> $inventory_id
+            ),
+        );
+        $select = "inventory_stocks.stock";
+
+        $stocks = $this->inventory_model->get_warehouse_stocks($post, $select)->row_array();
+        if(empty($stocks)){
+            $res['error'] = true;
+            $res['errorMessage'] = 'No Stock found.';
+            echo json_encode($res);die();
+        }
+
+        $res['error'] = false;
+        $res['payload'] = $stocks;
+        echo json_encode($res);die();
+    }
 
     /**
      * @Desc: This function is used to show form add inventory stocks for service center
