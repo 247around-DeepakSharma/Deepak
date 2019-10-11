@@ -100,14 +100,14 @@
 </div>
 <?php } ?>
 <div class="clearfix"></div>
-<div id="send_email_form" class="modal fade" role="dialog">
+<div id="send_email_form_2" class="modal fade" role="dialog">
     <div class="modal-dialog">
 
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header well" style="background-color:  #2a3f54;border-color: #2a3f54;">
                 <button type="button" class="close btn-primary well"  data-dismiss="modal"style="color: white;">&times;</button>
-                <p class="modal-title"style="color: white;background-color: #2a3f54;border-color: #2a3f54;border: 0px; text-align: center; font-size:18px;" id="email_title"></p>
+                <p class="modal-title"style="color: white;background-color: #2a3f54;border-color: #2a3f54;border: 0px; text-align: center; font-size:18px;" id="email_title_2"></p>
             </div>
             <div class="modal-body">
                 <div id="form_container">
@@ -400,8 +400,8 @@
         function create_email_form(booking_id){
             $("#internal_email_booking_subject").prop('disabled', true);
             $("#internal_email_booking_cc").prop('disabled', true);
-            $("#email_title").html("Send Email For Booking "+booking_id);
-            $("#send_email_form").modal("show");
+            $("#email_title_2").html("Send Email For Booking "+booking_id);
+            $("#send_email_form_2").modal("show");
             $("#internal_email_booking_id").val(booking_id);
             add_data_in_create_email_form(booking_id);
         }

@@ -111,14 +111,14 @@
                         <tr>
                             <th>S.no</th>
                             <th>RM</th>
-                            <th>D0</th>
-                            <th>D1</th>
-                            <th>D2</th>
-                            <th>D3</th>
-                            <th>D4</th>
-                            <th>D5 - D7</th>
-                             <th>D8 - D15</th>
-                             <th>> D15 (Total)</th>
+                            <th>Day0</th>
+                            <th>Day1</th>
+                            <th>Day2</th>
+                            <th>Day3</th>
+                            <th>Day4</th>
+                            <th>Day5 - Day7</th>
+                            <th>Day8 - Day15</th>
+                            <th> Day15 (Total)</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -272,15 +272,15 @@
                         <tr>
                             <th>S.no</th>
                             <th>RM</th>
-                            <th>D0</th>
-                            <th>D1</th>
-                            <th>D2</th>
-                            <th>D3</th>
-                            <th>D4</th>
-                            <th>D5 - D7</th>
-                             <th>D8 - D15</th>
-                             <th>>D15</th>
-                             <th>Total</th>
+                            <th>Day0</th>
+                            <th>Day1</th>
+                            <th>Day2</th>
+                            <th>Day3</th>
+                            <th>Day4</th>
+                            <th>Day5 - Day7</th>
+                            <th>Day8 - Day15</th>
+                            <th>Day15</th>
+                            <th>Total</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -599,7 +599,7 @@
         $.ajax({
             type: 'POST',
             url: url,
-            data: {partner_id: partner_id},
+            data: {partner_id: +<?php echo $this->session->userdata('partner_id')?>},           
             success: function (response) {
                 $('#loader_gif1').attr('src', "");
                 $('#loader_gif1').css('display', 'none');
