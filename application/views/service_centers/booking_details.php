@@ -1062,13 +1062,11 @@ function OpenWindowWithPost(url, windowoption, name, params)
         });
         $(".check-stocks").click(function(){
             var inventory = $(this).data("inventory");
-            var vendor = $(this).data("vendor");
 
             $.ajax({
                 url: '<?php echo base_url() ?>employee/inventory/get_inventory_stocks_by_inventory_id',
                 data:{
-                    inventory_id:inventory,
-                    vendor_id:vendor
+                    inventory_id:inventory
                 },
                 success:function(res){
                     if(!res){
@@ -1079,7 +1077,15 @@ function OpenWindowWithPost(url, windowoption, name, params)
                     if(!!response.error){
                         $("#stock_modal_container").empty().html("<div class='text-danger'>" +response.errorMessage +"</div>");
                     }else{
-                        $("#stock_modal_container").empty().html("<div class='text-success'>Stock Available: " +response.payload.stock +"</div>");
+                        var html= "<div class='table-responsive'><table class='table table-stripped table-bordered table-hover'>"
+                            +"<thead><tr><th>Vendor/Warehouse Name</th><th>Stock</th></tr></thead><tbody>";
+                        for(var i in response.payload){
+                            html+="<tr>";
+                            html+="<td>"+ response.payload[i].name+ "</td><td>"+ response.payload[i].stock+ "</td>";
+                            html+="</tr>";
+                        }
+                        html += "</tbody></table></div>";
+                        $("#stock_modal_container").empty().html(html);
                     }
                     $("#show_stocks_modal").modal();
                 }

@@ -1878,27 +1878,20 @@ class Inventory extends CI_Controller {
      */
     function get_inventory_stocks_by_inventory_id(){
         $inventory_id = $this->input->get("inventory_id");
-        $vendor_id = $this->input->get("vendor_id");
         $res =array();
         if(empty($inventory_id) || !intval($inventory_id)){
             $res['error'] = true;
             $res['errorMessage'] = "No inventory provided to get stocks.";
             echo json_encode($res);die();
         }
-        if(empty($vendor_id) || !intval($vendor_id)){
-            $res['error'] = true;
-            $res['errorMessage'] = "No SF provided to get stocks.";
-            echo json_encode($res);die();
-        }
         $post = array(
             "where"=> array(
-                'inventory_stocks.entity_id'=> $vendor_id,
                 'inventory_stocks.inventory_id'=> $inventory_id
             ),
         );
-        $select = "inventory_stocks.stock";
+        $select = "inventory_stocks.stock as stock,service_centres.name as name";
 
-        $stocks = $this->inventory_model->get_warehouse_stocks($post, $select)->row_array();
+        $stocks = $this->inventory_model->get_warehouse_stocks($post, $select)->result_array();
         if(empty($stocks)){
             $res['error'] = true;
             $res['errorMessage'] = 'No Stock found.';
