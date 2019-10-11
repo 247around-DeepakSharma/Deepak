@@ -4512,7 +4512,17 @@ class Partner extends CI_Controller {
                 array('partners.id' => $partner_id),"",0,0,1,"partners.id");
         $partnerName = $p[0]['public_name'];
         $start_date_array = $this->input->post('agreement_start_date');
+        if(empty($start_date_array) || count($start_date_array)<1 || empty($start_date_array[0])){      //since start date is an array
+            $msg = "Cannot update Partner Contracts. Partnership start date cannot be empty.";
+            $this->session->set_userdata('error', $msg);
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+        }
         $end_date_array = $this->input->post('agreement_end_date');
+        if(empty($end_date_array) || count($end_date_array)<1 || empty($end_date_array[0])){      //since end date is an array
+            $msg = "Cannot update Partner Contracts. Partnership end date cannot be empty.";
+            $this->session->set_userdata('error', $msg);
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+        }
         $contract_type_array = $this->input->post('contract_type');
         $contract_description_array = $this->input->post('contract_description');
         $finalInsertArray = array();

@@ -1262,7 +1262,7 @@
                             <div class="col-md-6 form-group <?php if (form_error('agreement_start_date')) {
                                 echo 'has-error';
                                 } ?>">
-                                <label for="agreement_start_date" class="col-md-4">Partnership Start Date</label>
+                                <label for="agreement_start_date" class="col-md-4">Partnership Start Date<span class="text-danger">*</span></label>
                                 <div class="col-md-6">
                                     <div class="input-group input-append date" >
                                         <?php
@@ -1276,7 +1276,7 @@
                                                 $aggrement_date = date("Y-m-d");
                                             }
                                             ?>
-                                        <input type="date" class="form-control agreement_start_date"  name="agreement_start_date[]"  id="agreement_start_date" >
+                                        <input type="date" class="form-control agreement_start_date" required name="agreement_start_date[]"  id="agreement_start_date" >
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                     <?php echo form_error('agreement_start_date'); ?>
@@ -1285,10 +1285,10 @@
                             <div class="col-md-6 form-group <?php if (form_error('agreement_end_date')) {
                                 echo 'has-error';
                                 } ?>">
-                                <label for="agreement_end_date" class="col-md-4">Partnership End Date</label>
+                                <label for="agreement_end_date" class="col-md-4">Partnership End Date<span class="text-danger">*</span></label>
                                 <div class="col-md-6">
                                     <div class="input-group input-append date" >
-                                        <input type="date" class="form-control"  name="agreement_end_date[]" id="agreement_end_date">
+                                        <input type="date" class="form-control" required name="agreement_end_date[]" id="agreement_end_date">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                     <?php echo form_error('agreement_end_date'); ?>
@@ -1297,7 +1297,7 @@
                             <div class="col-md-6 form-group <?php if (form_error('contract_type')) {
                                 echo 'has-error';
                                 } ?>">
-                                <label for="contract_type" class="col-md-4">Contract Type</label>
+                                <label for="contract_type" class="col-md-4">Contract Type<span class="text-danger">*</span></label>
                                 <div class="col-md-6">
                                     <select class="form-control" name="contract_type[]" class="contract_type" required="">
                                         <option value="">Select Contract Type</option>
@@ -1315,7 +1315,7 @@
                             <div class="col-md-6 form-group <?php if (form_error('contract_file')) {
                                 echo 'has-error';
                                 } ?>">
-                                <label for="contract_file" class="col-md-4">Contract File</label>
+                                <label for="contract_file" class="col-md-4">Contract File<span class="text-danger">*</span></label>
                                 <div class="col-md-5">
                                     <input type="file" class="form-control"  name="contract_file[]" required="">
                                     <?php echo form_error('contract_file'); ?>
