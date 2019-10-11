@@ -1636,7 +1636,7 @@ class Service_centers extends CI_Controller {
                 $updated_status = $this->booking_model->update_booking($booking_id, $data);
                 if ($updated_status) {
                     // Update service center internal status in service center action table
-                    $this->service_centers_model->update_service_centers_action_table($booking_id, array('internal_status' => ENGG_ASSIGNED, 'update_date' => date('Y-m-d H:i:s')));
+                    // $this->service_centers_model->update_service_centers_action_table($booking_id, array('internal_status' => ENGG_ASSIGNED, 'update_date' => date('Y-m-d H:i:s')));
 
                     $assigned['booking_id'] = $booking_id;
                     $assigned['current_state'] = ENGG_ASSIGNED;
