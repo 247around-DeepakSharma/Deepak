@@ -452,7 +452,7 @@
                                     if($sp['status'] == SPARE_DELIVERED_TO_SF && $sp['entity_type'] == _247AROUND_SF_STRING && $sp['partner_id'] == $this->session->userdata("service_center_id") && $sp['service_center_id'] == $this->session->userdata("service_center_id")){ ?>
                                 <td><button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>, <?php echo $sp['shipped_quantity']; ?>)">Remove</button></td>
                                 <?php } else if($saas_module && ($sp['status'] == SPARE_DELIVERED_TO_SF || $sp['status'] == SPARE_OOW_SHIPPED || $sp['status'] == SPARE_PARTS_SHIPPED)){ ?>
-                                   
+                                   <button class="btn btn-primary" onclick="open_model_for_remove_msl(<?php echo $sp['id']; ?>, '<?php echo $sp['booking_id'];  ?>', <?php echo $sp['shipped_inventory_id']; ?>, <?php echo $sp['shipped_quantity']; ?>)">Remove</button></td>
                                 <?php }else{ ?>
                                      <td><button class="btn btn-primary" disabled>Remove</button></td>
                                 <?php } ?>
