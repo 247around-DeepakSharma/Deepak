@@ -990,47 +990,47 @@ class vendor extends CI_Controller {
         $url = base_url() . "employee/do_background_process/assign_booking";
         $sf_status = $this->input->post("sf_status");
         $count = 0;
-       
+        $strMessage = "No Data selected";
         if(!empty($service_center)){
-        foreach ($service_center as $booking_id => $service_center_id) {
-            if(!empty($booking_id) || $booking_id != '0'){
-           
-                if ($service_center_id != "") {
-                   
-                    $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $partner_id[$booking_id], $agent_id, $agent_type);
-                    if ($assigned) {
-                        //Insert log into booking state change
-                       $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, 
-                               ACTOR_ASSIGN_BOOKING_TO_VENDOR,NEXT_ACTION_ASSIGN_BOOKING_TO_VENDOR,_247AROUND);
-                       //Send Push Notification
-                       $receiverArray['vendor'] = array($service_center_id); 
-                       $notificationTextArray['url'] = array($booking_id);
-                       $notificationTextArray['msg'] = array($booking_id);
-                       $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
-                       //End Push Notification
-                        $count++;
-                               
-                        if($sf_status[$booking_id] == "SF_NOT_EXIST"){
-                            //$this->send_mail_when_sf_not_exist($booking_id);
-                            $this->miscelleneous->sf_not_exist_for_pincode(array('booking_id' => $booking_id, 'booking_pincode' => $pincode[$booking_id], 
-                                'service_id' => $service_id[$booking_id],'partner_id'=>$partner_id[$booking_id],'city'=>$city[$booking_id],'order_id'=>$order_id[$booking_id]));
+            foreach ($service_center as $booking_id => $service_center_id) {
+                if(!empty($booking_id) || $booking_id != '0'){
+
+                    if ($service_center_id != "") {
+
+                        $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $partner_id[$booking_id], $agent_id, $agent_type);
+                        if ($assigned) {
+                            //Insert log into booking state change
+                           $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, 
+                                   ACTOR_ASSIGN_BOOKING_TO_VENDOR,NEXT_ACTION_ASSIGN_BOOKING_TO_VENDOR,_247AROUND);
+                           //Send Push Notification
+                           $receiverArray['vendor'] = array($service_center_id); 
+                           $notificationTextArray['url'] = array($booking_id);
+                           $notificationTextArray['msg'] = array($booking_id);
+                           $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
+                           //End Push Notification
+                            $count++;
+
+                            if($sf_status[$booking_id] == "SF_NOT_EXIST"){
+                                //$this->send_mail_when_sf_not_exist($booking_id);
+                                $this->miscelleneous->sf_not_exist_for_pincode(array('booking_id' => $booking_id, 'booking_pincode' => $pincode[$booking_id], 
+                                    'service_id' => $service_id[$booking_id],'partner_id'=>$partner_id[$booking_id],'city'=>$city[$booking_id],'order_id'=>$order_id[$booking_id]));
+                            }
+                        } else {
+                            log_message('info', __METHOD__ . "=> Not Assign for Sc "
+                                    . $service_center_id);
                         }
-                    } else {
-                        log_message('info', __METHOD__ . "=> Not Assign for Sc "
-                                . $service_center_id);
                     }
                 }
             }
-        }}
 
-        //Send mail /SMS to SF and and update upcountry in background
-        $async_data['booking_id'] = $service_center;
-        $async_data['agent_id'] =  $agent_id;
-        $async_data['agent_name'] = $agent_name;
-        $this->asynchronous_lib->do_background_process($url, $async_data);
-
-        echo " Request to Assign Bookings: " . count($service_center) . ", Actual Assigned Bookings: " . $count;
-
+            //Send mail /SMS to SF and and update upcountry in background
+            $async_data['booking_id'] = $service_center;
+            $async_data['agent_id'] =  $agent_id;
+            $async_data['agent_name'] = $agent_name;
+            $this->asynchronous_lib->do_background_process($url, $async_data);
+            $strMessage =  " Request to Assign Bookings: " . count($service_center) . ", Actual Assigned Bookings: " . $count;
+        }
+        echo $strMessage;
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
