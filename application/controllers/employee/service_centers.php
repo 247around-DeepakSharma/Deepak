@@ -6952,6 +6952,12 @@ function do_multiple_spare_shipping(){
      * returns array() -> msl amounts
      */
     private function get_msl_amounts(){
+        $oowAmount = 0.00;
+        $msl = array(
+            'security'=>sprintf("%01.2f", 0.00),
+            'amount'=>sprintf("%01.2f", 0.00),
+            'oow_note'=>''
+        );
         $mslSecurityData = $this->reusable_model->get_search_result_data(
             'vendor_partner_invoices',
             "vendor_partner, vendor_partner_id, sub_category,(total_amount_collected-amount_paid) as 'amount'",
@@ -6980,17 +6986,27 @@ function do_multiple_spare_shipping(){
                 $mslAmount += floatval($row['amount']);
             }
         }
+        $oowData = $this->service_centers_model->get_price_sum_of_oow_parts_used_from_micro($this->session->userdata('service_center_id'));
+        if(isset($oowData['error']) && !$oowData['error']){
+            $oowAmount = $oowData['payload']['amount'];
+        }else{
+            $msl['oow_note'] = 'Note: Part consumed in OOW call from SF Microwarehouse not included';
+        }
+        //removed oow part consumed from inventory from MSL Amount
+        $mslAmount = $mslAmount - $oowAmount;
+
         //negate this value as it will be returned by SF
         $mslAmount = -1 * $mslAmount;
-        //negetive value -> sf have pending defective or new part to return
-        //positive value -> rare, represent 247 have to pay to sf.
-        $msl = array(
-            'security'=>sprintf("%01.2f", $mslSecurityAmount),
-            'amount'=>sprintf("%01.2f", $mslAmount)
-        );
+
+        /*
+        * negetive value -> sf have pending defective or new part to return
+        * positive value -> rare, represent 247 have to pay to sf.
+        **/
+        $msl['security'] = sprintf("%01.2f", $mslSecurityAmount);
+        $msl['amount'] = sprintf("%01.2f", $mslAmount);
         return $msl;
     }
-    
+
         /**
      * msl summary details -> page to show MSL Security deposits of SF till now
      */

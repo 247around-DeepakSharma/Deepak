@@ -1233,4 +1233,29 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         }
         
     }
+
+    function get_price_sum_of_oow_parts_used_from_micro($vendor_id){
+        $res = array();
+        if(!$vendor_id || !intval($vendor_id)){
+            $res['error'] = true;
+            $res['errorMessage'] = "No/Invalid Service center.";
+            return $res;
+        }
+        $this->db->select("sum(sell_price) as 'amount'");
+        $this->db->from("spare_parts_details");
+        $this->db->where("is_micro_wh", 1);
+        $this->db->where("part_warranty_status", 2);
+        $this->db->where("defective_part_shipped_date is null",NULL,false);
+        $this->db->where("requested_inventory_id is not null",NULL,false);
+        $this->db->where("service_center_id", $vendor_id);
+        $result = $this->db->get()->row_array();
+        if(!$result || !isset($result['amount'])){
+            $res['error'] = true;
+            $res['errorMessage'] = 'No data found';
+            return $res;
+        }
+        $res['error'] = false;
+        $res['payload'] = $result;
+        return $res;
+    }
 }
