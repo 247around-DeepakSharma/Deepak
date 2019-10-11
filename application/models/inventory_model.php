@@ -606,7 +606,11 @@ class Inventory_model extends CI_Model {
                     }                    
                 }else if($value['agent_type'] === _247AROUND_PARTNER_STRING){
                     $partner_details = $this->partner_model->getpartner_details('public_name',array('partners.id'=>$value['agent_id']));
-                    $query[$key]['agent_name'] = $partner_details[0]['public_name'];
+                    if(count($partner_details)>0 && !empty($partner_details[0]['public_name'])){
+                        $query[$key]['agent_name'] = $partner_details[0]['public_name'];
+                    }else{
+                        $query[$key]['agent_name'] ='';
+                    }
                 }else if($value['agent_type'] === _247AROUND_SF_STRING){
                     $vendor_details = $this->vendor_model->getVendorDetails('name',array('id'=>$value['agent_id']));
                     if(!empty($vendor_details[0]['name'])){
@@ -1530,7 +1534,7 @@ class Inventory_model extends CI_Model {
                 WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
                 WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.booking_id,i.invoice_id,invoice_details.description,
                 invoice_details.hsn_code,invoice_details.qty,invoice_details.rate as basic_price,invoice_details.total_amount as total_amount,
-                invoice_details.igst_tax_rate as gst_rate,i.create_date
+                (invoice_details.cgst_tax_rate+invoice_details.sgst_tax_rate+invoice_details.igst_tax_rate) as gst_rate,i.create_date
                 FROM `inventory_ledger` as i LEFT JOIN service_centres as sc on (sc.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'vendor') Left JOIN partners as p on (p.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'partner') LEFT JOIN employee as e ON (e.id = i.`receiver_entity_id` AND i.`receiver_entity_type` = 'employee')  
                 LEFT JOIN service_centres as sc1 on (sc1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'vendor') 
                 Left JOIN partners as p1 on (p1.id = i.`sender_entity_id` AND i.`sender_entity_type` = 'partner') 
