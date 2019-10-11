@@ -48,14 +48,14 @@
                     <div class="form-group">
                         <label for="excel" class="col-md-1">Amount Paid</label>
                         <div class="col-md-4">
-                            <input type="number" class="form-control" step=".02" id="amount_paid" name="total_amount_paid" placeholder="Amount Paid">
+                            <input type="number" class="form-control" step=".01" id="amount_paid" name="total_amount_paid" placeholder="Amount Paid">
                             
                         </div>
                     </div>
                     <div class="form-group">
                         <div class="col-md-4 col-md-offset-2">
                             <input type= "hidden" id="upload_file_type" value ="" name="file_type">
-                            <input type= "submit"  class="btn btn-success btn-md" id="submit_btn" value ="Upload" >
+                            <button type= "submit"  class="btn btn-success btn-md" id="submit_btn" value ="Upload" >Upload</button>
                         </div>
                     </div>
                 </form>
@@ -68,6 +68,7 @@
                                 <th>Download</th>
                                 <th>Uploaded By</th>
                                 <th>Uploaded Date</th>
+                                <th>Amount Paid</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -94,7 +95,7 @@
         fd.append("redirect_url", "");
         var amount_paid = Number($("#amount_paid").val());
         var transaction_date = $("#transaction_date").val();
-        if(amount_paid > 0 && (transaction_date !=="undefined") || transaction_date === ""){
+        if((amount_paid > 0) && ((transaction_date !=="undefined") || (transaction_date === ""))){
             $.ajax({
                 url: "<?php echo base_url() ?>file_upload/process_invoice_payment_file_upload",
                 type: "POST",
@@ -114,13 +115,19 @@
                 processData: false,
                 contentType: false,
                 success: function (response) {
-                    alert(response);
+                    var result = response.split("~~");
+                    alert(result[1]);
                     $('body').loadingModal('destroy');
                     table.ajax.reload(null, false);
+                    if(result[0] == 1) {
+                        $("input").val("");
+                    }
                 }
             });
-        } else {
-            alert("Please enter amount paid amount & transaction date");
+        } else if(amount_paid <= 0) {
+            alert("Please enter correct amount paid");
+        } else if(transaction_date ==="undefined") {
+            alert("Please enter correct transaction date");
         }
 
         
@@ -142,6 +149,7 @@
                 url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
                 type: "POST",
                 data: function(d){
+                    d.show_amt_paid = 1,
                     d.file_type = '<?php echo INVOICE_PAYMENT_FILE_TYPE; ?>';
                 }
             },

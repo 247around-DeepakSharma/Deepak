@@ -3629,7 +3629,7 @@ class Booking extends CI_Controller {
          if($this->input->post('bulk_booking_id')){
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
-            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,
+            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
@@ -3639,7 +3639,7 @@ class Booking extends CI_Controller {
          else{
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
-            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,
+            service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,
             DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state";
@@ -3920,7 +3920,7 @@ class Booking extends CI_Controller {
         $row[] = $order_list->city;
         if(!empty($order_list->closed_date))
         {
-            $row[] = date("d-m-Y", strtotime($order_list->closed_date));
+            $row[] = $this->miscelleneous->get_formatted_date($order_list->closed_date);
         }
         else
         {
@@ -4440,8 +4440,7 @@ class Booking extends CI_Controller {
     public function get_queries_detailed_data($query_status,$pincode_status) {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post, $query_status, "query");
-        
-        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
+        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
 
         $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
         unset($new_post['order_performed_on_count']);
@@ -4468,7 +4467,7 @@ class Booking extends CI_Controller {
         $row[] = "<a href='".base_url()."employee/user/finduser?phone_number=$order_list->phone_number'>$order_list->customername / <b>$order_list->phone_number </b></a>";
         
         $row[] = $order_list->services;
-        $row[] = $order_list->booking_date . "/" . $order_list->booking_timeslot;
+        $row[] = $order_list->booking_day . "/" . $order_list->booking_timeslot;
         if($query_status != _247AROUND_CANCELLED){
             $status = $order_list->current_status;
             if ($order_list->current_status != $order_list->internal_status){
@@ -5527,6 +5526,7 @@ class Booking extends CI_Controller {
         $data['partner_selected'] = $partner_id;
         
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
+        
         if(!empty($total_rows)){
             $data['per_page'] = 100;
             $data['offset'] = $offset;
