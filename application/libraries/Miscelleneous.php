@@ -1446,7 +1446,7 @@ class Miscelleneous {
      *
      *
      */
-    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "", $entity_type="", $entity_id="") {
+    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "", $entity_type="", $entity_id="", $amount_paid=0) {
 
         $data['file_type'] = $type;
         $data['file_name'] = date('d-M-Y-H-i-s') . "-" . $file_name;
@@ -1466,6 +1466,9 @@ class Miscelleneous {
         $data['entity_id'] = $entity_id;
         $data['entity_type'] = $entity_type;
         $data['result'] = $result;
+        if($amount_paid) {
+            $data['amount_paid'] = $amount_paid;
+        }
         $data['email_message_id'] = $email_message_id;
 
         $insert_id = $this->My_CI->partner_model->add_file_upload_details($data);
