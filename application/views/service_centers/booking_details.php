@@ -424,7 +424,9 @@
                                         echo "NA";
                                     }
                                 ?></td>
-                                <td><?php echo $sp['quantity']; ?></td>
+                                <td>
+                                    <a class="btn btn-link check-stocks" title="Check stock in inventory" data-inventory="<?php echo $sp['requested_inventory_id']; ?>" data-vendor="<?php echo $sp['service_center_id']; ?>"><?php echo $sp['quantity']; ?></a>
+                                </td>
                                 <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
                                 <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
                                 <td><?php if (!is_null($sp['invoice_pic'])) {
@@ -878,6 +880,24 @@
     </div>
 </div>
     <!-- model -->
+    <div id="show_stocks_modal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Stock Availability</h4>
+          </div>
+            <div class="modal-body" id="stock_modal_container" align="center">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
     <div id="gen_model" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <!-- Modal content-->
@@ -1039,6 +1059,37 @@ function OpenWindowWithPost(url, windowoption, name, params)
                 }
 
             }
+        });
+        $(".check-stocks").click(function(){
+            var inventory = $(this).data("inventory");
+
+            $.ajax({
+                url: '<?php echo base_url() ?>employee/inventory/get_inventory_stocks_by_inventory_id',
+                data:{
+                    inventory_id:inventory
+                },
+                success:function(res){
+                    if(!res){
+                        alert("Response from the server, please try again.");
+                        return false;
+                    }
+                    var response = JSON.parse(res);
+                    if(!!response.error){
+                        $("#stock_modal_container").empty().html("<div class='text-danger'>" +response.errorMessage +"</div>");
+                    }else{
+                        var html= "<div class='table-responsive'><table class='table table-stripped table-bordered table-hover'>"
+                            +"<thead><tr><th>Vendor/Warehouse Name</th><th>Stock</th></tr></thead><tbody>";
+                        for(var i in response.payload){
+                            html+="<tr>";
+                            html+="<td>"+ response.payload[i].name+ "</td><td>"+ response.payload[i].stock+ "</td>";
+                            html+="</tr>";
+                        }
+                        html += "</tbody></table></div>";
+                        $("#stock_modal_container").empty().html(html);
+                    }
+                    $("#show_stocks_modal").modal();
+                }
+            });
         });
     
     });
