@@ -1849,7 +1849,7 @@ function remap_in_bom_map($remap_bom_array){
                     $message = "Payment file upload Failed. ".$check_header['message']; 
                 }
                 
-                $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'], $file_upload_status);
+                $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'], $file_upload_status, "", "", "", $this->input->post("total_amount_paid"));
                 $this->send_email($data,$response);
                 
             } else {
@@ -1861,10 +1861,11 @@ function remap_in_bom_map($remap_bom_array){
             
             
         } else {
-            $message = "Unable to find Partner, Please refresh and try again";
+            $response['status'] = FALSE;
+            $message = $file_status['message'];//"Unable to find Partner, Please refresh and try again";
         }
         
-        echo $message;
+        echo $response['status']."~~".$message;
     }
     /**
      * @desc this is used to customized all excel data.
