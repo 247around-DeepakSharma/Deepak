@@ -4613,4 +4613,26 @@ function generate_image($base64, $image_name,$directory){
        $this->My_CI->reusable_model->update_table("booking_details", $bookingData, array('booking_id' => $booking_id));
        //End Update Service Center Closed Date
     }
+    
+    /**
+     * Method change date format: e.g., 11-Oct-2019.
+     * For Mysql 
+     * if date field is varchar type then use 
+     *      DATE_FORMAT(STR_TO_DATE(date, '%d-%m-%Y'), '%d-%b-%Y')
+     * else
+     *      DATE_FORMAT(date, '%d-%b-%Y')
+     * @param type $date
+     * @return type
+     */
+    public function get_formatted_date($date, $time = false) {
+        if(!empty($date)) {
+            if($time) {
+                return date_format(date_create($date), "d-M-Y g:i A");
+            } else {
+                return date_format(date_create($date), "d-M-Y");
+            }
+        } else {
+            return '-';
+        }
+    }
 }
