@@ -625,8 +625,10 @@
                                         <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."employee/inventory/inventory_master_list','".$sp['partner_id']."','".$booking_history[0]['service_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>"; } ?></td>
 <!--                                        <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; } ?></td>-->
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
-                                        <td><?php if($sp['part_warranty_status']==2){echo 'Out Of Warranty';}else{echo 'In - Warranty';} ?></td> 
-                                        <td><?php echo $sp['quantity']; ?></td> 
+                                        <td><?php if($sp['part_warranty_status']==2){echo 'Out Of Warranty';}else{echo 'In - Warranty';} ?></td>
+                                        <td>
+                                            <a class="btn btn-link check-stocks" title="Check stock in inventory" data-inventory="<?php echo $sp['requested_inventory_id']; ?>" data-vendor="<?php echo $sp['service_center_id']; ?>"><?php echo $sp['quantity']; ?></a>
+                                        </td>
                                         <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
                                         <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
@@ -1267,6 +1269,24 @@
         
     </div>
 </div>
+<div id="show_stocks_modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Stock Availability</h4>
+      </div>
+        <div class="modal-body" id="stock_modal_container" align="center">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 <div id="paytm_transaction" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -1531,6 +1551,31 @@ function sf_tab_active(){
                         $('#email_and_sms_box').find('.booking_history_div').css("display", "none");
                     }
                 });
+        $(".check-stocks").click(function(){
+            var inventory = $(this).data("inventory");
+            var vendor = $(this).data("vendor");
+
+            $.ajax({
+                url: '<?php echo base_url() ?>employee/inventory/get_inventory_stocks_by_inventory_id',
+                data:{
+                    inventory_id:inventory,
+                    vendor_id:vendor
+                },
+                success:function(res){
+                    if(!res){
+                        alert("Response from the server, please try again.");
+                        return false;
+                    }
+                    var response = JSON.parse(res);
+                    if(!!response.error){
+                        $("#stock_modal_container").empty().html("<div class='text-danger'>" +response.errorMessage +"</div>");
+                    }else{
+                        $("#stock_modal_container").empty().html("<div class='text-success'>Stock Available: " +response.payload.stock +"</div>");
+                    }
+                    $("#show_stocks_modal").modal();
+                }
+            });
+        });
     });
     
             $(document).ready(function () {
