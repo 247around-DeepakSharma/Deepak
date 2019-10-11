@@ -1870,6 +1870,38 @@ class Inventory extends CI_Controller {
         $data['stock_details'] = $this->inventory_model->get_inventory_stock_list($post, $select);
         echo $this->load->view('employee/inventory_stock_details', $data);
     }
+    /**
+     * Get inventory stock with vendor and inventory
+     * @param  integer $inventory_id
+     * @param  integer $vendor_id
+     * @prints json encoded array
+     */
+    function get_inventory_stocks_by_inventory_id(){
+        $inventory_id = $this->input->get("inventory_id");
+        $res =array();
+        if(empty($inventory_id) || !intval($inventory_id)){
+            $res['error'] = true;
+            $res['errorMessage'] = "No inventory provided to get stocks.";
+            echo json_encode($res);die();
+        }
+        $post = array(
+            "where"=> array(
+                'inventory_stocks.inventory_id'=> $inventory_id
+            ),
+        );
+        $select = "inventory_stocks.stock as stock,service_centres.name as name";
+
+        $stocks = $this->inventory_model->get_warehouse_stocks($post, $select)->result_array();
+        if(empty($stocks)){
+            $res['error'] = true;
+            $res['errorMessage'] = 'No Stock found.';
+            echo json_encode($res);die();
+        }
+
+        $res['error'] = false;
+        $res['payload'] = $stocks;
+        echo json_encode($res);die();
+    }
 
     /**
      * @Desc: This function is used to show form add inventory stocks for service center
@@ -2720,11 +2752,27 @@ class Inventory extends CI_Controller {
             $list = $this->inventory_model->get_inventory_stock_list($post, $select);
             $data = array();
             $no = $post['start'];
+            $rowSums = array(
+                "colCount"=>0,
+                "colData"=>array(
+                    0=> 'Total',
+                    6=>0,                   //stock total occurs in col 7 in datatable
+                    10=>0.00,               //total occurs in col 11 in datatable
+                    11=>0.00                //customer total in col 11
+                )
+            );
             foreach ($list as $inventory_list) {
                 $no++;
                 $row = $this->get_inventory_stocks_details_table($inventory_list, $no);
                 $data[] = $row;
+
+                $tSum = $this->get_inventory_stock_total($inventory_list);
+                $rowSums['colData'][6] += $tSum['stocks'];
+                $rowSums['colData'][10] += $tSum['total'];
+                $rowSums['colData'][11] += $tSum['customerTotal'];
+                $rowSums["colCount"] = (count($row)>$rowSums['colCount'])?count($row):$rowSums["colCount"];
             }
+            $data[] = $this->draw_table_footer($rowSums);
             $post['length'] = -1;
             $countlist = $this->inventory_model->get_inventory_stock_list($post, "sum(inventory_stocks.stock) as stock");
 
@@ -2745,6 +2793,42 @@ class Inventory extends CI_Controller {
             );
         }
         echo json_encode($output);
+    }
+
+    private function draw_table_footer($rowData){
+        $res = array();
+        for($i=0;$i<$rowData['colCount'];$i++){
+            $res[$i] = '';
+            if(isset($rowData['colData'])){
+                if(isset($rowData['colData'][$i])){
+                    $res[$i] = (is_float($rowData['colData'][$i]))?number_format($rowData['colData'][$i],2):$rowData['colData'][$i];
+                }
+            }
+        }
+        return $res;
+    }
+
+    private function get_inventory_stock_total($inventory){
+        $res = array();
+        $res['stocks'] = (isset($inventory->stock))?$inventory->stock:0;
+
+        if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
+            $repair_oow_around_percentage_vendor = $inventory->oow_around_margin / 100;
+            $res['total'] = (float) (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor), 0) + (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor), 0) * ($inventory->gst_rate / 100)));
+        } else {
+            $res['total'] = (float) ($inventory->price + ($inventory->price * ($inventory->gst_rate / 100)));
+        }
+        if ($this->session->userdata('userType') == 'service_center') {
+            $repair_oow_around_percentage_vendor1 = $inventory->oow_vendor_margin / 100;
+            $totalpriceforsf = number_format((float) (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) + (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) * ($inventory->gst_rate / 100))), 2, '.', '');
+            $res['customerTotal'] = $inventory->inventory_id . '">' . number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '');
+        } else {
+            $totalpricepartner = (float) ($inventory->price + ($inventory->price * ($inventory->gst_rate / 100)));
+            $repair_oow_around_percentage_vendor2 = $inventory->oow_vendor_margin + $inventory->oow_around_margin;
+            $totpartner = $totalpricepartner + ($totalpricepartner * $repair_oow_around_percentage_vendor2 / 100);
+            $res['customerTotal'] = (float) ($totpartner);
+        }
+        return $res;
     }
 
     function inventory_stock_list() {
@@ -4783,6 +4867,110 @@ class Inventory extends CI_Controller {
         }
 
         echo json_encode($res);
+    }
+    
+     /**
+     *  @desc : This function is used to send defective spare by WH to partner
+     *  @param : void
+     *  @return :$res JSON
+     */
+    function send_defective_to_partner_from_wh_on_challan() {
+        log_message("info", __METHOD__ . json_encode($this->input->post(), true));
+        $this->check_WH_UserSession();
+        $postData = json_decode($this->input->post('data'), true);
+        $awb_by_wh = $this->input->post('awb_by_wh');
+        $courier_name_by_wh = $this->input->post('courier_name_by_wh');
+        $courier_price_by_wh = $this->input->post('courier_price_by_wh');
+        $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
+        $kilo_gram = $this->input->post('shipped_spare_parts_weight_in_kg') ?: '0';
+        $gram = $this->input->post('shipped_spare_parts_weight_in_gram') ?: '00';
+
+        $billable_weight = $kilo_gram . "." . $gram;
+        
+        $postData = json_decode($this->input->post('data'), true);
+        //$wh_name = $this->input->post('wh_name');
+        if (!empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
+            $this->upload_defective_spare_pic();
+            $booking_id = $postData[0]['booking_id'];
+            $exist_courier_image = $this->input->post("exist_courier_image");
+            $data['defective_part_shipped_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
+            $data['courier_name_by_partner'] = $this->input->post('courier_name_by_wh');
+            $data['courier_price_by_partner'] = $courier_price_by_wh;
+            $data['awb_by_partner'] = $awb_by_wh;
+            $data['status'] = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
+            if (!empty($exist_courier_image)) {
+                $data['defective_courier_receipt'] = $exist_courier_image;
+            } else {
+                $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $awb_by_wh), array());
+                if (empty($exist_courier_details)) {
+                    $awb_data = array(
+                        'awb_number' => trim($awb_by_wh),
+                        'company_name' => trim($courier_name_by_wh),
+                        'courier_charge' => trim($courier_price_by_wh),
+                        'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')), //defective_parts_shipped_gram
+                        'billable_weight' => trim($billable_weight),
+                        'actual_weight' => trim($billable_weight),
+                        'basic_billed_charge_to_partner' => trim($courier_price_by_wh),
+                        'booking_id' => trim($booking_id),
+                        'courier_invoice_file' => trim($this->input->post("sp_parts")),
+                        'shippment_date' => trim($this->input->post('defective_parts_shippped_date_by_wh')), //defective_part_shipped_date
+                        'created_by' => 2,
+                        'is_exist' => 0
+                    );
+
+                    $this->service_centers_model->insert_into_awb_details($awb_data);
+                }
+            }
+
+            foreach ($postData as $key => $val) {
+                if (!empty($val['spare_id'])) {
+                    $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
+                    $agent_id = $this->session->userdata('service_center_agent_id');
+                    $agent_name = $this->session->userdata('service_center_name');
+                    $service_center_id = $this->session->userdata('service_center_id');
+                    $actor = ACTOR_NOT_DEFINE;
+                    $next_action = NEXT_ACTION_NOT_DEFINE;
+                    $this->notify->insert_state_change($val['booking_id'], DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, "", DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, $agent_id, $agent_name, $actor, $next_action, NULL, $service_center_id);
+                    log_message("info", "Booking State change inserted");
+                }
+            }
+
+            if ($affected_id) {
+                $res['status'] = TRUE;
+                $res['message'] = 'Details Updated Successfully';
+            } else {
+                $res['status'] = TRUE;
+                $res['message'] = 'Details Not Updated';
+            }
+        } else {
+            $res['status'] = false;
+            $res['message'] = 'All fields are required';
+        }
+
+        echo json_encode($res);
+    }
+
+    /**
+     *  @desc : This function is used to upload courier image
+     */
+    function upload_defective_spare_pic() {
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+        $booking_id = $this->input->post("booking_id");
+        $exist_courier_image = $this->input->post("exist_courier_image");
+
+        if (!empty($exist_courier_image)) {
+            $_POST['sp_parts'] = $exist_courier_image;
+            return true;
+        } else {
+            $defective_courier_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["file"], "defective_courier_receipt", $allowedExts, $booking_id, "misc-images", "sp_parts");
+            if ($defective_courier_receipt) {
+                return true;
+            } else {
+                $this->form_validation->set_message('upload_defective_spare_pic', 'File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
+        }
     }
 
     /**

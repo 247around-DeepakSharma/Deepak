@@ -784,12 +784,12 @@ class Service_centers extends CI_Controller {
                 if(!empty($defective_part_required) && $defective_part_required == 1) {
                     $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
-                        if ($spare_part_detail['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
-                            $defective_return_to_entity_id = $spare_part_detail['defective_return_to_entity_id'];
-                        }
-                        if(!empty($defective_return_to_entity_id)){
-                        $this->invoice_lib->generate_challan_file_to_partner($spare_part_detail['id'], $defective_return_to_entity_id);
-                        }
+//                        if ($spare_part_detail['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
+//                            $defective_return_to_entity_id = $spare_part_detail['defective_return_to_entity_id'];
+//                        }
+//                        if(!empty($defective_return_to_entity_id)){
+//                        $this->invoice_lib->generate_challan_file_to_partner($spare_part_detail['id'], $defective_return_to_entity_id);
+//                        }
                         $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'));   
                     }
                 }
@@ -1677,7 +1677,7 @@ class Service_centers extends CI_Controller {
                 $updated_status = $this->booking_model->update_booking($booking_id, $data);
                 if ($updated_status) {
                     // Update service center internal status in service center action table
-                    $this->service_centers_model->update_service_centers_action_table($booking_id, array('internal_status' => ENGG_ASSIGNED, 'update_date' => date('Y-m-d H:i:s')));
+                    // $this->service_centers_model->update_service_centers_action_table($booking_id, array('internal_status' => ENGG_ASSIGNED, 'update_date' => date('Y-m-d H:i:s')));
 
                     $assigned['booking_id'] = $booking_id;
                     $assigned['current_state'] = ENGG_ASSIGNED;
@@ -3448,6 +3448,48 @@ class Service_centers extends CI_Controller {
         }
     }
 
+     /**
+     * @desc This function is used to download partner challan/Address
+     */
+    
+    function process_partner_challan_file(){        
+      log_message('info', __METHOD__ . json_encode($_POST, true));
+        
+               $challan_booking_id = $this->input->post('download_challan');
+               
+                $delivery_challan_file_name_array = array();
+                foreach ($challan_booking_id as $partner_id => $spare_and_service) {
+                    $sp_id = implode(',', $spare_and_service);
+                    $data['wh_challan_file']= $this->invoice_lib->generate_challan_file_to_partner($sp_id, $this->session->userdata('service_center_id'));
+                    array_push($delivery_challan_file_name_array, $data['wh_challan_file']);
+                }
+                ////  ZIP The Challan files ///
+                $challan_file = 'challan_file' . date('dmYHis');
+                if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+                    unlink(TMP_FOLDER . $challan_file . '.zip');
+                }
+                $zip = 'zip ' . TMP_FOLDER . $challan_file . '.zip ';
+
+                foreach ($delivery_challan_file_name_array as $value1) {
+                    $zip .= " " . TMP_FOLDER . $value1 . " ";
+                }
+                $challan_file_zip = $challan_file . ".zip";
+                $res = 0;
+                system($zip, $res);
+                header('Content-Description: File Transfer');
+                header('Content-Type: application/octet-stream');
+                header("Content-Disposition: attachment; filename=\"$challan_file_zip\"");
+                $res2 = 0;
+                system(" chmod 777 " . TMP_FOLDER . $challan_file . '.zip ', $res2);
+                readfile(TMP_FOLDER . $challan_file . '.zip');
+                if (file_exists(TMP_FOLDER . $challan_file . '.zip')) {
+                    unlink(TMP_FOLDER . $challan_file . '.zip');
+                    foreach ($delivery_challan_file_name_array as $value_unlink) {
+                        unlink(TMP_FOLDER . $value_unlink);
+                    }
+                }
+    }
+
     /**
      * @desc This function is used to download challan/Address
      */
@@ -3501,7 +3543,7 @@ class Service_centers extends CI_Controller {
             }
         }
     }
-
+    
     /**
      * @desc This function is used to download SF challan file in zip
      */
@@ -6547,6 +6589,38 @@ class Service_centers extends CI_Controller {
         
     }
     
+     /**
+     * @desc: This method is used to display list of Received Defective Parts by Partner id
+     * @param Integer $offset
+     */
+    function warehouse_send_to_partner_on_challan($offset = 0) {        
+        $this->check_WH_UserSession();
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+               
+        if($this->input->post('partner_id')){
+            $partner_id = $this->input->post('partner_id');
+            $data['filtered_partner'] = $this->input->post('partner_id');
+            $sf_id = $this->session->userdata('service_center_id');
+            $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "') ";
+            $where .= " AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
+            $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
+            
+        } else {
+            $data['spare_parts'] = array();
+        }
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $gst_where = array(
+            "entity_type" => _247AROUND_PARTNER_STRING,
+            "entity_id" => _247AROUND,
+            );
+        $data['from_gst_number'] = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $gst_where);
+                  
+        $this->load->view('service_centers/send_to_partner_on_challan', $data);
+       
+        
+    }
+    
     /**
      * @desc: This function is used to download SF declaration who don't have GST number hen Partner update spare parts
      * @params: String $sf_id
@@ -7118,6 +7192,7 @@ class Service_centers extends CI_Controller {
                     $data[0]['billable_weight'] = $courier_boxes_weight_details[0]['billable_weight'];
                     $data[0]['box_count'] = $courier_boxes_weight_details[0]['box_count'];
                     $data[0]['courier_charge'] = $courier_boxes_weight_details[0]['courier_charge'];  //defective_courier_receipt
+                    $data[0]['courier_invoice_file'] = $courier_boxes_weight_details[0]['courier_invoice_file']; 
                 } else {
 
                     $data[0]['billable_weight'] = '0.00';

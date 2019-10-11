@@ -1537,5 +1537,8 @@ UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_27.jpg' WHERE `ent
 -- Ankit 10-04-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'courier_lost_spare_parts', NULL, ' ', 'noreply@247around.com', 'ankitr@247around.com', '', '', '1', '', CURRENT_TIMESTAMP);
 
+--Kalyani 11-10-2019
+INSERT INTO `partner_summary_report_mapping` (`Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES ('Engineer Name', 'engineer_details.name AS engineer_name', '1', '', '1', '50');
+
 --Kajal 11-10-2019
 ALTER TABLE `file_uploads` ADD `amount_paid` DECIMAL(10,2) NOT NULL DEFAULT '0.00' AFTER `result`;

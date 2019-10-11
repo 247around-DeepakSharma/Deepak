@@ -4440,8 +4440,7 @@ class Booking extends CI_Controller {
     public function get_queries_detailed_data($query_status,$pincode_status) {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post, $query_status, "query");
-        
-        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
+        $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
 
         $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
         unset($new_post['order_performed_on_count']);
@@ -4468,7 +4467,7 @@ class Booking extends CI_Controller {
         $row[] = "<a href='".base_url()."employee/user/finduser?phone_number=$order_list->phone_number'>$order_list->customername / <b>$order_list->phone_number </b></a>";
         
         $row[] = $order_list->services;
-        $row[] = $order_list->booking_date . "/" . $order_list->booking_timeslot;
+        $row[] = $order_list->booking_day . "/" . $order_list->booking_timeslot;
         if($query_status != _247AROUND_CANCELLED){
             $status = $order_list->current_status;
             if ($order_list->current_status != $order_list->internal_status){
