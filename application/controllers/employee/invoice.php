@@ -2976,6 +2976,8 @@ class Invoice extends CI_Controller {
                 $sc_details['is_sf'] = ($sc['is_sf'] ==0) ? "No" : "Yes";
                 $sc_details['is_cp'] = ($sc['is_cp'] ==0) ? "No" : "Yes";
                 $sc_details['is_micro_wh'] = ($sc['is_micro_wh'] ==0) ? "No" : "Yes";
+                $sc_details['active'] = (!empty($sc['active']) && ($sc['active'] == 1)) ?"Yes":"NO";
+                $sc_details['on_off'] = (!empty($sc['on_off']) && ($sc['on_off'] == 1)) ?"On":"Off";
                 $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? S3_WEBSITE_URL."vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
                 array_push($payment_data, $sc_details);
                 
@@ -3161,6 +3163,8 @@ class Invoice extends CI_Controller {
         $sc_details['is_sf'] = "SF";
         $sc_details['is_cp'] = "CP";
         $sc_details['is_micro_wh'] = "Micro Warehouse";
+        $sc_details['active'] = "Active";
+        $sc_details['on_off'] = "Temporary On/Off";
         $sc_details['check_file'] = "Check File";
 
         return $sc_details;

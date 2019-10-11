@@ -829,7 +829,10 @@ class Booking_model extends CI_Model {
         $this->db->distinct();
         $this->db->select('capacity');
         $this->db->where('service_id', $service_id);
-        $this->db->where('category', $category);
+        if(!empty($category))
+        {
+            $this->db->where('category', $category);
+        } 
         $this->db->where('active', '1');
         $this->db->where('check_box', '1');
         $this->db->where('partner_id', $partner_id);
