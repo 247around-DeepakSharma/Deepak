@@ -95,7 +95,7 @@
                                                         <th class="text-center">Serial No</th>
                                                         <th class="text-center">Spare Part Pic</th>
                                                         <th class="text-center">Serial Number Pic</th>
-                                                        <th class="text-center">Estimate Cost</th>
+                                                        <th class="text-center" data-toggle="tooltip" title="Enter your Billing Price to 247Around">Estimate Cost&nbsp;<i class="fa fa-info-circle"></i></th>
                                                         <th class="text-center">Submit</th>
                                                     </tr>
                                                 </thead>

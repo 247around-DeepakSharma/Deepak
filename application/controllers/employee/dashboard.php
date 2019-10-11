@@ -1362,6 +1362,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
     }
     if($this->session->userdata('partner_id')){
+        $tempArray = [];
         if(!empty($rmArray)){
             foreach($rmArray as $RM=>$escalation){
                 $tempArray[$escalation['zone']]= array("esclation_per"=>round((($escalation['escalation']*100)/$escalation['bookings']),2),"rm_id"=>$RM,
