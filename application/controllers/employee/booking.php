@@ -2517,7 +2517,12 @@ class Booking extends CI_Controller {
         log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
         // this function is used to update booking details table
         if(!$this->input->post('service_center_closed_date')){
-            $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
+            //get engineer close date
+            $eng_status = $this->miscelleneous->update_eng_close_date($booking_id);
+            if(!$eng_status){
+               $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
+            }
+            
         }
         
         if($internal_status == _247AROUND_CANCELLED){
