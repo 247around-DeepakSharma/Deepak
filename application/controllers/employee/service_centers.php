@@ -5875,10 +5875,11 @@ class Service_centers extends CI_Controller {
                             $data['remarks_by_partner'] = $part_details['remarks_by_partner'];
                             $data['shipped_date'] = $this->input->post('shipment_date');
                             $data['shipped_quantity'] = $part_details['shipped_quantity'];
-							$data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
-							$data['partner_id'] = $sf_id;
-							$data['defective_return_to_entity_id'] = $sf_id;
-							$data['entity_type'] = _247AROUND_SF_STRING;
+                            $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                            $data['partner_id'] = $sf_id;
+                            $data['defective_return_to_entity_id'] = $sf_id;
+                            $data['entity_type'] = _247AROUND_SF_STRING;
+                            $data['is_micro_wh'] = 2;
                             $price_with_gst = round($part_details['approx_value'] * ( 1 + $part_details['gst_rate'] / 100), 0);
                             $price_with_around_margin = round($price_with_gst * ( 1 + $part_details['oow_around_margin'] / 100), 0);
                             $data['challan_approx_value'] = ($price_with_around_margin * $part_details['shipped_quantity']);
@@ -5905,7 +5906,7 @@ class Service_centers extends CI_Controller {
                                 $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
                                 $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
                                 $data['part_warranty_status'] = $part_details['part_warranty_status'];
-                                $data['is_micro_wh'] = 2;
+                               
                                 $data['partner_id'] =$sf_id;
                                 $data['defective_return_to_entity_type']=_247AROUND_SF_STRING;
                                 $data['defective_return_to_entity_id']=$sf_id;
