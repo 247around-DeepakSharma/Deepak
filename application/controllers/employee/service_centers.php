@@ -422,6 +422,7 @@ class Service_centers extends CI_Controller {
                         $bookng_unit_details[$key1]['en_closing_remark'] = $en[0]['closing_remark'];
                         $bookng_unit_details[$key1]['en_amount_paid'] = $en[0]['amount_paid'];
                         $bookng_unit_details[$key1]['en_purchase_invoice'] = $en[0]['purchase_invoice'];
+                        $bookng_unit_details[$key1]['en_closed_date'] = $en[0]['closed_date'];
                         if ($en[0]['is_broken'] == 1) {
                             $broken = 1;
                         }
@@ -505,7 +506,7 @@ class Service_centers extends CI_Controller {
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
 
             if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, _247AROUND_COMPLETED))) {
-
+                
                 $is_model_drop_down = $this->input->post('is_model_dropdown');
                 $model_change = true;
                 if ($is_model_drop_down == 1) {
@@ -656,7 +657,13 @@ class Service_centers extends CI_Controller {
                     $this->push_notification_lib->create_and_send_push_notiifcation(CUSTOMER_UPDATE_BOOKING_PUSH_NOTIFICATION_EMPLOYEE_TAG, $clouserAccountArray, $textArray);
                     //End Push Notification
                     $partner_id = $this->input->post("partner_id");
-                    $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
+                    if($this->input->post("en_closed_date")){ 
+                        $this->booking_model->update_booking($booking_id, array('service_center_closed_date' => $this->input->post("en_closed_date")));
+                    }
+                    else{
+                        $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
+                    }
+                    
                     //End Update Service Center Closed Date
                     // Insert data into booking state change
                     $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, $closing_remarks, "247Around", "Review the Booking");
@@ -1202,7 +1209,7 @@ class Service_centers extends CI_Controller {
             $en_where = array("booking_id" => $booking_id, 
                               "service_center_id" => $this->session->userdata('service_center_id')
                         );
-            $data['engineer_data'] = $this->engineer_model->getengineer_action_data("cancellation_reason, cancellation_remark", $en_where);
+            $data['engineer_data'] = $this->engineer_model->getengineer_action_data("cancellation_reason, cancellation_remark, closed_date", $en_where);
         }
         
         $this->load->view('service_centers/header');
@@ -1282,7 +1289,12 @@ class Service_centers extends CI_Controller {
                     $data['closed_date'] = date('Y-m-d H:i:s');
                     $data['update_date'] = date('Y-m-d H:i:s');
                     $this->vendor_model->update_service_center_action($booking_id, $data);
-                    $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
+                    if($this->input->post("en_closed_date")){ 
+                        $this->booking_model->update_booking($booking_id, array('service_center_closed_date' => $this->input->post("en_closed_date")));
+                    }
+                    else {
+                        $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
+                    }
                     
                     $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$booking_id));
                     if(!empty($engineer_action)){

@@ -4619,4 +4619,15 @@ function generate_image($base64, $image_name,$directory){
             return '-';
         }
     }
+    
+    function update_eng_close_date($booking_id){
+        $eng_booking = $this->My_CI->engineer_model->getengineer_action_data("closed_date", array("booking_id" => $booking_id));
+        if(!empty($eng_booking)){
+            $this->My_CI->booking_model->update_booking($booking_id, array('service_center_closed_date' => $eng_booking[0]['closed_date']));
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
 }
