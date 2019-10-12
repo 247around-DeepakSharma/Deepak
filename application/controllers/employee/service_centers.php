@@ -5771,6 +5771,10 @@ function do_multiple_spare_shipping(){
                             $data['remarks_by_partner'] = $part_details['remarks_by_partner'];
                             $data['shipped_date'] = $this->input->post('shipment_date');
                             $data['shipped_quantity'] = $part_details['shipped_quantity'];
+                            $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                            $data['partner_id'] = $sf_id;
+                            $data['defective_return_to_entity_id'] = $sf_id;
+                            $data['entity_type'] = _247AROUND_SF_STRING;
                             $price_with_gst = round($part_details['approx_value'] * ( 1 + $part_details['gst_rate'] / 100), 0);
                             $price_with_around_margin = round($price_with_gst * ( 1 + $part_details['oow_around_margin'] / 100), 0);
                             $data['challan_approx_value'] = ($price_with_around_margin * $part_details['shipped_quantity']);
