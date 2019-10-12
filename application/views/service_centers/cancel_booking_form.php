@@ -65,8 +65,8 @@
                 <input type="hidden" name="city" value="<?php if (isset($user_and_booking_details[0]['city'])) {echo $user_and_booking_details[0]['city']; } ?>">
                 <input type="hidden" name="booking_pincode" value="<?php if (isset($user_and_booking_details[0]['booking_pincode'])) {echo $user_and_booking_details[0]['booking_pincode']; } ?>">
                 <input type="hidden" name="brand" value="<?php if(!empty($brand)) {echo $brand[0]['appliance_brand'];} else { echo ''; } ?>">
-                <input type="hidden" name="service_id" value="<?php if (isset($user_and_booking_details[0]['service_id'])) {echo $user_and_booking_details[0]['service_id']; } ?>">
-                <input type="hidden" name="en_closed_date" value="<?php if($this->session->userdata('is_engineer_app') == 1){ if(!empty($engineer_data)){ if(!is_null($engineer_data[0]['closed_date'])){ echo $engineer_data[0]['closed_date']; } }  } ?>">
+                  <input type="hidden" name="service_id" value="<?php if (isset($user_and_booking_details[0]['service_id'])) {echo $user_and_booking_details[0]['service_id']; } ?>">
+                
                <div>
                 <div class="col-md-6 col-md-offset-3">
                    <?php $isdisable = false; if(isset($user_and_booking_details['spare_parts'])){ 

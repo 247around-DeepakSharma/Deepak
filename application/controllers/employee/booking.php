@@ -547,8 +547,13 @@ class Booking extends CI_Controller {
             }
         }
         
+        if($this->session->userdata('service_center_id')){
+            $validate_order_id = true;
+
+        } else {
+            $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
+        }
         
-        $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
       
         if ($validate_order_id) {
             $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id'], $booking['state']);
@@ -1734,7 +1739,23 @@ class Booking extends CI_Controller {
                     $booking_unit_details[$key1]['en_current_status'] = $en[0]['current_status'];
                     
                     $engineer_action_not_exit = true;
-                } 
+                }
+                // print_r($service_center_data);
+                $service_center_data = $this->service_centers_model->get_prices_filled_by_service_center($b['id'], $booking_id);
+                
+                if (!empty($service_center_data)) {
+                    $booking_unit_details[$key1]['scba_booking_id'] = $service_center_data[0]['booking_id'];
+                    $booking_unit_details[$key1]['scba_basic_charges'] = $service_center_data[0]['service_charge'];
+                    $booking_unit_details[$key1]['scba_additional_charges'] = $service_center_data[0]['additional_service_charge'];
+                    $booking_unit_details[$key1]['scba_serial_number'] = $service_center_data[0]['serial_number'];
+                    $booking_unit_details[$key1]['scba_parts_cost'] = $service_center_data[0]['parts_cost'];
+                    $booking_unit_details[$key1]['scba_serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
+                    $booking_unit_details[$key1]['scba_sf_purchase_date'] = $this->miscelleneous->get_formatted_date($service_center_data[0]['sf_purchase_date']);
+                    $booking_unit_details[$key1]['scba_sf_closed_date'] = $this->miscelleneous->get_formatted_date($service_center_data[0]['closed_date'],true);
+                    $booking_unit_details[$key1]['scba_sf_purchase_invoice'] = $service_center_data[0]['sf_purchase_invoice'];
+                    $booking_unit_details[$key1]['scba_upcountry_charges'] = $service_center_data[0]['upcountry_charges'];
+                    $booking_unit_details[$key1]['scba_model_number'] = $service_center_data[0]['model_number'];
+                }
         }
         if(isset($engineer_action_not_exit)){
             $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
@@ -1958,10 +1979,10 @@ class Booking extends CI_Controller {
      */
     function get_edit_booking_form($booking_id, $appliance_id = "",$is_repeat = NULL) {
         log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
-        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);      
-        if($booking){            
-            $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-            $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);  
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);
+        $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);        
+        if($booking){
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
         }
@@ -2517,12 +2538,7 @@ class Booking extends CI_Controller {
         log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
         // this function is used to update booking details table
         if(!$this->input->post('service_center_closed_date')){
-            //get engineer close date
-            $eng_status = $this->miscelleneous->update_eng_close_date($booking_id);
-            if(!$eng_status){
-               $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
-            }
-            
+            $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
         }
         
         if($internal_status == _247AROUND_CANCELLED){
@@ -2654,6 +2670,7 @@ class Booking extends CI_Controller {
                 
                 if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
                     $status = DAMAGE_PART_TO_BE_SHIPPED;
+
                     $defective_part_required = 1;
                     if(!empty($check_wrong_part_record_exist[0])) {
                         $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
@@ -2663,12 +2680,13 @@ class Booking extends CI_Controller {
 //                if($consumption_status_tag == PART_NRN_APPROVED_STATUS_TAG) {
 //                    $status = NRN_APPROVED_BY_PARTNER;
 //                }
-                
+
                 if(!empty($status)) {
                     // update in service center booking action.
                     $this->vendor_model->update_service_center_action($booking_id, ['internal_status' => $status, 'current_status' => 'InProcess']);
                     $this->booking_model->update_booking($booking_id, ['internal_status' => $status]);
                 }
+                       
                 
                 $this->reusable_model->update_table('spare_parts_details', [
                     'consumed_part_status_id' => $status_id,
@@ -2681,11 +2699,10 @@ class Booking extends CI_Controller {
                     $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
                         if(empty($spare_part_detail['sf_challan_file'])){
-                            $this->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id']);
+                        $this->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id']);
                         }
                     }
                 }
-                
             }
         }
         
@@ -4445,6 +4462,7 @@ class Booking extends CI_Controller {
     public function get_queries_detailed_data($query_status,$pincode_status) {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post, $query_status, "query");
+        
         $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
 
         $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
@@ -5531,7 +5549,6 @@ class Booking extends CI_Controller {
         $data['partner_selected'] = $partner_id;
         
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
-        
         if(!empty($total_rows)){
             $data['per_page'] = 100;
             $data['offset'] = $offset;
@@ -6025,4 +6042,60 @@ class Booking extends CI_Controller {
         $this->load->view('employee/wrong_spare_part', $data);
     }    
 
+   /**
+     * @desc: This method finds the TAT of booking id and computes penalty on final amount for per
+     * puts penalty on the booking
+     * @param input $booking_id
+     * @return booking id
+     * @develop: Pranjal
+     * @date: 9/5/2019 (mm/dd/yyyy)
+     * 
+     */
+    public function update_tat_based_penalty($booking_id) {
+        $booking = $this->booking_model->get_booking_TAT($booking_id)[0];
+        $penalty = 0;
+        $res = $this->miscelleneous->get_SF_payout($booking_id, $booking["assigned_vendor_id"], $booking['amount_due'], $booking['flat_upcountry']);
+        $criteriaid=0;
+        if ($booking["is_upcountry"] == 1) //for upcounty call
+        {
+             if ($booking["TAT"] >= 48 && $booking["TAT"]<72) {
+                $criteriaid =_KENSTAR_PENALTY_UPCOUNTRY_48;
+                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_UPCOUNTRY_48)[0]["Penalty"];
+             }
+             else if ($booking["TAT"] >= 72 && $booking["TAT"]<120) {
+                $criteriaid =_KENSTAR_PENALTY_UPCOUNTRY_72;
+                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_UPCOUNTRY_72)[0]["Penalty"];
+             }
+             else if ($booking["TAT"] >= 120) {
+                $criteriaid =_KENSTAR_PENALTY_UPCOUNTRY_120;
+                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_UPCOUNTRY_120)[0]["Penalty"];
+            }
+        } else {
+            if ($booking["TAT"] >= 24 && $booking["TAT"]<48) {
+                $criteriaid =_KENSTAR_PENALTY_LOCAL_24;
+                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_LOCAL_24)[0]["Penalty"];
+            }
+            else if ($booking["TAT"] >= 48 && $booking["TAT"]<72) {
+                $criteriaid =_KENSTAR_PENALTY_LOCAL_48;
+                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_LOCAL_48)[0]["Penalty"];
+            }
+            else if ($booking["TAT"] >= 72) {
+                $criteriaid =_KENSTAR_PENALTY_LOCAL_72;
+                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_LOCAL_72)[0]["Penalty"];
+           }
+        }
+        if($penalty >0) {
+
+            $criteria = $this->reusable_model->get_search_result_data('penalty_details', 'criteria', ['id' => $criteriaid], NULL, NULL, NULL, NULL, NULL)[0];
+            $record = [];
+            $record['agent_id'] = _247AROUND_DEFAULT_AGENT;
+            $record['remarks'] = 'Booking Not Updated On Time';
+            $record = array('criteria' => $criteria, 'active' => '1');
+            $record['booking_id'] = $booking_id;
+            $record['assigned_vendor_id'] = $booking["assigned_vendor_id"];
+            $record['agent_type'] = 'admin';
+            $this->penalty_model->get_data_penalty_on_booking($record, $where,$penalty);
+        }
+
+    }
 }
