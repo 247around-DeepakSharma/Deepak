@@ -424,7 +424,9 @@
                                         echo "NA";
                                     }
                                 ?></td>
-                                <td><?php echo $sp['quantity']; ?></td>
+                                <td>
+                                    <a class="btn btn-link check-stocks" title="Check stock in inventory" data-inventory="<?php echo $sp['requested_inventory_id']; ?>" data-vendor="<?php echo $sp['service_center_id']; ?>"><?php echo $sp['quantity']; ?></a>
+                                </td>
                                 <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
                                 <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
                                 <td><?php if (!is_null($sp['invoice_pic'])) {
@@ -644,6 +646,51 @@
             <?php } else{ ?> 
             <div class="text-danger">Spare Part Not Requested</div>
             <?php } ?>
+             <div class="row">
+                    <div class="col-md-12">
+                        <h1 style='font-size:24px;'>Invoice Id Details</h1>
+                        <div class="col-md-12" style="padding-left:1px;">
+                            <table class="table  table-striped table-bordered" >
+                                <thead>
+                                    <tr>
+                                        <th> Model Number </th>
+                                        <th> Requested Parts </th>
+                                        <th> Requested Parts Number</th>
+                                        <th>Parts Type</th>
+                                        <th> Purchase Invoice Id </th>
+                                        <th>Sale Invoice Id</th>
+                                        <th>Reverse Purchase Invoice Id</th>
+                                        <th>Reverse Sale Invoice Id </th>
+                                        <th>Warehouse Courier Invoice Id</th>
+                                        <th>Partner Courier Invoice Id</th>
+                                        <th>Vendor Courier Invoice Id</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                    
+                                    if(!empty($booking_history['spare_parts'])){
+                                    foreach ($booking_history['spare_parts'] as $sp) {
+                                     ?>
+                                    <tr>
+                                        <td><?php echo $sp['model_number']; ?></td>
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                        <td style=" word-break: break-all;"><?php if(!empty($sp['part_number'])){ echo $sp['part_number'];}else{echo 'Not Available';} ?></td>
+                                        <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
+                                        <td><?php echo $sp['purchase_invoice_id']; ?></td>
+                                        <td><?php echo $sp['sell_invoice_id']; ?></td>  
+                                        <td><?php echo $sp['reverse_purchase_invoice_id']; ?></td>  
+                                        <td><?php echo $sp['reverse_sale_invoice_id']; ?></td>
+                                        <td><?php echo $sp['warehouse_courier_invoice_id']; ?></td> 
+                                        <td><?php echo $sp['partner_courier_invoice_id']; ?></td> 
+                                        <td><?php echo $sp['vendor_courier_invoice_id']; ?></td> 
+                                    </tr>
+                                    <?php } }?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
         </div>
         <div class="tab-pane fade in" id="tab4">
             <?php if (isset($booking_state_change_data)) { ?>
@@ -878,6 +925,24 @@
     </div>
 </div>
     <!-- model -->
+    <div id="show_stocks_modal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Stock Availability</h4>
+          </div>
+            <div class="modal-body" id="stock_modal_container" align="center">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
     <div id="gen_model" class="modal fade" role="dialog">
         <div class="modal-dialog modal-lg">
             <!-- Modal content-->
@@ -1039,6 +1104,37 @@ function OpenWindowWithPost(url, windowoption, name, params)
                 }
 
             }
+        });
+        $(".check-stocks").click(function(){
+            var inventory = $(this).data("inventory");
+
+            $.ajax({
+                url: '<?php echo base_url() ?>employee/inventory/get_inventory_stocks_by_inventory_id',
+                data:{
+                    inventory_id:inventory
+                },
+                success:function(res){
+                    if(!res){
+                        alert("Response from the server, please try again.");
+                        return false;
+                    }
+                    var response = JSON.parse(res);
+                    if(!!response.error){
+                        $("#stock_modal_container").empty().html("<div class='text-danger'>" +response.errorMessage +"</div>");
+                    }else{
+                        var html= "<div class='table-responsive'><table class='table table-stripped table-bordered table-hover'>"
+                            +"<thead><tr><th>Vendor/Warehouse Name</th><th>Stock</th></tr></thead><tbody>";
+                        for(var i in response.payload){
+                            html+="<tr>";
+                            html+="<td>"+ response.payload[i].name+ "</td><td>"+ response.payload[i].stock+ "</td>";
+                            html+="</tr>";
+                        }
+                        html += "</tbody></table></div>";
+                        $("#stock_modal_container").empty().html(html);
+                    }
+                    $("#show_stocks_modal").modal();
+                }
+            });
         });
     
     });

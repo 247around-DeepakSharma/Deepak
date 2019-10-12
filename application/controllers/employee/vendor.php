@@ -990,46 +990,47 @@ class vendor extends CI_Controller {
         $url = base_url() . "employee/do_background_process/assign_booking";
         $sf_status = $this->input->post("sf_status");
         $count = 0;
-       
-        foreach ($service_center as $booking_id => $service_center_id) {
-            if(!empty($booking_id) || $booking_id != '0'){
-           
-                if ($service_center_id != "") {
-                   
-                    $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $partner_id[$booking_id], $agent_id, $agent_type);
-                    if ($assigned) {
-                        //Insert log into booking state change
-                       $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, 
-                               ACTOR_ASSIGN_BOOKING_TO_VENDOR,NEXT_ACTION_ASSIGN_BOOKING_TO_VENDOR,_247AROUND);
-                       //Send Push Notification
-                       $receiverArray['vendor'] = array($service_center_id); 
-                       $notificationTextArray['url'] = array($booking_id);
-                       $notificationTextArray['msg'] = array($booking_id);
-                       $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
-                       //End Push Notification
-                        $count++;
-                               
-                        if($sf_status[$booking_id] == "SF_NOT_EXIST"){
-                            //$this->send_mail_when_sf_not_exist($booking_id);
-                            $this->miscelleneous->sf_not_exist_for_pincode(array('booking_id' => $booking_id, 'booking_pincode' => $pincode[$booking_id], 
-                                'service_id' => $service_id[$booking_id],'partner_id'=>$partner_id[$booking_id],'city'=>$city[$booking_id],'order_id'=>$order_id[$booking_id]));
+        $strMessage = "No Data selected";
+        if(!empty($service_center)){
+            foreach ($service_center as $booking_id => $service_center_id) {
+                if(!empty($booking_id) || $booking_id != '0'){
+
+                    if ($service_center_id != "") {
+
+                        $assigned = $this->miscelleneous->assign_vendor_process($service_center_id, $booking_id, $partner_id[$booking_id], $agent_id, $agent_type);
+                        if ($assigned) {
+                            //Insert log into booking state change
+                           $this->notify->insert_state_change($booking_id, ASSIGNED_VENDOR, _247AROUND_PENDING, "Service Center Id: " . $service_center_id, $agent_id, $agent_name, 
+                                   ACTOR_ASSIGN_BOOKING_TO_VENDOR,NEXT_ACTION_ASSIGN_BOOKING_TO_VENDOR,_247AROUND);
+                           //Send Push Notification
+                           $receiverArray['vendor'] = array($service_center_id); 
+                           $notificationTextArray['url'] = array($booking_id);
+                           $notificationTextArray['msg'] = array($booking_id);
+                           $this->push_notification_lib->create_and_send_push_notiifcation(BOOKING_ASSIGN_TO_VENDOR,$receiverArray,$notificationTextArray);
+                           //End Push Notification
+                            $count++;
+
+                            if($sf_status[$booking_id] == "SF_NOT_EXIST"){
+                                //$this->send_mail_when_sf_not_exist($booking_id);
+                                $this->miscelleneous->sf_not_exist_for_pincode(array('booking_id' => $booking_id, 'booking_pincode' => $pincode[$booking_id], 
+                                    'service_id' => $service_id[$booking_id],'partner_id'=>$partner_id[$booking_id],'city'=>$city[$booking_id],'order_id'=>$order_id[$booking_id]));
+                            }
+                        } else {
+                            log_message('info', __METHOD__ . "=> Not Assign for Sc "
+                                    . $service_center_id);
                         }
-                    } else {
-                        log_message('info', __METHOD__ . "=> Not Assign for Sc "
-                                . $service_center_id);
                     }
                 }
             }
+
+            //Send mail /SMS to SF and and update upcountry in background
+            $async_data['booking_id'] = $service_center;
+            $async_data['agent_id'] =  $agent_id;
+            $async_data['agent_name'] = $agent_name;
+            $this->asynchronous_lib->do_background_process($url, $async_data);
+            $strMessage =  " Request to Assign Bookings: " . count($service_center) . ", Actual Assigned Bookings: " . $count;
         }
-
-        //Send mail /SMS to SF and and update upcountry in background
-        $async_data['booking_id'] = $service_center;
-        $async_data['agent_id'] =  $agent_id;
-        $async_data['agent_name'] = $agent_name;
-        $this->asynchronous_lib->do_background_process($url, $async_data);
-
-        echo " Request to Assign Bookings: " . count($service_center) . ", Actual Assigned Bookings: " . $count;
-
+        echo $strMessage;
         //redirect(base_url() . DEFAULT_SEARCH_PAGE);
     }
 
@@ -1086,7 +1087,6 @@ class vendor extends CI_Controller {
          $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         if ($this->form_validation->run()) {
             $spare_data = $this->inventory_model->get_spare_parts_details("id, status", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
-            if(empty($spare_data)){
                 $booking_id = $this->input->post('booking_id');
                 $service_center_id = $this->input->post('service');
                 $remarks = $this->input->post('remarks');
@@ -1117,15 +1117,19 @@ class vendor extends CI_Controller {
                     'cancellation_reason' => NULL,
                     'upcountry_distance' => NULL,
                     'internal_status' => _247AROUND_PENDING);
-
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+                
                 $actor = $next_action = 'not_define';
-                if (!empty($partner_status)) {
-                    $assigned_data['partner_current_status'] = $partner_status[0];
-                    $assigned_data['partner_internal_status'] = $partner_status[1];
-                    $actor = $assigned_data['actor'] = $partner_status[2];
-                    $next_action = $assigned_data['next_action'] = $partner_status[3];
+                if(empty($spare_data)){
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+
+                    if (!empty($partner_status)) {
+                        $assigned_data['partner_current_status'] = $partner_status[0];
+                        $assigned_data['partner_internal_status'] = $partner_status[1];
+                        $actor = $assigned_data['actor'] = $partner_status[2];
+                        $next_action = $assigned_data['next_action'] = $partner_status[3];
+                    }
                 }
+                
                 $this->booking_model->update_booking($booking_id, $assigned_data);
 
                 $this->vendor_model->delete_previous_service_center_action($booking_id);
@@ -1228,14 +1232,6 @@ class vendor extends CI_Controller {
 
 
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
-        }
-        else{
-            $booking_id = $this->input->post('booking_id');
-            $output = "You cann't reassign this booking because spare part already requested. If you want to reassign then please cancel part request.";
-            $userSession = array('error' => $output);
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "employee/vendor/get_reassign_vendor_form/".$booking_id);
-        }
         } else {
             $booking_id = $this->input->post('booking_id');
             $output = "All Fields are required";

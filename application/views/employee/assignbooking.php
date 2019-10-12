@@ -31,7 +31,7 @@
                                 </td>
                                 <td>
                                     <input type="hidden" id="particular_booking_date<?php echo $count; ?>" name="particular_booking_date<?php echo $count; ?>" value="<?= $row['booking_date']; ?>">
-                                    <?= $row['booking_date']; ?>
+                                    <?= $this->miscelleneous->get_formatted_date($row['booking_date']); ?>
                                 </td>
                                 <td>
                                     <?= $row['booking_address']; ?>

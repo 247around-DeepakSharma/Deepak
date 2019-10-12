@@ -134,7 +134,7 @@
                         </tr>
                         <tr>
                             <th>Booking Date/ Timeslot </th>
-                            <td><?php echo $booking_history[0]['booking_date']." / ".$booking_history[0]['booking_timeslot']; ?></td>
+                            <td><?php echo $this->miscelleneous->get_formatted_date($booking_history[0]['booking_date'])." / ".$booking_history[0]['booking_timeslot']; ?></td>
                             <th>Amount Due / Paid  </th>
                             <td><i class="fa fa-rupee"></i> <?php echo $booking_history[0]['amount_due']." / ".$booking_history[0]['amount_paid']; ?>
                             <button style="background-color: #2C9D9C;color:#fff;border-color: #2C9D9C;" type="button" class="btn btn-default" data-toggle="modal" data-target="#paytm_transaction" onclick="get_transaction_status(<?php echo "'".$booking_history[0]['booking_id']."'"?>)">Get Paytm Transaction Status</button>
@@ -174,9 +174,9 @@
                         <?php } ?>
                         <tr>
                             <th>Booking Create / Closed Dated </th>
-                            <td><?php if(!empty($booking_history[0]['closed_date'])){ echo date("jS M, Y", strtotime($booking_history[0]['create_date'])).
-                                " / ".date("jS M, Y", strtotime($booking_history[0]['service_center_closed_date'])); } 
-                                else  { echo date("jS M, Y", strtotime($booking_history[0]['create_date'])); } ?></td>
+                            <td><?php if(!empty($booking_history[0]['closed_date'])){ echo $this->miscelleneous->get_formatted_date($booking_history[0]['create_date']).
+                                " / ".$this->miscelleneous->get_formatted_date($booking_history[0]['service_center_closed_date']); } 
+                                else  { echo $this->miscelleneous->get_formatted_date($booking_history[0]['create_date']); } ?></td>
                             <th>EDD / Delivery Date</th>
                             <td><?php echo $booking_history[0]['estimated_delivery_date']." / ".$booking_history[0]['delivery_date']; ?></td>
                         </tr>
@@ -564,6 +564,52 @@
                     </div>
                 </div>
                 <div class="row">
+                    <div class="col-md-12 table-responsive">
+                        <h1 style='font-size:24px;margin-top: 40px;'>SF Completion Details</h1>
+                        <?php if(!empty($unit_details[0]['scba_booking_id'])) { ?>
+                        <table class="table  table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Brand</th>
+                                <th>Category/<br/>Capacity</th>
+                                <th>Model Number</th>
+                                <th>Serial Number</th>
+                                <th>SF Purchase Date</th>
+                                <th>SF Closed Date</th>
+                                <th>Description</th>
+                                <th>Service Category</th>
+                                <th>Basic Charges</th>
+                                <th>Additional Charges</th>
+                                <th>Parts Cost</th>
+                                <th>Upcountry Charges</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ( $unit_details as $key =>  $detail) { ?>
+                                <tr>
+                                    <td><?php echo $detail['appliance_brand']?></td>
+                                    <td><?php echo $detail['appliance_category']."/<br/>".$detail['appliance_capacity']?></td>
+                                    <td><?php echo $detail['scba_model_number']?></td>
+                                    <td><?php if(!empty($detail['scba_serial_number_pic'])){?>
+                                        <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $detail['scba_serial_number_pic'];?>"><?php echo $detail['scba_serial_number'];?></a>
+                                             <?php } else { echo $detail['scba_serial_number'];} ?>
+                                    </td>
+                                    <td><?php if(!empty($detail['scba_sf_purchase_date']) && ($detail['scba_sf_purchase_date'] !== '-')) {echo $detail['scba_sf_purchase_date'];}?></td>
+                                    <td><?php if(!empty($detail['scba_sf_closed_date']) && ($detail['scba_sf_closed_date'] !== '-')) {echo $detail['scba_sf_closed_date'];}?></td>
+                                    <td><?php echo $detail['appliance_description']?></td>
+                                    <td><?php  print_r($detail['price_tags']); ?></td>
+                                    <td><?php echo $detail['scba_basic_charges']?></td>
+                                    <td><?php echo $detail['scba_additional_charges']?></td>
+                                    <td><?php echo $detail['scba_parts_cost']?></td>
+                                    <td><?php echo $detail['scba_upcountry_charges']?></td>
+                                </tr>    
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                        <?php } ?>
+                    </div>
+                </div>
+                <div class="row">
                     <center><img id="misc_charge_loader" style="width: 50px;" src="<?php echo base_url(); ?>images/loader.gif"/></center>
                      <div class="col-md-12" id="misc_charge_div" >
                         <h1 style='font-size:24px;margin-top: 40px;'>Miscellaneous Charge</h1>
@@ -625,8 +671,10 @@
                                         <td style=" word-break: break-all;"><?php if(isset($sp['final_spare_parts'])){ echo $sp['final_spare_parts']."<br><br><a href=\"javascript:openPartDetails('".base_url()."employee/inventory/inventory_master_list','".$sp['partner_id']."','".$booking_history[0]['service_id']."','".$sp['part_number']."')\"><b>".$sp['part_number']."</b></a>"; } ?></td>
 <!--                                        <td style=" word-break: break-all;"><?php if(isset($sp['part_number'])){ echo $sp['part_number']; } ?></td>-->
                                         <td style=" word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td>  
-                                        <td><?php if($sp['part_warranty_status']==2){echo 'Out Of Warranty';}else{echo 'In - Warranty';} ?></td> 
-                                        <td><?php echo $sp['quantity']; ?></td> 
+                                        <td><?php if($sp['part_warranty_status']==2){echo 'Out Of Warranty';}else{echo 'In - Warranty';} ?></td>
+                                        <td>
+                                            <a class="btn btn-link check-stocks" title="Check stock in inventory" data-inventory="<?php echo $sp['requested_inventory_id']; ?>" data-vendor="<?php echo $sp['service_center_id']; ?>"><?php echo $sp['quantity']; ?></a>
+                                        </td>
                                         <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
                                         <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
 
@@ -1267,6 +1315,24 @@
         
     </div>
 </div>
+<div id="show_stocks_modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Stock Availability</h4>
+      </div>
+        <div class="modal-body" id="stock_modal_container" align="center">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 <div id="paytm_transaction" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
@@ -1531,6 +1597,37 @@ function sf_tab_active(){
                         $('#email_and_sms_box').find('.booking_history_div').css("display", "none");
                     }
                 });
+        $(".check-stocks").click(function(){
+            var inventory = $(this).data("inventory");
+
+            $.ajax({
+                url: '<?php echo base_url() ?>employee/inventory/get_inventory_stocks_by_inventory_id',
+                data:{
+                    inventory_id:inventory
+                },
+                success:function(res){
+                    if(!res){
+                        alert("Response from the server, please try again.");
+                        return false;
+                    }
+                    var response = JSON.parse(res);
+                    if(!!response.error){
+                        $("#stock_modal_container").empty().html("<div class='text-danger'>" +response.errorMessage +"</div>");
+                    }else{
+                        var html= "<div class='table-responsive'><table class='table table-stripped table-bordered table-hover'>"
+                            +"<thead><tr><th>Vendor/Warehouse Name</th><th>Stock</th></tr></thead><tbody>";
+                        for(var i in response.payload){
+                            html+="<tr>";
+                            html+="<td>"+ response.payload[i].name+ "</td><td>"+ response.payload[i].stock+ "</td>";
+                            html+="</tr>";
+                        }
+                        html += "</tbody></table></div>";
+                        $("#stock_modal_container").empty().html(html);
+                    }
+                    $("#show_stocks_modal").modal();
+                }
+            });
+        });
     });
     
             $(document).ready(function () {
@@ -2342,9 +2439,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                     $("#reject_btn").attr("onclick","reject_parts()");
                     $('#myModal2').modal('hide');
                     alert("Approved Successfully");
-                    spare_parts_requested_table.ajax.reload( function ( json ) { 
-                      $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
-                    },false );
+                    location.reload();
                     
                 } else {
                     alert("Spare Parts Cancellation Failed!");
@@ -2373,7 +2468,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                   //  $("#"+booking_id+"_1").hide()
                     $('#myModal2').modal('hide');
                     alert("Updated Successfully");
-                    load_table(table_type);
+                    location.reload();
                 } else {
                     alert("Spare Parts Cancellation Failed!");
                 }

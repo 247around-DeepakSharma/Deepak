@@ -513,8 +513,16 @@ class Invoice extends CI_Controller {
 
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-detailed.xlsx";
 
-        $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
-
+        $this->invoice_lib->generate_invoice_excel($template, $meta, $misc_data['Completed']['annexure'], $output_file_excel);
+        
+        // Generate Pending Bookings Excel
+        if (!empty($misc_data['Pending'])) {
+            $pending_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-Pending-detailed.xlsx";
+            $this->invoice_lib->generate_invoice_excel($template, $meta, $misc_data['Pending']['annexure'], $pending_file_excel);
+            array_push($files, $pending_file_excel);
+            log_message('info', __METHOD__ . "=> File created " . $pending_file_excel);
+        }
+        
         // Generate Upcountry Excel
         if (!empty($misc_data['upcountry'])) {
             $meta['total_upcountry_price'] = $misc_data['upcountry'][0]['total_upcountry_price'];
@@ -2976,6 +2984,8 @@ class Invoice extends CI_Controller {
                 $sc_details['is_sf'] = ($sc['is_sf'] ==0) ? "No" : "Yes";
                 $sc_details['is_cp'] = ($sc['is_cp'] ==0) ? "No" : "Yes";
                 $sc_details['is_micro_wh'] = ($sc['is_micro_wh'] ==0) ? "No" : "Yes";
+                $sc_details['active'] = (!empty($sc['active']) && ($sc['active'] == 1)) ?"Yes":"NO";
+                $sc_details['on_off'] = (!empty($sc['on_off']) && ($sc['on_off'] == 1)) ?"On":"Off";
                 $sc_details['check_file'] = !empty($sc['cancelled_cheque_file']) ? S3_WEBSITE_URL."vendor-partner-docs/".$sc['cancelled_cheque_file'] : "";
                 array_push($payment_data, $sc_details);
                 
@@ -3161,6 +3171,8 @@ class Invoice extends CI_Controller {
         $sc_details['is_sf'] = "SF";
         $sc_details['is_cp'] = "CP";
         $sc_details['is_micro_wh'] = "Micro Warehouse";
+        $sc_details['active'] = "Active";
+        $sc_details['on_off'] = "Temporary On/Off";
         $sc_details['check_file'] = "Check File";
 
         return $sc_details;
@@ -3326,12 +3338,19 @@ class Invoice extends CI_Controller {
 
             // Copy worksheets from $objPHPExcel2 to $objPHPExcel1
             foreach ($objPHPExcel2->getAllSheets() as $sheet) {
+                if(strpos($file_path, 'Pending') !== false) {
+                    $objPHPExcel1->getActiveSheet()->setTitle("Completed");
+                }
                 $objPHPExcel1->addExternalSheet($sheet);
+                if(strpos($file_path, 'Pending') !== false) {
+                    $objPHPExcel1->setActiveSheetIndex($objPHPExcel1->getActiveSheetIndex()+1);
+                    $objPHPExcel1->getActiveSheet()->setTitle("Pending");
+                }
             }
             
             
         }
-        
+        $objPHPExcel1->setActiveSheetIndex(0);
         $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel1, "Excel2007");
         // Save $objPHPExcel1 to browser as an .xls file
         $objWriter->save($details_excel);

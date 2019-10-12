@@ -781,8 +781,8 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->request_type . "</span>";
-        $row[] = date('d-m-Y', strtotime($spare_list->shipped_date));
-        $row[] = date('d-m-Y', strtotime($spare_list->acknowledge_date));
+        $row[] = $this->miscelleneous->get_formatted_date($spare_list->shipped_date);
+        $row[] = $this->miscelleneous->get_formatted_date($spare_list->acknowledge_date);
         $row[] = "<i class='fa fa-inr'></i> " . $spare_list->challan_approx_value;
         if ($this->input->post("status") == SPARE_DELIVERED_TO_SF) {
             $row[] = (empty($spare_list->age_of_delivered_to_sf)) ? '0 Days' : $spare_list->age_of_delivered_to_sf . " Days";
@@ -858,8 +858,8 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</spare>";
         $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</spare>";
         $row[] = "<span class='line_break'>" . $spare_list->request_type . "</spare>";
-        $row[] = date('d-m-Y', strtotime($spare_list->shipped_date));
-        $row[] = date('d-m-Y', strtotime($spare_list->acknowledge_date));
+        $row[] = $this->miscelleneous->get_formatted_date($spare_list->shipped_date);
+        $row[] = $this->miscelleneous->get_formatted_date($spare_list->acknowledge_date);
         $row[] = "<i class='fa fa-inr'></i> ".$spare_list->challan_approx_value;
         if($this->input->post("status") == SPARE_DELIVERED_TO_SF){
             $row[] = (empty($spare_list->age_of_delivered_to_sf))?'0 Days':$spare_list->age_of_delivered_to_sf." Days";;
@@ -1261,6 +1261,7 @@ class Spare_parts extends CI_Controller {
         }
         
         if( isset($post['where']['status']) && $post['where']['status'] ==  DEFECTIVE_PARTS_SHIPPED){
+            unset($post['where']['status']);
             $post['where_in']['status'] = [DEFECTIVE_PARTS_SHIPPED, OK_PARTS_SHIPPED];
             $post['where']['approved_defective_parts_by_admin'] = $this->input->post('approved_defective_parts_by_admin');
         }
