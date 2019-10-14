@@ -1446,7 +1446,7 @@ class Miscelleneous {
      *
      *
      */
-    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "", $entity_type="", $entity_id="") {
+    public function update_file_uploads($file_name, $tmpFile, $type, $result = "", $email_message_id = "", $entity_type="", $entity_id="", $amount_paid=0) {
 
         $data['file_type'] = $type;
         $data['file_name'] = date('d-M-Y-H-i-s') . "-" . $file_name;
@@ -1466,6 +1466,9 @@ class Miscelleneous {
         $data['entity_id'] = $entity_id;
         $data['entity_type'] = $entity_type;
         $data['result'] = $result;
+        if($amount_paid) {
+            $data['amount_paid'] = $amount_paid;
+        }
         $data['email_message_id'] = $email_message_id;
 
         $insert_id = $this->My_CI->partner_model->add_file_upload_details($data);
@@ -4456,7 +4459,7 @@ function generate_image($base64, $image_name,$directory){
                     
                     $spare_pending_on_to='';
 
-                    if ($data['entity_id']==_247AROUND_SF_STRING) {
+                    if ($data['entity_type']==_247AROUND_SF_STRING) {
                     $wh_details_to = $this->vendor_model->getVendorContact($data['entity_id']);
                     if(!empty($wh_details_to)){
                     $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';   
@@ -4469,7 +4472,7 @@ function generate_image($base64, $image_name,$directory){
 
 
                     $spare_pending_on='';
-                    if ($data['entity_id']==_247AROUND_SF_STRING) {
+                    if ($data['entity_type']==_247AROUND_SF_STRING) {
                     $wh_details = $this->vendor_model->getVendorContact($data['entity_id']);
                     if(!empty($wh_details)){
                     $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
@@ -4625,14 +4628,33 @@ function generate_image($base64, $image_name,$directory){
      * @return type
      */
     public function get_formatted_date($date, $time = false) {
-        if(!empty($date)) {
+        if(!empty($date) && $date != '0000-00-00') {
             if($time) {
                 return date_format(date_create($date), "d-M-Y g:i A");
             } else {
                 return date_format(date_create($date), "d-M-Y");
             }
         } else {
-            return '-';
+            return '';
+        }
+    }
+    
+    public function convert_date_to_database_format($date, $time = false) {
+        if($time) {
+            return date_format(date_create($date), "Y-m-d g:i:s");
+        } else {
+            return date_format(date_create($date), "Y-m-d");
+        }
+    }
+    
+    function update_eng_close_date($booking_id){
+        $eng_booking = $this->My_CI->engineer_model->getengineer_action_data("closed_date", array("booking_id" => $booking_id));
+        if(!empty($eng_booking)){
+            $this->My_CI->booking_model->update_booking($booking_id, array('service_center_closed_date' => $eng_booking[0]['closed_date']));
+            return true;
+        }
+        else{
+            return false;
         }
     }
 }

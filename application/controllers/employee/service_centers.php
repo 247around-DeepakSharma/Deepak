@@ -438,6 +438,7 @@ class Service_centers extends CI_Controller {
                         $bookng_unit_details[$key1]['en_closing_remark'] = $en[0]['closing_remark'];
                         $bookng_unit_details[$key1]['en_amount_paid'] = $en[0]['amount_paid'];
                         $bookng_unit_details[$key1]['en_purchase_invoice'] = $en[0]['purchase_invoice'];
+                        $bookng_unit_details[$key1]['en_closed_date'] = $en[0]['closed_date'];
                         if ($en[0]['is_broken'] == 1) {
                             $broken = 1;
                         }
@@ -524,7 +525,7 @@ class Service_centers extends CI_Controller {
             $old_state = $booking_state_change[count($booking_state_change) - 1]['new_state'];
 
             if (!in_array($old_state, array(SF_BOOKING_COMPLETE_STATUS, _247AROUND_COMPLETED))) {
-
+                
                 $is_model_drop_down = $this->input->post('is_model_dropdown');
                 $model_change = true;
                 if ($is_model_drop_down == 1) {
@@ -675,7 +676,13 @@ class Service_centers extends CI_Controller {
                     $this->push_notification_lib->create_and_send_push_notiifcation(CUSTOMER_UPDATE_BOOKING_PUSH_NOTIFICATION_EMPLOYEE_TAG, $clouserAccountArray, $textArray);
                     //End Push Notification
                     $partner_id = $this->input->post("partner_id");
-                    $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
+                    if($this->input->post("en_closed_date")){ 
+                        $this->booking_model->update_booking($booking_id, array('service_center_closed_date' => $this->input->post("en_closed_date")));
+                    }
+                    else{
+                        $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
+                    }
+                    
                     //End Update Service Center Closed Date
                     // Insert data into booking state change
                     $this->insert_details_in_state_change($booking_id, SF_BOOKING_COMPLETE_STATUS, $closing_remarks, "247Around", "Review the Booking");
@@ -1228,7 +1235,7 @@ class Service_centers extends CI_Controller {
             $en_where = array("booking_id" => $booking_id, 
                               "service_center_id" => $this->session->userdata('service_center_id')
                         );
-            $data['engineer_data'] = $this->engineer_model->getengineer_action_data("cancellation_reason, cancellation_remark", $en_where);
+            $data['engineer_data'] = $this->engineer_model->getengineer_action_data("cancellation_reason, cancellation_remark, closed_date", $en_where);
         }
         
         $this->load->view('service_centers/header');
@@ -1306,7 +1313,12 @@ class Service_centers extends CI_Controller {
                     $data['closed_date'] = date('Y-m-d H:i:s');
                     $data['update_date'] = date('Y-m-d H:i:s');
                     $this->vendor_model->update_service_center_action($booking_id, $data);
-                    $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
+                    if($this->input->post("en_closed_date")){ 
+                        $this->booking_model->update_booking($booking_id, array('service_center_closed_date' => $this->input->post("en_closed_date")));
+                    }
+                    else {
+                        $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
+                    }
                     
                     $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$booking_id));
                     if(!empty($engineer_action)){
@@ -5863,6 +5875,11 @@ class Service_centers extends CI_Controller {
                             $data['remarks_by_partner'] = $part_details['remarks_by_partner'];
                             $data['shipped_date'] = $this->input->post('shipment_date');
                             $data['shipped_quantity'] = $part_details['shipped_quantity'];
+                            $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                            $data['partner_id'] = $sf_id;
+                            $data['defective_return_to_entity_id'] = $sf_id;
+                            $data['entity_type'] = _247AROUND_SF_STRING;
+                            $data['is_micro_wh'] = 2;
                             $price_with_gst = round($part_details['approx_value'] * ( 1 + $part_details['gst_rate'] / 100), 0);
                             $price_with_around_margin = round($price_with_gst * ( 1 + $part_details['oow_around_margin'] / 100), 0);
                             $data['challan_approx_value'] = ($price_with_around_margin * $part_details['shipped_quantity']);
@@ -5872,11 +5889,11 @@ class Service_centers extends CI_Controller {
                        
                                 $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $booking_id));
                                   
-                                $data['entity_type'] = _247AROUND_SF_STRING;
-                                $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                              //  $data['entity_type'] = _247AROUND_SF_STRING;
+                                //$data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
                                 $data['booking_id'] = $booking_id;
-                                $data['partner_id'] = $sf_id;
-                                $data['defective_return_to_entity_id'] = $sf_id;
+                               // $data['partner_id'] = $sf_id;
+                               // $data['defective_return_to_entity_id'] = $sf_id;
                                 $data['service_center_id'] = $service_center_id;
                                 $data['model_number'] = $part_details['shipped_model_number'];
                                 $data['serial_number'] = $sp_details[0]['serial_number'];
@@ -5889,7 +5906,7 @@ class Service_centers extends CI_Controller {
                                 $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
                                 $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
                                 $data['part_warranty_status'] = $part_details['part_warranty_status'];
-                                $data['is_micro_wh'] = 2;
+                               
                                 $data['partner_id'] =$sf_id;
                                 $data['defective_return_to_entity_type']=_247AROUND_SF_STRING;
                                 $data['defective_return_to_entity_id']=$sf_id;
@@ -7085,6 +7102,12 @@ class Service_centers extends CI_Controller {
      * returns array() -> msl amounts
      */
     private function get_msl_amounts(){
+        $oowAmount = 0.00;
+        $msl = array(
+            'security'=>sprintf("%01.2f", 0.00),
+            'amount'=>sprintf("%01.2f", 0.00),
+            'oow_note'=>''
+        );
         $mslSecurityData = $this->reusable_model->get_search_result_data(
             'vendor_partner_invoices',
             "vendor_partner, vendor_partner_id, sub_category,(total_amount_collected-amount_paid) as 'amount'",
@@ -7113,17 +7136,27 @@ class Service_centers extends CI_Controller {
                 $mslAmount += floatval($row['amount']);
             }
         }
+        $oowData = $this->service_centers_model->get_price_sum_of_oow_parts_used_from_micro($this->session->userdata('service_center_id'));
+        if(isset($oowData['error']) && !$oowData['error']){
+            $oowAmount = $oowData['payload']['amount'];
+        }else{
+            $msl['oow_note'] = 'Note: Part consumed in OOW call from SF Microwarehouse not included';
+        }
+        //removed oow part consumed from inventory from MSL Amount
+        $mslAmount = $mslAmount - $oowAmount;
+
         //negate this value as it will be returned by SF
         $mslAmount = -1 * $mslAmount;
-        //negetive value -> sf have pending defective or new part to return
-        //positive value -> rare, represent 247 have to pay to sf.
-        $msl = array(
-            'security'=>sprintf("%01.2f", $mslSecurityAmount),
-            'amount'=>sprintf("%01.2f", $mslAmount)
-        );
+
+        /*
+        * negetive value -> sf have pending defective or new part to return
+        * positive value -> rare, represent 247 have to pay to sf.
+        **/
+        $msl['security'] = sprintf("%01.2f", $mslSecurityAmount);
+        $msl['amount'] = sprintf("%01.2f", $mslAmount);
         return $msl;
     }
-    
+
         /**
      * msl summary details -> page to show MSL Security deposits of SF till now
      */

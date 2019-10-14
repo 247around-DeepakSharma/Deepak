@@ -104,17 +104,17 @@
                                 <div class="col-md-3">
                                     <div class="form-group">
                                         <label class="radio-inline col-md-6" style="font-weight:bold">
-                                        <input type="radio" name="part[<?php echo $key;?>][shippingStatus]" class="courier_shipping" required=""  value="1">Shipping
+                                        <input type="radio" name="part[<?php echo $key;?>][shippingStatus]" class="courier_shipping" id="courier_shipping" required=""  value="1">Shipping
                                         </label>
                                     </div>
                                     <div class="form-group">
                                         <label class="radio-inline col-md-6" style="font-weight:bold">
-                                            <input type="radio" name="part[<?php echo $key;?>][shippingStatus]" required="" class="courier_not_shipping" value="0">Not Shipping
+                                            <input type="radio" name="part[<?php echo $key;?>][shippingStatus]" id="courier_not_shipping" required="" class="courier_not_shipping" value="0">Not Shipping
                                         </label>
                                     </div>
                                     <div class="form-group">
                                         <label class="radio-inline col-md-6" style="font-weight:bold">
-                                        <input type="radio" name="part[<?php echo $key;?>][shippingStatus]" required="" value="-1">To be Shipped
+                                        <input type="radio" name="part[<?php echo $key;?>][shippingStatus]" id="to_be_shipping" required="" value="-1">To be Shipped
                                         </label>
                                     </div>
                                 </div>
@@ -1004,6 +1004,20 @@
               $("#courier_status").val('0');
             }
         }
+        
+        $("#courier_not_shipping").on('click',function(){
+            $("#invoice_id_0,#hsn_code_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
+        });
+        
+        $("#courier_shipping").on('click',function(){
+            $("#invoice_id_0,#hsn_code_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
+        });
+        
+        $("#to_be_shipping").on('click',function(){
+            $("#invoice_id_0,#hsn_code_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
+        });
+        
+        
         
 </script>
 <?php if(isset($appliance_model_details) && !empty($appliance_model_details)){ ?>

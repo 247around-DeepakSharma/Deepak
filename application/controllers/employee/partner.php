@@ -2118,6 +2118,10 @@ class Partner extends CI_Controller {
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
+                    $data['partner_id'] = $partner_id;
+                    //$data['defective_return_to_entity_id'] = $partner_id;
+                    $data['entity_type'] = _247AROUND_PARTNER_STRING;
+                    $data['is_micro_wh'] = 0;
                     if(isset($value['quantity']) && $value['shipped_quantity']){
                     $data['quantity'] = $value['quantity'];
                     $data['shipped_quantity']=$value['shipped_quantity'];  
@@ -4523,11 +4527,38 @@ class Partner extends CI_Controller {
                 array('partners.id' => $partner_id),"",0,0,1,"partners.id");
         $partnerName = $p[0]['public_name'];
         $start_date_array = $this->input->post('agreement_start_date');
+        if(empty($start_date_array) || count($start_date_array)<1){      //since start date is an array
+            $msg = "Cannot update Partner Contracts. Partnership start dates cannot be empty.";
+            $this->session->set_userdata('error', $msg);
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+        }
         $end_date_array = $this->input->post('agreement_end_date');
+        if(empty($end_date_array) || count($end_date_array)<1){      //since end date is an array
+            $msg = "Cannot update Partner Contracts. Partnership end dates cannot be empty.";
+            $this->session->set_userdata('error', $msg);
+            redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
+        }
         $contract_type_array = $this->input->post('contract_type');
         $contract_description_array = $this->input->post('contract_description');
         $finalInsertArray = array();
+        $failedContracts = array();
         foreach ($contract_type_array as $index => $contract_type) {
+            if(empty($start_date_array[$index])){
+                $failedContracts[] = array(
+                    "index"=>$index+1,
+                    "contract_type"=>$contract_type_array[$index],
+                    "reason"=>"No Start Date."
+                );
+                continue;
+            }
+            if(empty($end_date_array[$index])){
+                $failedContracts[] = array(
+                    "index"=>$index+1,
+                    "contract_type"=>$contract_type_array[$index],
+                    "reason"=>"No End Date."
+                );
+                continue;
+            }
             if (($_FILES['contract_file']['error'][$index] != 4) && !empty($_FILES['contract_file']['tmp_name'][$index])) {
                 $tmpFile = $_FILES['contract_file']['tmp_name'][$index];
                 $contract_file = "Partner-" . $partnerName . '-Contract_' . $contract_type . "_" . date('Y-m-d') . "." . explode(".", $_FILES['contract_file']['name'][$index])[1];
@@ -4550,8 +4581,21 @@ class Partner extends CI_Controller {
         if ($finalInsertArray) {
             $affacted_rows = $this->reusable_model->insert_batch("collateral", $finalInsertArray);
             if ($affacted_rows > 0) {
-                $msg = "Partner Contracts has been Updated Successfully";
-                $this->session->set_userdata('success', $msg);
+                if(count($failedContracts)>0){
+                    $html = "<table class='table table-bordered' style='width:60%;max-width:600px;margin:auto'><thead><tr>"
+                    	."<th>Contract Form Number</th><th>Contract Type</th><th>Reason</th></tr><thead><tbody>";
+                    foreach($failedContracts as $contract){
+						$html .= "<tr>". "<td>". $contract['index']. "</td>". "<td>". $contract['contract_type']. "</td>". "<td>". $contract['reason']. "</td>". "</tr>";
+                    }
+                    $html .= "</tbody></table>";
+                    $html = "<div class='table-responsive'>". $html. "</div>";
+
+                    $msg = "Some Partner Contracts has been Updated Successfully with following exceptions:<br />". $html;
+                	$this->session->set_userdata('warning', $msg);
+                }else{
+					$msg = "Partner Contracts has been Updated Successfully";
+                	$this->session->set_userdata('success', $msg);
+                }
                 //Send mail
                 $html = "<p>Following Partner has been Updated : </p>";
                 foreach ($emailArray as $key => $value) {
@@ -7134,6 +7178,8 @@ class Partner extends CI_Controller {
                     }
                      else if(!empty($row['partner_challan_number'])) {
                           $tempString =  $row['partner_challan_number'];
+                    } else {
+                       $tempString = "NA"; 
                     }
                     $tempArray[] = $tempString;
                     $tempArray[] = $row['remarks_defective_part_by_sf'];

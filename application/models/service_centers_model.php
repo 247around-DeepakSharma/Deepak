@@ -292,8 +292,8 @@ class Service_centers_model extends CI_Model {
         
          if(!$select){
              $select = "sc.booking_id,sc.amount_paid,sc.admin_remarks,sc.cancellation_reason,sc.service_center_remarks,sc.sf_purchase_invoice,booking_details.request_type,booking_details.city,booking_details.state"
-                . ",STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
-                . ",STR_TO_DATE(booking_details.create_date,'%Y-%m-%d') as booking_create_date,booking_details.booking_primary_contact_no,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due $userSelect";
+                . ",DATE_FORMAT(STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as age"
+                . ",DATE_FORMAT(STR_TO_DATE(booking_details.create_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_create_date,booking_details.booking_primary_contact_no,booking_details.is_upcountry,booking_details.partner_id,booking_details.amount_due $userSelect";
              $groupBy = "GROUP BY sc.booking_id";
          }
         $sql = "SELECT $select FROM service_center_booking_action sc "
@@ -1236,5 +1236,30 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             $this->notify->sendEmail($from, $to, $cc, NULL, $subject, $body, NULL, NULL);
         }
         
+    }
+
+    function get_price_sum_of_oow_parts_used_from_micro($vendor_id){
+        $res = array();
+        if(!$vendor_id || !intval($vendor_id)){
+            $res['error'] = true;
+            $res['errorMessage'] = "No/Invalid Service center.";
+            return $res;
+        }
+        $this->db->select("sum(sell_price) as 'amount'");
+        $this->db->from("spare_parts_details");
+        $this->db->where("is_micro_wh", 1);
+        $this->db->where("part_warranty_status", 2);
+        $this->db->where("defective_part_shipped_date is null",NULL,false);
+        $this->db->where("requested_inventory_id is not null",NULL,false);
+        $this->db->where("service_center_id", $vendor_id);
+        $result = $this->db->get()->row_array();
+        if(!$result || !isset($result['amount'])){
+            $res['error'] = true;
+            $res['errorMessage'] = 'No data found';
+            return $res;
+        }
+        $res['error'] = false;
+        $res['payload'] = $result;
+        return $res;
     }
 }

@@ -134,7 +134,7 @@
                         </tr>
                         <tr>
                             <th>Booking Date/ Timeslot </th>
-                            <td><?php echo $booking_history[0]['booking_date']." / ".$booking_history[0]['booking_timeslot']; ?></td>
+                            <td><?php echo $this->miscelleneous->get_formatted_date($booking_history[0]['booking_date'])." / ".$booking_history[0]['booking_timeslot']; ?></td>
                             <th>Amount Due / Paid  </th>
                             <td><i class="fa fa-rupee"></i> <?php echo $booking_history[0]['amount_due']." / ".$booking_history[0]['amount_paid']; ?>
                             <button style="background-color: #2C9D9C;color:#fff;border-color: #2C9D9C;" type="button" class="btn btn-default" data-toggle="modal" data-target="#paytm_transaction" onclick="get_transaction_status(<?php echo "'".$booking_history[0]['booking_id']."'"?>)">Get Paytm Transaction Status</button>
@@ -174,9 +174,9 @@
                         <?php } ?>
                         <tr>
                             <th>Booking Create / Closed Dated </th>
-                            <td><?php if(!empty($booking_history[0]['closed_date'])){ echo date("jS M, Y", strtotime($booking_history[0]['create_date'])).
-                                " / ".date("jS M, Y", strtotime($booking_history[0]['service_center_closed_date'])); } 
-                                else  { echo date("jS M, Y", strtotime($booking_history[0]['create_date'])); } ?></td>
+                            <td><?php if(!empty($booking_history[0]['closed_date'])){ echo $this->miscelleneous->get_formatted_date($booking_history[0]['create_date']).
+                                " / ".$this->miscelleneous->get_formatted_date($booking_history[0]['service_center_closed_date']); } 
+                                else  { echo $this->miscelleneous->get_formatted_date($booking_history[0]['create_date']); } ?></td>
                             <th>EDD / Delivery Date</th>
                             <td><?php echo $booking_history[0]['estimated_delivery_date']." / ".$booking_history[0]['delivery_date']; ?></td>
                         </tr>
@@ -558,6 +558,52 @@
                                     </td>
                                 </tr>
                                     <?php   } ?>
+                            </tbody>
+                        </table>
+                        <?php } ?>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12 table-responsive">
+                        <h1 style='font-size:24px;margin-top: 40px;'>SF Completion Details</h1>
+                        <?php if(!empty($unit_details[0]['scba_booking_id'])) { ?>
+                        <table class="table  table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Brand</th>
+                                <th>Category/<br/>Capacity</th>
+                                <th>Model Number</th>
+                                <th>Serial Number</th>
+                                <th>SF Purchase Date</th>
+                                <th>SF Closed Date</th>
+                                <th>Description</th>
+                                <th>Service Category</th>
+                                <th>Basic Charges</th>
+                                <th>Additional Charges</th>
+                                <th>Parts Cost</th>
+                                <th>Upcountry Charges</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ( $unit_details as $key =>  $detail) { ?>
+                                <tr>
+                                    <td><?php echo $detail['appliance_brand']?></td>
+                                    <td><?php echo $detail['appliance_category']."/<br/>".$detail['appliance_capacity']?></td>
+                                    <td><?php echo $detail['scba_model_number']?></td>
+                                    <td><?php if(!empty($detail['scba_serial_number_pic'])){?>
+                                        <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $detail['scba_serial_number_pic'];?>"><?php echo $detail['scba_serial_number'];?></a>
+                                             <?php } else { echo $detail['scba_serial_number'];} ?>
+                                    </td>
+                                    <td><?php if(!empty($detail['scba_sf_purchase_date']) && ($detail['scba_sf_purchase_date'] !== '-')) {echo $detail['scba_sf_purchase_date'];}?></td>
+                                    <td><?php if(!empty($detail['scba_sf_closed_date']) && ($detail['scba_sf_closed_date'] !== '-')) {echo $detail['scba_sf_closed_date'];}?></td>
+                                    <td><?php echo $detail['appliance_description']?></td>
+                                    <td><?php  print_r($detail['price_tags']); ?></td>
+                                    <td><?php echo $detail['scba_basic_charges']?></td>
+                                    <td><?php echo $detail['scba_additional_charges']?></td>
+                                    <td><?php echo $detail['scba_parts_cost']?></td>
+                                    <td><?php echo $detail['scba_upcountry_charges']?></td>
+                                </tr>    
+                                <?php } ?>
                             </tbody>
                         </table>
                         <?php } ?>
