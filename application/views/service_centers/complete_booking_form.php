@@ -759,8 +759,8 @@
                     for(var i=0;i<response.length;i++)
                     {
                         str+="<option value="+response[i]['defect_id']; 
-                        if($("#engineer_defect").val() !== 0){
-                            if($("#engineer_defect").val() === response[i]['defect_id']){
+                        if($("#engineer_defect").val()){
+                            if($("#engineer_defect").val() == response[i]['defect_id']){
                               str+=" selected";
                             }
                         }
@@ -791,8 +791,8 @@
                     for(var i=0;i<response.length;i++)
                     {
                         str+="<option value="+response[i]['solution_id'];
-                        if($("#engineer_solution").val() !== 0){
-                            if($("#engineer_solution").val() === response[i]['solution_id']){
+                        if($("#engineer_solution").val()){
+                            if($("#engineer_solution").val() == response[i]['solution_id']){
                               str+=" selected";
                             }
                         }
