@@ -2772,7 +2772,9 @@ class Inventory extends CI_Controller {
                 $rowSums['colData'][11] += $tSum['customerTotal'];
                 $rowSums["colCount"] = (count($row)>$rowSums['colCount'])?count($row):$rowSums["colCount"];
             }
-            $data[] = $this->draw_table_footer($rowSums);
+            if(count($data)>0){
+                $data[] = $this->draw_table_footer($rowSums);
+            }
             $post['length'] = -1;
             $countlist = $this->inventory_model->get_inventory_stock_list($post, "sum(inventory_stocks.stock) as stock");
 
