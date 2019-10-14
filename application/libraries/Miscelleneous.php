@@ -4459,7 +4459,7 @@ function generate_image($base64, $image_name,$directory){
                     
                     $spare_pending_on_to='';
 
-                    if ($data['entity_id']==_247AROUND_SF_STRING) {
+                    if ($data['entity_type']==_247AROUND_SF_STRING) {
                     $wh_details_to = $this->vendor_model->getVendorContact($data['entity_id']);
                     if(!empty($wh_details_to)){
                     $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';   
@@ -4472,7 +4472,7 @@ function generate_image($base64, $image_name,$directory){
 
 
                     $spare_pending_on='';
-                    if ($data['entity_id']==_247AROUND_SF_STRING) {
+                    if ($data['entity_type']==_247AROUND_SF_STRING) {
                     $wh_details = $this->vendor_model->getVendorContact($data['entity_id']);
                     if(!empty($wh_details)){
                     $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
@@ -4628,14 +4628,22 @@ function generate_image($base64, $image_name,$directory){
      * @return type
      */
     public function get_formatted_date($date, $time = false) {
-        if(!empty($date)) {
+        if(!empty($date) && $date != '0000-00-00') {
             if($time) {
                 return date_format(date_create($date), "d-M-Y g:i A");
             } else {
                 return date_format(date_create($date), "d-M-Y");
             }
         } else {
-            return '-';
+            return '';
+        }
+    }
+    
+    public function convert_date_to_database_format($date, $time = false) {
+        if($time) {
+            return date_format(date_create($date), "Y-m-d g:i:s");
+        } else {
+            return date_format(date_create($date), "Y-m-d");
         }
     }
     

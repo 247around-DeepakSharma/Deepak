@@ -1137,10 +1137,10 @@ class Upload_buyback_process extends CI_Controller {
                 $response['meta']['owner_phone_1'] = $vendor_data['owner_phone_1'];
                 $response['meta']['invoice_template'] = "Buyback-v1.xlsx";
 
-                $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final", true);
+                $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
                 if($status){
 
-                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final", true, true);
+                    $convert = $this->invoice_lib->convert_invoice_file_into_pdf($response, "final");
                     $output_pdf_file_name = $convert['main_pdf_file_name'];
                     $response['meta']['invoice_file_main'] = $output_pdf_file_name;
                     $response['meta']['copy_file'] = $convert['copy_file'];

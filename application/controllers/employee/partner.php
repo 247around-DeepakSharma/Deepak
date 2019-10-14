@@ -2118,6 +2118,10 @@ class Partner extends CI_Controller {
                     $data['parts_shipped'] = $value['shipped_parts_name'];
                     $data['model_number_shipped'] = $value['shipped_model_number'];
                     $data['shipped_parts_type'] = $value['shipped_part_type'];
+                    $data['partner_id'] = $partner_id;
+                    //$data['defective_return_to_entity_id'] = $partner_id;
+                    $data['entity_type'] = _247AROUND_PARTNER_STRING;
+                    $data['is_micro_wh'] = 0;
                     if(isset($value['quantity']) && $value['shipped_quantity']){
                     $data['quantity'] = $value['quantity'];
                     $data['shipped_quantity']=$value['shipped_quantity'];  
@@ -7174,6 +7178,8 @@ class Partner extends CI_Controller {
                     }
                      else if(!empty($row['partner_challan_number'])) {
                           $tempString =  $row['partner_challan_number'];
+                    } else {
+                       $tempString = "NA"; 
                     }
                     $tempArray[] = $tempString;
                     $tempArray[] = $row['remarks_defective_part_by_sf'];
