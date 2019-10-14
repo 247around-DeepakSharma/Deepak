@@ -200,9 +200,11 @@
         <?php
          if(!$is_pending){
              $stateTemp = $state;
-             $state = $state['TAT'];
-             $sfTemp = $sf;
-             $sf = $sf['TAT'];
+             if(isset($state['TAT'])){
+                 $state = $state['TAT'];
+                 $sfTemp = $sf;
+                 $sf = $sf['TAT'];
+             }
          }
         $index = 0;
         foreach($state as $key => $values){
