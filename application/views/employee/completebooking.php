@@ -269,7 +269,7 @@
                     ?>
                     <!-- row End  -->
                     <?php $k_count = 0;$count = 1; foreach ($booking_unit_details as $keys => $unit_details) { ?>
-
+                    <?php $selected_dop = !empty($booking_history['spare_parts'][0]['date_of_purchase']) ? $booking_history['spare_parts'][0]['date_of_purchase'] : $unit_details['sf_purchase_date'];  ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
                             <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
@@ -292,12 +292,13 @@
                                         </select>
                                     </div>
                                 </div>
-                                <?php } ?>
+                                <?php } 
+                                ?>
                                 <div class="col-md-3">
                                     <div class="form-group">
                                          <label style="margin-left:8%;">Purchase Date</label>
                                          <div class="input-group input-append date" style="width: 150px;margin-left: 14px;">
-                                                <input autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php if(isset($unit_details['sf_purchase_date'])){  echo $unit_details['sf_purchase_date']; } ?>">
+                                                <input autocomplete="off" onkeydown="return false" onchange="update_dop_for_unit('<?php echo $keys?>')"  id="<?php echo "dop_".$keys?>" class="form-control dop" placeholder="Purchase Date" name="dop[]" type="text" value="<?php echo $selected_dop ?>">
                                                         <span class="input-group-addon add-on" onclick="dop_calendar('<?php echo "dop_".$keys?>')"><span class="glyphicon glyphicon-calendar"></span></span>
                                          </div>
                                     </div>
@@ -380,13 +381,13 @@
                                                                         <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" style="width:266px;">
                                                                             <option value="" selected="" disabled="">Model Number</option>
                                                                             <?php foreach ($unit_details['model_dropdown'] as $m) { ?>
-                                                                            <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $unit_details['sf_model_number'] ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
+                                                                            <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $selected_model ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
                                                                             <?php }?>
                                                                         </select>
                                                                         <?php }  else { 
                                                                             $isModelMandatory =1 ;
                                                                         ?>
-                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php if(!empty($unit_details['sf_model_number'])){ echo $unit_details['sf_model_number'];} ?>" class="form-control model_number" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
+                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?= $selected_model ?>" class="form-control model_number" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
                                                                         <?php } 
                                                                         if(!empty($price['serial_number_pic'])) {
                                                                             $price_unit=$price['unit_id'];
