@@ -608,6 +608,7 @@
                     <input type="hidden" id="engineer_symptom" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_symptom_id'])){ echo $bookng_unit_details[0]['en_symptom_id']; }else{ echo 0; } ?>">
                     <input type="hidden" id="engineer_defect" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_defect_id'])){ if(!is_null($bookng_unit_details[0]['en_defect_id'])){ echo $bookng_unit_details[0]['en_defect_id']; }else{ echo 0; } }else{ echo 0; } ?>">
                     <input type="hidden" id="engineer_solution" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_solution_id'])){if(!is_null($bookng_unit_details[0]['en_solution_id'])){ echo $bookng_unit_details[0]['en_solution_id']; }else{ echo 0; }}else{ echo 0; } ?>">
+                    <input type="hidden" name="en_closed_date" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_closed_date'])){if(!is_null($bookng_unit_details[0]['en_closed_date'])){ echo $bookng_unit_details[0]['en_closed_date']; }} ?>">
                     <div class="row">
                         <?php 
                         if($booking_history[0]['is_upcountry'] == '1' 
