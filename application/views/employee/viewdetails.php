@@ -564,6 +564,52 @@
                     </div>
                 </div>
                 <div class="row">
+                    <div class="col-md-12 table-responsive">
+                        <h1 style='font-size:24px;margin-top: 40px;'>SF Completion Details</h1>
+                        <?php if(!empty($unit_details[0]['scba_booking_id'])) { ?>
+                        <table class="table  table-striped table-bordered">
+                            <thead>
+                            <tr>
+                                <th>Brand</th>
+                                <th>Category/<br/>Capacity</th>
+                                <th>Model Number</th>
+                                <th>Serial Number</th>
+                                <th>SF Purchase Date</th>
+                                <th>SF Closed Date</th>
+                                <th>Description</th>
+                                <th>Service Category</th>
+                                <th>Basic Charges</th>
+                                <th>Additional Charges</th>
+                                <th>Parts Cost</th>
+                                <th>Upcountry Charges</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ( $unit_details as $key =>  $detail) { ?>
+                                <tr>
+                                    <td><?php echo $detail['appliance_brand']?></td>
+                                    <td><?php echo $detail['appliance_category']."/<br/>".$detail['appliance_capacity']?></td>
+                                    <td><?php echo $detail['scba_model_number']?></td>
+                                    <td><?php if(!empty($detail['scba_serial_number_pic'])){?>
+                                        <a target="_blank" href="<?php echo S3_WEBSITE_URL;?><?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $detail['scba_serial_number_pic'];?>"><?php echo $detail['scba_serial_number'];?></a>
+                                             <?php } else { echo $detail['scba_serial_number'];} ?>
+                                    </td>
+                                    <td><?php if(!empty($detail['scba_sf_purchase_date']) && ($detail['scba_sf_purchase_date'] !== '-')) {echo $detail['scba_sf_purchase_date'];}?></td>
+                                    <td><?php if(!empty($detail['scba_sf_closed_date']) && ($detail['scba_sf_closed_date'] !== '-')) {echo $detail['scba_sf_closed_date'];}?></td>
+                                    <td><?php echo $detail['appliance_description']?></td>
+                                    <td><?php  print_r($detail['price_tags']); ?></td>
+                                    <td><?php echo $detail['scba_basic_charges']?></td>
+                                    <td><?php echo $detail['scba_additional_charges']?></td>
+                                    <td><?php echo $detail['scba_parts_cost']?></td>
+                                    <td><?php echo $detail['scba_upcountry_charges']?></td>
+                                </tr>    
+                                <?php } ?>
+                            </tbody>
+                        </table>
+                        <?php } ?>
+                    </div>
+                </div>
+                <div class="row">
                     <center><img id="misc_charge_loader" style="width: 50px;" src="<?php echo base_url(); ?>images/loader.gif"/></center>
                      <div class="col-md-12" id="misc_charge_div" >
                         <h1 style='font-size:24px;margin-top: 40px;'>Miscellaneous Charge</h1>

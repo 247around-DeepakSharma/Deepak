@@ -486,7 +486,7 @@
 </script>
 <script>
     check_pincode();
-    if($("#model_not_mapped").val() != 1)
+    if(($("#model_not_mapped").val() != 1) && ($("#is_spare_requested").val() == ""))
     {
         $(".select-model").select2();
     }

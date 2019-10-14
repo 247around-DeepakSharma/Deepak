@@ -1734,7 +1734,23 @@ class Booking extends CI_Controller {
                     $booking_unit_details[$key1]['en_current_status'] = $en[0]['current_status'];
                     
                     $engineer_action_not_exit = true;
-                } 
+                }
+                // print_r($service_center_data);
+                $service_center_data = $this->service_centers_model->get_prices_filled_by_service_center($b['id'], $booking_id);
+                
+                if (!empty($service_center_data)) {
+                    $booking_unit_details[$key1]['scba_booking_id'] = $service_center_data[0]['booking_id'];
+                    $booking_unit_details[$key1]['scba_basic_charges'] = $service_center_data[0]['service_charge'];
+                    $booking_unit_details[$key1]['scba_additional_charges'] = $service_center_data[0]['additional_service_charge'];
+                    $booking_unit_details[$key1]['scba_serial_number'] = $service_center_data[0]['serial_number'];
+                    $booking_unit_details[$key1]['scba_parts_cost'] = $service_center_data[0]['parts_cost'];
+                    $booking_unit_details[$key1]['scba_serial_number_pic'] = $service_center_data[0]['serial_number_pic'];
+                    $booking_unit_details[$key1]['scba_sf_purchase_date'] = $this->miscelleneous->get_formatted_date($service_center_data[0]['sf_purchase_date']);
+                    $booking_unit_details[$key1]['scba_sf_closed_date'] = $this->miscelleneous->get_formatted_date($service_center_data[0]['closed_date'],true);
+                    $booking_unit_details[$key1]['scba_sf_purchase_invoice'] = $service_center_data[0]['sf_purchase_invoice'];
+                    $booking_unit_details[$key1]['scba_upcountry_charges'] = $service_center_data[0]['upcountry_charges'];
+                    $booking_unit_details[$key1]['scba_model_number'] = $service_center_data[0]['model_number'];
+                }
         }
         if(isset($engineer_action_not_exit)){
             $sig_table = $this->engineer_model->getengineer_sign_table_data("*", array("booking_id" => $booking_id,
@@ -2517,7 +2533,12 @@ class Booking extends CI_Controller {
         log_message('info', ": " . " update booking details data (" . $booking['current_status'] . ")" . print_r($booking, TRUE));
         // this function is used to update booking details table
         if(!$this->input->post('service_center_closed_date')){
-            $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
+            //get engineer close date
+            $eng_status = $this->miscelleneous->update_eng_close_date($booking_id);
+            if(!$eng_status){
+               $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
+            }
+            
         }
         
         if($internal_status == _247AROUND_CANCELLED){
