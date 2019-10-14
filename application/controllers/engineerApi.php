@@ -2329,7 +2329,7 @@ class engineerApi extends CI_Controller {
                 'request_type.service_category' => $price_tags1
             );
             $response['symptoms'] = $this->booking_request_model->get_booking_request_symptom('symptom.id, symptom', $where, $where_in);
-            if((count($response['symptoms']) <= 0) || (!is_null($symptom_id))) {
+            if((count($response['symptoms']) <= 0) || (is_null($symptom_id))) {
                 $response['symptoms'][0] = array('id' => 0, 'symptom' => 'Default');
             }
             
