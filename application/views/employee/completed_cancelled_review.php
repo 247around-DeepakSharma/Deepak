@@ -12,7 +12,7 @@
              <div class="col-md-3 pull-right" style="margin-top:20px;">
               
                 
-                <select type="text" class="form-control"  id="state_completed" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                <select type="text" class="form-control"  id="state_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
                     <option value=""></option>
                     <?php foreach($states as $state) { ?>
                     <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>
@@ -25,7 +25,7 @@
              <div class="col-md-3 pull-right" style="margin-top:20px;">
               
                 
-                <select type="text" class="form-control"  id="partner_completed" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                <select type="text" class="form-control"  id="partner_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
                     <option value=""></option>
                     <?php foreach($partners as $partner) { ?>
                     <option value="<?= $partner['id']; ?>" <?php if(!empty($partner_selected) && $partner['id'] == $partner_selected) { echo 'selected';}?>><?= $partner['public_name']; ?></option>
@@ -43,7 +43,7 @@
              <div class="col-md-3 pull-right" style="margin-top:20px;">
               
                 
-                <select type="text" class="form-control"  id="cancellation_reason" name="cancellation_reason" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                <select type="text" class="form-control"  id="cancellation_reason_<?php echo $is_partner; ?>" name="cancellation_reason" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
                     <option value=""></option>
                     <?php foreach($cancellation_reason as $reason) { ?>
                     <option value="<?= $reason['id']; ?>" <?php if(!empty($cancellation_reason_selected) && $reason['id'] == $cancellation_reason_selected) { echo 'selected';}?>><?= $reason['reason']; ?></option>
@@ -56,7 +56,7 @@
              <div class="col-md-3 pull-right" style="margin-top:20px;">
               
                 
-                <select type="text" class="form-control"  id="state_cancelled" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                <select type="text" class="form-control"  id="state_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?>" name="state" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
                     <option value=""></option>
                     <?php foreach($states as $state) { ?>
                     <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>
@@ -69,7 +69,7 @@
              <div class="col-md-3 pull-right" style="margin-top:20px;">
               
                 
-                <select type="text" class="form-control"  id="partner_cancelled" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
+                <select type="text" class="form-control"  id="partner_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?>" name="partner" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
                     <option value=""></option>
                     <?php foreach($partners as $partner) { ?>
                     <option value="<?= $partner['id']; ?>" <?php if(!empty($partner_selected) && $partner['id'] == $partner_selected) { echo 'selected';}?>><?= $partner['public_name']; ?></option>
@@ -297,19 +297,19 @@
    </div>
 
 <script>
-    $('#cancellation_reason').select2({
+    $('#cancellation_reason_<?php echo $is_partner; ?>').select2({
        placeholder: 'Cancellation Reason'
     }); 
-    $('#state_cancelled').select2({
+    $('#state_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?>').select2({
        placeholder: 'State'
     }); 
-    $('#partner_cancelled').select2({
+    $('#partner_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?>').select2({
        placeholder: 'Partner'
     });    
-    $('#partner_completed').select2({
+    $('#partner_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>').select2({
        placeholder: 'Partner'
     });    
-    $('#state_completed').select2({
+    $('#state_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>').select2({
        placeholder: 'State'
     });    
    
