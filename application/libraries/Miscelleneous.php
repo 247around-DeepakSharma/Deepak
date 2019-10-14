@@ -4609,7 +4609,7 @@ function generate_image($base64, $image_name,$directory){
      * @return type
      */
     public function get_formatted_date($date, $time = false) {
-        if(!empty($date)) {
+        if(!empty($date) && $date != '0000-00-00') {
             if($time) {
                 return date_format(date_create($date), "d-M-Y g:i A");
             } else {
