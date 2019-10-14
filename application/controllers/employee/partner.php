@@ -7166,6 +7166,8 @@ class Partner extends CI_Controller {
                     }
                      else if(!empty($row['partner_challan_number'])) {
                           $tempString =  $row['partner_challan_number'];
+                    } else {
+                       $tempString = "NA"; 
                     }
                     $tempArray[] = $tempString;
                     $tempArray[] = $row['remarks_defective_part_by_sf'];
