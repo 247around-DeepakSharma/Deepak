@@ -122,6 +122,9 @@
                      <input type="hidden" value="<?php echo $inventory_id; ?>" id="<?php echo "onrequestedInventoryId_".($key +$count);?>" 
                         name="part[<?php echo ($key +$count); ?>][requested_inventory_id]" />
                      
+                     <input type="hidden" value="<?php echo $value['request_type']; ?>" 
+                        name="part[<?php echo ($key +$count); ?>][request_type]" />
+                     
                      <input type="hidden" value="<?php echo $type; ?>" id="<?php echo "onspareType_".($key +$count);?>" 
                         name="part[<?php echo ($key +$count); ?>][type]" />
                     
