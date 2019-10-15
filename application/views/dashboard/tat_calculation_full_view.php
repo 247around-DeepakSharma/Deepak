@@ -181,16 +181,16 @@
                             <th>S.no</th>
                             <th>States</th>
                             <?php if ($is_pending) {?>
-                             <th> >D3</th>
+                             <th> >Day3</th>
                              <?php  } ?>
-                            <th>D0</th>
-                            <th>D1</th>
-                            <th>D2</th>
-                            <th>D3</th>
-                            <th>D4</th>
-                            <th>D5 - D7</th>
-                             <th>D8 - D15</th>
-                             <th>> D15</th>
+                            <th>Day0</th>
+                            <th>Day1</th>
+                            <th>Day2</th>
+                            <th>Day3</th>
+                            <th>Day4</th>
+                            <th>Day5 - Day7</th>
+                             <th>Day8 - Day15</th>
+                             <th>> Day15</th>
                               <?php if ($is_pending) {?>
                             <th>Total</th>
                              <?php  } ?>
@@ -326,16 +326,16 @@
                             <th>Service Centers</th>
                             <th>State</th>
                             <?php if ($is_pending) {?>
-                             <th> >D3</th>
+                             <th> >Day3</th>
                              <?php  } ?>
-                            <th>D0</th>
-                            <th>D1</th>
-                            <th>D2</th>
-                            <th>D3</th>
-                            <th>D4</th>
-                            <th>D5 - D7</th>
-                             <th>D8 - D15</th>
-                             <th>> D15</th>
+                            <th>Day0</th>
+                            <th>Day1</th>
+                            <th>Day2</th>
+                            <th>Day3</th>
+                            <th>Day4</th>
+                            <th>Day5 - Day7</th>
+                             <th>Day8 - Day15</th>
+                             <th>> Day15</th>
                              <?php if ($is_pending) {?>
                              <th>> Total</th>
                              <?php  } ?>

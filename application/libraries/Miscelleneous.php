@@ -4616,7 +4616,15 @@ function generate_image($base64, $image_name,$directory){
                 return date_format(date_create($date), "d-M-Y");
             }
         } else {
-            return '-';
+            return '';
+        }
+    }
+    
+    public function convert_date_to_database_format($date, $time = false) {
+        if($time) {
+            return date_format(date_create($date), "Y-m-d g:i:s");
+        } else {
+            return date_format(date_create($date), "Y-m-d");
         }
     }
     
