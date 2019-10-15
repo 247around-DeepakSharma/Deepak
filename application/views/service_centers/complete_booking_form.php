@@ -262,6 +262,7 @@
                                                         $customer_basic_charge = 0;
                                                         $addition_service_charge = 0;
                                                         $parts_cost = 0;
+                                                        $parts_cost_service_charge = 0;
                                                         foreach ($unit_details['quantity'] as $key => $price) {
                                                             if($price['booking_status'] != _247AROUND_CANCELLED){ 
                                                             ?>
@@ -335,6 +336,12 @@
                                                                             $parts_cost = $price['en_parts_cost'];
                                                                            }
                                                                         }
+                                                                        
+                                                                        if (($price['product_or_services'] == "Product") && $price['customer_net_payable'] > 0) { 
+                                                                           if(isset($price['en_service_charge'])){
+                                                                            $parts_cost_service_charge = $price['en_parts_cost'];
+                                                                           }
+                                                                        }
                                                                     }
                                                                     
                                                                     
@@ -383,7 +390,7 @@
                                                             <input  id="<?php echo "basic_charge".$count; ?>" type="<?php if ($price['product_or_services'] == "Product"
                                                                 && $price['customer_net_payable'] > 0){ echo "text"; } 
                                                                 else { echo "hidden";}?>" class="form-control cost" 
-                                                                name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "0">
+                                                                name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php echo $parts_cost_service_charge; ?>">
                                                             <?php } ?>
                                                             <input id="<?php echo "parts_cost".$count; ?>"  type="<?php if($price['product_or_services'] != "Service"){ 
                                                                 if ($price['product_or_services'] == "Product" && $price['customer_net_payable'] == 0) { 
