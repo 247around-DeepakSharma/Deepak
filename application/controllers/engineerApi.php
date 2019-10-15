@@ -1164,7 +1164,7 @@ class engineerApi extends CI_Controller {
             foreach($unitDetails as $value){
                 $data = array();
                 
-                $unit_id = $this->check_unit_exist_action_table($booking_id, $value["unit_id"], $requestData['service_center_id']);
+                $unit_id = $this->check_unit_exist_action_table($booking_id, $value["unit_id"], $requestData['service_center_id'], $requestData['engineer_id']);
                
                 if($unit_id){
                     $data["current_status"] = "InProcess";
@@ -2522,7 +2522,7 @@ class engineerApi extends CI_Controller {
         }
     }
     
-    function check_unit_exist_action_table($booking_id, $unit_id, $service_center_id) {
+    function check_unit_exist_action_table($booking_id, $unit_id, $service_center_id, $engineer_id) {
         log_message("info", __METHOD__ . " Booking ID " . $booking_id . " Unit ID " . $unit_id);
         if (strpos($unit_id, 'new') !== false) {
             $remove_string_new = explode('new', $unit_id);
@@ -2542,6 +2542,7 @@ class engineerApi extends CI_Controller {
             if(!empty($unit_id)){
                 $engineer_action['unit_details_id'] = $unit_id;
                 $engineer_action['service_center_id'] = $service_center_id;
+                $engineer_action['engineer_id'] = $engineer_id;
                 $engineer_action['booking_id'] = $booking_id;
                 $engineer_action['current_status'] = _247AROUND_PENDING;
                 $engineer_action['internal_status'] = _247AROUND_PENDING;
@@ -2564,7 +2565,6 @@ class engineerApi extends CI_Controller {
                 $this->vendor_model->insert_service_center_action($a);
             }
         }
-
         return $unit_id;
     }
     
