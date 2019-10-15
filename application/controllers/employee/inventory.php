@@ -1868,7 +1868,7 @@ class Inventory extends CI_Controller {
         $post['order'] = "";
 
         $data['stock_details'] = $this->inventory_model->get_inventory_stock_list($post, $select);
-        $this->load->view('employee/inventory_stock_details', $data);
+        echo $this->load->view('employee/inventory_stock_details', $data);
     }
     /**
      * Get inventory stock with vendor and inventory
@@ -4570,7 +4570,8 @@ class Inventory extends CI_Controller {
             // $this->vendor_model->update_service_center_action($data->booking_id, $sc_data);
         }
         if (!empty($data->booking_id)) {
-            $where['booking_id'] = $data->booking_id;
+
+            $where['spare_parts_details.booking_id'] = $data->booking_id;
             $update_spare_part = $this->service_centers_model->update_spare_parts($where, $update);
             /// if warehouse then only///
             if ($data->is_wh_micro == 1) {
