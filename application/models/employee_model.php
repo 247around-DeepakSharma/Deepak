@@ -352,13 +352,16 @@ class Employee_model extends CI_Model{
     * @return type
     */
    function chk_entry_in_employee_relation($id) {
-       $data=$this->db->query("select * from `employee_relation` where agent_id =".$id)->result_array();
-       if(count( $data) == 0 ){
-            $emp_rel["agent_id"] = $id;
-            $emp_rel["active"] = 1;
-            $emp_rel["create_date"] = date('Y-m-d H:i:s');
-           $this->insertEmployeeRelation($emp_rel);
-       }
+        if(!empty($id))
+        {
+            $data=$this->db->query("select * from `employee_relation` where agent_id =".$id)->result_array();
+            if(count( $data) == 0 ){
+                 $emp_rel["agent_id"] = $id;
+                 $emp_rel["active"] = 1;
+                 $emp_rel["create_date"] = date('Y-m-d H:i:s');
+                $this->insertEmployeeRelation($emp_rel);
+            }
+        }       
    }
    /**
     * @Desc: This function is used to get assigned states 
