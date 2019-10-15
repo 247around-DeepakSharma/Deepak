@@ -1868,7 +1868,7 @@ class Inventory extends CI_Controller {
         $post['order'] = "";
 
         $data['stock_details'] = $this->inventory_model->get_inventory_stock_list($post, $select);
-        echo $this->load->view('employee/inventory_stock_details', $data);
+        $this->load->view('employee/inventory_stock_details', $data);
     }
     /**
      * Get inventory stock with vendor and inventory
