@@ -3696,14 +3696,16 @@ function do_multiple_spare_shipping(){
      * @desc: It's used to generate SF Challan
      * @param String $generate_challan
      */
-    function generate_sf_challan($generate_challan) {
 
+    
+      function generate_sf_challan($generate_challan) {
+                                  
         $delivery_challan_file_name_array = array();
-
+       
         foreach ($generate_challan as $key => $value) {
             if (!empty($generate_challan)) {
                 $post = array();
-                $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING);
+                $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 $post['is_inventory'] = true;
                 $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
@@ -3769,6 +3771,12 @@ function do_multiple_spare_shipping(){
                     if (!empty($data['partner_challan_file'])) {
                         if (!empty($spare_details)) {
                             foreach ($spare_details as $val) {
+                                if ($this->session->userdata("userType") == "service_center") {
+                                    $data['spare_parts_details.entity_type'] = _247AROUND_SF_STRING;
+                                    $data['spare_parts_details.partner_id'] = $this->session->userdata("service_center_id");
+                                    $data['spare_parts_details.defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                                    $data['spare_parts_details.defective_return_to_entity_id'] = $this->session->userdata("service_center_id");
+                                }
                                 $this->service_centers_model->update_spare_parts(array('id' => $val[0]['spare_id']), $data);
                             }
                         }
