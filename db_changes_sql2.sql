@@ -1505,3 +1505,26 @@ INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, 
 ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1;
 -- Prity Sharma 25-09-2019
 ALTER TABLE booking_unit_details CHANGE COLUMN sf_purchase_date sf_purchase_date date NULL DEFAULT NULL;
+
+-- Ankit 27-09-2019
+ALTER TABLE partners ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER auth_token;
+ALTER TABLE service_centres ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER is_wh;
+--Gorakh 28-09-2019
+ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` VARCHAR(20) NOT NULL;
+
+ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1
+ --Gorakh 20-09-2019
+ALTER TABLE `spare_parts_details` ADD `wh_challan_number` VARCHAR(128) NULL DEFAULT NULL AFTER `sf_challan_number`;
+ALTER TABLE `spare_parts_details` ADD `wh_challan_file` VARCHAR(128) NULL DEFAULT NULL AFTER `sf_challan_file`;
+
+--Kajal 01-10-2019
+UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_07.jpg' WHERE `entity_gst_details`.`id` = 2;
+UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_09.jpg' WHERE `entity_gst_details`.`id` = 7;
+UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_27.jpg' WHERE `entity_gst_details`.`id` = 6;
+
+-- Ankit 10-04-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'courier_lost_spare_parts', NULL, ' ', 'noreply@247around.com', 'ankitr@247around.com', '', '', '1', '', CURRENT_TIMESTAMP);
+
+--Kalyani 11-10-2019
+INSERT INTO `partner_summary_report_mapping` (`Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES ('Engineer Name', 'engineer_details.name AS engineer_name', '1', '', '1', '50');
+

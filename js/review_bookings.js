@@ -127,24 +127,23 @@ function review_search(status,is_partner){
         bookingID = 0;
     }
     var cancellation_reason = '0';
-    if($('#cancellation_reason').length && $('#cancellation_reason').val() != '') {
-	cancellation_reason = $('#cancellation_reason').val();
+    if($('#cancellation_reason_'+is_partner).length && $('#cancellation_reason_'+is_partner).val() != '') {
+	cancellation_reason = $('#cancellation_reason_'+is_partner).val();
     }
 
-    
-    var state_input_id = '#state_cancelled';
+    var state_input_id = '#state_cancelled_'+is_partner+'_'+status;
     var state = '0';
     if(status == 'Completed') {
-        state_input_id = '#state_completed';
+        state_input_id = '#state_completed_'+is_partner+'_'+status;
     }
     if($(state_input_id).length && $(state_input_id).val() != ''){
 	state = $(state_input_id).val();
     }
 
-    var partner_input_id = '#partner_cancelled';
+    var partner_input_id = '#partner_cancelled_'+is_partner+'_'+status;
     var partner = '0';
-    if(status == 'Completed') {
-        partner_input_id = '#partner_completed';
+    if(status == 'Completed' || status == "Completed_By_SF") {
+        partner_input_id = '#partner_completed_'+is_partner+'_'+status;
     }
     if($(partner_input_id).length && $(partner_input_id).val() != '') {
 	partner = $(partner_input_id).val();
@@ -161,7 +160,6 @@ function review_search(status,is_partner){
         var tab = "#tabs-4";
     }
 
- 
     load_view('employee/booking/review_bookings_by_status/'+status+'/0/'+is_partner+'/'+bookingID+'/'+ cancellation_reason+'/'+partner+'/'+state, tab,0);
 
 }

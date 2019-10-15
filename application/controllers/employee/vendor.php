@@ -242,6 +242,7 @@ class vendor extends CI_Controller {
         $vendor_data['is_cp'] = $this->input->post('is_cp');
         $vendor_data['is_wh'] = $this->input->post('is_wh');
         $vendor_data['isEngineerApp'] = $this->input->post('is_engineer');
+        $vendor_data['is_booking_close_by_app_only'] = $this->input->post('is_booking_close_by_app_only');
         $vendor_data['is_buyback_gst_invoice'] = $this->input->post('is_buyback_gst_invoice');
         $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
         $vendor_data['minimum_guarantee_charge'] = $this->input->post('minimum_guarantee_charge');
@@ -1084,8 +1085,7 @@ class vendor extends CI_Controller {
          $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
          $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         if ($this->form_validation->run()) {
-         //   $spare_data = $this->inventory_model->get_spare_parts_details("id, status", array("booking_id"=>$this->input->post('booking_id')));
-        //    if(!empty($spare_data)){
+            $spare_data = $this->inventory_model->get_spare_parts_details("id, status", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
                 $booking_id = $this->input->post('booking_id');
                 $service_center_id = $this->input->post('service');
                 $remarks = $this->input->post('remarks');
@@ -1116,15 +1116,19 @@ class vendor extends CI_Controller {
                     'cancellation_reason' => NULL,
                     'upcountry_distance' => NULL,
                     'internal_status' => _247AROUND_PENDING);
-
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+                
                 $actor = $next_action = 'not_define';
-                if (!empty($partner_status)) {
-                    $assigned_data['partner_current_status'] = $partner_status[0];
-                    $assigned_data['partner_internal_status'] = $partner_status[1];
-                    $actor = $assigned_data['actor'] = $partner_status[2];
-                    $next_action = $assigned_data['next_action'] = $partner_status[3];
+                if(empty($spare_data)){
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+
+                    if (!empty($partner_status)) {
+                        $assigned_data['partner_current_status'] = $partner_status[0];
+                        $assigned_data['partner_internal_status'] = $partner_status[1];
+                        $actor = $assigned_data['actor'] = $partner_status[2];
+                        $next_action = $assigned_data['next_action'] = $partner_status[3];
+                    }
                 }
+                
                 $this->booking_model->update_booking($booking_id, $assigned_data);
 
                 $this->vendor_model->delete_previous_service_center_action($booking_id);
@@ -1227,14 +1231,6 @@ class vendor extends CI_Controller {
 
 
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
-        // }
-        // else{
-        //     $booking_id = $this->input->post('booking_id');
-        //     $output = "You cann't reassign this booking because spare part already requested. If you want to reassign then please cancel part request.";
-        //     $userSession = array('error' => $output);
-        //     $this->session->set_userdata($userSession);
-        //     redirect(base_url() . "employee/vendor/get_reassign_vendor_form/".$booking_id);
-        // }
         } else {
             $booking_id = $this->input->post('booking_id');
             $output = "All Fields are required";
@@ -1841,9 +1837,12 @@ class vendor extends CI_Controller {
      * @desc: This method loads add engineer view. It gets active vendor and appliance to display in a form
      * This  function is used by vendor panel and admin panel to load add engineer view
      */
-    function add_engineer(){
+    function add_engineer($booking_id = false){
         $data['service_center'] = $this->vendor_model->getactive_vendor();
         $data['services'] = $this->booking_model->selectservice();
+        if($booking_id){
+            $data['booking_id'] = base64_decode(urldecode($booking_id));
+        }
         if($this->session->userdata('userType') == 'service_center'){
 
             $this->load->view('service_centers/header');
@@ -1983,11 +1982,14 @@ class vendor extends CI_Controller {
 
                     if ($this->session->userdata('userType') == 'service_center') {
                         log_message('info', __FUNCTION__ . " Engineer addition initiated By Service Center");
-
-                        redirect(base_url() . "service_center/add_engineer");
+                        if($this->input->post("booking_id")){ 
+                            redirect(base_url() . "service_center/pending_booking/".$this->input->post("booking_id"));
+                        }
+                        else{
+                            redirect(base_url() . "service_center/add_engineer");
+                        }
                     } else {
                         log_message('info', __FUNCTION__ . " Engineer addition initiated By 247around");
-
                         redirect(base_url() . "employee/vendor/add_engineer");
                     }
                 } else {

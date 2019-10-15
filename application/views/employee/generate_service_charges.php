@@ -1,6 +1,6 @@
 <script>$(".main_search").css("display","none");</script>
 
-<script src="https://rawgit.com/wasikuss/select2-multi-checkboxes/master/select2.multi-checkboxes.js"></script>
+<script src="<?php echo base_url();?>js/select2_multi_checkbox.js?v=3"></script>
 <div id="page-wrapper" >
 <div class="panel-heading">
     <h4>Generate <?php echo $public_name;?> Price </h4>

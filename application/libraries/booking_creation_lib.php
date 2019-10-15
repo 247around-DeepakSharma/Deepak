@@ -29,7 +29,7 @@ class booking_creation_lib {
         $this->My_CI->load->driver('cache');
         $this->My_CI->load->model('dashboard_model');
     }
-    function get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat){
+    function get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat, $show_all_capacity = false){
         log_message('info', __FUNCTION__ . " Start WIth  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
         if ($booking_id != "") {
             $booking_history = $this->My_CI->booking_model->getbooking_history($booking_id);
@@ -111,6 +111,10 @@ class booking_creation_lib {
                 
                 $category = $this->My_CI->booking_model->getCategoryForService($booking_history[0]['service_id'], $value['partner_id'], $isWbrand);
                 $capacity = $this->My_CI->booking_model->getCapacityForCategory($booking_history[0]['service_id'], $value['category'], $isWbrand, $value['partner_id']);
+                if($show_all_capacity)
+                {
+                    $capacity = $this->My_CI->booking_model->getCapacityForCategory($booking_history[0]['service_id'], NULL, $isWbrand, $value['partner_id']);
+                }                
                 $prices = $this->My_CI->booking_model->getPricesForCategoryCapacity($booking_history[0]['service_id'], $value['category'], $value['capacity'], $value['partner_id'], $isWbrand);
                 $where1 = array('service_id' => $booking_history[0]['service_id'], 'brand_name' => $value['brand']);
                 $brand_id_array = $this->My_CI->booking_model->get_brand($where1);

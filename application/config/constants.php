@@ -72,6 +72,8 @@ define('_247AROUND_PENDING','Pending');
 define('_247AROUND_NEW_BOOKING','New_Booking');
 //constant to define Follow up state
 define('_247AROUND_FOLLOWUP','FollowUp');
+//constant to define Booking state
+define('_247AROUND_BOOKING','Booking');
 //constant to define New Query state
 define('_247AROUND_NEW_QUERY','New_Query');
 //constant to define Cancelled state

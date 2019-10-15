@@ -3329,9 +3329,9 @@ class Inventory extends CI_Controller {
 //  
         $invoice_file_required =  $this->input->post('invoice_file');
                         
-        if ($invoice_file_required) {
-           $invoice_file_required=0; 
-                           
+        if (!$invoice_file_required) {
+           $invoice_file_required=0;      
+                        
         }else{
             $invoice_file_required=1;
                         
@@ -4476,7 +4476,8 @@ class Inventory extends CI_Controller {
             // $this->vendor_model->update_service_center_action($data->booking_id, $sc_data);
         }
         if (!empty($data->booking_id)) {
-            $where['booking_id'] = $data->booking_id;
+
+            $where['spare_parts_details.booking_id'] = $data->booking_id;
             $update_spare_part = $this->service_centers_model->update_spare_parts($where, $update);
             /// if warehouse then only///
             if ($data->is_wh_micro == 1) {

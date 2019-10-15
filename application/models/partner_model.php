@@ -433,7 +433,9 @@ function get_data_for_partner_callback($booking_id) {
                     LEFT JOIN symptom creation_symptom ON booking_symptom_defect_details.symptom_id_booking_creation_time = creation_symptom.id
                     LEFT JOIN symptom completion_symptom ON booking_symptom_defect_details.symptom_id_booking_completion_time = completion_symptom.id
                     LEFT JOIN defect ON booking_symptom_defect_details.defect_id_completion = defect.id
-                    LEFT JOIN symptom_completion_solution ON booking_symptom_defect_details.solution_id = symptom_completion_solution.id";
+                    LEFT JOIN symptom_completion_solution ON booking_symptom_defect_details.solution_id = symptom_completion_solution.id
+                    LEFT JOIN engineer_details ON engineer_details.id = booking_details.assigned_engineer_id";
+                    
         //}
         
         $sql .= " WHERE product_or_services != 'Product' AND $where GROUP BY ud.booking_id";
@@ -1033,13 +1035,17 @@ function get_data_for_partner_callback($booking_id) {
      * 
      */
     function delete_partner_operation_region($partner_id){
-        $this->db->where('partner_id',$partner_id);
-        $this->db->delete('partner_operation_region');
-        if($this->db->affected_rows() > 0 ){
-            return TRUE;
-        }else{
-            return FALSE;
+    if(!empty($partner_id)){
+            $this->db->where('partner_id',$partner_id);
+            $this->db->delete('partner_operation_region');
+            if($this->db->affected_rows() > 0 ){
+                return TRUE;
+            }else{
+                return FALSE;
+            }
         }
+        else
+        return FALSE;
     }
     
     /**
@@ -1049,16 +1055,20 @@ function get_data_for_partner_callback($booking_id) {
      * 
      */
     function delete_partner_brand_relation($partner_id,$service_id = ''){
-        $this->db->where('partner_id',$partner_id);
-        if(!empty($service_id)){
-            $this->db->where('service_id',$service_id);
+        if(!empty($partner_id)){
+            $this->db->where('partner_id',$partner_id);
+            if(!empty($service_id)){
+                $this->db->where('service_id',$service_id);
+            }
+            $this->db->delete('partner_appliance_details');
+            if($this->db->affected_rows() > 0 ){
+                return TRUE;
+            }else{
+                return FALSE;
+            }
         }
-        $this->db->delete('partner_appliance_details');
-        if($this->db->affected_rows() > 0 ){
-            return TRUE;
-        }else{
+        else
             return FALSE;
-        }
     }
     
     function get_tollfree_and_contact_persons(){
@@ -2500,10 +2510,14 @@ function get_data_for_partner_callback($booking_id) {
      * @return string 
      */
     function delete_partner_appliances($data){
-        $this->db->delete('partner_appliance_mapping', array('id' => $data['mappingId'])); 
-        if(!empty($this->db->affected_rows())){
-            return 'success';  
-        }        
+        if(!empty($data)){
+            $this->db->delete('partner_appliance_mapping', array('id' => $data['mappingId'])); 
+            if(!empty($this->db->affected_rows())){
+                return 'success';  
+            }  
+        } 
+        else
+            return '';     
     }
 
     /**

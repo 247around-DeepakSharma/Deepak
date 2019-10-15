@@ -1963,10 +1963,10 @@ class Booking extends CI_Controller {
      */
     function get_edit_booking_form($booking_id, $appliance_id = "",$is_repeat = NULL) {
         log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
-        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);
-        $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);        
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);        
         if($booking){
+            $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);        
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
         }
@@ -2493,7 +2493,7 @@ class Booking extends CI_Controller {
         }
 
         $booking['booking_id'] = $booking_id;
-        $booking['upcountry_paid_by_customer'] = $upcountry_charges;
+        $booking['customer_paid_upcountry_charges'] = $upcountry_charges;
 
         // check partner status
         $actor = $next_action = 'NULL';

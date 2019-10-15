@@ -1636,7 +1636,7 @@ class Service_centers extends CI_Controller {
                 $updated_status = $this->booking_model->update_booking($booking_id, $data);
                 if ($updated_status) {
                     // Update service center internal status in service center action table
-                    $this->service_centers_model->update_service_centers_action_table($booking_id, array('internal_status' => ENGG_ASSIGNED, 'update_date' => date('Y-m-d H:i:s')));
+                    // $this->service_centers_model->update_service_centers_action_table($booking_id, array('internal_status' => ENGG_ASSIGNED, 'update_date' => date('Y-m-d H:i:s')));
 
                     $assigned['booking_id'] = $booking_id;
                     $assigned['current_state'] = ENGG_ASSIGNED;
@@ -2019,9 +2019,10 @@ class Service_centers extends CI_Controller {
         $delivered_sp =array();
         if($data['is_micro_wh']==1){
                 $data['spare_id'] = $this->input->post('spare_id');
-                $data['shipped_inventory_id'] = $spare_data['requested_inventory_id'];
+                $data['shipped_inventory_id'] = $data['requested_inventory_id'];
                 $data['shipped_quantity'] = $data['quantity'];
                 array_push($delivered_sp, $data);
+                unset($data['spare_id']);
             }
         $where = array('id' => $this->input->post('spare_id'));
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
@@ -5701,6 +5702,11 @@ function do_multiple_spare_shipping(){
                             $data['remarks_by_partner'] = $part_details['remarks_by_partner'];
                             $data['shipped_date'] = $this->input->post('shipment_date');
                             $data['shipped_quantity'] = $part_details['shipped_quantity'];
+                            $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                            $data['partner_id'] = $sf_id;
+                            $data['defective_return_to_entity_id'] = $sf_id;
+                            $data['entity_type'] = _247AROUND_SF_STRING;
+                            $data['is_micro_wh'] = 2;
                             $price_with_gst = round($part_details['approx_value'] * ( 1 + $part_details['gst_rate'] / 100), 0);
                             $price_with_around_margin = round($price_with_gst * ( 1 + $part_details['oow_around_margin'] / 100), 0);
                             $data['challan_approx_value'] = ($price_with_around_margin * $part_details['shipped_quantity']);
@@ -5727,7 +5733,7 @@ function do_multiple_spare_shipping(){
                                 $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
                                 $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
                                 $data['part_warranty_status'] = $part_details['part_warranty_status'];
-                                $data['is_micro_wh'] = 2;
+                               
                                 $data['partner_id'] =$sf_id;
                                 $data['defective_return_to_entity_type']=_247AROUND_SF_STRING;
                                 $data['defective_return_to_entity_id']=$sf_id;
@@ -6849,6 +6855,7 @@ function do_multiple_spare_shipping(){
             NULL,NULL,NULL,
             array(
                 "sub_category"=>array(
+                    MSL,
                     MSL_SECURITY_AMOUNT,
                     MSL_NEW_PART_RETURN,
                     MSL_DEFECTIVE_RETURN
@@ -6861,10 +6868,15 @@ function do_multiple_spare_shipping(){
             if(!empty($row['sub_category']) && $row['sub_category']==MSL_SECURITY_AMOUNT){
                 $mslSecurityAmount += floatval($row['amount']);
             }else if(!empty($row['sub_category']) && ($row['sub_category']==MSL_DEFECTIVE_RETURN || $row['sub_category']==MSL_NEW_PART_RETURN)){
+                $mslAmount -= floatval($row['amount']);
+            }else if($row['sub_category'] == MSL){
                 $mslAmount += floatval($row['amount']);
             }
         }
-        $mslAmount = $mslSecurityAmount-$mslAmount;
+        //negate this value as it will be returned by SF
+        $mslAmount = -1 * $mslAmount;
+        //negetive value -> sf have pending defective or new part to return
+        //positive value -> rare, represent 247 have to pay to sf.
         $msl = array(
             'security'=>sprintf("%01.2f", $mslSecurityAmount),
             'amount'=>sprintf("%01.2f", $mslAmount)
@@ -7304,7 +7316,7 @@ function do_multiple_spare_shipping(){
         log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
         $booking_id = base64_decode(urldecode($booking_id));
         $redirect_url = !empty($redirect_url) ? base64_decode(urldecode($redirect_url)) : "";
-        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL);
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL,true);
         $booking['booking_history']['redirect_url'] = $redirect_url;
         if($booking){
             if(($booking['booking_history'][0]['assigned_vendor_id'] == $this->session->userdata('service_center_id'))){
@@ -7421,7 +7433,7 @@ function do_multiple_spare_shipping(){
         if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to)) {
             echo 'fail';
         } else {
-            $form_details = $this->partner_model->get_spare_parts_by_any(".spare_parts_details.*", array('spare_parts_details.id' => $from_spare_id));
+            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $from_spare_id));
             $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $to_spare_id));
             if (empty($form_details) || empty($to_details) || ($form_details[0]['service_center_id'] != $to_details[0]['service_center_id'])) {
                 echo 'fail';
