@@ -3555,7 +3555,9 @@ class Inventory extends CI_Controller {
 
                                     if (!empty($insert_courier_details)) {
                                         log_message('info', 'Courier Details added successfully.');
+                                        $request_type = '';
                                         foreach ($parts_details as $value) {
+                                            $request_type = trim($value['request_type']);
                                             if ($value['shippingStatus'] == 1) {
                                                 //Parts shipped
                                                 $this->table->add_row($value['part_name'], $value['part_number'], $value['quantity'], $value['booking_id'], $value['part_total_price'], $value['gst_rate'], $value['hsn_code']);
@@ -3599,6 +3601,7 @@ class Inventory extends CI_Controller {
                                                     $ledger_data['courier_id'] = $insert_courier_details;
                                                     $ledger_data['is_wh_micro'] = $is_wh_micro;
                                                     $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+                                                    $ledger_data['request_type'] = $request_type;
                                                     $ledger_data['is_defective_part_return_wh'] = $is_defective_part_return_wh;
 
                                                     if ($insert_id) {
@@ -3931,7 +3934,12 @@ class Inventory extends CI_Controller {
             if($ledger['is_wh_micro']==2){
             $newdata['is_micro_wh'] = 1;   
             }
-            $newdata['part_warranty_status'] = 1;
+            if( $ledger['request_type'] == REPAIR_OOW_TAG){
+              $newdata['part_warranty_status'] = 2;
+            }else{
+              $newdata['part_warranty_status'] = 1;  
+            }
+            
             $spare_id = $this->service_centers_model->insert_data_into_spare_parts($newdata);
             if ($spare_id) {
                 $this->notify->insert_state_change($ledger['booking_id'], SPARE_SHIPPED_TO_WAREHOUSE, "", SPARE_SHIPPED_TO_WAREHOUSE, $action_agent_id, $action_agent_id, NULL, NULL, $s_partner_id, NULL);
@@ -6369,7 +6377,7 @@ class Inventory extends CI_Controller {
                 $where['spare_parts_details.partner_id'] = $this->session->userdata('partner_id');
             }
             $data['data'] = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id,spare_parts_details.quantity, spare_parts_details.requested_inventory_id, booking_details.partner_id,"
-                    . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number", $where, true);
+                    . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number,booking_details.request_type", $where, true);
             
             if (!empty($data['data'])) {
                 $data['count'] = $count;
