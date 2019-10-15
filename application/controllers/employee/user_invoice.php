@@ -1276,10 +1276,10 @@ class User_invoice extends CI_Controller {
 
         $gst_number = $entity_details[0]['gst_number'];
 
-        if (empty($entity_details[0]['gst_number'])) {
-
-            $gst_number = TRUE;
-        }
+//        if (empty($entity_details[0]['gst_number'])) {
+//
+//            $gst_number = TRUE;
+//        }
         $invoice_id = $this->invoice_lib->create_invoice_id($entity_details[0]['sc_code']);
         foreach ($invoiceValue['mapping'] as $m) {
             $m['outgoing_invoice_id'] = $invoice_id;
@@ -1290,14 +1290,29 @@ class User_invoice extends CI_Controller {
             $post = array();
 
             $post['where'] = array('inventory_master_list.inventory_id'=> $value['inventory_id']);
+            $post['length'] = -1;
             
             $list = $this->inventory_model->get_inventory_stock_list($post,$select);
             
-            $invoice[$key]['rate'] = sprintf("%.2f", $value['rate'] * ( 1 + (!empty($list[0]['oow_around_margin']) ? $list[0]['oow_around_margin'] : 0)));
-            $invoice[$key]['taxable_value'] = sprintf("%.2f", $value['taxable_value'] * ( 1 + (!empty($list[0]['oow_around_margin']) ? $list[0]['oow_around_margin'] : 0)));
+            $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
+            if (!empty($list)) {
+                if ($list[0]->oow_around_margin > 0) {
+                    $repair_oow_around_percentage = $list[0]->oow_around_margin / 100;
+                }
+            }
+            
+//            $invoice[$key]['rate'] = sprintf("%.2f", $value['rate'] * ( 1 + $repair_oow_around_percentage));
+//            $invoice[$key]['taxable_value'] = sprintf("%.2f", $value['taxable_value'] * ( 1 + $repair_oow_around_percentage));
             $invoice[$key]['invoice_id'] = $invoice_id;
-        }
+            if(empty($entity_details[0]['gst_number'])){
+                $invoice[$key]['rate'] =  sprintf("%.2f", $value['rate'] * ( 1 + $repair_oow_around_percentage) * (1 + ($value['gst_rate']/100)) );
 
+            } else {
+                $invoice[$key]['rate'] = sprintf("%.2f", $value['rate'] * ( 1 + $repair_oow_around_percentage));
+            }
+            $invoice[$key]['taxable_value'] = sprintf("%.2f", ( $invoice[$key]['rate'] * $value['qty']));
+        }
+        
         $invoice[0]['product_or_services'] = "Product";
         $invoice[0]['gst_number'] = $gst_number;
         $invoice[0]['company_name'] = $entity_details[0]['company_name'];
@@ -1313,12 +1328,17 @@ class User_invoice extends CI_Controller {
 
         $response = $this->invoices_model->_set_partner_excel_invoice_data($invoice, $sd, $ed, "Tax Invoice", $invoice_date);
         $response['meta']['invoice_id'] = $invoice_id;
-        
-        $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
-        if ($c_s_gst) {
-            $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
+
+        if(empty($response['meta']['gst_number'])){
+            $response['meta']['invoice_template'] = "SF_FOC_Bill_of_Supply-v1.xlsx";
+
         } else {
-            $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
+            $c_s_gst = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
+            if ($c_s_gst) {
+                $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
+            } else {
+                $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";
+            }
         }
 
         $response['meta']['accounting'] = 1;
