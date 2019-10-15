@@ -242,6 +242,7 @@ class ApiDataRequest extends CI_Controller {
                 $data['status'] = SPARE_OOW_EST_GIVEN;
                 $data['purchase_price'] = $estimate_cost;
                 $data['sell_price'] = ($estimate_cost + $estimate_cost * $spare_oow_est_margin );
+                $data['challan_approx_value'] = ($estimate_cost + $estimate_cost * $spare_oow_est_margin );
                 $data['estimate_cost_given_date'] = date('Y-m-d');
                 $data['invoice_gst_rate'] = $gst_rate;
                 //Update Spare Parts Table

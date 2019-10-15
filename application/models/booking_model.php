@@ -627,7 +627,7 @@ class Booking_model extends CI_Model {
         JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
         JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
         LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-        WHERE booking_details.type = '"._247AROUND_FOLLOWUP."' $where
+        WHERE booking_details.current_status = '"._247AROUND_FOLLOWUP."' $where
         AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
                 booking_details.booking_date='') AND `booking_details`.current_status='$status'";
 	$query = $this->db->query($sql);
@@ -2243,7 +2243,7 @@ class Booking_model extends CI_Model {
             $this->db->where($like, null, false);
         }
 
-        if (!empty($post['order']) && isset($post['order_performed_on_count'])) {
+        if (!empty($post['column_order'][$post['order'][0]['column']]) && isset($post['order_performed_on_count'])) {
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
         } else {
             $this->db->order_by('closed_date','DESC');
@@ -2329,7 +2329,7 @@ class Booking_model extends CI_Model {
         $this->db->join('users', 'users.user_id = booking_details.user_id ');
         $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
-        $this->db->where('booking_details.type', _247AROUND_FOLLOWUP);
+        $this->db->where('booking_details.current_status', _247AROUND_FOLLOWUP);
         $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR booking_details.booking_date = '')",NULL);
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
