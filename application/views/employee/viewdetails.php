@@ -2530,6 +2530,8 @@ function OpenWindowWithPost(url, windowoption, name, params)
                                 'booking_id' : booking_id,
                                 'service_id' : "<?= $unit_detail['service_id']?>",
                                 'booking_create_date' : "<?= $unit_detail['create_date']?>",
+                                'in_warranty_period' : 12,
+                                'extended_warranty_period' : 0
                             }
                         },
                         success:function(response){
