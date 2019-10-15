@@ -338,7 +338,7 @@
                                                                         
                                                                         if (($price['product_or_services'] == "Product") && $price['customer_net_payable'] > 0) { 
                                                                            if(isset($price['en_service_charge'])){
-                                                                            $parts_cost_service_charge = $price['en_parts_cost'];
+                                                                            $parts_cost_service_charge = $price['en_service_charge'];
                                                                            }
                                                                         }
                                                                     }
