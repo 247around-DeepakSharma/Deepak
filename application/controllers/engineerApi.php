@@ -1193,7 +1193,7 @@ class engineerApi extends CI_Controller {
                         if(isset($value["existing_purchase_invoice"])){
                             if($value["existing_purchase_invoice"]){
                                $purchase_inv_url = $requestData['booking_id']."_" . $unit_id ."_purchase_inv_".date("YmdHis").".png";
-                               $this->miscelleneous->generate_image($value["existing_purchase_invoice"],$existing_purchase_inv_url, "misc-images");
+                               $this->miscelleneous->generate_image($value["existing_purchase_invoice"],$purchase_inv_url, "misc-images");
                             }
                         }
                     }
