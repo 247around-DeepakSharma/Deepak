@@ -2539,9 +2539,12 @@ class Booking extends CI_Controller {
         // this function is used to update booking details table
         if(!$this->input->post('service_center_closed_date')){
             //get engineer close date
-            $eng_status = $this->miscelleneous->update_eng_close_date($booking_id);
-            if(!$eng_status){
-               $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
+            $eng_booking = $this->engineer_model->getengineer_action_data("closed_date", array("booking_id" => $booking_id, "closed_date IS NOT NULL" => NULL));
+            if(!empty($eng_booking)){
+                $booking['service_center_closed_date'] = $eng_booking[0]['closed_date'];
+            }
+            else{ 
+                $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
             }
         }
         

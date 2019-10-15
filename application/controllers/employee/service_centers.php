@@ -657,12 +657,7 @@ class Service_centers extends CI_Controller {
                     $this->push_notification_lib->create_and_send_push_notiifcation(CUSTOMER_UPDATE_BOOKING_PUSH_NOTIFICATION_EMPLOYEE_TAG, $clouserAccountArray, $textArray);
                     //End Push Notification
                     $partner_id = $this->input->post("partner_id");
-                    if($this->input->post("en_closed_date")){ 
-                        $this->booking_model->update_booking($booking_id, array('service_center_closed_date' => $this->input->post("en_closed_date")));
-                    }
-                    else{
-                        $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
-                    }
+                    $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
                     
                     //End Update Service Center Closed Date
                     // Insert data into booking state change
@@ -1289,12 +1284,7 @@ class Service_centers extends CI_Controller {
                     $data['closed_date'] = date('Y-m-d H:i:s');
                     $data['update_date'] = date('Y-m-d H:i:s');
                     $this->vendor_model->update_service_center_action($booking_id, $data);
-                    if($this->input->post("en_closed_date")){ 
-                        $this->booking_model->update_booking($booking_id, array('service_center_closed_date' => $this->input->post("en_closed_date")));
-                    }
-                    else {
-                        $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
-                    }
+                    $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
                     
                     $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$booking_id));
                     if(!empty($engineer_action)){
