@@ -3555,7 +3555,7 @@ class Inventory extends CI_Controller {
 
                                     if (!empty($insert_courier_details)) {
                                         log_message('info', 'Courier Details added successfully.');
-                                        $request_type = '';
+                                        
                                         foreach ($parts_details as $value) {
                                             $request_type = trim($value['request_type']);
                                             if ($value['shippingStatus'] == 1) {
@@ -3601,7 +3601,7 @@ class Inventory extends CI_Controller {
                                                     $ledger_data['courier_id'] = $insert_courier_details;
                                                     $ledger_data['is_wh_micro'] = $is_wh_micro;
                                                     $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
-                                                    $ledger_data['request_type'] = $request_type;
+                                                    $ledger_data['request_type'] = trim($value['request_type']); 
                                                     $ledger_data['is_defective_part_return_wh'] = $is_defective_part_return_wh;
 
                                                     if ($insert_id) {
