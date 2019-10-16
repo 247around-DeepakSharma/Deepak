@@ -409,7 +409,7 @@ class service_centre_charges_model extends CI_Model {
         $query = $this->db->get();
         if ($query->num_rows() == 0) {
 
-        $this->db->insert('service_category_mapping', $app_data);
+        $this->db->insert_ignore('service_category_mapping', $app_data);
         return $this->db->insert_id();
         } else {
             return false;
