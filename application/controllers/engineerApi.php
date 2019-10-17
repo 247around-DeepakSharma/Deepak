@@ -394,6 +394,14 @@ class engineerApi extends CI_Controller {
                 $this->submitWarrantyCheckerAndEditCallType();
                 break;
             
+            case 'spareConsumptionData':
+                $this->getSpareConsumptionData();
+                break;
+            
+            case 'wrongSparePartsName':
+                $this->getWrongSparePartsName();
+                break;
+            
             case 'getBookingDetails':
                 $this->getBookingDetails();
                 break;
@@ -3312,6 +3320,54 @@ class engineerApi extends CI_Controller {
         else{
             log_message("info", __METHOD__ . "Request key missing - ".$missing_key);
             $this->sendJsonResponse(array("0057", "Request key missing - ".$missing_key));
+        }
+    }
+    
+    /*
+     *@Desc - This function is used to get data for showing spare consumption reason     
+     *@param - $booking_id
+     *@response - array
+     */
+    function getSpareConsumptionData(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if(!empty($requestData["booking_id"])){
+            $booking_id = $requestData['booking_id'];
+            $select = 'spare_parts_details.id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.status, spare_parts_details.quantity, inventory_master_list.part_number';
+            $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
+            $response['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',NULL, NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+            $this->jsonResponseString['response'] = $response;
+            $this->sendJsonResponse(array('0000', "Consumption data found successfully"));
+        }
+        else{
+            log_message("info", __METHOD__ . "Booking id missing");
+            $this->sendJsonResponse(array("0058", "Booking id missing"));
+        }
+    }
+    
+    /*
+     *@Desc - This function is used to get data for showing all parts of partner     
+     *@param - $service_id, $partner_id
+     *@response - array
+     */
+    function getWrongSparePartsName(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if(!empty($requestData["service_id"]) && !empty($requestData["partner_id"])){
+            $where = array("service_id" => $requestData["service_id"], "entity_type" =>_247AROUND_PARTNER_STRING, "entity_id" => $requestData["partner_id"], "inventory_id not in (1,2)" => NULL);
+            $response['wrong_part_list'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name', $where);
+            if(!empty($response['wrong_part_list'])){
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', "Parts founded successfully"));
+            }
+            else{
+                log_message("info", __METHOD__ . "Part list not found");
+                $this->sendJsonResponse(array("0059", "Part list not found"));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . "Service id or partner id missing");
+            $this->sendJsonResponse(array("0060", "Service id or partner id missing"));
         }
     }
 }
