@@ -561,6 +561,9 @@ span.stars span {
                 $("#spare_delivered_rescheduled"+key).css("display","none !important");
                 $("#spare_tomorrow"+key).css("display","none !important");
                 $("#spare_delivered_tomorrow"+key).css("display","none !important");
+                $("#spare_rescheduled"+key).css("display","none !important");
+                $("#spare_cost_given_rescheduled"+key).css("display","none !important");
+
                }
                //console.log(response);
 
@@ -585,6 +588,8 @@ span.stars span {
                 $("#spare_delivered_rescheduled"+key).css("display","none !important");
                 $("#spare_tomorrow"+key).css("display","none !important");
                 $("#spare_delivered_tomorrow"+key).css("display","none !important");
+                $("#spare_rescheduled"+key).css("display","none !important");
+                $("#spare_cost_given_rescheduled"+key).css("display","none !important");
                }
                
           }
@@ -606,6 +611,8 @@ span.stars span {
                 $("#spare_delivered_rescheduled"+key).css("display","none !important");
                 $("#spare_tomorrow"+key).css("display","none !important");
                 $("#spare_delivered_tomorrow"+key).css("display","none !important");
+                $("#spare_rescheduled"+key).css("display","none !important");
+                $("#spare_cost_given_rescheduled"+key).css("display","none !important");
                }
                //console.log(response);
 
@@ -623,12 +630,16 @@ span.stars span {
                    document.getElementById("rejected_from_review_"+ block+ key).src="<?php echo base_url();?>images/rejected_from_review.png";
                }  else {
                     
-                    $("#rejected_from_review_"+block + key).css("display", "none");
-                    $("#spare_delivered_rescheduled"+key).css("display","none !important");
+                   $("#rejected_from_review_"+block + key).css("display", "none");
+                   $("#spare_delivered_rescheduled"+key).css("display","none !important");
                    $("#spare_tomorrow"+key).css("display","none !important");
                    $("#spare_delivered_tomorrow"+key).css("display","none !important");
+                   $("#spare_rescheduled"+key).css("display","none !important");
+                   $("#spare_cost_given_rescheduled"+key).css("display","none !important");
                }
                //console.log(response);
+               
+               
 
           }
        });

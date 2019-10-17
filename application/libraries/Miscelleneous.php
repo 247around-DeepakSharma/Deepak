@@ -714,6 +714,7 @@ class Miscelleneous {
                                     $en['create_date'] = date('Y-m-d H:i:s');
                                     $en['internal_status'] = "Pending";
                                     $en['service_center_id'] = $data[0]['assigned_vendor_id'];
+                                    $en['engineer_id'] = $data[0]['assigned_engineer_id'];
                                     $en['booking_id'] = $booking_id;
                                     $en['unit_details_id'] = $value['id'];
 
