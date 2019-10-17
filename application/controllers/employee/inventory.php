@@ -5867,7 +5867,7 @@ class Inventory extends CI_Controller {
             $post['where']['appliance_model_details.service_id'] = $this->input->post('service_id');
         }
 
-        $select = "appliance_model_details.*,services.services,partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity,partner_appliance_details.active";
+        $select = "appliance_model_details.*,appliance_model_details.active as amd_active,services.services,partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity,partner_appliance_details.active";
         $list = $this->inventory_model->get_appliance_model_list($post, $select);
         $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name", array('partners.is_active' => 1)), 'public_name', 'id');
         $data = array();
