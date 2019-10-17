@@ -651,6 +651,7 @@ class File_upload extends CI_Controller {
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post_json);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
             $response1 = curl_exec($ch);
+            print_r($response1);
             curl_close($ch);
         }
 
