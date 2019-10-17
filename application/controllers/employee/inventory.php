@@ -2813,6 +2813,7 @@ class Inventory extends CI_Controller {
     private function get_inventory_stock_total($inventory){
         $res = array();
         $res['stocks'] = (isset($inventory->stock))?$inventory->stock:0;
+        $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
 
         if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
             $repair_oow_around_percentage_vendor = $inventory->oow_around_margin / 100;
@@ -2823,7 +2824,7 @@ class Inventory extends CI_Controller {
         if ($this->session->userdata('userType') == 'service_center') {
             $repair_oow_around_percentage_vendor1 = $inventory->oow_vendor_margin / 100;
             $totalpriceforsf = number_format((float) (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) + (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) * ($inventory->gst_rate / 100))), 2, '.', '');
-            $res['customerTotal'] = $inventory->inventory_id . '">' . number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '');
+            $res['customerTotal'] = number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '');
         } else {
             $totalpricepartner = (float) ($inventory->price + ($inventory->price * ($inventory->gst_rate / 100)));
             $repair_oow_around_percentage_vendor2 = $inventory->oow_vendor_margin + $inventory->oow_around_margin;
