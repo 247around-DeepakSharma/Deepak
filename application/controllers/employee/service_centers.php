@@ -676,12 +676,7 @@ class Service_centers extends CI_Controller {
                     $this->push_notification_lib->create_and_send_push_notiifcation(CUSTOMER_UPDATE_BOOKING_PUSH_NOTIFICATION_EMPLOYEE_TAG, $clouserAccountArray, $textArray);
                     //End Push Notification
                     $partner_id = $this->input->post("partner_id");
-                    if($this->input->post("en_closed_date")){ 
-                        $this->booking_model->update_booking($booking_id, array('service_center_closed_date' => $this->input->post("en_closed_date")));
-                    }
-                    else{
-                        $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
-                    }
+                    $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
                     
                     //End Update Service Center Closed Date
                     // Insert data into booking state change
@@ -1313,12 +1308,7 @@ class Service_centers extends CI_Controller {
                     $data['closed_date'] = date('Y-m-d H:i:s');
                     $data['update_date'] = date('Y-m-d H:i:s');
                     $this->vendor_model->update_service_center_action($booking_id, $data);
-                    if($this->input->post("en_closed_date")){ 
-                        $this->booking_model->update_booking($booking_id, array('service_center_closed_date' => $this->input->post("en_closed_date")));
-                    }
-                    else {
-                        $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
-                    }
+                    $this->miscelleneous->pull_service_centre_close_date($booking_id,$partner_id);
                     
                     $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$booking_id));
                     if(!empty($engineer_action)){
@@ -3767,13 +3757,13 @@ class Service_centers extends CI_Controller {
      */
     
       function generate_sf_challan($generate_challan) {
-
+                                  
         $delivery_challan_file_name_array = array();
-
+       
         foreach ($generate_challan as $key => $value) {
             if (!empty($generate_challan)) {
                 $post = array();
-                $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED, 'spare_parts_details.entity_type' => _247AROUND_SF_STRING);
+                $post['where_in'] = array('spare_parts_details.booking_id' => $value, 'spare_parts_details.status' => SPARE_PARTS_REQUESTED);
                 $post['is_inventory'] = true;
                 $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
                 $part_details = $this->partner_model->get_spare_parts_by_any($select, array(), true, false, false, $post);
@@ -3839,6 +3829,12 @@ class Service_centers extends CI_Controller {
                     if (!empty($data['partner_challan_file'])) {
                         if (!empty($spare_details)) {
                             foreach ($spare_details as $val) {
+                                if ($this->session->userdata("userType") == "service_center") {
+                                    $data['spare_parts_details.entity_type'] = _247AROUND_SF_STRING;
+                                    $data['spare_parts_details.partner_id'] = $this->session->userdata("service_center_id");
+                                    $data['spare_parts_details.defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                                    $data['spare_parts_details.defective_return_to_entity_id'] = $this->session->userdata("service_center_id");
+                                }
                                 $this->service_centers_model->update_spare_parts(array('id' => $val[0]['spare_id']), $data);
                             }
                         }
@@ -6338,7 +6334,7 @@ class Service_centers extends CI_Controller {
         $booking_manifest = $this->input->post('download_courier_manifest');
         $declaration_detail = $this->input->post('coueriers_declaration');
         $generate_challan = $this->input->post('generate_challan');
-                
+        
         if (!empty($booking_address)) {
 
             $this->download_shippment_address($booking_address);

@@ -234,9 +234,10 @@ if ($this->uri->segment(3)) {
         swal("Not able to download GST declaration", "GST/Signature file file not available .");
     })  ;
 
-$("#on_partner1").DataTable({
+$("#on_partner").DataTable({
     "pageLength": 500,
     "lengthMenu": [[500, 1000,2000,5000,-1], [500, 1000,2000,5000, "All"]],
+    
 });
 
     function downloadList(){

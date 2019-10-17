@@ -242,6 +242,7 @@ class ApiDataRequest extends CI_Controller {
                 $data['status'] = SPARE_OOW_EST_GIVEN;
                 $data['purchase_price'] = $estimate_cost;
                 $data['sell_price'] = ($estimate_cost + $estimate_cost * $spare_oow_est_margin );
+                $data['challan_approx_value'] = ($estimate_cost + $estimate_cost * $spare_oow_est_margin );
                 $data['estimate_cost_given_date'] = date('Y-m-d');
                 $data['invoice_gst_rate'] = $gst_rate;
                 //Update Spare Parts Table
@@ -298,6 +299,10 @@ class ApiDataRequest extends CI_Controller {
 
                     $isEn = $this->vendor_model->getVendorDetails("isEngineerApp", array("id" => $vendor_id));
                     if ($isEn[0]['isEngineerApp'] == 1) {
+                        $eng_detail = $this->booking_model->get_booking_details("assigned_engineer_id", array("booking_id"=>$booking_id));
+                        if(!empty($eng_detail)){
+                            $en['engineer_id'] = $eng_detail[0]['assigned_engineer_id'];
+                        }
                         $en['current_status'] = _247AROUND_PENDING;
                         $en['create_date'] = date('Y-m-d H:i:s');
                         $en['internal_status'] = _247AROUND_PENDING;
