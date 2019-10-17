@@ -148,14 +148,12 @@
                 partner_id: '<?php echo _247AROUND; ?>', 'sp_id':spare_id,requestType:'UPDATE_OOW_EST', gst_rate: '<?php echo DEFAULT_TAX_RATE;?>'},
                 url: "<?php echo base_url() ?>apiDataRequest",
                 success: function (data) {
-                    
-                    if(data === 'Success'){
+                    if(data.includes('Success')){
                         oow_spare.ajax.reload(null, false);
                         swal("Thanks!", "Booking updated successfully!", "success");
                    
                     } else {
-                        swal("Oops", "There is some problem, please contact 247Around Team", "error");
-                        
+                        swal("Oops", "There is some problem, please contact Admin", "error");                        
                     }
                     $('body').loadingModal('destroy');
                 }
