@@ -811,6 +811,7 @@
             
     $('#purchase_date').on('apply.daterangepicker', function(ev, picker) {
         $(this).val(picker.startDate.format('YYYY-MM-DD'));
+        check_booking_request();
     });
     
     $('#purchase_date').on('cancel.daterangepicker', function(ev, picker) {
@@ -1658,7 +1659,7 @@
         });
         $("#submitform").attr("disabled", false);
         $('.errorMsg').html("");
-        if(model_number !== "" && model_number !== null && model_number !== undefined && dop !== "" && booking_request_types.length > 0){                               
+        if(dop !== "" && booking_request_types.length > 0){                               
             $.ajax({
                 method:'POST',
                 url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2",
