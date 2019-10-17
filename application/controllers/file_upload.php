@@ -116,8 +116,7 @@ class File_upload extends CI_Controller {
                     if (isset($response['status']) && ($response['status'])) {
                         $redirect_to = $response['redirect_to'];
                         $this->session->set_flashdata('details',$response['message']); 
-                        print_r($response);  exit;
-                      //  redirect(base_url() . $redirect_to);
+                        redirect(base_url() . $redirect_to);
                     }
                 } else {
                     //redirect to upload page
