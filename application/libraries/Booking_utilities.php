@@ -175,7 +175,7 @@ class Booking_utilities {
         log_message('info', __FUNCTION__ . " => Entering, Booking ID: " . $booking_id);
         $booking_details = $this->My_CI->booking_model->getbooking_history($booking_id, "join");
         $booking_symptom = $this->My_CI->booking_model->getBookingSymptom($booking_id);
-        if (!empty($booking_details)) {
+        if (!empty($booking_details[0])) {
             $saas_flag = $this->check_feature_enable_or_not(PARTNER_ON_SAAS);
             if($saas_flag){
                $qr = false; 
