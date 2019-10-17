@@ -1241,7 +1241,11 @@ class File_upload extends CI_Controller {
                     } else {
                         log_message("info", __METHOD__ . " error in creating mapping.");
                         $response['status'] = FALSE;
-                        $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
+                        if(!empty($data['saas_module'])){
+                           $response['message'] = "Either mapping already exists or something gone wrong. Please contact to backend team.";
+                        } else {
+                          $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";  
+                        }
                     }
                 } else {
                     $response['status'] = True;
