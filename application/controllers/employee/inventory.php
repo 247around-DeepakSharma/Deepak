@@ -3352,7 +3352,6 @@ class Inventory extends CI_Controller {
         $from_gst_number = $this->input->post("from_gst_number");
         $to_gst_number = $this->input->post("to_gst_number");
         $req = TRUE;
-		print_r($_POST);  exit;
         if (!empty($partner_id) && !empty($invoice_dated) && !empty($wh_id) && !empty($awb_number) && !empty($courier_name)) {
             if ($transfered_by == MSL_TRANSFERED_BY_PARTNER && (empty($invoice_id) || empty($invoice_amount))) {
                 $req = FALSE;
