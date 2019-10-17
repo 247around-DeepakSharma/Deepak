@@ -305,9 +305,10 @@ class Service_centers_model extends CI_Model {
                 . $where_sc . $where_in
                 . " AND sc.internal_status IN ('Cancelled','Completed') "
                 . " AND booking_details.is_in_process = 0"
-                . " $groupBy  $orderBY $having $limit";
+                . " $groupBy  $orderBY $having ";
         $query = $this->db->query($sql);
         $booking = $query->result_array();
+//        echo $this->db->last_query();exit;
          return $booking;
     }
 
