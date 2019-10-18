@@ -192,7 +192,7 @@
                                     <label for="shipment_date" class="col-md-4">Shipment Date *</label>
                                     <div class="col-md-6">
                                         <div class="input-group input-append date">
-                                            <input id="defective_part_shipped_date" class="form-control" name="defective_part_shipped_date" type="text" value="2019-07-03" required="" readonly="true" style="background-color:#fff;pointer-events:cursor">
+                                            <input id="defective_part_shipped_date" class="form-control" name="defective_part_shipped_date" type="text" value="<?php echo date("Y-m-d", strtotime("+0 day")); ?>" required="" readonly="true" style="background-color:#fff;pointer-events:cursor">
                                             <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                         </div>
                                     </div>
@@ -273,7 +273,14 @@
         autoUpdateInput: false,
         singleDatePicker: true,
         showDropdowns: true,
-        minDate: false,
+        minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 2);
+            return yesterday;
+        }(),
+        maxDate: new Date(),
+        setDate: new Date(),
         locale: {
             format: 'YYYY-MM-DD'
         }
