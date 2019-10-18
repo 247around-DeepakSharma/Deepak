@@ -1182,7 +1182,7 @@ class invoices_model extends CI_Model {
                     sc.address as company_address, sc.owner_phone_1 as owner_phone_1,
                     sc.state, gst_no as gst_number
                     
-                    FROM brackets,service_centres as sc  WHERE brackets.received_date >= "' . $from_date . '" 
+                    FROM brackets,service_centres as sc  WHERE brackets.received_date >= "' . date('Y-m-d', strtotime($from_date)) . '" 
                     AND brackets.received_date <= "' . $to_date . '" AND brackets.is_received= "1" 
                     AND brackets.order_received_from = "' . $vendor_id . '" 
                     AND invoice_id IS NULL
