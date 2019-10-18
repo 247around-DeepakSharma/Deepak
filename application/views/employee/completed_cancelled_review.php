@@ -249,7 +249,30 @@
             
          </div>
       </div>
+<div class = 'msg_holder' style="float:left;"> <?php echo "<p>Showing ".(($initial_offset)+1)." to ". ($offset)." of ".$total_rows." entries</p>"; ?></div>
+<div class="link_holder" style="float:right;">
+ <?php
 
+             if($is_partner){
+                 $tab = "#tabs-4";
+             }
+             else{
+                    $tab = "#tabs-3";
+                    if($review_status == "Completed"){
+                        $tab = "#tabs-2";
+                    }
+                    else if($review_status == "Completed_By_SF"){
+                        $tab = "#tabs-5";
+                    }
+             }
+             for($i=0;$i<=$total_pages;$i++){
+                 $offset = $per_page*$i;
+                 ?>
+    <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $review_status?>/<?php echo $offset;?>/<?php echo $is_partner; ?>/0/<?php echo $cancellation_reason_selected; ?>/<?php echo $partner_selected;?>/<?php echo $state_selected; ?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
+                 <?php
+             }
+             ?>
+                 </div>
 
    <div id="myModal2" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -273,22 +296,7 @@
       </div>
    </div>
 
-<style>
-    #completed_cancelled_review_table_filter {
-        display: none;
-    }
-    
-    .pagination{
-        float:right;
-    }
-</style>
 <script>
-    
-    $('#completed_cancelled_review_table').DataTable({
-        "pageLength": 100,
-        lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
-    });
-    
     $('#cancellation_reason_<?php echo $is_partner; ?>').select2({
        placeholder: 'Cancellation Reason'
     }); 
