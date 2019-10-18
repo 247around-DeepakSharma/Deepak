@@ -5287,11 +5287,9 @@ function do_multiple_spare_shipping(){
                         $is_warehouse = TRUE;
                     }
 
-print_r($partner_details);  exit;
                     if (!empty($is_warehouse)) {
 
                         $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);
-                        print_r($warehouse_details); exit;
                         if (!empty($warehouse_details) && $warehouse_details['stock'] >= $spare_data['quantity']) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
@@ -5416,7 +5414,7 @@ print_r($partner_details);  exit;
         } else {
             if(!$this->input->post("call_from_api")){
                 $this->session->set_userdata($userSession);
-          //      redirect(base_url() . "service_center/pending_booking");
+               redirect(base_url() . "service_center/pending_booking");
             }
         }
     }
