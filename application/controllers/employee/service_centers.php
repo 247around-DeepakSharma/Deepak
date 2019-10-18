@@ -5327,7 +5327,6 @@ function do_multiple_spare_shipping(){
                         $is_micro_wh = 0;
                     }
 
-
                     if ($entity_type == _247AROUND_SF_STRING) {
                         if ($is_micro_wh == 1) {
                             $actor = "vendor";
@@ -5361,7 +5360,9 @@ function do_multiple_spare_shipping(){
                          $spare_data['date_of_request'] = $data['date_of_request'];
                          $spare_data['requested_inventory_id'] = $data['requested_inventory_id'];
                          array_push($delivered_sp, $spare_data);
+ 
                          //$delivered_sp[] = $spare_data;
+ 
                          $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                          unset($data['spare_id']);
                         } else if ($is_micro_wh == 2) {
@@ -5372,13 +5373,15 @@ function do_multiple_spare_shipping(){
                             $sc['internal_status'] = SPARE_PARTS_REQUIRED;
                             $status = SPARE_PARTS_REQUESTED;
                             $data['status'] = $status;
+ 
                             $data['date_of_request'] = date('Y-m-d');						
+ 
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), $data);
 
                             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$spare_data['quantity']);
                         }
                     } else {
-      
+ 
                         log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);
                         $actor = "partner";
                         $next_action = "Send OOW Part";
