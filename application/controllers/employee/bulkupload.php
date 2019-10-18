@@ -281,7 +281,8 @@ class Bulkupload extends CI_Controller {
                     $arr_parts = array_flip($arr_parts);
 
                     // Store all Products data in Array
-                    $arr_services = ["AC Service" => "1","Washing Machine" => "28","Geyser" => "32","Refrigerator" => "37","Water Purifier" => "38","Microwave" => "42","Chimney" => "44","Audio System" => "45","Television" => "46","Air Conditioner" => "50","Other" => "52","Air Cooler" => "53","Mobile" => "54","SHA" => "55","Smart Speaker" => "56","Handled Devices" => "57","Air Purifier" => "58","Gas Stove" => "59","Stabilizer" => "60","Mosquito Racquet" => "61"];
+                    $arr_services = $this->reusable_model->get_search_result_data('services', 'services,id', NULL, NULL, NULL, NULL, NULL, NULL);
+                    $arr_services = array_column($arr_services, 'id', 'services');
                     // apply loop for validation.
                     for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                         $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
