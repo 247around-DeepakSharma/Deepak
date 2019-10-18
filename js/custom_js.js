@@ -465,7 +465,7 @@ function addBookingDialog(chanel = '') {
                 }
                 if(orderIDSplitLength === 2){
                     secondPartNumaricValidation = /^\d+$/.test(orderIDSplitArray[1]);
-                    if(orderIDSplitArray[1].length >= 10){
+                    if(orderIDSplitArray[1].length < 10){
                         secondPartLengthValidation = false;
                     }
                 }
