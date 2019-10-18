@@ -381,6 +381,8 @@ class ApiDataRequest extends CI_Controller {
 
             //execute post
             $result = curl_exec($ch);
+
+            print_r($result);  exit;
             //close connection
             curl_close($ch);
             
