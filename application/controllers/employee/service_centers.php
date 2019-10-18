@@ -5287,6 +5287,7 @@ function do_multiple_spare_shipping(){
                         $is_warehouse = TRUE;
                     }
 
+print_r($partner_details);  exit;
                     if (!empty($is_warehouse)) {
 
                         $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);
