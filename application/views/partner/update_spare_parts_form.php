@@ -148,7 +148,7 @@
                                             </select>
                                             <input type="hidden" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]">
                                         </div>
-                                        <?php } else if(isset($appliance_model_details) && !empty($appliance_model_details)){ ?>
+                                        <?php } else if(isset($appliance_model_details) && !empty($appliance_model_details)){         echo 'testing'; ?>
                                             <div class="col-md-7">
                                             <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $key;?>')" id="<?php echo "shippedmodelnumberid_".$key;?>" name="part[<?php echo $key; ?>][shipped_model_number_id]" required="">
                                                 <option value="" disabled="" selected="">Select Model Number</option>
@@ -948,7 +948,7 @@
                 .find('[id="inventoryid"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','inventoryid_'+partIndex).end()
                 .find('[id="shippedmodelnumber"]').attr('name', 'part[' + partIndex + '][shipped_model_number]').attr('id','shippedmodelnumber_'+partIndex).end()
                 .find('[id="shippedpartsname"]').attr('name', 'part[' + partIndex + '][shipped_parts_name]').data("key",partIndex).attr('id','shippedpartsname_'+partIndex).attr("required", true).end()
-                .find('[id="shippedparttype"]').attr('name', 'part[' + partIndex + '][shipped_part_type]').attr('id','shippedparttype_'+partIndex).attr("required", true).end()
+                .find('[id="shippedparttype"]').attr('name', 'part[' + partIndex + '][shipped_part_type]').attr('id','shippedparttype_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
                 .find('[id="remarks"]').attr('name', 'part[' + partIndex + '][remarks_by_partner]').attr('id','remarks_'+partIndex).end()
                 .find('[id="approx_value"]').attr('name', 'part[' + partIndex + '][approx_value]').attr('id','approx_value_'+partIndex).end()
                 .find('[id="inventory_id"]').attr('name', 'part[' + partIndex + '][inventory_id]').attr('id','inventory_id_'+partIndex).end()
@@ -1006,15 +1006,15 @@
         }
         
         $("#courier_not_shipping").on('click',function(){
-            $("#invoice_id_0,#hsn_code_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
+            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
         });
         
         $("#courier_shipping").on('click',function(){
-            $("#invoice_id_0,#hsn_code_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
+            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', false);
         });
         
         $("#to_be_shipping").on('click',function(){
-            $("#invoice_id_0,#hsn_code_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
+            $("#invoice_id_0,#hsn_code_0,#shippedpart_type_0,#invoiceamount_0,#remarks_0,#gst_rate_0,#incominginvoice_0,#shippedparttype_0,#shippedpartsname_0,#shippedmodelnumberid_0").prop('disabled', true);
         });
         
         
@@ -1083,6 +1083,12 @@
 </script>
 <?php } ?>
 
+<?php if(isset($appliance_model_details) && !empty($appliance_model_details)){  ?>
+    <script>
+        $("#shippedmodelnumberid_0").select2();
+    </script> 
+<?php } ?>
+
  <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
         <?php foreach($spare_parts as $ssKey => $sp) { ?>
          <script> 
@@ -1114,7 +1120,11 @@
             for(i=0; i < section_length; i++){
                 $("#shippedpart_type_"+i).html(data);
             }
-           $('#shippedpart_type_0 option[value="<?php echo (isset($spare_parts[0]->parts_requested) ? strtoupper($spare_parts[0]->parts_requested) : '') ?>"]').attr('selected','selected');                
+           $('#shippedpart_type_0 option[value="<?php echo (isset($spare_parts[0]->parts_requested_type) ? $spare_parts[0]->parts_requested_type : '') ?>"]').attr('selected','selected');   
+           $('#shippedpart_type_0').select2({
+             placeholder:'Select Part Type',
+             allowClear:true
+           });
        }
     });
     } 
