@@ -5416,7 +5416,7 @@ print_r($partner_details);  exit;
         } else {
             if(!$this->input->post("call_from_api")){
                 $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center/pending_booking");
+          //      redirect(base_url() . "service_center/pending_booking");
             }
         }
     }
