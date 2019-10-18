@@ -1161,7 +1161,7 @@ class File_upload extends CI_Controller {
         $partner_id = trim($this->input->post('partner_id'));
         $flag = false;
         if ($partner_id) {
-            $model_details = $this->inventory_model->get_appliance_model_details('id,model_number', array('entity_id' => trim($this->input->post('partner_id')), 'entity_type' => _247AROUND_PARTNER_STRING, 'active' => 1));
+            $model_details = $this->inventory_model->get_appliance_model_details('id,model_number', array('entity_id' => trim($this->input->post('partner_id')), 'entity_type' => _247AROUND_PARTNER_STRING,"appliance_model_details.active" => 1));
             $part_number_details = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_number', array('entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING));
 
             $model = array();
@@ -1241,7 +1241,11 @@ class File_upload extends CI_Controller {
                     } else {
                         log_message("info", __METHOD__ . " error in creating mapping.");
                         $response['status'] = FALSE;
-                        $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";
+                        if(!empty($data['saas_module'])){
+                           $response['message'] = "Either mapping already exists or something gone wrong. Please contact to backend team.";
+                        } else {
+                          $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";  
+                        }
                     }
                 } else {
                     $response['status'] = True;

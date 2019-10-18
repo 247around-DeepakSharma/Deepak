@@ -9,6 +9,7 @@
         <b>Booking ID</b>
     </div>    
     <div class="col-md-9">
+        <input type="hidden" name="service" id="service" value="<?php echo $service_id;?>">
         <input type="text" class="form-control" name="booking_id" value="<?php echo $booking_id; ?>" readonly="readonly">
     </div>    
 </div>
@@ -30,7 +31,16 @@
         <?php } ?>
     </div>    
 </div>
-
+<?php if(!empty($shipped_inventory_id)) { ?>
+    <div class="row form-group">
+        <div class="col-md-3">
+            <b>Part Number</b>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="part_number" name="wrong-part-number" width="100%" readonly="readonly"> 
+        </div>
+    </div>
+<?php } ?>
 <div class="row form-group">
     <div class="col-md-3">
         <b>Remarks <span style="color:red;">*</span></b>

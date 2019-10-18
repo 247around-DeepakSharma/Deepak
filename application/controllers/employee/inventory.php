@@ -2772,7 +2772,9 @@ class Inventory extends CI_Controller {
                 $rowSums['colData'][11] += $tSum['customerTotal'];
                 $rowSums["colCount"] = (count($row)>$rowSums['colCount'])?count($row):$rowSums["colCount"];
             }
-            $data[] = $this->draw_table_footer($rowSums);
+            if(count($data)>0){
+                $data[] = $this->draw_table_footer($rowSums);
+            }
             $post['length'] = -1;
             $countlist = $this->inventory_model->get_inventory_stock_list($post, "sum(inventory_stocks.stock) as stock");
 
@@ -2811,6 +2813,7 @@ class Inventory extends CI_Controller {
     private function get_inventory_stock_total($inventory){
         $res = array();
         $res['stocks'] = (isset($inventory->stock))?$inventory->stock:0;
+        $repair_oow_around_percentage = REPAIR_OOW_AROUND_PERCENTAGE;
 
         if ($this->session->userdata('userType') == 'service_center' || $this->session->userdata('userType') == "employee") {
             $repair_oow_around_percentage_vendor = $inventory->oow_around_margin / 100;
@@ -2821,7 +2824,7 @@ class Inventory extends CI_Controller {
         if ($this->session->userdata('userType') == 'service_center') {
             $repair_oow_around_percentage_vendor1 = $inventory->oow_vendor_margin / 100;
             $totalpriceforsf = number_format((float) (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) + (round($inventory->price * ( 1 + $repair_oow_around_percentage_vendor1), 0) * ($inventory->gst_rate / 100))), 2, '.', '');
-            $res['customerTotal'] = $inventory->inventory_id . '">' . number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '');
+            $res['customerTotal'] = number_format((float) (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) + (round($totalpriceforsf * ( 1 + $repair_oow_around_percentage), 0) * ($repair_oow_around_percentage / 100))), 2, '.', '');
         } else {
             $totalpricepartner = (float) ($inventory->price + ($inventory->price * ($inventory->gst_rate / 100)));
             $repair_oow_around_percentage_vendor2 = $inventory->oow_vendor_margin + $inventory->oow_around_margin;
@@ -5865,7 +5868,7 @@ class Inventory extends CI_Controller {
             $post['where']['appliance_model_details.service_id'] = $this->input->post('service_id');
         }
 
-        $select = "appliance_model_details.*,services.services,partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity,partner_appliance_details.active";
+        $select = "appliance_model_details.*,appliance_model_details.active as amd_active,services.services,partner_appliance_details.brand, partner_appliance_details.category, partner_appliance_details.capacity,partner_appliance_details.active";
         $list = $this->inventory_model->get_appliance_model_list($post, $select);
         $partners = array_column($this->partner_model->getpartner_details("partners.id,public_name", array('partners.is_active' => 1)), 'public_name', 'id');
         $data = array();
