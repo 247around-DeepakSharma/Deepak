@@ -5477,7 +5477,7 @@ class vendor extends CI_Controller {
         //Sending Welcome Vendor Mail
         //Getting template from Database
         $template = $this->booking_model->get_booking_email_template("new_vendor_creation");
-        if (!empty($template)) {
+        if (!empty($template) && !empty($this->input->post('company_name')) && !empty($this->input->post('district'))) {
             $subject = "Welcome to 247around ".$this->input->post('company_name')." (".$this->input->post('district').")";
             $emailBody = $template[0];
             $this->notify->sendEmail($template[2], $new_vendor_mail, $template[3].",".$rm_official_email, '', $subject, $emailBody, "",'new_vendor_creation');

@@ -211,7 +211,14 @@
         autoUpdateInput: false,
         singleDatePicker: true,
         showDropdowns: true,
-        minDate: false,
+        minDate: function(){
+            var today = new Date();
+            var yesterday = new Date();
+            yesterday.setDate(today.getDate() - 2);
+            return yesterday;
+        }(),
+        maxDate: new Date(),
+        setDate: new Date(),
         locale: {
             format: 'YYYY-MM-DD'
         }

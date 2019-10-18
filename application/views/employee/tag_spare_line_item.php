@@ -237,6 +237,7 @@
                             <input type="hidden" id="onspareType"  />
                             <input type="hidden" value="" id="onrequestedInventoryId" />
                             <input type="hidden" value="" id="oninventoryId" />
+                            <input type="hidden" value="<?php echo $value['request_type']; ?>" id="request_type" />
                             <input type="hidden" value="new_spare_id" id="onspareID"  />
                             <div class="form-group">
                                 <label for="ontotal_amount" class="col-md-4">Total Amount</label>
