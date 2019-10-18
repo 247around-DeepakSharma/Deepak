@@ -364,7 +364,7 @@ class ApiDataRequest extends CI_Controller {
         $access = $this->partner_model->get_partner_permission(array('partner_id' => $partner_id, 
             'permission_type' => AUTO_APPROVED_OOW_CHARGES_ON_BEHALF_CUSTOMER, 'is_on' => 1));
         
-        if(!empty($access)){
+        if(TRUE){
             $url = base_url().'employee/service_centers/approve_oow/'.$booking_id;
             $fields = array();
 
