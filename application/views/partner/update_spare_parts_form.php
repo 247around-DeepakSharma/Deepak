@@ -992,7 +992,7 @@
             var check_val  = $(this).val();
             if(check_val !='' && check_val == 1){
              flag = true;
-             break;
+             return false;
             }
             });
 
