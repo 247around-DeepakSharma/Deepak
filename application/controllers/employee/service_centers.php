@@ -5329,6 +5329,7 @@ class Service_centers extends CI_Controller {
                     . "spare_parts_details.shipped_inventory_id";
 
             $sp_data = $this->inventory_model->get_spare_parts_query($req);
+
        
             if ($this->session->userdata('service_center_id')) {
                 $agent_id = $this->session->userdata('service_center_agent_id');
@@ -5354,6 +5355,7 @@ class Service_centers extends CI_Controller {
                 foreach ($sp_data as $key => $value) {
                                       
                     $spare_data = array();
+                    $delivered_sp=array();
                     $spare_data['model_number'] = $value->model_number;
                     $spare_data['parts_requested'] = $value->parts_requested;
                     $spare_data['parts_requested_type'] = $value->parts_requested_type;
@@ -5370,6 +5372,7 @@ class Service_centers extends CI_Controller {
                     $data = array();
                     $entity_type = $value->entity_type;
                     $is_micro_wh = $value->is_micro_wh;
+                    $spare_id=$value->id;
                     $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
                     $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $service_center_id));
 
@@ -5422,7 +5425,6 @@ class Service_centers extends CI_Controller {
                         $is_micro_wh = 0;
                     }
 
-
                     if ($entity_type == _247AROUND_SF_STRING) {
                         if ($is_micro_wh == 1) {
                             $actor = "vendor";
@@ -5457,6 +5459,7 @@ class Service_centers extends CI_Controller {
                          $spare_data['date_of_request'] = $data['date_of_request'];
                          $spare_data['requested_inventory_id'] = $data['requested_inventory_id'];
                          array_push($delivered_sp, $spare_data);
+						 //$delivered_sp[] = $spare_data;
                          $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                          unset($data['spare_id']);
                         } else if ($is_micro_wh == 2) {
@@ -5467,13 +5470,13 @@ class Service_centers extends CI_Controller {
                             $sc['internal_status'] = SPARE_PARTS_REQUIRED;
                             $status = SPARE_PARTS_REQUESTED;
                             $data['status'] = $status;
-                            $data['date_of_request'] = date('Y-m-d');
-                                                                     
+                            $data['date_of_request'] = date('Y-m-d');                                     
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), $data);
 
                             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$spare_data['quantity']);
                         }
                     } else {
+						
                         log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);
                         $actor = "partner";
                         $next_action = "Send OOW Part";
