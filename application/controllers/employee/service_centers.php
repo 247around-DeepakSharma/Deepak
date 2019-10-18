@@ -5286,10 +5286,13 @@ function do_multiple_spare_shipping(){
                     } else if (!empty($partner_details[0]['is_micro_wh'])) {
                         $is_warehouse = TRUE;
                     }
-
+print_r($partner_details);
                     if (!empty($is_warehouse)) {
 
                         $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);
+						
+						print_r($warehouse_details);  exit;
+						
                         if (!empty($warehouse_details) && $warehouse_details['stock'] >= $spare_data['quantity']) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
@@ -5325,7 +5328,7 @@ function do_multiple_spare_shipping(){
                         $entity_type = _247AROUND_PARTNER_STRING;
                         $is_micro_wh = 0;
                     }
-
+print_r($data);  exit;
                     if ($entity_type == _247AROUND_SF_STRING) {
                         if ($is_micro_wh == 1) {
                             $actor = "vendor";
