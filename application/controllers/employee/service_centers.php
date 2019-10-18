@@ -5327,6 +5327,7 @@ function do_multiple_spare_shipping(){
                         $is_micro_wh = 0;
                     }
 
+
                     if ($entity_type == _247AROUND_SF_STRING) {
                         if ($is_micro_wh == 1) {
                             $actor = "vendor";
@@ -5347,7 +5348,7 @@ function do_multiple_spare_shipping(){
                             $data['shipped_quantity'] = $data['quantity'];
 
                             $flag = false;
-
+echo "micri"; exit;
                             $this->notify->insert_state_change($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, ESTIMATE_APPROVED_BY_CUSTOMER, ESTIMATE_APPROVED_BY_CUSTOMER, $agent_id, $agent_name, $actor, $next_action, $l_partner, $service_center_id);
 
                             $where = array('id' => $value->id);
@@ -5372,13 +5373,14 @@ function do_multiple_spare_shipping(){
                             $sc['internal_status'] = SPARE_PARTS_REQUIRED;
                             $status = SPARE_PARTS_REQUESTED;
                             $data['status'] = $status;
-                            $data['date_of_request'] = date('Y-m-d');                                     
+                            $data['date_of_request'] = date('Y-m-d');
+echo "warehouse"; exit;							
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), $data);
 
                             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$spare_data['quantity']);
                         }
                     } else {
-                        
+                        echo "partner"; exit;
                         log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);
                         $actor = "partner";
                         $next_action = "Send OOW Part";
@@ -5390,7 +5392,7 @@ function do_multiple_spare_shipping(){
                         $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("status" => $status, 'date_of_request' => date('Y-m-d')));
                     }
 
-
+print_r($data);  exit;
                     // UPDATE SC Action Table                    
                     if ($flag == TRUE) {
                         $this->notify->insert_state_change($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, ESTIMATE_APPROVED_BY_CUSTOMER, ESTIMATE_APPROVED_BY_CUSTOMER, $agent_id, $agent_name, $actor, $next_action, $l_partner, $service_center_id);
