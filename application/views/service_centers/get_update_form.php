@@ -643,11 +643,16 @@ function alpha(e) {
                         html += "</select>";
                         html += "<input type='hidden' id='model_number' name='model_number'>";
                         $("#appliance_model_div").html(html);
+                        $('#model_number_id').select2();
                         var model_number = "<?php echo $unit_model_number; ?>";
                         $('#model_number_id option').map(function() {
-                        if ($(this).text() == model_number) return this;
-                        }).attr('selected', 'selected');
-                         $('#model_number_id').select2();
+                        if ($(this).text() == model_number){
+                            var model_no = $(this).val();
+                            $("#model_number_id").val(model_no).change();
+                        }                            
+                        });
+                         
+                        var model_id = $( "#model_number_id option:selected" ).val();
                         $(".select2-container--default").css('width','100%');
                 }
             }
