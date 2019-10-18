@@ -461,12 +461,12 @@ function addBookingDialog(chanel = '') {
                 orderIDSplitArray = $("#order_id").val().split("-");
                 orderIDSplitLength = orderIDSplitArray.length;
                 firstPartNumaricValidation = /^\d+$/.test(orderIDSplitArray[0]);
-                if(orderIDSplitArray[0].length === 10){
+                if(orderIDSplitArray[0].length >= 10){
                     firstPartLengthValidation = true;
                 }
                 if(orderIDSplitLength === 2){
                     secondPartNumaricValidation = /^\d+$/.test(orderIDSplitArray[1]);
-                    if(orderIDSplitArray[1].length != 10){
+                    if(orderIDSplitArray[1].length < 10){
                         secondPartLengthValidation = false;
                     }
                 }
