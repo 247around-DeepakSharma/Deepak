@@ -5308,9 +5308,8 @@ class Service_centers extends CI_Controller {
      * @desc This is used to Approve Spare Estimate by SF
      * @param String $booking_id
      */
-    function approve_oow($booking_id) {   
+ function approve_oow($booking_id) {   
         log_message("info", __METHOD__ . "Enterring");
- 
         if (!empty($booking_id)) { 
             $req['where'] = array("spare_parts_details.booking_id" => $booking_id, "status" => SPARE_OOW_EST_GIVEN);
             $req['length'] = -1;
@@ -5354,8 +5353,6 @@ class Service_centers extends CI_Controller {
                 $next_action = '';
                 foreach ($sp_data as $key => $value) {
                                
-
-       
                     $spare_data = array();
                     $delivered_sp=array();
                     $service_center_id = $value->service_center_id;
@@ -5376,10 +5373,12 @@ class Service_centers extends CI_Controller {
                     $entity_type = $value->entity_type;
                     $is_micro_wh = $value->is_micro_wh;
                     $spare_id=$value->id;
+                    if (!isset($partner_id)  ||  empty($partner_id)) {
+                       $partner_id= $value->partner_id; 
+                    }
+
                     $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
                     $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $service_center_id));
-
-
                     $is_warehouse = false;
                     if (!empty($partner_details[0]['is_wh'])) {
 
@@ -5389,7 +5388,7 @@ class Service_centers extends CI_Controller {
                     }
                     if (!empty($is_warehouse)) {
 
-                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);             
+                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);
                         if (!empty($warehouse_details) && $warehouse_details['stock'] >= $spare_data['quantity']) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
@@ -5460,7 +5459,7 @@ class Service_centers extends CI_Controller {
                          $spare_data['date_of_request'] = $data['date_of_request'];
                          $spare_data['requested_inventory_id'] = $data['requested_inventory_id'];
                          array_push($delivered_sp, $spare_data);
-						 //$delivered_sp[] = $spare_data;
+                         //$delivered_sp[] = $spare_data;
                          $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                          unset($data['spare_id']);
                         } else if ($is_micro_wh == 2) {
@@ -5477,7 +5476,7 @@ class Service_centers extends CI_Controller {
                             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$spare_data['quantity']);
                         }
                     } else {
-						
+                        
                         log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);
                         $actor = "partner";
                         $next_action = "Send OOW Part";
