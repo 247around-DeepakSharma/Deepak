@@ -5210,8 +5210,9 @@ function do_multiple_spare_shipping(){
      * @desc This is used to Approve Spare Estimate by SF
      * @param String $booking_id
      */
-   function approve_oow($booking_id) { 
+   function approve_oow($booking_id) {   
         log_message("info", __METHOD__ . "Enterring");
+ 
         if (!empty($booking_id)) { 
             $req['where'] = array("spare_parts_details.booking_id" => $booking_id, "status" => SPARE_OOW_EST_GIVEN);
             $req['length'] = -1;
@@ -5231,12 +5232,10 @@ function do_multiple_spare_shipping(){
                     . "spare_parts_details.shipped_inventory_id";
 
             $sp_data = $this->inventory_model->get_spare_parts_query($req);
-
-       
+  
             if ($this->session->userdata('service_center_id')) {
                 $agent_id = $this->session->userdata('service_center_agent_id');
-                $agent_name = $this->session->userdata('service_center_name');
-                $service_center_id = $this->session->userdata('service_center_id');
+                $agent_name = $this->session->userdata('service_center_name');               
                 $l_partner = NULL;
             } else if($this->input->post("call_from_api")){
                 $agent_id = $this->input->post("service_center_id");
@@ -5247,17 +5246,21 @@ function do_multiple_spare_shipping(){
             else {
                 $agent_id = _247AROUND_DEFAULT_AGENT;
                 $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
-                $service_center_id = NULL;
                 $l_partner = _247AROUND;
             }
             $partner_id = $this->input->post("partner_id");
+ 
+
             if (!empty($sp_data)) { 
                 $flag = TRUE;
                 $next_action = '';
                 foreach ($sp_data as $key => $value) {
-                                      
+                               
+
+       
                     $spare_data = array();
                     $delivered_sp=array();
+                    $service_center_id = $value->service_center_id;
                     $spare_data['model_number'] = $value->model_number;
                     $spare_data['parts_requested'] = $value->parts_requested;
                     $spare_data['parts_requested_type'] = $value->parts_requested_type;
@@ -5286,11 +5289,9 @@ function do_multiple_spare_shipping(){
                     } else if (!empty($partner_details[0]['is_micro_wh'])) {
                         $is_warehouse = TRUE;
                     }
- 
                     if (!empty($is_warehouse)) {
 
-                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);
-						
+                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);             
                         if (!empty($warehouse_details) && $warehouse_details['stock'] >= $spare_data['quantity']) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
@@ -5347,6 +5348,7 @@ function do_multiple_spare_shipping(){
                             $data['shipped_quantity'] = $data['quantity'];
 
                             $flag = false;
+
                             $this->notify->insert_state_change($booking_id, ESTIMATE_APPROVED_BY_CUSTOMER, ESTIMATE_APPROVED_BY_CUSTOMER, ESTIMATE_APPROVED_BY_CUSTOMER, $agent_id, $agent_name, $actor, $next_action, $l_partner, $service_center_id);
 
                             $where = array('id' => $value->id);
@@ -5360,9 +5362,7 @@ function do_multiple_spare_shipping(){
                          $spare_data['date_of_request'] = $data['date_of_request'];
                          $spare_data['requested_inventory_id'] = $data['requested_inventory_id'];
                          array_push($delivered_sp, $spare_data);
- 
                          //$delivered_sp[] = $spare_data;
- 
                          $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                          unset($data['spare_id']);
                         } else if ($is_micro_wh == 2) {
@@ -5373,15 +5373,13 @@ function do_multiple_spare_shipping(){
                             $sc['internal_status'] = SPARE_PARTS_REQUIRED;
                             $status = SPARE_PARTS_REQUESTED;
                             $data['status'] = $status;
- 
-                            $data['date_of_request'] = date('Y-m-d');						
- 
+                            $data['date_of_request'] = date('Y-m-d');                                     
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), $data);
 
                             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$spare_data['quantity']);
                         }
                     } else {
- 
+                        
                         log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);
                         $actor = "partner";
                         $next_action = "Send OOW Part";
@@ -5389,8 +5387,8 @@ function do_multiple_spare_shipping(){
                         $sc['update_date'] = date('Y-m-d H:i:s');
                         $sc['internal_status'] = SPARE_PARTS_REQUIRED;
                         $status = SPARE_PARTS_REQUESTED;
-
-                        $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("status" => $status, 'date_of_request' => date('Y-m-d')));
+///////  Coming here ////
+                        $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("status" => $status,'date_of_request' => date('Y-m-d')));
                     }
 
 
@@ -5418,7 +5416,7 @@ function do_multiple_spare_shipping(){
         } else {
             if(!$this->input->post("call_from_api")){
                 $this->session->set_userdata($userSession);
-               redirect(base_url() . "service_center/pending_booking");
+                redirect(base_url() . "service_center/pending_booking");
             }
         }
     }
@@ -6336,10 +6334,16 @@ function do_multiple_spare_shipping(){
      * @param array $data this array contains the data for which we want warehouse details;
      * @return array $response
      */
-    function get_warehouse_details($data, $partner_id) {
-        $response = array();        
+    function get_warehouse_details($data, $partner_id){
+        $response = array();
+
+        if (!empty($data['service_center_id'])) {
+           $data['service_center_id'] = $data['service_center_id'];
+        }else{
+            $data['service_center_id'] = $this->session->userdata('service_center_id');
+        }
         if(!empty($data['inventory_id'])){
-            return $this->miscelleneous->check_inventory_stock($data['inventory_id'], $partner_id, $data['state'], $this->session->userdata('service_center_id'), $data['model_number']);
+            return $this->miscelleneous->check_inventory_stock($data['inventory_id'], $partner_id, $data['state'], $data['service_center_id'], $data['model_number']);
         }else{
             $response = array();
         }
