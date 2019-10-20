@@ -5281,7 +5281,7 @@ function do_multiple_spare_shipping(){
                     $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
                     $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $service_center_id));
 
-
+                    log_message("info", __METHOD__ . json_encode($partner_details));
                     $is_warehouse = false;
                     if (!empty($partner_details[0]['is_wh'])) {
 
