@@ -5212,7 +5212,7 @@ function do_multiple_spare_shipping(){
      */
    function approve_oow($booking_id) {   
         log_message("info", __METHOD__ . "Enterring");
- 
+        log_message("info", __METHOD__ . json_encode($this->input->post()));
         if (!empty($booking_id)) { 
             $req['where'] = array("spare_parts_details.booking_id" => $booking_id, "status" => SPARE_OOW_EST_GIVEN);
             $req['length'] = -1;
@@ -5278,6 +5278,10 @@ function do_multiple_spare_shipping(){
                     $entity_type = $value->entity_type;
                     $is_micro_wh = $value->is_micro_wh;
                     $spare_id=$value->id;
+                    if (!isset($partner_id)  ||  empty($partner_id)) {
+                       $partner_id= $value->partner_id; 
+                    }
+
                     $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
                     $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $service_center_id));
 
