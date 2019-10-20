@@ -5212,7 +5212,6 @@ function do_multiple_spare_shipping(){
      */
    function approve_oow($booking_id) {   
         log_message("info", __METHOD__ . "Enterring");
-        log_message("info", __METHOD__ . json_encode($this->input->post()));
         if (!empty($booking_id)) { 
             $req['where'] = array("spare_parts_details.booking_id" => $booking_id, "status" => SPARE_OOW_EST_GIVEN);
             $req['length'] = -1;
@@ -5256,8 +5255,6 @@ function do_multiple_spare_shipping(){
                 $next_action = '';
                 foreach ($sp_data as $key => $value) {
                                
-
-       
                     $spare_data = array();
                     $delivered_sp=array();
                     $service_center_id = $value->service_center_id;
@@ -5284,8 +5281,6 @@ function do_multiple_spare_shipping(){
 
                     $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
                     $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $service_center_id));
-
-                    log_message("info", __METHOD__ . json_encode($partner_details));
                     $is_warehouse = false;
                     if (!empty($partner_details[0]['is_wh'])) {
 
@@ -5295,13 +5290,7 @@ function do_multiple_spare_shipping(){
                     }
                     if (!empty($is_warehouse)) {
 
-                       log_message("info", __METHOD__ . "Spare parts Not found" . $service_center_id);
-                       log_message('info', "Warehouse: " . __METHOD__. json_encode($sf_state, TRUE));
-                       log_message("info", __METHOD__ . json_encode(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number)));
                         $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);
-
-                        
-                        log_message("info", __METHOD__ . json_encode($warehouse_details));
                         if (!empty($warehouse_details) && $warehouse_details['stock'] >= $spare_data['quantity']) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
