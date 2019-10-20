@@ -585,8 +585,18 @@ span.stars span {
                if(obj[0].is_micro_wh==1){   //SPARE_DELIVERED_TO_SF
 
                    document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/msl_available.png";
+                $("#spare_delivered_rescheduled"+key).css("display","none !important");
+                $("#spare_tomorrow"+key).css("display","none !important");
+                $("#spare_delivered_tomorrow"+key).css("display","none !important");
+                $("#spare_rescheduled"+key).css("display","none !important");
+                $("#spare_cost_given_rescheduled"+key).css("display","none !important");
                }  else if(obj[0].status=='Spare Parts Delivered to SF') {
                     document.getElementById("spare_delivered_"+ block+ key).src="<?php echo base_url();?>images/spare_parts_delivered.png";
+                $("#spare_delivered_rescheduled"+key).css("display","none !important");
+                $("#spare_tomorrow"+key).css("display","none !important");
+                $("#spare_delivered_tomorrow"+key).css("display","none !important");
+                $("#spare_rescheduled"+key).css("display","none !important");
+                $("#spare_cost_given_rescheduled"+key).css("display","none !important");
                }else{
                 $(".spare_delivered_"+block + key).css("display", "none");
                 $("#spare_delivered_rescheduled"+key).css("display","none !important");
