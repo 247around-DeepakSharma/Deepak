@@ -5291,7 +5291,10 @@ function do_multiple_spare_shipping(){
                     }
                     if (!empty($is_warehouse)) {
 
-                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);             
+                        $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);
+
+                        log_message("info", __METHOD__ . json_encode(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number)));
+                        log_message("info", __METHOD__ . json_encode($warehouse_details));
                         if (!empty($warehouse_details) && $warehouse_details['stock'] >= $spare_data['quantity']) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
@@ -6336,7 +6339,7 @@ function do_multiple_spare_shipping(){
      */
     function get_warehouse_details($data, $partner_id){
         $response = array();
-
+        log_message("info", __METHOD__ . json_encode($data));
         if (!empty($data['service_center_id'])) {
            $data['service_center_id'] = $data['service_center_id'];
         }else{
