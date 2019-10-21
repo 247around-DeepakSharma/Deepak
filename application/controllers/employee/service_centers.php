@@ -6477,7 +6477,43 @@ function do_multiple_spare_shipping(){
             echo "Error";
         }
     }
+    
+     /**
+     * @desc: This method is used partner list
+     * @param Integer $offset
+     */
+    
+      function get_partner_list() {
+        $sf_id = $this->session->userdata('service_center_id');
+        $where = array("spare_parts_details.defective_return_to_entity_id" => $sf_id,
+           "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
+            "defective_part_required" => 1, 
+            "status IN ('".DEFECTIVE_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_REJECTED."') " => NULL);
 
+        $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
+        if(!empty($partner_id)){
+            $partners= array_unique(array_map(function ($k) {
+                        return $k['partner_id'];
+                    }, $partner_id));
+            
+            $data = $this->reusable_model->get_search_result_data("partners","partners.id, partners.public_name",
+                    array(),NULL,NULL,array(),array('partners.id' => $partners),NULL,array());
+            if(!empty($data)){
+                $option = '<option selected="" disabled="">Select Partner</option>';
+
+                foreach ($data as $value) {
+                    $option .= "<option value='" . $value['id'] . "'";
+                    $option .= " > ";
+                    $option .= $value['public_name'] . "</option>";
+                }
+                echo $option;
+            } else {
+                echo "Error";
+            }
+        } else {
+            echo "Error";
+        }
+    }
     /**
      * @desc: This method is used to display list of Received Defective Parts by Partner id
      * @param Integer $offset
@@ -6531,7 +6567,7 @@ function do_multiple_spare_shipping(){
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "') ";
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . DEFECTIVE_PARTS_SHIPPED . "') ";
             $where .= " AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
             
