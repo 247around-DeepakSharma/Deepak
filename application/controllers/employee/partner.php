@@ -573,7 +573,7 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code'] = $code;
-        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M'));
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M', 'N'));
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
         }
@@ -1076,7 +1076,7 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code_availiable'] = $code;
-        $partner_code_arr = ((isset($saas_flag) && !$saas_flag) ? array('R', 'S', 'P', 'L', 'M') : array('Z'));
+        $partner_code_arr = ((isset($saas_flag) && !$saas_flag) ? array('R', 'S', 'P', 'L', 'M', 'N') : array('Z'));
         $all_partner_code = $this->partner_model->get_all_partner_code('code', $partner_code_arr);
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
@@ -4803,7 +4803,14 @@ class Partner extends CI_Controller {
     function get_service_details(){
         $service_id = $this->input->post('service_id');
         $partner_id = $this->input->post('partner_id');
-        $data['brand'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT brand",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+        $partner_source = $this->input->post('partner_source');
+        if ($partner_source == OEM) {
+            $where = array("partner_appliance_details.service_id" => $service_id,'partner_id' =>$partner_id, "active" => 1);
+            $select = 'brand';
+            $data['brand'] = $this->partner_model->get_partner_specific_details($where, $select, "brand");
+        } else {
+            $data['brand'] = $this->reusable_model->get_search_result_data("appliance_brands","DISTINCT brand_name as brand",array('service_id'=>$service_id,'seo'=>1),NULL,NULL,NULL,NULL,NULL,array());
+        }
         $data['category'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT category",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['capacity'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT capacity",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['model'] = $this->reusable_model->get_search_result_data("appliance_model_details","DISTINCT model_number as model",array('service_id'=>$service_id,'entity_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
