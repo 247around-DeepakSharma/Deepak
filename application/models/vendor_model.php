@@ -743,7 +743,9 @@ class vendor_model extends CI_Model {
         }
         if(!empty($whereIN)){
             foreach ($whereIN as $fieldName=>$conditionArray){
-                    $this->db->where_in($fieldName, $conditionArray);
+                    if(!empty($conditionArray)){
+                        $this->db->where_in($fieldName, $conditionArray);
+                    }                    
             }
         }
         $this->db->order_by($order_by);
