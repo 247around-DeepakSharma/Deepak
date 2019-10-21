@@ -220,7 +220,7 @@
                                         } ?>">
                                         <label  for="partner_type" class="col-md-4">Type *</label>
                                         <div class="col-md-8">
-                                            <select name="partner_type" class="form-control" >
+                                            <select name="partner_type" class="form-control" id="partner_type">
                                                 <option selected disabled>Select Partner Type</option>
                                                 <option value=<?php echo BUYBACKTYPE ?> 
                                                     <?php if (isset($results['partner_code'][0]['partner_type'])) {
@@ -1459,6 +1459,7 @@
                         if($query[0]['id']){
                         ?>
                 <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                
                 <?php
                     }
                     }
@@ -1473,7 +1474,7 @@
                                 <div class="form-group">
                                     <label for="Services">Select Appliance *</label>
                                     <p id="brand_mapping_holder" style="display:none;"><?php if(isset($results['brand_mapping'])){ echo json_encode($results['brand_mapping']); }?></p>
-                                    <select class="form-control" id="l_c_service" name="l_c_service" onchange="get_brand_category_capacity_model_for_service(this.value,<?php if(isset($query[0]['id'])){echo  $query[0]['id'];}?>)" disabled=""> 
+                                    <select class="form-control" id="l_c_service" name="l_c_service" onchange="get_brand_category_capacity_model_for_service(this.value,<?php if(isset($query[0]['id'])){echo  $query[0]['id'];}?>,'<?php if(isset($results['partner_code'])){ echo $results['partner_code'][0]['partner_type']; } ?>')" disabled=""> 
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -4012,11 +4013,11 @@
            document.getElementById("l_c_type").innerHTML = collateral_typeDropdownString;
        }
     }
-    function get_brand_category_capacity_model_for_service(service,partner){
-       $.ajax({
+    function get_brand_category_capacity_model_for_service(service,partner,partner_source){
+        $.ajax({
                type: 'POST',
                url: '<?php echo base_url(); ?>employee/partner/get_service_details',
-               data: {partner_id: partner, service_id: service},
+               data: {partner_id: partner, service_id: service,partner_source:partner_source},
                success: function (data) {
                    create_drop_down(data);
                }
