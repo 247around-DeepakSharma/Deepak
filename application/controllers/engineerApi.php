@@ -33,6 +33,7 @@ class engineerApi extends CI_Controller {
         $this->load->model('partner_model');
         $this->load->model('engineer_model');
         $this->load->model("dealer_model");
+        $this->load->model("service_centers_model");
         $this->load->library('notify');
         $this->load->library("miscelleneous");
         $this->load->library('booking_utilities');
@@ -1169,6 +1170,7 @@ class engineerApi extends CI_Controller {
         $serial_number_text = "";
         $sc_agent_id = "";
         $purchase_inv_url = "";
+        $consumption = array();
         if($validation){
             foreach($unitDetails as $value){
                 $data = array();
@@ -1263,7 +1265,25 @@ class engineerApi extends CI_Controller {
                 }
             }
         
-        
+            /** Insert consumption details **/
+            if(isset($requestData["spare_consumption"])){
+                foreach ($requestData["spare_consumption"] as $consumtion_data) {
+                    $con_data = array();
+                    $con_data["booking_id"] = $booking_id;
+                    $con_data["spare_id"] = $consumtion_data["spare_id"];
+                    $con_data["consumed_part_status_id"] = $consumtion_data["consumed_spare_status_id"];
+                    if($consumtion_data["consumed_spare_tag"] == WRONG_PART_RECEIVED_TAG){
+                        $con_data["part_name"] = $consumtion_data["part_name"];
+                        $con_data["inventory_id"] = $consumtion_data["inventory_id"];
+                        $con_data["remarks"] = $consumtion_data["remarks"];
+                    }
+                    
+                    array_push($consumption, $con_data);
+                }
+                $this->service_centers_model->insert_engineer_consumed_details($consumption);
+            }
+            /** End **/
+            
             $sign_pic_url = $booking_id."_sign_".rand(10,100).".png";
                    
             $this->miscelleneous->generate_image($requestData["signature_pic"],$sign_pic_url,"engineer-uploads");
@@ -2482,7 +2502,7 @@ class engineerApi extends CI_Controller {
                     array_push($price_tags, $price_tags2);
                     $pid = $this->miscelleneous->search_for_pice_tag_key($u['price_tags'], $prices);
                     
-
+                    /*
                     $unitWhere = array("engineer_booking_action.booking_id" => $requestData['booking_id'],
                         "engineer_booking_action.unit_details_id" => $u['unit_id'], "service_center_id" => $requestData['service_center_id']);
                     $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
@@ -2497,7 +2517,7 @@ class engineerApi extends CI_Controller {
                             $broken = 1;
                         }
                     }
-                
+                    */
                     // remove array key, if price tag exist into price array
                     unset($prices[$pid]);
 
@@ -2514,10 +2534,14 @@ class engineerApi extends CI_Controller {
             $spare_select = 'spare_parts_details.model_number, spare_parts_details.date_of_purchase, spare_parts_details.serial_number, '
                     . 'CONCAT("https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/misc-images/", spare_parts_details.invoice_pic) as invoice_pic, '
                     . 'CONCAT("https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/'.SERIAL_NUMBER_PIC_DIR.'/", spare_parts_details.serial_number_pic) as serial_number_pic';
-            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"]));
+            $spare_details = $this->partner_model->get_spare_parts_by_any($spare_select, array('booking_id' => $requestData["booking_id"], 'status != "'._247AROUND_CANCELLED.'"' => NULL));
             
             if(!empty($spare_details)){
                 $response['spare_parts'] = $spare_details[0];
+                $response['is_consumption_required'] = true;
+            }
+            else{
+                $response['is_consumption_required'] = false;
             }
             
             $response['booking_unit_details'] = $bookng_unit_details[0];
@@ -3362,7 +3386,8 @@ class engineerApi extends CI_Controller {
             }
             else{
                 log_message("info", __METHOD__ . "Part list not found");
-                $this->sendJsonResponse(array("0059", "Part list not found"));
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array("0000", "Part list not found"));
             }
         }
         else{
