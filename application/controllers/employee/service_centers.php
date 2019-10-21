@@ -1937,6 +1937,7 @@ class Service_centers extends CI_Controller {
     function update_spare_parts_details() {           
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));
+        $access = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if (!empty($_FILES['defective_parts_pic']['name'][0]) || !empty($_FILES['defective_back_parts_pic']['name'][0])) {
             $is_file = $this->validate_part_data();
         }
@@ -2078,7 +2079,14 @@ class Service_centers extends CI_Controller {
                 $data['shipped_quantity'] = $data['quantity'];
                 array_push($delivered_sp, $data);
                 unset($data['spare_id']);
+        }
+        
+        if (empty($access)) {
+            if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                $data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
             }
+        }
         $where = array('id' => $this->input->post('spare_id'));
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
 

@@ -3535,6 +3535,12 @@ function generate_image($base64, $image_name,$directory){
 //                $response['defective_return_to_entity_id'] = $partner_id;
 //            }
         }
+		
+		
+		if($response['defective_return_to_entity_type']==_247AROUND_PARTNER_STRING){
+			$response['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+            $response['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+		}
         return $response;
     }
 
@@ -4567,7 +4573,7 @@ function generate_image($base64, $image_name,$directory){
             $in['stock'] = -$value['quantity']; //-1;
             $in['booking_id'] = $value['booking_id'];
             if($this->session->userdata('userType') == 'service_center'){
-             $in['agent_id'] = $this->session->userdata('service_center_id');            
+             $in['agent_id'] = $this->session->userdata('service_center_agent_id');            
             }else{
               $in['agent_id'] = $this->session->userdata('agent_id');   
             }

@@ -3757,7 +3757,7 @@ class Inventory extends CI_Controller {
      */
     function move_inventory_to_warehouse($ledger, $fomData, $wh_id, $is_wh_micro, $action_agent_id) {
         log_message('info', __METHOD__ . " warehouse id " . $wh_id . " ledger " . json_encode($ledger, true) . " Form data " . json_encode($fomData) . " WH id " . $wh_id,true);
-
+        $access = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $transfered_by = $this->input->post('transfered_by');
         if ($this->session->userdata("partner_id")) {
             $s_partner_id = $this->session->userdata("partner_id");
@@ -3868,6 +3868,13 @@ class Inventory extends CI_Controller {
                             
                             log_message('info', __METHOD__ ." ledger " . json_encode($data, true));
                         }
+
+                       if(empty($access)) {
+                         if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                              $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                              $data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
+                         }
+                       }
                         $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);
                         
                          log_message('info', __METHOD__ ."Spare Updated " . json_encode($data, true));
