@@ -526,7 +526,7 @@ function send_vendor_creation_notification(){
         //Sending Welcome Vendor Mail
         //Getting template from Database
         $template = $this->booking_model->get_booking_email_template("new_vendor_creation");
-        if (!empty($template)) {
+        if (!empty($template) && !empty($this->input->post('company_name')) && !empty($this->input->post('district')) && !empty($this->input->post('rm_email'))) {
             $subject = "Welcome to 247around ".$this->input->post('company_name')." (".$this->input->post('district').")";
             $emailBody = $template[0];
             $this->notify->sendEmail($template[2], $new_vendor_mail, $template[3].",".$this->input->post('rm_email'), '', $subject, $emailBody, "",'new_vendor_creation');

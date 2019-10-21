@@ -366,7 +366,7 @@ class ApiDataRequest extends CI_Controller {
         
         if(!empty($access)){
             $url = base_url().'employee/service_centers/approve_oow/'.$booking_id;
-            $fields = array();
+            $fields = array('partner_id' => $partner_id);
 
             //url-ify the data for the POST
             $fields_string = http_build_query($fields);

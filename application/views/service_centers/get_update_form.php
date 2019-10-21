@@ -311,7 +311,7 @@
                                         <div class="form-group">
                                             <label for="quantity" class="col-md-4">Quantity *</label>
                                             <div class="col-md-6">
-                                                <input type="text"   min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                                <input type="text"  required=""   min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
                                                 <span id="error_span_0" style="color:red;" class="hide"></span>
 
                                             </div>
@@ -428,7 +428,7 @@
                                             <div class="form-group">
                                                 <label for="quantity" class="col-md-4">Quantity *</label>
                                                 <div class="col-md-6">
-                                                    <input type="text"   min="1" readonly="" value="1" class="form-control  spare_parts" id="quantity" >
+                                                    <input type="text"  required=""  min="1" readonly="" value="1" class="form-control  spare_parts" id="quantity" >
                                                     <span id="error_span" style="color:red;" class="hide"></span>
                                                 </div>
                                             </div>
@@ -644,6 +644,15 @@ function alpha(e) {
                         html += "<input type='hidden' id='model_number' name='model_number'>";
                         $("#appliance_model_div").html(html);
                         $('#model_number_id').select2();
+                        var model_number = "<?php echo $unit_model_number; ?>";
+                        $('#model_number_id option').map(function() {
+                        if ($(this).text() == model_number){
+                            var model_no = $(this).val();
+                            $("#model_number_id").val(model_no).change();
+                        }                            
+                        });
+                         
+                        var model_id = $( "#model_number_id option:selected" ).val();
                         $(".select2-container--default").css('width','100%');
                 }
             }

@@ -468,7 +468,7 @@
             $('#entity_id').html(entity_id_options);
         }
         
-        if(form_data.active === '1'){
+        if(form_data.amd_active === '1'){
             $("#active_inactive").prop('checked', true);
         }
         else{

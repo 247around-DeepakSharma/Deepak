@@ -1456,6 +1456,7 @@ class Booking extends CI_Controller {
         $clone_number = $this->input->post('clone_number');
         $partner_id =  $this->input->post('partner_id');
         $assigned_vendor_id = $this->input->post('assigned_vendor_id');
+        $phone_number = trim($this->input->post('phone_number'));
         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         $is_sf_panel = (($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) ? true : false;
         if($this->input->post('add_booking')){
@@ -1544,7 +1545,7 @@ class Booking extends CI_Controller {
                 }
                 $html .= " name='prices[$brand_id][$clone_number][]'";
                 if($prices['service_category'] == REPEAT_BOOKING_TAG){
-                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."' ></td><tr>";
+                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."' disabled></td><tr>";
                 }
                 else{
                     $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-price_tag='".$prices['service_category']."' ></td><tr>";
@@ -6005,7 +6006,7 @@ class Booking extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $model_number = $this->input->post('model_number');
         $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $model_number,
-                        'appliance_model_details.entity_id' => $partner_id));
+                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1));
         echo json_encode($model_details);
     }
 
