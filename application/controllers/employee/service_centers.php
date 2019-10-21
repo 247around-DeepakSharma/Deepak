@@ -2522,6 +2522,13 @@ class Service_centers extends CI_Controller {
                         $data['part_requested_by_engineer'] = 1;
                     }
 
+                   if (empty($access)) {
+                        if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                            $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                            $data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
+                        }
+                    }
+
                     $spare_id = $this->service_centers_model->insert_data_into_spare_parts($data);
                     $this->miscelleneous->process_booking_tat_on_spare_request($booking_id, $spare_id);
                     
