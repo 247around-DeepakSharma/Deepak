@@ -805,12 +805,14 @@ class Service_centers extends CI_Controller {
                 if(!empty($defective_part_required) && $defective_part_required == 1) {
                     $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
-//                        if ($spare_part_detail['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
-//                            $defective_return_to_entity_id = $spare_part_detail['defective_return_to_entity_id'];
-//                        }
-//                        if(!empty($defective_return_to_entity_id)){
-//                        $this->invoice_lib->generate_challan_file_to_partner($spare_part_detail['id'], $defective_return_to_entity_id);
-//                        }
+                        $select = 'spare_parts_details.id, spare_parts_details.defective_return_to_entity_type, spare_parts_details.defective_return_to_entity_id';
+                        $where = array('spare_parts_details.id' => $spare_id);
+                        $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where);
+                        if (!empty($spare_parts_details)) {
+                            if ($spare_parts_details[0]['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                                $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array("spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING, "spare_parts_details.defective_return_to_entity_id" => _247AROUND_WAREHOUSE_ID ));
+                            }
+                        }
                         $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'));   
                     }
                 }
@@ -1956,6 +1958,7 @@ class Service_centers extends CI_Controller {
     function update_spare_parts_details() {           
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));
+        $access = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if (!empty($_FILES['defective_parts_pic']['name'][0]) || !empty($_FILES['defective_back_parts_pic']['name'][0])) {
             $is_file = $this->validate_part_data();
         }
@@ -2097,7 +2100,14 @@ class Service_centers extends CI_Controller {
                 $data['shipped_quantity'] = $data['quantity'];
                 array_push($delivered_sp, $data);
                 unset($data['spare_id']);
+        }
+        
+        if (empty($access)) {
+            if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                $data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
             }
+        }
         $where = array('id' => $this->input->post('spare_id'));
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
 
@@ -6590,8 +6600,45 @@ class Service_centers extends CI_Controller {
             echo "Error";
         }
     }
-       
+    
      /**
+     * @desc: This method is used partner list
+     * @param Integer $offset
+     */
+    
+      function get_partner_list() {
+        $sf_id = $this->session->userdata('service_center_id');
+        $where = array("spare_parts_details.defective_return_to_entity_id" => $sf_id,
+           "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
+            "defective_part_required" => 1, 
+            "status IN ('".DEFECTIVE_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_REJECTED."') " => NULL);
+
+        $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
+        if(!empty($partner_id)){
+            $partners= array_unique(array_map(function ($k) {
+                        return $k['partner_id'];
+                    }, $partner_id));
+            
+            $data = $this->reusable_model->get_search_result_data("partners","partners.id, partners.public_name",
+                    array(),NULL,NULL,array(),array('partners.id' => $partners),NULL,array());
+            if(!empty($data)){
+                $option = '<option selected="" disabled="">Select Partner</option>';
+
+                foreach ($data as $value) {
+                    $option .= "<option value='" . $value['id'] . "'";
+                    $option .= " > ";
+                    $option .= $value['public_name'] . "</option>";
+                }
+                echo $option;
+            } else {
+                echo "Error";
+            }
+        } else {
+            echo "Error";
+        }
+    }
+
+    /**
      * @desc: This method is used to display list of Received Defective Parts by Partner id
      * @param Integer $offset
      */
@@ -6642,7 +6689,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "') ";
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . DEFECTIVE_PARTS_SHIPPED . "') ";
             $where .= " AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
             

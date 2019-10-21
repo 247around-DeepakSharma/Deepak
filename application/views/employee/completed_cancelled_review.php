@@ -2,6 +2,7 @@
 <script type="text/javascript" src="<?php echo base_url();?>js/base_url.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>      
 <input type='hidden' name='arr_bookings' id='arr_bookings' value='<?= json_encode($bookings_data); ?>'>
+<input type="hidden" name="comment_booking_id" value="" id="comment_booking_id">
 <div class="" style="margin-top: 30px;">
          <div class="row">
             <div class="col-md-3 pull-right" style="margin-top:20px;">
@@ -232,7 +233,9 @@
                                     . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                                     ?>
                               <a style="margin-top:5px;" target='_blank'  href="<?php echo base_url(); ?>employee/booking/get_complete_booking_form/<?php echo $value['booking_id']; ?>" class="btn btn-info btn-sm"><i class="fa fa-pencil" aria-hidden="true" title="Edit"></i></a>
-                              <button style="margin-top:5px;" type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="fa fa-times" aria-hidden="true" title="Reject"></i></button></td>
+                              <button style="margin-top:5px;" type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="fa fa-times" aria-hidden="true" title="Reject"></i></button>
+                              <a style="margin-top:5px;" class="btn btn-success" id='<?php echo 'comment_'.$count; ?>' href="javascript:void(0);" name="save-remarks" onclick="save_remarks('<?php echo $value['booking_id']; ?>')"><i class="fa fa-comment"></i></a>
+                              </td>
                            
                             </tr>
                            <?php $count++; } ?>
@@ -295,7 +298,16 @@
          </div>
       </div>
    </div>
-
+   <div id="commentModal_<?=$review_status?>_<?=$is_partner?>" class="modal fade" role="dialog">
+      <div class="modal-dialog" style=" height: 90% !important;">
+         <!-- Modal content-->
+         <div class="modal-content">
+            <div class="modal-body">
+                <div id="commentbox_<?=$review_status?>_<?=$is_partner?>"></div>
+            </div>
+         </div>
+      </div>
+   </div>
 <script>
     $('#cancellation_reason_<?php echo $is_partner; ?>').select2({
        placeholder: 'Cancellation Reason'
@@ -379,4 +391,150 @@
         return false;
     }
     }
+    function save_remarks(booking_id) {
+        $('#comment_booking_id').val(booking_id);
+        getcommentbox(1, booking_id);
+        $('#commentModal_<?=$review_status?>_<?=$is_partner?>').modal(); 
+           
+    }
+    
+    function getcommentbox(type_val, booking_id){
+        $.ajax({
+            method: 'POST',
+            data: {comment_type:type_val},
+            url: '<?php echo base_url(); ?>employee/booking/get_comment_section/'+booking_id+'/'+type_val,
+            success: function (response) {
+                if(type_val == 2){
+                    document.getElementById("commentbox").remove();
+                    document.getElementById("booking_hostory_template").innerHTML = '<div id="commentbox"></div>';                         
+                  //  document.getElementById("spare_parts_commentbox").innerHTML = response;
+                }else{
+                   // alert(response);
+                    document.getElementById("commentbox_<?=$review_status?>_<?=$is_partner?>").innerHTML = response;                        
+                   // document.getElementById("spare_parts_commentbox").remove();
+                   // document.getElementById("spare_parts_template").innerHTML = '<div id="spare_parts_commentbox"> </div>';
+                }
+
+            }
+        });
+    }
+    
+    function load_comment_area(){
+        $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#comment_section').show();
+        //document.getElementById("comment_section").style.display='block';
+        $('#commnet_btn').hide();
+    }
+    
+    function load_update_area(data="", key){
+       // document.getElementById("update_section").style.display='block';
+        $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#update_section').children('#comment2').val(data);
+        $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#update_section').show();
+        //document.getElementById("").innerHTML=data;
+        $('#comment_id').attr("value",key);
+        $('#commnet_btn').hide();
+    }
+    
+    function addComment() {
+        var prethis = $(this);
+        var comment_type = 1;
+        var comment = $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#comment_section').children('#comment').val();
+        var booking_id = $('#comment_booking_id').val();
+  
+        if(comment != '') {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/booking/addComment',
+             beforeSend: function(){
+                
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: {comment_type : comment_type, comment: comment, booking_id: booking_id},
+            success: function (response) { 
+                if(response === "error"){
+                    alert('There is some issue. Please refresh and try again');
+                } else {
+                    document.getElementById("commentbox_<?=$review_status?>_<?=$is_partner?>").innerHTML = response;
+                   // document.getElementById("spare_parts_commentbox").innerHTML = response;
+                }   
+            }
+            
+        });
+        } else {
+        alert("Please enter comments");
+        }
+    }
+    
+    function editComment(key){
+       document.getElementById("comment_section").style.display='none';
+       // document.getElementById("comment").innerHTML=data;
+        $('#commnet_btn').hide();
+        var comment = $("#comment_text_"+key).text();
+        load_update_area(comment, key);
+    }
+    
+    function updateComment() {
+        var prethis = $(this);
+        var comment_type = 1;
+        var comment = $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#update_section').children('#comment2').val();
+        var comment_id= $("#comment_id").val();
+        var booking_id= $('#comment_booking_id').val();
+         if(comment != '') {
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/booking/update_Comment',
+             beforeSend: function(){
+                
+                 prethis.html('<i class="fa fa-circle-o-notch fa-lg" aria-hidden="true"></i>');
+             },
+            data: {comment: comment, comment_id: comment_id, booking_id: booking_id, comment_type: comment_type},
+            success: function (response) {
+                if(response === "error"){
+                    alert('There is some issue. Please refresh and try again');
+                } else {
+                    document.getElementById("commentbox_<?=$review_status?>_<?=$is_partner?>").innerHTML = response;
+                 //   document.getElementById("spare_parts_commentbox").innerHTML = response;
+                } 
+            }
+            
+        });
+        } else {
+            alert("Please enter comments");
+        }
+    }
+    
+    
+     function deleteComment(comment_id) {
+                
+            var comment_type = 1; 
+            var check = confirm("Do you want to delete this comment?");
+            if(check == true){
+                var comment_id = comment_id;
+                var booking_id= $('#comment_booking_id').val();
+                $.ajax({
+                    type: 'POST',
+                    url: '<?php echo base_url(); ?>employee/booking/deleteComment',
+                    data: {comment_id: comment_id, booking_id:booking_id ,comment_type : comment_type},
+                    success: function (response) {
+                        if(response === "error"){
+                            alert('There is some issue. Please refresh and try again');
+                        } else {
+                            document.getElementById("commentbox_<?=$review_status?>_<?=$is_partner?>").innerHTML = response;
+                         //   document.getElementById("spare_parts_commentbox").innerHTML = response;  
+                        } 
+                    }
+                    
+                });
+            }
+        }    
+        
+        function cancel(){
+            $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#comment_section').hide();
+            $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#update_section').hide();
+       //     $('#comment_section').css('display', 'none');
+        //    $('#update_section').css('display', 'none');
+            
+            $('#commnet_btn').show();
+//            var type_val = 1;   
+//            getcommentbox(type_val);        
+        }  
    </script>
