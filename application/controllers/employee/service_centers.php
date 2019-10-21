@@ -416,7 +416,7 @@ class Service_centers extends CI_Controller {
                 $price_tags2 = str_replace('(Paid)', '', $price_tags1);
                 array_push($price_tags, $price_tags2);
                 if ($this->session->userdata('is_engineer_app') == 1) {
-
+                    
                     $unitWhere = array("engineer_booking_action.booking_id" => $booking_id,
                         "engineer_booking_action.unit_details_id" => $u['unit_id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
                     $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
@@ -447,6 +447,25 @@ class Service_centers extends CI_Controller {
                     $en_sign = $this->engineer_model->get_engineer_sign("id, signature", array("service_center_id" => $data['booking_history'][0]['assigned_vendor_id'], "booking_id" => $booking_id));
                     if(!empty($en_sign)){
                         $data['en_signature_picture'] = $en_sign[0]['signature'];
+                    }
+                    
+                    $en_consumption = $this->service_centers_model->get_engineer_consumed_details(array("booking_id" => $booking_id));
+                    if(!empty($en_consumption)){
+                        $c = 0;
+                        foreach ($en_consumption as $consumptions) {
+                            $data['en_consumpton_details'][$consumptions['spare_id']]['spare_id'] = $consumptions['spare_id'];
+                            $data['en_consumpton_details'][$consumptions['spare_id']]['consumption_status_id'] = $consumptions['consumed_part_status_id'];
+                            if($consumptions['consumed_part_status_id'] == CONSUMED_WRONG_PART_STATUS_ID){
+                                $wrong_part_data = array();
+                                $wrong_part_data['spare_id'] = $consumptions['spare_id'];
+                                $wrong_part_data['part_name'] = $consumptions['part_name'];
+                                $wrong_part_data['part_name'] = $consumptions['part_name'];
+                                $wrong_part_data['inventory_id'] = $consumptions['inventory_id'];
+                                $wrong_part_data['remarks'] = $consumptions['remarks'];
+                                $data['en_consumpton_details'][$consumptions['spare_id']]['wrong_part_data'] = json_encode($wrong_part_data);
+                            }
+                            $c++;
+                        }
                     }
                 }
                 $pid = $this->miscelleneous->search_for_pice_tag_key($u['price_tags'], $prices);
@@ -1937,6 +1956,7 @@ class Service_centers extends CI_Controller {
     function update_spare_parts_details() {           
         log_message('info', __FUNCTION__ . " Service_center ID: " . $this->session->userdata('service_center_id') . " Booking Id: " . $this->input->post('booking_id'));
         log_message('info', __METHOD__ . " POST DATA " . json_encode($this->input->post()));
+        $access = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if (!empty($_FILES['defective_parts_pic']['name'][0]) || !empty($_FILES['defective_back_parts_pic']['name'][0])) {
             $is_file = $this->validate_part_data();
         }
@@ -2078,7 +2098,14 @@ class Service_centers extends CI_Controller {
                 $data['shipped_quantity'] = $data['quantity'];
                 array_push($delivered_sp, $data);
                 unset($data['spare_id']);
+        }
+        
+        if (empty($access)) {
+            if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                $data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
             }
+        }
         $where = array('id' => $this->input->post('spare_id'));
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
 
