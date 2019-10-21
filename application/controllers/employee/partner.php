@@ -4803,7 +4803,14 @@ class Partner extends CI_Controller {
     function get_service_details(){
         $service_id = $this->input->post('service_id');
         $partner_id = $this->input->post('partner_id');
-        $data['brand'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT brand",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+        $partner_source = $this->input->post('partner_source');
+        if ($partner_source == OEM) {
+            $where = array("partner_appliance_details.service_id" => $service_id,'partner_id' =>$partner_id, "active" => 1);
+            $select = 'brand';
+            $data['brand'] = $this->partner_model->get_partner_specific_details($where, $select, "brand");
+        } else {
+            $data['brand'] = $this->reusable_model->get_search_result_data("appliance_brands","DISTINCT brand_name as brand",array('service_id'=>$service_id,'seo'=>1),NULL,NULL,NULL,NULL,NULL,array());
+        }
         $data['category'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT category",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['capacity'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT capacity",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['model'] = $this->reusable_model->get_search_result_data("appliance_model_details","DISTINCT model_number as model",array('service_id'=>$service_id,'entity_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());

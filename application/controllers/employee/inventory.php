@@ -4115,7 +4115,7 @@ class Inventory extends CI_Controller {
                 if(!empty($pin)){
                     $ledger_data['invoice_id'] = $this->input->post('invoice_id');
                 } else {
-                    $ledger_data['invoice_id'] = $invoice_id;
+                    $ledger_data['invoice_id'] = NULL;
                 }
                 
                 $ledger_data['micro_invoice_id'] = $invoice_id;

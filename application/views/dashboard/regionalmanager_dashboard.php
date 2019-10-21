@@ -279,10 +279,9 @@
                     <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
-                                             <option value="not_set">All</option>
-                                             <option value="247Around" selected="selected">Admin</option>
+                                             <option value="247Around:Warehouse" selected="selected">Admin</option>
                                             <option value="Partner">Partner</option>
-                                            <option value="Vendor:not_define" selected="selected">Vendor</option>
+                                            <option value="Vendor:not_define" selected="selected">SF</option>
                                         </select>
                     </div>
                         <div class="form-group col-md-3" style="width:186px;">
@@ -641,10 +640,9 @@
                     <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control" id="pending_dependency_am" name="status[]" multiple="">
-                                             <option value="not_set" selected="selected">All</option>
-                                            <option value="247Around" selected="selected">247Around</option>
+                                            <option value="247Around:Warehouse" selected="selected">Admin</option>
                                             <option value="Partner">Partner</option>
-                                            <option value="Vendor:not_define" selected="selected">Vendor</option>
+                                            <option value="Vendor:not_define" selected="selected">SF</option>
                                         </select>
                     </div>
                         <div class="form-group col-md-3" style="width:186px;">
