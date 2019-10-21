@@ -805,12 +805,14 @@ class Service_centers extends CI_Controller {
                 if(!empty($defective_part_required) && $defective_part_required == 1) {
                     $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
-//                        if ($spare_part_detail['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
-//                            $defective_return_to_entity_id = $spare_part_detail['defective_return_to_entity_id'];
-//                        }
-//                        if(!empty($defective_return_to_entity_id)){
-//                        $this->invoice_lib->generate_challan_file_to_partner($spare_part_detail['id'], $defective_return_to_entity_id);
-//                        }
+                        $select = 'spare_parts_details.id, spare_parts_details.defective_return_to_entity_type, spare_parts_details.defective_return_to_entity_id';
+                        $where = array('spare_parts_details.id' => $spare_id);
+                        $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where);
+                        if (!empty($spare_parts_details)) {
+                            if ($spare_parts_details[0]['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                                $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array("spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING, "spare_parts_details.defective_return_to_entity_id" => _247AROUND_WAREHOUSE_ID ));
+                            }
+                        }
                         $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'));   
                     }
                 }
