@@ -573,7 +573,7 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code'] = $code;
-        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M'));
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M', 'N'));
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
         }
@@ -1076,7 +1076,7 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code_availiable'] = $code;
-        $partner_code_arr = ((isset($saas_flag) && !$saas_flag) ? array('R', 'S', 'P', 'L', 'M') : array('Z'));
+        $partner_code_arr = ((isset($saas_flag) && !$saas_flag) ? array('R', 'S', 'P', 'L', 'M', 'N') : array('Z'));
         $all_partner_code = $this->partner_model->get_all_partner_code('code', $partner_code_arr);
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
