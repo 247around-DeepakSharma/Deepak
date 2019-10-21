@@ -4594,7 +4594,7 @@ class Inventory extends CI_Controller {
                     $in['stock'] = -$spare_booking_value['quantity']; //-1;
                     $in['booking_id'] = $data->booking_id;
                     if ($this->session->userdata('userType') == 'service_center') {
-                    $in['agent_id'] = $this->session->userdata('service_center_id');
+                    $in['agent_id'] = $this->session->userdata('service_center_agent_id');
                     } else {
                     $in['agent_id'] = $this->session->userdata('agent_id');
                     }
@@ -4658,7 +4658,7 @@ class Inventory extends CI_Controller {
                             $in['stock'] = -$value['quantity']; //-1;
                             $in['booking_id'] = $value['booking_id'];
                             if ($this->session->userdata('userType') == 'service_center') {
-                            $in['agent_id'] = $this->session->userdata('service_center_id');
+                            $in['agent_id'] = $this->session->userdata('service_center_agent_id');
                             } else {
                             $in['agent_id'] = $this->session->userdata('agent_id');
                             }
@@ -4727,7 +4727,7 @@ class Inventory extends CI_Controller {
                                 $in['stock'] = -$value['quantity']; //-1;
                                 $in['booking_id'] = $value['booking_id'];
                                 if ($this->session->userdata('userType') == 'service_center') {
-                                $in['agent_id'] = $this->session->userdata('service_center_id');
+                                $in['agent_id'] = $this->session->userdata('service_center_agent_id');
                                 } else {
                                 $in['agent_id'] = $this->session->userdata('agent_id');
                                 }
