@@ -420,7 +420,6 @@
     }
     
     function load_comment_area(){
-        alert($(this).parent());
         $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#comment_section').show();
         //document.getElementById("comment_section").style.display='block';
         $('#commnet_btn').hide();
@@ -470,7 +469,6 @@
        // document.getElementById("comment").innerHTML=data;
         $('#commnet_btn').hide();
         var comment = $("#comment_text_"+key).text();
-        alert(comment);
         load_update_area(comment, key);
     }
     
