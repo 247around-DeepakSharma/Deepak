@@ -517,7 +517,7 @@ class Booking_model extends CI_Model {
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
-            `booking_id` NOT LIKE 'Q-%' $where AND
+            booking_details.type = '"._247AROUND_BOOKING."' $where AND
             (booking_details.current_status='Pending' OR booking_details. current_status='Rescheduled')"
         );
         
@@ -570,7 +570,7 @@ class Booking_model extends CI_Model {
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id` WHERE
-    		`booking_id` NOT LIKE 'Q-%' $where AND
+            booking_details.type = '"._247AROUND_BOOKING."' $where AND
             (booking_details.current_status='Pending' OR booking_details.current_status='Rescheduled') order by STR_TO_DATE(`booking_details`.booking_date,'%d-%m-%Y') desc $add_limit"
         );
 
@@ -599,7 +599,7 @@ class Booking_model extends CI_Model {
             JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
             JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
             LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-            WHERE `booking_id` NOT LIKE '%Q-%' AND $where
+            WHERE booking_details.type = '"._247AROUND_BOOKING."' AND $where
             (booking_details.current_status = '$status')"
         );
 
@@ -625,7 +625,7 @@ class Booking_model extends CI_Model {
         JOIN  `users` ON  `users`.`user_id` =  `booking_details`.`user_id`
         JOIN  `services` ON  `services`.`id` =  `booking_details`.`service_id`
         LEFT JOIN  `service_centres` ON  `booking_details`.`assigned_vendor_id` = `service_centres`.`id`
-        WHERE `booking_id` LIKE '%Q-%' $where
+        WHERE booking_details.current_status = '"._247AROUND_FOLLOWUP."' $where
         AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR
                 booking_details.booking_date='') AND `booking_details`.current_status='$status'";
 	$query = $this->db->query($sql);
@@ -1232,7 +1232,7 @@ class Booking_model extends CI_Model {
     usort($temp, array($this, 'date_compare_queries'));
     if($query->num_rows>0){
 
-        if (strpos($temp[0]->booking_id, "Q-") !== FALSE) {
+        if ($temp[0]->type == _247AROUND_FOLLOWUP) {
 
             $data = $this->searchPincodeAvailable($temp, PINCODE_ALL_AVAILABLE);
             return $data;
@@ -1431,7 +1431,7 @@ class Booking_model extends CI_Model {
 
         usort($temp, array($this, 'date_compare_queries'));
 
-        if (strpos($temp[0]->booking_id, "Q-") !== FALSE) {
+        if ($temp[0]->type == _247AROUND_FOLLOWUP) {
 
             $data = $this->searchPincodeAvailable($temp);
             return $data;
@@ -1440,43 +1440,46 @@ class Booking_model extends CI_Model {
 
     }
 
-    function check_price_tags_status($booking_id, $unit_id_array,$inventory_details){
-        if(!empty($booking_id) && !empty($unit_id_array))
-        {
-        $this->db->select('id, price_tags,appliance_capacity');
-        $this->db->like('booking_id', $booking_id);
-        $this->db->where_not_in('id', $unit_id_array);
-        $query = $this->db->get('booking_unit_details');
-        if($query->num_rows>0 && $query->num_rows<10){
-            $result = $query->result_array();
-            foreach ($result as $value) {
-                $this->db->where('id', $value['id']);
-                $this->db->delete('booking_unit_details');
-                //process inventory stock for each unit if price tag is wall mount
-                if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG && !empty($inventory_details)) {
-                    $match = array();
-                    //get the size from the capacity to know the part number
-                    preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
-                    if (!empty($match)) {
-                        if ($match[0] <= 32) {
-                            $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
-                        } else if ($match[0] > 32) {
-                            $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+    function check_price_tags_status($booking_id, $unit_id_array, $inventory_details) {
+        if (!empty($booking_id) && !empty($unit_id_array)) {
+
+            $trim_booking_id = preg_replace("/[^0-9]/", "", $booking_id);
+            if (!empty($trim_booking_id) &&  strlen($trim_booking_id) > 7) {
+                $this->db->select('id, price_tags,appliance_capacity');
+                $this->db->like('booking_id', $trim_booking_id);
+                $this->db->where_not_in('id', $unit_id_array);
+                $query = $this->db->get('booking_unit_details');
+                if ($query->num_rows > 0 && $query->num_rows < 10) {
+                    $result = $query->result_array();
+                    foreach ($result as $value) {
+                        $this->db->where('id', $value['id']);
+                        $this->db->delete('booking_unit_details');
+                        //process inventory stock for each unit if price tag is wall mount
+                        if ($value['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG && !empty($inventory_details)) {
+                            $match = array();
+                            //get the size from the capacity to know the part number
+                            preg_match('/[0-9]+/', $value['appliance_capacity'], $match);
+                            if (!empty($match)) {
+                                if ($match[0] <= 32) {
+                                    $data['part_number'] = LESS_THAN_32_BRACKETS_PART_NUMBER;
+                                } else if ($match[0] > 32) {
+                                    $data['part_number'] = GREATER_THAN_32_BRACKETS_PART_NUMBER;
+                                }
+
+                                $data['receiver_entity_id'] = $inventory_details['receiver_entity_id'];
+                                $data['receiver_entity_type'] = $inventory_details['receiver_entity_type'];
+                                $data['stock'] = $inventory_details['stock'];
+                                $data['booking_id'] = $booking_id;
+                                $data['agent_id'] = $inventory_details['agent_id'];
+                                $data['agent_type'] = $inventory_details['agent_type'];
+
+                                $this->miscelleneous->process_inventory_stocks($data);
+                            }
                         }
-                        
-                        $data['receiver_entity_id'] = $inventory_details['receiver_entity_id'];
-                        $data['receiver_entity_type'] = $inventory_details['receiver_entity_type'];
-                        $data['stock'] = $inventory_details['stock'];
-                        $data['booking_id'] = $booking_id;
-                        $data['agent_id'] = $inventory_details['agent_id'];
-                        $data['agent_type'] = $inventory_details['agent_type'];
-                        
-                        $this->miscelleneous->process_inventory_stocks($data);
                     }
                 }
             }
         }
-    }
         return;
     }
 
@@ -1503,103 +1506,103 @@ class Booking_model extends CI_Model {
      * @param: Array
      * @return: Price tags.
      */
-    function update_booking_in_booking_details($services_details, $booking_id, $state, $update_key,$agent_details){
-        
-        $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
+    function update_booking_in_booking_details($services_details, $booking_id, $state, $update_key, $agent_details) {
 
-        $this->db->select('id, customer_total, price_tags, vendor_basic_percentage');
-        $this->db->where('appliance_id', $services_details['appliance_id']);
-        $this->db->where('price_tags', $data[0]['price_tags']);
-        $this->db->like('booking_id', preg_replace("/[^0-9]/","",$booking_id));
-        $query = $this->db->get('booking_unit_details');
-        $unit_details = $query->result_array();
-        $result = array_merge($data[0], $services_details);
-        if($data[0]['price_tags']  == REPAIR_OOW_PARTS_PRICE_TAGS){
-            if(!empty($unit_details) && $unit_details[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS){
-                $result['customer_total'] = $unit_details[0]['customer_total'];
-                $result['vendor_basic_percentage'] = $unit_details[0]['vendor_basic_percentage'];
+
+        $trimed_booking_id = preg_replace("/[^0-9]/", "", $booking_id);
+        if (!empty($trimed_booking_id) && strlen($trimed_booking_id) > 7) {
+            $data = $this->getpricesdetails_with_tax($services_details['id'], $state);
+            $this->db->select('id, customer_total, price_tags, vendor_basic_percentage');
+            $this->db->where('appliance_id', $services_details['appliance_id']);
+            $this->db->where('price_tags', $data[0]['price_tags']);
+            $this->db->like('booking_id', $trimed_booking_id);
+            $query = $this->db->get('booking_unit_details');
+            $unit_details = $query->result_array();
+            $result = array_merge($data[0], $services_details);
+            if ($data[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
+                if (!empty($unit_details) && $unit_details[0]['price_tags'] == REPAIR_OOW_PARTS_PRICE_TAGS) {
+                    $result['customer_total'] = $unit_details[0]['customer_total'];
+                    $result['vendor_basic_percentage'] = $unit_details[0]['vendor_basic_percentage'];
+                }
             }
-        }
 
-        unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
-        $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
-        $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate'])/ 100;
-        
+            unset($result['id']);  // unset service center charge  id  because there is no need to insert id in the booking unit details table
+            $result['customer_net_payable'] = $result['customer_total'] - $result['partner_paid_basic_charges'] - $result['around_paid_basic_charges'];
+            $result['partner_paid_tax'] = ($result['partner_paid_basic_charges'] * $result['tax_rate']) / 100;
 
-        $vendor_total_basic_charges =  ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage']/100);
-        $result['partner_paid_basic_charges'] = $result['partner_paid_basic_charges'] + $result['partner_paid_tax'];
-        $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
-         
-        $result['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate'] );
-        $result['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate'] );
-        
-        $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
-        $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
-       
-        log_message('info', __METHOD__ . " update booking_unit_details data " . print_r($result, true) . " Price data with tax: " . print_r($data, true));
-        
-        if ($query->num_rows > 0) {
-            //if found, update this entry
-            
-            log_message('info', __METHOD__ . " update booking_unit_details ID: " . print_r($unit_details[0]['id'], true));
-            $this->db->where('id', $unit_details[0]['id']);
-            $this->db->update('booking_unit_details', $result);
-            $u_unit_id = $unit_details[0]['id'];
-            
-        } else {
-            //trim booking only digit
-            $trimed_booking_id = preg_replace("/[^0-9]/","",$booking_id);
-            $unit_where = array('booking_id' => $trimed_booking_id);
-            $unit_num = $this->get_unit_details($unit_where, TRUE);
-   
-            log_message('info', __METHOD__ . " count previous unit: " . count($unit_num));
-            log_message('info', __METHOD__ . " Price tags not found ");
-            if (!empty($unit_num)) {
 
-                if (count($unit_num) > 1) {
+            $vendor_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] ) * ($result['vendor_basic_percentage'] / 100);
+            $result['partner_paid_basic_charges'] = $result['partner_paid_basic_charges'] + $result['partner_paid_tax'];
+            $around_total_basic_charges = ($result['customer_net_payable'] + $result['partner_paid_basic_charges'] + $result['around_paid_basic_charges'] - $vendor_total_basic_charges);
 
-                    $this->db->insert('booking_unit_details', $result);
-                    $u_unit_id = $this->db->insert_id();
-                    log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
-                    //process inventory stock for each unit if price tag is wall mount
-                    if($result['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG){
-                        $this->process_inventory($result,$agent_details);
-                    }
-                    
-                } else {
-                    //$this->db->where('booking_id',  $booking_id);
-                    if (empty($unit_num[0]['price_tags'])) {
-                        $this->db->where('id', $unit_num[0]['id']);
-                        $this->db->update('booking_unit_details', $result);
-                        $u_unit_id = $unit_num[0]['id'];
-                        log_message('info', __METHOD__ . " Update Unit details SQL" . $this->db->last_query());
-                    } else {
+            $result['around_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($around_total_basic_charges, $result['tax_rate']);
+            $result['vendor_st_or_vat_basic_charges'] = $this->get_calculated_tax_charge($vendor_total_basic_charges, $result['tax_rate']);
+
+            $result['around_comm_basic_charges'] = $around_total_basic_charges - $result['around_st_or_vat_basic_charges'];
+            $result['vendor_basic_charges'] = $vendor_total_basic_charges - $result['vendor_st_or_vat_basic_charges'];
+
+            log_message('info', __METHOD__ . " update booking_unit_details data " . print_r($result, true) . " Price data with tax: " . print_r($data, true));
+
+            if ($query->num_rows > 0) {
+                //if found, update this entry
+
+                log_message('info', __METHOD__ . " update booking_unit_details ID: " . print_r($unit_details[0]['id'], true));
+                $this->db->where('id', $unit_details[0]['id']);
+                $this->db->update('booking_unit_details', $result);
+                $u_unit_id = $unit_details[0]['id'];
+            } else {
+                
+                $unit_where = array('booking_id' => $trimed_booking_id);
+                $unit_num = $this->get_unit_details($unit_where, TRUE);
+
+                log_message('info', __METHOD__ . " count previous unit: " . count($unit_num));
+                log_message('info', __METHOD__ . " Price tags not found ");
+                if (!empty($unit_num)) {
+
+                    if (count($unit_num) > 1) {
+
                         $this->db->insert('booking_unit_details', $result);
                         $u_unit_id = $this->db->insert_id();
                         log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
                         //process inventory stock for each unit if price tag is wall mount
-                        if($result['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG){
-                            $this->process_inventory($result,$agent_details);
+                        if ($result['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
+                            $this->process_inventory($result, $agent_details);
+                        }
+                    } else {
+                        //$this->db->where('booking_id',  $booking_id);
+                        if (empty($unit_num[0]['price_tags'])) {
+                            $this->db->where('id', $unit_num[0]['id']);
+                            $this->db->update('booking_unit_details', $result);
+                            $u_unit_id = $unit_num[0]['id'];
+                            log_message('info', __METHOD__ . " Update Unit details SQL" . $this->db->last_query());
+                        } else {
+                            $this->db->insert('booking_unit_details', $result);
+                            $u_unit_id = $this->db->insert_id();
+                            log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
+                            //process inventory stock for each unit if price tag is wall mount
+                            if ($result['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
+                                $this->process_inventory($result, $agent_details);
+                            }
                         }
                     }
-                }
-            } else {
-                $this->db->insert('booking_unit_details', $result);
-                $u_unit_id = $this->db->insert_id();
-                log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
-                //process inventory stock for each unit if price tag is wall mount
-                if($result['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG){
-                    $this->process_inventory($result,$agent_details);
+                } else {
+                    $this->db->insert('booking_unit_details', $result);
+                    $u_unit_id = $this->db->insert_id();
+                    log_message('info', __METHOD__ . " Insert New Unit details SQL" . $this->db->last_query());
+                    //process inventory stock for each unit if price tag is wall mount
+                    if ($result['price_tags'] == _247AROUND_WALL_MOUNT__PRICE_TAG) {
+                        $this->process_inventory($result, $agent_details);
+                    }
                 }
             }
-        }
-        $return_details['unit_id'] = $u_unit_id;
-        $return_details['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
-        $return_details['price_tags'] = $data[0]['price_tags'];
+            $return_details['unit_id'] = $u_unit_id;
+            $return_details['DEFAULT_TAX_RATE'] = $data['DEFAULT_TAX_RATE'];
+            $return_details['price_tags'] = $data[0]['price_tags'];
 
-        return $return_details;
+            return $return_details;
+        }
     }
-    
+
     /**
      * @desc: calculate service charges and vat charges
      * @param : total charges and tax rate
@@ -1681,7 +1684,7 @@ class Booking_model extends CI_Model {
     }
     function update_request_type_history_table($booking_id,$oldRequestType,$oldPriceTag,$newRequest){
             log_message('info', __METHOD__ . " Booking ID " . $booking_id . "Old Price Tags " . print_r($oldPriceTag, true));
-            $whereNewPrice['booking_id'] = $booking_id;
+            $whereNewPrice['booking_id LIKE "%'.preg_replace("/[^0-9]/","",$booking_id).'%"'] = NULL;
             $groupBY  = array('appliance_id');
             $newPriceTag = $this->reusable_model->get_search_result_data('booking_unit_details','appliance_id,GROUP_CONCAT(price_tags) as price_tag',$whereNewPrice,NULL,NULL,NULL,NULL,NULL,$groupBY);
             $finalOldPrice = array();
@@ -2324,8 +2327,7 @@ class Booking_model extends CI_Model {
         $this->db->join('users', 'users.user_id = booking_details.user_id ');
         $this->db->join('services', 'services.id = booking_details.service_id');
         $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id');
-        
-        $this->db->where("booking_details.booking_id LIKE '%Q-%'",NULL);
+        $this->db->where('booking_details.current_status', _247AROUND_FOLLOWUP);
         $this->db->where("(DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y')) >= 0 OR booking_details.booking_date = '')",NULL);
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
@@ -2684,10 +2686,10 @@ class Booking_model extends CI_Model {
         return $result;
     }
     function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id){
-          $sql = "SELECT * FROM booking_unit_details WHERE `serial_number` = '".$serialNumber."' AND booking_status != 'Cancelled' AND price_tags != 'Repeat Booking' AND booking_id != '".$booking_id."'"
+          $sql = "SELECT * FROM booking_unit_details WHERE `serial_number` = '".$serialNumber."' AND booking_status != 'Cancelled' AND price_tags NOT IN ('Repeat Booking','Presale Repair') AND booking_id != '".$booking_id."'"
                 . " UNION "
                 . "SELECT booking_unit_details.* FROM service_center_booking_action JOIN booking_unit_details ON booking_unit_details.id = service_center_booking_action.unit_details_id WHERE "
-                . "service_center_booking_action.serial_number = '".$serialNumber."' AND service_center_booking_action.current_status != 'Cancelled' AND `price_tags` != 'Repeat Booking' "
+                . "service_center_booking_action.serial_number = '".$serialNumber."' AND service_center_booking_action.current_status != 'Cancelled' AND `price_tags` NOT IN ( 'Repeat Booking','Presale Repair') "
                 . "AND service_center_booking_action.booking_id != '".$booking_id."'";
         
          $query = $this->db->query($sql);

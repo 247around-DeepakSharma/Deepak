@@ -165,8 +165,9 @@
                                                 $redirect_url = base_url()."service_center/complete_booking_form/".urlencode(base64_encode($row->booking_id));
                                             ?>
                                             <a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php  if($is_engineer_app == '1')  { if (is_null($row->assigned_engineer_id) || (!empty($row->sf_booking_close_flag) && !empty($row->partner_booking_close_flag))) { 
-                                            ?>  disabled <?php } } }  if(!empty($row->service_center_closed_date)) { echo 'disabled';}?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                                            ?>  disabled <?php } } }?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                         </td>
+
                                         <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel' <?php if($is_engineer_app == '1') { if ((!empty($row->sf_booking_close_flag) && !empty($row->partner_booking_close_flag))) { 
 echo 'disabled';}} if(!empty($row->service_center_closed_date)) { echo 'disabled';}?>><i class='fa fa-times' aria-hidden='true'></i></a>
                                         </td>                                        

@@ -1650,7 +1650,7 @@ class Service_centers extends CI_Controller {
                 $updated_status = $this->booking_model->update_booking($booking_id, $data);
                 if ($updated_status) {
                     // Update service center internal status in service center action table
-                    $this->service_centers_model->update_service_centers_action_table($booking_id, array('internal_status' => ENGG_ASSIGNED, 'update_date' => date('Y-m-d H:i:s')));
+                    // $this->service_centers_model->update_service_centers_action_table($booking_id, array('internal_status' => ENGG_ASSIGNED, 'update_date' => date('Y-m-d H:i:s')));
 
                     $assigned['booking_id'] = $booking_id;
                     $assigned['current_state'] = ENGG_ASSIGNED;
@@ -2527,7 +2527,6 @@ class Service_centers extends CI_Controller {
                     else{
                         $this->insert_details_in_state_change($booking_id, $reason, $data['remarks_by_sc'], "not_define", "not_define");
                     }
-                    
                     $sc_data['current_status'] = "InProcess";
 
                     if (!empty($booking_date)) {
@@ -3226,7 +3225,7 @@ function do_multiple_spare_shipping(){
             $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $sp_id], NULL, NULL, NULL, NULL, NULL)[0];
             
             $defective_courier_receipt = $this->input->post("sp_parts");
-            $spare_details = $this->partner_model->get_spare_parts_by_any("*",array('spare_parts_details.id'=>$sp_id));
+            $spare_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*",array('spare_parts_details.id'=>$sp_id));
             
             if (!empty($defective_courier_receipt)) {
                 if (!empty($sp_id)) {
@@ -3686,8 +3685,6 @@ function do_multiple_spare_shipping(){
      * @desc: It's used to generate SF Challan
      * @param String $generate_challan
      */
-
-    
       function generate_sf_challan($generate_challan) {
                                   
         $delivery_challan_file_name_array = array();
@@ -5419,7 +5416,6 @@ function do_multiple_spare_shipping(){
             }
         }
     }
-
     /*
      * This Function send SMS to Customer When SF request For Booking Reschedule (To Know is Reschedule Fake)
      */
@@ -5784,7 +5780,7 @@ function do_multiple_spare_shipping(){
                        
                             if ($part_details['spare_id'] == "new") {
                        
-                                $sp_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $booking_id));
+                                $sp_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $booking_id));
                                   
                                 $data['entity_type'] = _247AROUND_SF_STRING;
                                 $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
@@ -7418,10 +7414,10 @@ function do_multiple_spare_shipping(){
         $from = trim($this->input->post('frombooking'));
         $to = trim($this->input->post('tobooking'));
         // $where=array('booking_id',$from);
-        $from_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $from, 'entity_type' => _247AROUND_SF_STRING, 'wh_ack_received_part' => 1,
+        $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'entity_type' => _247AROUND_SF_STRING, 'wh_ack_received_part' => 1,
             'status' => SPARE_PARTS_REQUESTED));
         $frominventory_req_id = $from_details[0]['requested_inventory_id'];
-        $to_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $to,
+        $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to,
             'entity_type' => _247AROUND_PARTNER_STRING, 'purchase_invoice_id' => NULL, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
 
         // print_r($this->db->last_query());exit;
@@ -7460,8 +7456,8 @@ function do_multiple_spare_shipping(){
             $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");
             redirect('service_center/spare_transfer');
         } else {
-            $form_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $frominventory));
-            $to_details = $this->partner_model->get_spare_parts_by_any("*", array('id' => $toinventory));
+            $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $frominventory));
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $toinventory));
             if (empty($form_details) || empty($to_details)) {
                 $this->session->set_flashdata('error_msg', "Booking spare details not found. Spare transfer not allowed");
                 redirect('service_center/spare_transfer');
@@ -7649,10 +7645,8 @@ function do_multiple_spare_shipping(){
         if (empty($frombooking) || empty($tobooking) || ($inventory_id_from != $inventory_id_to)) {
             echo 'fail';
         } else {
-
             $form_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $from_spare_id));
             $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $to_spare_id));
-
             if (empty($form_details) || empty($to_details) || ($form_details[0]['service_center_id'] != $to_details[0]['service_center_id'])) {
                 echo 'fail';
             } else {

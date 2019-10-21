@@ -1376,6 +1376,7 @@ class invoices_model extends CI_Model {
                 WHERE  
                 
                 ud.booking_status =  'Completed'
+                AND bd.current_status =  'Completed'
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
@@ -1801,7 +1802,7 @@ class invoices_model extends CI_Model {
                     AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND pay_from_sf = 1
                     $is_invoice_null
                     AND assigned_vendor_id = '" . $vendor_id . "' "
-                    . " AND `booking_unit_details`.booking_status = 'Completed' $where";
+                    . " AND `booking_unit_details`.booking_status = 'Completed' AND booking_details.current_status = 'Completed'  $where";
 
 
             $query = $this->db->query($sql);
@@ -1835,6 +1836,7 @@ class invoices_model extends CI_Model {
                 FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
                 WHERE ud.booking_status =  'Completed'
                 AND ud.booking_id = bd.booking_id
+                AND bd.current_status =  'Completed'
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'

@@ -1086,8 +1086,7 @@ class vendor extends CI_Controller {
          $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
          $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         if ($this->form_validation->run()) {
-         //   $spare_data = $this->inventory_model->get_spare_parts_details("id, status", array("booking_id"=>$this->input->post('booking_id')));
-        //    if(!empty($spare_data)){
+            $spare_data = $this->inventory_model->get_spare_parts_details("id, status", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
                 $booking_id = $this->input->post('booking_id');
                 $service_center_id = $this->input->post('service');
                 $remarks = $this->input->post('remarks');
@@ -1118,15 +1117,19 @@ class vendor extends CI_Controller {
                     'cancellation_reason' => NULL,
                     'upcountry_distance' => NULL,
                     'internal_status' => _247AROUND_PENDING);
-
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+                
                 $actor = $next_action = 'not_define';
-                if (!empty($partner_status)) {
-                    $assigned_data['partner_current_status'] = $partner_status[0];
-                    $assigned_data['partner_internal_status'] = $partner_status[1];
-                    $actor = $assigned_data['actor'] = $partner_status[2];
-                    $next_action = $assigned_data['next_action'] = $partner_status[3];
+                if(empty($spare_data)){
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+
+                    if (!empty($partner_status)) {
+                        $assigned_data['partner_current_status'] = $partner_status[0];
+                        $assigned_data['partner_internal_status'] = $partner_status[1];
+                        $actor = $assigned_data['actor'] = $partner_status[2];
+                        $next_action = $assigned_data['next_action'] = $partner_status[3];
+                    }
                 }
+                
                 $this->booking_model->update_booking($booking_id, $assigned_data);
 
                 $this->vendor_model->delete_previous_service_center_action($booking_id);
@@ -1229,14 +1232,6 @@ class vendor extends CI_Controller {
 
 
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
-        // }
-        // else{
-        //     $booking_id = $this->input->post('booking_id');
-        //     $output = "You cann't reassign this booking because spare part already requested. If you want to reassign then please cancel part request.";
-        //     $userSession = array('error' => $output);
-        //     $this->session->set_userdata($userSession);
-        //     redirect(base_url() . "employee/vendor/get_reassign_vendor_form/".$booking_id);
-        // }
         } else {
             $booking_id = $this->input->post('booking_id');
             $output = "All Fields are required";

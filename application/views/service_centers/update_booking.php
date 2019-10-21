@@ -105,7 +105,7 @@
                                         if(!empty($booking_history['spare_parts'][0]['model_number']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED){
                                             $booking_model_number = $booking_history['spare_parts'][0]['model_number'];
                                         }
-                                        if(empty($booking_model_purchase_date) && !empty($booking_history['spare_parts'][0]['date_of_purchase'])){
+                                        if(!empty($booking_history['spare_parts'][0]['date_of_purchase'])){
                                             $booking_model_purchase_date = $booking_history['spare_parts'][0]['date_of_purchase'];
                                         }
                                         if(!empty($booking_model_number) && !empty($model[0]) && $booking_history['is_spare_requested']){
@@ -113,7 +113,7 @@
                                             if(!in_array($booking_model_number, $arrModels)){ ?>
                                                 <input type="hidden" name="model_not_mapped" id="model_not_mapped" value="1"/>
                                                 <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
-                                                    <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $booking_model_number ?>' filled during Spare Request is not mapped with the partner! Please Contact 247 around team.</span>
+                                                    <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $booking_model_number ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
                                                 </div>
                                             <?php }
                                         }
