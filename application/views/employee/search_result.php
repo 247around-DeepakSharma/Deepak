@@ -292,6 +292,7 @@
                             <th>Escalate</th>
                             <th>Remove Penalty</th>
                             <th>Helper Document</th>
+                            <th>Repeat</th>
                         </tr>
                     </thead>
                     <?php if($offset == 0){ $offset = 1;}else { $offset = $offset+1; }  ?>
@@ -447,6 +448,19 @@
                         </td>
                         <td>
                             <a class="btn btn-sm btn-color" title="Helper Document" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral('<?php echo $row->booking_id; ?>')"><i class="fa fa-file-text-o" aria-hidden="true"></i></a>
+                        </td>
+                        <td>
+                            <?php  if (!empty($row->service_center_closed_date) && $row->service_center_closed_date != '0000-00-00 00:00:00') {
+                                            $today = strtotime(date("Y-m-d"));
+                                            $closed_date = strtotime($row->service_center_closed_date);
+                                            $completedDays = round(($today - $closed_date) / (60 * 60 * 24));
+                                            if($completedDays < _247AROUND_REPEAT_BOOKING_ALLOWED_DAYS){
+                                    ?>
+                                    <a target="_blank" href="<?php echo base_url(); ?>employee/booking/get_repeat_booking_form/<?php echo $row->booking_id;?>" class="btn btn-small btn-color btn-sm" title="Create Repeat Booking"><i class="glyphicon glyphicon-plus" aria-hidden="true"></i></a>
+                            <?php
+                                    }
+                                }
+                            ?>
                         </td>
                     </tr>
                     <?php $count++; $offset++;
