@@ -542,7 +542,7 @@ class User_invoice extends CI_Controller {
                             . "state,address as company_address, owner_phone_1,"
                             . "company_name, pincode, "
                             . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $postData[0]->service_center_ids))[0];
-        $invoice_id = $this->invoice_lib->create_invoice_id("Around");
+        $invoice_id = $this->invoice_lib->create_invoice_id("ARD-9");
         foreach ($postData as $key=>$value){
             if($value->spare_detail_ids){
                 $spare_parts_detail_ids[] = $value->spare_detail_ids;
@@ -1486,7 +1486,7 @@ class User_invoice extends CI_Controller {
                             . "state,address as company_address, "
                             . "company_name, pincode, "
                             . "district, owner_email as invoice_email_to, email as invoice_email_cc", array('id' => $postData[0]->service_center_ids))[0];
-        $invoice_id = $this->invoice_lib->create_invoice_id("Around");
+        $invoice_id = $this->invoice_lib->create_invoice_id("ARD-9");
         foreach ($postData as $key=>$value){ 
             $spare_parts_detail_ids[] = $value->spare_detail_ids;
             $spare_id = $value->spare_detail_ids;

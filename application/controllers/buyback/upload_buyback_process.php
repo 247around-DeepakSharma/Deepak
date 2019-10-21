@@ -1097,7 +1097,7 @@ class Upload_buyback_process extends CI_Controller {
         
         if(!empty($appData)){
             $sd = $ed = $invoice_date = date("Y-m-d");
-            $invoice_id = $this->invoice_lib->create_invoice_id("Around");
+            $invoice_id = $this->invoice_lib->create_invoice_id("ARD-9");
             $vendor_data = $this->partner_model->getpartner_details("gst_number, "
                                 . "state,address as company_address, owner_phone_1,"
                                 . "company_name, pincode, "
