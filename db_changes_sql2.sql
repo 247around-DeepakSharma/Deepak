@@ -1534,8 +1534,27 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 --Kalyani 11-10-2019
 INSERT INTO `partner_summary_report_mapping` (`Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES ('Engineer Name', 'engineer_details.name AS engineer_name', '1', '', '1', '50');
 
-<<<<<<< HEAD
 -- Kajal 11-10-2019
 ALTER TABLE `file_uploads` ADD `amount_paid` DECIMAL(10,2) NOT NULL DEFAULT '0.00' AFTER `result`;
-=======
->>>>>>> CRM_Release_1.67.0.0
+
+--Kajal 11-10-2019
+ALTER TABLE `file_uploads` ADD `amount_paid` DECIMAL(10,2) NOT NULL DEFAULT '0.00' AFTER `result`;
+
+--Kalyani 18-10-2019
+CREATE TABLE `engineer_consumed_spare_details` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(255) NOT NULL,
+  `spare_id` int(11) NOT NULL,
+  `consumed_part_status_id` int(11) DEFAULT NULL,
+  `part_name` varchar(255) DEFAULT NULL,
+  `inventory_id` int(11) DEFAULT NULL,
+  `remarks` varchar(1000) DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `engineer_consumed_spare_details`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `engineer_consumed_spare_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
