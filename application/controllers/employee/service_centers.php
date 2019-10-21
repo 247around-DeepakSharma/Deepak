@@ -416,7 +416,7 @@ class Service_centers extends CI_Controller {
                 $price_tags2 = str_replace('(Paid)', '', $price_tags1);
                 array_push($price_tags, $price_tags2);
                 if ($this->session->userdata('is_engineer_app') == 1) {
-
+                    
                     $unitWhere = array("engineer_booking_action.booking_id" => $booking_id,
                         "engineer_booking_action.unit_details_id" => $u['unit_id'], "service_center_id" => $data['booking_history'][0]['assigned_vendor_id']);
                     $en = $this->engineer_model->getengineer_action_data("engineer_booking_action.*", $unitWhere);
@@ -447,6 +447,25 @@ class Service_centers extends CI_Controller {
                     $en_sign = $this->engineer_model->get_engineer_sign("id, signature", array("service_center_id" => $data['booking_history'][0]['assigned_vendor_id'], "booking_id" => $booking_id));
                     if(!empty($en_sign)){
                         $data['en_signature_picture'] = $en_sign[0]['signature'];
+                    }
+                    
+                    $en_consumption = $this->service_centers_model->get_engineer_consumed_details(array("booking_id" => $booking_id));
+                    if(!empty($en_consumption)){
+                        $c = 0;
+                        foreach ($en_consumption as $consumptions) {
+                            $data['en_consumpton_details'][$consumptions['spare_id']]['spare_id'] = $consumptions['spare_id'];
+                            $data['en_consumpton_details'][$consumptions['spare_id']]['consumption_status_id'] = $consumptions['consumed_part_status_id'];
+                            if($consumptions['consumed_part_status_id'] == CONSUMED_WRONG_PART_STATUS_ID){
+                                $wrong_part_data = array();
+                                $wrong_part_data['spare_id'] = $consumptions['spare_id'];
+                                $wrong_part_data['part_name'] = $consumptions['part_name'];
+                                $wrong_part_data['part_name'] = $consumptions['part_name'];
+                                $wrong_part_data['inventory_id'] = $consumptions['inventory_id'];
+                                $wrong_part_data['remarks'] = $consumptions['remarks'];
+                                $data['en_consumpton_details'][$consumptions['spare_id']]['wrong_part_data'] = json_encode($wrong_part_data);
+                            }
+                            $c++;
+                        }
                     }
                 }
                 $pid = $this->miscelleneous->search_for_pice_tag_key($u['price_tags'], $prices);
@@ -5308,7 +5327,7 @@ class Service_centers extends CI_Controller {
      * @desc This is used to Approve Spare Estimate by SF
      * @param String $booking_id
      */
-    function approve_oow($booking_id) { 
+ function approve_oow($booking_id) {   
         log_message("info", __METHOD__ . "Enterring");
         if (!empty($booking_id)) { 
             $req['where'] = array("spare_parts_details.booking_id" => $booking_id, "status" => SPARE_OOW_EST_GIVEN);
@@ -5329,11 +5348,10 @@ class Service_centers extends CI_Controller {
                     . "spare_parts_details.shipped_inventory_id";
 
             $sp_data = $this->inventory_model->get_spare_parts_query($req);
-       
+  
             if ($this->session->userdata('service_center_id')) {
                 $agent_id = $this->session->userdata('service_center_agent_id');
-                $agent_name = $this->session->userdata('service_center_name');
-                $service_center_id = $this->session->userdata('service_center_id');
+                $agent_name = $this->session->userdata('service_center_name');               
                 $l_partner = NULL;
             } else if($this->input->post("call_from_api")){
                 $agent_id = $this->input->post("service_center_id");
@@ -5344,16 +5362,19 @@ class Service_centers extends CI_Controller {
             else {
                 $agent_id = _247AROUND_DEFAULT_AGENT;
                 $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
-                $service_center_id = NULL;
                 $l_partner = _247AROUND;
             }
             $partner_id = $this->input->post("partner_id");
+ 
+
             if (!empty($sp_data)) { 
                 $flag = TRUE;
                 $next_action = '';
                 foreach ($sp_data as $key => $value) {
-                                      
+                               
                     $spare_data = array();
+                    $delivered_sp=array();
+                    $service_center_id = $value->service_center_id;
                     $spare_data['model_number'] = $value->model_number;
                     $spare_data['parts_requested'] = $value->parts_requested;
                     $spare_data['parts_requested_type'] = $value->parts_requested_type;
@@ -5370,10 +5391,13 @@ class Service_centers extends CI_Controller {
                     $data = array();
                     $entity_type = $value->entity_type;
                     $is_micro_wh = $value->is_micro_wh;
+                    $spare_id=$value->id;
+                    if (!isset($partner_id)  ||  empty($partner_id)) {
+                       $partner_id= $value->partner_id; 
+                    }
+
                     $partner_details = $this->partner_model->getpartner_details("is_def_spare_required,is_wh, is_defective_part_return_wh,is_micro_wh", array('partners.id' => $partner_id));
                     $sf_state = $this->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $service_center_id));
-
-
                     $is_warehouse = false;
                     if (!empty($partner_details[0]['is_wh'])) {
 
@@ -5381,11 +5405,9 @@ class Service_centers extends CI_Controller {
                     } else if (!empty($partner_details[0]['is_micro_wh'])) {
                         $is_warehouse = TRUE;
                     }
-
                     if (!empty($is_warehouse)) {
 
                         $warehouse_details = $this->get_warehouse_details(array('inventory_id' => $value->original_inventory_id, 'state' => $sf_state[0]['state'], 'service_center_id' => $service_center_id,'model_number'=>$value->model_number), $partner_id);
-                        
                         if (!empty($warehouse_details) && $warehouse_details['stock'] >= $spare_data['quantity']) {
                             $data['partner_id'] = $warehouse_details['entity_id'];
                             $data['entity_type'] = $warehouse_details['entity_type'];
@@ -5422,7 +5444,6 @@ class Service_centers extends CI_Controller {
                         $is_micro_wh = 0;
                     }
 
-
                     if ($entity_type == _247AROUND_SF_STRING) {
                         if ($is_micro_wh == 1) {
                             $actor = "vendor";
@@ -5457,6 +5478,7 @@ class Service_centers extends CI_Controller {
                          $spare_data['date_of_request'] = $data['date_of_request'];
                          $spare_data['requested_inventory_id'] = $data['requested_inventory_id'];
                          array_push($delivered_sp, $spare_data);
+                         //$delivered_sp[] = $spare_data;
                          $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
                          unset($data['spare_id']);
                         } else if ($is_micro_wh == 2) {
@@ -5467,13 +5489,13 @@ class Service_centers extends CI_Controller {
                             $sc['internal_status'] = SPARE_PARTS_REQUIRED;
                             $status = SPARE_PARTS_REQUESTED;
                             $data['status'] = $status;
-                            $data['date_of_request'] = date('Y-m-d');
-                                                                     
+                            $data['date_of_request'] = date('Y-m-d');                                     
                             $this->service_centers_model->update_spare_parts(array('id' => $value->id), $data);
 
                             $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['partner_id'], $data['requested_inventory_id'],$spare_data['quantity']);
                         }
                     } else {
+                        
                         log_message("info", __METHOD__ . "Spare parts Not found" . $booking_id);
                         $actor = "partner";
                         $next_action = "Send OOW Part";
@@ -5481,8 +5503,8 @@ class Service_centers extends CI_Controller {
                         $sc['update_date'] = date('Y-m-d H:i:s');
                         $sc['internal_status'] = SPARE_PARTS_REQUIRED;
                         $status = SPARE_PARTS_REQUESTED;
-
-                        $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("status" => $status, 'date_of_request' => date('Y-m-d')));
+///////  Coming here ////
+                        $this->service_centers_model->update_spare_parts(array('id' => $value->id), array("status" => $status,'date_of_request' => date('Y-m-d')));
                     }
 
 
@@ -6445,9 +6467,14 @@ class Service_centers extends CI_Controller {
      */
     function get_warehouse_details($data, $partner_id){
         $response = array();
-        
+
+        if (!empty($data['service_center_id'])) {
+           $data['service_center_id'] = $data['service_center_id'];
+        }else{
+            $data['service_center_id'] = $this->session->userdata('service_center_id');
+        }
         if(!empty($data['inventory_id'])){
-            return $this->miscelleneous->check_inventory_stock($data['inventory_id'], $partner_id, $data['state'], $this->session->userdata('service_center_id'), $data['model_number']);
+            return $this->miscelleneous->check_inventory_stock($data['inventory_id'], $partner_id, $data['state'], $data['service_center_id'], $data['model_number']);
         }else{
             $response = array();
         }

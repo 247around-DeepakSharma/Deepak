@@ -118,7 +118,7 @@
                    <div class="form-group col-md-3" style="margin: 0px;padding: 0px 1px;width: 159px;">
                        <label for="" style="color:#fff">Dependency</label>
                        <select class="form-control"  ng-model="status" id="status" name="status[]" multiple="">
-                                <option value="247Around" <?php if(!empty($filters['status'])){if(in_array("247Around", $filters['status'])){echo 'selected="selected"';}} ?>>Admin</option>
+                                <option value="247Around:Warehouse" <?php if(!empty($filters['status'])){if(in_array("247Around", $filters['status'])){echo 'selected="selected"';}} ?>>Admin</option>
                                 <option value="Partner" <?php if(!empty($filters['status'])){if(in_array("Partner", $filters['status'])){echo 'selected="selected"';}} ?>>Partner</option>  
                                 <option value="Vendor:not_define" <?php if(!empty($filters['status'])){if(in_array("Vendor:not_define", $filters['status'])){echo 'selected="selected"';}} ?>>SF</option>  
                        </select>

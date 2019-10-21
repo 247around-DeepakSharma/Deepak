@@ -2324,6 +2324,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $data_state = json_decode($this->input->post('data_state'),true);
         }
         $csv ="";
+        $values = [];
         foreach($data as $values){
             $tempArray = array();
             $entity = $values['entity'];

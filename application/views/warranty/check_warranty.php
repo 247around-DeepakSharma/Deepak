@@ -9,7 +9,8 @@
                     <div class="col-lg-12">
                         <h1 class="page-header">
                             Check Warranty   
-                            <input type="text" value="" name="booking_id" id="booking_id" placeholder="Enter Booking Id" style="float:right;font-size:20px;padding:5px;"/>
+                            <input type="text" value="" name="booking_id" id="booking_id" placeholder="Enter Booking Id" style="float:right;font-size:20px;padding:5px;"/><br/>
+                            <span style="float:right;font-size:12px;color:blue;">* Press Enter to continue with Booking Id.</span>
                         </h1>
                         <form name="myForm" class="form-horizontal" method='post'> 
                             <div class="row">
@@ -307,8 +308,8 @@
                         $('#brand').select2().trigger('change');
                         $("#model").val(warrantyData[0]['model_id']);
                         $('#model').select2().trigger('change'); 
-                    }, 500);
-                }, 500);
+                    }, 700);
+                }, 700);
                 $('#purchase_date').datepicker('setDate', warrantyData[0]['purchase_date']); 
                 $('#create_date').datepicker('setDate', warrantyData[0]['booking_create_date']); 
             }                            
@@ -331,5 +332,10 @@
     .deactive
     {
         background : #ffdead !important;
+    }
+    
+    .page-header
+    {
+        padding-bottom : 20px !important;
     }
 </style>
