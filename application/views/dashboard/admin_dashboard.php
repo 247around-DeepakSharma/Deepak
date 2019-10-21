@@ -287,7 +287,7 @@
                         <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
-                                             <option value="247Around">Admin</option>
+                                             <option value="247Around:Warehouse">Admin</option>
                                             <option value="Partner">Partner</option>
                                             <option value="Vendor:not_define" selected="selected">SF</option>
                                         </select>
@@ -675,7 +675,7 @@
                         <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control" id="pending_dependency_am" name="status[]" multiple="">
-                                            <option value="247Around" selected="selected">247Around</option>
+                                            <option value="247Around:Warehouse" selected="selected">247Around</option>
                                             <option value="Partner">Partner</option>
                                             <option value="Vendor:not_define" selected="selected">SF</option>
                                         </select>
