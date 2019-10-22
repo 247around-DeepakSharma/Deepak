@@ -874,8 +874,12 @@ class Booking_model extends CI_Model {
         //}
 
     	if (!empty($capacity)) {
-    		$this->db->where('capacity', $capacity);
+            $this->db->where('capacity', $capacity);
     	}
+        else
+        {
+            $this->db->where('(capacity IS NULL OR capacity = "")', NULL);
+        }
         
         $this->db->order_by('service_category', 'asc');
 
