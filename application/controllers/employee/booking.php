@@ -1545,7 +1545,7 @@ class Booking extends CI_Controller {
                 }
                 $html .= " name='prices[$brand_id][$clone_number][]'";
                 if($prices['service_category'] == REPEAT_BOOKING_TAG){
-                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."' disabled></td><tr>";
+                    $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-toggle='modal' data-target='#repeat_booking_model' data-price_tag='".$prices['service_category']."' readonly></td><tr>";
                 }
                 else{
                     $html .= " onclick='check_booking_request(), final_price(), get_symptom(), enable_discount(this.id), set_upcountry()' value='" . $prices['id'] . "_" . intval($prices['customer_total']) . "_" . $i . "_" . $clone_number."' data-price_tag='".$prices['service_category']."' ></td><tr>";
@@ -6025,7 +6025,7 @@ class Booking extends CI_Controller {
         $data['part_name'] = $post_data['part_name'];
         $data['service_id'] = $post_data['service_id'];
         $data['shipped_inventory_id'] = $post_data['shipped_inventory_id'];
-        $data['parts'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name', ['service_id' => $data['service_id'], 'inventory_id not in (1,2)' => NULL]);
+        $data['parts'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name, part_number', ['service_id' => $data['service_id'], 'inventory_id not in (1,2)' => NULL]);
         
         if(!empty($post_data['wrong_flag'])) {
 

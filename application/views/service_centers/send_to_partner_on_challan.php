@@ -494,7 +494,7 @@
     function get_partner_ack(){
         $.ajax({
             type:'POST',
-            url:'<?php echo base_url();?>employee/service_centers/warehouse_ack_partner_list',
+            url:'<?php echo base_url();?>employee/service_centers/get_partner_list',
             data:{is_wh:true},
             success:function(response){
                 if(response === 'Error'){
