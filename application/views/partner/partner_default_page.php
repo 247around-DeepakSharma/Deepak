@@ -475,12 +475,12 @@
                     url: "<?php echo base_url() ?>apiDataRequest",
                     success: function (data) {
 
-                        if(data === 'Success'){
+                        if(data.includes('Success')){
                             oow_spare.ajax.reload(null, false);
                             swal("Thanks!", "Booking updated successfully!", "success");
 
                         } else {
-                            swal("Oops", "There is some problem, please contact 247Around Team", "error");
+                            swal("Oops", "There is some problem, please contact Admin", "error");
 
                         }
                         $('body').loadingModal('destroy');
