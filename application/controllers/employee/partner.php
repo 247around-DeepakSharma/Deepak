@@ -7551,7 +7551,7 @@ class Partner extends CI_Controller {
         }
     }
     function get_booking_relatives($booking_id){
-        $this->checkUserSession();
+//        $this->checkUserSession();
         $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
         if(!empty($relativeData)){
             echo  json_encode($relativeData[0]);
