@@ -2205,7 +2205,7 @@ class Spare_parts extends CI_Controller {
                 if (empty($is_saas)) {
                     if ($spare_data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
                         $spare_data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
-                        $spare_data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
+                        $spare_data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                     }
                 }
 

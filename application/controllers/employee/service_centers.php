@@ -810,7 +810,7 @@ class Service_centers extends CI_Controller {
                         $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, $where);
                         if (!empty($spare_parts_details)) {
                             if ($spare_parts_details[0]['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
-                                $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array("spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING, "spare_parts_details.defective_return_to_entity_id" => _247AROUND_WAREHOUSE_ID ));
+                                $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), array("spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING, "spare_parts_details.defective_return_to_entity_id" => DEFAULT_WAREHOUSE_ID ));
                             }
                         }
                         $this->invoice_lib->generate_challan_file($spare_id, $this->session->userdata('service_center_id'));   
@@ -2105,7 +2105,7 @@ class Service_centers extends CI_Controller {
         if (empty($access)) {
             if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
                 $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
-                $data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
+                $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
             }
         }
         $where = array('id' => $this->input->post('spare_id'));
@@ -2571,7 +2571,7 @@ class Service_centers extends CI_Controller {
                     if (empty($access)) {
                         if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
                             $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
-                            $data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
+                            $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                         }
                     }
 
