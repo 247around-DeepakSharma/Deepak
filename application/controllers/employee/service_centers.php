@@ -449,7 +449,7 @@ class Service_centers extends CI_Controller {
                         $data['en_signature_picture'] = $en_sign[0]['signature'];
                     }
                     
-                    $en_consumption = $this->service_centers_model->get_engineer_consumed_details(array("booking_id" => $booking_id));
+                    $en_consumption = $this->service_centers_model->get_engineer_consumed_details("engineer_consumed_spare_details.*", array("booking_id" => $booking_id));
                     if(!empty($en_consumption)){
                         $c = 0;
                         foreach ($en_consumption as $consumptions) {
@@ -5982,9 +5982,9 @@ class Service_centers extends CI_Controller {
                                 $post['where_in'] = array();
                                 $post['is_inventory'] = true;
                                 $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
-                                $part_details = $this->partner_model->get_spare_parts_by_any($select, $where_clause, true, false, false, $post);
-                                if (!empty($part_details)) {
-                                    $this->generate_challan_to_sf($part_details);
+                                $part_details_challan = $this->partner_model->get_spare_parts_by_any($select, $where_clause, true, false, false, $post);
+                                if (!empty($part_details_challan)) {
+                                    $this->generate_challan_to_sf($part_details_challan);
                                 }
                             }
 
