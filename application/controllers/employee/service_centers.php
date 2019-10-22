@@ -795,10 +795,6 @@ class Service_centers extends CI_Controller {
             }
             
             if(!empty($status)) {
-                $unitWhere1 = array("engineer_booking_action.booking_id" => $booking_id, "engineer_booking_action.unit_details_id" => $unit_id);
-                if ($this->session->userdata('is_engineer_app') == 1) {
-                    $this->engineer_model->update_engineer_table(array("current_status" => "InProcess", "internal_status" => $status), $unitWhere1);
-                }
                 // update in service center booking action.
                 $this->vendor_model->update_service_center_action($booking_id, ['internal_status' => $status]);
             }
