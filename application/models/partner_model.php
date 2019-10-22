@@ -316,6 +316,11 @@ function get_data_for_partner_callback($booking_id) {
         if (!empty($capacity)) {
             $this->db->where('capacity', $capacity);
         }
+        else
+        {
+            $this->db->where('(capacity is NULL OR capacity = "")', NULL);
+        }
+        
         $this->db->where('brand', $brand);
         
         $this->db->order_by('service_category', 'asc');
