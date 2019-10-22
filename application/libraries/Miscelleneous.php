@@ -4564,7 +4564,7 @@ function generate_image($base64, $image_name,$directory){
             $data['shipped_inventory_id'] = $value['requested_inventory_id'];
           
             $where = array('id' => $value['spare_id']);
-            $this->service_centers_model->update_spare_parts($where, $data);
+            $this->My_CI->service_centers_model->update_spare_parts($where, $data);
             
             $in['receiver_entity_id'] = $value['service_center_id'];
             $in['receiver_entity_type'] = _247AROUND_SF_STRING;
