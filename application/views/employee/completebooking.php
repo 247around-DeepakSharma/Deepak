@@ -1386,17 +1386,7 @@
     }
 
     $(document).on('change',"#wrong_part", function() {
-        var wrong_part_name_id = $('#wrong_part').val();
-        if(!!wrong_part_name_id) {
-            $.ajax({
-                method: 'POST',
-                url : '<?php echo base_url(); ?>employee/inventory/get_part_number',
-                data: {text_input:1, service_id: $('#service').val(), part_name:$('#wrong_part').children("option:selected").text()},
-                success: function(data){
-                    $('#part_number').val(data);
-                }
-            });
-        }
+        $('#part_number').val($('#wrong_part').children("option:selected").data('part_number'));
     });
 
 </script>
