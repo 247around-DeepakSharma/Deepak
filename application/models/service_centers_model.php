@@ -1277,9 +1277,10 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
      * @param Array $where
      * @return boolean
      */
-    function get_engineer_consumed_details($where){
-        $this->db->select('*');
+    function get_engineer_consumed_details($select="engineer_consumed_spare_details.*", $where=array()){
+        $this->db->select($select);
         $this->db->where($where);
+        $this->db->join("spare_consumption_status", "engineer_consumed_spare_details.consumed_part_status_id = spare_consumption_status.id");
         $query = $this->db->get('engineer_consumed_spare_details');
         if ($query->num_rows() > 0) {
             $result = $query->result_array();
