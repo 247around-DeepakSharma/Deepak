@@ -3609,7 +3609,10 @@ class Inventory extends CI_Controller {
                                                     $ledger_data['courier_id'] = $insert_courier_details;
                                                     $ledger_data['is_wh_micro'] = $is_wh_micro;
                                                     $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+                                                    if(isset($value['request_type']) && !empty($value['request_type'])){
                                                     $ledger_data['request_type'] = trim($value['request_type']); 
+                                                    }
+                                                    
                                                     $ledger_data['is_defective_part_return_wh'] = $is_defective_part_return_wh;
 
                                                     if ($insert_id) {
@@ -3877,7 +3880,7 @@ class Inventory extends CI_Controller {
                        if(empty($access)) {
                          if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
                               $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
-                              $data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
+                              $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                          }
                        }
                         $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $value['id']), $data);

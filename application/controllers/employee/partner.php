@@ -5052,6 +5052,7 @@ class Partner extends CI_Controller {
     
     function download_sf_declaration($sf_id) {
         log_message("info", __METHOD__." SF Id ". $sf_id);
+        ob_start();
         $this->checkUserSession();
         $pdf_details = $this->miscelleneous->generate_sf_declaration($sf_id);
         
@@ -5073,6 +5074,7 @@ class Partner extends CI_Controller {
             log_message("info", __METHOD__." file details  ". print_r($pdf_details,true));
             echo $pdf_details['message'];
         }
+        ob_end_flush();
     }
     
     
@@ -7559,7 +7561,7 @@ class Partner extends CI_Controller {
      */
     function get_repeat_booking_form($booking_id) {
          log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true));
-        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id,  "current_status not in ('Cancelled','Completed') " =>NULL),NULL,NULL,NULL,NULL,NULL,array());
+        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id,  "service_center_closed_date IS NULL " =>NULL),NULL,NULL,NULL,NULL,NULL,array());
         if(empty($openBookings)){
             $this->get_editbooking_form($booking_id,"Repeat");
         }
