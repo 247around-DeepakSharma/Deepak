@@ -421,6 +421,7 @@
     
     function load_comment_area(){
         $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#comment_section').show();
+        $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#update_section').hide();
         //document.getElementById("comment_section").style.display='block';
         $('#commnet_btn').hide();
     }
@@ -429,6 +430,7 @@
        // document.getElementById("update_section").style.display='block';
         $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#update_section').children('#comment2').val(data);
         $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#update_section').show();
+        $("#commentbox_<?=$review_status?>_<?=$is_partner?>").children('form').next('div').children('#comment_section').hide();
         //document.getElementById("").innerHTML=data;
         $('#comment_id').attr("value",key);
         $('#commnet_btn').hide();
