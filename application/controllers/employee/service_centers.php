@@ -449,7 +449,7 @@ class Service_centers extends CI_Controller {
                         $data['en_signature_picture'] = $en_sign[0]['signature'];
                     }
                     
-                    $en_consumption = $this->service_centers_model->get_engineer_consumed_details(array("booking_id" => $booking_id));
+                    $en_consumption = $this->service_centers_model->get_engineer_consumed_details("engineer_consumed_spare_details.*", array("booking_id" => $booking_id));
                     if(!empty($en_consumption)){
                         $c = 0;
                         foreach ($en_consumption as $consumptions) {

@@ -5052,6 +5052,7 @@ class Partner extends CI_Controller {
     
     function download_sf_declaration($sf_id) {
         log_message("info", __METHOD__." SF Id ". $sf_id);
+        ob_start();
         $this->checkUserSession();
         $pdf_details = $this->miscelleneous->generate_sf_declaration($sf_id);
         
@@ -5073,6 +5074,7 @@ class Partner extends CI_Controller {
             log_message("info", __METHOD__." file details  ". print_r($pdf_details,true));
             echo $pdf_details['message'];
         }
+        ob_end_flush();
     }
     
     
