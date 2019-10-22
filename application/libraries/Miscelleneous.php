@@ -4448,7 +4448,7 @@ function generate_image($base64, $image_name,$directory){
                     $spare_pending_on_to='';
 
                     if ($data['entity_type']==_247AROUND_SF_STRING) {
-                    $wh_details_to = $this->vendor_model->getVendorContact($data['entity_id']);
+                    $wh_details_to = $this->My_CI->vendor_model->getVendorContact($data['entity_id']);
                     if(!empty($wh_details_to)){
                     $spare_pending_on_to = $wh_details_to[0]['district'] . ' Warehouse';   
                     }else{
@@ -4461,7 +4461,7 @@ function generate_image($base64, $image_name,$directory){
 
                     $spare_pending_on='';
                     if ($data['entity_type']==_247AROUND_SF_STRING) {
-                    $wh_details = $this->vendor_model->getVendorContact($data['entity_id']);
+                    $wh_details = $this->My_CI->vendor_model->getVendorContact($data['entity_id']);
                     if(!empty($wh_details)){
                     $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';   
                     }else{
