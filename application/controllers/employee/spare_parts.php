@@ -2289,8 +2289,10 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     if (!empty($booking_id)) {
                         $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
 
-                        $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => trim($booking_id)),$data_unit_details);
-                        $this->booking_model->insert_booking_file($data_booking_file);
+                         if (!empty($spare_parts_details[0]['invoice_pic'])) {
+                          $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => trim($booking_id)),$data_unit_details);
+                          $this->booking_model->insert_booking_file($data_booking_file);
+                        }
 
 		         	if (isset($is_micro_wh) && $is_micro_wh == 1) {
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
