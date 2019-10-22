@@ -2205,7 +2205,7 @@ class Spare_parts extends CI_Controller {
                 if (empty($is_saas)) {
                     if ($spare_data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
                         $spare_data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
-                        $spare_data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+                        $spare_data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
                     }
                 }
 
@@ -2293,9 +2293,11 @@ class Spare_parts extends CI_Controller {
                     $this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, $reason_text, $reason, $agent_id, $agent_name, $actor, $next_action, _247AROUND, NULL);
                     if (!empty($booking_id)) {
                         $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
+                        if (!empty($spare_parts_details[0]['invoice_pic'])) {
+                          $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => trim($booking_id)),$data_unit_details);
+                          $this->booking_model->insert_booking_file($data_booking_file);
+                        }
 
-                        $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => trim($booking_id)),$data_unit_details);
-                        $this->booking_model->insert_booking_file($data_booking_file);
 
 		         	if (isset($is_micro_wh) && $is_micro_wh == 1) {
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
