@@ -4430,6 +4430,7 @@ function generate_image($base64, $image_name,$directory){
             $requested_inventory = $booking['requested_inventory_id'];
             
             $data = $this->check_inventory_stock($booking['requested_inventory_id'], $booking['booking_partner_id'], $state,$booking['service_center_id'],$booking['model_number']);
+
             if (!empty($data)) {
                  
                 if ($data['stock']>=$booking['quantity']) {
@@ -4495,10 +4496,11 @@ function generate_image($base64, $image_name,$directory){
 
                         if ($data['is_micro_wh']==1) {
                            //$dataupdate; 
-                            $dataupdate['spare_id']=$value['id'];
+                            $dataupdate['spare_id']=$booking['id'];
                             $dataupdate['model_number']=$booking['model_number'];
                             $dataupdate['quantity']=$booking['quantity'];
                             $dataupdate['date_of_request']=date('Y-m-d');
+                            $dataupdate['booking_id']=$booking['booking_id'];
                             $dataupdate['service_center_id']=$booking['service_center_id'];
                             array_push($delivered_sp,$dataupdate); 
 
@@ -4553,24 +4555,135 @@ function generate_image($base64, $image_name,$directory){
             $in['sender_entity_type'] = _247AROUND_SF_STRING;
             $in['stock'] = -$value['quantity']; //-1;
             $in['booking_id'] = $value['booking_id'];
-            if($this->session->userdata('userType') == 'service_center'){
-             $in['agent_id'] = $this->session->userdata('service_center_agent_id');            
+            if($this->My_CI->session->userdata('userType') == 'service_center'){
+             $in['agent_id'] = $this->My_CI->session->userdata('service_center_agent_id');            
             }else{
-              $in['agent_id'] = $this->session->userdata('agent_id');   
+              $in['agent_id'] = $this->My_CI->session->userdata('agent_id');   
             }
             $in['agent_type'] = _247AROUND_SF_STRING;
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
 
-            $this->miscelleneous->process_inventory_stocks($in); 
+            $this->process_inventory_stocks($in); 
+ 
+            // $url = base_url() . "employee/service_centres/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $value['service_center_id']."/".$value['spare_id']."/".$partner_id."/"."0"."1";
+            // $async_data['booking'] = array();
+            // $this->My_CI->asynchronous_lib->do_background_process($url, $async_data);
 
-           // $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'], $value['spare_id'], $partner_id,true, FALSE);
-            $url = base_url() . "employee/service_centres/acknowledge_delivered_spare_parts/" . $value['booking_id'] . "/" . $value['service_center_id']."/".$value['spare_id']."/".$partner_id."/"."0"."1";
-            $async_data['booking'] = array();
-            $this->My_CI->asynchronous_lib->do_background_process($url, $async_data);
+            $this->acknowledge_delivered_spare_parts($value['booking_id'], $value['service_center_id'],$value['spare_id'], $partner_id, $autoAck = false, $flag = TRUE);
  
         }
     }
+
+
+
+
+
+      /**
+     * @desc: This is used to update acknowledge date by SF
+     * @param String $booking_id
+     */
+    function acknowledge_delivered_spare_parts($booking_id, $service_center_id, $id, $partner_id, $autoAck = false, $flag = TRUE) {
+        log_message('info', __FUNCTION__ . " Booking ID: " . $booking_id . ' service_center_id: ' . $service_center_id . ' id: ' . $id);
+ 
+        if (!empty($booking_id)) {
+
+            $where = array('id' => $id);
+            $sp_data['service_center_id'] = $service_center_id;
+            $sp_data['acknowledge_date'] = date('Y-m-d');
+            $sp_data['status'] = SPARE_DELIVERED_TO_SF;
+           // print_r($sp_data); exit;
+            if (!empty($autoAck)) {
+                $sp_data['auto_acknowledeged'] = 1;
+            } else {
+                $sp_data['auto_acknowledeged'] = 0;
+            }
+            $actor = $next_action = NULL;
+            //Update Spare Parts table
+            $ss = $this->My_CI->service_centers_model->update_spare_parts($where, $sp_data);
+            if ($ss) { //if($ss){
+                $is_requested = $this->My_CI->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . SPARE_SHIPPED_BY_PARTNER . '", "'
+                    . SPARE_PARTS_REQUESTED . '", "' . ESTIMATE_APPROVED_BY_CUSTOMER . '", "' . SPARE_OOW_EST_GIVEN . '", "' . SPARE_OOW_EST_REQUESTED . '", "'.SPARE_PART_ON_APPROVAL.'", "'.SPARE_OOW_SHIPPED.'") ' => NULL));
+                if ($this->My_CI->session->userdata('service_center_id')) {
+                    $agent_id = $this->My_CI->session->userdata('service_center_agent_id');
+                    $sc_entity_id = $this->My_CI->session->userdata('service_center_id');
+                    $p_entity_id = NULL;
+                } else {
+                    $agent_id = _247AROUND_DEFAULT_AGENT;
+                    $p_entity_id = _247AROUND;
+                    $sc_entity_id = NULL;
+                }
+                if (empty($is_requested)) {
+                    $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
+                    $booking['update_date'] = date("Y-m-d H:i:s");
+                    $booking['internal_status'] = SPARE_DELIVERED_TO_SF;
+
+                    $partner_status = $this->My_CI->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_DELIVERED_TO_SF, $partner_id, $booking_id);
+                    $actor = $next_action = 'not_define';
+                    if (!empty($partner_status)) {
+                        $booking['partner_current_status'] = $partner_status[0];
+                        $booking['partner_internal_status'] = $partner_status[1];
+                        $actor = $booking['actor'] = $partner_status[2];
+                        $next_action = $booking['next_action'] = $partner_status[3];
+                    }
+                    $b_status = $this->My_CI->booking_model->update_booking($booking_id, $booking);
+                    if ($b_status) {
+
+                        $this->My_CI->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
+
+
+                        $sc_data['current_status'] = _247AROUND_PENDING;
+                        $sc_data['internal_status'] = SPARE_DELIVERED_TO_SF;
+                        $sc_data['update_date'] = date("Y-m-d H:i:s");
+                        $this->My_CI->vendor_model->update_service_center_action($booking_id, $sc_data);
+                        if ($this->My_CI->session->userdata('service_center_id')) {
+                            $userSession = array('success' => 'Booking Updated');
+                            $this->My_CI->session->set_userdata($userSession);
+                        }
+                        $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $booking_id;
+                        $pcb = array();
+                        $this->My_CI->asynchronous_lib->do_background_process($cb_url, $pcb);
+                    } else {//if ($b_status) {
+                        log_message('info', __FUNCTION__ . " Booking is not updated. Service_center ID: "
+                                . $service_center_id .
+                                "Booking ID: " . $booking_id);
+                        if ($this->My_CI->session->userdata('service_center_id')) {
+                            $userSession = array('success' => 'Please Booking is not updated');
+                            $this->My_CI->session->set_userdata($userSession);
+                        }
+                    }
+                } else {
+
+
+                    $this->My_CI->notify->insert_state_change($booking_id, SPARE_DELIVERED_TO_SF, _247AROUND_PENDING, "SF acknowledged to receive spare parts", $agent_id, $agent_id, $actor, $next_action, $p_entity_id, $sc_entity_id);
+                    if ($this->My_CI->session->userdata('service_center_id')) {
+                        $userSession = array('success' => 'Booking Updated');
+                        $this->My_CI->session->set_userdata($userSession);
+                    }
+                    $cb_url = base_url() . "employee/do_background_process/send_request_for_partner_cb/" . $booking_id;
+                    $pcb = array();
+                    $this->My_CI->asynchronous_lib->do_background_process($cb_url, $pcb);
+                }
+            } else {
+                log_message('info', __FUNCTION__ . " Spare parts ack date is not updated Service_center ID: "
+                        . $service_center_id .
+                        "Booking ID: " . $booking_id);
+                if ($this->My_CI->session->userdata('service_center_id')) {
+                    $userSession = array('error' => 'Booking is not updated');
+                    $this->My_CI->session->set_userdata($userSession);
+                }
+            }
+        }
+        log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $service_center_id);
+    
+    }
+
+
+
+
+
+
+
 
  
     function pull_service_centre_close_date($booking_id,$partner_id){
