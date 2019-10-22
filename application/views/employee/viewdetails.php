@@ -1135,10 +1135,14 @@
                     <?php foreach($unit_details as $unit){?>
                     <tr>
                         <td><?php echo $unit["price_tags"];?></td>
-                        <td><?php if($unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
-                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
+                        <td><?php if(isset($unit['en_is_broken']) && $unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
+                        <td>
+                            <?php if(isset($unit['en_serial_number'])){ ?>
+                            <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a>
+                            <?php } ?>
+                        </td>
                         
-                        <td><?php  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
+                        <td><?php if(isset($unit['en_current_status']) && isset($unit['en_internal_status']))  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
                     </tr>
                     <?php }?>
                 </tbody>
