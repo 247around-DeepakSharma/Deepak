@@ -3307,8 +3307,6 @@ class Invoice extends CI_Controller {
                 "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
                 "hsn_code" => $hsn_code,
                 "invoice_file_pdf" => $response['meta']['copy_file'],
-                //Mail sent or not 
-                "mail_sent" => $response['meta']['mail_sent'],
                 "vertical" => SERVICE,
                 "category" => RECURRING_CHARGES,
                 "sub_category" => CRM,
@@ -3550,8 +3548,6 @@ class Invoice extends CI_Controller {
                 $data['invoice_file_pdf'] = $response['meta']['copy_file'];
                 $data['invoice_file_main'] = $response['meta']['invoice_file_main'];
                 $data['invoice_file_excel'] = $response['meta']['invoice_file_excel'];
-                //Mail sent or not 
-                $data['mail_sent'] = $response['meta']['mail_sent'];
               
                 $amount_collected_paid = $amount - $tds;
                 $data['type_code'] = "B";
@@ -3686,8 +3682,7 @@ class Invoice extends CI_Controller {
                 }
                 $cmd = "curl " . S3_WEBSITE_URL . "invoices-excel/" . $output_pdf_file_name . " -o " . TMP_FOLDER.$output_pdf_file_name;
                 exec($cmd);    
-                $mail_ret = $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER.$output_pdf_file_name, "",$email_tag);
-                $response['meta']['mail_sent'] = $mail_ret;
+                $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER.$output_pdf_file_name, "",$email_tag);
                 
                 unlink(TMP_FOLDER.$output_pdf_file_name);
             }
@@ -5559,8 +5554,6 @@ class Invoice extends CI_Controller {
                 "sgst_tax_amount" => $response['meta']["sgst_total_tax_amount"],
                 "cgst_tax_amount" => $response['meta']["cgst_total_tax_amount"],
                 "hsn_code" => $hsn_code,
-                //Mail sent or not 
-                "mail_sent" => $response['meta']['mail_sent'],
                 "vertical" => SERVICE,
                 "category" => RECURRING_CHARGES,
                 "sub_category" => CRM_PERFORMA,
