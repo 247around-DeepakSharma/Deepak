@@ -5986,9 +5986,9 @@ class Service_centers extends CI_Controller {
                                 $post['where_in'] = array();
                                 $post['is_inventory'] = true;
                                 $select = 'booking_details.booking_id, spare_parts_details.id, spare_parts_details.partner_id,spare_parts_details.entity_type,spare_parts_details.part_warranty_status, spare_parts_details.parts_requested, spare_parts_details.challan_approx_value, spare_parts_details.quantity, inventory_master_list.part_number, spare_parts_details.partner_id,booking_details.assigned_vendor_id';
-                                $part_details = $this->partner_model->get_spare_parts_by_any($select, $where_clause, true, false, false, $post);
-                                if (!empty($part_details)) {
-                                    $this->generate_challan_to_sf($part_details);
+                                $part_details_challan = $this->partner_model->get_spare_parts_by_any($select, $where_clause, true, false, false, $post);
+                                if (!empty($part_details_challan)) {
+                                    $this->generate_challan_to_sf($part_details_challan);
                                 }
                             }
 
