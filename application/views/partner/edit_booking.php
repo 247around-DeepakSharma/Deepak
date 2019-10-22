@@ -569,7 +569,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
           display_message("booking_address","error_address","green","");
         }
       
-        if(remarks === ""){
+        if(remarks === "" && isRepeatChecked <= 0){
              document.getElementById('remarks').style.borderColor = "red";
               document.getElementById('error_remarks').innerHTML = "Please Enter Problem Description";
              return false;
@@ -664,8 +664,16 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                         success: function (data) {
                                
                                 //First Resetting Options values present if any
-                                $("#appliance_brand_1 option[value !='option1']").remove();
+                                $("#appliance_brand_1 option").remove();
                                 $('#appliance_brand_1').append(data).change();
+                                // Set selected 
+                                setTimeout(function(){
+                                    $('#appliance_brand_1').val('<?php echo $unit_details[0]['appliance_brand']; ?>');
+                                    <?php if(empty($str_disabled)) { ?>
+                                        $('#appliance_brand_1').change();
+                                    <?php } ?>
+                                    get_category('<?php echo $unit_details[0]['appliance_brand']; ?>');
+                                }, 500);                                
                             },
                         complete: function(){
                             $('#brand_loading').css("display", "none");
@@ -692,11 +700,14 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                     brand: brand, category:'<?php echo $unit_details[0]['appliance_category']; ?>', is_repeat:'<?php echo $is_repeat; ?>', 
                         partner_type:partner_type},
                         success: function (data) {
-                               
                                 //First Resetting Options values present if any
                                 $("#appliance_category_1 option[value !='option1']").remove();
                                 $('#appliance_category_1').append(data).change();
-                                get_capacity();
+                                setTimeout(function(){ 
+                                    // Set selected 
+                                    $('#appliance_category_1').val('<?php echo $unit_details[0]['appliance_category']; ?>');
+                                    get_capacity();
+                                }, 500);
                             },
                         complete: function(){
                             $('#category_loading').css("display", "none");
@@ -736,6 +747,8 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                     else{
                         $("#appliance_capacity_1").removeAttr("required");
                     }
+                    // Set selected 
+                    $('#appliance_capacity_1').val('<?php echo $unit_details[0]['appliance_capacity']; ?>');
                     get_models();
                     getPrice();
                 },
@@ -1446,7 +1459,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
         });
         $("#submitform").attr("disabled", false);
         $('.errorMsg').html("");
-        if(model_number !== "" && model_number !== null && model_number !== undefined && dop !== "" && booking_request_types.length > 0){                               
+        if(dop !== "" && booking_request_types.length > 0){                               
             $.ajax({
                 method:'POST',
                 url:"<?php echo base_url(); ?>employee/service_centers/get_warranty_data/2",
