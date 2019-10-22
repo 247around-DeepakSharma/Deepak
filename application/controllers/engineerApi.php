@@ -1961,7 +1961,11 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"]) && !empty($requestData["booking_status"])) {
             if($requestData["booking_status"] == _247AROUND_CANCELLED || $requestData["booking_status"] == _247AROUND_COMPLETED){
                 $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.request_type, booking_details.amount_due, "
-                        . "engineer_booking_action.amount_paid, CAST(engineer_booking_action.closed_date AS date) as closed_date";
+                        . "engineer_booking_action.amount_paid, CAST(engineer_booking_action.closed_date AS date) as closed_date, "
+                        . "CASE WHEN service_center_booking_action.current_status = '"._247AROUND_PENDING."' THEN 'Booking ON SF Approval'
+                                WHEN service_center_booking_action.current_status = 'InProcess' THEN 'Booking ON Admin Review'
+                                ELSE '".$requestData["booking_status"]."' END as 'booking_close_status' ";
+
                 $where = array(
                     "assigned_vendor_id" => $requestData["service_center_id"],
                     "assigned_engineer_id" => $requestData["engineer_id"],
@@ -1976,7 +1980,7 @@ class engineerApi extends CI_Controller {
                 }
                
                 $response['cancelledBookings'] = $this->engineer_model->get_engineer_booking_details($select, $where, true, false, false, false, false, false);
-               
+                
                 if(!empty($response['cancelledBookings'])){
                     log_message("info", __METHOD__ . "Bookings Found Successfully");
                     $this->jsonResponseString['response'] = $response;
@@ -3379,7 +3383,7 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if(!empty($requestData["service_id"]) && !empty($requestData["partner_id"])){
             $where = array("service_id" => $requestData["service_id"], "entity_type" =>_247AROUND_PARTNER_STRING, "entity_id" => $requestData["partner_id"], "inventory_id not in (1,2)" => NULL);
-            $response['wrong_part_list'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name', $where);
+            $response['wrong_part_list'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name, part_number', $where);
             if(!empty($response['wrong_part_list'])){
                 $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array('0000', "Parts founded successfully"));
