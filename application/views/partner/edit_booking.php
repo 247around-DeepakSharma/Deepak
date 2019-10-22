@@ -569,7 +569,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
           display_message("booking_address","error_address","green","");
         }
       
-        if(remarks === ""){
+        if(remarks === "" && isRepeatChecked <= 0){
              document.getElementById('remarks').style.borderColor = "red";
               document.getElementById('error_remarks').innerHTML = "Please Enter Problem Description";
              return false;
@@ -667,11 +667,13 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                 $("#appliance_brand_1 option").remove();
                                 $('#appliance_brand_1').append(data).change();
                                 // Set selected 
-                                $('#appliance_brand_1').val('<?php echo $unit_details[0]['appliance_brand']; ?>');
-                                <?php if(empty($str_disabled)) { ?>
-                                    $('#appliance_brand_1').change();
-                                <?php } ?>
-                                get_category('<?php echo $unit_details[0]['appliance_brand']; ?>');
+                                setTimeout(function(){
+                                    $('#appliance_brand_1').val('<?php echo $unit_details[0]['appliance_brand']; ?>');
+                                    <?php if(empty($str_disabled)) { ?>
+                                        $('#appliance_brand_1').change();
+                                    <?php } ?>
+                                    get_category('<?php echo $unit_details[0]['appliance_brand']; ?>');
+                                }, 500);                                
                             },
                         complete: function(){
                             $('#brand_loading').css("display", "none");
