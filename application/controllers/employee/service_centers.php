@@ -432,6 +432,27 @@ class Service_centers extends CI_Controller {
                     if(!empty($en_sign)){
                         $data['en_signature_picture'] = $en_sign[0]['signature'];
                     }
+
+                    
+                    $en_consumption = $this->service_centers_model->get_engineer_consumed_details("engineer_consumed_spare_details.*", array("booking_id" => $booking_id));
+                    if(!empty($en_consumption)){
+                        $c = 0;
+                        foreach ($en_consumption as $consumptions) {
+                            $data['en_consumpton_details'][$consumptions['spare_id']]['spare_id'] = $consumptions['spare_id'];
+                            $data['en_consumpton_details'][$consumptions['spare_id']]['consumption_status_id'] = $consumptions['consumed_part_status_id'];
+                            if($consumptions['consumed_part_status_id'] == CONSUMED_WRONG_PART_STATUS_ID){
+                                $wrong_part_data = array();
+                                $wrong_part_data['spare_id'] = $consumptions['spare_id'];
+                                $wrong_part_data['part_name'] = $consumptions['part_name'];
+                                $wrong_part_data['part_name'] = $consumptions['part_name'];
+                                $wrong_part_data['inventory_id'] = $consumptions['inventory_id'];
+                                $wrong_part_data['remarks'] = $consumptions['remarks'];
+                                $data['en_consumpton_details'][$consumptions['spare_id']]['wrong_part_data'] = json_encode($wrong_part_data);
+                            }
+                            $c++;
+                        }
+                    }
+
                 }
                 $pid = $this->miscelleneous->search_for_pice_tag_key($u['price_tags'], $prices);
                 // remove array key, if price tag exist into price array
