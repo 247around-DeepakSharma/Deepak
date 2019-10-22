@@ -2105,7 +2105,7 @@ class Service_centers extends CI_Controller {
         if (empty($access)) {
             if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
                 $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
-                $data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
+                $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
             }
         }
         $where = array('id' => $this->input->post('spare_id'));
@@ -2571,7 +2571,7 @@ class Service_centers extends CI_Controller {
                     if (empty($access)) {
                         if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
                             $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
-                            $data['defective_return_to_entity_id'] = _247AROUND_WAREHOUSE_ID;
+                            $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
                         }
                     }
 

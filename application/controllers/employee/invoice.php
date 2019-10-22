@@ -1024,11 +1024,11 @@ class Invoice extends CI_Controller {
         if ($mail_ret) {
             $this->notify->add_email_send_details($email_from,$to,$cc,"",$subject,$message,$pdf_attachement,$invoiceTag);
             log_message('info', __METHOD__ . ": Mail sent successfully");
-            echo "Mail sent successfully..............." . PHP_EOL;
+//            echo "Mail sent successfully..............." . PHP_EOL;
             return 1;
         } else {
             log_message('info', __METHOD__ . ": Mail could not be sent");
-            echo "Mail could not be sent..............." . PHP_EOL;
+//            echo "Mail could not be sent..............." . PHP_EOL;
             return 0;
         }
     }
