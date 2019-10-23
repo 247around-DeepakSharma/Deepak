@@ -5827,10 +5827,35 @@ class vendor extends CI_Controller {
     function get_engineer_vise_call_details() {
         $post = $this->get_post_data();
         if ($this->input->post('engineer_id')) {
-            $post[''] = array();
-          
-            $list = $this->engineer_model->get_engineer_vise_call_list($this->input->post());
-           
+            $post['column_order'] = array();
+
+            $post['order'] = array('booking_details.booking_date' => "DESC");
+            $post['column_search'] = array('booking_details.booking_id');
+            $post['where'] = array('engineer_booking_action.engineer_id' => $this->input->post('engineer_id'), 'engineer_booking_action.current_status' => $this->input->post('status'));
+            $post['join'] = array(
+                "engineer_booking_action" => "engineer_booking_action.booking_id = booking_details.booking_id",
+                "partners" => "booking_details.partner_id = partners.id",
+                "users" => "booking_details.user_id = users.user_id",
+                "services" => "booking_details.service_id = services.id",
+            );
+            $post['joinType'] = array(
+                "engineer_booking_action" => "INNER",
+                "partners" => "LEFT",
+                "users" => "LEFT",
+                "services" => "LEFT",
+            );
+            
+            $select = "distinct(booking_details.booking_id), booking_details.booking_address, booking_details.request_type, booking_details.booking_date, booking_details.count_escalation,
+                    booking_details.booking_primary_contact_no, engineer_booking_action.internal_status,
+                    users.name as username,
+                    partners.public_name as partner_name,
+                    services.services,
+                    DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE( booking_details.initial_booking_date, '%d-%m-%Y')) as age_of_booking,
+                    (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = booking_details.booking_id GROUP BY brand.booking_id ) as appliance_brand";
+
+            $list = $this->reusable_model->get_datatable_data("booking_details", $select, $post);
+            //$list = $this->engineer_model->get_engineer_vise_call_list($this->input->post());
+            
             $data = array();
             $no = $post['start'];
             foreach ($list as $call_list) {
@@ -5845,7 +5870,7 @@ class vendor extends CI_Controller {
 
             $output = array(
                 "draw" => $this->input->post('draw'),
-                "recordsTotal" => count($list),
+                "recordsTotal" => $this->reusable_model->count_all_result("engineer_booking_action", $post['where']),
                 "recordsFiltered" => count($list),
                 'stock' => 0,
                 "data" => $data,
@@ -5867,16 +5892,16 @@ class vendor extends CI_Controller {
         $row = array();
         
         $row[] = $sn;
-        $row[] = '<span>' . $call_list['booking_id'] . '</span>';
-        $row[] = '<span>' . $call_list['username']."<br>".$call_list['booking_primary_contact_no'] . '</span>';
-        $row[] = '<span>' . $call_list['booking_address'] . '</span>';
-        $row[] = '<span><b>' . $call_list['request_type'] .'</b> '.$call_list['services'] . '</span>';
-        $row[] = '<span>' . $call_list['booking_date'] . '</span>';
-        $row[] = '<span>' . $call_list['age_of_booking'] . '</span>';
-        $row[] = '<span>' . $call_list['partner_name'] . '</span>';
-        $row[] = '<span>' . $call_list['appliance_brand'] . '</span>';
-        $row[] = '<span>' . $call_list['internal_status'] . '</span>';
-        $row[] = '<span>' . $call_list['count_escalation'] . '</span>';
+        $row[] = '<span>' . $call_list->booking_id . '</span>';
+        $row[] = '<span>' . $call_list->username."<br>".$call_list->booking_primary_contact_no . '</span>';
+        $row[] = '<span>' . $call_list->booking_address . '</span>';
+        $row[] = '<span><b>' . $call_list->request_type .'</b> '.$call_list->services . '</span>';
+        $row[] = '<span>' . $call_list->booking_date . '</span>';
+        $row[] = '<span>' . $call_list->age_of_booking . '</span>';
+        $row[] = '<span>' . $call_list->partner_name . '</span>';
+        $row[] = '<span>' . $call_list->appliance_brand . '</span>';
+        $row[] = '<span>' . $call_list->internal_status . '</span>';
+        $row[] = '<span>' . $call_list->count_escalation . '</span>';
 
         return $row;
     }
