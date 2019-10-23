@@ -2261,6 +2261,7 @@ class Partner extends CI_Controller {
         $data['defective_parts_pic'] = $sp_details[0]['defective_parts_pic'];
         $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
         $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
+        $data['part_warranty_status']=$this->input->post('part_warranty_status');
         if(!empty($part_details['shipped_part_type'])){
             $data['parts_requested_type'] = $part_details['shipped_part_type'];
         } else {
