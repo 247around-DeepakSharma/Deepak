@@ -326,7 +326,7 @@
         }else if(table_type=='defective_part_rejected_by_partner_table'){
           defective_part_rejected_by_partner_table.ajax.reload(null, false);  
         }else if(table_type=='defective_part_shipped_by_SF_table'){
-          //defective_part_shipped_by_SF_table.ajax.reload(null, false);  
+          defective_part_shipped_by_sf_table.ajax.reload(null, false);  
         }else if(table_type=='defective_part_shipped_by_SF_approved_table'){
           defective_part_shipped_by_SF_approved_table.ajax.reload(null, false);  
         }else if(table_type=='spare_parts_requested_table_approved'){
