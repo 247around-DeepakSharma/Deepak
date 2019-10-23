@@ -9,7 +9,7 @@
         <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0 40px;">
             <div class="x_panel">
                 <div class="x_title">
-                    <h3>Engineer Vise Call List</h3>
+                    <h3>Engineer Wise Call List</h3>
                     <hr>
                     <div class="clearfix"></div>
                 </div>
@@ -56,6 +56,7 @@
                                     <th>Age</th>
                                     <th>Partner</th>
                                     <th>Brands</th>
+                                    <th>Booking Status</th>
                                     <th>Escalation</th>
                                 </tr>
                             </thead>
@@ -69,9 +70,11 @@
     </div>
 </div>
 <style>
+    /*
     #engineer_vise_call_table_filter, .dataTables_length, .dt-buttons, .dataTables_info, .dataTables_paginate {
         display:none;
     }
+    */
 </style>
 <script>
 
@@ -125,7 +128,7 @@
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span>   Export',
                     pageSize: 'LEGAL',
-                    title: 'Inventory List',
+                    title: 'Engineer Bookings',
                     exportOptions: {
                        columns: [0,1,2,3,4,5,6,7,8,9],
                         modifier : {
