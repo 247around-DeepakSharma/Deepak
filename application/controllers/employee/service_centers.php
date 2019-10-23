@@ -1737,6 +1737,11 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode(urldecode($code)));
         $this->checkUserSession();
         $data = array();
+        $model_nunmber = "";
+        $serial_number = "";
+        $dateofpurchase = "";
+        $serial_number_pic = "";
+        $is_disable = false;
         if (!empty($flag)) {
 
             if (is_numeric($flag)) {
@@ -1760,7 +1765,7 @@ class Service_centers extends CI_Controller {
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
             $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
-            
+
             $data['on_saas'] = FALSE;
             if (!empty($data['bookinghistory'])) {
                 $partner_id = $data['bookinghistory'][0]['partner_id'];
@@ -1799,6 +1804,14 @@ class Service_centers extends CI_Controller {
                                 $spareShipped = TRUE;
                                 break;
                         }
+
+                        if ($sp['status'] != _247AROUND_CANCELLED) {
+                            $model_nunmber = $sp['model_number'];
+                            $serial_number = $sp['serial_number'];
+                            $dateofpurchase = $sp['date_of_purchase'];
+                            $serial_number_pic = $sp['serial_number_pic'];
+                            $is_disable = true;
+                        }
                     }
                 }
 
@@ -1824,10 +1837,7 @@ class Service_centers extends CI_Controller {
                 }
 
                 $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
-                $model_nunmber = "";
-                $serial_number = "";
-                $dateofpurchase = "";
-                $serial_number_pic = "";
+
                 foreach ($unit_details as $value) {
                     if (strcasecmp($value['price_tags'], REPAIR_OOW_TAG) == 0) {
                         if (!$is_est_approved) {
@@ -1877,8 +1887,9 @@ class Service_centers extends CI_Controller {
                 $data['unit_model_number'] = $model_nunmber;
                 $data['unit_serial_number'] = $serial_number;
                 $data['purchase_date'] = $dateofpurchase;
+                $data['is_disable'] = $is_disable;
                 $data['unit_serial_number_pic'] = $serial_number_pic;
-                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'], 'inventory_model_mapping.active' => 1,'appliance_model_details.active' => 1);
+                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
                 $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
