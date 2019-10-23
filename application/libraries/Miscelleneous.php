@@ -3535,12 +3535,14 @@ function generate_image($base64, $image_name,$directory){
 //                $response['defective_return_to_entity_id'] = $partner_id;
 //            }
         }
-		
-		
-		if($response['defective_return_to_entity_type']==_247AROUND_PARTNER_STRING){
-			$response['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
-            $response['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
-		}
+	
+        $is_saas = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+        if ($is_saas) {
+            if ($response['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                $response['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                $response['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+            }
+        }
         return $response;
     }
 

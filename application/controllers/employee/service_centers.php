@@ -3659,7 +3659,7 @@ class Service_centers extends CI_Controller {
                         break;
                     case _247AROUND_SF_STRING:                        
                         $select1 = 'name as company_name,primary_contact_name,address,pincode,state,district,primary_contact_phone_1,primary_contact_phone_2';
-                        $booking_details = $this->vendor_model->getVendorDetails($select1, array('id' => $sp_details[0]['partner_id']))[0];             
+                        $booking_details = $this->vendor_model->getVendorDetails($select1, array('id' => $sp_details[0]['defective_return_to_entity_id']))[0];             
                         break;
                     }
 
@@ -6611,7 +6611,7 @@ class Service_centers extends CI_Controller {
         $where = array("spare_parts_details.defective_return_to_entity_id" => $sf_id,
            "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
             "defective_part_required" => 1, 
-            "status IN ('".DEFECTIVE_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_REJECTED."') " => NULL);
+            "status IN ('".DEFECTIVE_PARTS_RECEIVED."', '"._247AROUND_COMPLETED."') " => NULL);
 
         $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
         if(!empty($partner_id)){
@@ -6689,7 +6689,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . DEFECTIVE_PARTS_SHIPPED . "') ";
+                    . " AND defective_part_required = '1' AND status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED . "') ";
             $where .= " AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
             
