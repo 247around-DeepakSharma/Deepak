@@ -3396,7 +3396,37 @@ class engineerApi extends CI_Controller {
         }
         else{
             log_message("info", __METHOD__ . "Service id or partner id missing");
-            $this->sendJsonResponse(array("0060", "Service id or partner id missing"));
+            $this->sendJsonResponse(array("0059", "Service id or partner id missing"));
+        }
+    }
+    
+    /*
+     *@Desc - This function is used to get details for bookings    
+     *@param - $booking_id, $booking_status
+     *@response - json
+     */
+    function getBookingDetails(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $response = array();
+        if(!empty($requestData["booking_id"])){
+            $booking_data = $this->engineer_model->engineer_completed_bookings_details($requestData["booking_id"]);
+            if(!empty($booking_data)){
+                $response['booking_details'] = $booking_data;
+                if($requestData['booking_status'] === _247AROUND_COMPLETED){
+                   $response['consumption_details'] =  $this->service_centers_model->get_engineer_consumed_details("engineer_consumed_spare_details.*, consumed_status", array("booking_id" => $requestData["booking_id"])); 
+                }
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', "Booking details found successfully"));
+            }
+            else{
+                log_message("info", __METHOD__ . "Booking details not found");
+                $this->sendJsonResponse(array("0000", "Booking details not found"));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . "Booking id not found");
+            $this->sendJsonResponse(array("0060", "Booking id not found"));
         }
     }
 }
