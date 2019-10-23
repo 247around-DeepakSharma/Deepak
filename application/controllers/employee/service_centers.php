@@ -5831,7 +5831,8 @@ class Service_centers extends CI_Controller {
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id, 'inventory_model_mapping.active' => 1,'appliance_model_details.active' => 1,'appliance_model_details.active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);        
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
-        $data['is_wh'] = $this->partner_model->getpartner_details('is_wh',array('partners.id' => $data['spare_parts'][0]->partner_id))[0]['is_wh'];        
+        $data['is_wh'] = $this->partner_model->getpartner_details('is_wh',array('partners.id' => $data['spare_parts'][0]->partner_id))[0]['is_wh'];  
+        $data['wh_ship'] = $wh;      
        }        
         
         $this->load->view('service_centers/header');
@@ -5845,7 +5846,7 @@ class Service_centers extends CI_Controller {
      * @param String $id
      * @return void
      */
-    function process_update_spare_parts($booking_id) {
+    function process_update_spare_parts($booking_id,$wh=0) {
         log_message('info', __FUNCTION__ . " Sf ID: " . $this->session->userdata('service_center_id'));
         log_message("info", __METHOD__ . " POST Data " . json_encode($this->input->post()));
 
@@ -5886,7 +5887,8 @@ class Service_centers extends CI_Controller {
                 foreach ($part as $key => $part_details) { 
                     if ($part_details['shippingStatus'] == 1) {
 
-                        $is_shipped_stock_available = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $part_details['inventory_id'], 'inventory_stocks.stock > 0' => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();                                               
+                        $is_shipped_stock_available = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $part_details['inventory_id'], 'inventory_stocks.stock > 0' => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();   
+						
                         if (!empty($is_shipped_stock_available) && !empty($is_shipped_stock_available[0]['id'])) {
 
                             $status = SPARE_PARTS_SHIPPED;
@@ -6085,7 +6087,12 @@ class Service_centers extends CI_Controller {
 
                     $userSession = array('success' => 'Parts Updated');
                     $this->session->set_userdata($userSession);
-                    redirect(base_url() . "service_center/spare_parts");
+					if($wh){
+						redirect(base_url() . "service_center/inventory");
+					}else{
+						redirect(base_url() . "service_center/spare_parts");
+					}
+                    
                 } else {
                     if ($can_status == SPARE_PARTS_CANCELLED) {
                         $sc_data['current_status'] = _247AROUND_PENDING;
@@ -6114,13 +6121,13 @@ class Service_centers extends CI_Controller {
                         " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
                 $userSession = array('error' => 'Parts Not Updated');
                 $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center/update_spare_parts_form/" . $booking_id);
+                redirect(base_url() . "service_center/update_spare_parts_form/" . $booking_id."/".$wh);
             } else {
                 log_message('info', __FUNCTION__ . '=> Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_id') .
                         " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
                 $userSession = array('error' => $courier_image['message']);
                 $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center/update_spare_parts_form/" . $booking_id);
+                redirect(base_url() . "service_center/update_spare_parts_form/" . $booking_id."/".$wh);
             }
         }
     }
