@@ -5814,12 +5814,13 @@ class vendor extends CI_Controller {
     }
     
     function engineer_wise_calls() {
-        
-        $this->load->view('service_centers/header');
-        $data['engineers'] = $this->reusable_model->get_search_result_data("engineer_details","engineer_details.id,name",[],NULL,NULL,array("name"=>"ASC"),NULL,array());
-        $data['status'] = ['Pending', 'FollowUp', 'Completed', 'Rescheduled', 'Cancelled'];
-        $this->load->view('service_centers/view_engineer_vise_calls',$data);
-        
+        if($this->session->userdata('userType') == 'service_center'){
+            $service_center_id = $this->session->userdata('service_center_id');
+            $this->load->view('service_centers/header');
+            $data['engineers'] = $this->reusable_model->get_search_result_data("engineer_details","engineer_details.id,name",['service_center_id'=>$service_center_id],NULL,NULL,array("name"=>"ASC"),NULL,array());
+            $data['status'] = ['Pending', 'InProcess', 'Completed', 'Cancelled'];
+            $this->load->view('service_centers/view_engineer_vise_calls',$data);
+        }
     }
     
     function get_engineer_vise_call_details() {
@@ -5873,6 +5874,7 @@ class vendor extends CI_Controller {
         $row[] = '<span>' . $call_list['age_of_booking'] . '</span>';
         $row[] = '<span>' . $call_list['partner_name'] . '</span>';
         $row[] = '<span>' . $call_list['appliance_brand'] . '</span>';
+        $row[] = '<span>' . $call_list['internal_status'] . '</span>';
         $row[] = '<span>' . $call_list['count_escalation'] . '</span>';
 
         return $row;
