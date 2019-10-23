@@ -710,11 +710,11 @@ class invoices_model extends CI_Model {
 
         //if (!empty($result['result'])) {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
-        $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
-        $pickup_courier = $this->get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date);
-        $warehouse_courier = $this->get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date);
+        $courier = array(); #$this->get_partner_courier_charges($partner_id, $from_date, $to_date);
+        $pickup_courier = array(); #$this->get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date);
+        $warehouse_courier = array(); #$this->get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date);
         $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
-        $defective_return_to_partner = $this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date);
+        $defective_return_to_partner = array(); #$this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date);
         
         
         
