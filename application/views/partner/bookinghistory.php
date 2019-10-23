@@ -67,9 +67,9 @@
                                         <a href="<?php echo base_url() . $view; ?>" class="btn btn-small btn-success btn-sm" title="More Action"><i class="fa fa-bars" aria-hidden="true"></i></a>
                                     </td>
                                     <?php
-                                    if($row['partner_internal_status'] == _247AROUND_COMPLETED){
+                                    if (!empty($row['service_center_closed_date']) && $row['service_center_closed_date'] != '0000-00-00 00:00:00' && $row['current_status'] != 'Cancelled') {
                                         $today = strtotime(date("Y-m-d"));
-                                        $closed_date = strtotime($row['closed_date']);
+                                        $closed_date = strtotime($row['service_center_closed_date']);
                                         $completedDays = round(($today - $closed_date) / (60 * 60 * 24));
                                         if($completedDays < _PARTNER_REPEAT_BOOKING_ALLOWED_DAYS){
                                             echo "<td><a class='btn btn-sm btn-primary' "

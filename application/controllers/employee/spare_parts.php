@@ -2075,7 +2075,7 @@ class Spare_parts extends CI_Controller {
             $select = 'spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.shipped_quantity,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.status,'
                     . 'spare_parts_details.requested_inventory_id,spare_parts_details.original_inventory_id,spare_parts_details.purchase_price,spare_parts_details.service_center_id,spare_parts_details.invoice_gst_rate, spare_parts_details.part_warranty_status,'
                     . 'spare_parts_details.is_micro_wh,spare_parts_details.model_number,spare_parts_details.serial_number,spare_parts_details.shipped_inventory_id,spare_parts_details.date_of_request,'
-                    . 'booking_details.partner_id as booking_partner_id,booking_details.amount_due,booking_details.next_action,booking_details.internal_status, booking_details.service_id,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic';
+                    . 'booking_details.partner_id as booking_partner_id,booking_details.amount_due,booking_details.next_action,booking_details.internal_status, booking_details.service_id,spare_parts_details.serial_number_pic,spare_parts_details.invoice_pic, spare_parts_details.defective_return_to_entity_type';
 
             $spare_parts_details = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_id), TRUE, TRUE, false);
 
@@ -2109,7 +2109,7 @@ class Spare_parts extends CI_Controller {
                 $data['quantity'] = $spare_parts_details[0]['quantity'];
                 $is_micro_wh = $data['is_micro_wh'] = $spare_parts_details[0]['is_micro_wh'];
                 
-                
+                $spare_data["defective_return_to_entity_type"] = $spare_parts_details[0]['defective_return_to_entity_type'];
                 /* field part_warranty_status value 1 means in-warranty and 2 means out-warranty */
                 if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                     $spare_data['status'] = SPARE_OOW_EST_REQUESTED;
@@ -2293,9 +2293,11 @@ class Spare_parts extends CI_Controller {
                     $this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, $reason_text, $reason, $agent_id, $agent_name, $actor, $next_action, _247AROUND, NULL);
                     if (!empty($booking_id)) {
                         $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
+                        if (!empty($spare_parts_details[0]['invoice_pic'])) {
+                          $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => trim($booking_id)),$data_unit_details);
+                          $this->booking_model->insert_booking_file($data_booking_file);
+                        }
 
-                        $this->booking_model->update_booking_unit_details_by_any(array('booking_id' => trim($booking_id)),$data_unit_details);
-                        $this->booking_model->insert_booking_file($data_booking_file);
 
 		         	if (isset($is_micro_wh) && $is_micro_wh == 1) {
                         $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);

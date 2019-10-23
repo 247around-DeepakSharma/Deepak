@@ -767,10 +767,14 @@ class Invoice extends CI_Controller {
             header('Content-Description: File Transfer');
             header('Content-Type: application/octet-stream');
             header("Content-Disposition: attachment; filename=\"$invoice_id.zip\"");
-            ob_end_flush();
+            if(ob_get_length()>0) {
+                ob_end_flush();
+            }
             $res1 = 0;
             system(" chmod 777 " . TMP_FOLDER . $invoice_id . '.zip ', $res1);
-            readfile(TMP_FOLDER . $invoice_id. '.zip');
+            if(file_exists(TMP_FOLDER . $invoice_id. '.zip')) {
+               readfile(TMP_FOLDER . $invoice_id. '.zip'); 
+            }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '.zip'));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $invoice_id . "-draft.xlsx"));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $invoice_id . "-draft.pdf"));
@@ -1020,11 +1024,11 @@ class Invoice extends CI_Controller {
         if ($mail_ret) {
             $this->notify->add_email_send_details($email_from,$to,$cc,"",$subject,$message,$pdf_attachement,$invoiceTag);
             log_message('info', __METHOD__ . ": Mail sent successfully");
-            echo "Mail sent successfully..............." . PHP_EOL;
+//            echo "Mail sent successfully..............." . PHP_EOL;
             return 1;
         } else {
             log_message('info', __METHOD__ . ": Mail could not be sent");
-            echo "Mail could not be sent..............." . PHP_EOL;
+//            echo "Mail could not be sent..............." . PHP_EOL;
             return 0;
         }
     }
@@ -1856,7 +1860,7 @@ class Invoice extends CI_Controller {
                  $invoice['meta']['invoice_id'] = $details['invoice_id'];
             } else {
                
-                $invoice['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+                $invoice['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
 
             }
 
@@ -2023,7 +2027,7 @@ class Invoice extends CI_Controller {
         $invoices = $this->invoices_model->generate_partner_invoice($partner_id, $from_date, $to_date);
         if (!empty($invoices)) {
 
-            $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+            $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
             //Send Push Notification
             $receiverArray['partner'] = array($partner_id);
             $notificationTextArray['msg'] = array($invoices['meta']['invoice_id'],abs($invoices['meta']['sub_total_amount']));
@@ -2083,7 +2087,7 @@ class Invoice extends CI_Controller {
 
                 $invoices['meta']['invoice_id'] = $details['invoice_id'];
             } else {
-                $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+                $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
 
                 log_message('info', __FUNCTION__ . " New Invoice ID Generated: " . $invoices['meta']['invoice_id']);
                 echo " New Invoice ID Generated: " . $invoices['meta']['invoice_id'] . PHP_EOL;
@@ -2163,15 +2167,15 @@ class Invoice extends CI_Controller {
                     if($invoice_type != 'final'){
                         if(empty($response)){
                         
-                        $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+                        $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
                         
                         } else if(isset($response[0]['invoice_id'])){
-                            $temp = $this->invoice_lib->_get_partial_invoice_id("Around");
+                            $temp = $this->invoice_lib->_get_partial_invoice_id("ARD-9");
                             $explode = explode($temp, $response[0]['invoice_id']);
                             $invoices['meta']['invoice_id'] = trim($temp . sprintf("%'.04d\n", ($explode[1] + 1)));
                         }
                     } else {
-                       $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+                       $invoices['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
                     }
 
                     log_message('info', __FUNCTION__ . " New Invoice ID Generated: " . $invoices['meta']['invoice_id']);
@@ -2200,9 +2204,9 @@ class Invoice extends CI_Controller {
                    
                 }
             } else {
-                log_message('info', __FUNCTION__ . "=> Data Not Found for Cash Invoice" . print_r($details));
+                log_message('info', __FUNCTION__ . "=> Data Not Found for Buyback Invoice" . print_r($details));
 
-                echo "Data Not Found for Cash Invoice" . PHP_EOL;
+                echo "Data Not Found for Buyback Invoice" . PHP_EOL;
 
                
             }
@@ -2253,9 +2257,13 @@ class Invoice extends CI_Controller {
                     header('Content-Description: File Transfer');
                     header('Content-Type: application/octet-stream');
                     header("Content-Disposition: attachment; filename=\"$buyback_invoice_id.zip\"");
-                    readfile(TMP_FOLDER . $buyback_invoice_id. '.zip');
+                    if(file_exists(TMP_FOLDER . $buyback_invoice_id. '.zip')) {
+                        readfile(TMP_FOLDER . $buyback_invoice_id. '.zip');
+                    }
                     $res1 = 0;
-                    ob_end_flush();
+                    if(ob_get_length()>0) {
+                        ob_end_flush();
+                    }
                     
                     exec("rm -rf " . escapeshellarg(TMP_FOLDER . $buyback_invoice_id . '.zip'));
                     foreach ($response as $value1) {
@@ -2416,7 +2424,8 @@ class Invoice extends CI_Controller {
 
                     $in_detailed = $this->invoices_model->generate_vendor_foc_detailed_invoices($vendor_id, $from_date, $to_date, $is_regenerate);
                   
-                    return $this->generate_foc_details_invoices_for_vendors($in_detailed, $invoices, $vendor_id, $invoice_type, $details['agent_id'], $from_date,$to_date );
+                    $this->generate_foc_details_invoices_for_vendors($in_detailed, $invoices, $vendor_id, $invoice_type, $details['agent_id'], $from_date,$to_date );
+                    return true;
                 } else {
                     $this->session->set_userdata(array('error' => "Invoice File did not create"));
                     log_message('info', __FUNCTION__ . ' Invoice File did not create. invoice id' . $invoices['meta']['invoice_id']);
@@ -3196,7 +3205,7 @@ class Invoice extends CI_Controller {
                     if($type == "DebitNote"){
                         echo $this->create_invoice_id_to_insert("ARD-DN");
                     } else {
-                        echo $this->create_invoice_id_to_insert("Around");
+                        echo $this->create_invoice_id_to_insert("ARD-9");
                     }
 
                     break;
@@ -3210,7 +3219,7 @@ class Invoice extends CI_Controller {
                         echo $this->create_invoice_id_to_insert($entity_details[0]['sc_code']);
                        
                     } else {
-                        echo $this->create_invoice_id_to_insert("Around");
+                        echo $this->create_invoice_id_to_insert("ARD-9");
                     }
                 
                     
@@ -3265,7 +3274,7 @@ class Invoice extends CI_Controller {
   
             }
             $invoice_date = date("Y-m-d");
-            $invoice_id = $this->create_invoice_id_to_insert("Around");
+            $invoice_id = $this->create_invoice_id_to_insert("ARD-9");
             
             $response = $this->generate_partner_additional_invoice($partner_data[0], $description,
             $amount, $invoice_id, $sd, $ed, $invoice_date, $hsn_code, "Tax Invoice", $email_tag, 1, DEFAULT_TAX_RATE);
@@ -3854,6 +3863,7 @@ class Invoice extends CI_Controller {
             $ptype = !(empty($sp_data[0]->shipped_parts_type))?$sp_data[0]->shipped_parts_type:$sp_data[0]->parts_requested_type;
             
             $inventory_id = "";
+            $where_cond = array('part_type' => $ptype, 'service_id' => $sp_data[0]->service_id);
             if(!empty($sp_data[0]->shipped_inventory_id)){
                 
                 $inventory_id = $sp_data[0]->shipped_inventory_id;
@@ -3863,8 +3873,11 @@ class Invoice extends CI_Controller {
                 $inventory_id = $sp_data[0]->requested_inventory_id;
             }
             
-            $margin = $this->inventory_model->get_oow_margin($inventory_id, array('part_type' => $ptype,
-                    'service_id' => $sp_data[0]->service_id));
+            if(empty($inventory_id)) {
+                $where_cond = array('part_type' => $ptype, 'inventory_parts_type.service_id' => $sp_data[0]->service_id);
+            }
+            
+            $margin = $this->inventory_model->get_oow_margin($inventory_id, $where_cond);
                
             $repair_around_oow_percentage = $margin['oow_vendor_margin']/100;
             
@@ -3896,7 +3909,7 @@ class Invoice extends CI_Controller {
             $data[0]['spare_id'] = $spare_id;
                 
             $response = $this->invoices_model->_set_partner_excel_invoice_data($data, $sd, $ed, "Tax Invoice",$invoice_date);
-            $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("Around");
+            $response['meta']['invoice_id'] = $this->create_invoice_id_to_insert("ARD-9");
             $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
             if ($status) {
                 log_message("info", __METHOD__ . " Vendor Spare Invoice SF ID" . $sp_data[0]->service_center_id . " Spare Id " . $spare_id);

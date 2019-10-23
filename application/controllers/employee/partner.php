@@ -573,7 +573,7 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code'] = $code;
-        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M'));
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M', 'N'));
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
         }
@@ -1076,7 +1076,7 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code_availiable'] = $code;
-        $partner_code_arr = ((isset($saas_flag) && !$saas_flag) ? array('R', 'S', 'P', 'L', 'M') : array('Z'));
+        $partner_code_arr = ((isset($saas_flag) && !$saas_flag) ? array('R', 'S', 'P', 'L', 'M', 'N') : array('Z'));
         $all_partner_code = $this->partner_model->get_all_partner_code('code', $partner_code_arr);
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
@@ -2138,6 +2138,15 @@ class Partner extends CI_Controller {
                     } else {
                         $data['defective_return_to_entity_id'] = $this->session->userdata('partner_id');
                         $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                        
+                        if (empty($is_saas)) {
+                            if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                                $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                                $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+                            }
+                        }
+
                         $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
                     }
                     
@@ -2254,6 +2263,7 @@ class Partner extends CI_Controller {
         $data['defective_parts_pic'] = $sp_details[0]['defective_parts_pic'];
         $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
         $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
+        $data['part_warranty_status']=$this->input->post('part_warranty_status');
         if(!empty($part_details['shipped_part_type'])){
             $data['parts_requested_type'] = $part_details['shipped_part_type'];
         } else {
@@ -4803,7 +4813,14 @@ class Partner extends CI_Controller {
     function get_service_details(){
         $service_id = $this->input->post('service_id');
         $partner_id = $this->input->post('partner_id');
-        $data['brand'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT brand",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
+        $partner_source = $this->input->post('partner_source');
+        if ($partner_source == OEM) {
+            $where = array("partner_appliance_details.service_id" => $service_id,'partner_id' =>$partner_id, "active" => 1);
+            $select = 'brand';
+            $data['brand'] = $this->partner_model->get_partner_specific_details($where, $select, "brand");
+        } else {
+            $data['brand'] = $this->reusable_model->get_search_result_data("appliance_brands","DISTINCT brand_name as brand",array('service_id'=>$service_id,'seo'=>1),NULL,NULL,NULL,NULL,NULL,array());
+        }
         $data['category'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT category",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['capacity'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT capacity",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['model'] = $this->reusable_model->get_search_result_data("appliance_model_details","DISTINCT model_number as model",array('service_id'=>$service_id,'entity_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
@@ -5045,6 +5062,7 @@ class Partner extends CI_Controller {
     
     function download_sf_declaration($sf_id) {
         log_message("info", __METHOD__." SF Id ". $sf_id);
+        ob_start();
         $this->checkUserSession();
         $pdf_details = $this->miscelleneous->generate_sf_declaration($sf_id);
         
@@ -5066,6 +5084,7 @@ class Partner extends CI_Controller {
             log_message("info", __METHOD__." file details  ". print_r($pdf_details,true));
             echo $pdf_details['message'];
         }
+        ob_end_flush();
     }
     
     
@@ -7552,7 +7571,7 @@ class Partner extends CI_Controller {
      */
     function get_repeat_booking_form($booking_id) {
          log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true));
-        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id,  "current_status not in ('Cancelled','Completed') " =>NULL),NULL,NULL,NULL,NULL,NULL,array());
+        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id,  "service_center_closed_date IS NULL " =>NULL),NULL,NULL,NULL,NULL,NULL,array());
         if(empty($openBookings)){
             $this->get_editbooking_form($booking_id,"Repeat");
         }
@@ -7561,13 +7580,15 @@ class Partner extends CI_Controller {
         }
     }
     function get_booking_relatives($booking_id){
-        $this->checkUserSession();
-        $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
-        if(!empty($relativeData)){
-            echo  json_encode($relativeData[0]);
-        }
-        else{
-            echo false;
+//        $this->checkUserSession();
+        if($this->session->userdata('loggedIn') == TRUE) {
+            $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
+            if(!empty($relativeData)){
+                echo  json_encode($relativeData[0]);
+            }
+            else{
+                echo false;
+            }
         }
     }
  

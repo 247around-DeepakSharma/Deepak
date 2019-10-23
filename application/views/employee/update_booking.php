@@ -1349,7 +1349,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     // function to cross check request type of booking with warranty status of booking 
     function check_booking_request()
     {
-        $(".price_checkbox").attr("disabled", false);
+//        $(".price_checkbox").attr("disabled", false);
         if($(".input-model").is(":hidden"))
         {
             var model_number = $(".select-model").val();

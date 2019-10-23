@@ -1262,4 +1262,35 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $res['payload'] = $result;
         return $res;
     }
+    
+    /**
+     * @desc: Insert engineer consumed details
+     * @param Array $data
+     * @return boolean
+     */
+    function insert_engineer_consumed_details($data){
+        if(!empty($data)){
+          $this->db->insert_batch('engineer_consumed_spare_details', $data);  
+        }       
+        //log_message('info', __FUNCTION__ . '=> Insert consumed details: ' .$this->db->last_query());
+        return $this->db->insert_id();  
+    }
+    
+    /**
+     * @desc: get engineer consumed details
+     * @param Array $where
+     * @return boolean
+     */
+    function get_engineer_consumed_details($select="engineer_consumed_spare_details.*", $where=array()){
+        $this->db->select($select);
+        $this->db->where($where);
+        $this->db->join("spare_consumption_status", "engineer_consumed_spare_details.consumed_part_status_id = spare_consumption_status.id");
+        $query = $this->db->get('engineer_consumed_spare_details');
+        if ($query->num_rows() > 0) {
+            $result = $query->result_array();
+            return $result;
+        } else {
+            return false;
+        } 
+    }
 }
