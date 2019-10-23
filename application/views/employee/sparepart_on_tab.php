@@ -632,7 +632,7 @@
     var estimate_cost_requested_table;
     var estimate_cost_given_table;
     var oow_part_shipped_table;
-    var defective_part_shipped_by_SF_table;
+    var defective_part_shipped_by_sf_table;
     
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $(document).ready(function() {
