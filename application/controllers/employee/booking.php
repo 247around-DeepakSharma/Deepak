@@ -2475,7 +2475,7 @@ class Booking extends CI_Controller {
         }
         
         // update spare parts.
-        $is_update_spare_parts = $this->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details);
+        $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details, $status);
         if($is_update_spare_parts){
             $booking['current_status'] = $internal_status;
             $booking['internal_status'] = $internal_status;
@@ -2590,100 +2590,100 @@ class Booking extends CI_Controller {
         }
     }
 
-    /**
-     * 
-     * @param type $post_data
-     * @return boolean
-     */
-    public function update_spare_consumption_status($post_data, $booking_id, $service_center_details) {
-        if(!empty($post_data['spare_consumption_status'])) {
-            foreach($post_data['spare_consumption_status'] as $spare_id => $status_id) {
-                
-                $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details','*',['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
-                $status = "";
-                $defective_part_required = $spare_part_detail['defective_part_required'];
-                
-                // check record exist in wrong spare part details.
-                $check_wrong_part_record_exist = $this->reusable_model->get_search_result_data('wrong_part_shipped_details', '*', ['spare_id' => $spare_id], NULL, NULL, NULL, NULL, NULL);
-                
-                $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status','tag',['id' => $status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
-                
-                if($consumption_status_tag == PART_CONSUMED_TAG) {
-                    $status = DEFECTIVE_PARTS_PENDING;
-                    $defective_part_required = 1;
-                    if(!empty($check_wrong_part_record_exist[0])) {
-                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
-                    }
-                }
-                
-                if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
-                    $status = COURIER_LOST;
-                    if(!empty($check_wrong_part_record_exist[0])) {
-                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
-                    }
-                }
-                
-//                if($consumption_status_tag == PART_CANCELLED_STATUS_TAG && empty($spare_part_detail['parts_shipped'])) {
-//                    $status = _247AROUND_CANCELLED;
+//    /**
+//     * 
+//     * @param type $post_data
+//     * @return boolean
+//     */
+//    public function update_spare_consumption_status($post_data, $booking_id, $service_center_details) {
+//        if(!empty($post_data['spare_consumption_status'])) {
+//            foreach($post_data['spare_consumption_status'] as $spare_id => $status_id) {
+//                
+//                $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details','*',['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+//                $status = "";
+//                $defective_part_required = $spare_part_detail['defective_part_required'];
+//                
+//                // check record exist in wrong spare part details.
+//                $check_wrong_part_record_exist = $this->reusable_model->get_search_result_data('wrong_part_shipped_details', '*', ['spare_id' => $spare_id], NULL, NULL, NULL, NULL, NULL);
+//                
+//                $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status','tag',['id' => $status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
+//                
+//                if($consumption_status_tag == PART_CONSUMED_TAG) {
+//                    $status = DEFECTIVE_PARTS_PENDING;
+//                    $defective_part_required = 1;
+//                    if(!empty($check_wrong_part_record_exist[0])) {
+//                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
+//                    }
 //                }
-                
-                if($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG) {
-                    $status = OK_PART_TO_BE_SHIPPED;
-                    $defective_part_required = 1;
-                    if(!empty($check_wrong_part_record_exist[0])) {
-                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
-                    }
-                }
-                
-                if($consumption_status_tag == WRONG_PART_RECEIVED_TAG && !empty($post_data['wrong_part'])) {
-                    $status = OK_PART_TO_BE_SHIPPED;
-                    $defective_part_required = 1;
-                    if(empty($check_wrong_part_record_exist[0])) {
-                        $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
-                        $this->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
-                    }
-                }
-                
-                if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
-                    $status = DAMAGE_PART_TO_BE_SHIPPED;
-
-                    $defective_part_required = 1;
-                    if(!empty($check_wrong_part_record_exist[0])) {
-                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
-                    }
-                }
-
-//                if($consumption_status_tag == PART_NRN_APPROVED_STATUS_TAG) {
-//                    $status = NRN_APPROVED_BY_PARTNER;
+//                
+//                if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
+//                    $status = COURIER_LOST;
+//                    if(!empty($check_wrong_part_record_exist[0])) {
+//                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
+//                    }
 //                }
-
-                if(!empty($status)) {
-                    // update in service center booking action.
-                    $this->vendor_model->update_service_center_action($booking_id, ['internal_status' => $status, 'current_status' => 'InProcess']);
-                    $this->booking_model->update_booking($booking_id, ['internal_status' => $status]);
-                }
-                       
-                
-                $this->reusable_model->update_table('spare_parts_details', [
-                    'consumed_part_status_id' => $status_id,
-                    'defective_part_required' => $defective_part_required,
-                    'old_status' => $spare_part_detail['status'],
-                    'status' => $status,
-                ], ['id' => $spare_id]);
-                
-                if(!empty($defective_part_required) && $defective_part_required == 1 && !empty($service_center_details[0])) {
-                    $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-                    if (!$partner_on_saas) {
-                        if(empty($spare_part_detail['sf_challan_file'])){
-                        $this->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id']);
-                        }
-                    }
-                }
-            }
-        }
-        
-        return true;
-    }
+//                
+////                if($consumption_status_tag == PART_CANCELLED_STATUS_TAG && empty($spare_part_detail['parts_shipped'])) {
+////                    $status = _247AROUND_CANCELLED;
+////                }
+//                
+//                if($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG) {
+//                    $status = OK_PART_TO_BE_SHIPPED;
+//                    $defective_part_required = 1;
+//                    if(!empty($check_wrong_part_record_exist[0])) {
+//                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
+//                    }
+//                }
+//                
+//                if($consumption_status_tag == WRONG_PART_RECEIVED_TAG && !empty($post_data['wrong_part'])) {
+//                    $status = OK_PART_TO_BE_SHIPPED;
+//                    $defective_part_required = 1;
+//                    if(empty($check_wrong_part_record_exist[0])) {
+//                        $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
+//                        $this->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
+//                    }
+//                }
+//                
+//                if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
+//                    $status = DAMAGE_PART_TO_BE_SHIPPED;
+//
+//                    $defective_part_required = 1;
+//                    if(!empty($check_wrong_part_record_exist[0])) {
+//                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
+//                    }
+//                }
+//
+////                if($consumption_status_tag == PART_NRN_APPROVED_STATUS_TAG) {
+////                    $status = NRN_APPROVED_BY_PARTNER;
+////                }
+//
+//                if(!empty($status)) {
+//                    // update in service center booking action.
+//                    $this->vendor_model->update_service_center_action($booking_id, ['internal_status' => $status, 'current_status' => 'InProcess']);
+//                    $this->booking_model->update_booking($booking_id, ['internal_status' => $status]);
+//                }
+//                       
+//                
+//                $this->reusable_model->update_table('spare_parts_details', [
+//                    'consumed_part_status_id' => $status_id,
+//                    'defective_part_required' => $defective_part_required,
+//                    'old_status' => $spare_part_detail['status'],
+//                    'status' => $status,
+//                ], ['id' => $spare_id]);
+//                
+//                if(!empty($defective_part_required) && $defective_part_required == 1 && !empty($service_center_details[0])) {
+//                    $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+//                    if (!$partner_on_saas) {
+//                        if(empty($spare_part_detail['sf_challan_file'])){
+//                        $this->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id']);
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//        
+//        return true;
+//    }
     
     
 /**
