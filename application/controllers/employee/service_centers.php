@@ -673,12 +673,11 @@ class Service_centers extends CI_Controller {
                      
 
                     // update spare parts.
-                    $is_update_spare_parts = $this->update_spare_consumption_status($this->input->post(), $booking_id);
+                    $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id);
+                    //This is used to cancel those spare parts who has not shipped by partner.
                     $this->cancel_spare_parts($partner_id, $booking_id);
                     
                     if ($is_update_spare_parts) {      
-                        //This is used to cancel those spare parts who has not shipped by partner.        
-                       
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
                         $this->session->set_userdata('success', "Updated Successfully!!");
 
