@@ -53,7 +53,6 @@
                                     <th>Address</th>
                                     <th>Appliance</th>
                                     <th>Booking Date</th>
-                                    <th>Age</th>
                                     <th>Partner</th>
                                     <th>Brands</th>
                                     <th>Booking Status</th>
@@ -70,11 +69,11 @@
     </div>
 </div>
 <style>
-    /*
-    #engineer_vise_call_table_filter, .dataTables_length, .dt-buttons, .dataTables_info, .dataTables_paginate {
+    
+    .dataTables_paginate {
         display:none;
     }
-    */
+    
 </style>
 <script>
 
@@ -120,7 +119,7 @@
                 "emptyTable":     "No Data Found"
             },
             "order": [],
-            "pageLength": 25,
+            "pageLength": 10,
             "dom": 'lBfrtip',
             "ordering": false,
               "buttons": [

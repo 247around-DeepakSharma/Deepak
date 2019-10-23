@@ -51,7 +51,7 @@ function check_text(){
               </h1>
                 <?php if(!in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE])) { ?>
                 <div class="alert alert-warning">
-                    <span style="font-weight:bold;">You don't have permission to complete booking.</span>
+                    <span style="font-weight:bold;">You don't have permission to cancel booking.</span>
                 </div>
                 <?php  } ?>
                 <?php if($isdisable || !empty($is_invoice_generated)) {?>
