@@ -6136,7 +6136,7 @@ function do_multiple_spare_shipping(){
                     $insert_data = [];
                     $insert_data['entity_id'] = $this->session->userdata('service_center_id');
                     $insert_data['entity_type'] = _247AROUND_SF_STRING;
-                    $insert_data['inventory_id'] = $spare_part_detail['shipped_quantity'];
+                    $insert_data['inventory_id'] = $spare_part_detail['shipped_inventory_id'];
                     $insert_data['stock'] = $spare_part_detail['shipped_quantity'];
                     $insert_data['create_date'] = date('Y-m-d H:i:s');
 
