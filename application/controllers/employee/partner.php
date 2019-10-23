@@ -2138,6 +2138,15 @@ class Partner extends CI_Controller {
                     } else {
                         $data['defective_return_to_entity_id'] = $this->session->userdata('partner_id');
                         $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                        
+                        if (empty($is_saas)) {
+                            if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                                $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                                $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+                            }
+                        }
+
                         $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
                     }
                     
@@ -7571,12 +7580,14 @@ class Partner extends CI_Controller {
     }
     function get_booking_relatives($booking_id){
 //        $this->checkUserSession();
-        $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
-        if(!empty($relativeData)){
-            echo  json_encode($relativeData[0]);
-        }
-        else{
-            echo false;
+        if($this->session->userdata('loggedIn') == TRUE) {
+            $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
+            if(!empty($relativeData)){
+                echo  json_encode($relativeData[0]);
+            }
+            else{
+                echo false;
+            }
         }
     }
  
