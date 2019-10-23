@@ -2267,7 +2267,7 @@ class Booking extends CI_Controller {
         $state = $this->vendor_model->get_state_from_pincode($pincode);
         $partner_id = $this->input->post('partner_id');
         $sp_required_id = json_decode($this->input->post("sp_required_id"), true);
-        $spare_parts_required = $this->input->post('spare_parts_required');
+        //$spare_parts_required = $this->input->post('spare_parts_required');
         $price_tag_array = $this->input->post('price_tags');
         $model_number = $this->input->post('model_number');
 
@@ -2321,11 +2321,11 @@ class Booking extends CI_Controller {
             }
             
             if(!empty($data['serial_number_pic'])){
-                $insertd = $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
-                $serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
-                if(!empty($insertd)  && in_array($partner_id, $serialNumberMandatoryPartners)){
-                    //$this->miscelleneous->inform_partner_for_serial_no($booking_id, $service_center_details[0]['service_center_id'], $partner_id, $data['serial_number'], $data['serial_number_pic']);
-                }
+                $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
+                //$serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
+//                if(!empty($insertd)  && in_array($partner_id, $serialNumberMandatoryPartners)){
+//                    //$this->miscelleneous->inform_partner_for_serial_no($booking_id, $service_center_details[0]['service_center_id'], $partner_id, $data['serial_number'], $data['serial_number_pic']);
+//                }
             }
 
             if (isset($customer_net_payable[$unit_id])) {
@@ -2349,23 +2349,14 @@ class Booking extends CI_Controller {
                         if(!empty($b_unit_details)){
                             $closed_date  = $b_unit_details[0]['ud_closed_date'];
                         } 
-                           
-                        if($spare_parts_required == 1){
-                            $data_service_center['closed_date'] = $closed_date;
-                            $data['booking_status'] = _247AROUND_PENDING;
-                            $internal_status = _247AROUND_COMPLETED;
-                            $data_service_center['current_status'] = "InProcess";
-                            $data_service_center['internal_status'] = DEFECTIVE_PARTS_PENDING;
-                            
-                        } else {
-                            $data_service_center['current_status'] = $data_service_center['internal_status'] = _247AROUND_COMPLETED;
+                        
+                        $data_service_center['current_status'] = $data_service_center['internal_status'] = _247AROUND_COMPLETED;
                             $data['booking_status'] = _247AROUND_COMPLETED;
                             $internal_status = _247AROUND_COMPLETED;
-                            
-                            $data_service_center['closed_date'] = $data['ud_closed_date'] = $closed_date;
-                        }
 
-                        log_message('info', __FUNCTION__ . " New unit selected, previous unit " . print_r($unit_id, true)
+                            $data_service_center['closed_date'] = $data['ud_closed_date'] = $closed_date;
+
+                            log_message('info', __FUNCTION__ . " New unit selected, previous unit " . print_r($unit_id, true)
                                 . " Service charges id: "
                                 . print_r($service_charges_id, true)
                                 . " Data: " . print_r($data, true) . " State: " . print_r($state['state'], true));
@@ -2400,31 +2391,10 @@ class Booking extends CI_Controller {
                     $internal_status = _247AROUND_COMPLETED;
                 }
                 
-                if($spare_parts_required == 1){
-                    $service_center['current_status'] = "InProcess";
-                    $service_center['internal_status'] = DEFECTIVE_PARTS_PENDING;
-                    $service_center['closed_date'] = $closed_date;
-                    $data['ud_closed_date'] = $closed_date;
-                    $data['booking_status'] = _247AROUND_PENDING;
-//                    if( isset($price_tag_array[$unit_id]) && 
-//                            $data['booking_status'] == _247AROUND_CANCELLED && 
-//                            $price_tag_array[$unit_id] === REPAIR_OOW_PARTS_PRICE_TAGS){
-//                        
-//                        $data['ud_closed_date'] = $closed_date;
-//                        
-//                    } else {
-//                        
-//                        $data['booking_status'] = _247AROUND_PENDING;
-//                    }
-                    
-                    
-                } else {
-                    
-                    $service_center['closed_date'] = $data['ud_closed_date'] = $closed_date;
-                    $service_center['current_status'] = $data['booking_status'];
-                    $service_center['internal_status'] = $data['booking_status'];
-                }
-
+                $service_center['closed_date'] = $data['ud_closed_date'] = $closed_date;
+                $service_center['current_status'] = $data['booking_status'];
+                $service_center['internal_status'] = $data['booking_status'];
+                
                 $data['id'] = $unit_id;
 
                 log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
@@ -2467,10 +2437,6 @@ class Booking extends CI_Controller {
             $this->miscelleneous->update_appliance_details($unit_id);
             $k = $k + 1;
         }
-        
-        // update spare parts.
-        $this->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details);
-        
         // insert in booking files.
         $booking_file = [];
         $booking_file['booking_id'] = $booking_id;
@@ -2483,16 +2449,16 @@ class Booking extends CI_Controller {
         if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
             $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
             
-            if(!$rowsStatus)
-            {
+            if(!$rowsStatus){
                 $booking_symptom['booking_id'] = $booking_id;
                 $booking_symptom['symptom_id_booking_creation_time'] = 0;
                 $booking_symptom['create_date'] = date("Y-m-d H:i:s");
                 $this->booking_model->addBookingSymptom($booking_symptom);
             }
         }
-        
-        if($spare_parts_required == 1){
+        // update spare parts.
+        $is_update_spare_parts = $this->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details);
+        if($is_update_spare_parts){
             $booking['current_status'] = _247AROUND_PENDING;
             $booking['internal_status'] = DEFECTIVE_PARTS_PENDING;
         } else {
@@ -2565,14 +2531,6 @@ class Booking extends CI_Controller {
                 $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
             }
         }
-//        if(!empty($sp_required_id)){ 
-//            foreach ($sp_required_id as $sp_id) {
-//                
-//                $this->service_centers_model->update_spare_parts(array('id' => $sp_id), array('status' => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1));
-//            }
-//            
-//            $this->invoice_lib->generate_challan_file($sp_id, $service_center_details[0]['service_center_id']);
-//        }
         
         if ($status == 0) {
             //Log this state change as well for this booking

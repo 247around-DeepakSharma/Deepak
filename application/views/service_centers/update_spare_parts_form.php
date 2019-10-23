@@ -98,7 +98,7 @@
             </div>
         </div>
     </div>
-    <form enctype="multipart/form-data" action="<?php echo base_url(); ?>service_center/process_update_spare_parts/<?php echo $spare_parts[0]->booking_id; ?>" class ="form-horizontal" name="update_form" id="update_form"  method="POST">
+    <form enctype="multipart/form-data" action="<?php echo base_url(); ?>service_center/process_update_spare_parts/<?php echo $spare_parts[0]->booking_id; ?>/<?php  echo $wh_ship; ?>" class ="form-horizontal" name="update_form" id="update_form"  method="POST">
         <div class="row">
             <div class="col-md-12 col-sm12 col-xs-12">
                 <div class="x_panel">
