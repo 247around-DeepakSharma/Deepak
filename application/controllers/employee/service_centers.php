@@ -3765,7 +3765,16 @@ function do_multiple_spare_shipping(){
                     $partner_details = array();
 
                     if ($part_details[0]['entity_type'] == _247AROUND_PARTNER_STRING) {
-                        $partner_details = $this->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number', array('partners.id' => $part_details[0]['partner_id']));
+
+                        if ($this->session->userdata("userType") == "service_center") {
+                           $login_sc_id =  $this->session->userdata("service_center_id");
+                           $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $login_sc_id));
+                        }else{
+
+                          $partner_details = $this->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number', array('partners.id' => $part_details[0]['partner_id']));  
+                        }
+
+                        
                     } else if ($part_details[0]['entity_type'] === _247AROUND_SF_STRING) {
                         $partner_details = $this->vendor_model->getVendorDetails('name as company_name,address,owner_name,gst_no as gst_number', array('id' => $part_details[0]['partner_id']));
                     }
