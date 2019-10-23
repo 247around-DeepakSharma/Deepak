@@ -398,7 +398,7 @@ class invoices_model extends CI_Model {
         
         $anx_data['annexure'] = $this->getpartner_invoices_statuswise($partner_id, $completed_cond,$s);
         $anx_data['Completed']['annexure'] = $this->getpartner_invoices_statuswise($partner_id, $completed_cond,'');
-        $anx_data['Pending']['annexure'] = $this->getpartner_invoices_statuswise($partner_id, '',$pending_cond);
+        $anx_data['Pending']['annexure'] = (($pending_cond != "") ? $this->getpartner_invoices_statuswise($partner_id, '',$pending_cond) : array());
         return $anx_data;
     }
     

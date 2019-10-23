@@ -516,7 +516,7 @@ class Invoice extends CI_Controller {
         $this->invoice_lib->generate_invoice_excel($template, $meta, $misc_data['Completed']['annexure'], $output_file_excel);
         
         // Generate Pending Bookings Excel
-        if (!empty($misc_data['Pending'])) {
+        if (!empty($misc_data['Pending']['annexure'])) {
             $pending_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-Pending-detailed.xlsx";
             $this->invoice_lib->generate_invoice_excel($template, $meta, $misc_data['Pending']['annexure'], $pending_file_excel);
             array_push($files, $pending_file_excel);
