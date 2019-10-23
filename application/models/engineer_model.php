@@ -281,18 +281,20 @@ class Engineer_model extends CI_Model {
             
         } 
         if(!empty($post_data['status'])) {
-            $where .= " and current_status = '".trim($post_data['status'])."'";
+            $where .= " and engineer_booking_action.current_status = '".trim($post_data['status'])."'";
         } 
 
         $sql = "SELECT 
-                    booking_details.*,
+                    booking_details.booking_id, booking_details.booking_address, booking_details.request_type, booking_details.booking_date, booking_details.count_escalation,
+                    booking_details.booking_primary_contact_no, engineer_booking_action.internal_status,
                     users.name as username,
                     partners.public_name as partner_name,
                     services.services,
                     DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as age_of_booking,
                     (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = booking_details.booking_id GROUP BY brand.booking_id ) as appliance_brand
                 FROM 
-                    booking_details 
+                    booking_details
+                    JOIN engineer_booking_action ON (engineer_booking_action.booking_id = booking_details.booking_id)
                     LEFT JOIN partners ON (booking_details.partner_id = partners.id)
                     LEFT JOIN users ON (booking_details.user_id = users.user_id)
                     LEFT JOIN services ON (booking_details.service_id = services.id)
