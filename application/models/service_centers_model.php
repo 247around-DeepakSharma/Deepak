@@ -1270,7 +1270,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
      */
     function insert_engineer_consumed_details($data){
         if(!empty($data)){
-          $this->db->insert_batch('engineer_consumed_spare_details', $data);  
+          $this->db->insert('engineer_consumed_spare_details', $data);  
         }       
         //log_message('info', __FUNCTION__ . '=> Insert consumed details: ' .$this->db->last_query());
         return $this->db->insert_id();  
