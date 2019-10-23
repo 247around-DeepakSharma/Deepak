@@ -650,13 +650,21 @@
                     min:1,
                     required: true,
                     maxlength: 100000
+                },
+                courier_price_by_partner:{
+                    digits:true,
+                    range:[0,2000]
                 }
                 },
                 messages: {
                 courier_name: "Please Courier Name",
                 awb: "Please Enter Valid AWB",
                 shipment_date:"Please Enter Shipped date",
-                approx_value :"Please Enter Approx Value."
+                approx_value :"Please Enter Approx Value.",
+                courier_price_by_partner:{
+                    digits: "Courier Price can only be Numeric.",
+                    range: "Courier price should be in between 0 to 2000."
+                }
                 },
                 submitHandler: function (form) {
                 form.submit();
