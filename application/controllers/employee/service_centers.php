@@ -3229,9 +3229,11 @@ class Service_centers extends CI_Controller {
         if ($this->session->userdata('userType')=='service_center') {
             $service_center_id = $this->session->userdata('service_center_id');
         }else{
-
-            echo "fail";
-
+            $res = array(
+                'error'=> true,
+                'errorMessage'=> 'Authentication failure: Request origin is not a Service Centre.'
+            );
+            echo json_encode($res);die;
         }
       foreach ($sp_ids as $key => $value) {
         
@@ -3270,10 +3272,10 @@ class Service_centers extends CI_Controller {
 
       }
 
-
-     echo 'success';
-
-
+        $res= array(
+            "error"=> false
+        );
+        echo json_encode($res);die;
     }
 
 
@@ -3290,7 +3292,8 @@ class Service_centers extends CI_Controller {
         $this->form_validation->set_rules('booking_id', 'Booking ID', 'trim|required');
         $this->form_validation->set_rules('courier_name_by_sf', 'Courier Name', 'trim|required');
         $this->form_validation->set_rules('awb_by_sf', 'AWB', 'trim|required');
-        $this->form_validation->set_rules('defective_part_shipped_date', 'AWB', 'trim|required');
+        $this->form_validation->set_rules('defective_part_shipped_date', 'AWB', 'trim|required|callback_validate_shipped_date');
+        $this->form_validation->set_message('validate_shipped_date','Shipped date cannot be older than 2 days.');
         $this->form_validation->set_rules('courier_charges_by_sf', 'Courier Charges', 'trim|required');
         $this->form_validation->set_rules('defective_courier_receipt', 'Courier Invoice', 'callback_upload_defective_spare_pic');
         
@@ -3298,6 +3301,14 @@ class Service_centers extends CI_Controller {
             log_message('info', __FUNCTION__ . '=> Form Validation is not updated by Service center ' . $this->session->userdata('service_center_name') .
                     " Spare id " . $sp_id . " Data" . print_r($this->input->post(), true));
             $this->update_defective_parts($sp_id);
+            if(isset($_POST['no_redirect_flag']) && !empty($_POST['no_redirect_flag'])){
+                $errors = validation_errors();
+                $res = array(
+                    'error'=> true,
+                    'errorMessage'=> $errors
+                );
+                echo json_encode($res);die;
+            }
         } else {
             
             $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $sp_id], NULL, NULL, NULL, NULL, NULL)[0];
@@ -3443,28 +3454,57 @@ class Service_centers extends CI_Controller {
                         $this->notify->sendEmail($email_from, $to, $cc, $bcc, $subject, $message, $attachment, COURIER_DETAILS, "", $booking_id);
                     }
 
-                    if (isset($_POST['no_redirect_flag'])) {
-                     echo "Updated By Bulk";   
-                    }else{
-                    $userSession = array('success' => 'Parts Updated.');
-                    $this->session->set_userdata($userSession);
-                    redirect(base_url() . "service_center/get_defective_parts_booking");
+                    if (!isset($_POST['no_redirect_flag']) || empty($_POST['no_redirect_flag'])) {      //if not bulk update
+                        $userSession = array('success' => 'Parts Updated.');
+                        $this->session->set_userdata($userSession);
+                        redirect(base_url() . "service_center/get_defective_parts_booking");   
                     }
                 } else {
+                    if(isset($_POST['no_redirect_flag']) && !empty($_POST['no_redirect_flag'])){        //if bulk update
+                        $res = array(
+                            'error'=> true,
+                            'errorMessage'=> 'Parts Not Updated. Please refresh and try again.'
+                        );
+                        echo json_encode($res);die;
+                    }else{
+                        log_message('info', __FUNCTION__ . '=> Defective Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_name') .
+                                " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
+                        $userSession = array('success' => 'Parts Not Updated. Please refresh and try again');
+                        $this->session->set_userdata($userSession);
+                        redirect(base_url() . "service_center/get_defective_parts_booking");
+                    }
+                }
+            } else {
+                if(isset($_POST['no_redirect_flag']) && !empty($_POST['no_redirect_flag'])){             //if bulk update
+                    $res = array(
+                        'error'=> true,
+                        'errorMessage'=> 'Parts Not Updated. Please Upload Less Than 5 MB File.'
+                    );
+                    echo json_encode($res);die;
+                }else{
                     log_message('info', __FUNCTION__ . '=> Defective Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_name') .
                             " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
-                    $userSession = array('success' => 'Parts Not Updated. Please refresh and try again');
+                    $userSession = array('success' => 'Parts Not Updated. Please Upload Less Than 5 MB File.');
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . "service_center/get_defective_parts_booking");
                 }
-            } else {
-                log_message('info', __FUNCTION__ . '=> Defective Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_name') .
-                        " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
-                $userSession = array('success' => 'Parts Not Updated. Please Upload Less Than 2 MB File.');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center/get_defective_parts_booking");
             }
         }
+    }
+    /**
+     * @desc This function is used to validate a date cannot be older than 2 days. -- for validation callback purpose only
+     */
+    function validate_shipped_date($date){
+        if(empty($date)){
+            return false;
+        }
+        $start_date = strtotime($date); 
+        $end_date = strtotime(Date("Y-m-d"));
+        $diff = round(($end_date - $start_date)/60/60/24);
+        if($diff<3){                            //defective return shipped date cannot be older than 2 days.
+            return true;
+        }
+        return false;
     }
 
      /**
@@ -5823,7 +5863,8 @@ class Service_centers extends CI_Controller {
         $where = array('entity_id' => $data['spare_parts'][0]->partner_id, 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['spare_parts'][0]->service_id, 'inventory_model_mapping.active' => 1,'appliance_model_details.active' => 1,'appliance_model_details.active' => 1);
         $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);        
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
-        $data['is_wh'] = $this->partner_model->getpartner_details('is_wh',array('partners.id' => $data['spare_parts'][0]->partner_id))[0]['is_wh'];        
+        $data['is_wh'] = $this->partner_model->getpartner_details('is_wh',array('partners.id' => $data['spare_parts'][0]->partner_id))[0]['is_wh'];  
+        $data['wh_ship'] = $wh;      
        }        
         
         $this->load->view('service_centers/header');
@@ -5837,7 +5878,7 @@ class Service_centers extends CI_Controller {
      * @param String $id
      * @return void
      */
-    function process_update_spare_parts($booking_id) {
+    function process_update_spare_parts($booking_id,$wh=0) {
         log_message('info', __FUNCTION__ . " Sf ID: " . $this->session->userdata('service_center_id'));
         log_message("info", __METHOD__ . " POST Data " . json_encode($this->input->post()));
 
@@ -5878,7 +5919,8 @@ class Service_centers extends CI_Controller {
                 foreach ($part as $key => $part_details) { 
                     if ($part_details['shippingStatus'] == 1) {
 
-                        $is_shipped_stock_available = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $part_details['inventory_id'], 'inventory_stocks.stock > 0' => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();                                               
+                        $is_shipped_stock_available = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $sf_id, 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $part_details['inventory_id'], 'inventory_stocks.stock > 0' => NULL), NULL, NULL, NULL, NULL, NULL)->result_array();   
+						
                         if (!empty($is_shipped_stock_available) && !empty($is_shipped_stock_available[0]['id'])) {
 
                             $status = SPARE_PARTS_SHIPPED;
@@ -6077,7 +6119,12 @@ class Service_centers extends CI_Controller {
 
                     $userSession = array('success' => 'Parts Updated');
                     $this->session->set_userdata($userSession);
-                    redirect(base_url() . "service_center/spare_parts");
+					if($wh){
+						redirect(base_url() . "service_center/inventory");
+					}else{
+						redirect(base_url() . "service_center/spare_parts");
+					}
+                    
                 } else {
                     if ($can_status == SPARE_PARTS_CANCELLED) {
                         $sc_data['current_status'] = _247AROUND_PENDING;
@@ -6106,13 +6153,13 @@ class Service_centers extends CI_Controller {
                         " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
                 $userSession = array('error' => 'Parts Not Updated');
                 $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center/update_spare_parts_form/" . $booking_id);
+                redirect(base_url() . "service_center/update_spare_parts_form/" . $booking_id."/".$wh);
             } else {
                 log_message('info', __FUNCTION__ . '=> Spare parts booking is not updated by SF ' . $this->session->userdata('service_center_id') .
                         " booking id " . $booking_id . " Data" . print_r($this->input->post(), true));
                 $userSession = array('error' => $courier_image['message']);
                 $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center/update_spare_parts_form/" . $booking_id);
+                redirect(base_url() . "service_center/update_spare_parts_form/" . $booking_id."/".$wh);
             }
         }
     }

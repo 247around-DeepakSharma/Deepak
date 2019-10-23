@@ -247,13 +247,23 @@
                    processData: false,  // tell jQuery not to process the data
                    contentType: false   // tell jQuery not to set contentType
                    }).done(function(response) {
-                         console.log(response);
-                          
-                            $(".loader").addClass('hide');
-                             swal({title: "Updated !", text: "Your courier details updated .", type: "success"},
-                              function(){ 
-                             // location.reload();
-                             }
+                        console.log(response);
+                        $(".loader").addClass('hide');
+                        var resp = '';
+                        try{
+                            resp = JSON.parse(response);
+                        }catch(err){
+                            swal({title: "Error", text: "Response Error: Invalid or malformed response.", type: "error"});
+                        }
+                        if(!!resp.error){
+                            swal({title: "Failed !", text: resp.errorMessage, type: "error",html: true});
+                        }else{
+                            swal({title: "Updated !", text: "Your courier details updated .", type: "success"},
+                                function(){ 
+                                    location.reload();
+                                }
+                            );
+                        } 
                    );
                         
                });
