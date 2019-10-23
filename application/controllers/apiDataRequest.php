@@ -227,6 +227,7 @@ class ApiDataRequest extends CI_Controller {
                     'inventory_parts_type.service_id' => $spare_data[0]['service_id']));
                
                 $spare_oow_est_margin = $margin['oow_est_margin']/100;
+                $spare_oow_around_margin=$margin['oow_around_margin']/100;
                 $repair_oow_vendor_percentage = $margin['oow_vendor_margin'];
                 $gst_rate = !(empty($margin['gst_rate']))? $margin['gst_rate']: $gst_rate;
 
@@ -242,7 +243,7 @@ class ApiDataRequest extends CI_Controller {
                 $data['status'] = SPARE_OOW_EST_GIVEN;
                 $data['purchase_price'] = $estimate_cost;
                 $data['sell_price'] = ($estimate_cost + $estimate_cost * $spare_oow_est_margin );
-                $data['challan_approx_value'] = ($estimate_cost + $estimate_cost * $spare_oow_est_margin );
+                $data['challan_approx_value'] = ($estimate_cost + $estimate_cost * $spare_oow_around_margin );
                 $data['estimate_cost_given_date'] = date('Y-m-d');
                 $data['invoice_gst_rate'] = $gst_rate;
                 //Update Spare Parts Table

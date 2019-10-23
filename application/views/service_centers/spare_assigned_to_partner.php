@@ -226,7 +226,7 @@ if ($this->uri->segment(3)) {
 
     $(".challan_not_generated").click(function(){
 
-       swal("Not able to download challan", "Challan was not generated. Try to complete booking once again or contact 247Around.");
+       swal("Not able to download challan", "Challan was not generated. Try to complete booking once again.");
 
     });
 

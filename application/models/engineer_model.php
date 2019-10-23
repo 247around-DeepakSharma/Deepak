@@ -281,18 +281,20 @@ class Engineer_model extends CI_Model {
             
         } 
         if(!empty($post_data['status'])) {
-            $where .= " and current_status = '".trim($post_data['status'])."'";
+            $where .= " and engineer_booking_action.current_status = '".trim($post_data['status'])."'";
         } 
 
         $sql = "SELECT 
-                    booking_details.*,
+                    booking_details.booking_id, booking_details.booking_address, booking_details.request_type, booking_details.booking_date, booking_details.count_escalation,
+                    booking_details.booking_primary_contact_no, engineer_booking_action.internal_status,
                     users.name as username,
                     partners.public_name as partner_name,
                     services.services,
                     DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as age_of_booking,
                     (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = booking_details.booking_id GROUP BY brand.booking_id ) as appliance_brand
                 FROM 
-                    booking_details 
+                    booking_details
+                    JOIN engineer_booking_action ON (engineer_booking_action.booking_id = booking_details.booking_id)
                     LEFT JOIN partners ON (booking_details.partner_id = partners.id)
                     LEFT JOIN users ON (booking_details.user_id = users.user_id)
                     LEFT JOIN services ON (booking_details.service_id = services.id)
@@ -351,19 +353,19 @@ class Engineer_model extends CI_Model {
      *@param - $service_center_id, @engineer_id
      *@return - resultant array
      */
-    function engineer_completed_bookings_details($service_center_id, $engineer_id){
-        $sql = "SELECT engineer_booking_action.booking_id, booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, engineer_booking_action.is_broken, engineer_booking_action.model_number, engineer_booking_action.sf_purchase_date, engineer_booking_action.serial_number, engineer_booking_action.purchase_invoice, engineer_booking_action.booking_status, engineer_booking_action.closing_remark, engineer_table_sign.signature, symptom.symptom, defect.defect, symptom_completion_solution.technical_solution, GROUP_CONCAT(engineer_booking_action.parts_cost) as parts_cost, GROUP_CONCAT(engineer_booking_action.service_charge) as service_charge, GROUP_CONCAT(engineer_booking_action.additional_service_charge) as additional_service_charge
+    function engineer_completed_bookings_details($booking_id){
+        $sql = "SELECT engineer_booking_action.*, booking_details.booking_date, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, 
+                services.services, booking_details.request_type, booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, 
+                booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, symptom.symptom, defect.defect, symptom_completion_solution.technical_solution
                 FROM `engineer_booking_action` 
                 JOIN `booking_details` ON `booking_details`.`booking_id` = `engineer_booking_action`.`booking_id`
                 JOIN booking_unit_details ON booking_unit_details.booking_id = `engineer_booking_action`.`booking_id`
-                JOIN users on users.user_id = booking_details.user_id
                 JOIN services on services.id = booking_details.service_id
-                JOIN engineer_table_sign on engineer_table_sign.booking_id = engineer_booking_action.booking_id
                 LEFT JOIN symptom on symptom.id = engineer_booking_action.symptom
                 LEFT JOIN defect on defect.id = engineer_booking_action.defect
                 LEFT JOIN symptom_completion_solution ON symptom_completion_solution.id = engineer_booking_action.solution
-                WHERE `assigned_vendor_id` = '".$service_center_id."' AND `assigned_engineer_id` = '".$engineer_id."' AND `engineer_booking_action`.`internal_status` = '"._247AROUND_COMPLETED."' GROUP BY engineer_booking_action.booking_id";
-       
+                WHERE `engineer_booking_action`.`booking_id` = '".$booking_id."'";
+        
         $query = $this->db->query($sql);
         return $query->result_array();
     }
