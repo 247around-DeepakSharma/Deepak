@@ -1102,15 +1102,17 @@ function alpha(e) {
     $(document).ready(function(){
         var model_number = $("#model_number_id option:selected").val();
         if(model_number !=''){
-            $("#model_number_id").select2('destroy'); 
-            $("#model_number_id").attr('readonly',"readonly");
-            $("#model_number_id").css("cursor", "not-allowed");
-            $("#model_number_id").css("pointer-events","none");
+            <?php if($is_disable){ ?>
+                $("#model_number_id").select2('destroy'); 
+                $("#model_number_id").attr('readonly',"readonly");
+                $("#model_number_id").css("cursor", "not-allowed");
+                $("#model_number_id").css("pointer-events","none");
+            <?php } ?>
             
         }
     });
         
-    <?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ ?>
+    <?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ if($is_disable){  ?>
         $("#dop").attr('readonly', 'readonly');
         $("#dop").css("cursor", "not-allowed");
         $("#dop").css("pointer-events","none");
@@ -1118,20 +1120,20 @@ function alpha(e) {
         $("#dat_of_puchase").css("pointer-events","none");
         $("#dop_calendar").attr("onclick", "").unbind("click");
         
-     <?php } ?>
+     <?php } } ?>
          
-    <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ ?>
+    <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ if($is_disable){ ?>
         $("#serial_number_pic").attr('readonly', 'readonly');
         $("#serial_number_pic").css("cursor", "not-allowed");
         $("#serial_number_pic").css("pointer-events","none");
         $("#serial_text").css("cursor", "not-allowed");
         $("#serial_text").css("pointer-events","none");
-    <?php } ?>
-    <?php if(isset($unit_serial_number) && !empty($unit_serial_number)){ ?> 
+    <?php } } ?>
+    <?php if(isset($unit_serial_number) && !empty($unit_serial_number)){ if($is_disable){ ?> 
         $("#serial_number").attr('readonly', 'readonly');
         $("#serial_number").css("cursor", "not-allowed");
         $("#serial_number").css("pointer-events","none");
-    <?php }  ?>
+    <?php } } ?>
     // function ends here ---------------------------------------------------------------- 
 </script>
 <style type="text/css">

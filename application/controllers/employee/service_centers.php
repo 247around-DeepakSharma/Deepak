@@ -1757,6 +1757,11 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Booking ID: " . base64_decode(urldecode($code)));
         $this->checkUserSession();
         $data = array();
+        $model_nunmber = "";
+        $serial_number = "";
+        $dateofpurchase = "";
+        $serial_number_pic = "";
+        $is_disable = false;
         if (!empty($flag)) {
 
             if (is_numeric($flag)) {
@@ -1780,7 +1785,7 @@ class Service_centers extends CI_Controller {
             $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));
             $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);
             $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
-            
+
             $data['on_saas'] = FALSE;
             if (!empty($data['bookinghistory'])) {
                 $partner_id = $data['bookinghistory'][0]['partner_id'];
@@ -1802,26 +1807,33 @@ class Service_centers extends CI_Controller {
                     foreach ($data['bookinghistory']['spare_parts'] as $sp) {
                         if ($sp['status'] == SPARE_OOW_EST_GIVEN) {
                             array_push($data['internal_status'], array("status" => ESTIMATE_APPROVED_BY_CUSTOMER));
-                            $is_est_approved = true; 
+                            $is_est_approved = true;
                         }
-                        
-                        if(($sp['auto_acknowledeged'] == 1 || $sp['auto_acknowledeged'] == 2)&& $sp['status'] == SPARE_DELIVERED_TO_SF ){
+
+                        if (($sp['auto_acknowledeged'] == 1 || $sp['auto_acknowledeged'] == 2) && $sp['status'] == SPARE_DELIVERED_TO_SF) {
                             $spare_shipped_flag = TRUE;
                         }
-                        
-                        switch ($sp['status']){
-                               case SPARE_SHIPPED_BY_PARTNER:
-                               case DEFECTIVE_PARTS_PENDING:
-                               case DEFECTIVE_PARTS_RECEIVED:
-                               case DEFECTIVE_PARTS_REJECTED:
-                               case DEFECTIVE_PARTS_SHIPPED:
-                               case SPARE_DELIVERED_TO_SF: 
-                                  $spareShipped = TRUE;
-                                   break;
-                           }
+
+                        switch ($sp['status']) {
+                            case SPARE_SHIPPED_BY_PARTNER:
+                            case DEFECTIVE_PARTS_PENDING:
+                            case DEFECTIVE_PARTS_RECEIVED:
+                            case DEFECTIVE_PARTS_REJECTED:
+                            case DEFECTIVE_PARTS_SHIPPED:
+                            case SPARE_DELIVERED_TO_SF:
+                                $spareShipped = TRUE;
+                                break;
+                        }
+                        if ($sp['status'] != _247AROUND_CANCELLED) {
+                            $model_nunmber = $sp['model_number'];
+                            $serial_number = $sp['serial_number'];
+                            $dateofpurchase = $sp['date_of_purchase'];
+                            $serial_number_pic = $sp['serial_number_pic'];
+                            $is_disable = true;
+                        }
                     }
                 }
-                
+
                 $data['spare_shipped'] = $spareShipped;
                 $date_diff = date_diff($current_date, $current_booking_date);
                 $data['Service_Center_Visit'] = 0;
@@ -1834,33 +1846,23 @@ class Service_centers extends CI_Controller {
                     $data['days'] = $date_diff->days;
                     array_push($data['internal_status'], array('status' => CUSTOMER_NOT_REACHABLE));
                 } else {
-                    
+
                     $data['days'] = 0;
-                    
-                    if($spareShipped){
-                        
+
+                    if ($spareShipped) {
+
                         array_push($data['internal_status'], array('status' => CUSTOMER_NOT_REACHABLE));
                     }
                 }
 
                 $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
-                $model_nunmber = "";
-                $serial_number = "";
-                $dateofpurchase="";
-                $serial_number_pic="";
                 foreach ($unit_details as $value) {
                     if (strcasecmp($value['price_tags'], REPAIR_OOW_TAG) == 0) {
-                        if(!$is_est_approved){
+                        if (!$is_est_approved) {
                             $data['spare_flag'] = SPARE_OOW_EST_REQUESTED;
                             $data['price_tags'] = $value['price_tags'];
                         }
-                    } else if (stristr($value['price_tags'], "Repair") 
-                            || stristr($value['price_tags'], "Repeat")
-                            || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) 
-                            || stristr($value['price_tags'], PRESALE_REPAIR_TAG)
-                            || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY)
-                            || stristr($value['price_tags'], AMC_PRICE_TAGS)
-                            || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
+                    } else if (stristr($value['price_tags'], "Repair") || stristr($value['price_tags'], "Repeat") || stristr($value['price_tags'], EXTENDED_WARRANTY_TAG) || stristr($value['price_tags'], PRESALE_REPAIR_TAG) || stristr($value['price_tags'], GAS_RECHARGE_IN_WARRANTY) || stristr($value['price_tags'], AMC_PRICE_TAGS) || stristr($value['price_tags'], GAS_RECHARGE_OUT_OF_WARRANTY)) {
 
                         $data['spare_flag'] = SPARE_PARTS_REQUIRED;
                         $data['price_tags'] = $value['price_tags'];
@@ -1868,38 +1870,37 @@ class Service_centers extends CI_Controller {
                     if (stristr($value['price_tags'], "Service Center Visit")) {
                         array_push($data['internal_status'], array("status" => CUSTOMER_NOT_VISTED_TO_SERVICE_CENTER));
                     }
-                    
-                    if(empty($model_nunmber)){
-                        if(!empty($value['model_number'])){  
+
+                    if (empty($model_nunmber)) {
+                        if (!empty($value['model_number'])) {
                             $model_nunmber = $value['model_number'];
-                      
-                        } else if(!empty($value['sf_model_number'])) {
+                        } else if (!empty($value['sf_model_number'])) {
                             $model_nunmber = $value['sf_model_number'];
                         }
                     }
-                    if(empty($serial_number)){
-                        if(!empty($value['serial_number'])){
-                            $serial_number = $value['serial_number'];    
-                       }
-                    } 
-                   if(empty($dateofpurchase)){
-                        if(!empty($value['purchase_date'])){
-                            $dateofpurchase = $value['purchase_date'];    
-                       }
+                    if (empty($serial_number)) {
+                        if (!empty($value['serial_number'])) {
+                            $serial_number = $value['serial_number'];
+                        }
                     }
-                   if(empty($serial_number_pic)){
-                        if(!empty($value['serial_number_pic'])){
-                            $serial_number_pic = $value['serial_number_pic'];    
-                       }
+                    if (empty($dateofpurchase)) {
+                        if (!empty($value['purchase_date'])) {
+                            $dateofpurchase = $value['purchase_date'];
+                        }
                     }
-  
+                    if (empty($serial_number_pic)) {
+                        if (!empty($value['serial_number_pic'])) {
+                            $serial_number_pic = $value['serial_number_pic'];
+                        }
+                    }
                 }
-                
+
                 $data['unit_model_number'] = $model_nunmber;
                 $data['unit_serial_number'] = $serial_number;
                 $data['purchase_date'] = $dateofpurchase;
+                $data['is_disable'] = $is_disable;
                 $data['unit_serial_number_pic'] = $serial_number_pic;
-                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'], 'inventory_model_mapping.active' => 1,'appliance_model_details.active' => 1);
+                $where = array('entity_id' => $data['bookinghistory'][0]['partner_id'], 'entity_type' => _247AROUND_PARTNER_STRING, 'service_id' => $data['bookinghistory'][0]['service_id'], 'inventory_model_mapping.active' => 1, 'appliance_model_details.active' => 1);
                 $data['inventory_details'] = $this->inventory_model->get_inventory_mapped_model_numbers('appliance_model_details.id,appliance_model_details.model_number', $where);
                 $data['spare_shipped_flag'] = $spare_shipped_flag;
                 $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
@@ -1912,6 +1913,7 @@ class Service_centers extends CI_Controller {
             echo "Booking Not Found. Please Retry Again";
         }
     }
+
     /**
      * @desc: This is used to get required spare parts to partner 
      * @param String Base_encode form - $id
