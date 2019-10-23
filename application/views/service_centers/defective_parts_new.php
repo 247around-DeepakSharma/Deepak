@@ -17,7 +17,7 @@
                ?> 
          <div class="panel panel-default">
             <div class="panel-heading">
-                <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Defective/Ok Parts Need To Be Shipped</h1>
+                <h1 class="panel-title" ><i class="fa fa-money fa-fw"></i> Defective Parts Need To Be Shipped</h1>
             </div>
             <div class="panel-body">
                <div class="table-responsive">
@@ -31,11 +31,9 @@
                             <th class="text-center">Age of Pending</th>
                             <th class="text-center">Parts Received</th>
                             <th class="text-center">Parts Code </th>
-                            <th class="text-center">Quantity</th>
-                             <th class="text-center">Amount</th>
+                            <th class="text-center">Amount</th>
                             <th class="text-center">Remarks By Partner</th>
-                            <th class="text-center">Consumption</th>
-                            <th class="text-center">Consumption Reason</th>
+                            <th class="text-center">Quantity</th>
                             <th class="text-center" >Address <input type="checkbox" id="selectall_address" > </th>
                             <th class="text-center" >Challan<input type="checkbox" id="selectall_challan_file" > </th>   
                             <th class="text-center" >Bulk Send<input type="checkbox" id="selectall_send_courier" > </th>                          
@@ -44,7 +42,7 @@
                        </thead>
                        <tbody>
                            <tbody>
-                                <?php foreach($spare_parts as $key =>$row){ ?>
+                                <?php  foreach($spare_parts as $key =>$row){ ?>
                                <tr style="text-align: center;<?php if(!is_null($row['remarks_defective_part_by_partner'])){ echo "color:red"; }?>">
                                     <td>
                                         <?php echo $sn_no; ?>
@@ -64,9 +62,6 @@
                                     <td style="word-break: break-all;">
                                         <?php echo $row['part_number']; ?>
                                     </td>
-                                     <td style="word-break: break-all;">
-                                        <?php echo $row['shipped_quantity']; ?>
-                                    </td>
                                     <td>
                                         <?php echo $row['challan_approx_value']; ?>
                                     </td>
@@ -74,8 +69,9 @@
                                     <td>
                                         <?php if(!is_null($row['remarks_defective_part_by_partner'])){  echo $row['remarks_defective_part_by_partner']; } else { echo $row['remarks_by_partner'];} ?>
                                     </td>
-                                    <td><?php if($row['is_consumed'] == 1) { echo 'Yes'; } else { echo 'No'; } ?></td>
-                                    <td><?php echo $row['consumed_status']; ?></td>
+                                    <td>
+                                        <input type="number" id="spqty<?php echo $row['shipped_quantity'];  ?>" data-shipped-quantity="<?php echo $row['shipped_quantity'];?>" min="1" class="defective_qty form-control checkbox_address" name="defective_qty"  value="<?php echo $row['shipped_quantity'];?>" /> 
+                                    </td>
                                     <td>
                                         <input type="checkbox" class="form-control checkbox_address" onclick="remove_select_all()" name="download_address[]"  value="<?php echo $row['id'];?>" />
                                     </td>
@@ -214,7 +210,7 @@
                         </div>
 
                         <input type="hidden" name="courier_boxes_weight_flag" id="courier_boxes_weight_flag" value="0">
-                        <input type="hidden" name="courier_charges_by_sf_hidden" id="courier_charges_by_sf_hidden" value="0">
+
                         <input type="hidden" name="sp_ids" id="spareids" value="">
             </div>
             <div class="modal-footer">
@@ -242,10 +238,6 @@
     function submitForm(){
        event.preventDefault();
        $(".loader").removeClass('hide');
-       if( $("#courier_charges_by_sf_hidden").val()!=0)
-        {
-            $("#courier_charges_by_sf").val( $("#courier_charges_by_sf_hidden").val())
-        }
        var form_data = new FormData(document.getElementById("idForm"));
 
                $.ajax({
@@ -271,7 +263,8 @@
                                     location.reload();
                                 }
                             );
-                        }   
+                        } 
+                   );
                         
                });
  
@@ -287,6 +280,17 @@
             format: 'YYYY-MM-DD'
         }
     });
+
+    $(document).on("keyup",".defective_qty",function(){
+
+   var max = parseInt($(this).attr("data-shipped-quantity"));
+   var current  = parseInt($(this).val()); 
+   if (current>max) {
+
+    swal("Error !", "Your entered quantity is greater than the shipped quantity by warehouse/partner to SF . Please enter the less than or equal to  "+max);
+    $(this).val(max);
+   } 
+});
     
     $('#defective_part_shipped_date').on('apply.daterangepicker', function (ev, picker) {
         $(this).val(picker.startDate.format('YYYY-MM-DD'));
@@ -455,13 +459,16 @@ if($('.checkbox_courier:checkbox:checked').length > 0){
  $("#button_send").click(function(){
  yourArray=[];
 
-      $(".checkbox_courier:checked").each(function(){
-       yourArray.push($(this).val());
-       });
+$(".checkbox_courier:checked").each(function(){
+ yourArray.push($(this).val());
+var sp = $(this).val();
+var qty   = $("#spqty"+sp);
+ $("#idForm").append("<input type='hidden' name='sp["+sp+"][]' value='"+qty+"' ")
+
+});
  
 $("#spareids").val(yourArray);
-  
-       
+         
  });
 
 
@@ -498,10 +505,10 @@ $("#spareids").val(yourArray);
                     var data = jQuery.parseJSON(response);
                     if (data.code === 247) {
     
-                        //$("#same_awb").css({"color": "green", "font-weight": "900"});
+                        $("#same_awb").css({"color": "green", "font-weight": "900"});
                         //  $("#same_awb").css("font-wight",900);
-                        //alert("This AWB already used same price will be added");
-                        //$("#same_awb").css("display", "block");
+                        alert("This AWB already used same price will be added");
+                        $("#same_awb").css("display", "block");
                         $('body').loadingModal('destroy');
     
                         
@@ -516,8 +523,7 @@ $("#spareids").val(yourArray);
                         $('#courier_name_by_sf').val(courier).trigger('change');
                         if(data.message[0].courier_charge > 0){
                             $("#courier_charges_by_sf").val(data.message[0].courier_charge);
-                            $("#courier_charges_by_sf_hidden").val(data.message[0].courier_charge);
-                           // $("#courier_charges_by_sf").attr('readonly', "readonly");
+                            $("#courier_charges_by_sf").attr('readonly', "readonly");
                         }
                         
                         
@@ -577,9 +583,6 @@ $("#spareids").val(yourArray);
         }
     
     }
-
-
-
 
 </script>
 <style type="text/css">
