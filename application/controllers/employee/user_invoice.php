@@ -1175,25 +1175,26 @@ class User_invoice extends CI_Controller {
                                 $ledger_data['is_partner_ack'] = (($receiver_entity_type == _247AROUND_PARTNER_STRING) ? 3 : NULL);
                                 $ledger_data['courier_id'] = $courier_id;
                                 $ledger_data['is_wh_micro'] = $wh_type;
+                                $ledger_data['is_wh_ack'] = '0';
                                 $this->inventory_model->insert_inventory_ledger($ledger_data);
                                 $stock = "stock - '" . $value['qty'] . "'";
                                 $this->inventory_model->update_inventory_stock(array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $wh_id, 'inventory_id' => $value['inventory_id']), $stock);
-                                if($receiver_entity_type == _247AROUND_SF_STRING) {
-                                    $inventory_stock_count = $this->inventory_model->get_inventory_stock_count_details("count(*) as numrow",array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $receiver_entity_id, 'inventory_id' => $value['inventory_id']));
-                                    if($inventory_stock_count[0]['numrow']) { 
-                                        $stock1 = "stock + '" . $value['qty'] . "'";
-                                        $this->inventory_model->update_inventory_stock(array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $receiver_entity_id, 'inventory_id' => $value['inventory_id']), $stock1);
-                                    }
-                                    else {
-                                        $insert_data['entity_id'] = $receiver_entity_id;
-                                        $insert_data['entity_type'] = _247AROUND_SF_STRING;
-                                        $insert_data['inventory_id'] = $value['inventory_id'];
-                                        $insert_data['stock'] = $value['qty'];
-                                        $insert_data['create_date'] = date('Y-m-d H:i:s');
+                                // if($receiver_entity_type == _247AROUND_SF_STRING) {
+                                //     $inventory_stock_count = $this->inventory_model->get_inventory_stock_count_details("count(*) as numrow",array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $receiver_entity_id, 'inventory_id' => $value['inventory_id']));
+                                //     if($inventory_stock_count[0]['numrow']) { 
+                                //         $stock1 = "stock + '" . $value['qty'] . "'";
+                                //         $this->inventory_model->update_inventory_stock(array('entity_type' => _247AROUND_SF_STRING, "entity_id" => $receiver_entity_id, 'inventory_id' => $value['inventory_id']), $stock1);
+                                //     }
+                                //     else {
+                                //         $insert_data['entity_id'] = $receiver_entity_id;
+                                //         $insert_data['entity_type'] = _247AROUND_SF_STRING;
+                                //         $insert_data['inventory_id'] = $value['inventory_id'];
+                                //         $insert_data['stock'] = $value['qty'];
+                                //         $insert_data['create_date'] = date('Y-m-d H:i:s');
 
-                                        $this->inventory_model->insert_inventory_stock($insert_data);
-                                    }
-                                }
+                                //         $this->inventory_model->insert_inventory_stock($insert_data);
+                                //     }
+                                // }
                             }
                         }
                     }
