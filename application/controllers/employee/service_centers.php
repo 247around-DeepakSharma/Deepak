@@ -6461,10 +6461,9 @@ function do_multiple_spare_shipping(){
     function warehouse_ack_partner_list() {
         $sf_id = $this->session->userdata('service_center_id');
         $where = array("spare_parts_details.defective_return_to_entity_id" => $sf_id,
-            "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
-            "defective_part_required" => 1,
-            "status IN ('" . _247AROUND_COMPLETED . "', '" . DEFECTIVE_PARTS_REJECTED . "') " => NULL);
-
+           "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
+            "defective_part_required" => 1, 
+            "status IN ('".DEFECTIVE_PARTS_RECEIVED."') " => NULL);
         $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
         if (!empty($partner_id)) {
             $partners = array_unique(array_map(function ($k) {
