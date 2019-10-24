@@ -407,6 +407,10 @@ class engineerApi extends CI_Controller {
                 $this->getBookingDetails();
                 break;
             
+            case 'searchData':
+                $this->getSearchData(); 
+                break;
+            
             default:
                 break;
             
@@ -1775,7 +1779,43 @@ class engineerApi extends CI_Controller {
         $this->output->set_header("HTTP/1.1 200 OK");
     }
     
-    
+    /*@Desc - This function is used to validate keys exist in array or not
+     *@Param - $keysArray(array), $requestArray(array)
+     *@return - $response(array)
+     */
+    function validateKeys($keysArray, $requestArray){
+        $response = array();
+        $missing_key = "";
+        $check = true;
+        if(!empty($requestArray)){
+            if(!empty($keysArray)){
+                foreach ($keysArray as $key){
+                    if (!array_key_exists($key, $requestArray)){ 
+                        $check = false;
+                        $missing_key = $key;
+                        break;
+                    }
+                }
+                if($check){
+                    $response['status'] = true;
+                    $response['message'] = "Success";
+                }
+                else {
+                    $response['status'] = false;
+                    $response['message'] = "Request key missing - ".$missing_key;
+                }
+            }
+            else{
+                $response['status'] = false;
+                $response['message'] = "Keys Array Not Found";
+            }
+        }
+        else{
+            $response['status'] = false;
+            $response['message'] = "Requested Array Not Found";
+        }
+        return $response;
+    }
 
     function getEngineerHomeScreen(){
         log_message("info", __METHOD__. " Entering..");
@@ -3424,6 +3464,65 @@ class engineerApi extends CI_Controller {
         else{
             log_message("info", __METHOD__ . "Booking id not found");
             $this->sendJsonResponse(array("0060", "Booking id not found"));
+        }
+    }
+    
+    /*
+     *@Desc - This function is used to get booking deatails related to search value which is either booking id or user phone number
+     *@param - $engineer_id, $service_center_id, $search_value
+     *@response - json
+     */
+    function getSearchData(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $phone_number = "";
+        $booking_id = "";
+        $data = array();
+        $validation = $this->validateKeys(array("search_value", "engineer_id", "service_center_id"), $requestData);
+        if($validation['status']){
+            $search = preg_replace('/[^A-Za-z0-9\-]/', '',trim($requestData['search_value']));
+            //echo $search; die();
+            if (!empty($search)) {
+                if (preg_match("/^[6-9]{1}[0-9]{9}$/", $search)) {
+                    $phone_number = $search;
+                } else {
+                    $booking_id = $search;
+                }
+            }
+            $select = "services.services, users.phone_number, users.name as customername, users.phone_number, booking_details.*";
+            $post['length'] = -1;
+            if(!empty($booking_id)){
+                $post['search_value'] = $booking_id;
+                $post['column_search'] = array('booking_details.booking_id');
+                $post['order'] = array(array('column' => 0,'dir' => 'asc'));
+                $post['order_performed_on_count'] = TRUE;
+                $post['column_order'] = array('booking_details.booking_id');
+                $post['unit_not_required'] = true;
+                $post['where']['assigned_engineer_id'] = $requestData['engineer_id'];
+                $post['where']['assigned_vendor_id'] = $requestData['service_center_id'];
+                
+                $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select);
+            }
+            else {
+                $where = array(
+                        'booking_details.assigned_engineer_id' => $requestData['engineer_id'],
+                        'booking_details.assigned_vendor_id' => $requestData['service_center_id'],
+                        'users.phone_number = "'.$phone_number.'" OR booking_details.booking_primary_contact_no = "'.$phone_number.'" OR booking_details.booking_alternate_contact_no = "'.$phone_number.'"' => NULL 
+                    );
+                $data['Bookings'] = $this->engineer_model->engineer_bookings_on_user($select, $where);
+            } 
+            if(!empty($data['Bookings'])){
+                $this->jsonResponseString['response'] = $data;
+                $this->sendJsonResponse(array('0000', "Details found successfully"));
+            }
+            else{
+                log_message("info", __METHOD__ . "Data not found");
+                $this->sendJsonResponse(array("0062", "Data not found"));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->sendJsonResponse(array("0061", $validation['message']));
         }
     }
 }
