@@ -53,6 +53,7 @@
                                     <th>Address</th>
                                     <th>Appliance</th>
                                     <th>Booking Date</th>
+                                    <th>Booking Age</th>
                                     <th>Partner</th>
                                     <th>Brands</th>
                                     <th>Booking Status</th>
