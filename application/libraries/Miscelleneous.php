@@ -4720,13 +4720,15 @@ function generate_image($base64, $image_name,$directory){
                     $up['status'] = $status;
                     
                 } else if($complete == 1){
-                     if(empty($spare_part_detail[0]['defective_part_shipped']) && !empty($spare_part_detail[0]['parts_shipped'])){
+                     if(empty($spare_part_detail['defective_part_shipped']) && !empty($spare_part_detail['parts_shipped'])){
                          $a = 1;
                          $up['status'] = $status;
                      } 
                 } else {
-                     $a = 1;
-                     $up['status'] = $status;
+                     if(empty($spare_part_detail['defective_part_shipped']) && !empty($spare_part_detail['parts_shipped'])){
+                        $a = 1;
+                        $up['status'] = $status;
+                     }
                 }
                 
                 if(empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
