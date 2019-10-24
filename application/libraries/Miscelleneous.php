@@ -4853,7 +4853,9 @@ function generate_image($base64, $image_name,$directory){
                 // Do not remove empty initialization
                 $up = array();
                 $up = array('consumed_part_status_id' => $status_id);
-                if ($defective_part_required == 0) {
+                if($spare_part_detail['spare_lost'] == 1){
+                    continue;
+                } else if ($defective_part_required == 0) {
                     $status = _247AROUND_COMPLETED;
                     $up['status'] = $status;
                     
@@ -4869,7 +4871,7 @@ function generate_image($base64, $image_name,$directory){
                      }
                 }
                 
-                if(empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
+                if((empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) || $defective_part_required == 0) {
                     $this->My_CI->reusable_model->update_table('spare_parts_details', $up, ['id' => $spare_id]);
                 }
                 
