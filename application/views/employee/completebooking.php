@@ -727,7 +727,7 @@
     $('[data-toggle="popover"]').attr('data-content', $('#status_consumption_status').html());
 </script>
 <script>
-    <?php if(empty($str_disabled)) { ?> 
+    <?php if(empty($str_disabled) && isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ ?> 
         $(".model_number").select2();
     <?php } ?>  
     $("#service_id").select2();
