@@ -1061,6 +1061,7 @@ function alpha(e) {
     // function to cross check request type of booking with warranty status of booking 
     function check_booking_request()
     {
+        $("#submitform").attr("disabled", false);   
         var model_number = $('#model_number').val();
         var dop = $("#dop").val();
         var partner_id = "<?= $bookinghistory[0]['partner_id']?>";
