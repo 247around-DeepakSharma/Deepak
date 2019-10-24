@@ -4867,8 +4867,10 @@ function generate_image($base64, $image_name,$directory){
                      $up['status'] = $status;
                 }
                 
-                $this->My_CI->reusable_model->update_table('spare_parts_details', $up, ['id' => $spare_id]);
-
+                if(empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
+                    $this->My_CI->reusable_model->update_table('spare_parts_details', $up, ['id' => $spare_id]);
+                }
+                
                 if (!empty($defective_part_required) && $defective_part_required == 1) {
                     $partner_on_saas = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
