@@ -6654,7 +6654,7 @@ class Service_centers extends CI_Controller {
         $where = array("spare_parts_details.defective_return_to_entity_id" => $sf_id,
            "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
             "defective_part_required" => 1, 
-            "status IN ('".DEFECTIVE_PARTS_RECEIVED."', '"._247AROUND_COMPLETED."') " => NULL);
+            "status IN ('".DEFECTIVE_PARTS_RECEIVED."') " => NULL);
 
         $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
         if(!empty($partner_id)){
