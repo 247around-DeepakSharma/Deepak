@@ -346,10 +346,12 @@ class Booking extends CI_Controller {
                                         $agent_details['agent_type'] =  $agentType = _247AROUND_SF_STRING;
                                     }
                             }
-                            $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state'], $b_key,$agent_details);
+                            $arr_result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state'], $b_key,$agent_details);
+                            foreach ($arr_result as $result_key => $result) {
+                                array_push($updated_unit_id, $arr_result[$result_key]['unit_id']);
+                                array_push($price_tag, $arr_result[$result_key]['price_tags']);
+                            }
                             
-                            array_push($updated_unit_id, $result['unit_id']);
-                            array_push($price_tag, $result['price_tags']);
                             $booking_symptom = $this->booking_model->getBookingSymptom($booking_id);
                             if(count($booking_symptom)>0)
                             {
