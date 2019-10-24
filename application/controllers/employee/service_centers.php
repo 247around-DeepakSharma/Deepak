@@ -693,12 +693,11 @@ class Service_centers extends CI_Controller {
                      
 
                     // update spare parts.
-                    $is_update_spare_parts = $this->update_spare_consumption_status($this->input->post(), $booking_id);
+                    $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id);
+                    //This is used to cancel those spare parts who has not shipped by partner.
                     $this->cancel_spare_parts($partner_id, $booking_id);
                     
                     if ($is_update_spare_parts) {      
-                        //This is used to cancel those spare parts who has not shipped by partner.        
-                       
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
                         $this->session->set_userdata('success', "Updated Successfully!!");
 
@@ -6655,7 +6654,7 @@ class Service_centers extends CI_Controller {
         $where = array("spare_parts_details.defective_return_to_entity_id" => $sf_id,
            "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
             "defective_part_required" => 1, 
-            "status IN ('".DEFECTIVE_PARTS_RECEIVED."', '"._247AROUND_COMPLETED."') " => NULL);
+            "status IN ('".DEFECTIVE_PARTS_RECEIVED."') " => NULL);
 
         $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
         if(!empty($partner_id)){

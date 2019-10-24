@@ -1170,7 +1170,6 @@ class engineerApi extends CI_Controller {
         $serial_number_text = "";
         $sc_agent_id = "";
         $purchase_inv_url = "";
-        $consumption = array();
         if($validation){
             foreach($unitDetails as $value){
                 $data = array();
@@ -1277,10 +1276,8 @@ class engineerApi extends CI_Controller {
                         $con_data["inventory_id"] = $consumtion_data["inventory_id"];
                         $con_data["remarks"] = $consumtion_data["remarks"];
                     }
-                    
-                    array_push($consumption, $con_data);
+                    $this->service_centers_model->insert_engineer_consumed_details($con_data);
                 }
-                $this->service_centers_model->insert_engineer_consumed_details($consumption);
             }
             /** End **/
             
