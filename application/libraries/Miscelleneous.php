@@ -4852,7 +4852,7 @@ function generate_image($base64, $image_name,$directory){
                     $this->My_CI->reusable_model->update_table('spare_parts_details', $up, ['id' => $spare_id]);
                 }
                 
-                if (!empty($defective_part_required) && $defective_part_required == 1) {
+                if (!empty($defective_part_required) && $defective_part_required == 1 && empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) {
                     $partner_on_saas = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                     if (!$partner_on_saas) {
                         $select = 'spare_parts_details.id, spare_parts_details.defective_return_to_entity_type, spare_parts_details.defective_return_to_entity_id';
