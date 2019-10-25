@@ -30,11 +30,6 @@
                                     Downloads
                                 </a>
                             </li>
-                            <li role="presentation">
-                                <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true">
-                                    CRM Training
-                                </a>
-                            </li>
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane active" id="tabs-1">
@@ -211,35 +206,6 @@
                                 </div>
                             </div>
                             
-                            <div class="tab-pane" id="tabs-4">
-                                <div class="col-md-12 col-sm-12 col-xs-12">
-                                    <div class="x_panel">
-                                        <div class="x_title" style="border-bottom: none;">
-                                            <table class="table table-bordered table-condensed" width="50%">
-                                                <thead>
-                                                    <tr>
-                                                        <th width="10%">S.No.</th>
-                                                        <th width="70%">Description</th>
-                                                        <th width="20%">Link</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr style="font-size:15px;">
-                                                        <td>1</td>
-                                                        <td>CRM Training</td>
-                                                        <td>
-                                                            <a href="https://drive.google.com/drive/folders/1_ptRWlu7r8kGUHfiTbHVx3f-UrQxJPyX" target="_blank">
-                                                                <span style="color:blue;font-size:30px;" class="glyphicon glyphicon-link"></span>
-                                                            </a>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                            
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                </div>
