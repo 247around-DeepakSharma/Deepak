@@ -174,7 +174,7 @@ function check_text(){
                 <?php  //}?>
  
                     <div class="col-md-6 col-md-offset-3">
-                    <?php if(!$isdisable && empty($is_invoice_generated) && in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE])) {?>
+                    <?php if(!$isdisable && empty($is_invoice_generated) && in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE, _247AROUND_RM, _247AROUND_AM])) {?>
                         <input type="submit" value="<?php if(isset($internal_status)){ echo "Cancel Query "; } else { echo "Cancel Booking"; } ?>" style="background-color: #2C9D9C; border-color: #2C9D9C; " onclick="return(check_text())" class="btn btn-danger btn-large">
                     <?php } ?>
                   

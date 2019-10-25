@@ -2532,7 +2532,7 @@ class Booking extends CI_Controller {
             } else if($sp['status'] == SPARE_PARTS_REQUESTED && !$sp['spare_lost']){
                 $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
             } else if(!$sp['spare_lost']) {
-                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
+        //        $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
             }
         }
         
