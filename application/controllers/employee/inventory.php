@@ -4017,7 +4017,7 @@ class Inventory extends CI_Controller {
             $a[$key]['gst_rate'] = $value['sgst_tax_rate'] + $value['igst_tax_rate'] + $value['cgst_tax_rate'];
             $margin_total = $value['taxable_value'] * ( 1 + $repair_oow_around_percentage);
             $a[$key]['taxable_value'] = $margin_total;
-            $a[$key]['from_gst_number'] = $value['from_gst_number'];
+            $a[$key]['from_gst_number_id'] = $value['to_gst_number'];
         }
         $response = $this->invoices_model->_set_partner_excel_invoice_data($a, $invoice_date, $invoice_date, "Tax Invoice", $invoice_date);
         $response['meta']['main_company_gst_number'] = $around_gst[0]['gst_number'];
