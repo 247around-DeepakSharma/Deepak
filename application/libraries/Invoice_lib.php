@@ -898,12 +898,12 @@ class Invoice_lib {
      */
     function generate_challan_file_to_partner($spare_id, $service_center_id, $service_center_closed_date = "") {
 
-        $spare_parts_details = array();
-        $spare_ids = explode(',', $spare_id);
-        foreach ($spare_ids as $spare_id) {
-            $select = 'spare_parts_details.*,booking_details.partner_id as booking_partner_id';
-            $where = array('spare_parts_details.id' => $spare_id, 'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING, "status" => _247AROUND_COMPLETED, 'defective_part_required' => 1);
-            $spare_parts_details[] = $this->ci->partner_model->get_spare_parts_by_any($select, $where, true);
+        $spare_parts_details=array();
+        $spare_ids = explode(',',$spare_id);
+        foreach ($spare_ids as  $spare_id) {
+        $select = 'spare_parts_details.*,booking_details.partner_id as booking_partner_id';
+        $where = array('spare_parts_details.id' => $spare_id,'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING, 'defective_part_required' => 1);
+        $spare_parts_details[] = $this->ci->partner_model->get_spare_parts_by_any($select, $where,true); 
         }
 
         if (!empty($spare_parts_details)) {
