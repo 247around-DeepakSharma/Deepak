@@ -66,33 +66,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if(count($msl_spare)>0) {?>
-                            <?php foreach($msl_spare as $key=>$item){ ?>
-                                <tr>
-                                    <td><?php echo ++$key; ?></td>
-                                    <td><?php echo $item['category']; ?></td>
-                                    <td><?php echo $item['sub_category']; ?></td>
-                                    <td><?php echo $item['parts_count']; ?></td>
-                                    <td><a title="click to get more details" data-toggle="tooltip"><?php echo $item['invoice_id']; ?></a></td>
-                                    <td><?php
-                                            if($item['sub_category'] == MSL){
-                                                if($item['amount'] == 0){
-                                                    echo $item['amount'];
-                                                }else{
-                                                    echo -1 * $item['amount'];
-                                                }
-                                            }else{
-                                                echo $item['amount'];
-                                            }
-                                        ?></td>
-                                    <td><?php echo $item['invoice_date']; ?></td>
-                                </tr>
-                            <?php } ?>
-                        <?php }else{ ?>
-                            <tr>
-                                <td colspan=7><div class="text-center">No Data.</div></td>
-                            </tr>
-                        <?php } ?>
                     </tbody>
                     <tfoot>
                         <tr>
@@ -107,6 +80,38 @@
                     </tfoot>
                 </table>
             </div>
+        </div>
+        <div class="row">
+        <h1>OOW Consumed Parts</h1>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover" id="table_oow_parts">
+                <thead>
+                    <tr>
+                        <th>S. No.</th>
+                        <th>Booking ID</th>
+                        <th>Parts Requested Type</th>
+                        <th>Parts Requested</th>
+                        <th>Model Number</th>
+                        <th>Date of Request</th>
+                        <th>Sell Price</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+                <tfoot>
+                    <tr>
+                        <th>Total</th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th>0</th>
+                        <th>0</th>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
         </div>
     <?php } ?>
 </div>
@@ -124,12 +129,40 @@
             }
         });
         $("#table_msl_spare").dataTable({
+            ordering: false,
+            serverSide:true,
+            ajax:{
+                type:"POST",
+                url:'<?php echo base_url(); ?>employee/service_centers/ajax_get_msl_spare_details'
+            },
             "drawCallback":function(){
                 $('[data-toggle="tooltip"]').tooltip();
                 var api = this.api();
                 $( api.column( 5 ).footer() ).html(
                     api.column( 5 ).data().reduce( function ( a, b ) {
                         return (parseFloat(a) + parseFloat(b)).toFixed(2);
+                    }, 0 )
+                );
+            }
+        });
+        $('#table_oow_parts').dataTable({
+            ordering: false,
+            serverSide: true,
+            ajax: {
+                type:"POST",
+                url:'<?php echo base_url(); ?>employee/service_centers/ajax_get_msl_parts_consumed_in_oow'
+            },
+            "drawCallback":function(){
+                $('[data-toggle="tooltip"]').tooltip();
+                var api = this.api();
+                $( api.column( 6 ).footer() ).html(
+                    api.column( 6 ).data().reduce( function ( a, b ) {
+                        return (parseFloat(a) + parseFloat(b)).toFixed(2);
+                    }, 0 )
+                );
+                $( api.column( 7 ).footer() ).html(
+                    api.column( 7 ).data().reduce( function ( a, b ) {
+                        return (parseInt(a) + parseInt(b));
                     }, 0 )
                 );
             }
