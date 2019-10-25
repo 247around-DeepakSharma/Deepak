@@ -1343,7 +1343,6 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             $res['payload'] = $this->db->get()->row_array();
         }else{
             $res['payload'] = $this->db->get()->result_array();
-            error_log("sql: ".$this->db->last_query());
         }
         return $res;
     }
