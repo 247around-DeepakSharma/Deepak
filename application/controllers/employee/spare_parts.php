@@ -835,19 +835,20 @@ class Spare_parts extends CI_Controller {
           $spare_pending_on = 'Partner';   
         }	
         
-        if($spare_list->active == 0){
+        if ($spare_list->active == 0) {
             $sc_icon_style = "color:#e10f0fd1;";
-        }
-        else if($spare_list->on_off == 0){
+            $sf_status = "Permanently Off";
+        } else if ($spare_list->on_off == 0) {
             $sc_icon_style = "color:#f1bc44;";
-        }
-        else{
+            $sf_status = "Temporary Off";
+        } else {
             $sc_icon_style = "color:#14d914;";
+            $sf_status = "On";
         }
-        
-        
+
+
         $row[] = $spare_pending_on; 
-        $row[] = "<i class='fa fa-circle' aria-hidden='true' style='margin-right:5px;".$sc_icon_style."'></i>".$spare_list->sc_name;
+        $row[] = "<i class='fa fa-circle' aria-hidden='true' style='margin-right:5px;".$sc_icon_style."'></i>".$spare_list->sc_name."<p style='font-weight: bold;".$sc_icon_style."'> - ".$sf_status."</p>";
         $row[] = $spare_list->source;
         $row[] = $spare_list->parts_requested;
         $row[] = $spare_list->quantity;
