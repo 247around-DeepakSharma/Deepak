@@ -97,7 +97,8 @@
                             <li role="presentation"><a href="#defective_part_rejected_by_partner" aria-controls="defective_part_rejected_by_partner" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Part Rejected By Partner</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF" aria-controls="defective_part_shipped_by_SF" role="tab" class="spare_parts_tabs" data-toggle="tab">Defective Part Shipped By SF</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF_approved" aria-controls="defective_part_shipped_by_SF" class="spare_parts_tabs" role="tab" data-toggle="tab">Approved Defective Part By Admin</a></li>
-                            
+
+                            <li role="presentation" ><a href="#courier_lost_spare_parts" aria-controls="courier_lost_spare_parts" class="spare_parts_tabs" role="tab" data-toggle="tab">Courier Lost</a></li>
                         </ul>
                     </div>
                     <div class="tab-content" id="tab-content">
@@ -333,6 +334,8 @@
           spare_parts_requested_table_approved.ajax.reload(null, false);  
         }else if(table_type=='spare_parts_requested_table_reject'){
            spare_parts_requested_table_reject.ajax.reload(null, false);  
+        }else if(table_type=='courier_lost_spare_parts_table'){
+           courier_lost_spare_parts_table.ajax.reload(null, false);  
         }
         
     }
