@@ -547,6 +547,44 @@
         </div>
     </div>
 </div>
+<div role="tabpanel" class="tab-pane" id="courier_lost_spare_parts">
+    <div class="container-fluid">
+        <div class="row" >
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" >
+                        <hr/>
+                        <table id="courier_lost_spare_parts_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" >No</th>
+                                    <th class="text-center" data-orderable="false">Booking Id</th>
+                                    <th class="text-center" data-orderable="false">Spare Pending On</th>
+                                    <th class="text-center" data-orderable="false">User</th>
+                                    <th class="text-center" data-orderable="false">Mobile</th>
+                                    <th class="text-center" data-orderable="false">Service Center</th>
+                                    <th class="text-center" data-orderable="false">Partner</th>
+                                    <th class="text-center" data-orderable="false">State</th>
+                                    <th class="text-center" data-orderable="false">Model Number</th>
+                                    <th class="text-center" data-orderable="false">Requested Part</th>
+                                    <th class="text-center" data-orderable="false">Parts Number</th>   
+                                    <th class="text-center" data-orderable="false">Part Type</th>
+                                    <th class="text-center" data-orderable="false">Requested Quantity</th>
+                                    <th class="text-center" data-orderable="false">Booking Type</th>
+                                    <th class="text-center" data-orderable="false">Part Status</th>
+                                    <!--<th class="text-center" data-orderable="false">Warranty Status</th>-->
+                                    <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="purchase_invoice" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <!-- Modal content-->
@@ -633,6 +671,7 @@
     var estimate_cost_given_table;
     var oow_part_shipped_table;
     var defective_part_shipped_by_sf_table;
+    var courier_lost_spare_parts_table;
     
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $(document).ready(function() {
@@ -823,6 +862,80 @@
     
     
     spare_parts_requested_table.draw(false);
+    
+    
+    courier_lost_spare_parts_table = $('#courier_lost_spare_parts_table').on('xhr.dt', function (e, settings, json, xhr) {
+            if (typeof json !== 'undefined' && typeof json["bookings_data"] !== 'undefined' && json["bookings_data"].length > 0) {
+                var arr_bookings_data = json["bookings_data"];
+                for (var rec_bookings_data in arr_bookings_data) {
+                    $.ajax({
+                        method:'POST',
+                        url:"<?php echo base_url(); ?>employee/booking/get_warranty_data",
+                        data:{'bookings_data': arr_bookings_data[rec_bookings_data]},
+                        success:function(response){
+                            $(".warranty-loader").hide();
+                            var warrantyData = JSON.parse(response);                        
+                            $.each(warrantyData, function(index, value) {
+                                $(".warranty-"+index).html(value);
+                            });
+                        }                            
+                    }); 
+                } 
+            }            
+        }).DataTable({
+            processing: true, //Feature control the processing indicator.
+            serverSide: true, //Feature control DataTables' server-side processing mode.
+            order:[[ 15, "desc" ]],
+            pageLength: 50,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 500, -1 ],[ '50', '100', '500', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+//                    exportOptions: {
+//                        columns: [ 1,2,3,4,5,6,7,8,9,12,13,14,15 ],
+//                         modifier : {
+//                            // DataTables core
+//                            page : 'All',      // 'all',     'current'
+//                        }
+//                    },
+                    title: 'courier_lost_spare_parts'
+                }
+            ],
+            // Load data for the table's content from an Ajax source
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
+                type: "POST",
+                data: function(d){
+                    d.type =  '12';     
+                    d.status =  '<?php echo COURIER_LOST; ?>';        
+                    d.partner_id =  '<?php echo $partner_id; ?>';       
+                },  
+            },
+            //Set column definition initialisation properties.
+            columnDefs: [
+                {
+                  //  "targets": [15], //first column / numbering column
+                    "orderable": true //set not orderable
+                },
+                {
+                  //  "targets": [0,1,2,3,4,11,12,13,14], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],
+            "fnInitComplete": function (oSettings, response) {                
+                $(".dataTables_filter").addClass("pull-right");                
+            },      
+        });
+    
+    
+    courier_lost_spare_parts_table.draw(false);
+    
+    
+    
+    
+    
          //datatables    
     spare_parts_requested_table_approved = $('#spare_parts_requested_table_approved').DataTable({
             processing: true, //Feature control the processing indicator.
