@@ -525,6 +525,24 @@
                 load_vendor_partner();
             }
         });
+
+        $(document).on('change', ".check_single_row, .check_reject_single_row",function(){
+            var isChecked = $(this).is(":checked");
+            var parent = $(this).closest("tr");
+            parent.find("input[type='checkbox']").prop("checked",false);
+            if(!!isChecked){
+                $(this).prop("checked", true);
+            }
+            return false;
+        });
+
+        $(document).on('click', "#ack_all",function(){
+            $("#reject_all").prop("checked", false);
+        });
+
+        $(document).on('click', "#reject_all",function(){
+            $("#ack_all").prop("checked", false);
+        });
         
     });
 
