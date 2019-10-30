@@ -1580,9 +1580,11 @@
         var repair_flag = false;
         var repair_out_flag = false;
         var installation_flag = false;
+        var amc_flag = false;
         var pdi = false;
         var extended_warranty = false;
         var pre_sales = false;
+        var others_flag = false;
         var array =[];
 
         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
@@ -1626,6 +1628,57 @@
                     pdi = true;
                     array.push(pdi);
                 }
+                
+         if(findInArray(delivered_price_tags, 'AMC (Annual Maintenance Contract)') > -1 ){
+             amc_flag = true;
+             array.push(amc_flag);
+         }
+         
+         // ----------------------------------------------------------------------------------------
+         // DO NOT ALLOW SAME REQUEST TYPE COMBINATIONS IN BOOKING         
+         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1) ||
+            (findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - In Warranty (Customer Location)') > -1)|| 
+            (findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - In Warranty (Customer Location)') > -1)
+            ){            
+            repair_flag = true;
+            array.push(repair_flag);
+         } 
+         
+         if((findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Customer Location)') > -1) ||
+            (findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1) ||
+            (findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1 && findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Customer Location)') > -1)            
+           ){            
+            repair_out_flag = true;
+            array.push(repair_out_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Installation & Demo (Free)') > -1 && findInArray(delivered_price_tags, 'Installation & Demo (Paid)') > -1){
+                   installation_flag = true;
+                   array.push(installation_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - With Packing') > -1 && findInArray(delivered_price_tags, 'Pre-Dispatch Inspection PDI - Without Packing') > -1){
+                    pdi = true;
+                    array.push(pdi);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Gas Recharge - In Warranty') > -1 && findInArray(delivered_price_tags, 'Gas Recharge - Out of Warranty') > -1){
+                    others_flag = true;
+                    array.push(others_flag, others_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Gas Recharge (R410) - In Warranty') > -1 && findInArray(delivered_price_tags, 'Gas Recharge (R410) - Out of warranty') > -1){
+                    others_flag = true;
+                    array.push(others_flag, others_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Wet Service - In Warranty') > -1 && findInArray(delivered_price_tags, 'Wet Service - Out of Warranty') > -1){
+                    others_flag = true;
+                    array.push(others_flag, others_flag);
+         }
+         
+         // ---------------------------------------------------------------------------------------------------------
+         
                 
          if(array.length > 1){
              return false;
