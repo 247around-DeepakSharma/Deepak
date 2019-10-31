@@ -4038,7 +4038,7 @@ class Inventory extends CI_Controller {
             $a[$key]['gst_rate'] = $value['sgst_tax_rate'] + $value['igst_tax_rate'] + $value['cgst_tax_rate'];
             $margin_total = $value['taxable_value'] * ( 1 + $repair_oow_around_percentage);
             $a[$key]['taxable_value'] = $margin_total;
-            $a[$key]['from_gst_number'] = $value['from_gst_number'];
+            $a[$key]['from_gst_number_id'] = $value['to_gst_number'];
         }
         $response = $this->invoices_model->_set_partner_excel_invoice_data($a, $invoice_date, $invoice_date, "Tax Invoice", $invoice_date);
         $response['meta']['main_company_gst_number'] = $around_gst[0]['gst_number'];
@@ -4987,6 +4987,7 @@ class Inventory extends CI_Controller {
 
             foreach ($postData as $key => $val) {
                 if (!empty($val['spare_id'])) {
+                    $data["spare_parts_details.wh_to_partner_defective_shipped_date"] = date('Y-m-d H:i:s');
                     $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
                     $agent_id = $this->session->userdata('service_center_agent_id');
                     $agent_name = $this->session->userdata('service_center_name');
@@ -5285,7 +5286,7 @@ class Inventory extends CI_Controller {
 
                     if (!empty($sp_id)) {
                         foreach ($sp_id as $id) {
-                            $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, 'reverse_purchase_invoice_id' => $invoice_id));
+                            $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, 'wh_to_partner_defective_shipped_date' => date('Y-m-d H:i:s'),'reverse_purchase_invoice_id' => $invoice_id));
                         }
                     }
 
@@ -6120,7 +6121,7 @@ class Inventory extends CI_Controller {
 
         if ($inventory_id) {
             $inventory_id = urldecode($inventory_id);
-            $data['model_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_model_mapping.id,inventory_model_mapping.active,inventory_master_list.part_number,appliance_model_details.model_number,services.services', array('inventory_model_mapping.inventory_id' => $inventory_id));
+            $data['model_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_model_mapping.id,inventory_model_mapping.active,inventory_model_mapping.max_quantity,inventory_master_list.part_number,appliance_model_details.model_number,services.services', array('inventory_model_mapping.inventory_id' => $inventory_id));
         } else {
             $data['model_details'] = array();
         }
@@ -6387,7 +6388,7 @@ class Inventory extends CI_Controller {
                 . "if(spare_parts_details.partner_warehouse_courier_invoice_id is null,'',spare_parts_details.partner_warehouse_courier_invoice_id) as 'Partner Warehouse Courier Invoice', "
                 . "if(spare_parts_details.partner_courier_invoice_id is null,'',spare_parts_details.partner_courier_invoice_id) as 'Partner Courier Invoice', "
                 . "if(spare_parts_details.vendor_courier_invoice_id is null,'',spare_parts_details.vendor_courier_invoice_id) as 'SF Courier Invoice', "
-                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', ";
+                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', cci.billable_weight as 'Packet Weight ', cci.box_count as 'Packet Count' ";
         //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $where = array();
         $group_by = "spare_parts_details.id";
@@ -6396,7 +6397,7 @@ class Inventory extends CI_Controller {
         }
 
         $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
-
+       
         $this->load->dbutil();
         $this->load->helper('file');
 
@@ -6432,7 +6433,7 @@ class Inventory extends CI_Controller {
                 $where['spare_parts_details.partner_id'] = $this->session->userdata('partner_id');
             }
             $data['data'] = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id,spare_parts_details.quantity, spare_parts_details.requested_inventory_id, booking_details.partner_id,"
-                    . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number,booking_details.request_type", $where, true);
+                    . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number,booking_details.request_type,spare_parts_details.part_warranty_status", $where, true);
             
             if (!empty($data['data'])) {
                 $data['count'] = $count;
@@ -7642,6 +7643,37 @@ class Inventory extends CI_Controller {
             
             $data = array('inventory_model_mapping.active' => $this->input->post("status"));
             $where = array('inventory_model_mapping.id' => $this->input->post("model_mapping_id"));
+            
+            $affect_row = $this->inventory_model->update_inventory_model_mapping($data, $where);
+            
+            if ($affect_row) {
+                $res['status'] = TRUE;
+            } else {
+                $res['status'] = FALSE;
+            }
+        } else {
+            $res['status'] = 'inventory model mapping id not found';
+        }
+
+        echo json_encode($res);
+    }
+
+
+
+
+        /**
+     *  @desc : This function is used to update max  quantity 
+     *  @param : void, 
+     *  @return : json
+     */
+    
+    function upate_inventory_model_mapping_max_qty(){
+       $res = array();
+        if (!empty($this->input->post("model_mapping_id"))) {
+            
+            $data = array('inventory_model_mapping.max_quantity' => $this->input->post("max_qty"));
+            $where = array('inventory_model_mapping.id' => $this->input->post("model_mapping_id"));
+
             
             $affect_row = $this->inventory_model->update_inventory_model_mapping($data, $where);
             

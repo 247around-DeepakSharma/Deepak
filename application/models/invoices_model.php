@@ -710,11 +710,11 @@ class invoices_model extends CI_Model {
 
         //if (!empty($result['result'])) {
         $upcountry_data = $this->upcountry_model->upcountry_partner_invoice($partner_id, $from_date, $to_date, $s);
-        $courier = array(); #$this->get_partner_courier_charges($partner_id, $from_date, $to_date);
-        $pickup_courier = array(); #$this->get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date);
-        $warehouse_courier = array(); #$this->get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date);
+        $courier = $this->get_partner_courier_charges($partner_id, $from_date, $to_date);
+        $pickup_courier = $this->get_pickup_arranged_by_247around_from_partner($partner_id, $from_date, $to_date);
+        $warehouse_courier = $this->get_partner_invoice_warehouse_courier_data($partner_id, $from_date, $to_date);
         $packaging_charge = $this->get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date);
-        $defective_return_to_partner = array(); #$this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date);
+        $defective_return_to_partner = $this->get_defective_parts_courier_return_partner($partner_id, $from_date, $to_date);
         
         
         
@@ -2149,17 +2149,15 @@ class invoices_model extends CI_Model {
         }
         $sql = " SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(bd.booking_id) as booking_id, 
                  SUM(sp.courier_charges_by_sf) as courier_charges_by_sf 
-                FROM  booking_details as bd, booking_unit_details as ud,
+                FROM  booking_details as bd,
                 spare_parts_details as sp
                 WHERE 
-                ud.booking_status =  '"._247AROUND_COMPLETED."'
+                bd.current_status =  '"._247AROUND_COMPLETED."'
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
                 AND sp.booking_id = bd.booking_id
-                AND bd.booking_id = ud.booking_id
-                AND ud.ud_closed_date >=  '$from_date'
-                AND ud.ud_closed_date <  '$to_date'
-                AND pay_to_sf = '1'
+                AND bd.closed_date >=  '$from_date'
+                AND bd.closed_date <  '$to_date'
                 AND `approved_defective_parts_by_partner` = 1
                 AND around_pickup_from_service_center = 0
                 $invoice_check

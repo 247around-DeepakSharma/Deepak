@@ -1070,7 +1070,7 @@ class Booking extends CI_Controller {
         }
         
         $data['upcountry_charges'] = $upcountry_price;
-        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
+        $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',NULL, NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $data['is_spare_requested'] = $this->booking_utilities->is_spare_requested($data);
         $this->miscelleneous->load_nav_header(); 
@@ -2532,7 +2532,7 @@ class Booking extends CI_Controller {
             } else if($sp['status'] == SPARE_PARTS_REQUESTED && !$sp['spare_lost']){
                 $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
             } else if(!$sp['spare_lost']) {
-                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
+        //        $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
             }
         }
         

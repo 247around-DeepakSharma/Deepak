@@ -115,6 +115,7 @@
                         name="part[<?php echo ($key +$count); ?>][service_id]" />
                     <input type="hidden" value="<?php echo $value['partner_id']; ?>" id="<?php echo "onpartnerId_".($key +$count);?>" 
                         name="part[<?php echo ($key +$count); ?>][partner_id]" />
+                    <input type="hidden" name="invoice_tag" value="<?php echo (($value['part_warranty_status'] == 1)?IN_WARRANTY:OUT_OF_WARRANTY); ?>"> 
 
                     <input type="hidden" value="<?php echo $inventory_id; ?>" id="<?php echo "oninventoryId_".($key +$count);?>" 
                         name="part[<?php echo ($key +$count); ?>][inventory_id]" />
@@ -233,6 +234,7 @@
                             <input type="hidden" value="<?php echo $data[0]['booking_id']; ?>" id="onbookingID" />
                             <input type="hidden" value="<?php echo $data[0]['service_id']; ?>" id="onserviceId"  />
                             <input type="hidden" value="<?php echo $data[0]['partner_id']; ?>" id="onpartnerId" />
+                            <input type="hidden" name="invoice_tag" value="<?php echo (($data[0]['part_warranty_status'] == 1)?IN_WARRANTY:OUT_OF_WARRANTY); ?>"> 
 
                             <input type="hidden" id="onspareType"  />
                             <input type="hidden" value="" id="onrequestedInventoryId" />

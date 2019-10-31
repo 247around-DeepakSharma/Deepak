@@ -632,4 +632,23 @@ class DatabaseTesting extends CI_Controller {
             }
         }
     }
+    
+    
+    /*
+     *@upload file from local temp folder to live s3  
+     */
+        
+    function upload_state_wise_seal() {
+       $bucket = "bookings-collateral";//BITBUCKET_DIRECTORY;
+       // Uploading to S3
+       $directory1 = "vendor-partner-docs/delivery_challan_LP-4840511907201_95_30_Oct_2019_15_52_50.pdf";
+       $is_s1 = $this->s3->putObjectFile(TMP_FOLDER . "delivery_challan_LP-4840511907201_95_30_Oct_2019_15_52_50.pdf", $bucket, $directory1, S3::ACL_PUBLIC_READ);
+
+       if ($is_s1) {
+           echo"<br> PDF upload success";
+
+       } else {
+           echo"<br> PDF upload failed";
+       }
+   }
 }
