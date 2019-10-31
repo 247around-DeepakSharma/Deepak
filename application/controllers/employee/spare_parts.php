@@ -122,7 +122,9 @@ class Spare_parts extends CI_Controller {
             case 11:
                 $this->get_spare_rejected($post);
                 break;
-
+            case 12:
+                $this->get_courier_lost_spare_parts($post);
+                break;
         }
     }
     /**
@@ -418,7 +420,43 @@ class Spare_parts extends CI_Controller {
         
     }
 
+    function get_courier_lost_spare_parts($post) {
+        log_message('info', __METHOD__);       
+        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.spare_cancelled_date,spare_parts_details.part_warranty_status,spare_parts_details.model_number, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
+                . "defective_part_required, spare_parts_details.parts_shipped, spare_parts_details.shipped_quantity, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number, booking_cancellation_reasons.reason as part_cancel_reason, booking_details.state ";
+        $post['column_order'] = array( NULL, NULL,NULL,NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_cancelled_date',NULL, NULL);
+        $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 
+            'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type', 'booking_details.state');
+        //$post['where_in']=array('booking_details.current_status'=>array(_247AROUND_PENDING,_247AROUND_RESCHEDULED));
+        $post['spare_cancel_reason'] = 1;
+        $list = $this->inventory_model->get_spare_parts_query($post);
+        $no = $post['start'];  
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row =  $this->courier_lost_spare_parts_table_data($spare_list, $no, $post['request_type']);
+            $data[] = $row;
+        }
+        
+        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id', array('spare_parts_details.status' => _247AROUND_CANCELLED, 'spare_parts_details.part_requested_on_approval' => 0), false, false, false);
+        if (!empty($spare_parts_list)) {
+            $total = count($spare_parts_list);
+        } else {
+            $total = 0;
+        }
 
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->inventory_model->count_spare_parts($post),
+            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
+            "unapproved" => $total,
+            "data" => $data,
+            
+        );
+        
+        echo json_encode($output);
+    }
 
     /**
      * @desc Used to create tab in which we are showing
@@ -1069,6 +1107,45 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->part_cancel_reason;
         $row[] = '<button class="btn btn-success open_spare_part"   data-bookingid="'.$spare_list->booking_id.'"   data-spareid="'.$spare_list->id.'">Open</button>';
         return $row;
+    }
+
+    function courier_lost_spare_parts_table_data($spare_list, $no, $request_type) {
+        $row = array();
+        $row[] = $no;
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
+        if ($spare_list->is_micro_wh == 1) {
+            $spare_pending_on = 'Micro-warehouse';
+        } elseif ($spare_list->is_micro_wh == 2) {
+            $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);
+            if(!empty($wh_details)){
+            $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
+            }
+        } else {
+            $spare_pending_on = 'Partner';
+        }
+        $row[] = $spare_pending_on;
+        $row[] = $spare_list->name;
+        $row[] = $spare_list->booking_primary_contact_no;
+        $row[] = $spare_list->sc_name;
+        $row[] = $spare_list->source;
+        $row[] = '<center>'.$spare_list->state.'</center>';
+        $row[] = "<span class='line_break'>" . $spare_list->model_number . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->parts_requested . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->parts_requested_type . "</spare>";
+        $row[] = $spare_list->quantity;
+        $row[] = $spare_list->parts_shipped;
+        $row[] = $spare_list->shipped_quantity;
+        $row[] = $spare_list->request_type;
+        if ($spare_list->part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+            $part_status_text = REPAIR_OOW_TAG;
+        } else {
+            $part_status_text = REPAIR_IN_WARRANTY_TAG;
+        }
+        $row[] = $part_status_text;
+        $row[] = (empty($spare_list->spare_cancelled_date)) ? '0 Days' : $spare_list->spare_cancelled_date . " Days";
+        return $row;
+        
     }
     
 

@@ -1552,7 +1552,8 @@ class Partner extends CI_Controller {
                     //From will be currently logged in user
                     $from = $partner_details['email'];
                     //getting rm email
-                    $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($bookinghistory[0]['assigned_vendor_id'])[0]['official_email'];
+                    $arr_rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($bookinghistory[0]['assigned_vendor_id']);
+                    $rm_mail = !empty($arr_rm_mail[0]['official_email']) ? $arr_rm_mail[0]['official_email'] : "";
                     $to = $am_email;
                     $cc = $rm_mail.','.$partner_details['email'];
                     $email['booking_id'] = $booking_id;
@@ -1561,9 +1562,12 @@ class Partner extends CI_Controller {
                     $subject['booking_id'] = $booking_id;
                     $subjectBody = vsprintf($template[4], $subject);
                     //Sending Mail
-                    $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel', "", $booking_id);
-                    //Logging
-                    log_message('info', " Escalation Mail Send successfully " . $emailBody);
+                    if(!empty($from) && !empty($to))
+                    {
+                        $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel', "", $booking_id);
+                        //Logging
+                        log_message('info', " Escalation Mail Send successfully " . $emailBody);
+                    }
                 } else {
                     //Logging Error Message
                     log_message('info', " Error in Getting Email Template for Escalation Mail");
