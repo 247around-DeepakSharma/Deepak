@@ -570,6 +570,8 @@
                                     <th class="text-center" data-orderable="false">Parts Number</th>   
                                     <th class="text-center" data-orderable="false">Part Type</th>
                                     <th class="text-center" data-orderable="false">Requested Quantity</th>
+                                    <th class="text-center" data-orderable="false">Shipped Part</th>
+                                    <th class="text-center" data-orderable="false">Shipped Quantity</th>
                                     <th class="text-center" data-orderable="false">Booking Type</th>
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <!--<th class="text-center" data-orderable="false">Warranty Status</th>-->
@@ -864,25 +866,7 @@
     spare_parts_requested_table.draw(false);
     
     
-    courier_lost_spare_parts_table = $('#courier_lost_spare_parts_table').on('xhr.dt', function (e, settings, json, xhr) {
-            if (typeof json !== 'undefined' && typeof json["bookings_data"] !== 'undefined' && json["bookings_data"].length > 0) {
-                var arr_bookings_data = json["bookings_data"];
-                for (var rec_bookings_data in arr_bookings_data) {
-                    $.ajax({
-                        method:'POST',
-                        url:"<?php echo base_url(); ?>employee/booking/get_warranty_data",
-                        data:{'bookings_data': arr_bookings_data[rec_bookings_data]},
-                        success:function(response){
-                            $(".warranty-loader").hide();
-                            var warrantyData = JSON.parse(response);                        
-                            $.each(warrantyData, function(index, value) {
-                                $(".warranty-"+index).html(value);
-                            });
-                        }                            
-                    }); 
-                } 
-            }            
-        }).DataTable({
+    courier_lost_spare_parts_table = $('#courier_lost_spare_parts_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
             order:[[ 15, "desc" ]],
