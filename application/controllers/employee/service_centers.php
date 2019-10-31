@@ -870,7 +870,7 @@ class Service_centers extends CI_Controller {
                     $unit = $this->booking_model->get_unit_details(array('id' => $unit_id), false, 'appliance_capacity, vendor_basic_percentage, customer_total, partner_paid_basic_charges,'
                             . ' appliance_brand, price_tags, around_net_payable, appliance_category, customer_net_payable, partner_net_payable');
                     $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $value,
-                        'appliance_model_details.entity_id' => $partner_id));
+                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1));
                     $sc_change = false;
                     if (($unit[0]['appliance_category'] == $model_details[0]['category']) && ($unit[0]['appliance_capacity'] == $model_details[0]['capacity'])) {
                         $sc_change = false;
@@ -6425,8 +6425,21 @@ class Service_centers extends CI_Controller {
             echo "Please Select Any Checkbox";
         }
     }
+        
+     /**
+     * @desc: This is used to print  address for selected booking
+     * @param Array $booking_address
+     * @return void 
+     */
     
-    /**
+     function forcefully_generate_sf_challan($booking_id, $sf_id){
+         $generate_challan = array("$sf_id" => $booking_id);
+         
+         $this->generate_sf_challan($generate_challan);
+     }
+
+
+     /**
      * @desc: This is used to print  address for selected booking
      * @param Array $booking_address
      * @return void 

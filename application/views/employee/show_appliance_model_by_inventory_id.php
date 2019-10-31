@@ -41,6 +41,7 @@
                                     <th>Appliance</th>
                                     <th>Model Number</th>
                                     <th>Part Number</th>
+                                    <th>Max Quantity</th>
                                     <th>BOM Status</th>
                                     <th style="width:250px;">BOM Action</th>
                                 </tr>
@@ -52,7 +53,9 @@
                                     <td><?php echo $value['services']; ?></td>
                                     <td><?php echo $value['model_number']; ?></td>
                                     <td><?php echo $value['part_number']; ?></td>
+                                    <td><input type="number" class="form-control" id="btn_max_text<?php echo $value['id']; ?>" name="max_quantity" value="<?php echo $value['max_quantity']; ?>" placeholder="Enter Max Quantity"><button class="updatemax_qty btn btn-success" data-id="<?php echo $value['id']; ?>">Update</button></td>
                                     <td><?php if($value['active'] == 1 ){ echo 'Active'; } else { echo ' Inactive'; } ?></td>
+
                                     <td><?php 
                                     if($value['active'] == 1){ ?>
                                        <button type="button" class="btn" onclick="change_model_status(<?php echo $value['active']; ?>,<?php echo $value['id']; ?>,'<?php echo $value['model_number']; ?>');" style="background-color:#d9534f; border-color: #fff; color: #fff;">Deactivate</button> 
@@ -143,4 +146,34 @@
         }
         
     }
+
+
+$(".updatemax_qty").click(function(){
+
+var id = $(this).attr("data-id");
+var max_qty = $("#btn_max_text"+id).val(); //btn_max_text59925953
+
+       if(confirm("Are you sure you want to update max quantity ?")){
+                    $.ajax({
+                     method:'POST',            
+                     url:'<?php echo base_url(); ?>employee/inventory/upate_inventory_model_mapping_max_qty',
+                     dataType: "json",
+                     data: {model_mapping_id:id,max_qty:max_qty},
+                     success:function(response){
+                           if(response.status == true){
+                               $("#success_message").html('Max Quantity Updated Successfully!');
+                               setTimeout(function(){
+                                  window.location.reload();  
+                               },1500);
+                               
+                           }     
+                    }
+                    }); 
+    }  
+
+});
+
+
+
+    
 </script>
