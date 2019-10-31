@@ -6102,7 +6102,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
 
         if ($inventory_id) {
             $inventory_id = urldecode($inventory_id);
-            $data['model_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_model_mapping.id,inventory_model_mapping.active,inventory_master_list.part_number,appliance_model_details.model_number,services.services', array('inventory_model_mapping.inventory_id' => $inventory_id));
+            $data['model_details'] = $this->inventory_model->get_inventory_model_mapping_data('inventory_model_mapping.id,inventory_model_mapping.active,inventory_model_mapping.max_quantity,inventory_master_list.part_number,appliance_model_details.model_number,services.services', array('inventory_model_mapping.inventory_id' => $inventory_id));
         } else {
             $data['model_details'] = array();
         }
@@ -7622,6 +7622,37 @@ function get_bom_list_by_inventory_id($inventory_id) {
             
             $data = array('inventory_model_mapping.active' => $this->input->post("status"));
             $where = array('inventory_model_mapping.id' => $this->input->post("model_mapping_id"));
+            
+            $affect_row = $this->inventory_model->update_inventory_model_mapping($data, $where);
+            
+            if ($affect_row) {
+                $res['status'] = TRUE;
+            } else {
+                $res['status'] = FALSE;
+            }
+        } else {
+            $res['status'] = 'inventory model mapping id not found';
+        }
+
+        echo json_encode($res);
+    }
+
+
+
+
+        /**
+     *  @desc : This function is used to update max  quantity 
+     *  @param : void, 
+     *  @return : json
+     */
+    
+    function upate_inventory_model_mapping_max_qty(){
+       $res = array();
+        if (!empty($this->input->post("model_mapping_id"))) {
+            
+            $data = array('inventory_model_mapping.max_quantity' => $this->input->post("max_qty"));
+            $where = array('inventory_model_mapping.id' => $this->input->post("model_mapping_id"));
+
             
             $affect_row = $this->inventory_model->update_inventory_model_mapping($data, $where);
             
