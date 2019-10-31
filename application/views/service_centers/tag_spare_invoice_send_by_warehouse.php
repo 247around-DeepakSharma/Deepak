@@ -520,6 +520,7 @@
                                 $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
                                 $("#spareForm")[0].reset();
                                 $("#spareForm").find('input:text, input:file, select').val('');
+                                $(".select2-selection__rendered").html('');
                                 $('label.error').css('color','white');
                             },
                             success:function(response){
