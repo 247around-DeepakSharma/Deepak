@@ -693,12 +693,11 @@ class Service_centers extends CI_Controller {
                      
 
                     // update spare parts.
-                    $is_update_spare_parts = $this->update_spare_consumption_status($this->input->post(), $booking_id);
+                    $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id);
+                    //This is used to cancel those spare parts who has not shipped by partner.
                     $this->cancel_spare_parts($partner_id, $booking_id);
                     
                     if ($is_update_spare_parts) {      
-                        //This is used to cancel those spare parts who has not shipped by partner.        
-                       
                         $this->update_booking_internal_status($booking_id, DEFECTIVE_PARTS_PENDING, $partner_id);
                         $this->session->set_userdata('success', "Updated Successfully!!");
 
@@ -871,7 +870,7 @@ class Service_centers extends CI_Controller {
                     $unit = $this->booking_model->get_unit_details(array('id' => $unit_id), false, 'appliance_capacity, vendor_basic_percentage, customer_total, partner_paid_basic_charges,'
                             . ' appliance_brand, price_tags, around_net_payable, appliance_category, customer_net_payable, partner_net_payable');
                     $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $value,
-                        'appliance_model_details.entity_id' => $partner_id));
+                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1));
                     $sc_change = false;
                     if (($unit[0]['appliance_category'] == $model_details[0]['category']) && ($unit[0]['appliance_capacity'] == $model_details[0]['capacity'])) {
                         $sc_change = false;
@@ -6426,8 +6425,21 @@ class Service_centers extends CI_Controller {
             echo "Please Select Any Checkbox";
         }
     }
+        
+     /**
+     * @desc: This is used to print  address for selected booking
+     * @param Array $booking_address
+     * @return void 
+     */
     
-    /**
+     function forcefully_generate_sf_challan($booking_id, $sf_id){
+         $generate_challan = array("$sf_id" => $booking_id);
+         
+         $this->generate_sf_challan($generate_challan);
+     }
+
+
+     /**
      * @desc: This is used to print  address for selected booking
      * @param Array $booking_address
      * @return void 
@@ -6617,8 +6629,10 @@ class Service_centers extends CI_Controller {
         $sf_id = $this->session->userdata('service_center_id');
         $where = array("spare_parts_details.defective_return_to_entity_id" => $sf_id,
            "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
-            "defective_part_required" => 1, 
-            "status IN ('"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_REJECTED."') " => NULL);
+            "spare_parts_details.entity_type" => _247AROUND_SF_STRING,
+            "spare_parts_details.defective_part_required" => 1,
+            "spare_parts_details.is_micro_wh IN (1,2)" => NULL, 
+            "status IN ('"._247AROUND_COMPLETED."') " => NULL);
 
         $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
         if(!empty($partner_id)){
@@ -6654,8 +6668,11 @@ class Service_centers extends CI_Controller {
         $sf_id = $this->session->userdata('service_center_id');
         $where = array("spare_parts_details.defective_return_to_entity_id" => $sf_id,
            "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
-            "defective_part_required" => 1, 
-            "status IN ('".DEFECTIVE_PARTS_RECEIVED."', '"._247AROUND_COMPLETED."') " => NULL);
+            "spare_parts_details.entity_type" => _247AROUND_PARTNER_STRING,
+            "spare_parts_details.defective_part_required" => 1, 
+            "spare_parts_details.is_micro_wh IN (0)" => NULL,
+            "status IN ('"._247AROUND_COMPLETED."','".DEFECTIVE_PARTS_RECEIVED."') " => NULL
+            );
 
         $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
         if(!empty($partner_id)){
@@ -6733,10 +6750,10 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND booking_details.current_status ='"._247AROUND_COMPLETED."' AND defective_part_required = '1' AND status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED . "') ";
+                    . "AND spare_parts_details.wh_to_partner_defective_shipped_date IS NULL AND defective_part_required = '1' AND status IN ('" . DEFECTIVE_PARTS_RECEIVED . "','"._247AROUND_COMPLETED."') ";
             $where .= " AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
-            
+
         } else {
             $data['spare_parts'] = array();
         }
@@ -7302,25 +7319,124 @@ class Service_centers extends CI_Controller {
     function msl_spare_details(){
         $this->checkUserSession();
         $data= array();
-        $select = "invoice_id, type, date_format(invoice_date,'%d-%m-%Y') as 'invoice_date', parts_count, vertical, category, sub_category,(total_amount_collected-amount_paid) as 'amount'";
-        $data['msl_spare'] = $this->reusable_model->get_search_result_data(
-            'vendor_partner_invoices',
-            $select,
-            array(
-                "vendor_partner"=> "vendor",
-                "vendor_partner_id"=> $this->session->userdata('service_center_id')
-            ),
-            NULL,NULL,NULL,
-            array(
-                "sub_category"=>array(
-                    MSL,
-                    MSL_NEW_PART_RETURN,
-                    MSL_DEFECTIVE_RETURN
-                )
-            ),NULL,array()
-        );
+        $data['msl_spare'] = true;
         $this->load->view('service_centers/header');
-        $this->load->view('service_centers/msl_summary',$data);
+        $this->load->view('service_centers/msl_summary', $data);
+    }
+
+    /**
+     * @method function to get MSL Spare details via ajax
+     * @return json response
+     */
+    function ajax_get_msl_spare_details(){
+        $res = array();
+        $draw = $this->input->post('draw');
+        $start = $this->input->post('start');
+        $limit = $this->input->post('length');
+        
+        //if session is empty return blank data
+        if(empty($this->session->userdata('service_center_id'))){
+            $output = array(
+                "draw" => $draw,
+                "recordsTotal" => 0,
+                "recordsFiltered" =>  0,
+                "data" => array(),
+            );
+            echo json_encode($output);die;
+        }
+
+        $spareCountData = $this->service_centers_model->get_msl_spare_details($this->session->userdata('service_center_id'), true);
+        //echo $this->db->last_query();die();
+        if(!empty($spareCountData['error'])){
+            $output = array(
+                "draw" => $draw,
+                "recordsTotal" => 0,
+                "recordsFiltered" =>  0,
+                "data" => array(),
+            );
+            echo json_encode($output);die;
+        }
+        $data = array();
+        $spareData = $this->service_centers_model->get_msl_spare_details($this->session->userdata('service_center_id'), false, $start, $limit);
+        foreach($spareData['payload'] as $key=>$spare){
+            $data[$key] = array();
+            $amount = 0;
+            if($spare['sub_category'] == MSL){
+                if($spare['amount'] == 0){
+                    $amount = $spare['amount'];
+                }else{
+                    $amount = -1 * $spare['amount'];
+                }
+            }else{
+                $amount = $spare['amount'];
+            }
+            $data[$key][] = $start+ $key+ 1;
+            $data[$key][] = $spare['category'];
+            $data[$key][] = $spare['sub_category'];
+            $data[$key][] = $spare['parts_count'];
+            $data[$key][] = '<a title="click to get more details" data-toggle="tooltip">'. $spare['invoice_id']. '</a>';
+            $data[$key][] = $amount;
+            $data[$key][] = $spare['invoice_date'];
+        }
+
+        $output = array(
+            "draw" => $draw,
+            "recordsTotal" => $spareCountData['payload']['count'],
+            "recordsFiltered" => $spareCountData['payload']['count'],
+            "data" => $data
+        );
+        echo json_encode($output);die;
+    }
+
+    function ajax_get_msl_parts_consumed_in_oow(){
+        $res = array();
+        $draw = $this->input->post('draw');
+        $start = $this->input->post('start');
+        $limit = $this->input->post('length');
+
+        //if session is empty return blank data
+        if(empty($this->session->userdata('service_center_id'))){
+            $output = array(
+                "draw" => $draw,
+                "recordsTotal" => 0,
+                "recordsFiltered" =>  0,
+                "data" => array(),
+            );
+            echo json_encode($output);die;
+        }
+        
+        $spareCountData = $this->service_centers_model->get_oow_parts_used_from_micro($this->session->userdata('service_center_id'), true);
+        //echo $this->db->last_query();die();
+        if(!empty($spareCountData['error'])){
+            $output = array(
+                "draw" => $draw,
+                "recordsTotal" => 0,
+                "recordsFiltered" =>  0,
+                "data" => array(),
+            );
+            echo json_encode($output);die;
+        }
+        $data = array();
+        $spareData = $this->service_centers_model->get_oow_parts_used_from_micro($this->session->userdata('service_center_id'), false, $start, $limit);
+        foreach($spareData['payload'] as $key=>$spare){
+            $data[$key] = array();
+            $data[$key][] = $start+ $key+ 1;
+            $data[$key][] = $spare['booking_id'];
+            $data[$key][] = $spare['parts_requested_type'];
+            $data[$key][] = $spare['parts_requested'];
+            $data[$key][] = $spare['model_number'];
+            $data[$key][] = $spare['date_of_request'];
+            $data[$key][] = $spare['sell_price'];
+            $data[$key][] = $spare['quantity'];
+        }
+
+        $output = array(
+            "draw" => $draw,
+            "recordsTotal" => $spareCountData['payload']['count'],
+            "recordsFiltered" => $spareCountData['payload']['count'],
+            "data" => $data
+        );
+        echo json_encode($output);die;
     }
 
     function check_warehouse_shipped_awb_exist(){

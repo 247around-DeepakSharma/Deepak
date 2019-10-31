@@ -4038,7 +4038,7 @@ class Inventory extends CI_Controller {
             $a[$key]['gst_rate'] = $value['sgst_tax_rate'] + $value['igst_tax_rate'] + $value['cgst_tax_rate'];
             $margin_total = $value['taxable_value'] * ( 1 + $repair_oow_around_percentage);
             $a[$key]['taxable_value'] = $margin_total;
-            $a[$key]['from_gst_number'] = $value['from_gst_number'];
+            $a[$key]['from_gst_number_id'] = $value['to_gst_number'];
         }
         $response = $this->invoices_model->_set_partner_excel_invoice_data($a, $invoice_date, $invoice_date, "Tax Invoice", $invoice_date);
         $response['meta']['main_company_gst_number'] = $around_gst[0]['gst_number'];
@@ -4987,6 +4987,7 @@ class Inventory extends CI_Controller {
 
             foreach ($postData as $key => $val) {
                 if (!empty($val['spare_id'])) {
+                    $data["spare_parts_details.wh_to_partner_defective_shipped_date"] = date('Y-m-d H:i:s');
                     $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
                     $agent_id = $this->session->userdata('service_center_agent_id');
                     $agent_name = $this->session->userdata('service_center_name');
@@ -5285,7 +5286,7 @@ class Inventory extends CI_Controller {
 
                     if (!empty($sp_id)) {
                         foreach ($sp_id as $id) {
-                            $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, 'reverse_purchase_invoice_id' => $invoice_id));
+                            $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, 'wh_to_partner_defective_shipped_date' => date('Y-m-d H:i:s'),'reverse_purchase_invoice_id' => $invoice_id));
                         }
                     }
 
@@ -6387,7 +6388,7 @@ class Inventory extends CI_Controller {
                 . "if(spare_parts_details.partner_warehouse_courier_invoice_id is null,'',spare_parts_details.partner_warehouse_courier_invoice_id) as 'Partner Warehouse Courier Invoice', "
                 . "if(spare_parts_details.partner_courier_invoice_id is null,'',spare_parts_details.partner_courier_invoice_id) as 'Partner Courier Invoice', "
                 . "if(spare_parts_details.vendor_courier_invoice_id is null,'',spare_parts_details.vendor_courier_invoice_id) as 'SF Courier Invoice', "
-                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', ";
+                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', cci.billable_weight as 'Packet Weight ', cci.box_count as 'Packet Count' ";
         //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $where = array();
         $group_by = "spare_parts_details.id";
@@ -6396,7 +6397,7 @@ class Inventory extends CI_Controller {
         }
 
         $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
-
+       
         $this->load->dbutil();
         $this->load->helper('file');
 

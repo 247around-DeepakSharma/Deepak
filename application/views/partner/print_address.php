@@ -1,7 +1,7 @@
  <script src="<?php echo base_url()?>js/jquery.js"></script>
 <?php foreach ($details as  $value) { ?>
 
-<div style="display:inline; height: 400px; float:left;border: 1px solid #ccc; margin-left: 10px;margin-top:10px;width: 320px;padding: 8px;">
+<div style="display:inline; height: 470px; float:left;border: 1px solid #ccc; margin-left: 10px;margin-top:10px;width: 320px;padding: 8px;">
     <div style="border: 1px solid #ccc;padding:8px; width: 300px;">
         <?php if($value['main_company_logo']){ ?>
         <img style='vertical-align:middle;width:50px;' src="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/misc-images/".$value['main_company_logo']; ?>">

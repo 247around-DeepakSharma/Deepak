@@ -1561,3 +1561,6 @@ ALTER TABLE `engineer_consumed_spare_details`
 ALTER TABLE `engineer_consumed_spare_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
+
+--Gorakh 24-10-2019
+ALTER TABLE `spare_parts_details` ADD `wh_to_partner_defective_shipped_date` TIMESTAMP NULL DEFAULT NULL AFTER `shipped_quantity`;

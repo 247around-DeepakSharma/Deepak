@@ -336,7 +336,7 @@
                              <th>Day8 - Day15</th>
                              <th>> Day15</th>
                              <?php if ($is_pending) {?>
-                             <th>> Total</th>
+                             <th>Total</th>
                              <?php  } ?>
                         </tr>
     </thead>
@@ -459,7 +459,9 @@
             <?php
             }
 ?>
-                
+        <?php if ($is_pending) {?>
+            <td><?php echo $values['Total_Pending'] ."<br>(".$values['TAT_total_per']."%)";?></td>
+        <?php  } ?>        
         </tr>
         <?php
         }

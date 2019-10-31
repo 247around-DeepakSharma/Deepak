@@ -369,4 +369,22 @@ class Engineer_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    
+     /*
+     *@Desc - This function is used to get all bookings respected to the user data
+     *@param - $service_center_id, @engineer_id
+     *@return - resultant array
+     */
+    function engineer_bookings_on_user($select, $where){
+        $this->db->distinct();
+        $this->db->select($select, false);
+        $this->db->from('users');
+        $this->db->where($where);
+        $this->db->join("booking_details", "booking_details.user_id = users.user_id");
+        $this->db->join("services", "services.id = booking_details.service_id");
+        $this->db->order_by("booking_details.booking_id", "ASC");
+        $query = $this->db->get();
+        //echo $this->db->last_query(); die();
+        return $query->result_array();
+    }
 }

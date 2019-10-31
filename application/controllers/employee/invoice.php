@@ -4064,6 +4064,7 @@ class Invoice extends CI_Controller {
         $data[0]['rate'] = sprintf("%.2f", ($invoice_details[0]['parts_cost']/$invoice_details[0]['parts_count']));
         $data[0]['qty'] = $shipped_quantity;
         $data[0]['hsn_code'] = SPARE_HSN_CODE;
+        $data[0]['c_s_gst'] = $this->invoices_model->check_gst_tax_type($vendor_details[0]['state']);
         $sd = $ed = $invoice_date = date("Y-m-d");
         $gst_rate = ($invoice_details[0]['cgst_tax_rate'] + $invoice_details[0]['sgst_tax_rate'] + $invoice_details[0]['igst_tax_rate']);
         $data[0]['gst_rate'] = $gst_rate;
@@ -4109,6 +4110,7 @@ class Invoice extends CI_Controller {
                         $spare[0]['spare_id'] = $spare_id;
                         $spare[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
                         $spare[0]['booking_partner_id'] = $spare[0]['service_center_id'];
+                        $service_center_state_code = $this->invoices_model->get_state_code(array('state' => $spare[0]['state']))[0]['state_code'];
                         $unsettle = $this->invoice_lib->settle_inventory_invoice_annexure($spare);
                         if (!empty($unsettle['processData'])) {
                             foreach ($unsettle['processData'] as $invoiceValue) {
@@ -4141,6 +4143,11 @@ class Invoice extends CI_Controller {
                                     } else {
                                         $data[0]['taxable_value'] = $value['rate'] * $value['qty'];
                                         $data[0]['rate'] = $value['rate'];
+                                    }
+                                    if($service_center_state_code ==  $value['to_state_code']){
+                                        $data[0]['c_s_gst'] = TRUE;
+                                    } else {
+                                        $data[0]['c_s_gst'] = FALSE; 
                                     }
 
                                     $data[0]['qty'] = $value['qty'];//1;
@@ -4201,8 +4208,7 @@ class Invoice extends CI_Controller {
             $response['meta']['invoice_template'] = "SF_FOC_Bill_of_Supply-v1.xlsx";
 
         } else {
-            $c_s_gst = $this->invoices_model->check_gst_tax_type($spare[0]['state']);
-        if ($c_s_gst) {
+            if ($data[0]['c_s_gst']) {
                 $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
             } else {
                 $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";

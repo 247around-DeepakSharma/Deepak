@@ -2456,11 +2456,15 @@ class Booking extends CI_Controller {
                 $this->booking_model->addBookingSymptom($booking_symptom);
             }
         }
+        
         // update spare parts.
-        $is_update_spare_parts = $this->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details);
+        //$is_update_spare_parts = $this->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details);
+        $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details, $status);
         if($is_update_spare_parts){
-            $booking['current_status'] = _247AROUND_PENDING;
-            $booking['internal_status'] = DEFECTIVE_PARTS_PENDING;
+             $booking['current_status'] = _247AROUND_PENDING;
+             $booking['internal_status'] = DEFECTIVE_PARTS_PENDING;
+             
+            
         } else {
             $booking['current_status'] = $internal_status;
             $booking['internal_status'] = $internal_status;
@@ -2528,7 +2532,7 @@ class Booking extends CI_Controller {
             } else if($sp['status'] == SPARE_PARTS_REQUESTED && !$sp['spare_lost']){
                 $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
             } else if(!$sp['spare_lost']) {
-                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
+        //        $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
             }
         }
         
