@@ -6336,7 +6336,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 . "if(spare_parts_details.partner_warehouse_courier_invoice_id is null,'',spare_parts_details.partner_warehouse_courier_invoice_id) as 'Partner Warehouse Courier Invoice', "
                 . "if(spare_parts_details.partner_courier_invoice_id is null,'',spare_parts_details.partner_courier_invoice_id) as 'Partner Courier Invoice', "
                 . "if(spare_parts_details.vendor_courier_invoice_id is null,'',spare_parts_details.vendor_courier_invoice_id) as 'SF Courier Invoice', "
-                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', ";
+                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', cci.billable_weight as 'Packet Weight ', cci.box_count as 'Packet Count' ";
         //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $where = array();
         $group_by = "spare_parts_details.id";
@@ -6345,7 +6345,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         }
 
         $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
-        
+
         $this->load->dbutil();
         $this->load->helper('file');
 
