@@ -6433,7 +6433,7 @@ class Inventory extends CI_Controller {
                 $where['spare_parts_details.partner_id'] = $this->session->userdata('partner_id');
             }
             $data['data'] = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id,spare_parts_details.quantity, spare_parts_details.requested_inventory_id, booking_details.partner_id,"
-                    . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number,booking_details.request_type", $where, true);
+                    . "spare_parts_details.booking_id, booking_details.service_id,spare_parts_details.model_number,booking_details.request_type,spare_parts_details.part_warranty_status", $where, true);
             
             if (!empty($data['data'])) {
                 $data['count'] = $count;
