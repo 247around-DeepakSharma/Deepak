@@ -1561,3 +1561,7 @@ ALTER TABLE `engineer_consumed_spare_details`
 ALTER TABLE `engineer_consumed_spare_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
+
+--Kalyani 31-10-2019 
+UPDATE query_report SET query2 = 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= "2019-08-01" AND internal_status = "Cancelled" AND engineer_booking_action.booking_id in (select DISTINCT booking_id from engineer_booking_action group by booking_id having count(DISTINCT internal_status)=1)' WHERE id = '59';
+UPDATE query_report SET query2 = 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND DATE(closed_date) = CURDATE() AND internal_status = "Cancelled" AND engineer_booking_action.booking_id in (select DISTINCT booking_id from engineer_booking_action group by booking_id having count(DISTINCT internal_status)=1)' WHERE id = '58'
