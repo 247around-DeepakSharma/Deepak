@@ -6425,8 +6425,21 @@ class Service_centers extends CI_Controller {
             echo "Please Select Any Checkbox";
         }
     }
+        
+     /**
+     * @desc: This is used to print  address for selected booking
+     * @param Array $booking_address
+     * @return void 
+     */
     
-    /**
+     function forcefully_generate_sf_challan($booking_id, $sf_id){
+         $generate_challan = array("$sf_id" => $booking_id);
+         
+         $this->generate_sf_challan($generate_challan);
+     }
+
+
+     /**
      * @desc: This is used to print  address for selected booking
      * @param Array $booking_address
      * @return void 
