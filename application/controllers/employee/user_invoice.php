@@ -1219,7 +1219,7 @@ class User_invoice extends CI_Controller {
     }
     
     function generate_new_return_inventory($invoices, $wh_id, $sd, $ed, $invoice_date, $key, $invoiceValue, $partner_id, $p, $courier_details_table) {
-        $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $invoice[0]['to_gst_number_id']));
+        $around_gst = $this->inventory_model->get_entity_gst_data("entity_gst_details.*", array('entity_gst_details.id' => $invoices[0]['to_gst_number_id']));
         $main_company_state = $this->invoices_model->get_state_code(array('state_code' => $around_gst[0]['state']))[0]['state'];
         $tmp_k = explode('-', $key);
         $tmp_invoice = "ARD-" . $around_gst[0]['state'];//$tmp_k[0];
@@ -1229,7 +1229,7 @@ class User_invoice extends CI_Controller {
             $this->invoices_model->insert_inventory_invoice($m);
         }
         $invoices[0]['invoice_id'] = $invoice_id;
-        $invoice[0]['c_s_gst'] = $this->invoices_model->check_gst_tax_type($main_company_state);
+        $invoices[0]['c_s_gst'] = $this->invoices_model->check_gst_tax_type($main_company_state);
 
         $response = $this->invoices_model->_set_partner_excel_invoice_data($invoices, $sd, $ed, "Tax Invoice", $invoice_date);
         $response['meta']['invoice_id'] = $invoice_id;
