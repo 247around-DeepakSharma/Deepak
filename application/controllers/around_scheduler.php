@@ -2563,5 +2563,38 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         system(" chmod 777 " . $details_excel, $res1);
         return $details_excel;
     }
+    
+    /**
+     * @desc This function is used to send sms sharp bookings 
+     */
+    function sharp_vedio_sms_on_booking_creation() {
+        $select = "booking_id, booking_primary_contact_no, users.name, users.user_id as user_id";
+        $to_time = date("Y-m-d H:i:s");
+        $from_time = date("Y-m-d H:i:s", strtotime('-1 hour'));
+        $where = array(
+                    "create_date >= '".$from_time."' AND create_date <= '".$to_time."'" => NULL,
+                    "partner_id" => SHARP_ID,
+                    "service_id" => _247AROUND_WATER_PURIFIER_SERVICE_ID,
+                    "request_type" => FREE_INSTALLATION_REQUEST
+                 );
+        $bookings = $this->booking_model->get_booking_details($select, $where, true);
+        if(!empty($bookings)){
+            foreach ($bookings as $key => $value) {
+                $sms_template = $this->vendor_model->get_sms_template("tag", array("tag"=>APPLIANCE_INSTALLATION_VIDEO_LINK, "active" => 1));
+                if(!empty($sms_template)){ 
+                    $sms['tag'] = APPLIANCE_INSTALLATION_VIDEO_LINK;
+                    $sms['phone_no'] = $value['booking_primary_contact_no'];
+                    $sms['booking_id'] = $value['booking_id'];
+                    $sms['type'] = "user";
+                    $sms['type_id'] = $value['user_id'];
+                    $sms['smsData']['user_name'] = $value['name'];
+                    $sms['smsData']['appliance_name'] = "Water Purifier";
+                    $sms['smsData']['link'] = $this->miscelleneous->getShortUrl(SHARP_WATER_PURIFIER_INSTALLATION_VIDEO);
+                    $this->notify->send_sms_msg91($sms);
+                }
+            }
+        }
+        
+    }
 
 }
