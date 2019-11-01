@@ -1211,7 +1211,7 @@ class Invoice extends CI_Controller {
                     'invoice_file_main' => $output_file_main,
                     'invoice_file_excel' => "copy_".$invoice_data['meta']['invoice_id'] . '.xlsx',
                     'invoice_detailed_excel' => $invoice_data['meta']['invoice_id'] . '-detailed.xlsx',
-                    'invoice_date' => date("Y-m-d"),
+                    'invoice_date' => "2019-10-31",//date("Y-m-d"),
                     'from_date' => date("Y-m-d", strtotime($from_date)),
                     'to_date' => date("Y-m-d", strtotime($to_date)),
                     'num_bookings' => $invoice_data['meta']['count'],
@@ -1240,7 +1240,6 @@ class Invoice extends CI_Controller {
                     'credit_penalty_amount' => $invoice_data['meta']['cr_total_penalty_amount'],
                     'credit_penalty_bookings_count' => array_sum(array_column($invoice_data['c_penalty'], 'penalty_times')),
                     'courier_charges' => $invoice_data['meta']['total_courier_charges'],
-                    'invoice_date' => date('Y-m-d'),
                     //Add 1 month to end date to calculate due date
                     'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
                     //add agent id
@@ -1279,7 +1278,7 @@ class Invoice extends CI_Controller {
                         'vendor_partner_id' => $vendor_id,
                         'type_code' => 'A',
                         'vendor_partner' => 'vendor',
-                        'invoice_date' => date("Y-m-d"),
+                        'invoice_date' => "2019-10-31",//date("Y-m-d"),
                         'from_date' => date("Y-m-d", strtotime($from_date)),
                         'to_date' => date("Y-m-d", strtotime($to_date)),
                         'total_service_charge' => ( $invoice_data['meta']["cgst_total_tax_amount"] +  $invoice_data['meta']["sgst_total_tax_amount"] +  $invoice_data['meta']["igst_total_tax_amount"]),
@@ -2417,6 +2416,7 @@ class Invoice extends CI_Controller {
                             . $invoices['meta']['invoice_id']);
                 }
 
+                $invoices['meta']['invoice_date'] = date("jS M, Y", strtotime("2019-10-31"));
                 $status = $this->invoice_lib->send_request_to_create_main_excel($invoices, $invoice_type);
                 if ($status) {
                     log_message('info', __FUNCTION__ . ' Invoice File is created. invoice id' . $invoices['meta']['invoice_id']);
