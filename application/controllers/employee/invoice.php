@@ -1240,7 +1240,6 @@ class Invoice extends CI_Controller {
                     'credit_penalty_amount' => $invoice_data['meta']['cr_total_penalty_amount'],
                     'credit_penalty_bookings_count' => array_sum(array_column($invoice_data['c_penalty'], 'penalty_times')),
                     'courier_charges' => $invoice_data['meta']['total_courier_charges'],
-                    'invoice_date' => date('Y-m-d'),
                     //Add 1 month to end date to calculate due date
                     'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
                     //add agent id

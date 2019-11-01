@@ -187,5 +187,53 @@ class Warranty extends CI_Controller {
         }
         echo json_encode($arrBookings);
     }
+    
+    public function plan_model_mapping() {
+        $this->miscelleneous->load_nav_header();
+        
+        $where = "";
+        $select = "warranty_plans.plan_name, warranty_plans.plan_description, warranty_plans.period_start, warranty_plans.period_end, warranty_plans.warranty_type, warranty_plans.warranty_period, warranty_plans.partner_id, warranty_plans.service_id, appliance_model_details.model_number, services.services, partners.public_name, warranty_plan_model_mapping.id as mapping_id";        
+        $order_by = "warranty_plans.plan_name,appliance_model_details.model_number";
+        $join['services']  = 'warranty_plans.service_id = services.id';
+        $join['partners']  = 'warranty_plans.partner_id = partners.id';
+        $join['warranty_plan_model_mapping']  = 'warranty_plans.plan_id = warranty_plan_model_mapping.plan_id';
+        $join['appliance_model_details']  = 'warranty_plan_model_mapping.model_id = appliance_model_details.id';
+        
+        $data['plan_data'] = $this->warranty_model->getPlanWiseModels($where, $select, $order_by, NULL, $join, NULL, $result_array = false);        
+        $this->load->view('warranty/plan_wise_models_view', $data);
+    }
+    
+    public function add_model_to_plan() {
+        $arr_post = $this->input->post();
+        $warranty_plans = $this->warranty_model->selectPlans();
+        $appliance_models = $this->warranty_model->selectModels();
+        $this->miscelleneous->load_nav_header();
+        if(!empty($arr_post['plan_id']) && !empty($arr_post['model_id'])) 
+        {
+            $arr_model = explode("###", $arr_post['model_id']);
+            $arr_post['model_id'] = $arr_model[0];
+            $arr_post['service_id'] = $arr_model[1];
+            $arr_post['created_by'] = $this->session->userdata("employee_id");
+            $id = $this->warranty_model->map_model_to_plan($arr_post);
+            if(!empty($id))
+            {
+                $this->session->set_userdata('success', 'Data Entered Successfully');
+            }
+            else
+            {
+                $this->session->set_userdata('failed', 'Data already exists.');
+            }            
+        }
+        $this->load->view('warranty/add_model_to_plan', array('warranty_plans' => $warranty_plans, 'appliance_models' => $appliance_models));    
+    }
+    
+    public function remove_model_from_plan() {
+        $arr_post = $this->input->post();
+        if(!empty($arr_post['mapping_id']))
+        {
+            $this->warranty_model->remove_model_from_plan($arr_post['mapping_id']);
+            echo "success";
+        }
+    }    
  
 }
