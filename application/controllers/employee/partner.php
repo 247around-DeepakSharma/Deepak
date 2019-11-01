@@ -5392,7 +5392,7 @@ class Partner extends CI_Controller {
             "spare_parts_details.defective_return_to_entity_type" => _247AROUND_PARTNER_STRING,
             "status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL
         );
-        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, "
+        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, spare_parts_details.shipped_quantity as shipped_quantity,"
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
                 . "defective_part_shipped_date,remarks_defective_part_by_sf";
         $group_by = "spare_parts_details.booking_id";
