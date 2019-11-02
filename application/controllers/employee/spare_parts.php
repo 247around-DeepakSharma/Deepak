@@ -3574,6 +3574,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     
                     $this->inventory_model->update_spare_courier_details($booking['id'], $dataupdate);
                     $remarks = $new_state;
+                    $actor = 'Partner';
                     $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -$booking['quantity']);
                 }
@@ -3587,7 +3588,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     $spare_pending_on=_247AROUND_PARTNER_STRING;
                     $spare_pending_on2='Warehouse';
 
-                    $actor = 'Warehouse';
+                    $actor = 'Partner';
                     $new_state = 'Spare Part Transferred to ' . $spare_pending_on;
                     $old_state = 'Spare Part Transferred from ' . $spare_pending_on2;	
                     $dataupdate = array(
