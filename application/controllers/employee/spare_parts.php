@@ -3564,6 +3564,12 @@ class Spare_parts extends CI_Controller {
                          if ($data['is_micro_wh']==2) {
                          $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $data['entity_id'], $data['inventory_id'], $booking['quantity']);
                          $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -$booking['quantity']);
+
+                         $data_booking=array(
+                           'actor'=>$actor,
+                           'next_action'=>_247AROUND_TRANSFERED_TO_NEXT_ACTION
+                         );
+                         $this->booking_model->update_booking($booking['booking_id'],$data_booking); 
                          }
 
 
@@ -3590,8 +3596,15 @@ class Spare_parts extends CI_Controller {
                     
                     $this->inventory_model->update_spare_courier_details($booking['id'], $dataupdate);
                     $remarks = $new_state;
+                    $actor = 'Partner';
                     $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
                     $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -$booking['quantity']);
+                    $data_booking=array(
+                    'actor'=>$actor,
+                    'next_action'=>'Send Spare Part'
+                     );
+                     $this->booking_model->update_booking($booking['booking_id'],$data_booking);    
+                
                 }
                     
             } else {
@@ -3599,11 +3612,11 @@ class Spare_parts extends CI_Controller {
 				
 	           if($booking['entity_type']==_247AROUND_SF_STRING && $data['entity_type'] ==_247AROUND_PARTNER_STRING){
 					
-	            $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
+	                $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
                     $spare_pending_on=_247AROUND_PARTNER_STRING;
                     $spare_pending_on2='Warehouse';
 
-                    $actor = 'Warehouse';
+                    $actor = 'Partner';
                     $new_state = 'Spare Part Transferred to ' . $spare_pending_on;
                     $old_state = 'Spare Part Transferred from ' . $spare_pending_on2;	
                     $dataupdate = array(
@@ -3617,11 +3630,16 @@ class Spare_parts extends CI_Controller {
                         'parts_requested' => $data['part_name'],
                         'parts_requested_type' => $data['type']
                     ); 
+                $data_booking=array(
+                    'actor'=>$actor,
+                    'next_action'=>'Send Spare Part'
+                );
 						
 			    $this->inventory_model->update_spare_courier_details($booking['id'], $dataupdate);
                 $remarks = $new_state;
                 $this->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
-                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -$booking['quantity']);	
+                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $booking['partner_id'], $booking['requested_inventory_id'], -$booking['quantity']);
+                $this->booking_model->update_booking($booking['booking_id'],$data_booking);	
 					
 		}
 						
