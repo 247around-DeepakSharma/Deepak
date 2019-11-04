@@ -2637,7 +2637,7 @@ class Booking_model extends CI_Model {
     function get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff){
         $this->db->_protect_identifiers = FALSE;
         $this->db->_reserved_identifiers = array('NOT');
-        $where["DATEDIFF(CURRENT_TIMESTAMP , service_center_closed_dateD) <= ".$dayDiff] = NULL;
+        $where["DATEDIFF(CURRENT_TIMESTAMP , service_center_closed_date) <= ".$dayDiff] = NULL;
         $where['booking_details.service_id'] = $service_id;
         $where['booking_details.partner_id'] = $partnerID;
         $where['booking_primary_contact_no'] = $contact;
