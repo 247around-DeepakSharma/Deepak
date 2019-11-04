@@ -72,6 +72,7 @@
                                 <th class="text-center" data-orderable="false">Booking Type</th>
                                 <th class="text-center" data-orderable="false">Estimate Cost</th>
                                 <th class="text-center" data-orderable="true">Age Of Shipped</th>
+                                <th class="text-center" data-orderable="false">Courier Charges</th>
                                 <th class="text-center" data-orderable="false">Challan File</th>
                                 <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                 <th class="text-center" data-orderable="false">Sale Invoice ID</th>
@@ -488,7 +489,7 @@
                                         <th class="text-center" data-orderable="false">Requested Parts Number</th>
                                         <th class="text-center" data-orderable="false">Part Type</th>
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
-                                         <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                        <th class="text-center" data-orderable="false">Shipped Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Part Number </th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
@@ -692,7 +693,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                        columns: [ 1,2,3,4,5,6,7,8,9,11,12,13,14 ]
+                        columns: [ 1,2,3,4,5,6,7,8,9,11,12,13,14,15 ]
                     },
                     title: 'partner_shipped_oow_part'
                 }
