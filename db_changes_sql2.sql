@@ -1569,3 +1569,5 @@ UPDATE query_report SET query2 = 'SELECT count(DISTINCT(booking_id)) as count FR
 --Gorakh 24-10-2019
 ALTER TABLE `spare_parts_details` ADD `wh_to_partner_defective_shipped_date` TIMESTAMP NULL DEFAULT NULL AFTER `shipped_quantity`;
 
+--Kalyani 01-11-2019
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'appliance_installation_video_link', 'Hi %s,\r\nClick on the link to watch Installation demo video of %s link - %s\r\n247around', NULL, '1', '0', CURRENT_TIMESTAMP);
