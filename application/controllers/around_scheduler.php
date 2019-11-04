@@ -2572,7 +2572,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $to_time = date("Y-m-d H:i:s");
         $from_time = date("Y-m-d H:i:s", strtotime('-1 hour'));
         $where = array(
-                    "create_date >= '".$from_time."' AND create_date <= '".$to_time."'" => NULL,
+                    "booking_details.create_date >= '".$from_time."' AND booking_details.create_date <= '".$to_time."'" => NULL,
                     "partner_id" => SHARP_ID,
                     "service_id" => _247AROUND_WATER_PURIFIER_SERVICE_ID,
                     "request_type" => FREE_INSTALLATION_REQUEST
