@@ -1018,8 +1018,7 @@ ALTER TABLE `part_type_return_mapping` ADD `inventory_id` INT(11) NOT NULL AFTER
 
 --Kalyani 12-09-2019
 ALTER TABLE `engineer_booking_action` ADD `purchase_invoice` VARCHAR(255) NULL DEFAULT NULL AFTER `serial_number_pic`;
->>>>>>> CRM_Release_1.66.0.2
-
+ 
 -- Menus for category/capacity
 INSERT INTO `header_navigation` ( `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Partner Category Capacity Mapping', NULL, 'employee/service_centre_charges/show_partner_appliances', 2, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:13:09'),
@@ -1505,24 +1504,18 @@ INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, 
 ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1;
 -- Prity Sharma 25-09-2019
 ALTER TABLE booking_unit_details CHANGE COLUMN sf_purchase_date sf_purchase_date date NULL DEFAULT NULL;
-<<<<<<< HEAD
-=======
-
->>>>>>> CRM_Release_1.67.0.0
+ 
 -- Ankit 27-09-2019
 ALTER TABLE partners ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER auth_token;
 ALTER TABLE service_centres ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER is_wh;
 --Gorakh 28-09-2019
 ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` VARCHAR(20) NOT NULL;
-
-<<<<<<< HEAD
-=======
+ 
 ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1
  --Gorakh 20-09-2019
 ALTER TABLE `spare_parts_details` ADD `wh_challan_number` VARCHAR(128) NULL DEFAULT NULL AFTER `sf_challan_number`;
 ALTER TABLE `spare_parts_details` ADD `wh_challan_file` VARCHAR(128) NULL DEFAULT NULL AFTER `sf_challan_file`;
-
->>>>>>> CRM_Release_1.67.0.0
+ 
 --Kajal 01-10-2019
 UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_07.jpg' WHERE `entity_gst_details`.`id` = 2;
 UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_09.jpg' WHERE `entity_gst_details`.`id` = 7;
@@ -1569,4 +1562,6 @@ ALTER TABLE `spare_parts_details` ADD `wh_to_partner_defective_shipped_date` TIM
 
 --Kalyani 01-11-2019
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'appliance_installation_video_link', 'Hi %s,\r\nClick on the link to watch Installation demo video of %s link - %s\r\n247around', NULL, '1', '0', CURRENT_TIMESTAMP);
-
+ 
+ALTER TABLE `booking_details` ADD `nrn_approved` INT(2) NOT NULL DEFAULT '0' AFTER `technical_solution`;
+ 

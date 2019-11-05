@@ -8514,6 +8514,7 @@ class Partner extends CI_Controller {
                     $booking['partner_internal_status'] = $partner_status[1];
                     $actor = $booking['actor'] = $partner_status[2];
                     $next_action = $booking['next_action'] = $partner_status[3];
+                    $booking['nrn_approved'] = 1;
                 }
                 $this->booking_model->update_booking($booking_id, $booking);
 
