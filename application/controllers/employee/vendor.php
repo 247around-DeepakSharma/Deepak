@@ -1093,7 +1093,7 @@ class vendor extends CI_Controller {
                 $select = "service_center_booking_action.id, service_center_booking_action.booking_id, service_center_booking_action.current_status,service_center_booking_action.internal_status";
                 $where = array("service_center_booking_action.booking_id"=>$booking_id);
                 $booking_action_details = $this->vendor_model->get_service_center_booking_action_details($select, $where);
-                $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id, booking_details.partner_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+                $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id, booking_details.partner_id, booking_details.request_type',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
     //            if (IS_DEFAULT_ENGINEER == TRUE) {
     //                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
     //            } else {
@@ -1229,7 +1229,15 @@ class vendor extends CI_Controller {
                 log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
                         $this->session->userdata('employee_id') . " service center id " . $service_center_id);
 
-
+                //Send sms to customer for new service center address if request type is repair service center visit 
+                if ($previous_sf_id[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG || $previous_sf_id[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) {
+                    $query = $this->booking_model->getbooking_history($booking_id, "1");
+                    $services = $unit_details[0]['brand'] . " " . $query[0]['services'];
+                    $sf_phone = $query[0]['phone_1'] . ", " . $query[0]['primary_contact_phone_1'] . ", " . $query[0]['owner_phone_1'];
+                    $sf_address = $query[0]['address'].", ".$query[0]['sf_district'];
+                    $this->miscelleneous->sms_sf_address_to_customer($services, $sf_phone, $sf_address, $query[0]['booking_id'], $query[0]['user_id'],  $query[0]['booking_primary_contact_no']);
+                }
+                //End
 
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
