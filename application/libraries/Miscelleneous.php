@@ -4466,7 +4466,7 @@ function generate_image($base64, $image_name,$directory){
                        $spare_pending_on="Partner - ".$data['entity_id']; 
                     }
                     $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
-                    $actor = 'Vendor';
+                    $actor = '247Around';
                     $new_state = 'Spare Part Transferred to ' . $spare_pending_on_to;
                     $old_state = 'Spare Part Transferred from ' . $spare_pending_on;
                     $this->My_CI->inventory_model->update_spare_courier_details($spareid, $dataupdate);
