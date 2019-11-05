@@ -851,5 +851,12 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     {
     color: red;
     }
+    
+    <?php if(!empty($str_disabled)) { ?> 
+    .price_checkbox {
+        pointer-events : none !important;
+        background : #eee !important;
+    }    
+    <?php } ?>
 </style>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
