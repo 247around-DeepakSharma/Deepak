@@ -767,20 +767,27 @@ class Miscelleneous {
             }
         }
     }
+    
+    function sms_sf_address_to_customer($services, $sf_phone, $sf_address, $booking_id, $user_id, $customer_phone_no){
+        $sms = array();
+        $sms['smsData']['brand_service'] = $services;
+        $sms['smsData']['sf_phone'] = $sf_phone;
+        $sms['smsData']['sf_address'] = $sf_address;
+        $sms['tag'] = "home_theater_repair";
+        $sms['booking_id'] = $booking_id;
+        $sms['type'] = "user";
+        $sms['type_id'] = $user_id;
+        $sms['phone_no'] = $customer_phone_no;
+        $this->My_CI->notify->send_sms_msg91($sms);
+    }
 
     function send_sms_create_job_card($query) {
         if ($query[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG || $query[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) {
             $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $query[0]['booking_id']));
-            $sms['smsData']['brand_service'] = $unit_details[0]['appliance_brand'] . " " . $query[0]['services'];
-            $sms['smsData']['sf_phone'] = $query[0]['phone_1'] . ", "
-                    . $query[0]['primary_contact_phone_1'] . ", " . $query[0]['owner_phone_1'];
-            $sms['smsData']['sf_address'] = $query[0]['address'].", ".$query[0]['sf_district'];
-            $sms['tag'] = "home_theater_repair";
-            $sms['booking_id'] = $query[0]['booking_id'];
-            $sms['type'] = "user";
-            $sms['type_id'] = $query[0]['user_id'];
-            $sms['phone_no'] = $query[0]['booking_primary_contact_no'];
-            $this->My_CI->notify->send_sms_msg91($sms);
+            $services = $unit_details[0]['appliance_brand'] . " " . $query[0]['services'];
+            $sf_phone = $query[0]['phone_1'] . ", " . $query[0]['primary_contact_phone_1'] . ", " . $query[0]['owner_phone_1'];
+            $sf_address = $query[0]['address'].", ".$query[0]['sf_district'];
+            $this->sms_sf_address_to_customer($services, $sf_phone, $sf_address, $query[0]['booking_id'], $query[0]['user_id'],  $query[0]['booking_primary_contact_no']);
         }
         //else {
 //            //Send SMS to customer
