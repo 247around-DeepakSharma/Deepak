@@ -278,6 +278,8 @@ function get_awb_details(courier_code,awb_number,status,id){
                 $('#SpareConsumptionModal').modal({backdrop: 'static', keyboard: false});
             }
         });
+        
+        $("#"+id).attr('disabled',false);
     }
 
 </script>
