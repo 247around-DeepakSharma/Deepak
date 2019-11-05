@@ -4495,7 +4495,7 @@ function generate_image($base64, $image_name,$directory){
                        $spare_pending_on="Partner - ".$data['entity_id']; 
                     }
                     $next_action = _247AROUND_TRANSFERED_TO_NEXT_ACTION;
-                    $actor = 'Warehouse';
+                    $actor = 'Vendor';
                     $new_state = 'Spare Part Transferred to ' . $spare_pending_on_to;
                     $old_state = 'Spare Part Transferred from ' . $spare_pending_on;
                     $this->My_CI->inventory_model->update_spare_courier_details($spareid, $dataupdate);
@@ -4534,6 +4534,8 @@ function generate_image($base64, $image_name,$directory){
 
                     } else if ($data['entity_type'] == _247AROUND_PARTNER_STRING && $booking['entity_type'] != _247AROUND_PARTNER_STRING) {
                         $remarks = _247AROUND_TRANSFERED_TO_PARTNER;
+				        
+                        $actor="Partner";
                         $this->My_CI->notify->insert_state_change($booking['booking_id'], $new_state, $old_state, $remarks, $agentid,$agent_name, $actor, $next_action, $login_partner_id, $login_service_center_id);
                         $this->My_CI->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $partner_id, $requested_inventory, -$booking['quantity']);
                     }
