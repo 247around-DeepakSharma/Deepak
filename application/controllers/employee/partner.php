@@ -869,10 +869,12 @@ class Partner extends CI_Controller {
         } else {
             $return_data['is_reporting_mail'] = '0';
         }
-
+        
+        $return_data['booking_review_for'] = NULL;
         if($this->input->post('is_review')){
             $return_data['booking_review_for'] = 'Cancelled';
         }
+        $return_data['review_time_limit'] = NULL;
         if($this->input->post('review_time_limit')){
          $return_data['review_time_limit'] = $this->input->post('review_time_limit');
         }
@@ -3023,6 +3025,7 @@ class Partner extends CI_Controller {
                 'partner_appliance_details.service_id' => $service_id,
                 'partner_appliance_details.brand' => $brand,
                 'partner_appliance_details.category' => $category,
+                'partner_appliance_details.active' => 1,
                 'appliance_model_details.active'=> 1
             );
             

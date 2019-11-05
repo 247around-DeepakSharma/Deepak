@@ -388,6 +388,7 @@ class Service_centers extends CI_Controller {
                 "partner_appliance_details.partner_id" => $data['booking_history'][0]['partner_id'],
                 'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
                 'partner_appliance_details.brand' => $bookng_unit_details[0]['brand'], 
+                'partner_appliance_details.active' => 1, 
                 'appliance_model_details.active'=> 1, 
                 "NULLIF(model, '') IS NOT NULL" => NULL);
         
@@ -6244,9 +6245,13 @@ class Service_centers extends CI_Controller {
         if (empty($is_cron)) {
             $this->check_WH_UserSession();
         }
-
-        // get spare part detail.
+        
+        $post_data = $this->input->post();
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+        if($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id']) {
+            $this->miscelleneous->update_spare_consumption_status($post_data, $booking_id);
+        }
+
         if(!empty($spare_part_detail['consumed_part_status_id'])) {
             $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
             if(!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG])) {
@@ -8333,5 +8338,15 @@ class Service_centers extends CI_Controller {
         }
         
         $this->load->view('service_centers/wrong_spare_part', $data);
+    }
+    
+    function change_consumption() {
+        $post_data = $this->input->post();
+        $data['spare_id'] = $post_data['spare_part_detail_id'];
+        $data['booking_id'] = $post_data['booking_id'];
+        $data['booking_details'] = $this->reusable_model->get_search_result_data('booking_details', '*', ['booking_id' => $data['booking_id']], NULL, NULL, NULL, NULL, NULL)[0];
+        $data['spare_part_detail'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['spare_parts_details.id' => $data['spare_id'], 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];        
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',NULL, NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+        $this->load->view('service_centers/change_consumption', $data);
     }
 }
