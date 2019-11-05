@@ -690,9 +690,7 @@ define('_KENSTAR_PENALTY_UPCOUNTRY_48', 19);
 define('_KENSTAR_PENALTY_UPCOUNTRY_72', 20);
 define('_KENSTAR_PENALTY_UPCOUNTRY_120', 21);
 
-
-
-define('SHARP_WATER_PURIFIER_INSTALLATION_VIDEO', 'https://s3.amazonaws.com/bookings-collateral/misc-images/sharp_water_purifier_installation_demo.mp4');
+define('SHARP_WATER_PURIFIER_INSTALLATION_VIDEO', 'http://tinyurl.com/y4s42ml4');
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
