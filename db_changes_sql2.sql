@@ -1562,6 +1562,21 @@ ALTER TABLE `spare_parts_details` ADD `wh_to_partner_defective_shipped_date` TIM
 
 --Kalyani 01-11-2019
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'appliance_installation_video_link', 'Hi %s,\r\nClick on the link to watch Installation demo video of %s link - %s\r\n247around', NULL, '1', '0', CURRENT_TIMESTAMP);
- 
 ALTER TABLE `booking_details` ADD `nrn_approved` INT(2) NOT NULL DEFAULT '0' AFTER `technical_solution`;
- 
+
+
+-- Ankit 04-11-2019
+CREATE TABLE en_vendor_brand_mapping (
+	id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	service_center_id int(11) NOT NULL,
+	partner_id int(11) NOT NULL,
+	active tinyint(1) NOT NULL DEFAULT 0,
+	create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	update_date datetime NULL DEFAULT NULL
+);
+
+CREATE UNIQUE INDEX uni_partner_sf
+ON en_vendor_brand_mapping (service_center_id, partner_id);
+
+ALTER TABLE `service_centres` DROP `is_booking_close_by_app_only`;
+ALTER TABLE `partners` DROP `is_booking_close_by_app_only`;

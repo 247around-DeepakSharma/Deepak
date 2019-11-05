@@ -918,23 +918,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><b>Booking Completion</b></div>
-                            <div class="panel-body">
-                                <div class="col-md-6">
-                                    <div class="form-group ">
-                                        <label for="is_booking_close_by_app_only" class="col-md-6" style="width: 43%;">Booking Close By App Only</label>
-                                        <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                            <input  type="checkbox" class="form-control"  name="is_booking_close_by_app_only" id="is_booking_close_by_app_only" value = "1" <?php if (isset($query[0])) {
-                                                if($query[0]['is_booking_close_by_app_only']){ echo "checked"; }
-                                                } ?> >
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>                    
                                         <?php } ?>
                     <div class="clear clear_bottom">
                         <br>
