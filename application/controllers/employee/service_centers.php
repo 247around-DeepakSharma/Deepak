@@ -388,6 +388,7 @@ class Service_centers extends CI_Controller {
                 "partner_appliance_details.partner_id" => $data['booking_history'][0]['partner_id'],
                 'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
                 'partner_appliance_details.brand' => $bookng_unit_details[0]['brand'], 
+                'partner_appliance_details.active' => 1, 
                 'appliance_model_details.active'=> 1, 
                 "NULLIF(model, '') IS NOT NULL" => NULL);
         
@@ -6719,7 +6720,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "') ";
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','".DEFECTIVE_PARTS_RECEIVED."') ";
             $where .= " AND booking_details.partner_id = " . $partner_id;
             
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");

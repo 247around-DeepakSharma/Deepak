@@ -2640,11 +2640,12 @@ class Booking_model extends CI_Model {
     function get_posible_parent_booking_id($contact,$service_id,$partnerID,$dayDiff){
         $this->db->_protect_identifiers = FALSE;
         $this->db->_reserved_identifiers = array('NOT');
-        $where["DATEDIFF(CURRENT_TIMESTAMP , closed_date) <= ".$dayDiff] = NULL;
+        $where["DATEDIFF(CURRENT_TIMESTAMP , service_center_closed_date) <= ".$dayDiff] = NULL;
         $where['booking_details.service_id'] = $service_id;
         $where['booking_details.partner_id'] = $partnerID;
         $where['booking_primary_contact_no'] = $contact;
-        $where['current_status'] = _247AROUND_COMPLETED;
+//        $where['current_status'] = _247AROUND_COMPLETED;
+        $where['booking_details.service_center_closed_date IS NOT NULL AND booking_details.service_center_closed_date <> "" AND booking_details.current_status <> "'._247AROUND_CANCELLED.'" AND booking_details.internal_status <> "'.SF_BOOKING_CANCELLED_STATUS.'"'] = NULL;        
         $where["request_type != '".REPEAT_BOOKING_TAG."'"] = NULL;
         $where['NOT EXISTS (SELECT 1 FROM booking_details bd WHERE bd.parent_booking = booking_details.booking_id AND bd.current_status ="Pending" LIMIT 1)'] = NULL;
         $this->db->select('booking_details.booking_id,booking_details.current_status,services.services,date(booking_details.closed_date) as closed_date,'
