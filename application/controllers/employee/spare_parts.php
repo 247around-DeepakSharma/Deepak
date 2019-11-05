@@ -3535,7 +3535,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     $spare_pending_on2= 'Partner'; 
                     }
 
-                    $actor = 'Warehouse';
+                    $actor = 'Vendor';
                     $new_state = 'Spare Part Transferred to ' . $spare_pending_on;
                     $old_state = 'Spare Part Transferred from ' . $spare_pending_on2;
                     
