@@ -368,12 +368,12 @@ class Service_centers extends CI_Controller {
         $data['booking_history'][0]['source_name'] = $source[0]['source'];
 
         $where = array(
-            "partner_appliance_details.partner_id" => $data['booking_history'][0]['partner_id'],
-            'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'],
-            'partner_appliance_details.brand' => $bookng_unit_details[0]['brand'],
-            'appliance_model_details.active' => 1,
-            "NULLIF(model, '') IS NOT NULL" => NULL);
-
+                "partner_appliance_details.partner_id" => $data['booking_history'][0]['partner_id'],
+                'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
+                'partner_appliance_details.brand' => $bookng_unit_details[0]['brand'], 
+                'partner_appliance_details.active' => 1, 
+                'appliance_model_details.active'=> 1, 
+                "NULLIF(model, '') IS NOT NULL" => NULL);
         $data['model_data'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
 
 

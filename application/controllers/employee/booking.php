@@ -1005,6 +1005,7 @@ class Booking extends CI_Controller {
                     "partner_appliance_details.partner_id" => $partner_id, 
                     'partner_appliance_details.service_id' => $data['booking_history'][0]['service_id'], 
                     'partner_appliance_details.brand' => $value['brand'],
+                    'partner_appliance_details.active' => 1,
                     'appliance_model_details.active'=> 1, 
                     "NULLIF(model, '') IS NOT NULL" => NULL
                 );
@@ -5244,6 +5245,7 @@ class Booking extends CI_Controller {
         $where = array ('partner_appliance_details.service_id' => $service_id,
                         'partner_appliance_details.partner_id' => $partner_id,
                         'partner_appliance_details.category' => $category,
+                        'partner_appliance_details.active' => 1,
                         'appliance_model_details.active' => 1, 
             );
         

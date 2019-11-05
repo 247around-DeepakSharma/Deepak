@@ -3002,6 +3002,7 @@ class Partner extends CI_Controller {
                 'partner_appliance_details.service_id' => $service_id,
                 'partner_appliance_details.brand' => $brand,
                 'partner_appliance_details.category' => $category,
+                'partner_appliance_details.active' => 1,
                 'appliance_model_details.active'=> 1
             );
             
