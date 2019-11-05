@@ -232,7 +232,7 @@
                                             <label for="parts_type" class="col-md-4">Part Type *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-6">
-                                                <select class="form-control parts_type spare_parts" onchange="part_type_changes('0')" id="parts_type_0" name="part[0][parts_type]" >
+                                                <select class="form-control parts_type_check parts_type spare_parts" onchange="part_type_changes('0')" id="parts_type_0" name="part[0][parts_type]" >
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
@@ -680,6 +680,8 @@ function alpha(e) {
          checkbox_value = 1;
     
      });
+
+
      
      if(checkbox_value ===0){
           alert('Please select atleast one checkbox.');
@@ -767,6 +769,29 @@ function alpha(e) {
                     }
                 }
             });
+
+    var ptypes =[];
+    $(".parts_type_check").each(function(i) {
+
+
+         var current = $(this).val();
+         if (ptypes.length>0) {
+ 
+            var n = ptypes.includes(current);
+             if (n) {
+               alert("Same part type can not be requested.For multiple part please fill quantity.");
+               checkbox_value = 0;
+               return false;
+             }else{
+              ptypes.push(current);
+             } 
+         }else{
+          
+           ptypes.push(current); 
+
+         }
+          
+     });
               
     <?php if(empty($on_saas)){ ?>
             $('.defective_parts_pic').each(function() {
@@ -941,7 +966,7 @@ function alpha(e) {
                     $clone
                         .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).select2({placeholder:'Select Part Type'}).attr("required", true).end()
                         .find('[id="parts_number"]').attr('name', 'part[' + partIndex + '][parts_number]').addClass('parts_number').attr('id','parts_number_'+partIndex).select2().end()
-                        .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
+                        .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type parts_type_check').attr('id','parts_type_'+partIndex).attr("onchange", "part_type_changes('"+partIndex+"')").attr("required", true).select2({placeholder:'Select Part Type'}).end()
                         .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                         .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
                         .find('[id="defective_back_parts_pic"]').attr('name', 'defective_back_parts_pic[' + partIndex + ']').addClass('defective_back_parts_pic').attr('id','defective_back_parts_pic_'+partIndex).end()
@@ -955,7 +980,7 @@ function alpha(e) {
             <?php } else { ?>
                 $clone
 
-                   .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type').attr('id','parts_type_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
+                   .find('[id="parts_type"]').attr('name', 'part[' + partIndex + '][parts_type]').addClass('parts_type parts_type_check').attr('id','parts_type_'+partIndex).attr("required", true).select2({placeholder:'Select Part Type'}).end()
                    .find('[id="parts_name"]').attr('name', 'part[' + partIndex + '][parts_name]').addClass('parts_name').attr('id','parts_name_'+partIndex).attr("required", true).end()
                    .find('[id="requested_inventory_id"]').attr('name', 'part[' + partIndex + '][requested_inventory_id]').attr('id','requested_inventory_id_'+partIndex).end()
                    .find('[id="defective_parts_pic"]').attr('name', 'defective_parts_pic[' + partIndex + ']').addClass('defective_parts_pic').attr('id','defective_parts_pic_'+partIndex).end()
