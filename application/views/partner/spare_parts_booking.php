@@ -100,34 +100,34 @@
 </div>
 <?php } ?>
 <div class="clearfix"></div>
-<div id="send_email_form" class="modal fade" role="dialog">
+<div id="send_email_form_2" class="modal fade" role="dialog">
     <div class="modal-dialog">
 
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header well" style="background-color:  #2a3f54;border-color: #2a3f54;">
                 <button type="button" class="close btn-primary well"  data-dismiss="modal"style="color: white;">&times;</button>
-                <p class="modal-title"style="color: white;background-color: #2a3f54;border-color: #2a3f54;border: 0px; text-align: center; font-size:18px;" id="email_title"></p>
+                <p class="modal-title"style="color: white;background-color: #2a3f54;border-color: #2a3f54;border: 0px; text-align: center; font-size:18px;" id="email_title_2"></p>
             </div>
             <div class="modal-body">
                 <div id="form_container">
                 <form action="" method="post">
-                    <input type="hidden" value="" id="internal_email_booking_id">
+                    <input type="hidden" value="" id="internal_email_booking_id_2">
                     <div class="form-group">
                     <label for="subject">To : </label>
-                    <input type="text" class="form-control" id="internal_email_booking_to">
+                    <input type="text" class="form-control" id="internal_email_booking_to_2">
                     </div>
                     <div class="form-group">
                     <label for="subject">CC: </label>
-                    <input type="text" class="form-control" id="internal_email_booking_cc">
+                    <input type="text" class="form-control" id="internal_email_booking_cc_2">
                     </div>
                     <div class="form-group">
                     <label for="subject">Subject</label>
-                    <input type="text" class="form-control" id="internal_email_booking_subject">
+                    <input type="text" class="form-control" id="internal_email_booking_subject_2">
                     </div>
                     <div class="form-group">
                     <label for="text">Message</label>
-                    <textarea class="form-control" rows="5" id="internal_email_booking_msg"></textarea>
+                    <textarea class="form-control" rows="5" id="internal_email_booking_msg_2"></textarea>
                     </div>
                     <div class="form-group">
                         <button type="button" class="btn btn-default" style="color: #fff;background-color: #2a3f54;border-color: #2a3f54;float:right;" onclick="send_booking_internal_conversation_email()">Send Email</button>
@@ -391,26 +391,26 @@
                      for(var i=0;i<result.length;i++) {
                          am_email += result[i].am_email+",";
                      }
-                    $("#internal_email_booking_to").val(am_email);
-                    $("#internal_email_booking_cc").val(result[0].rm_email+","+result[0].service_center_email);
-                    $("#internal_email_booking_subject").val(result[0].partner+"- Query From Partner For - "+bookingID);
+                    $("#internal_email_booking_to_2").val(am_email);
+                    $("#internal_email_booking_cc_2").val(result[0].rm_email+","+result[0].service_center_email);
+                    $("#internal_email_booking_subject_2").val(result[0].partner+"- Query From Partner For - "+bookingID);
                }
             });
         }
         function create_email_form(booking_id){
-            $("#internal_email_booking_subject").prop('disabled', true);
-            $("#internal_email_booking_cc").prop('disabled', true);
-            $("#email_title").html("Send Email For Booking "+booking_id);
-            $("#send_email_form").modal("show");
-            $("#internal_email_booking_id").val(booking_id);
+            $("#internal_email_booking_subject_2").prop('disabled', true);
+            $("#internal_email_booking_cc_2").prop('disabled', true);
+            $("#email_title_2").html("Send Email For Booking "+booking_id);
+            $("#send_email_form_2").modal("show");
+            $("#internal_email_booking_id_2").val(booking_id);
             add_data_in_create_email_form(booking_id);
         }
         function send_booking_internal_conversation_email(){ 
-            var to = $("#internal_email_booking_to").val();
-            var cc = $("#internal_email_booking_cc").val();
-            var booking_id = $("#internal_email_booking_id").val();
-            var subject = $("#internal_email_booking_subject").val();
-            var msg = $(" #internal_email_booking_msg").val();
+            var to = $("#internal_email_booking_to_2").val();
+            var cc = $("#internal_email_booking_cc_2").val();
+            var booking_id = $("#internal_email_booking_id_2").val();
+            var subject = $("#internal_email_booking_subject_2").val();
+            var msg = $(" #internal_email_booking_msg_2").val();
             document.getElementById("msg_container").style.display='block';
             document.getElementById("form_container").style.display='none';
             if(booking_id && subject && msg){
@@ -420,11 +420,11 @@
                    data: {'booking_id':booking_id,'subject':subject,'msg':msg,'to':to,'cc':cc},
                    success: function (response) {
                         $("#msg_container").html(response);
-                        $("#internal_email_booking_to").val("");
-                        $("#internal_email_booking_cc").val("");
-                        $("#internal_email_booking_id").val("");
-                        $("#internal_email_booking_subject").val("");
-                        $("#internal_email_booking_msg").val("");
+                        $("#internal_email_booking_to_2").val("");
+                        $("#internal_email_booking_cc_2").val("");
+                        $("#internal_email_booking_id_2").val("");
+                        $("#internal_email_booking_subject_2").val("");
+                        $("#internal_email_booking_msg_2").val("");
                         location.reload();
                   }
                });

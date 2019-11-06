@@ -427,7 +427,7 @@ $str_disabled = "";
                                                 <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required >
                                                     <option selected disabled>Select Appliance Category</option>
                                                     <?php foreach ($category[0] as $key => $appliance_category) { ?>
-                                                    <option <?php if(isset($unit_details[0]['category'])) { if( $appliance_category['category'] == $unit_details[0]['category']) { echo "selected"; }  } ?>
+                                                    <option <?php if(isset($unit_details[0]['category'])) { if(strtoupper(str_replace(" ","",$appliance_category['category'])) == strtoupper(str_replace(" ","",$unit_details[0]['category']))) { echo "selected"; }  } ?>
                                                         ><?php echo $appliance_category['category']; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -439,7 +439,7 @@ $str_disabled = "";
                                                 <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo 'readonly="readonly"'; } ?>>
                                                     <option  selected disabled>Select Appliance Capacity</option>
                                                     <?php foreach ($capacity[0] as $appliance_capacity) { ?>
-                                                    <option <?php if(isset($unit_details[0]['capacity'])) {if($appliance_capacity['capacity'] == $unit_details[0]['capacity']) { echo "selected"; } else{  if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo "disabled"; }} } ?>
+                                                    <option <?php if(isset($unit_details[0]['capacity'])) {if(strtoupper(str_replace(" ","",$appliance_capacity['capacity'])) == strtoupper(str_replace(" ","",$unit_details[0]['capacity']))) { echo "selected"; } else{  if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo "disabled"; }} } ?>
                                                         ><?php echo $appliance_capacity['capacity']; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -1349,7 +1349,7 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     // function to cross check request type of booking with warranty status of booking 
     function check_booking_request()
     {
-        $(".price_checkbox").attr("disabled", false);
+//        $(".price_checkbox").attr("disabled", false);
         if($(".input-model").is(":hidden"))
         {
             var model_number = $(".select-model").val();

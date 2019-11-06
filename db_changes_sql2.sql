@@ -1542,3 +1542,50 @@ INSERT INTO `partner_summary_report_mapping` (`Title`, `sub_query`, `is_default`
 
 --Kajal 11-10-2019
 ALTER TABLE `file_uploads` ADD `amount_paid` DECIMAL(10,2) NOT NULL DEFAULT '0.00' AFTER `result`;
+
+--Kalyani 18-10-2019
+CREATE TABLE `engineer_consumed_spare_details` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(255) NOT NULL,
+  `spare_id` int(11) NOT NULL,
+  `consumed_part_status_id` int(11) DEFAULT NULL,
+  `part_name` varchar(255) DEFAULT NULL,
+  `inventory_id` int(11) DEFAULT NULL,
+  `remarks` varchar(1000) DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `engineer_consumed_spare_details`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `engineer_consumed_spare_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
+
+--Kalyani 31-10-2019 
+UPDATE query_report SET query2 = 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= "2019-08-01" AND internal_status = "Cancelled" AND engineer_booking_action.booking_id in (select DISTINCT booking_id from engineer_booking_action group by booking_id having count(DISTINCT internal_status)=1)' WHERE id = '59';
+UPDATE query_report SET query2 = 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND DATE(closed_date) = CURDATE() AND internal_status = "Cancelled" AND engineer_booking_action.booking_id in (select DISTINCT booking_id from engineer_booking_action group by booking_id having count(DISTINCT internal_status)=1)' WHERE id = '58'
+
+--Gorakh 24-10-2019
+ALTER TABLE `spare_parts_details` ADD `wh_to_partner_defective_shipped_date` TIMESTAMP NULL DEFAULT NULL AFTER `shipped_quantity`;
+
+--Kalyani 01-11-2019
+INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'appliance_installation_video_link', 'Hi %s,\r\nClick on the link to watch Installation demo video of %s link - %s\r\n247around', NULL, '1', '0', CURRENT_TIMESTAMP);
+ALTER TABLE `booking_details` ADD `nrn_approved` INT(2) NOT NULL DEFAULT '0' AFTER `technical_solution`;
+
+
+-- Ankit 04-11-2019
+CREATE TABLE en_vendor_brand_mapping (
+	id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	service_center_id int(11) NOT NULL,
+	partner_id int(11) NOT NULL,
+	active tinyint(1) NOT NULL DEFAULT 0,
+	create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	update_date datetime NULL DEFAULT NULL
+);
+
+CREATE UNIQUE INDEX uni_partner_sf
+ON en_vendor_brand_mapping (service_center_id, partner_id);
+
+ALTER TABLE `service_centres` DROP `is_booking_close_by_app_only`;
+ALTER TABLE `partners` DROP `is_booking_close_by_app_only`;

@@ -1659,7 +1659,7 @@ class Accounting extends CI_Controller {
             $row[] = "<a class='".$partner_inv_not_found."' href='".$inv_href."' target='_blank'>".$data_list['name']."</a>";
         }
         $row[] = $data_list['gst_no'];
-        $row[] = $data_list['invoice_date'];
+        $row[] = $this->miscelleneous->get_formatted_date($data_list['invoice_date']);
         $row[] = $data_list['igst_amount'];
         $row[] = $data_list['cgst_amount'];
         $row[] = $data_list['sgst_amount'];

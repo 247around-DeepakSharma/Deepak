@@ -387,11 +387,27 @@ class invoices_model extends CI_Model {
      */
     function getpartner_invoices($partner_id, $from_date, $to_date, $spare_requested_data = array() ) {
         log_message('info', __FUNCTION__);
-        $s = "";
+        $s = $pending_cond = "";
         if(!empty($spare_requested_data)){
             $u = array_column($spare_requested_data, 'id');
             $s = " OR ( booking_unit_details.id IN(". implode(",", $u).") ) ";
+            $pending_cond = " ( booking_unit_details.id IN(". implode(",", $u).") ) ";
         }
+        
+        $completed_cond = " ( booking_status = 'Completed' AND booking_unit_details.booking_status = 'Completed' AND booking_unit_details.ud_closed_date >= '$from_date' AND booking_unit_details.ud_closed_date < '$to_date' )";
+        
+        $anx_data['annexure'] = $this->getpartner_invoices_statuswise($partner_id, $completed_cond,$s);
+        $anx_data['Completed']['annexure'] = $this->getpartner_invoices_statuswise($partner_id, $completed_cond,'');
+        $anx_data['Pending']['annexure'] = (($pending_cond != "") ? $this->getpartner_invoices_statuswise($partner_id, '',$pending_cond) : array());
+        return $anx_data;
+    }
+    
+    /**
+     * @desc: this method generates partner invoices summary and also details status wise.
+     * @param: partner id , $completed_cond , $pending_cond
+     * @return: Array()
+     */
+    function getpartner_invoices_statuswise($partner_id, $completed_cond, $pending_cond ) {
         $sql1 = "SELECT booking_unit_details.id AS unit_id,"
                 . " CASE WHEN (booking_unit_details.partner_id = '".PAYTM_ID."' ) THEN (SUBSTRING_INDEX(order_id, '-', 1)) ELSE (order_id) END AS order_id, "
                 . " CONCAT('''', booking_unit_details.sub_order_id) as sub_order_id, `booking_details`.booking_id as booking_id, "
@@ -419,11 +435,7 @@ class invoices_model extends CI_Model {
                   AND booking_unit_details.partner_id = partners.id
                   AND partner_invoice_id IS NULL 
                   
-                  AND ( ( booking_status = 'Completed'
-                            AND booking_unit_details.booking_status = 'Completed'
-                            AND booking_unit_details.ud_closed_date >= '$from_date'
-                            AND booking_unit_details.ud_closed_date < '$to_date'
-                        ) $s
+                  AND ( $completed_cond $pending_cond
                     ) 
                ";
 
@@ -921,9 +933,9 @@ class invoices_model extends CI_Model {
         if (!empty($result_data['result'])) {
             $anx_data = $this->invoices_model->getpartner_invoices($partner_id, $from_date, $to_date, $result_data['spare_requested_data']);
             
-            if(!empty($anx_data)){
+            if(!empty($anx_data['annexure'])){
                 $result_data['penalty_discount'] = array();
-                $penalty_data = $this->get_partner_invoice_tat_data($anx_data, $partner_id);
+                $penalty_data = $this->get_partner_invoice_tat_data($anx_data['annexure'], $partner_id);
                 if (!empty($penalty_data)) {
                     $penalty_price = (array_sum(array_column($penalty_data['tat'], 'penalty_amount')));
                     $penalty_tat = $penalty_data['tat'];
@@ -948,6 +960,10 @@ class invoices_model extends CI_Model {
 
             $data['booking'] = $response['booking'];
             $data['meta'] = $response['meta'];
+            // --- Completed Bookings ------
+            $data['Completed']['annexure'] = $anx_data['Completed']['annexure'];
+            // --- Pending Bookings ------
+            $data['Pending']['annexure'] = $anx_data['Pending']['annexure'];
             $data['courier'] = $result_data['courier'];
             $data['upcountry'] = $result_data['upcountry'];
             $data['warehouse_courier'] = $result_data['warehouse_courier'];
@@ -957,7 +973,7 @@ class invoices_model extends CI_Model {
             $data['defective_part_by_wh'] = $result_data['defective_part_by_wh'];
             $data['packaging_rate'] = $result_data['packaging_rate'];
             $data['packaging_quantity'] = $result_data['packaging_quantity'];
-            $data['annexure'] = $anx_data;
+            $data['annexure'] = $anx_data['annexure'];
             $data['penalty_discount'] = $penalty_tat;
             $data['penalty_tat_count'] = $penalty_count;
             $data['penalty_booking_data'] = $penalty_data['penalty_booking_data'];
@@ -1167,7 +1183,7 @@ class invoices_model extends CI_Model {
                     sc.address as company_address, sc.owner_phone_1 as owner_phone_1,
                     sc.state, gst_no as gst_number
                     
-                    FROM brackets,service_centres as sc  WHERE brackets.received_date >= "' . $from_date . '" 
+                    FROM brackets,service_centres as sc  WHERE brackets.received_date >= "' . date('Y-m-d', strtotime($from_date)) . '" 
                     AND brackets.received_date <= "' . $to_date . '" AND brackets.is_received= "1" 
                     AND brackets.order_received_from = "' . $vendor_id . '" 
                     AND invoice_id IS NULL
@@ -1385,7 +1401,7 @@ class invoices_model extends CI_Model {
         // Calculate Upcountry booking details
         $upcountry_data = $this->upcountry_model->upcountry_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
         $debit_penalty = $this->penalty_model->add_penalty_in_invoice($vendor_id, $from_date, $to_date, "", $is_regenerate);
-        $courier = array();//$this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
+        $courier = $this->get_sf_courier_charges($vendor_id, $from_date, $to_date, $is_regenerate);
         $credit_penalty = $this->penalty_model->get_removed_penalty($vendor_id, $from_date, $to_date, "");
         $closed_date = "date_format(closed_date,'%d/%m/%Y') as closed_date";
         $misc_select = '"Misc" AS unit_id, "Completed" As internal_status,closed_date as closed_booking_date,"" As rating_stars,'
@@ -2133,17 +2149,15 @@ class invoices_model extends CI_Model {
         }
         $sql = " SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(bd.booking_id) as booking_id, 
                  SUM(sp.courier_charges_by_sf) as courier_charges_by_sf 
-                FROM  booking_details as bd, booking_unit_details as ud,
+                FROM  booking_details as bd,
                 spare_parts_details as sp
                 WHERE 
-                ud.booking_status =  '"._247AROUND_COMPLETED."'
+                bd.current_status =  '"._247AROUND_COMPLETED."'
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
                 AND sp.booking_id = bd.booking_id
-                AND bd.booking_id = ud.booking_id
-                AND ud.ud_closed_date >=  '$from_date'
-                AND ud.ud_closed_date <  '$to_date'
-                AND pay_to_sf = '1'
+                AND bd.closed_date >=  '$from_date'
+                AND bd.closed_date <  '$to_date'
                 AND `approved_defective_parts_by_partner` = 1
                 AND around_pickup_from_service_center = 0
                 $invoice_check

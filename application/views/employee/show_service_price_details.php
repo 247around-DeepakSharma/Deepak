@@ -1,4 +1,4 @@
-<script>$(".main_search").css("display","none");</script>
+<!--<script>$(".main_search").css("display","none");</script>-->
 
 <script src="<?php echo base_url();?>js/select2_multi_checkbox.js?v=3"></script>
 <div id="page-wrapper" >

@@ -145,7 +145,7 @@
                                                 <select type="text" class="form-control appliance_category"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_category_1" name="appliance_category[]"  onChange="getCapacityForCategory(this.value, this.id);" required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> style="background: #eee;pointer-events: none;">
                                                     <option selected disabled>Select Appliance Category</option>
                                                     <?php foreach ($category[0] as $key => $appliance_category) { ?>
-                                                    <option <?php if(isset($unit_details[0]['category'])) { if( $appliance_category['category'] == $unit_details[0]['category']) { echo "selected"; } } ?>><?php echo $appliance_category['category']; ?></option>
+                                                    <option <?php if(isset($unit_details[0]['category'])) { if(strtoupper(str_replace(" ","",$appliance_category['category'])) == strtoupper(str_replace(" ","",$unit_details[0]['category']))) { echo "selected"; } } ?>><?php echo $appliance_category['category']; ?></option>
                                                     <?php } ?>
                                                 </select>
                                             </div>
@@ -156,7 +156,7 @@
                                                 <select type="text" class="form-control appliance_capacity"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="appliance_capacity_1" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);getModelForServiceCategoryCapacity(this.id);" <?php if($is_repeat && (isset($unit_details[0]['capacity']) && (trim($unit_details[0]['capacity']) !== ''))){ echo 'readonly="readonly"'; } ?> style="background: #eee;pointer-events: none;">
                                                     <option  selected disabled>Select Appliance Capacity</option>
                                                     <?php foreach ($capacity[0] as $appliance_capacity) { ?>
-                                                    <option  <?php if(isset($unit_details[0]['capacity'])) {if($appliance_capacity['capacity'] == $unit_details[0]['capacity']) { echo "selected"; }  } ?>  ><?php echo $appliance_capacity['capacity']; ?></option>
+                                                    <option  <?php if(isset($unit_details[0]['capacity'])) {if(strtoupper(str_replace(" ","",$appliance_capacity['capacity'])) == strtoupper(str_replace(" ","",$unit_details[0]['capacity']))) { echo "selected"; }  } ?>  ><?php echo $appliance_capacity['capacity']; ?></option>
                                                     <?php } ?>
                                                 </select>
                                             </div>
@@ -315,7 +315,7 @@
                                                         <option disabled>Select Appliance Category</option>
                                                         <?php if(!empty($category)){ 
                                                         foreach ($category[$key] as  $appliance_category) { ?>
-                                                        <option <?php if( $appliance_category['category'] == $booking_unit_details['category']) { echo "selected"; } else{ echo "disabled";} ?>><?php echo $appliance_category['category']; ?></option>
+                                                        <option <?php if(strtoupper(str_replace(" ","",$appliance_category['category'])) == strtoupper(str_replace(" ","",$booking_unit_details['category']))) { echo "selected"; } else{ echo "disabled";} ?>><?php echo $appliance_category['category']; ?></option>
                                                         <?php } }?>
                                                     </select>
                                                 </div>
@@ -326,7 +326,7 @@
                                                     <select type="text" class="form-control appliance_capacity"   id="<?php echo "appliance_capacity_".$number;?>" name="appliance_capacity[]"  onChange="getPricesForCategoryCapacity(this.id);" style="background: #eee;pointer-events: none;">
                                                         <option  disabled>Select Appliance Capacity</option>
                                                         <?php foreach ($capacity[$key] as  $value) {  ?>
-                                                        <option <?php if($value['capacity'] == $booking_unit_details['capacity']){ echo "selected";} else{  echo "disabled"; }?> ><?php echo $value['capacity'];?></option>
+                                                        <option <?php if(strtoupper(str_replace(" ","",$value['capacity'])) == strtoupper(str_replace(" ","",$booking_unit_details['capacity']))){ echo "selected";} else{  echo "disabled"; }?> ><?php echo $value['capacity'];?></option>
                                                         <?php   } ?>
                                                     </select>
                                                 </div>
@@ -486,7 +486,7 @@
 </script>
 <script>
     check_pincode();
-    if($("#model_not_mapped").val() != 1)
+    if(($("#model_not_mapped").val() != 1) && ($("#is_spare_requested").val() == ""))
     {
         $(".select-model").select2();
     }
@@ -850,5 +850,12 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     {
     color: red;
     }
+    
+    <?php if(!empty($str_disabled)) { ?> 
+    .price_checkbox {
+        pointer-events : none !important;
+        background : #eee !important;
+    }    
+    <?php } ?>
 </style>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>

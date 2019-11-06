@@ -2029,7 +2029,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
            'credit_generated'=>0,
            'vertical'=>_247AROUND_SERVICE_STRING,
            'category'=>_247AROUND_INSTALLATION_AND_REPAIR_STRING,
-           '`sub-category`'=>_247AROUND_GST_DEBIT_NOTE_STRING,
+           'sub_category'=>_247AROUND_GST_DEBIT_NOTE_STRING,
         );
         $post['group_by'] = 'vendor_partner_id';
         $invoices = $this->invoices_model->searchInvoicesdata($select, $post);
@@ -2048,7 +2048,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                $gst_amt =  sprintf("%.2f",($value['igst_tax_amount'] + $value['cgst_tax_amount'] + $value['sgst_tax_amount']));
                $taxable_value =  sprintf("%.2f",($value['total_amount_collected'] - $gst_amt));
                $total_amount_collected = sprintf("%.2f", $value['total_amount_collected']);
-               $this->table->add_row($value['invoice_id'], $value['invoice_date'], $taxable_value, $value['cgst_tax_amount'], $value['sgst_tax_amount'], $value['igst_tax_amount'], $gst_amt, $total_amount_collected);
+               $this->table->add_row($value['invoice_id'], $this->miscelleneous->get_formatted_date($value['invoice_date']), $taxable_value, $value['cgst_tax_amount'], $value['sgst_tax_amount'], $value['igst_tax_amount'], $gst_amt, $total_amount_collected);
             }
             $email_template = $this->booking_model->get_booking_email_template(VENDOR_GST_RETURN_WARNING);
             if(!empty($email_template)){
@@ -2562,6 +2562,39 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         $res1 = 0;
         system(" chmod 777 " . $details_excel, $res1);
         return $details_excel;
+    }
+    
+    /**
+     * @desc This function is used to send sms sharp bookings 
+     */
+    function sharp_vedio_sms_on_booking_creation() {
+        $select = "booking_id, booking_primary_contact_no, users.name, users.user_id as user_id";
+        $to_time = date("Y-m-d H:i:s");
+        $from_time = date("Y-m-d H:i:s", strtotime('-1 hour'));
+        $where = array(
+                    "booking_details.create_date >= '".$from_time."' AND booking_details.create_date <= '".$to_time."'" => NULL,
+                    "partner_id" => SHARP_ID,
+                    "service_id" => _247AROUND_WATER_PURIFIER_SERVICE_ID,
+                    "request_type" => FREE_INSTALLATION_REQUEST
+                 );
+        $bookings = $this->booking_model->get_booking_details($select, $where, true);
+        if(!empty($bookings)){
+            foreach ($bookings as $key => $value) {
+                $sms_template = $this->vendor_model->get_sms_template("tag", array("tag"=>APPLIANCE_INSTALLATION_VIDEO_LINK, "active" => 1));
+                if(!empty($sms_template)){ 
+                    $sms['tag'] = APPLIANCE_INSTALLATION_VIDEO_LINK;
+                    $sms['phone_no'] = $value['booking_primary_contact_no'];
+                    $sms['booking_id'] = $value['booking_id'];
+                    $sms['type'] = "user";
+                    $sms['type_id'] = $value['user_id'];
+                    $sms['smsData']['user_name'] = $value['name'];
+                    $sms['smsData']['appliance_name'] = "Water Purifier";
+                    $sms['smsData']['link'] = SHARP_WATER_PURIFIER_INSTALLATION_VIDEO;
+                    $this->notify->send_sms_msg91($sms);
+                }
+            }
+        }
+        
     }
 
 }

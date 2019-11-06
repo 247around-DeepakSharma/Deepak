@@ -91,8 +91,10 @@ class reusable_model extends CI_Model {
     }
     
     function insert_into_table($table,$data){
-        $this->db->insert_ignore($table, $data);
-        return $this->db->insert_id();
+        if(!empty($data) && !empty($table)){
+            $this->db->insert_ignore($table, $data);
+            return $this->db->insert_id();
+        }
     }
     
      function insert_batch($table,$data){
@@ -185,6 +187,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE employee_r
      */
     function get_datatable_data($table, $select='*', $post) {
         $this->_get_datatable_data_list($table, $select, $post);
+        $this->db->_protect_identifiers = false;
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
         }

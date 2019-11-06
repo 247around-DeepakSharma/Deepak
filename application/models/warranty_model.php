@@ -169,4 +169,75 @@ class Warranty_model extends CI_Model {
         $query = $this->db->get();
         return $query->result_array();
     }
+    
+    /**
+     This function returns mpodels mapped to plans
+     * @author Prity Sharma
+     * @date 31-10-2019
+     * @return array 
+     */
+    function getPlanWiseModels($where, $select, $order_by, $where_in = array(), $join_array = array(), $join_type_array = array(), $result_array = true){        
+        $this->db->distinct();
+        $this->db->select($select);        
+        if(!empty($join_array)){
+            foreach ($join_array as $tableName => $joinCondition){
+                if(!empty($join_type_array) && array_key_exists($tableName, $join_type_array)){
+                    $this->db->join($tableName,$joinCondition,$join_type_array[$tableName]);
+                }
+                else{
+                    $this->db->join($tableName,$joinCondition);
+                }
+            }
+        }
+        
+        if(!empty($where))
+        {
+            $this->db->where($where);
+        }
+        
+        if(!empty($where_in))
+        {
+            foreach($where_in as $key => $values){
+                $this->db->where_in($key, $values);
+            }
+        }
+        $this->db->order_by($order_by);
+        $query = $this->db->get('warranty_plans');
+        if(!$result_array)
+        {
+            return $query->result();
+        }
+    	return $query->result_array();
+    }  
+    
+    function selectPlans($format = null) {
+        $query = $this->db->query("Select plan_id,plan_name,is_active from warranty_plans where is_active = 1 and plan_name <> '' order by plan_name");
+        return $query->result();
+    }
+    
+    function selectModels($format = null) {
+        $query = $this->db->query("Select id,model_number,service_id,active from appliance_model_details where active = 1 and model_number <> '' order by model_number");
+        return $query->result();
+    }
+    
+    function map_model_to_plan($arrModels)
+    {
+        log_message ('info', __METHOD__);
+        $this->db->insert_ignore('warranty_plan_model_mapping', $arrModels);
+        return $this->db->insert_id();
+    }
+    
+    function remove_model_from_plan($mapping_id)
+    {
+        log_message ('info', __METHOD__);
+        $this->db->where('id', $mapping_id);
+        $this->db->update('warranty_plan_model_mapping', ['is_active' => 0]);
+    }
+    
+    function activate_model_to_plan($mapping_id)
+    {
+        log_message ('info', __METHOD__);
+        $this->db->where('id', $mapping_id);
+        $this->db->update('warranty_plan_model_mapping', ['is_active' => 1]);
+    }
 }

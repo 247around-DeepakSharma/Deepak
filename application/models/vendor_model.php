@@ -743,7 +743,9 @@ class vendor_model extends CI_Model {
         }
         if(!empty($whereIN)){
             foreach ($whereIN as $fieldName=>$conditionArray){
-                    $this->db->where_in($fieldName, $conditionArray);
+                    if(!empty($conditionArray)){
+                        $this->db->where_in($fieldName, $conditionArray);
+                    }                    
             }
         }
         $this->db->order_by($order_by);
@@ -2266,6 +2268,13 @@ class vendor_model extends CI_Model {
                 . "GROUP BY assigned_vendor_id ORDER BY COUNT(booking_id) LIMIT 1";
         $query = $this->db->query($sql);
         return $query->result_array();
+    }
+    
+     function get_sms_template($select = "*", $where = array()) {
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('sms_template');
+        return $query->result();
     }
 }
 

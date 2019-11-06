@@ -1362,6 +1362,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
     }
     if($this->session->userdata('partner_id')){
+        $tempArray = [];
         if(!empty($rmArray)){
             foreach($rmArray as $RM=>$escalation){
                 $tempArray[$escalation['zone']]= array("esclation_per"=>round((($escalation['escalation']*100)/$escalation['bookings']),2),"rm_id"=>$RM,
@@ -2164,7 +2165,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp, 'TAT_GREATER_THAN_3', SORT_DESC);
             }
             else{
-                $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp, 'TAT_2', SORT_ASC);
+//                $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp, 'TAT_2', SORT_ASC);
+                $sfData = $this->miscelleneous->multi_array_sort_by_key($sfDataTemp['TAT'], 'TAT_16', SORT_DESC);
+                // SHift Total from top to Bottom
+                $arr_total = array_shift($sfData);
+                array_push($sfData, $arr_total);
+                $sfData['TAT'] = $sfData;
             }
         }
         return $sfData;
@@ -2201,7 +2207,12 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 $stateData = $this->miscelleneous->multi_array_sort_by_key($stateDataTemp, 'TAT_GREATER_THAN_3', SORT_DESC);
             }
             else{
-                $stateData = $this->miscelleneous->multi_array_sort_by_key($stateDataTemp, 'TAT_2', SORT_ASC);
+//                $stateData = $this->miscelleneous->multi_array_sort_by_key($stateDataTemp, 'TAT_2', SORT_ASC);
+                $stateData = $this->miscelleneous->multi_array_sort_by_key($stateDataTemp['TAT'], 'TAT_16', SORT_DESC);
+                // SHift Total from top to Bottom
+                $arr_total = array_shift($stateData);
+                array_push($stateData, $arr_total);
+                $stateData['TAT'] = $stateData;
             }
         }
         return $stateData;
@@ -2323,6 +2334,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $data_state = json_decode($this->input->post('data_state'),true);
         }
         $csv ="";
+        $values = [];
         foreach($data as $values){
             $tempArray = array();
             $entity = $values['entity'];

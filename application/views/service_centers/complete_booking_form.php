@@ -261,6 +261,7 @@
                                                         $customer_basic_charge = 0;
                                                         $addition_service_charge = 0;
                                                         $parts_cost = 0;
+                                                        $parts_cost_service_charge = 0;
                                                         foreach ($unit_details['quantity'] as $key => $price) {
                                                             if($price['booking_status'] != _247AROUND_CANCELLED){ 
                                                             ?>
@@ -334,6 +335,12 @@
                                                                             $parts_cost = $price['en_parts_cost'];
                                                                            }
                                                                         }
+                                                                        
+                                                                        if (($price['product_or_services'] == "Product") && $price['customer_net_payable'] > 0) { 
+                                                                           if(isset($price['en_service_charge'])){
+                                                                            $parts_cost_service_charge = $price['en_service_charge'];
+                                                                           }
+                                                                        }
                                                                     }
                                                                     
                                                                     
@@ -382,7 +389,7 @@
                                                             <input  id="<?php echo "basic_charge".$count; ?>" type="<?php if ($price['product_or_services'] == "Product"
                                                                 && $price['customer_net_payable'] > 0){ echo "text"; } 
                                                                 else { echo "hidden";}?>" class="form-control cost" 
-                                                                name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "0">
+                                                                name="<?php echo "customer_basic_charge[" . $price['unit_id'] . "]" ?>"  value = "<?php echo $parts_cost_service_charge; ?>">
                                                             <?php } ?>
                                                             <input id="<?php echo "parts_cost".$count; ?>"  type="<?php if($price['product_or_services'] != "Service"){ 
                                                                 if ($price['product_or_services'] == "Product" && $price['customer_net_payable'] == 0) { 
@@ -514,12 +521,22 @@
                                         <td><?php echo $spare_part_detail['status']?></td>
                                         <td>
                                             <input type="hidden" name="spare_qty[<?php echo $spare_part_detail['id']; ?>]" value="<?php echo $spare_part_detail['quantity']; ?>">
-                                            <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" value="" id="wrong_part_<?php echo $spare_part_detail['id']; ?>">
+                                            <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" id="wrong_part_<?php echo $spare_part_detail['id']; ?>" value='<?php
+                                            if(isset($en_consumpton_details)){
+                                                echo $en_consumpton_details[$spare_part_detail['id']]['wrong_part_data']; 
+                                            } 
+                                            ?>'>
                                             <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
                                                 <option value="" selected disabled>Select Reason</option>
                                                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
                                                     if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
-                                                    <option value="<?php echo $status['id']; ?>" data-shipped_inventory_id="<?php echo $spare_part_detail['shipped_inventory_id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
+                                                    <option value="<?php echo $status['id']; ?>" data-shipped_inventory_id="<?php echo $spare_part_detail['shipped_inventory_id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"
+                                                    <?php if(isset($en_consumpton_details)){
+                                                        if($en_consumpton_details[$spare_part_detail['id']]['consumption_status_id'] == $status['id']){
+                                                           echo "selected"; 
+                                                        }
+                                                    } ?>
+                                                    ><?php echo $status['consumed_status']; ?></option>
                                                 <?php $description_no++; } ?>
                                             </select>
                                         </td>
@@ -608,6 +625,7 @@
                     <input type="hidden" id="engineer_symptom" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_symptom_id'])){ echo $bookng_unit_details[0]['en_symptom_id']; }else{ echo 0; } ?>">
                     <input type="hidden" id="engineer_defect" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_defect_id'])){ if(!is_null($bookng_unit_details[0]['en_defect_id'])){ echo $bookng_unit_details[0]['en_defect_id']; }else{ echo 0; } }else{ echo 0; } ?>">
                     <input type="hidden" id="engineer_solution" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_solution_id'])){if(!is_null($bookng_unit_details[0]['en_solution_id'])){ echo $bookng_unit_details[0]['en_solution_id']; }else{ echo 0; }}else{ echo 0; } ?>">
+                    <input type="hidden" name="en_closed_date" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_closed_date'])){if(!is_null($bookng_unit_details[0]['en_closed_date'])){ echo $bookng_unit_details[0]['en_closed_date']; }} ?>">
                     <div class="row">
                         <?php 
                         if($booking_history[0]['is_upcountry'] == '1' 
@@ -758,8 +776,8 @@
                     for(var i=0;i<response.length;i++)
                     {
                         str+="<option value="+response[i]['defect_id']; 
-                        if($("#engineer_defect").val() !== 0){
-                            if($("#engineer_defect").val() === response[i]['defect_id']){
+                        if($("#engineer_defect").val()){
+                            if($("#engineer_defect").val() == response[i]['defect_id']){
                               str+=" selected";
                             }
                         }
@@ -790,8 +808,8 @@
                     for(var i=0;i<response.length;i++)
                     {
                         str+="<option value="+response[i]['solution_id'];
-                        if($("#engineer_solution").val() !== 0){
-                            if($("#engineer_solution").val() === response[i]['solution_id']){
+                        if($("#engineer_solution").val()){
+                            if($("#engineer_solution").val() == response[i]['solution_id']){
                               str+=" selected";
                             }
                         }
@@ -1402,6 +1420,10 @@
              disabled : true
          }).datepicker('show');
     }
+    
+    $(document).on('change',"#wrong_part", function() {
+        $('#part_number').val($('#wrong_part').children("option:selected").data('part_number'));
+    });
 </script>
 <!-- end alert message -->
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>

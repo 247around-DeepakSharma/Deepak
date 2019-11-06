@@ -118,7 +118,7 @@
                    <div class="form-group col-md-3" style="margin: 0px;padding: 0px 1px;width: 159px;">
                        <label for="" style="color:#fff">Dependency</label>
                        <select class="form-control"  ng-model="status" id="status" name="status[]" multiple="">
-                                <option value="247Around" <?php if(!empty($filters['status'])){if(in_array("247Around", $filters['status'])){echo 'selected="selected"';}} ?>>Admin</option>
+                                <option value="247Around:Warehouse" <?php if(!empty($filters['status'])){if(in_array("247Around", $filters['status'])){echo 'selected="selected"';}} ?>>Admin</option>
                                 <option value="Partner" <?php if(!empty($filters['status'])){if(in_array("Partner", $filters['status'])){echo 'selected="selected"';}} ?>>Partner</option>  
                                 <option value="Vendor:not_define" <?php if(!empty($filters['status'])){if(in_array("Vendor:not_define", $filters['status'])){echo 'selected="selected"';}} ?>>SF</option>  
                        </select>
@@ -180,16 +180,16 @@
                             <th>S.no</th>
                             <th>States</th>
                             <?php if ($is_pending) {?>
-                             <th> >D3</th>
+                             <th> >Day3</th>
                              <?php  } ?>
-                            <th>D0</th>
-                            <th>D1</th>
-                            <th>D2</th>
-                            <th>D3</th>
-                            <th>D4</th>
-                            <th>D5 - D7</th>
-                             <th>D8 - D15</th>
-                             <th>> D15</th>
+                            <th>Day0</th>
+                            <th>Day1</th>
+                            <th>Day2</th>
+                            <th>Day3</th>
+                            <th>Day4</th>
+                            <th>Day5 - Day7</th>
+                             <th>Day8 - Day15</th>
+                             <th>> Day15</th>
                               <?php if ($is_pending) {?>
                             <th>Total</th>
                              <?php  } ?>
@@ -199,9 +199,11 @@
         <?php
          if(!$is_pending){
              $stateTemp = $state;
-             $state = $state['TAT'];
-             $sfTemp = $sf;
-             $sf = $sf['TAT'];
+             if(isset($state['TAT'])){
+                 $state = $state['TAT'];
+                 $sfTemp = $sf;
+                 $sf = $sf['TAT'];
+             }
          }
         $index = 0;
         foreach($state as $key => $values){
@@ -323,18 +325,18 @@
                             <th>Service Centers</th>
                             <th>State</th>
                             <?php if ($is_pending) {?>
-                             <th> >D3</th>
+                             <th> >Day3</th>
                              <?php  } ?>
-                            <th>D0</th>
-                            <th>D1</th>
-                            <th>D2</th>
-                            <th>D3</th>
-                            <th>D4</th>
-                            <th>D5 - D7</th>
-                             <th>D8 - D15</th>
-                             <th>> D15</th>
+                            <th>Day0</th>
+                            <th>Day1</th>
+                            <th>Day2</th>
+                            <th>Day3</th>
+                            <th>Day4</th>
+                            <th>Day5 - Day7</th>
+                             <th>Day8 - Day15</th>
+                             <th>> Day15</th>
                              <?php if ($is_pending) {?>
-                             <th>> Total</th>
+                             <th>Total</th>
                              <?php  } ?>
                         </tr>
     </thead>
@@ -457,7 +459,9 @@
             <?php
             }
 ?>
-                
+        <?php if ($is_pending) {?>
+            <td><?php echo $values['Total_Pending'] ."<br>(".$values['TAT_total_per']."%)";?></td>
+        <?php  } ?>        
         </tr>
         <?php
         }

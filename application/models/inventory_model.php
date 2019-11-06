@@ -809,8 +809,8 @@ class Inventory_model extends CI_Model {
         $this->db->from('inventory_master_list');
         $this->db->join('services', 'inventory_master_list.service_id = services.id','left');
         $this->db->join('alternate_inventory_set', 'inventory_master_list.inventory_id = alternate_inventory_set.inventory_id','left');
-        $this->db->join('inventory_model_mapping', 'inventory_master_list.inventory_id = inventory_model_mapping.inventory_id','left');
-        $this->db->join('appliance_model_details', 'inventory_model_mapping.model_number_id = appliance_model_details.id','left');
+        //$this->db->join('inventory_model_mapping', 'inventory_master_list.inventory_id = inventory_model_mapping.inventory_id','left');
+        $this->db->join('appliance_model_details', 'appliance_model_details.id = alternate_inventory_set.model_id','left');
         if (!empty($post['where'])) {
             $this->db->where($post['where']);
         }
@@ -848,7 +848,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     function get_alternate_inventory_master_list($post, $select = "",$is_array = false) {
-        $this->_get_alternate_inventory_master_list($post, $select);
+        $this->_get_alternate_inventory_master_list($post, $select);       
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
         }
@@ -1660,9 +1660,10 @@ class Inventory_model extends CI_Model {
         $this->db->join('employee', "employee.id = agent_filters.agent_id", "left"); // new query for AM
         //$this->db->join('employee','partners.account_manager_id = employee.id'); // old query for AM
         $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
-        $this->db->join('service_centres sc', 'spare_parts_details.partner_id=sc.id', 'left');
-        $this->db->join('services', 'services.id=booking_details.service_id', 'left');
-
+        $this->db->join('service_centres sc', 'spare_parts_details.partner_id = sc.id', 'left');
+        $this->db->join('services', 'services.id = booking_details.service_id', 'left');
+        $this->db->join('courier_company_invoice_details as cci', 'cci.id = spare_parts_details.awb_by_sf', 'left');
+        
         if (!empty($where)) {
             $this->db->where($where, false);
         }
@@ -2339,7 +2340,7 @@ class Inventory_model extends CI_Model {
         }
         
     }
-    
+        
     /**
      * @Desc: This function is used to get inventory mapped model number
      * @params: $select string

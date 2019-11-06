@@ -115,12 +115,16 @@
                         name="part[<?php echo ($key +$count); ?>][service_id]" />
                     <input type="hidden" value="<?php echo $value['partner_id']; ?>" id="<?php echo "onpartnerId_".($key +$count);?>" 
                         name="part[<?php echo ($key +$count); ?>][partner_id]" />
+                    <input type="hidden" name="invoice_tag" value="<?php echo (($value['part_warranty_status'] == 1)?IN_WARRANTY:OUT_OF_WARRANTY); ?>"> 
 
                     <input type="hidden" value="<?php echo $inventory_id; ?>" id="<?php echo "oninventoryId_".($key +$count);?>" 
                         name="part[<?php echo ($key +$count); ?>][inventory_id]" />
                     
                      <input type="hidden" value="<?php echo $inventory_id; ?>" id="<?php echo "onrequestedInventoryId_".($key +$count);?>" 
                         name="part[<?php echo ($key +$count); ?>][requested_inventory_id]" />
+                     
+                     <input type="hidden" value="<?php echo $value['request_type']; ?>" 
+                        name="part[<?php echo ($key +$count); ?>][request_type]" />
                      
                      <input type="hidden" value="<?php echo $type; ?>" id="<?php echo "onspareType_".($key +$count);?>" 
                         name="part[<?php echo ($key +$count); ?>][type]" />
@@ -230,10 +234,12 @@
                             <input type="hidden" value="<?php echo $data[0]['booking_id']; ?>" id="onbookingID" />
                             <input type="hidden" value="<?php echo $data[0]['service_id']; ?>" id="onserviceId"  />
                             <input type="hidden" value="<?php echo $data[0]['partner_id']; ?>" id="onpartnerId" />
+                            <input type="hidden" name="invoice_tag" value="<?php echo (($data[0]['part_warranty_status'] == 1)?IN_WARRANTY:OUT_OF_WARRANTY); ?>"> 
 
                             <input type="hidden" id="onspareType"  />
                             <input type="hidden" value="" id="onrequestedInventoryId" />
                             <input type="hidden" value="" id="oninventoryId" />
+                            <input type="hidden" value="<?php echo $value['request_type']; ?>" id="request_type" />
                             <input type="hidden" value="new_spare_id" id="onspareID"  />
                             <div class="form-group">
                                 <label for="ontotal_amount" class="col-md-4">Total Amount</label>

@@ -137,7 +137,7 @@ function(isConfirm) {
                                 $('#reject_'+id).html("<div>Reject</div>");
                             }  
 
-                            if(response === 'success'){
+                            if($.trim(response) === 'success'){
                              //   alert("Details has been updated successfully");
 
                                  swal({title: verify, text: "SF Bank Details are  "+verify, type: "success"},
@@ -146,7 +146,7 @@ function(isConfirm) {
                                  }
                                  );
                                 $('#'+id+'_details').hide();
-                            }else if(response === 'fail'){
+                            }else if($.trim(response) === 'fail'){
                                swal("Error", "Error in updating Bank Details", "error");
                             }
                         }

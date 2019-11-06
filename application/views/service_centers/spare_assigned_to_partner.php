@@ -226,7 +226,7 @@ if ($this->uri->segment(3)) {
 
     $(".challan_not_generated").click(function(){
 
-       swal("Not able to download challan", "Challan was not generated. Try to complete booking once again or contact 247Around.");
+       swal("Not able to download challan", "Challan was not generated. Try to complete booking once again.");
 
     });
 
@@ -234,9 +234,10 @@ if ($this->uri->segment(3)) {
         swal("Not able to download GST declaration", "GST/Signature file file not available .");
     })  ;
 
-$("#on_partner1").DataTable({
+$("#on_partner").DataTable({
     "pageLength": 500,
     "lengthMenu": [[500, 1000,2000,5000,-1], [500, 1000,2000,5000, "All"]],
+    
 });
 
     function downloadList(){

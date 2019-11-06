@@ -133,6 +133,7 @@ $route['service_center/reject_defective_part/(:any)/(:any)'] = 'employee/service
 $route['service_center/get_shipped_parts_list'] = 'employee/service_centers/get_shipped_parts_list_by_warehouse';
 $route['service_center/get_shipped_parts_list/(:any)'] = 'employee/service_centers/get_shipped_parts_list_by_warehouse/$1';
 $route['service_center/print_all'] = 'employee/service_centers/print_all';
+$route['service_center/forcefully_sf_challan/(:any)/(:any)'] = 'employee/service_centers/forcefully_generate_sf_challan/$1/$2';
 $route['service_center/acknowledge_received_defective_parts/(:any)/(:any)'] = 'employee/service_centers/acknowledge_received_defective_parts/$1/$2';
 $route['service_center/approved_defective_parts_booking_by_warehouse'] = 'employee/service_centers/get_approved_defective_parts_booking_by_warehouse';
 $route['service_center/approved_defective_parts_booking_by_warehouse/(:any)'] = 'employee/service_centers/get_approved_defective_parts_booking_by_warehouse/$1';

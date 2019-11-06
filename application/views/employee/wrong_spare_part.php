@@ -9,6 +9,7 @@
         <b>Booking ID</b>
     </div>    
     <div class="col-md-9">
+        <input type="hidden" name="service" id="service" value="<?php echo $service_id;?>">
         <input type="text" class="form-control" name="booking_id" value="<?php echo $booking_id; ?>" readonly="readonly">
     </div>    
 </div>
@@ -22,15 +23,26 @@
         <select name="wrong_part" id="wrong_part" class="form-control" style="width:100%;">
             <option value="" selected disabled>Select Wrong Part</option>
             <?php foreach($parts as $part) { ?>
-            <option value="<?php echo $part['inventory_id']; ?>"><?php echo $part['part_name']; ?></option>
+            <option data-part_number="<?php echo $part['part_number']; ?>" value="<?php echo $part['inventory_id']; ?>"><?php echo $part['part_name']; ?></option>
             <?php } ?>
         </select>
+        
         <?php } else { ?>
         <input type="text" name="wrong_part" id="non_inventory_wrong_part" style="width:100%;" class="form-control">
         <?php } ?>
     </div>    
 </div>
 
+<?php if(!empty($shipped_inventory_id)) { ?>
+    <div class="row form-group">
+        <div class="col-md-3">
+            <b>Part Number</b>
+        </div>
+        <div class="col-md-9">
+            <input type="text" class="form-control" id="part_number" name="wrong-part-number" width="100%" readonly="readonly"> 
+        </div>
+    </div>
+<?php } ?>
 <div class="row form-group">
     <div class="col-md-3">
         <b>Remarks <span style="color:red;">*</span></b>

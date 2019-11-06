@@ -88,16 +88,16 @@
                             <li role="presentation"><a href="#estimate_cost_requested" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Quote Requested</a></li>
                             <li role="presentation" ><a href="#estimate_cost_given" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Quote Given</a></li>
                             <li role="presentation" class="active"><a href="#spare_parts_requested" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested <span id="total_unapprove"></span></a></li>
-                             <li role="presentation" ><a href="#spare_parts_requested_approved" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested (Approved)</a></li>
+                            <li role="presentation" ><a href="#spare_parts_requested_approved" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested (Approved)</a></li>
                             <li role="presentation" ><a href="#spare_parts_requested_rejected" aria-controls="spare_parts_requested" class="spare_parts_tabs" role="tab" data-toggle="tab">Parts Requested (Rejected)</a></li>
                             <li role="presentation"><a href="#oow_part_shipped" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part(Pending on Approval)</a></li>
                             <li role="presentation"><a href="#partner_shipped_part" aria-controls="shipped" class="spare_parts_tabs" role="tab" data-toggle="tab">Partner Shipped Part</a></li>
                             <li role="presentation"><a href="#sf_received_part" aria-controls="delivered" class="spare_parts_tabs" role="tab" data-toggle="tab">SF Received Part</a></li>
+                            <li role="presentation" ><a href="#courier_lost_spare_parts" aria-controls="courier_lost_spare_parts" class="spare_parts_tabs" role="tab" data-toggle="tab">Courier Lost</a></li>
                             <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" id="pending_defective_part" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Part Pending</a></li>
                             <li role="presentation"><a href="#defective_part_rejected_by_partner" aria-controls="defective_part_rejected_by_partner" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Part Rejected By Partner</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF" aria-controls="defective_part_shipped_by_SF" role="tab" class="spare_parts_tabs" data-toggle="tab">Defective Part Shipped By SF</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF_approved" aria-controls="defective_part_shipped_by_SF" class="spare_parts_tabs" role="tab" data-toggle="tab">Approved Defective Part By Admin</a></li>
-                            
                         </ul>
                     </div>
                     <div class="tab-content" id="tab-content">
@@ -326,13 +326,15 @@
         }else if(table_type=='defective_part_rejected_by_partner_table'){
           defective_part_rejected_by_partner_table.ajax.reload(null, false);  
         }else if(table_type=='defective_part_shipped_by_SF_table'){
-          //defective_part_shipped_by_SF_table.ajax.reload(null, false);  
+          defective_part_shipped_by_sf_table.ajax.reload(null, false);  
         }else if(table_type=='defective_part_shipped_by_SF_approved_table'){
           defective_part_shipped_by_SF_approved_table.ajax.reload(null, false);  
         }else if(table_type=='spare_parts_requested_table_approved'){
           spare_parts_requested_table_approved.ajax.reload(null, false);  
         }else if(table_type=='spare_parts_requested_table_reject'){
            spare_parts_requested_table_reject.ajax.reload(null, false);  
+        }else if(table_type=='courier_lost_spare_parts_table'){
+           courier_lost_spare_parts_table.ajax.reload(null, false);  
         }
         
     }

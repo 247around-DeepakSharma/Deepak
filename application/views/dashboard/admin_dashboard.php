@@ -287,7 +287,7 @@
                         <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
-                                             <option value="247Around">Admin</option>
+                                             <option value="247Around:Warehouse">Admin</option>
                                             <option value="Partner">Partner</option>
                                             <option value="Vendor:not_define" selected="selected">SF</option>
                                         </select>
@@ -674,7 +674,7 @@
                         <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control" id="pending_dependency_am" name="status[]" multiple="">
-                                            <option value="247Around" selected="selected">247Around</option>
+                                            <option value="247Around:Warehouse" selected="selected">247Around</option>
                                             <option value="Partner">Partner</option>
                                             <option value="Vendor:not_define" selected="selected">SF</option>
                                         </select>
@@ -1744,14 +1744,24 @@
         });
     }
     function get_arm_details_for_rm(rm_id){
-        if($("#arm_table_"+ rm_id).length>0){
-            if($("#arm_table_"+ rm_id).is(":hidden")){
-                $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
-            }else{
-                $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+        if($("tr.tat-report[data-rm-row-id='"+ rm_id+ "']").data("has_data")){
+            if($("#arm_table_"+ rm_id).length>0){
+                if($("#arm_table_"+ rm_id).is(":hidden")){
+                    $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
+                }else{
+                    $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                }
+                $("#arm_table_"+ rm_id).slideToggle();
+                return false;
             }
-            $("#arm_table_"+ rm_id).slideToggle();
-            return false;
+        }else{
+            if($("#arm_table_"+ rm_id).length>0){
+                if(!$("#arm_table_"+ rm_id).is(":hidden")){
+                    $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                    $("#arm_table_"+ rm_id).remove();
+                    return false;
+                }
+            }
         }
         $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
         var html = "<tr id='arm_table_"+ rm_id +"' class='arm-tat-table'><td class='text-center' colspan=10><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
@@ -1792,9 +1802,10 @@
         });
     }
     function create_arm_tat_report_table(tableRow,data){
+        html='<table class="table table-striped table-bordered sub-table">'
+                +'<thead><tr><th>S.no</th><th>ARM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
         if(!!data.TAT && data.TAT.length>0){
-            html='<table class="table table-striped table-bordered sub-table">'
-                    +'<thead><tr><th>S.no</th><th>ARM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
+            html += "<tbody>";
             for(var i in data.TAT){
                 html += '<tr>';
                 html += "<td>"+ (parseInt(i)+1)+ "</td>";
@@ -1813,24 +1824,37 @@
                 html += "<td>"+ data.TAT[i].TAT_16+ "("+ data.TAT[i].TAT_16_per+ "%)</td>";
                 html += '</tr>';
             }
+            html += "</tbody></table>";
             html = "<td colspan=10>"+ html+ "</td>"
             $("#arm_table_"+ tableRow).empty().html(html);
+            $("tr.tat-report[data-rm-row-id='"+ tableRow+ "']").data("has_data", true);
         }else{
-            $("#arm_table_"+ tableRow).remove();
-            $("span.tat-report[data-rm-id='"+ tableRow+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
-            alert("No/Invalid data recieved from server. Please try again.");
+            html += "<tbody><tr><td colspan=10 class='text-center'>No Data.</td></tr></tbody></table>";
+            html = "<td colspan=10>"+ html+ "</td>"
+            $("#arm_table_"+ tableRow).empty().html(html);
+            $("tr.tat-report[data-rm-row-id='"+ tableRow+ "']").data("has_data", false);
         }
     }
 
     function get_arm_open_call_details_for_rm(rm_id){
-        if($("#arm_open_call_table_"+ rm_id).length>0){
-            if($("#arm_open_call_table_"+ rm_id).is(":hidden")){
-                $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
-            }else{
-                $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+        if($("tr.tat-report[data-rm-row-id='"+ rm_id+ "']").data("has_data")){
+            if($("#arm_open_call_table_"+ rm_id).length>0){
+                if($("#arm_open_call_table_"+ rm_id).is(":hidden")){
+                    $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
+                }else{
+                    $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                }
+                $("#arm_open_call_table_"+ rm_id).slideToggle();
+                return false;
             }
-            $("#arm_open_call_table_"+ rm_id).slideToggle();
-            return false;
+        }else{
+            if($("#arm_open_call_table_"+ rm_id).length>0){
+                if(!$("#arm_open_call_table_"+ rm_id).is(":hidden")){
+                    $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                    $("#arm_open_call_table_"+ rm_id).remove();
+                    return false;
+                }
+            }
         }
         $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
         var html = "<tr id='arm_open_call_table_"+ rm_id +"' class='arm-open-call-table'><td class='text-center' colspan=11><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
@@ -1871,9 +1895,10 @@
         });
     }
     function create_arm_open_call_tat_report_table(tableRow,data){
+        html='<table class="table table-striped table-bordered sub-table">'
+                +'<thead><tr><th>S.no</th><th>ARM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th><th>Total</th></tr></thead>';
         if(!!data && data.length>0){
-            html='<table class="table table-striped table-bordered sub-table">'
-                    +'<thead><tr><th>S.no</th><th>ARM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th><th>Total</th></tr></thead>';
+            html += "<tbody>";
             for(var i in data){
                 var total = 0;
                 html += '<tr>';
@@ -1926,12 +1951,15 @@
                 html += '<td>'+ data[i].Total_Pending + " ("+ data[i].TAT_total_per+ "%) </td>";
                 html += '</tr>';
             }
+            html += "</tbody></table>";
             html = "<td colspan=11>"+ html+ "</td>"
             $("#arm_open_call_table_"+ tableRow).empty().html(html);
+            $("tr.open-call-report[data-rm-row-id='"+ tableRow+ "']").data("has_data", true);
         }else{
-            $("#arm_open_call_table_"+ tableRow).remove();
-            $("span.open-call-report[data-rm-id='"+ tableRow+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
-            alert("No/Invalid data recieved from server. Please try again.");
+            html += "<tbody><tr><td colspan=11 class='text-center'>No Data.</td></tr></tbody></table>";
+            html = "<td colspan=11>"+ html+ "</td>"
+            $("#arm_open_call_table_"+ tableRow).empty().html(html);
+            $("tr.open-call-report[data-rm-row-id='"+ tableRow+ "']").data("has_data", false);
         }
     }
     

@@ -72,6 +72,8 @@ define('_247AROUND_PENDING','Pending');
 define('_247AROUND_NEW_BOOKING','New_Booking');
 //constant to define Follow up state
 define('_247AROUND_FOLLOWUP','FollowUp');
+//constant to define Booking state
+define('_247AROUND_BOOKING','Booking');
 //constant to define New Query state
 define('_247AROUND_NEW_QUERY','New_Query');
 //constant to define Cancelled state
@@ -678,5 +680,7 @@ define('WARRANTY_TYPE_AMC', 'AMC (Annual Maintenance Contract)');
 define('DEFAULT_IN_WARRANTY_PERIOD', 12);
 // Warehouse Aurangabad id
 define('_247AROUND_WAREHOUSE_ID', 15);
+
+define('SHARP_WATER_PURIFIER_INSTALLATION_VIDEO', 'http://tinyurl.com/y4s42ml4');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

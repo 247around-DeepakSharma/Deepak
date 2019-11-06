@@ -269,7 +269,7 @@
                     ?>
                     <!-- row End  -->
                     <?php $k_count = 0;$count = 1; foreach ($booking_unit_details as $keys => $unit_details) { ?>
-                    <?php $selected_dop = !empty($booking_history['spare_parts'][0]['date_of_purchase']) ? $booking_history['spare_parts'][0]['date_of_purchase'] : $unit_details['sf_purchase_date'];  ?>
+                    <?php $selected_dop = !empty($booking_history['spare_parts'][0]['date_of_purchase']) ? $this->miscelleneous->get_formatted_date($booking_history['spare_parts'][0]['date_of_purchase']) : $this->miscelleneous->get_formatted_date($unit_details['sf_purchase_date']);  ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
                             <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
@@ -725,7 +725,7 @@
     $('[data-toggle="popover"]').attr('data-content', $('#status_consumption_status').html());
 </script>
 <script>
-    <?php if(empty($str_disabled)) { ?> 
+    <?php if(empty($str_disabled) && isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ ?> 
         $(".model_number").select2();
     <?php } ?>  
     $("#service_id").select2();
@@ -1364,7 +1364,7 @@
     }
       function dop_calendar(id){
          $("#"+id).datepicker({
-             dateFormat: 'yy-mm-dd', 
+             dateFormat: 'dd-M-yy', 
              changeMonth: true,
              changeYear: true,
              maxDate:0
@@ -1382,6 +1382,10 @@
             }
         });
     }
+
+    $(document).on('change',"#wrong_part", function() {
+        $('#part_number').val($('#wrong_part').children("option:selected").data('part_number'));
+    });
 
 </script>
 <style>

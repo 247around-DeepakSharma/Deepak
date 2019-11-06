@@ -76,6 +76,12 @@
                             <strong>' . $this->session->userdata('error') . '</strong>
                         </div>';
         }
+        if ($this->session->userdata('warning')) {
+            echo '<div class="alert alert-warning alert-dismissible" role="alert">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>' . $this->session->userdata('warning') . '</div>';
+        }
       if(validation_errors()){?>
         <div class="panel panel-danger" style="margin-top:10px;margin-bottom:-10px;">
             <div class="panel-heading" style="padding:7px 0px 0px 13px">
@@ -214,7 +220,7 @@
                                         } ?>">
                                         <label  for="partner_type" class="col-md-4">Type *</label>
                                         <div class="col-md-8">
-                                            <select name="partner_type" class="form-control" >
+                                            <select name="partner_type" class="form-control" id="partner_type">
                                                 <option selected disabled>Select Partner Type</option>
                                                 <option value=<?php echo BUYBACKTYPE ?> 
                                                     <?php if (isset($results['partner_code'][0]['partner_type'])) {
@@ -910,23 +916,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-12">
-                        <div class="panel panel-default">
-                            <div class="panel-heading"><b>Booking Completion</b></div>
-                            <div class="panel-body">
-                                <div class="col-md-6">
-                                    <div class="form-group ">
-                                        <label for="is_booking_close_by_app_only" class="col-md-6" style="width: 43%;">Booking Close By App Only</label>
-                                        <div class="col-md-1" style = "margin-top: -7px;margin-bottom: -5px;">
-                                            <input  type="checkbox" class="form-control"  name="is_booking_close_by_app_only" id="is_booking_close_by_app_only" value = "1" <?php if (isset($query[0])) {
-                                                if($query[0]['is_booking_close_by_app_only']){ echo "checked"; }
-                                                } ?> >
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>                    
                                         <?php } ?>
                     <div class="clear clear_bottom">
                         <br>
@@ -1453,6 +1442,7 @@
                         if($query[0]['id']){
                         ?>
                 <input type="hidden" id="partner_id" name="partner_id" value=<?php echo  $query[0]['id']?>>
+                
                 <?php
                     }
                     }
@@ -1467,7 +1457,7 @@
                                 <div class="form-group">
                                     <label for="Services">Select Appliance *</label>
                                     <p id="brand_mapping_holder" style="display:none;"><?php if(isset($results['brand_mapping'])){ echo json_encode($results['brand_mapping']); }?></p>
-                                    <select class="form-control" id="l_c_service" name="l_c_service" onchange="get_brand_category_capacity_model_for_service(this.value,<?php if(isset($query[0]['id'])){echo  $query[0]['id'];}?>)" disabled=""> 
+                                    <select class="form-control" id="l_c_service" name="l_c_service" onchange="get_brand_category_capacity_model_for_service(this.value,<?php if(isset($query[0]['id'])){echo  $query[0]['id'];}?>,'<?php if(isset($results['partner_code'])){ echo $results['partner_code'][0]['partner_type']; } ?>')" disabled=""> 
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -4006,11 +3996,11 @@
            document.getElementById("l_c_type").innerHTML = collateral_typeDropdownString;
        }
     }
-    function get_brand_category_capacity_model_for_service(service,partner){
-       $.ajax({
+    function get_brand_category_capacity_model_for_service(service,partner,partner_source){
+        $.ajax({
                type: 'POST',
                url: '<?php echo base_url(); ?>employee/partner/get_service_details',
-               data: {partner_id: partner, service_id: service},
+               data: {partner_id: partner, service_id: service,partner_source:partner_source},
                success: function (data) {
                    create_drop_down(data);
                }
@@ -4502,6 +4492,7 @@
 </style>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
+<?php if($this->session->userdata('warning')){$this->session->unset_userdata('warning');} ?>
 <script type="text/javascript">
     $('#contact_person_states').select2({
         placeholder: "Select State",

@@ -467,7 +467,6 @@
                         <input type="hidden" class="form-control" id="on_partner_id"  name="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>"/>
                         <input type="hidden" class="form-control" id="on_partner_name"  name="partner_name" value="<?php echo $this->session->userdata('partner_name'); ?>"/>
                         <input type="hidden" class="form-control" id="on_wh_name"  name="wh_name" value=""/>
-                        <input type="hidden" name="invoice_tag" value="<?php echo IN_WARRANTY; ?>">
                         <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_PARTNER; ?>">
                         <button type="button" class="btn btn-default onaddButton">Add Booking</button>
                         <button type="submit" class="btn btn-success" id="on_submit_btn">Submit</button>
@@ -1015,6 +1014,7 @@
                 $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
                 $("#spareForm")[0].reset();
                 $("#spareForm").find('input:text, input:file, select').val('');
+                $(".select2-selection__rendered").html('');
             },
             success:function(response){
                 //console.log(response);
@@ -1629,6 +1629,7 @@
                .find('[id="onpartHsnCode"]').attr('name', 'part[' + onBookingIndex + '][hsn_code]').attr('id','onpartHsnCode_'+onBookingIndex).addClass('onpartHsnCode').end()
                .find('[id="onbookingID"]').attr('name', 'part[' + onBookingIndex + '][booking_id]').attr('id','onbookingID'+onBookingIndex).end()
                .find('[id="onserviceId"]').attr('name', 'part[' + onBookingIndex + '][service_id]').attr('id','onserviceId_'+onBookingIndex).end()
+               .find('[id="request_type"]').attr('name', 'part[' + onBookingIndex + '][request_type]').attr('id','request_type_'+onBookingIndex).end()
                .find('[id="onpartnerId"]').attr('name', 'part[' + onBookingIndex + '][partner_id]').attr('id','onpartnerId_'+onBookingIndex).end()
                .find('[id="oninventoryId"]').attr('name', 'part[' + onBookingIndex + '][inventory_id]').attr('id','oninventoryId_'+onBookingIndex).end()
                .find('[id="onspareID"]').attr('name', 'part[' + onBookingIndex + '][spare_id]').attr('id', 'onspareID_'+onBookingIndex).end()
