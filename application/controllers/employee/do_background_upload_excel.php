@@ -1037,6 +1037,10 @@ class Do_background_upload_excel extends CI_Controller {
                     if (stristr($prod, "Mosquito Racquet")) {
                         $data['valid_data'][$key]['appliance'] = 'Mosquito Racquet';
                     }
+                    if (stristr($prod, "Treadmill")) {
+                        $data['valid_data'][$key]['appliance'] = 'Treadmill';
+                    }
+                    
                 }
                 else{
                      $data['valid_data'][$key]['appliance'] = $prod;
