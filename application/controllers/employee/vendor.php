@@ -1935,17 +1935,27 @@ class vendor extends CI_Controller {
                     $data['create_date'] = date("Y-m-d H:i:s");
 
                     $engineer_id = $this->vendor_model->insert_engineer($data);
-
                     if ($engineer_id) {
                         //insert engineer appliance detail in engineer_appliance_mapping table
                         $eng_services_data = array();
-                        foreach ($service_id as $id) {
-                            $eng_services['engineer_id'] = $engineer_id;
-                            $eng_services['service_id'] = $id;
-                            $eng_services['is_active'] = 1;
-                            array_push($eng_services_data, $eng_services);
+                        if(in_array("All", $service_id)){
+                            $all_services = $this->booking_model->selectservice();
+                            foreach ($all_services as $service_key => $service_value) {
+                                $eng_services['engineer_id'] = $engineer_id;
+                                $eng_services['service_id'] = $service_value->id;
+                                $eng_services['is_active'] = 1;
+                                array_push($eng_services_data, $eng_services);
+                            }
                         }
-
+                        else{
+                            foreach ($service_id as $id) { 
+                                $eng_services['engineer_id'] = $engineer_id;
+                                $eng_services['service_id'] = $id;
+                                $eng_services['is_active'] = 1;
+                                array_push($eng_services_data, $eng_services);
+                            }
+                        }
+                        
                         $this->engineer_model->insert_engineer_appliance_mapping($eng_services_data);
                         //insert engineer identity proof data
                         $data_identity['entity_type'] = _247AROUND_ENGINEER_STRING;
