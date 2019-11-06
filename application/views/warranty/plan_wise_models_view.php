@@ -55,7 +55,7 @@
                         <th>Partner</th>
                         <th>Product</th>
                         <th>Model</th>
-                        <th>Remove</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -73,10 +73,17 @@
                             <td><?php echo $row->services; ?></td>
                             <td><?php echo $row->model_number; ?></td>
                             <td id='<?php echo "column" . $key; ?>'>
+                                <?php if(!empty($row->is_active)){?>
                                 <button id='<?php echo "removebtn" . $key; ?>' class="btn btn-primary remove" 
-                                        value="remove" data-id="<?php echo $row->mapping_id; ?>" onclick="delete_mapping(<?php echo $key; ?>)">               
+                                        value="remove" data-id="<?php echo $row->mapping_id; ?>" onclick="delete_mapping(<?php echo $key; ?>)" title="Remove Model">               
                                         <i class="fa fa-trash"></i>
                                 </button>
+                                <?php } else { ?>
+                                    <button id='<?php echo "addbtn" . $key; ?>' class="btn btn-primary add" 
+                                        value="add" data-id="<?php echo $row->mapping_id; ?>" onclick="add_mapping(<?php echo $key; ?>)" title="Add Model">               
+                                        <i class="fa fa-link"></i>
+                                    </button>
+                                <?php } ?>                                
                             </td>
                         </tr>
                     <?php }
@@ -92,6 +99,7 @@
         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
         "serverSide": false,
         "dom": 'lBfrtip',
+        title: 'warranty_plan_models',
         "buttons": [
             {
                 extend: 'excel',
@@ -139,6 +147,24 @@
                 console.log(data);
                 if($.trim(data) == "success")
                 {
+                    alert("Model Removed Successfully");
+                    $("#column" + key).html("");
+                }
+            }
+        });
+    }
+    
+    function add_mapping(key) {
+        var mapping_id = $("#addbtn" + key).attr('data-id');
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/warranty/activate_model_to_plan',
+            data: {mapping_id: mapping_id},
+            success: function (data) {
+                console.log(data);
+                if($.trim(data) == "success")
+                {
+                    alert("Model Added Successfully");
                     $("#column" + key).html("");
                 }
             }
