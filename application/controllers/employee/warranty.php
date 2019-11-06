@@ -192,7 +192,7 @@ class Warranty extends CI_Controller {
         $this->miscelleneous->load_nav_header();
         
         $where = "";
-        $select = "warranty_plans.plan_name, warranty_plans.plan_description, warranty_plans.period_start, warranty_plans.period_end, warranty_plans.warranty_type, warranty_plans.warranty_period, warranty_plans.partner_id, warranty_plans.service_id, appliance_model_details.model_number, services.services, partners.public_name, warranty_plan_model_mapping.id as mapping_id";        
+        $select = "warranty_plans.plan_name, warranty_plans.plan_description, warranty_plans.period_start, warranty_plans.period_end, warranty_plans.warranty_type, warranty_plans.warranty_period, warranty_plans.partner_id, warranty_plans.service_id, appliance_model_details.model_number, services.services, partners.public_name, warranty_plan_model_mapping.id as mapping_id, warranty_plan_model_mapping.is_active";        
         $order_by = "warranty_plans.plan_name,appliance_model_details.model_number";
         $join['services']  = 'warranty_plans.service_id = services.id';
         $join['partners']  = 'warranty_plans.partner_id = partners.id';
@@ -235,5 +235,14 @@ class Warranty extends CI_Controller {
             echo "success";
         }
     }    
+ 
+    public function activate_model_to_plan() {
+        $arr_post = $this->input->post();
+        if(!empty($arr_post['mapping_id']))
+        {
+            $this->warranty_model->activate_model_to_plan($arr_post['mapping_id']);
+            echo "success";
+        }
+    }
  
 }
