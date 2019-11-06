@@ -55,6 +55,7 @@
                         <th>Partner</th>
                         <th>Product</th>
                         <th>Model</th>
+                        <th>Status</th>
                         <th>Action</th>
                     </tr>
                 </thead>
@@ -72,6 +73,7 @@
                             <td><?php echo $row->public_name; ?></td>
                             <td><?php echo $row->services; ?></td>
                             <td><?php echo $row->model_number; ?></td>
+                            <td><?php echo ($row->is_active == 1 ? "Active" : "Not Active"); ?></td>
                             <td id='<?php echo "column" . $key; ?>'>
                                 <?php if(!empty($row->is_active)){?>
                                 <button id='<?php echo "removebtn" . $key; ?>' class="btn btn-primary remove" 
@@ -105,9 +107,9 @@
                 extend: 'excel',
                 text: '<span class="fa fa-file-excel-o"></span>  Export',
                 pageSize: 'LEGAL',
-                title: 'Plans Table',
+                title: 'warranty_plan_models',
                 exportOptions: {
-                    columns: [0, 1, 2, 3],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                     modifier: {
                         // DataTables core
                         order: 'index', // 'current', 'applied', 'index',  'original'
