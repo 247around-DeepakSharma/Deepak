@@ -4554,7 +4554,7 @@ function do_multiple_spare_shipping(){
                 $message = "";
                 $message .= $this->table->generate();
 
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", GST_FORM_UPDATED);
+//                $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $message, "", GST_FORM_UPDATED);
 
                 redirect(base_url() . "service_center/gst_details");
             }
