@@ -132,6 +132,7 @@
                         <li><a id="14" href="#tabs-14"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Mapping</span></a></li>
                         <li><a id="16" href="#tabs-16"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Account Manager</span></a></li>
+                        <li><a id="17" href="#tabs-17"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Map Service Center</span></a></li>
                         <?php
                             }
                             else{
@@ -152,6 +153,7 @@
                         <li><a id="14" href="#tabs-14" onclick="load_form(this.id)"><span class="panel-title">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15" onclick="load_form(this.id)"><span class="panel-title">Model Mapping</span></a></li>
                         <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="16" href="#tabs-16" onclick="load_form(this.id)"><span class="panel-title">Account Manager</span></a></li>
+                        <li><a id="17" href="#tabs-17" onclick="load_form(this.id)"><span class="panel-title">Map Service Center</span></a></li>                        
                         <?php
                             }
                         ?>
@@ -1466,10 +1468,17 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="Services">Select Model </label>
-                                    <div class="checkbox" style="float:right;"><input onchange="select_all_models()" id="models_all" type="checkbox" value="">Select All</div>
-                                    <select class="form-control" id="l_c_model" name="l_c_model[]" multiple="multiple" disabled="">
-                                    </select>
+                                    <div id="text_model_div"  style="display:none;">
+                                        <label for="Services">Enter Model (Enter comma seperated values) </label>
+                                        <input  type="text" class="form-control"  name="text_model" id="text_model" value = "" placeholder="Enter Model" onkeypress="return IsModelValid(event);"> 
+                                        <span id="model_error" style="color: Red; display: none">* Special Characters not allowed.</span>
+                                    </div>
+                                    <div id="l_c_model_div">
+                                        <label for="Services">Select Model </label>                                   
+                                        <div class="checkbox" style="float:right;"><input onchange="select_all_models()" id="models_all" type="checkbox" value="">Select All</div>
+                                        <select class="form-control" id="l_c_model" name="l_c_model[]" multiple="multiple" disabled="">
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="col-md-12" style="padding: 10px 0px;width: 102%;">
                                     <div class="col-md-4" style="padding: 0px;width: 40%;">
@@ -2876,6 +2885,59 @@
                 ?>
         </div>
         <div class="clear"></div>
+        <div id="container_17" style="display:none;margin: 30px 10px;" class="form_container">
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><b>Service Centers</b></div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <select name="service_center" id="service_center" multiple>
+                                        <option value="all">All</option>
+                                        <?php foreach($unmapped_service_centers as $unmapped_service_center) { ?>
+                                        <option value="<?php echo $unmapped_service_center['id']; ?>"><?php echo $unmapped_service_center['name']; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <input type="submit" name="map" value="Map" class="btn btn-primary" onclick="update_en_vendor_brand_mapping(this, <?php if(!empty($query[0]['id'])) { echo $query[0]['id']; }else{ echo '';} ?>)">
+                            </div>
+                        </div>
+                        
+                        <table class="table table-condensed table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>S. No.</th>
+                                    <th>Service Center</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if(!empty($mapped_service_centers)) { foreach($mapped_service_centers as  $sno => $mapped_sc) { ?>
+                                <tr>
+                                    <td><?php echo ++$sno; ?></td>
+                                    <td><?php echo $mapped_sc['name']; ?></td>
+                                    <td>
+                                        <?php 
+                                            if($mapped_sc['active'] == 1) { 
+                                                echo '<a href="javascript:void(0);" name="sf_inactive" onclick="update_en_vendor_brand_mapping(this, '.$mapped_sc['partner_id'].', '.$mapped_sc['service_center_id'].');" value="0" class="btn btn-danger">Inactive</a>'; 
+                                            } else {
+                                                echo '<a href="javascript:void(0);" name="sf_active" onclick="update_en_vendor_brand_mapping(this, '.$mapped_sc['partner_id'].', '.$mapped_sc['service_center_id'].');" value="1" class="btn btn-success">Active</a>'; 
+                                            }
+                                        ?>
+                                    </td>
+                                </tr>
+                                <?php } } ?>
+                                
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="clear"></div>
       </div>   
     </div>
 </div>
@@ -3991,6 +4053,11 @@
            document.getElementById("l_c_model").disabled = false;
            document.getElementById("l_c_model").innerHTML = modelDropdownString;
        }
+       else
+       {
+           $("#l_c_model_div").hide();
+           $("#text_model_div").show();
+       }
        if(collateral_typeDropdownString !== ''){
            document.getElementById("l_c_type").disabled = false;
            document.getElementById("l_c_type").innerHTML = collateral_typeDropdownString;
@@ -4494,6 +4561,12 @@
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <?php if($this->session->userdata('warning')){$this->session->unset_userdata('warning');} ?>
 <script type="text/javascript">
+    
+    $('#service_center').select2({
+        placeholder: "Select Service Center",
+        multiple: true,
+        allowClear: true
+    });
     $('#contact_person_states').select2({
         placeholder: "Select State",
         allowClear: true
@@ -5633,5 +5706,52 @@
             alert("Incorrect IFSC Code");
             return false;
         }
+    }
+    
+    $('#service_center').on('change', function(data) {
+        if($(this).val() == 'all') {
+            $("#service_center > option").prop("selected","selected");
+        }else{
+        $("#service_center > option").removeAttr("selected");
+     }
+    });
+    
+    function update_en_vendor_brand_mapping(obj, partner_id = '', service_center_id = '') {
+
+        var btn = $(obj).attr('name');
+        var ajaxUrl = '<?php echo base_url();?>employee/partner/update_en_vendor_brand_mapping/'+partner_id;
+
+        if(btn == 'sf_active') {
+            $.ajax({method:'POST', url: ajaxUrl, data: {service_center_id:service_center_id, active:'1'}});
+        } else if(btn == 'sf_inactive') {
+            $.ajax({method:'POST', url: ajaxUrl, data: {service_center_id:service_center_id, active:'0'}});
+        } else {
+            // add mapping.
+            service_center_id = $('#service_center').val();
+            if(service_center_id == '' || service_center_id == null) {
+                alert('Please select service center.');
+                return false;
+            } 
+            alert(service_center_id);
+            $.ajax({method:'POST', url: ajaxUrl, data: {service_center_id:service_center_id}}).done(function(data) {
+                location.reload();
+            });
+            
+        }
+
+    var specialKeys = new Array();
+    specialKeys.push(8);  //Backspace
+    specialKeys.push(9);  //Tab
+    specialKeys.push(46); //Delete
+    specialKeys.push(36); //Home
+    specialKeys.push(35); //End
+    specialKeys.push(37); //Left
+    specialKeys.push(39); //Right
+    
+    function IsModelValid(e) {
+        var keyCode = e.keyCode == 0 ? e.charCode : e.keyCode;
+        var ret = ((keyCode >= 48 && keyCode <= 57) || (keyCode >= 65 && keyCode <= 90) || keyCode == 32 || keyCode == 44 || (keyCode >= 97 && keyCode <= 122) || (specialKeys.indexOf(e.keyCode) != -1 && e.charCode != e.keyCode));
+        document.getElementById("model_error").style.display = ret ? "none" : "inline";
+        return ret;
     }
 </script>

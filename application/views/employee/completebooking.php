@@ -323,6 +323,14 @@
                                        </div>
                                     </div>
                                 </div>
+                                <div class="col-md-1" style="float:right;margin-top:25px;margin-right:20px;">
+                                    <div class="form-group">
+                                        <?php
+                                            $redirect_url = base_url()."employee/booking/get_complete_booking_form/".$booking_history[0]['booking_id'];
+                                        ?>
+                                        <a class="btn btn-primary" style="padding: 5px 20px;float:right;" href="<?php echo base_url(); ?>employee/booking/get_edit_request_type_form/<?php echo urlencode(base64_encode($booking_history[0]['booking_id'])); ?>/<?php echo urlencode(base64_encode($redirect_url))?>">Go To Step 1</a>
+                                    </div>
+                                </div>  
                             </div>
                             <div class="row">
                                 <div class="col-md-12">

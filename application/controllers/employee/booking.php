@@ -4267,8 +4267,9 @@ class Booking extends CI_Controller {
             . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
         } else {
             if ($order_list->current_status == _247AROUND_PENDING || $order_list->current_status == _247AROUND_RESCHEDULED) {
+                $redirect_url = base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id;
                 $complete = "<a target='_blank' class='btn btn-sm btn-color btn-sm' "
-                . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+                . "href=" . base_url() ."employee/booking/get_edit_request_type_form/".urlencode(base64_encode($order_list->booking_id))."/".urlencode(base64_encode($redirect_url))." title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
             } else if ($order_list->current_status == 'Review') {
                 $complete = "<a target='_blank' class='btn btn-sm btn-color btn-sm' "
                 . "href=" . base_url() . "employee/booking/review_bookings/$order_list->booking_id title='Complete'><i class='fa fa-eye-slash' aria-hidden='true' ></i></a>";
@@ -6007,6 +6008,26 @@ class Booking extends CI_Controller {
         }
         
         $this->load->view('employee/wrong_spare_part', $data);
-    }    
+    }
+    
+    function get_edit_request_type_form($booking_id, $redirect_url = null)
+    {
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+        $booking_id = base64_decode(urldecode($booking_id));
+        $redirect_url = !empty($redirect_url) ? base64_decode(urldecode($redirect_url)) : "";
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL,true);
+        $booking['booking_history']['redirect_url'] = $redirect_url;
+        if($booking){
+            $is_spare_requested = $this->booking_utilities->is_spare_requested($booking);
+            $booking['booking_history']['is_spare_requested'] = $is_spare_requested; 
+            $booking['allow_skip_validations'] = 1;
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('service_centers/update_booking', $booking);    
+        }
+        else{
+            echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
+        }
+    }
 
 }
