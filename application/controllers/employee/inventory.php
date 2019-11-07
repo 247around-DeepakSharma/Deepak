@@ -3418,7 +3418,7 @@ class Inventory extends CI_Controller {
                         
         if ($invoice_file_required) {
            $invoice_file_required=0; 
-                           
+                        
         }else{
             $invoice_file_required=1;
                         
