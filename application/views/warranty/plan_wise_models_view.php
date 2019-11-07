@@ -55,7 +55,8 @@
                         <th>Partner</th>
                         <th>Product</th>
                         <th>Model</th>
-                        <th>Remove</th>
+                        <th>Status</th>
+                        <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -72,11 +73,19 @@
                             <td><?php echo $row->public_name; ?></td>
                             <td><?php echo $row->services; ?></td>
                             <td><?php echo $row->model_number; ?></td>
+                            <td><?php echo ($row->is_active == 1 ? "Active" : "Not Active"); ?></td>
                             <td id='<?php echo "column" . $key; ?>'>
+                                <?php if(!empty($row->is_active)){?>
                                 <button id='<?php echo "removebtn" . $key; ?>' class="btn btn-primary remove" 
-                                        value="remove" data-id="<?php echo $row->mapping_id; ?>" onclick="delete_mapping(<?php echo $key; ?>)">               
+                                        value="remove" data-id="<?php echo $row->mapping_id; ?>" onclick="delete_mapping(<?php echo $key; ?>)" title="Remove Model">               
                                         <i class="fa fa-trash"></i>
                                 </button>
+                                <?php } else { ?>
+                                    <button id='<?php echo "addbtn" . $key; ?>' class="btn btn-primary add" 
+                                        value="add" data-id="<?php echo $row->mapping_id; ?>" onclick="add_mapping(<?php echo $key; ?>)" title="Add Model">               
+                                        <i class="fa fa-link"></i>
+                                    </button>
+                                <?php } ?>                                
                             </td>
                         </tr>
                     <?php }
@@ -92,14 +101,15 @@
         "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
         "serverSide": false,
         "dom": 'lBfrtip',
+        title: 'warranty_plan_models',
         "buttons": [
             {
                 extend: 'excel',
                 text: '<span class="fa fa-file-excel-o"></span>  Export',
                 pageSize: 'LEGAL',
-                title: 'Plans Table',
+                title: 'warranty_plan_models',
                 exportOptions: {
-                    columns: [0, 1, 2, 3],
+                    columns: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
                     modifier: {
                         // DataTables core
                         order: 'index', // 'current', 'applied', 'index',  'original'
@@ -139,6 +149,24 @@
                 console.log(data);
                 if($.trim(data) == "success")
                 {
+                    alert("Model Removed Successfully");
+                    $("#column" + key).html("");
+                }
+            }
+        });
+    }
+    
+    function add_mapping(key) {
+        var mapping_id = $("#addbtn" + key).attr('data-id');
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/warranty/activate_model_to_plan',
+            data: {mapping_id: mapping_id},
+            success: function (data) {
+                console.log(data);
+                if($.trim(data) == "success")
+                {
+                    alert("Model Added Successfully");
                     $("#column" + key).html("");
                 }
             }

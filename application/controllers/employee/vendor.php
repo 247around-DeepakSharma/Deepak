@@ -242,7 +242,6 @@ class vendor extends CI_Controller {
         $vendor_data['is_cp'] = $this->input->post('is_cp');
         $vendor_data['is_wh'] = $this->input->post('is_wh');
         $vendor_data['isEngineerApp'] = $this->input->post('is_engineer');
-        $vendor_data['is_booking_close_by_app_only'] = $this->input->post('is_booking_close_by_app_only');
         $vendor_data['is_buyback_gst_invoice'] = $this->input->post('is_buyback_gst_invoice');
         $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
         $vendor_data['minimum_guarantee_charge'] = $this->input->post('minimum_guarantee_charge');
@@ -1936,17 +1935,27 @@ class vendor extends CI_Controller {
                     $data['create_date'] = date("Y-m-d H:i:s");
 
                     $engineer_id = $this->vendor_model->insert_engineer($data);
-
                     if ($engineer_id) {
                         //insert engineer appliance detail in engineer_appliance_mapping table
                         $eng_services_data = array();
-                        foreach ($service_id as $id) {
-                            $eng_services['engineer_id'] = $engineer_id;
-                            $eng_services['service_id'] = $id;
-                            $eng_services['is_active'] = 1;
-                            array_push($eng_services_data, $eng_services);
+                        if(in_array("All", $service_id)){
+                            $all_services = $this->booking_model->selectservice();
+                            foreach ($all_services as $service_key => $service_value) {
+                                $eng_services['engineer_id'] = $engineer_id;
+                                $eng_services['service_id'] = $service_value->id;
+                                $eng_services['is_active'] = 1;
+                                array_push($eng_services_data, $eng_services);
+                            }
                         }
-
+                        else{
+                            foreach ($service_id as $id) { 
+                                $eng_services['engineer_id'] = $engineer_id;
+                                $eng_services['service_id'] = $id;
+                                $eng_services['is_active'] = 1;
+                                array_push($eng_services_data, $eng_services);
+                            }
+                        }
+                        
                         $this->engineer_model->insert_engineer_appliance_mapping($eng_services_data);
                         //insert engineer identity proof data
                         $data_identity['entity_type'] = _247AROUND_ENGINEER_STRING;
@@ -2085,8 +2094,44 @@ class vendor extends CI_Controller {
                     $this->vendor_model->update_entity_identity_proof($where_identity, $data_identity);
 
                     if($engineer_id){
+                        $this->engineer_model->update_engineer_appliance(array("engineer_id"=>$engineer_id), array("is_active"=>0));
+                        if(in_array("All", $service_id)){
+                            $all_services = $this->booking_model->selectservice();
+                            foreach ($all_services as $key => $value) {
+                                $data = array();
+                                $where = array(
+                                    "engineer_id" => $engineer_id,
+                                    "service_id" => $value->id,
+                                );
 
-                        $this->engineer_model->update_engineer_appliance_mapping($engineer_id, $service_id);
+                                $check_service = $this->engineer_model->get_engineer_appliance($where, "id");
+                                if(empty($check_service)){
+                                    array_push($data, $where);
+                                    $this->engineer_model->insert_engineer_appliance_mapping($data);
+                                }
+                                else{
+                                    $this->engineer_model->update_engineer_appliance(array("id"=>$check_service[0]['id']), array("is_active"=>1));
+                                }
+                            }
+                        }
+                        else{
+                            foreach ($service_id as $key => $value) {
+                                $data = array();
+                                $where = array(
+                                    "engineer_id" => $engineer_id,
+                                    "service_id" => $value,
+                                );
+
+                                $check_service = $this->engineer_model->get_engineer_appliance($where, "id");
+                                if(empty($check_service)){
+                                    array_push($data, $where);
+                                    $this->engineer_model->insert_engineer_appliance_mapping($data);
+                                }
+                                else{
+                                    $this->engineer_model->update_engineer_appliance(array("id"=>$check_service[0]['id']), array("is_active"=>1));
+                                }
+                            }
+                        }
                     }
 
                     log_message('info', __METHOD__ . "=> Engineer Details Added.");

@@ -76,7 +76,7 @@
             </div>            
             <div class="col-md-4 col-md-offset-4" style="margin-bottom: 50px;">
                 <center>
-                    <input type="Submit" class="btn btn-primary" id="submit_btn" value="Submit" />
+                    <input type="Submit" class="btn btn-primary" id="submit_btn" value="Submit" onclick="return validate_form()"/>
                     <a href="<?php echo base_url(); ?>employee/warranty/plan_model_mapping" class="btn btn-primary" id="back_btn" value="Back" style="margin-left: 10px;"/>Back</a>
                 </center>
             </div>
@@ -85,4 +85,19 @@
 </div>
 <script>
     $('#plan_id, #model_id').select2();
+    
+    function validate_form()
+    {
+        if($("#plan_id").val() == "" || $("#plan_id").val() == null)
+        {
+            alert("Select Plan");
+            return false;
+        }
+        
+        if($("#model_id").val() == "" || $("#model_id").val() == null)
+        {
+            alert("Select Model");
+            return false;
+        }
+    }
 </script>

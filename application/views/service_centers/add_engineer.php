@@ -79,6 +79,7 @@
                                     <label for="Appliances" class="col-md-4">Appliances *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control"  id="service_id" name="service_id[]" multiple="multiple"  required>
+                                            <option value="All">All</option>
                                              <?php $list = [];
                                              if(isset($data)){
                                                     $appliance_id = $data[0]['appliance_id'];

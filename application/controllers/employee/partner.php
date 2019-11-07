@@ -904,7 +904,6 @@ class Partner extends CI_Controller {
             $return_data['upcountry_bill_to_partner'] = 0;
         }
 //        $partner_data_final['partner'] = $return_data;
-        $return_data['is_booking_close_by_app_only'] = $this->input->post('is_booking_close_by_app_only');
         return $return_data;
     }
 
@@ -1740,7 +1739,7 @@ class Partner extends CI_Controller {
             $booking_details['service_id'] = $post['service_id'];
             $booking_details['booking_remarks'] = $post['remarks'];
             $booking_details['user_id'] = $user['user_id'];
-            $booking_details['service_center_closed_date'] = NULL;
+//            $booking_details['service_center_closed_date'] = NULL;
             $booking_details['cancellation_reason'] = NULL;
             $booking_details['booking_request_symptom'] = $post['booking_request_symptom'];
             $upcountry_data = json_decode($post['upcountry_data'], TRUE);
