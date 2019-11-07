@@ -4053,6 +4053,11 @@
            document.getElementById("l_c_model").disabled = false;
            document.getElementById("l_c_model").innerHTML = modelDropdownString;
        }
+       else
+       {
+           $("#l_c_model_div").hide();
+           $("#text_model_div").show();
+       }
        if(collateral_typeDropdownString !== ''){
            document.getElementById("l_c_type").disabled = false;
            document.getElementById("l_c_type").innerHTML = collateral_typeDropdownString;
@@ -5734,5 +5739,19 @@
             
         }
 
+    var specialKeys = new Array();
+    specialKeys.push(8);  //Backspace
+    specialKeys.push(9);  //Tab
+    specialKeys.push(46); //Delete
+    specialKeys.push(36); //Home
+    specialKeys.push(35); //End
+    specialKeys.push(37); //Left
+    specialKeys.push(39); //Right
+    
+    function IsModelValid(e) {
+        var keyCode = e.keyCode == 0 ? e.charCode : e.keyCode;
+        var ret = ((keyCode >= 48 && keyCode <= 57) || (keyCode >= 65 && keyCode <= 90) || keyCode == 32 || keyCode == 44 || (keyCode >= 97 && keyCode <= 122) || (specialKeys.indexOf(e.keyCode) != -1 && e.charCode != e.keyCode));
+        document.getElementById("model_error").style.display = ret ? "none" : "inline";
+        return ret;
     }
 </script>
