@@ -888,10 +888,7 @@ class Partner extends CI_Controller {
         }
 
         //Mandatory Parameter Missing
-        if (($flag === TRUE) &&
-                (($request['orderID'] == "") ||
-                ($request['247aroundBookingID'] == ""))
-        ) {
+        if (($flag === TRUE) && (($request['orderID'] == ""))) {
             $resultArr['code'] = ERR_MANDATORY_PARAMETER_MISSING_CODE;
             $resultArr['msg'] = ERR_MANDATORY_PARAMETER_MISSING_MSG;
 
