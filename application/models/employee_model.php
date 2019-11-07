@@ -413,7 +413,7 @@ FROM
                . "set `employee_relation`.`state_code`= if((`employee_relation`.`state_code` is null or `employee_relation`.`state_code` =''),a.`state_code`,concat(`employee_relation`.`state_code`, concat(',',a.`state_code`) )), "
                . "`employee_relation`.`service_centres_id`=if((`employee_relation`.`service_centres_id` is null or `employee_relation`.`service_centres_id` =''),a.`individual_service_centres_id`,concat(`employee_relation`.`service_centres_id`,concat(',',a.`individual_service_centres_id`)) ) "
                . "where `employee_relation`.`agent_id`=a.id";
-       print_r($sql);
+     //  print_r($sql);
        return $this->db->query($sql);
    }
    
