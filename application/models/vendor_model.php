@@ -1311,6 +1311,7 @@ class vendor_model extends CI_Model {
             $query1 = $this->db->query($value['query1'])->result_array();
             $sub_description = empty($value['query1_description'])? '' : $value['query1_description'];
             $return_data[$key]['main_description'] = $value['main_description'];
+            $return_data[$key]['ownership'] = $value['ownership'];
             $return_data[$key]['data']['query1']['description'] = $sub_description;
             $return_data[$key]['data']['query1']['query_data'] = $query1[0]['count'];
             $return_data[$key]['data']['query1']['booking_ids'] = isset($query1[0]['booking_id'])?$query1[0]['booking_id']:'';
