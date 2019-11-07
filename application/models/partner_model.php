@@ -2554,9 +2554,32 @@ function get_data_for_partner_callback($booking_id) {
         }
     }
 
+    /**
+     * 
+     * @param type $partner_id
+     * @return type
+     */
+    function get_mapped_service_center($partner_id) {
+        $this->db->select('en_vendor_brand_mapping.service_center_id, service_centres.name, en_vendor_brand_mapping.partner_id, en_vendor_brand_mapping.active');
+        $this->db->where(['partner_id' => $partner_id]);
+        $this->db->join('service_centres', 'en_vendor_brand_mapping.service_center_id = service_centres.id', 'left');
+        $this->db->order_by('service_centres.name', 'asc');        
+        $query = $this->db->get('en_vendor_brand_mapping');
+        return $query->result_array();
+    }
 
-
-
+    function insert_en_vendor_brand_mapping($partner_id, $service_center_ids) {
+        foreach($service_center_ids as $service_center_id) {
+            $this->db->insert('en_vendor_brand_mapping', ['partner_id' => $partner_id, 'service_center_id' => $service_center_id, 'active' => 1]); 
+        }
+    }
+    
+    function update_en_vendor_brand_mapping($partner_id, $service_center_id, $data) {
+        $this->db->where(['partner_id' => $partner_id, 'service_center_id' => $service_center_id]);
+        $this->db->update('en_vendor_brand_mapping',$data);
+        
+        return true;
+    }
 
 }
 
