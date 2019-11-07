@@ -1982,9 +1982,9 @@ class Booking extends CI_Controller {
     function get_edit_booking_form($booking_id, $appliance_id = "",$is_repeat = NULL) {
         log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
         $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);
-        $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);        
-        if($booking){
+        if($booking){            
+            $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+            $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);        
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
         }
@@ -6075,4 +6075,25 @@ class Booking extends CI_Controller {
         }
 
     }
+    
+    function get_edit_request_type_form($booking_id, $redirect_url = null)
+    {
+        $this->checkUserSession();
+        log_message('info', __FUNCTION__ . " Booking ID: " . print_r($booking_id, true));
+        $booking_id = base64_decode(urldecode($booking_id));
+        $redirect_url = !empty($redirect_url) ? base64_decode(urldecode($redirect_url)) : "";
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,NULL,NULL,true);
+        $booking['booking_history']['redirect_url'] = $redirect_url;
+        if($booking){
+            $is_spare_requested = $this->booking_utilities->is_spare_requested($booking);
+            $booking['booking_history']['is_spare_requested'] = $is_spare_requested; 
+            $booking['allow_skip_validations'] = 1;
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('service_centers/update_booking', $booking);    
+        }
+        else{
+            echo "<p style='text-align: center;font: 20px sans-serif;background: #df6666; padding: 10px;color: #fff;'>Booking Id Not Exist</p>";
+        }
+    }
+
 }

@@ -1,5 +1,15 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
+<?php
+// this is used to avoid all booking related extra validations on change request type panel
+if(!empty($this->session->userdata('service_center_id')) || !empty($allow_skip_validations)){
+    $allow_skip_validations = 1;
+}
+else
+{
+    $allow_skip_validations = "";
+}
+?>
 <div id="page-wrapper" >
     <div class="container" >
         <div class="sf_edit_form_container" style="border: 1px solid #2c9d9c;    border-radius: 4px;">
@@ -71,7 +81,7 @@
                     <input type="hidden" name="appliance_id[]" value="<?php if(isset($unit_details[0]['appliance_id'])){echo $unit_details[0]['appliance_id'];} ?>"/>
                     <input type="hidden" value="<?php echo $redirect_url ?>" name="redirect_url" id="redirect_url">
                     <input type="hidden" value="<?php echo $booking_history['is_spare_requested'] ?>" name="is_spare_requested" id="is_spare_requested">                    
-                    <input type="hidden" value="<?php echo (!empty($this->session->userdata('service_center_id')) ? $this->session->userdata('service_center_id') : '') ?>" name="is_sf_panel" id="is_sf_panel">                                       
+                    <input type="hidden" value="<?php echo $allow_skip_validations ?>" name="is_sf_panel" id="is_sf_panel">                                       
                     <input checked="checked" style ='visibility: hidden;' id="booking" type="radio" class="form-control booking_type" onclick="check_prepaid_balance('Booking')" name="type" value="Booking" <?php if($is_repeat){ echo "checked"; } ?> required <?php if($is_repeat){ echo 'readonly="readonly"'; } ?>>
                     
                     
