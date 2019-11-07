@@ -190,26 +190,6 @@ class Engineer_model extends CI_Model {
         $this->db->update("engineer_appliance_mapping", $data);
     }
     
-    function update_engineer_appliance_mapping($engineer_id, $services){
-        $this->update_engineer_appliance(array("engineer_id"=>$engineer_id), array("is_active"=>0));
-        foreach ($services as $key => $value) {
-            $data = array();
-            $where = array(
-                "engineer_id" => $engineer_id,
-                "service_id" => $value,
-            );
-            
-            $check_service = $this->get_engineer_appliance($where, "id");
-            if(empty($check_service)){
-                array_push($data, $where);
-                $this->insert_engineer_appliance_mapping($data);
-            }
-            else{
-                $this->update_engineer_appliance(array("id"=>$check_service[0]['id']), array("is_active"=>1));
-            }
-        }
-    }
-    
     function get_service_based_engineer($where, $select = "*"){
         $this->db->select($select);
         $this->db->join('engineer_appliance_mapping', 'engineer_appliance_mapping.engineer_id = engineer_details.id');
