@@ -231,6 +231,12 @@ class Reporting_utils extends CI_Model {
         return $query->result_array();
     }
 
+    function find_all_service_centers_by_state($state) {
+        
+        $query = $this->db->query("SELECT GROUP_CONCAT(`service_centres`.`id` SEPARATOR ',') as `service_center_id`, `state_code`.`id` as `state_id` FROM `service_centres` left join `state_code` on `state_code`.`state` = `service_centres`.`state` where state_code.state='".$state."'");
+        return $query->result_array();
+    }
+
     function installation_request_leads($partner_id, $date = "") {
         //Count y'day leads
         print_r($date);
