@@ -64,9 +64,9 @@
                                 <?php } ?>
                             </td>
                            <td>
-                             <?php  if ($row->current_status =='Completed') {
+                             <?php  if (!empty($row->service_center_closed_date) && $row->service_center_closed_date != '0000-00-00 00:00:00' && $row->current_status != 'Cancelled' && $row->internal_status != 'InProcess_Cancelled') {
                                             $today = strtotime(date("Y-m-d"));
-                                            $closed_date = strtotime($row->closed_date);
+                                            $closed_date = strtotime($row->service_center_closed_date);
                                             $completedDays = round(($today - $closed_date) / (60 * 60 * 24));
                                             if($completedDays < _247AROUND_REPEAT_BOOKING_ALLOWED_DAYS){
                                     ?>

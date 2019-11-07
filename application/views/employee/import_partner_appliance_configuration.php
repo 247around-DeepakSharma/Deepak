@@ -118,7 +118,7 @@
         $('#datatable1').DataTable({
             dom: 'Bfrtip',
             buttons: [
-                { extend: 'csv', text: 'Export', title: 'Add Warranty'}               
+                { extend: 'csv', text: 'Export', title: 'Partner Appliance Mapping'}               
             ]
         });
         

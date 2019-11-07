@@ -516,7 +516,7 @@ class Invoice extends CI_Controller {
         $this->invoice_lib->generate_invoice_excel($template, $meta, $misc_data['Completed']['annexure'], $output_file_excel);
         
         // Generate Pending Bookings Excel
-        if (!empty($misc_data['Pending'])) {
+        if (!empty($misc_data['Pending']['annexure'])) {
             $pending_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-Pending-detailed.xlsx";
             $this->invoice_lib->generate_invoice_excel($template, $meta, $misc_data['Pending']['annexure'], $pending_file_excel);
             array_push($files, $pending_file_excel);
@@ -1024,11 +1024,11 @@ class Invoice extends CI_Controller {
         if ($mail_ret) {
             $this->notify->add_email_send_details($email_from,$to,$cc,"",$subject,$message,$pdf_attachement,$invoiceTag);
             log_message('info', __METHOD__ . ": Mail sent successfully");
-            echo "Mail sent successfully..............." . PHP_EOL;
+//            echo "Mail sent successfully..............." . PHP_EOL;
             return 1;
         } else {
             log_message('info', __METHOD__ . ": Mail could not be sent");
-            echo "Mail could not be sent..............." . PHP_EOL;
+//            echo "Mail could not be sent..............." . PHP_EOL;
             return 0;
         }
     }
@@ -1240,7 +1240,6 @@ class Invoice extends CI_Controller {
                     'credit_penalty_amount' => $invoice_data['meta']['cr_total_penalty_amount'],
                     'credit_penalty_bookings_count' => array_sum(array_column($invoice_data['c_penalty'], 'penalty_times')),
                     'courier_charges' => $invoice_data['meta']['total_courier_charges'],
-                    'invoice_date' => date('Y-m-d'),
                     //Add 1 month to end date to calculate due date
                     'due_date' => date("Y-m-d", strtotime($to_date . "+1 month")),
                     //add agent id
@@ -4064,6 +4063,7 @@ class Invoice extends CI_Controller {
         $data[0]['rate'] = sprintf("%.2f", ($invoice_details[0]['parts_cost']/$invoice_details[0]['parts_count']));
         $data[0]['qty'] = $shipped_quantity;
         $data[0]['hsn_code'] = SPARE_HSN_CODE;
+        $data[0]['c_s_gst'] = $this->invoices_model->check_gst_tax_type($vendor_details[0]['state']);
         $sd = $ed = $invoice_date = date("Y-m-d");
         $gst_rate = ($invoice_details[0]['cgst_tax_rate'] + $invoice_details[0]['sgst_tax_rate'] + $invoice_details[0]['igst_tax_rate']);
         $data[0]['gst_rate'] = $gst_rate;
@@ -4109,6 +4109,7 @@ class Invoice extends CI_Controller {
                         $spare[0]['spare_id'] = $spare_id;
                         $spare[0]['inventory_id'] = $spare[0]['shipped_inventory_id'];
                         $spare[0]['booking_partner_id'] = $spare[0]['service_center_id'];
+                        $service_center_state_code = $this->invoices_model->get_state_code(array('state' => $spare[0]['state']))[0]['state_code'];
                         $unsettle = $this->invoice_lib->settle_inventory_invoice_annexure($spare);
                         if (!empty($unsettle['processData'])) {
                             foreach ($unsettle['processData'] as $invoiceValue) {
@@ -4141,6 +4142,11 @@ class Invoice extends CI_Controller {
                                     } else {
                                         $data[0]['taxable_value'] = $value['rate'] * $value['qty'];
                                         $data[0]['rate'] = $value['rate'];
+                                    }
+                                    if($service_center_state_code ==  $value['to_state_code']){
+                                        $data[0]['c_s_gst'] = TRUE;
+                                    } else {
+                                        $data[0]['c_s_gst'] = FALSE; 
                                     }
 
                                     $data[0]['qty'] = $value['qty'];//1;
@@ -4201,8 +4207,7 @@ class Invoice extends CI_Controller {
             $response['meta']['invoice_template'] = "SF_FOC_Bill_of_Supply-v1.xlsx";
 
         } else {
-            $c_s_gst = $this->invoices_model->check_gst_tax_type($spare[0]['state']);
-        if ($c_s_gst) {
+            if ($data[0]['c_s_gst']) {
                 $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice-Intra_State-v1.xlsx";
             } else {
                 $response['meta']['invoice_template'] = "SF_FOC_Tax_Invoice_Inter_State_v1.xlsx";

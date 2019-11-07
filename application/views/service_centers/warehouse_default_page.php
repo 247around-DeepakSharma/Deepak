@@ -18,7 +18,7 @@
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
                             <li role="presentation" class="active">
                                 <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true">
-                                    Acknowledge From Partner
+                                    Acknowledge Spare
                                 </a>
                             </li>
                             <li role="presentation">
@@ -89,6 +89,14 @@
                                                         <section class="fetch_inventory_data">
                                                             <div class="row">
                                                                 <div class="form-inline">
+                                                                    <div class="form-group col-md-3">
+                                                                        <select id="entity_selector" class="form-control">
+                                                                            <option value="partner">Partner</option>
+                                                                            <option value="vendor">Vendor</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="form-inline">
                                                                     <div class="form-group col-md-4">
                                                                         <select class="form-control" id="partner_id">
                                                                             <option value="" disabled="">Select Partner</option>
@@ -119,6 +127,7 @@
                                                                     <th>Spare Part Name</th>
                                                                     <th>Spare Part Number</th>
                                                                     <th>Spare Quantity</th>
+                                                                    <th>Description</th>
                                                                     <th>Courier Name</th>
                                                                     <th>Courier AWB Number</th>
                                                                     <th>
@@ -508,8 +517,67 @@
           }
             
         });
+        $("#entity_selector").select2();
+        $("#entity_selector").change(function(){
+            if($(this).val()=="vendor"){
+                load_vendor_partner(true);
+            }else{
+                load_vendor_partner();
+            }
+        });
+
+        $(document).on('change', ".check_single_row, .check_reject_single_row",function(){
+            var isChecked = $(this).is(":checked");
+            var parent = $(this).closest("tr");
+            parent.find("input[type='checkbox']").prop("checked",false);
+            if(!!isChecked){
+                $(this).prop("checked", true);
+            }
+            return false;
+        });
+
+        $(document).on('click', "#ack_all",function(){
+            $("#reject_all").prop("checked", false);
+        });
+
+        $(document).on('click', "#reject_all",function(){
+            $("#ack_all").prop("checked", false);
+        });
         
     });
+
+    function load_vendor_partner(is_vendor = false){
+        if(is_vendor){
+            //<?php echo base_url(); ?>employee/vendor/get_service_center_with_micro_wh
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/vendor/get_service_center_details',
+                success: function (response) {
+                    $('#partner_id').html(response);
+                    var option_length = $('#partner_id').children('option').length;
+                    if(option_length == 2){
+                    $("#partner_id").change();   
+                    }
+                    $('#partner_id').select2();
+                }
+            });
+        }else{
+            //<?php echo base_url(); ?>employee/partner/get_partner_list
+            $.ajax({
+                type: 'POST',
+                url: '<?php echo base_url(); ?>employee/partner/get_partner_list',
+                data:{'is_wh' : 1},
+                success: function (response) {
+                    $('#partner_id').html(response);
+                    var option_length = $('#partner_id').children('option').length;
+                    if(option_length == 2){
+                    $("#partner_id").change();   
+                    }
+                    $('#partner_id').select2();
+                }
+            });
+        }
+    }
     
     function update_spare_estimate_cost(spare_id, booking_id, assigned_vendor_id, amount_due,partner_id){
         var estimate_cost = $("#estimate_cost_" + spare_id).val();
@@ -619,15 +687,40 @@
     });
     
     $('#get_inventory_data').on('click',function(){
-        var partner_id = $('#partner_id').val();
-        if(partner_id){
-            inventory_spare_table.ajax.reload();
+        var source = $('#entity_selector').val();
+        if(source == 'partner'){
+            var partner_id = $('#partner_id').val();
+            if(partner_id){
+                var entity_details = get_entity_details();
+                inventory_spare_table.ajax.url("<?php echo base_url(); ?>employee/inventory/get_spare_send_by_partner_to_wh");
+                tableData.sender_entity_id= entity_details.sender_entity_id;
+                tableData.sender_entity_type= entity_details.sender_entity_type;
+                inventory_spare_table.ajax.reload();
+            }else{
+                alert("Please Select Partner");
+            }
         }else{
-            alert("Please Select Partner");
+            var partner_id = $('#partner_id').val();
+            if(!!partner_id){
+                var entity_details = get_entity_details();
+                tableData.sender_entity_id= entity_details.sender_entity_id;
+                tableData.sender_entity_type= '<?php echo _247AROUND_SF_STRING;?>';
+                inventory_spare_table.ajax.reload();
+            }else{
+                alert("Please Select Vendor.");
+            }
         }
     });
-    
+    var tableData = {};
     function get_inventory_list(){
+        var entity_details = get_entity_details();
+        tableData = {
+            sender_entity_id: entity_details.sender_entity_id,
+            sender_entity_type: entity_details.sender_entity_type,
+            receiver_entity_id: entity_details.receiver_entity_id,
+            receiver_entity_type: entity_details.receiver_entity_type,
+            is_wh_ack: entity_details.is_wh_ack
+        };
         inventory_spare_table = $('#inventory_spare_table').DataTable({
             "processing": true,
             "serverSide": true,
@@ -658,13 +751,7 @@
                 url: "<?php echo base_url(); ?>employee/inventory/get_spare_send_by_partner_to_wh",
                 type: "POST",
                 data: function(d){
-                    
-                    var entity_details = get_entity_details();
-                    d.sender_entity_id = entity_details.sender_entity_id,
-                    d.sender_entity_type = entity_details.sender_entity_type,
-                    d.receiver_entity_id = entity_details.receiver_entity_id,
-                    d.receiver_entity_type = entity_details.receiver_entity_type,
-                    d.is_wh_ack = entity_details.is_wh_ack
+                    return $.extend(d, tableData);
                 }
             },
             "deferRender": true
@@ -730,7 +817,11 @@
         
         postData['data'] = JSON.stringify(tmp_arr);
         postData['sender_entity_id'] =  $('#partner_id').val();
-        postData['sender_entity_type'] = '<?php echo _247AROUND_PARTNER_STRING; ?>';
+        if($('#entity_selector').val() == 'vendor'){
+            postData['sender_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
+        }else{
+            postData['sender_entity_type'] = '<?php echo _247AROUND_PARTNER_STRING; ?>';
+        }
         postData['receiver_entity_id'] = '<?php echo $this->session->userdata('service_center_id')?>';
         postData['receiver_entity_type'] = '<?php echo _247AROUND_SF_STRING; ?>';
         postData['sender_entity_name'] = $('#partner_id option:selected').text();

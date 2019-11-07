@@ -646,6 +646,7 @@ function checkPriceTagValidation(delivered_price_tags){
         var pdi = false;
         var extended_warranty = false;
         var pre_sales = false;
+        var others_flag = false;
         var array =[];
 
         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
@@ -722,6 +723,22 @@ function checkPriceTagValidation(delivered_price_tags){
                     pdi = true;
                     array.push(pdi);
          }
+         
+         if(findInArray(delivered_price_tags, 'Gas Recharge - In Warranty') > -1 && findInArray(delivered_price_tags, 'Gas Recharge - Out of Warranty') > -1){
+                    others_flag = true;
+                    array.push(others_flag, others_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Gas Recharge (R410) - In Warranty') > -1 && findInArray(delivered_price_tags, 'Gas Recharge (R410) - Out of warranty') > -1){
+                    others_flag = true;
+                    array.push(others_flag, others_flag);
+         }
+         
+         if(findInArray(delivered_price_tags, 'Wet Service - In Warranty') > -1 && findInArray(delivered_price_tags, 'Wet Service - Out of Warranty') > -1){
+                    others_flag = true;
+                    array.push(others_flag, others_flag);
+         }
+         
          // ---------------------------------------------------------------------------------------------------------
          
                 

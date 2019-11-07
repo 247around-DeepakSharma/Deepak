@@ -316,6 +316,11 @@ function get_data_for_partner_callback($booking_id) {
         if (!empty($capacity)) {
             $this->db->where('capacity', $capacity);
         }
+        else
+        {
+            $this->db->where('(capacity is NULL OR capacity = "")', NULL);
+        }
+        
         $this->db->where('brand', $brand);
         
         $this->db->order_by('service_category', 'asc');
@@ -1390,7 +1395,7 @@ function get_data_for_partner_callback($booking_id) {
             $where_phone = "AND (`booking_primary_contact_no` = '$searched_text' OR `booking_alternate_contact_no` = '$searched_text' OR `booking_id` LIKE '%$searched_text%')";
       
        
-            $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, partner_internal_status, assigned_engineer_id,date(closed_date) as closed_date "
+            $sql = "SELECT `booking_id`,`booking_date`,`booking_timeslot` ,`order_id` , users.name as customername, users.phone_number, services.services, partner_internal_status, assigned_engineer_id,date(closed_date) as closed_date, service_center_closed_date, current_status, internal_status "
                     . " FROM `booking_details`,users, services "
                     . " WHERE users.user_id = booking_details.user_id "
                     . " AND services.id = booking_details.service_id "
@@ -2549,9 +2554,32 @@ function get_data_for_partner_callback($booking_id) {
         }
     }
 
+    /**
+     * 
+     * @param type $partner_id
+     * @return type
+     */
+    function get_mapped_service_center($partner_id) {
+        $this->db->select('en_vendor_brand_mapping.service_center_id, service_centres.name, en_vendor_brand_mapping.partner_id, en_vendor_brand_mapping.active');
+        $this->db->where(['partner_id' => $partner_id]);
+        $this->db->join('service_centres', 'en_vendor_brand_mapping.service_center_id = service_centres.id', 'left');
+        $this->db->order_by('service_centres.name', 'asc');        
+        $query = $this->db->get('en_vendor_brand_mapping');
+        return $query->result_array();
+    }
 
-
-
+    function insert_en_vendor_brand_mapping($partner_id, $service_center_ids) {
+        foreach($service_center_ids as $service_center_id) {
+            $this->db->insert('en_vendor_brand_mapping', ['partner_id' => $partner_id, 'service_center_id' => $service_center_id, 'active' => 1]); 
+        }
+    }
+    
+    function update_en_vendor_brand_mapping($partner_id, $service_center_id, $data) {
+        $this->db->where(['partner_id' => $partner_id, 'service_center_id' => $service_center_id]);
+        $this->db->update('en_vendor_brand_mapping',$data);
+        
+        return true;
+    }
 
 }
 

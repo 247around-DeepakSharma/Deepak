@@ -504,7 +504,13 @@ class DatabaseTesting extends CI_Controller {
     }
     
     function testDefective(){
-        $where =  array("status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1, 'sf_challan_number IS NULL ' => NULL);
+       // $where =  array("status" => DEFECTIVE_PARTS_PENDING, 'defective_part_required' => 1, 'sf_challan_number IS NULL ' => NULL);
+
+      //  $where =array()
+
+
+       $where =  array("spare_parts_details.id IN (116198,114564,114005,113411,113410,112528,112175,111659,110215,110165,109627,109619,109528,108208,107918,107917,107806,107805,107772,107398,107223,107001,106744,106743,106696,106268,105717,105716,105305,104986,104506,104328,103803,102897,102004,100914,100465,100405,100226,100144,99928,99362,99361,99360,99336,99135,99103,98785,98704,98703,97725,97718,97714,97668,97651,97274,97170,96923,96540,96530,96280,96279,95695,95482,95322,94945,93550,93538,93242,92282,92187,91503,91197,91011,90172,90165,89720,89558,88818,88223,88091,87336,86932,86882,86346,85791,85047,84973,84914,83647,83641,83457,83456,82705,82663,82499,81689,81687,79863,79801,78879,78483,78049,76713,76297,74724,73540,73260,73227,73191,71721,71638,68614,68336,68114,66665,66099,66098,65932,64213,63926,63925,63602,61959,59612,52575,50888,50303,49353,40452,39405,35336,31185,30967,29826,29653,27088,26520,24616,24366,23128,22890,20327,19970,19411,17490,17219,15007,12848,12132)" => NULL);
+
                $data  = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, service_center_id, service_center_closed_date",
                         $where, true, false, "spare_parts_details.id");
             echo count($data);echo PHP_EOL;       
@@ -626,4 +632,23 @@ class DatabaseTesting extends CI_Controller {
             }
         }
     }
+    
+    
+    /*
+     *@upload file from local temp folder to live s3  
+     */
+        
+    function upload_state_wise_seal() {
+       $bucket = "bookings-collateral";//BITBUCKET_DIRECTORY;
+       // Uploading to S3
+       $directory1 = "vendor-partner-docs/delivery_challan_LP-4840511907201_95_30_Oct_2019_15_52_50.pdf";
+       $is_s1 = $this->s3->putObjectFile(TMP_FOLDER . "delivery_challan_LP-4840511907201_95_30_Oct_2019_15_52_50.pdf", $bucket, $directory1, S3::ACL_PUBLIC_READ);
+
+       if ($is_s1) {
+           echo"<br> PDF upload success";
+
+       } else {
+           echo"<br> PDF upload failed";
+       }
+   }
 }

@@ -102,7 +102,7 @@ class Service_centers_model extends CI_Model {
                 . " bd.request_type, "
                 . " bd.internal_status, "
                 . " bd.booking_remarks, bd.service_id,"
-                . " services, booking_files.file_name as booking_files_purchase_invoice, partners.is_booking_close_by_app_only as partner_booking_close_flag, s.is_booking_close_by_app_only as sf_booking_close_flag, "
+                . " services, booking_files.file_name as booking_files_purchase_invoice, en_vendor_brand_mapping.active as is_booking_close_by_app_active, "
                 . " (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = bd.booking_id GROUP BY brand.booking_id ) as appliance_brand,"
                 . " (SELECT GROUP_CONCAT(model_number) FROM booking_unit_details brand WHERE booking_id = bd.booking_id) as model_numbers,"
                  . "CASE WHEN (SELECT Distinct 1 FROM booking_unit_details as bu1 WHERE bu1.booking_id = bd.booking_id "
@@ -138,6 +138,7 @@ class Service_centers_model extends CI_Model {
                 . " LEFT JOIN partners ON bd.partner_id = partners.id "     
                 . " JOIN service_centres AS s ON s.id = bd.assigned_vendor_id "
                 . " LEFT JOIN booking_files ON booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = bd.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )"
+                . " LEFT JOIN en_vendor_brand_mapping ON (bd.partner_id = en_vendor_brand_mapping.partner_id AND bd.assigned_vendor_id = en_vendor_brand_mapping.service_center_id)"     
                 . " WHERE sc.service_center_id = '$service_center_id' "
                 . " AND bd.assigned_vendor_id = '$service_center_id' "
                 . $status
@@ -1237,7 +1238,52 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         }
         
     }
-
+    /**
+     * Function Get MSL spare detals.
+     * @param serviceCenterID Service Center ID
+     * @param countOnly Count only
+     * @param start Starting position default 0
+     * @param limit Limit position default 10
+     */
+    function get_msl_spare_details($serviceCenterID, $countOnly = false, $start = 0, $limit = 10){
+        $res = array();
+        if(!$serviceCenterID){
+            $res['error'] = true;
+            $res['errorMessage'] = "No service center provided.";
+            return $res;
+        }
+        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+        $this->db->_protect_identifiers = FALSE;
+        if($countOnly){
+            $this->db->select("count(id) as 'count'");
+        }else{
+            $this->db->select("invoice_id");
+            $this->db->select("type");
+            $this->db->select("DATE_FORMAT(invoice_date,'%d-%m-%Y' ) as 'invoice_date'");
+            $this->db->select("parts_count");
+            $this->db->select("vertical");
+            $this->db->select("category");
+            $this->db->select("sub_category");
+            $this->db->select("(total_amount_collected-amount_paid) as 'amount'");
+            $this->db->limit($limit, $start);
+        }
+        $this->db->from('vendor_partner_invoices');
+        $this->db->where('vendor_partner', 'vendor');
+        $this->db->where('vendor_partner_id', $serviceCenterID);
+        $this->db->where_in('sub_category', array(MSL, MSL_NEW_PART_RETURN, MSL_DEFECTIVE_RETURN));
+        $res['error'] = false;
+        if($countOnly){
+            $res['payload'] = $this->db->get()->row_array();
+        }else{
+            $res['payload'] = $this->db->get()->result_array();
+        }
+        return $res;
+    }
+    /**
+     * Function Get sum of prices of OOW parts used by micro from its inventory.
+     * @param vendor_id Service Center ID
+     * @return row array
+     */
     function get_price_sum_of_oow_parts_used_from_micro($vendor_id){
         $res = array();
         if(!$vendor_id || !intval($vendor_id)){
@@ -1262,6 +1308,49 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $res['payload'] = $result;
         return $res;
     }
+
+    /**
+     * @function get all part used by SF from its inventory in OOW call.
+     * @param serviceCenterID Service Center ID
+     * @param countOnly Count only
+     * @param start Starting position default 0
+     * @param limit Limit position default 10
+     */
+    function get_oow_parts_used_from_micro($serviceCenterID, $countOnly = false, $start = 0, $limit = 10){
+        $res = array();
+        if(!$serviceCenterID){
+            $res['error'] = true;
+            $res['errorMessage'] = "No service center provided.";
+            return $res;
+        }
+        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+        $this->db->_protect_identifiers = FALSE;
+        if($countOnly){
+            $this->db->select("count(id) as 'count'");
+        }else{
+            $this->db->select("booking_id");
+            $this->db->select("parts_requested_type");
+            $this->db->select("parts_requested");
+            $this->db->select("model_number");
+            $this->db->select("date_of_request");
+            $this->db->select("sell_price");
+            $this->db->select("quantity");
+            $this->db->limit($limit, $start);
+        }
+        $this->db->from("spare_parts_details");
+        $this->db->where("is_micro_wh", 1);
+        $this->db->where("part_warranty_status", 2);
+        $this->db->where("defective_part_shipped_date is null",NULL,false);
+        $this->db->where("requested_inventory_id is not null",NULL,false);
+        $this->db->where("service_center_id", $serviceCenterID);
+        $res['error'] = false;
+        if($countOnly){
+            $res['payload'] = $this->db->get()->row_array();
+        }else{
+            $res['payload'] = $this->db->get()->result_array();
+        }
+        return $res;
+    }
     
     /**
      * @desc: Insert engineer consumed details
@@ -1270,7 +1359,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
      */
     function insert_engineer_consumed_details($data){
         if(!empty($data)){
-          $this->db->insert_batch('engineer_consumed_spare_details', $data);  
+          $this->db->insert('engineer_consumed_spare_details', $data);  
         }       
         //log_message('info', __FUNCTION__ . '=> Insert consumed details: ' .$this->db->last_query());
         return $this->db->insert_id();  
@@ -1281,9 +1370,10 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
      * @param Array $where
      * @return boolean
      */
-    function get_engineer_consumed_details($where){
-        $this->db->select('*');
+    function get_engineer_consumed_details($select="engineer_consumed_spare_details.*", $where=array()){
+        $this->db->select($select);
         $this->db->where($where);
+        $this->db->join("spare_consumption_status", "engineer_consumed_spare_details.consumed_part_status_id = spare_consumption_status.id");
         $query = $this->db->get('engineer_consumed_spare_details');
         if ($query->num_rows() > 0) {
             $result = $query->result_array();

@@ -323,6 +323,14 @@
                                        </div>
                                     </div>
                                 </div>
+                                <div class="col-md-1" style="float:right;margin-top:25px;margin-right:20px;">
+                                    <div class="form-group">
+                                        <?php
+                                            $redirect_url = base_url()."employee/booking/get_complete_booking_form/".$booking_history[0]['booking_id'];
+                                        ?>
+                                        <a class="btn btn-primary" style="padding: 5px 20px;float:right;" href="<?php echo base_url(); ?>employee/booking/get_edit_request_type_form/<?php echo urlencode(base64_encode($booking_history[0]['booking_id'])); ?>/<?php echo urlencode(base64_encode($redirect_url))?>">Go To Step 1</a>
+                                    </div>
+                                </div>  
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
@@ -725,7 +733,7 @@
     $('[data-toggle="popover"]').attr('data-content', $('#status_consumption_status').html());
 </script>
 <script>
-    <?php if(empty($str_disabled)) { ?> 
+    <?php if(empty($str_disabled) && isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ ?> 
         $(".model_number").select2();
     <?php } ?>  
     $("#service_id").select2();
@@ -1384,17 +1392,7 @@
     }
 
     $(document).on('change',"#wrong_part", function() {
-        var wrong_part_name_id = $('#wrong_part').val();
-        if(!!wrong_part_name_id) {
-            $.ajax({
-                method: 'POST',
-                url : '<?php echo base_url(); ?>employee/inventory/get_part_number',
-                data: {text_input:1, service_id: $('#service').val(), part_name:$('#wrong_part').children("option:selected").text()},
-                success: function(data){
-                    $('#part_number').val(data);
-                }
-            });
-        }
+        $('#part_number').val($('#wrong_part').children("option:selected").data('part_number'));
     });
 
 </script>

@@ -337,7 +337,6 @@
                                         <div class="col-xs-8 col-sm-4">
                                             <input type="file" class="form-control" name="file" id="on_invoice_file" required=""/>
                                             <label for="on_invoice_file" class="error"></label>
-                                            <input type="hidden" name="invoice_tag" value="<?php echo IN_WARRANTY; ?>">
                                             <input type="hidden" name="transfered_by" value="<?php echo MSL_TRANSFERED_BY_PARTNER; ?>">
                                         </div>
                                         
@@ -750,6 +749,7 @@
                                 $('#submit_btn').html("<i class='fa fa-spinner fa-spin'></i> Processing...");
                                 $("#spareForm")[0].reset();
                                 $("#spareForm").find('input:text, input:file, select').val('');
+                                $(".select2-selection__rendered").html('');
                                 $('label.error').css('color','white');
                             },
                             success:function(response){
@@ -940,7 +940,7 @@
         if(partner_id){
             $.ajax({
                 type: 'POST',
-                url: '<?php echo base_url() ?>employee/inventory/get_parts_name',
+                url: '<?php echo base_url() ?>employee/inventory/get_parts_name_without_model_mapping',
                 data:{entity_id:partner_id,entity_type:'<?php echo _247AROUND_PARTNER_STRING; ?>',service_id:service_id,is_option_selected:true},
                 success: function (response) {
                     $('#partName_'+index).val('val', "");

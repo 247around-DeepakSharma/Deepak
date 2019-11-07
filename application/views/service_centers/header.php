@@ -223,6 +223,10 @@
                                 <li>
                                     <a href="<?php echo base_url() ?>service_center/get_engineers" > <strong> View Engineers</strong></a>
                                 </li>
+                                <li role="separator" class="divider" style="height: 2px;"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>service_center/engineer_wise_calls" > <strong> Engineers Wise Bookings </strong></a>
+                                </li>
                             </ul>
                         </li>
                         <?php if($this->session->userdata('service_center_id') == '10'){ ?>
@@ -322,6 +326,8 @@
                                 <li><a href="<?= _247AROUND_CRM_TRAINING ?>" target="_blank">CRM Training</a></li>
                                 <li role="separator" class="divider"></li>
                                 <li><a href="<?php echo base_url(); ?>employee/service_centers/summary_report">Download Bookings Data</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="<?php echo base_url(); ?>partner/brand_collateral">Brand Collateral</a></li>
                             </ul>
                         </li>
                         <li class="dropdown">

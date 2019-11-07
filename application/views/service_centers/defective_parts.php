@@ -239,8 +239,28 @@
 </style>
 
 <script>
+    $(document).ready(function(){
+        $('#button_send').click(function(){
+            $('#courier_charges_by_sf').css("border-color","#ccc");
+        })
+        $('#courier_charges_by_sf').on('focus',function(){
+            $(this).css("border-color","#ccc");
+        });
+    });
     function submitForm(){
        event.preventDefault();
+       var courier_price = $('#courier_charges_by_sf').val();
+       if(!/^\d+(\.\d+)?$/g.test(courier_price)){              //should be number only with one decimal 
+            alert("Courier price should be numerical and should not contain alphabets and special characters except decimal.")
+            $('#courier_charges_by_sf').css("border-color","red");
+            return false;
+        }
+        var courier_price= parseFloat(courier_price);
+        if(courier_price<0 || courier_price>2000){                              //should be in between 0 and 2000
+            alert('Courier price should be in between 0 and 2000.');
+            $('#courier_charges_by_sf').css("border-color","red");
+            return false;
+        }
        $(".loader").removeClass('hide');
        if( $("#courier_charges_by_sf_hidden").val()!=0)
         {
@@ -255,14 +275,23 @@
                    processData: false,  // tell jQuery not to process the data
                    contentType: false   // tell jQuery not to set contentType
                    }).done(function(response) {
-                         console.log(response);
-                          
-                            $(".loader").addClass('hide');
-                             swal({title: "Updated !", text: "Your courier details updated .", type: "success"},
-                              function(){ 
-                              location.reload();
-                             }
-                   );
+                        console.log(response);
+                        $(".loader").addClass('hide');
+                        var resp = '';
+                        try{
+                            resp = JSON.parse(response);
+                        }catch(err){
+                            swal({title: "Error", text: "Response Error: Invalid or malformed response.", type: "error"});
+                        }
+                        if(!!resp.error){
+                            swal({title: "Failed !", text: resp.errorMessage, type: "error",html: true});
+                        }else{
+                            swal({title: "Updated !", text: "Your courier details updated .", type: "success"},
+                                function(){ 
+                                    location.reload();
+                                }
+                            );
+                        }   
                         
                });
  

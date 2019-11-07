@@ -250,7 +250,7 @@
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Requested Quantity</label>
                                         <div class="col-md-7">
-                                            <input type="text" class="form-control" id="<?php echo "req_quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]" readonly=""  value="<?php echo $value->quantity; ?>"  required /> 
+                                            <input type="text" class="form-control" id="<?php echo "req_quantity_".$key; ?>" name="part[<?php echo $key; ?>][quantity]"    value="<?php echo $value->quantity; ?>"  required /> 
                                         </div>
                                     </div>
                                      </div>
@@ -276,7 +276,7 @@
                                    <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Shipped Quantity</label>
                                         <div class="col-md-7">
-                                            <input type="text" min="1" class="form-control quantity" data-id="<?php echo $key; ?>" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][shipped_quantity]" readonly="" value="<?php echo $value->quantity; ?>"    required  />
+                                            <input type="text" min="1" class="form-control quantity" data-id="<?php echo $key; ?>" id="<?php echo "quantity_".$key; ?>" name="part[<?php echo $key; ?>][shipped_quantity]"   value="<?php echo $value->quantity; ?>"    required  />
 
 
                                             <span id="error_span_<?php echo $key; ?>" style="color:red;" class="hide"></span>
@@ -449,11 +449,9 @@
                                     <div class="form-group ">
                                         <label for="parts_name" class="col-md-4">Shipped Quantity</label>
                                         <div class="col-md-7">
-                                            <input type="text" min="1" class="form-control quantity " id="quantity" value="1" name="" readonly=""     required  />
+                                            <input type="text" min="1" class="form-control quantity " id="quantity" value="1" name=""      required  />
                                             <span id="error_span" style="color:red;" class="hide"></span>
 
-
-                                            <span id="error_span" style="color:red;" class="hide"></span>
                                         </div>
                                     </div>
                                     <?php if ($request_type == REPAIR_OOW_TAG) { ?>   
@@ -652,13 +650,21 @@
                     min:1,
                     required: true,
                     maxlength: 100000
+                },
+                courier_price_by_partner:{
+                    digits:true,
+                    range:[0,2000]
                 }
                 },
                 messages: {
                 courier_name: "Please Courier Name",
                 awb: "Please Enter Valid AWB",
                 shipment_date:"Please Enter Shipped date",
-                approx_value :"Please Enter Approx Value."
+                approx_value :"Please Enter Approx Value.",
+                courier_price_by_partner:{
+                    digits: "Courier Price can only be Numeric.",
+                    range: "Courier price should be in between 0 to 2000."
+                }
                 },
                 submitHandler: function (form) {
                 form.submit();

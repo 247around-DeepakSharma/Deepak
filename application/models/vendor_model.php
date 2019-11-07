@@ -2270,5 +2270,12 @@ class vendor_model extends CI_Model {
         $query = $this->db->query($sql);
         return $query->result_array();
     }
+    
+     function get_sms_template($select = "*", $where = array()) {
+        $this->db->select($select);
+        $this->db->where($where);
+        $query = $this->db->get('sms_template');
+        return $query->result();
+    }
 }
 

@@ -573,7 +573,7 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code'] = $code;
-        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M'));
+        $all_partner_code = $this->partner_model->get_all_partner_code('code', array('R', 'S', 'P', 'L', 'M', 'N'));
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
         }
@@ -869,10 +869,12 @@ class Partner extends CI_Controller {
         } else {
             $return_data['is_reporting_mail'] = '0';
         }
-
+        
+        $return_data['booking_review_for'] = NULL;
         if($this->input->post('is_review')){
             $return_data['booking_review_for'] = 'Cancelled';
         }
+        $return_data['review_time_limit'] = NULL;
         if($this->input->post('review_time_limit')){
          $return_data['review_time_limit'] = $this->input->post('review_time_limit');
         }
@@ -902,7 +904,6 @@ class Partner extends CI_Controller {
             $return_data['upcountry_bill_to_partner'] = 0;
         }
 //        $partner_data_final['partner'] = $return_data;
-        $return_data['is_booking_close_by_app_only'] = $this->input->post('is_booking_close_by_app_only');
         return $return_data;
     }
 
@@ -1076,7 +1077,7 @@ class Partner extends CI_Controller {
             $code[] = $row['code']; // add each partner code to the array
         }
         $results['partner_code_availiable'] = $code;
-        $partner_code_arr = ((isset($saas_flag) && !$saas_flag) ? array('R', 'S', 'P', 'L', 'M') : array('Z'));
+        $partner_code_arr = ((isset($saas_flag) && !$saas_flag) ? array('R', 'S', 'P', 'L', 'M', 'N') : array('Z'));
         $all_partner_code = $this->partner_model->get_all_partner_code('code', $partner_code_arr);
         foreach ($all_partner_code as $row) {
             $all_code[] = $row['code']; 
@@ -1115,8 +1116,15 @@ class Partner extends CI_Controller {
        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id($select, array('micro_wh_mp.partner_id' => $id)); 
        $results['partner_am_mapping'] = $this->partner_model->getpartner_data("partners.public_name, agent_filters.*, employee.full_name, employee.groups", array("partners.id" => $id, "agent_filters.entity_id IS NOT NULL" => NULL),"",TRUE,0,1);
        $this->miscelleneous->load_nav_header();
+       $mapped_service_centers = $this->partner_model->get_mapped_service_center($id);
+       $mapped_service_center_where = ['active' => 1];
+       if(!empty($mapped_service_centers)) {
+           $mapped_service_centers_ids = implode(',', array_column($mapped_service_centers, 'service_center_id'));
+           $mapped_service_center_where = ['active' => 1, "id not in ({$mapped_service_centers_ids})" => NULL];
+       }
+       $unmapped_service_centers = $this->reusable_model->get_search_result_data("service_centres","id, name",$mapped_service_center_where,NULL,NULL,NULL,NULL,NULL);
        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 
-           'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh,'saas_flag' => $saas_flag));
+           'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh,'saas_flag' => $saas_flag, 'mapped_service_centers' => $mapped_service_centers, 'unmapped_service_centers' => $unmapped_service_centers));
     }
 
     /**
@@ -1552,7 +1560,8 @@ class Partner extends CI_Controller {
                     //From will be currently logged in user
                     $from = $partner_details['email'];
                     //getting rm email
-                    $rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($bookinghistory[0]['assigned_vendor_id'])[0]['official_email'];
+                    $arr_rm_mail = $this->vendor_model->get_rm_sf_relation_by_sf_id($bookinghistory[0]['assigned_vendor_id']);
+                    $rm_mail = !empty($arr_rm_mail[0]['official_email']) ? $arr_rm_mail[0]['official_email'] : "";
                     $to = $am_email;
                     $cc = $rm_mail.','.$partner_details['email'];
                     $email['booking_id'] = $booking_id;
@@ -1561,9 +1570,12 @@ class Partner extends CI_Controller {
                     $subject['booking_id'] = $booking_id;
                     $subjectBody = vsprintf($template[4], $subject);
                     //Sending Mail
-                    $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel', "", $booking_id);
-                    //Logging
-                    log_message('info', " Escalation Mail Send successfully " . $emailBody);
+                    if(!empty($from) && !empty($to))
+                    {
+                        $this->notify->sendEmail($from, $to, $template[3] . "," . $cc, '', $subjectBody, $emailBody, "",'escalation_on_booking_from_partner_panel', "", $booking_id);
+                        //Logging
+                        log_message('info', " Escalation Mail Send successfully " . $emailBody);
+                    }
                 } else {
                     //Logging Error Message
                     log_message('info', " Error in Getting Email Template for Escalation Mail");
@@ -1734,7 +1746,7 @@ class Partner extends CI_Controller {
             $booking_details['service_id'] = $post['service_id'];
             $booking_details['booking_remarks'] = $post['remarks'];
             $booking_details['user_id'] = $user['user_id'];
-            $booking_details['service_center_closed_date'] = NULL;
+//            $booking_details['service_center_closed_date'] = NULL;
             $booking_details['cancellation_reason'] = NULL;
             $booking_details['booking_request_symptom'] = $post['booking_request_symptom'];
             $upcountry_data = json_decode($post['upcountry_data'], TRUE);
@@ -2138,6 +2150,15 @@ class Partner extends CI_Controller {
                     } else {
                         $data['defective_return_to_entity_id'] = $this->session->userdata('partner_id');
                         $data['defective_return_to_entity_type'] = _247AROUND_PARTNER_STRING;
+                        $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                        
+                        if (empty($is_saas)) {
+                            if ($data['defective_return_to_entity_type'] == _247AROUND_PARTNER_STRING) {
+                                $data['defective_return_to_entity_type'] = _247AROUND_SF_STRING;
+                                $data['defective_return_to_entity_id'] = DEFAULT_WAREHOUSE_ID;
+                            }
+                        }
+
                         $spare_id = $this->inset_new_spare_request($booking_id, $data, $value);
                     }
                     
@@ -2254,6 +2275,7 @@ class Partner extends CI_Controller {
         $data['defective_parts_pic'] = $sp_details[0]['defective_parts_pic'];
         $data['defective_back_parts_pic'] = $sp_details[0]['defective_back_parts_pic'];
         $data['serial_number_pic'] = $sp_details[0]['serial_number_pic'];
+        $data['part_warranty_status']=$this->input->post('part_warranty_status');
         if(!empty($part_details['shipped_part_type'])){
             $data['parts_requested_type'] = $part_details['shipped_part_type'];
         } else {
@@ -3009,6 +3031,7 @@ class Partner extends CI_Controller {
                 'partner_appliance_details.service_id' => $service_id,
                 'partner_appliance_details.brand' => $brand,
                 'partner_appliance_details.category' => $category,
+                'partner_appliance_details.active' => 1,
                 'appliance_model_details.active'=> 1
             );
             
@@ -4874,7 +4897,7 @@ class Partner extends CI_Controller {
      */
     function process_partner_learning_collaterals(){
         $partner = $this->input->post('partner_id');
-        if(!empty($this->input->post('l_c_model')) && !empty($this->input->post('l_c_capacity'))){
+        if(!empty($this->input->post('l_c_model') || !empty($this->input->post('text_model'))) && !empty($this->input->post('l_c_capacity'))){
             $this->session->set_userdata('error', 'Either Select Capacity OR Select Model, Please Do not select Both Together');
             redirect(base_url() . 'employee/partner/editpartner/' . $partner);
             return FALSE;
@@ -4919,6 +4942,13 @@ class Partner extends CI_Controller {
             }
             if($this->input->post('l_c_model') && !empty($this->input->post('l_c_model'))){
               $l_c_capacity = $this->input->post('l_c_model');  
+              $is_model =  1;
+            }
+            if($this->input->post('text_model') && !empty($this->input->post('text_model'))){
+              $text_model = $this->input->post('text_model');  
+              $l_c_capacity = explode(',', $text_model);
+              $l_c_capacity = array_filter($l_c_capacity);
+              $l_c_capacity = array_map('trim', $l_c_capacity);
               $is_model =  1;
             }
              if($this->input->post('description') && $this->input->post('description') !=''){
@@ -5052,6 +5082,7 @@ class Partner extends CI_Controller {
     
     function download_sf_declaration($sf_id) {
         log_message("info", __METHOD__." SF Id ". $sf_id);
+        ob_start();
         $this->checkUserSession();
         $pdf_details = $this->miscelleneous->generate_sf_declaration($sf_id);
         
@@ -5073,6 +5104,7 @@ class Partner extends CI_Controller {
             log_message("info", __METHOD__." file details  ". print_r($pdf_details,true));
             echo $pdf_details['message'];
         }
+        ob_end_flush();
     }
     
     
@@ -5376,7 +5408,7 @@ class Partner extends CI_Controller {
             "spare_parts_details.defective_return_to_entity_type" => _247AROUND_PARTNER_STRING,
             "status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL
         );
-        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, "
+        $select = "CONCAT( '', GROUP_CONCAT((defective_part_shipped ) ) , '' ) as defective_part_shipped, i.part_number as part_code, spare_parts_details.shipped_quantity as shipped_quantity,"
                 . " spare_parts_details.booking_id, users.name, courier_name_by_sf, awb_by_sf, spare_parts_details.sf_challan_number, spare_parts_details.partner_challan_number, "
                 . "defective_part_shipped_date,remarks_defective_part_by_sf";
         $group_by = "spare_parts_details.booking_id";
@@ -7559,7 +7591,7 @@ class Partner extends CI_Controller {
      */
     function get_repeat_booking_form($booking_id) {
          log_message('info', __FUNCTION__ . " Booking ID  " . print_r($booking_id, true));
-        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id,  "current_status not in ('Cancelled','Completed') " =>NULL),NULL,NULL,NULL,NULL,NULL,array());
+        $openBookings = $this->reusable_model->get_search_result_data("booking_details","booking_id",array("parent_booking"=>$booking_id,  "service_center_closed_date IS NULL " =>NULL),NULL,NULL,NULL,NULL,NULL,array());
         if(empty($openBookings)){
             $this->get_editbooking_form($booking_id,"Repeat");
         }
@@ -7568,13 +7600,15 @@ class Partner extends CI_Controller {
         }
     }
     function get_booking_relatives($booking_id){
-        $this->checkUserSession();
-        $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
-        if(!empty($relativeData)){
-            echo  json_encode($relativeData[0]);
-        }
-        else{
-            echo false;
+//        $this->checkUserSession();
+        if($this->session->userdata('loggedIn') == TRUE) {
+            $relativeData = $this->booking_model->get_parent_child_sibling_bookings($booking_id);
+            if(!empty($relativeData)){
+                echo  json_encode($relativeData[0]);
+            }
+            else{
+                echo false;
+            }
         }
     }
  
@@ -7862,8 +7896,16 @@ class Partner extends CI_Controller {
     
     public function brandCollateral()
     {
+        if(!empty($this->session->userdata('service_center_id')))
+        {
+            $this->load->view('service_centers/header');
+        }
+        else
+        {
+            $this->miscelleneous->load_nav_header();
+        }
+        
         $partnerArray = array();
-        $this->miscelleneous->load_nav_header();
         $partners = $this->partner_model->getpartner();
         foreach($partners as $partnersDetails){
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
@@ -8515,6 +8557,7 @@ class Partner extends CI_Controller {
                     $booking['partner_internal_status'] = $partner_status[1];
                     $actor = $booking['actor'] = $partner_status[2];
                     $next_action = $booking['next_action'] = $partner_status[3];
+                    $booking['nrn_approved'] = 1;
                 }
                 $this->booking_model->update_booking($booking_id, $booking);
 
@@ -8532,7 +8575,18 @@ class Partner extends CI_Controller {
         }
        
     }
-
-
+    
+    /**
+     * 
+     * @param type $partner_id
+     */
+    function update_en_vendor_brand_mapping($partner_id) {
+        $post_data = $this->input->post();
+        if(!empty($post_data['service_center_id']) && is_array($post_data['service_center_id'])) {
+            $this->partner_model->insert_en_vendor_brand_mapping($partner_id, $post_data['service_center_id']);
+        } else {
+            $this->partner_model->update_en_vendor_brand_mapping($partner_id, $post_data['service_center_id'], $post_data);
+        }
+    }
 
 }

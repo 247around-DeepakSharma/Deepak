@@ -242,7 +242,6 @@ class vendor extends CI_Controller {
         $vendor_data['is_cp'] = $this->input->post('is_cp');
         $vendor_data['is_wh'] = $this->input->post('is_wh');
         $vendor_data['isEngineerApp'] = $this->input->post('is_engineer');
-        $vendor_data['is_booking_close_by_app_only'] = $this->input->post('is_booking_close_by_app_only');
         $vendor_data['is_buyback_gst_invoice'] = $this->input->post('is_buyback_gst_invoice');
         $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
         $vendor_data['minimum_guarantee_charge'] = $this->input->post('minimum_guarantee_charge');
@@ -1093,7 +1092,7 @@ class vendor extends CI_Controller {
                 $select = "service_center_booking_action.id, service_center_booking_action.booking_id, service_center_booking_action.current_status,service_center_booking_action.internal_status";
                 $where = array("service_center_booking_action.booking_id"=>$booking_id);
                 $booking_action_details = $this->vendor_model->get_service_center_booking_action_details($select, $where);
-                $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id, booking_details.partner_id',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+                $previous_sf_id = $this->reusable_model->get_search_query('booking_details','booking_details.assigned_vendor_id, booking_details.partner_id, booking_details.request_type',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
     //            if (IS_DEFAULT_ENGINEER == TRUE) {
     //                $b['assigned_engineer_id'] = DEFAULT_ENGINEER;
     //            } else {
@@ -1229,7 +1228,15 @@ class vendor extends CI_Controller {
                 log_message('info', "Reassigned - Booking id: " . $booking_id . "  By " .
                         $this->session->userdata('employee_id') . " service center id " . $service_center_id);
 
-
+                //Send sms to customer for new service center address if request type is repair service center visit 
+                if ($previous_sf_id[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG || $previous_sf_id[0]['request_type'] == HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) {
+                    $query = $this->booking_model->getbooking_history($booking_id, "1");
+                    $services = $unit_details[0]['brand'] . " " . $query[0]['services'];
+                    $sf_phone = $query[0]['phone_1'] . ", " . $query[0]['primary_contact_phone_1'] . ", " . $query[0]['owner_phone_1'];
+                    $sf_address = $query[0]['address'].", ".$query[0]['sf_district'];
+                    $this->miscelleneous->sms_sf_address_to_customer($services, $sf_phone, $sf_address, $query[0]['booking_id'], $query[0]['user_id'],  $query[0]['booking_primary_contact_no']);
+                }
+                //End
 
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
         } else {
@@ -1928,17 +1935,27 @@ class vendor extends CI_Controller {
                     $data['create_date'] = date("Y-m-d H:i:s");
 
                     $engineer_id = $this->vendor_model->insert_engineer($data);
-
                     if ($engineer_id) {
                         //insert engineer appliance detail in engineer_appliance_mapping table
                         $eng_services_data = array();
-                        foreach ($service_id as $id) {
-                            $eng_services['engineer_id'] = $engineer_id;
-                            $eng_services['service_id'] = $id;
-                            $eng_services['is_active'] = 1;
-                            array_push($eng_services_data, $eng_services);
+                        if(in_array("All", $service_id)){
+                            $all_services = $this->booking_model->selectservice();
+                            foreach ($all_services as $service_key => $service_value) {
+                                $eng_services['engineer_id'] = $engineer_id;
+                                $eng_services['service_id'] = $service_value->id;
+                                $eng_services['is_active'] = 1;
+                                array_push($eng_services_data, $eng_services);
+                            }
                         }
-
+                        else{
+                            foreach ($service_id as $id) { 
+                                $eng_services['engineer_id'] = $engineer_id;
+                                $eng_services['service_id'] = $id;
+                                $eng_services['is_active'] = 1;
+                                array_push($eng_services_data, $eng_services);
+                            }
+                        }
+                        
                         $this->engineer_model->insert_engineer_appliance_mapping($eng_services_data);
                         //insert engineer identity proof data
                         $data_identity['entity_type'] = _247AROUND_ENGINEER_STRING;
@@ -2077,8 +2094,44 @@ class vendor extends CI_Controller {
                     $this->vendor_model->update_entity_identity_proof($where_identity, $data_identity);
 
                     if($engineer_id){
+                        $this->engineer_model->update_engineer_appliance(array("engineer_id"=>$engineer_id), array("is_active"=>0));
+                        if(in_array("All", $service_id)){
+                            $all_services = $this->booking_model->selectservice();
+                            foreach ($all_services as $key => $value) {
+                                $data = array();
+                                $where = array(
+                                    "engineer_id" => $engineer_id,
+                                    "service_id" => $value->id,
+                                );
 
-                        $this->engineer_model->update_engineer_appliance_mapping($engineer_id, $service_id);
+                                $check_service = $this->engineer_model->get_engineer_appliance($where, "id");
+                                if(empty($check_service)){
+                                    array_push($data, $where);
+                                    $this->engineer_model->insert_engineer_appliance_mapping($data);
+                                }
+                                else{
+                                    $this->engineer_model->update_engineer_appliance(array("id"=>$check_service[0]['id']), array("is_active"=>1));
+                                }
+                            }
+                        }
+                        else{
+                            foreach ($service_id as $key => $value) {
+                                $data = array();
+                                $where = array(
+                                    "engineer_id" => $engineer_id,
+                                    "service_id" => $value,
+                                );
+
+                                $check_service = $this->engineer_model->get_engineer_appliance($where, "id");
+                                if(empty($check_service)){
+                                    array_push($data, $where);
+                                    $this->engineer_model->insert_engineer_appliance_mapping($data);
+                                }
+                                else{
+                                    $this->engineer_model->update_engineer_appliance(array("id"=>$check_service[0]['id']), array("is_active"=>1));
+                                }
+                            }
+                        }
                     }
 
                     log_message('info', __METHOD__ . "=> Engineer Details Added.");
@@ -3096,8 +3149,9 @@ class vendor extends CI_Controller {
     function download_sf_list_excel(){
         //Getting only Active Vendors List
         //$vendor  = $this->vendor_model->viewvendor('',1);
-        $where = array('active' => '1','on_off' => '1', 'is_CP' => '0');
-        $select = "*";
+//        $where = array('active' => '1','on_off' => '1', 'is_CP' => '0');
+        $where = array('is_CP' => '0');
+        $select = "*, (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'In-Active' END) as active_status, (CASE WHEN service_centres.on_off = 1 THEN 'On' ELSE 'Off' END) as on_off_status";
         $whereIN = array();
         if($this->session->userdata('user_group') == 'regionalmanager'){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
@@ -5815,21 +5869,47 @@ class vendor extends CI_Controller {
     }
     
     function engineer_wise_calls() {
-        
-        $this->load->view('service_centers/header');
-        $data['engineers'] = $this->reusable_model->get_search_result_data("engineer_details","engineer_details.id,name",[],NULL,NULL,array("name"=>"ASC"),NULL,array());
-        $data['status'] = ['Pending', 'FollowUp', 'Completed', 'Rescheduled', 'Cancelled'];
-        $this->load->view('service_centers/view_engineer_vise_calls',$data);
-        
+        if($this->session->userdata('userType') == 'service_center'){
+            $service_center_id = $this->session->userdata('service_center_id');
+            $this->load->view('service_centers/header');
+            $data['engineers'] = $this->reusable_model->get_search_result_data("engineer_details","engineer_details.id,name",['service_center_id'=>$service_center_id],NULL,NULL,array("name"=>"ASC"),NULL,array());
+            $data['status'] = ['Pending', 'InProcess', 'Completed', 'Cancelled'];
+            $this->load->view('service_centers/view_engineer_vise_calls',$data);
+        }
     }
     
     function get_engineer_vise_call_details() {
         $post = $this->get_post_data();
         if ($this->input->post('engineer_id')) {
-            $post[''] = array();
-          
-            $list = $this->engineer_model->get_engineer_vise_call_list($this->input->post());
-           
+            $post['column_order'] = array();
+
+            $post['order'] = array('booking_details.booking_date' => "DESC");
+            $post['column_search'] = array('booking_details.booking_id');
+            $post['where'] = array('engineer_booking_action.engineer_id' => $this->input->post('engineer_id'), 'engineer_booking_action.current_status' => $this->input->post('status'));
+            $post['join'] = array(
+                "engineer_booking_action" => "engineer_booking_action.booking_id = booking_details.booking_id",
+                "partners" => "booking_details.partner_id = partners.id",
+                "users" => "booking_details.user_id = users.user_id",
+                "services" => "booking_details.service_id = services.id",
+            );
+            $post['joinType'] = array(
+                "engineer_booking_action" => "INNER",
+                "partners" => "LEFT",
+                "users" => "LEFT",
+                "services" => "LEFT",
+            );
+            
+            $select = "distinct(booking_details.booking_id), booking_details.booking_address, booking_details.request_type, booking_details.booking_date, booking_details.count_escalation,
+                    booking_details.booking_primary_contact_no, engineer_booking_action.internal_status,
+                    users.name as username,
+                    partners.public_name as partner_name,
+                    services.services,
+                    DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE( booking_details.initial_booking_date, '%d-%m-%Y')) as age_of_booking,
+                    (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = booking_details.booking_id GROUP BY brand.booking_id ) as appliance_brand";
+
+            $list = $this->reusable_model->get_datatable_data("booking_details", $select, $post);
+            //$list = $this->engineer_model->get_engineer_vise_call_list($this->input->post());
+            
             $data = array();
             $no = $post['start'];
             foreach ($list as $call_list) {
@@ -5844,7 +5924,7 @@ class vendor extends CI_Controller {
 
             $output = array(
                 "draw" => $this->input->post('draw'),
-                "recordsTotal" => count($list),
+                "recordsTotal" => $this->reusable_model->count_all_result("engineer_booking_action", $post['where']),
                 "recordsFiltered" => count($list),
                 'stock' => 0,
                 "data" => $data,
@@ -5866,15 +5946,16 @@ class vendor extends CI_Controller {
         $row = array();
         
         $row[] = $sn;
-        $row[] = '<span>' . $call_list['booking_id'] . '</span>';
-        $row[] = '<span>' . $call_list['username']."<br>".$call_list['booking_primary_contact_no'] . '</span>';
-        $row[] = '<span>' . $call_list['booking_address'] . '</span>';
-        $row[] = '<span><b>' . $call_list['request_type'] .'</b> '.$call_list['services'] . '</span>';
-        $row[] = '<span>' . $call_list['booking_date'] . '</span>';
-        $row[] = '<span>' . $call_list['age_of_booking'] . '</span>';
-        $row[] = '<span>' . $call_list['partner_name'] . '</span>';
-        $row[] = '<span>' . $call_list['appliance_brand'] . '</span>';
-        $row[] = '<span>' . $call_list['count_escalation'] . '</span>';
+        $row[] = '<span>' . $call_list->booking_id . '</span>';
+        $row[] = '<span>' . $call_list->username."<br>".$call_list->booking_primary_contact_no . '</span>';
+        $row[] = '<span>' . $call_list->booking_address . '</span>';
+        $row[] = '<span><b>' . $call_list->request_type .'</b> '.$call_list->services . '</span>';
+        $row[] = '<span>' . $call_list->booking_date . '</span>';
+        $row[] = '<span>' . $call_list->age_of_booking . '</span>';
+        $row[] = '<span>' . $call_list->partner_name . '</span>';
+        $row[] = '<span>' . $call_list->appliance_brand . '</span>';
+        $row[] = '<span>' . $call_list->internal_status . '</span>';
+        $row[] = '<span>' . $call_list->count_escalation . '</span>';
 
         return $row;
     }

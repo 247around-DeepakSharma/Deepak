@@ -290,7 +290,7 @@
                     pageSize: 'LEGAL',
                     title: 'pending_bookings',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7],
+                       columns: [1,2,3,4,5,6,7, 8],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'

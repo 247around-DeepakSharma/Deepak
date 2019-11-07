@@ -77,13 +77,13 @@
             <div class="modal-content">
 
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">×</span>
+                    <button type="button" class="close" data-dismiss="modal" id="escalate_form_close"><span aria-hidden="true">×</span>
                     </button>
                     <h4 class="modal-title" id="myModalLabel">Escalate Form</h4>
                 </div>
                 <div class="modal-body">
                     
-                    <form class="form-horizontal" action="#" method="POST" target="_blank" >
+                    <form class="form-horizontal" action="#" method="POST" target="_blank" id="escalate_form">
                          <h4 class="col-md-offset-3" id ="failed_validation" style="color:red;margin-top: 0px;margin-bottom: 35px;"></h4>
                         <h4 class="col-md-offset-3" id ="success_validation" style="color:green;margin-top: 0px;margin-bottom: 35px;"></h4>
                         <div class="form-group">
@@ -307,12 +307,12 @@
                     data: {escalation_reason_id: escalation_id,escalation_remarks:remarks,  booking_id:booking_id},
                     success: function (data) {
                         if(data === "success"){
-                            $("#failed_validation").text("");
-                            $("#success_validation").text("Booking Escalated");
+                            $("#failed_validation").html("");
+                            $("#success_validation").html("Booking Escalated");
                             location.reload();
                             $('#myModal').modal('toggle');
                        } else {
-                           $("#success_validation").text("");
+                           $("#success_validation").html("");
                            $("#failed_validation").html(data);
                        }
                     }
@@ -333,6 +333,13 @@
          }
        });
     }
+    
+    $('#myModal').on('hidden.bs.modal', function () {
+        $('#escalation_reason_id').val('');
+        $('#es_remarks').val('');
+        $('#failed_validation').html('');
+        $('#success_validation').html('');
+    });
     </script>
     <style>
 /*        .dataTables_filter{
