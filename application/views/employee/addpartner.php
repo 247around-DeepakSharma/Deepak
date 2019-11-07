@@ -5736,9 +5736,9 @@
             $.ajax({method:'POST', url: ajaxUrl, data: {service_center_id:service_center_id}}).done(function(data) {
                 location.reload();
             });
-            
         }
-
+    }
+    
     var specialKeys = new Array();
     specialKeys.push(8);  //Backspace
     specialKeys.push(9);  //Tab
