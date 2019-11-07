@@ -1017,7 +1017,7 @@
                 $(".select2-selection__rendered").html('');
             },
             success:function(response){
-                //console.log(response);
+                console.log(response);
                 obj = JSON.parse(response);
                 if(obj.status){
                     swal("Thanks!", "Details updated successfully!", "success");
