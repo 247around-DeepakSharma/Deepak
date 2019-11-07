@@ -440,43 +440,33 @@ FROM
        return $this->db->query($query);
    }
    
+
+
+   function update_rm_relation_details($id,$service_centres_id,$individual_service_centres_id, $state_code) {
+    //$data=$this->db->query("SELECT GROUP_CONCAT(id SEPARATOR ',') as 'service_center' FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL")->result_array();
+    $query="UPDATE `employee_relation` SET "
+                      ."   `service_centres_id`= '".$service_centres_id."',"
+                     ."`individual_service_centres_id` = '".$individual_service_centres_id."',"
+                     ."`state_code`= '".$state_code."'"
+                     ."   WHERE `agent_id`=".$id;
+   // print_r($query);
+    return $this->db->query($query);
+}
+
    /**
     * @desc : This function is used to remove all mapping of state in database
     * @param type $state
     * @return type
     */
-   function remove_all_rm_state_map($state) {
-        $sql_individual_service_centres_id = "UPDATE `employee_relation` as a "
-                ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , a.`state_code`) "
-                ."LEFT JOIN `service_centres` on (`state_code`.`state` = `service_centres`.`state`) "
-                ."SET a.`individual_service_centres_id` = ( "
-                ."select TRIM(BOTH ',' FROM REPLACE(CONCAT(',',b.`individual_service_centres_id`, ','), "
-                ."CONCAT(\",\",GROUP_CONCAT(`service_centres`.`id` ORDER BY `service_centres`.`id` SEPARATOR ','),\",\"), ',')) from `employee_relation` b "
-                ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` ,b.`state_code`) "
-                ."LEFT JOIN `service_centres` on (`state_code`.`state` = `service_centres`.`state`) "
-                ."WHERE `state_code`.`state` = '".trim($state)."' and   b.`agent_id` = a.agent_id) " 
-                ."WHERE `state_code`.`state` = '".trim($state)."'";
-        
-        $sql_service_centres_id = "UPDATE `employee_relation` as a "
-                ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , a.`state_code`) "
-                ."LEFT JOIN `service_centres` on (`state_code`.`state` = `service_centres`.`state`) "
-                ."SET a.`service_centres_id` = ( "
-                ."select TRIM(BOTH ',' FROM REPLACE(CONCAT(',',b.`service_centres_id`, ','), "
-                ."CONCAT(\",\",GROUP_CONCAT(`service_centres`.`id` ORDER BY `service_centres`.`id` SEPARATOR ','),\",\"), ',')) from `employee_relation` b "
-                ."LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` ,b.`state_code`) "
-                ."LEFT JOIN `service_centres` on (`state_code`.`state` = `service_centres`.`state`) "
-                ."WHERE `state_code`.`state` = '".trim($state)."' and   b.`agent_id` = a.agent_id) "
-                ."WHERE `state_code`.`state` = '".trim($state)."'";
-        
-        $sql_state_code = "UPDATE `employee_relation` 
-                LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , `employee_relation`.`state_code`)
-                SET `employee_relation`.`state_code` =TRIM(BOTH ',' FROM REPLACE(CONCAT(',', `employee_relation`.`state_code`, ','), CONCAT(',',`state_code`.`id`,','), ','))
-                WHERE `state_code`.`state` = '".trim($state)."'";
+   function pick_all_rm_state_map($state) {
+        $sql_individual_service_centres_id = "select emp_rel.id,emp_rel.service_centres_id,emp_rel.individual_service_centres_id,emp_rel.state_code from `employee_relation` as emp_rel 
+        LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , emp_rel.`state_code`) 
+        WHERE `state_code`.`state` = '".trim($state)."'";
        
-        $res=$this->db->query($sql_individual_service_centres_id);
-        $res=$this->db->query($sql_service_centres_id);
-        $res= $this->db->query($sql_state_code);
-        return '';
+        $res=$this->db->query($sql_individual_service_centres_id)->result_array();
+        return $res;
+
+
    }
    
    /**
