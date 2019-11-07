@@ -2099,8 +2099,44 @@ class vendor extends CI_Controller {
                     $this->vendor_model->update_entity_identity_proof($where_identity, $data_identity);
 
                     if($engineer_id){
+                        $this->engineer_model->update_engineer_appliance(array("engineer_id"=>$engineer_id), array("is_active"=>0));
+                        if(in_array("All", $service_id)){
+                            $all_services = $this->booking_model->selectservice();
+                            foreach ($all_services as $key => $value) {
+                                $data = array();
+                                $where = array(
+                                    "engineer_id" => $engineer_id,
+                                    "service_id" => $value->id,
+                                );
 
-                        $this->engineer_model->update_engineer_appliance_mapping($engineer_id, $service_id);
+                                $check_service = $this->engineer_model->get_engineer_appliance($where, "id");
+                                if(empty($check_service)){
+                                    array_push($data, $where);
+                                    $this->engineer_model->insert_engineer_appliance_mapping($data);
+                                }
+                                else{
+                                    $this->engineer_model->update_engineer_appliance(array("id"=>$check_service[0]['id']), array("is_active"=>1));
+                                }
+                            }
+                        }
+                        else{
+                            foreach ($service_id as $key => $value) {
+                                $data = array();
+                                $where = array(
+                                    "engineer_id" => $engineer_id,
+                                    "service_id" => $value,
+                                );
+
+                                $check_service = $this->engineer_model->get_engineer_appliance($where, "id");
+                                if(empty($check_service)){
+                                    array_push($data, $where);
+                                    $this->engineer_model->insert_engineer_appliance_mapping($data);
+                                }
+                                else{
+                                    $this->engineer_model->update_engineer_appliance(array("id"=>$check_service[0]['id']), array("is_active"=>1));
+                                }
+                            }
+                        }
                     }
 
                     log_message('info', __METHOD__ . "=> Engineer Details Added.");
