@@ -3559,7 +3559,11 @@ class Inventory extends CI_Controller {
                                         log_message('info', 'Courier Details added successfully.');
                                         
                                         foreach ($parts_details as $value) {
-                                            $request_type = trim($value['request_type']);
+                                            if(isset($value['request_type']) && !empty($value['request_type'])){
+                                                    $request_type = trim($value['request_type']);
+                                            }else{
+                                              $request_type = REPAIR_OOW_TAG;
+                                            }
                                             if ($value['shippingStatus'] == 1) {
                                                 //Parts shipped
                                                 $this->table->add_row($value['part_name'], $value['part_number'], $value['quantity'], $value['booking_id'], $value['part_total_price'], $value['gst_rate'], $value['hsn_code']);
@@ -3603,7 +3607,9 @@ class Inventory extends CI_Controller {
                                                     $ledger_data['courier_id'] = $insert_courier_details;
                                                     $ledger_data['is_wh_micro'] = $is_wh_micro;
                                                     $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
+                                                    if(isset($value['request_type']) && !empty($value['request_type'])){
                                                     $ledger_data['request_type'] = trim($value['request_type']); 
+                                                    } 
                                                     $ledger_data['is_defective_part_return_wh'] = $is_defective_part_return_wh;
 
                                                     if ($insert_id) {
