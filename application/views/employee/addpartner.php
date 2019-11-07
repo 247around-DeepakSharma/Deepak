@@ -1468,10 +1468,17 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="Services">Select Model </label>
-                                    <div class="checkbox" style="float:right;"><input onchange="select_all_models()" id="models_all" type="checkbox" value="">Select All</div>
-                                    <select class="form-control" id="l_c_model" name="l_c_model[]" multiple="multiple" disabled="">
-                                    </select>
+                                    <div id="text_model_div"  style="display:none;">
+                                        <label for="Services">Enter Model (Enter comma seperated values) </label>
+                                        <input  type="text" class="form-control"  name="text_model" id="text_model" value = "" placeholder="Enter Model" onkeypress="return IsModelValid(event);"> 
+                                        <span id="model_error" style="color: Red; display: none">* Special Characters not allowed.</span>
+                                    </div>
+                                    <div id="l_c_model_div">
+                                        <label for="Services">Select Model </label>                                   
+                                        <div class="checkbox" style="float:right;"><input onchange="select_all_models()" id="models_all" type="checkbox" value="">Select All</div>
+                                        <select class="form-control" id="l_c_model" name="l_c_model[]" multiple="multiple" disabled="">
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="col-md-12" style="padding: 10px 0px;width: 102%;">
                                     <div class="col-md-4" style="padding: 0px;width: 40%;">

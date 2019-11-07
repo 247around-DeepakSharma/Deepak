@@ -88,6 +88,7 @@
                                     <label for="Appliances" class="col-md-4">Appliances *</label>
                                     <div class="col-md-6">
                                         <select type="text" class="form-control"  id="service_id" name="service_id[]" multiple="multiple"  required>
+                                            <option value="All">All</option>
                                                 <?php 
                                                 $list = [];
                                                 if(isset($data)){
@@ -309,7 +310,9 @@
 //        var bank_account_no = $('#bank_account_no').val();
 //        alert(bank_account_no);
 //    }
-
+    $.validator.addMethod("regx", function (value, element, regexpr) {
+        return regexpr.test(value);
+    }, "Please enter a valid Phone Number.");
     (function ($, W, D)
     {
     var JQUERY4U = {};
@@ -325,7 +328,8 @@
                 phone: {
                         required: true,
                         minlength: 10,
-                        number: true
+                        number: true,
+                        regx: /^[6-9]{1}[0-9]{9}$/
                     },
 //                alternate_phone:{
 //
