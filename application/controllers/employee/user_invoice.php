@@ -1249,7 +1249,11 @@ class User_invoice extends CI_Controller {
             $this->invoices_model->insert_inventory_invoice($m);
         }
         $invoices[0]['invoice_id'] = $invoice_id;
-        $invoices[0]['c_s_gst'] = $this->invoices_model->check_gst_tax_type($main_company_state);
+        if($invoices[0]['state'] ==  $main_company_state){
+            $invoices[0]['c_s_gst'] = TRUE;
+        } else {
+            $invoices[0]['c_s_gst'] = FALSE; 
+        }
 
         $response = $this->invoices_model->_set_partner_excel_invoice_data($invoices, $sd, $ed, "Tax Invoice", $invoice_date);
         $response['meta']['invoice_id'] = $invoice_id;
