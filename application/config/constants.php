@@ -574,7 +574,7 @@ define("PARTNER_SWEETENER_CHARGE_INVOICE_TAGGING", "Partner Sweetener Charge");
 
 // Region Constatnts
 define('EAST_RM', 'Souvik Ganguly');
-define('SOUTH_RM', 'Suresh K');
+define('SOUTH_RM', 'K sankara Narayana Krishnan');
 define('WEST_RM', 'Rajendra Oza');
 define('NORTH_RM', 'Arun Kaushik');
 define('TOTAL', 'Total');
