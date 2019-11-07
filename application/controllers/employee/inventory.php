@@ -3807,7 +3807,7 @@ class Inventory extends CI_Controller {
                 $this->insert_new_spare_item($ledger, $fomData, $wh_id, $s_partner_id, $action_agent_id);
             }
         } else {
-            $array = array('requested_inventory_id' => $ledger['inventory_id'],
+         /*   $array = array('requested_inventory_id' => $ledger['inventory_id'],
                 'status' => SPARE_PARTS_REQUESTED
                 ,
                // 'entity_type IN (' => _247AROUND_SF_STRING,_247AROUND_PARTNER_STRING.')',
@@ -3828,6 +3828,7 @@ class Inventory extends CI_Controller {
                     . "spare_parts_details.status,spare_parts_details.part_warranty_status, spare_parts_details.entity_type, spare_parts_details.partner_id, "
                     . "requested_inventory_id,spare_parts_details.courier_name_by_partner,spare_parts_details.model_number,spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.shipped_date,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_quantity", $array, false,false,false,$post);
             
+			
             log_message('info', __METHOD__ . " Spare Data " . json_encode($spare, true));
             if (!empty($spare)) {
                 foreach ($spare as $value) {
@@ -3911,7 +3912,7 @@ class Inventory extends CI_Controller {
                         $qty = $qty + 1;
                     }
                 }
-            }
+            }*/
         }
     }
 
