@@ -55,16 +55,24 @@ class push_notification_model extends CI_Model {
     }
     /*
      * This Function is used to get subscriber id on combination of entity_type and entity_id
-     * @input $entityIDTypeArray - array('employee'=>array('1','2'),'vendor'=>array('1','2','11'))
+     * @input $entityIDTypeArray = array('employee'=>array('1','2'),'vendor'=>array('1','2','11'))
      */
     function get_subscriberID_by_entity_type_and_entity_id($entityIDTypeArray){
         $tempArray = array();
+        $strWhere = "";
         foreach($entityIDTypeArray as $entity_type=>$entity_ID_array){
-            $tempArray[] = "(entity_type='".$entity_type."' AND entity_id IN (".implode(",",$entity_ID_array)."))";
+            if(!empty($entity_ID_array))
+            {
+                $tempArray[] = "(entity_type='".$entity_type."' AND entity_id IN (".implode(",",$entity_ID_array)."))";
+            }
         }
-      $sql = "SELECT DISTINCT(subscriber_id) FROM push_notification_subscribers WHERE ".implode(" OR ",$tempArray)." AND subscriber_id !=-1 AND unsubscription_flag =0 AND is_valid=1";
-       $query = $this->db->query($sql);
-       return $query->result_array();
+        if(!empty($tempArray)){
+            $strWhere = " AND ".implode(" OR ",$tempArray);
+        }
+        
+        $sql = "SELECT DISTINCT(subscriber_id) FROM push_notification_subscribers WHERE 1 ".$strWhere." AND subscriber_id !=-1 AND unsubscription_flag =0 AND is_valid=1";
+        $query = $this->db->query($sql);
+        return $query->result_array();
     }
     function get_booking_data($bookingIDArray){
          $this->db->select('booking_details.booking_id,booking_details.partner_id,service_center_booking_action.internal_status');
