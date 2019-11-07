@@ -3416,7 +3416,7 @@ class Inventory extends CI_Controller {
 //  
         $invoice_file_required =  $this->input->post('invoice_file');
                         
-        if (!$invoice_file_required) {
+        if ($invoice_file_required) {
            $invoice_file_required=0;      
                         
         }else{
