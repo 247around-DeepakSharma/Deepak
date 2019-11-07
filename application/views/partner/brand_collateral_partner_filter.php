@@ -66,7 +66,7 @@
             </div>
         </form>
     </div>
-    <div class="x_panel" style="height: auto;display:none;">
+    <div class="x_panel" style="height: auto;display:none;padding:20px;">
         <table id="brand_collateral_partner" class="table table-striped table-bordered">
             <thead>
                <tr>
