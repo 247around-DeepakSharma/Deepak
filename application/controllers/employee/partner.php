@@ -4862,7 +4862,7 @@ class Partner extends CI_Controller {
      */
     function process_partner_learning_collaterals(){
         $partner = $this->input->post('partner_id');
-        if(!empty($this->input->post('l_c_model')) && !empty($this->input->post('l_c_capacity'))){
+        if(!empty($this->input->post('l_c_model') || !empty($this->input->post('text_model'))) && !empty($this->input->post('l_c_capacity'))){
             $this->session->set_userdata('error', 'Either Select Capacity OR Select Model, Please Do not select Both Together');
             redirect(base_url() . 'employee/partner/editpartner/' . $partner);
             return FALSE;
@@ -4907,6 +4907,13 @@ class Partner extends CI_Controller {
             }
             if($this->input->post('l_c_model') && !empty($this->input->post('l_c_model'))){
               $l_c_capacity = $this->input->post('l_c_model');  
+              $is_model =  1;
+            }
+            if($this->input->post('text_model') && !empty($this->input->post('text_model'))){
+              $text_model = $this->input->post('text_model');  
+              $l_c_capacity = explode(',', $text_model);
+              $l_c_capacity = array_filter($l_c_capacity);
+              $l_c_capacity = array_map('trim', $l_c_capacity);
               $is_model =  1;
             }
              if($this->input->post('description') && $this->input->post('description') !=''){
@@ -7850,8 +7857,16 @@ class Partner extends CI_Controller {
     }
     public function brandCollateral()
     {
+        if(!empty($this->session->userdata('service_center_id')))
+        {
+            $this->load->view('service_centers/header');
+        }
+        else
+        {
+            $this->miscelleneous->load_nav_header();
+        }
+        
         $partnerArray = array();
-        $this->miscelleneous->load_nav_header();
         $partners = $this->partner_model->getpartner();
         foreach($partners as $partnersDetails){
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];

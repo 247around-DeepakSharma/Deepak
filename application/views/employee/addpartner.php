@@ -1465,10 +1465,17 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="Services">Select Model </label>
-                                    <div class="checkbox" style="float:right;"><input onchange="select_all_models()" id="models_all" type="checkbox" value="">Select All</div>
-                                    <select class="form-control" id="l_c_model" name="l_c_model[]" multiple="multiple" disabled="">
-                                    </select>
+                                    <div id="text_model_div"  style="display:none;">
+                                        <label for="Services">Enter Model (Enter comma seperated values) </label>
+                                        <input  type="text" class="form-control"  name="text_model" id="text_model" value = "" placeholder="Enter Model" onkeypress="return IsModelValid(event);"> 
+                                        <span id="model_error" style="color: Red; display: none">* Special Characters not allowed.</span>
+                                    </div>
+                                    <div id="l_c_model_div">
+                                        <label for="Services">Select Model </label>                                   
+                                        <div class="checkbox" style="float:right;"><input onchange="select_all_models()" id="models_all" type="checkbox" value="">Select All</div>
+                                        <select class="form-control" id="l_c_model" name="l_c_model[]" multiple="multiple" disabled="">
+                                        </select>
+                                    </div>
                                 </div>
                                 <div class="col-md-12" style="padding: 10px 0px;width: 102%;">
                                     <div class="col-md-4" style="padding: 0px;width: 40%;">
@@ -3990,6 +3997,11 @@
            document.getElementById("l_c_model").disabled = false;
            document.getElementById("l_c_model").innerHTML = modelDropdownString;
        }
+       else
+       {
+           $("#l_c_model_div").hide();
+           $("#text_model_div").show();
+       }
        if(collateral_typeDropdownString !== ''){
            document.getElementById("l_c_type").disabled = false;
            document.getElementById("l_c_type").innerHTML = collateral_typeDropdownString;
@@ -5629,5 +5641,21 @@
             alert("Incorrect IFSC Code");
             return false;
         }
+    }
+    
+    var specialKeys = new Array();
+    specialKeys.push(8);  //Backspace
+    specialKeys.push(9);  //Tab
+    specialKeys.push(46); //Delete
+    specialKeys.push(36); //Home
+    specialKeys.push(35); //End
+    specialKeys.push(37); //Left
+    specialKeys.push(39); //Right
+    
+    function IsModelValid(e) {
+        var keyCode = e.keyCode == 0 ? e.charCode : e.keyCode;
+        var ret = ((keyCode >= 48 && keyCode <= 57) || (keyCode >= 65 && keyCode <= 90) || keyCode == 32 || keyCode == 44 || (keyCode >= 97 && keyCode <= 122) || (specialKeys.indexOf(e.keyCode) != -1 && e.charCode != e.keyCode));
+        document.getElementById("model_error").style.display = ret ? "none" : "inline";
+        return ret;
     }
 </script>
