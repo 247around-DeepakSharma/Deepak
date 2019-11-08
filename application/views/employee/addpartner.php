@@ -132,7 +132,7 @@
                         <li><a id="14" href="#tabs-14"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Model Mapping</span></a></li>
                         <li><a id="16" href="#tabs-16"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Account Manager</span></a></li>
-                        <li><a id="17" href="#tabs-17"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Map Service Center</span></a></li>
+                        <li><a id="17" href="#tabs-17"><span class="panel-title" onclick="alert('Please Add Basic Details First')">Enable Service Center For App</span></a></li>
                         <?php
                             }
                             else{
@@ -153,7 +153,7 @@
                         <li><a id="14" href="#tabs-14" onclick="load_form(this.id)"><span class="panel-title">Model Number</span></a></li>
                         <li><a id="15" href="#tabs-15" onclick="load_form(this.id)"><span class="panel-title">Model Mapping</span></a></li>
                         <li <?php if($saas_flag){ ?>style="display:none;" <?php } ?>><a id="16" href="#tabs-16" onclick="load_form(this.id)"><span class="panel-title">Account Manager</span></a></li>
-                        <li><a id="17" href="#tabs-17" onclick="load_form(this.id)"><span class="panel-title">Map Service Center</span></a></li>                        
+                        <li><a id="17" href="#tabs-17" onclick="load_form(this.id)"><span class="panel-title">Enable Service Center For App</span></a></li>                        
                         <?php
                             }
                         ?>
@@ -2887,10 +2887,10 @@
         <div id="container_17" style="display:none;margin: 30px 10px;" class="form_container">
             <div class="col-md-12">
                 <div class="panel panel-default">
-                    <div class="panel-heading"><b>Service Centers</b></div>
+                    <div class="panel-heading"><b>Enable Service Centers For App</b></div>
                     <div class="panel-body">
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <select name="service_center" id="service_center" multiple>
                                         <option value="all">All</option>
@@ -2901,7 +2901,7 @@
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <input type="submit" name="map" value="Map" class="btn btn-primary" onclick="update_en_vendor_brand_mapping(this, <?php if(!empty($query[0]['id'])) { echo $query[0]['id']; }else{ echo '';} ?>)">
+                                <input type="submit" name="map" value="Enable" class="btn btn-primary map" onclick="update_en_vendor_brand_mapping(this, <?php if(!empty($query[0]['id'])) { echo $query[0]['id']; }else{ echo '';} ?>)">
                             </div>
                         </div>
                         
@@ -5722,9 +5722,7 @@
     $('#service_center').on('change', function(data) {
         if($(this).val() == 'all') {
             $("#service_center > option").prop("selected","selected");
-        }else{
-        $("#service_center > option").removeAttr("selected");
-     }
+        }
     });
     
     function update_en_vendor_brand_mapping(obj, partner_id = '', service_center_id = '') {
@@ -5733,9 +5731,19 @@
         var ajaxUrl = '<?php echo base_url();?>employee/partner/update_en_vendor_brand_mapping/'+partner_id;
 
         if(btn == 'sf_active') {
-            $.ajax({method:'POST', url: ajaxUrl, data: {service_center_id:service_center_id, active:'1'}});
+            $(obj).attr('disabled', 'disabled');
+            $(obj).text('Please wait...');
+            $.ajax({method:'POST', url: ajaxUrl, data: {service_center_id:service_center_id, active:'1'}}).done(function(data) {
+                alert('Data has been updated successfully.');
+                location.reload();
+            });
         } else if(btn == 'sf_inactive') {
-            $.ajax({method:'POST', url: ajaxUrl, data: {service_center_id:service_center_id, active:'0'}});
+            $(obj).attr('disabled', 'disabled');
+            $(obj).text('Please wait...');
+            $.ajax({method:'POST', url: ajaxUrl, data: {service_center_id:service_center_id, active:'0'}}).done(function(data) {
+                alert('Data has been updated successfully.');
+                location.reload();
+            });
         } else {
             // add mapping.
             service_center_id = $('#service_center').val();
@@ -5743,8 +5751,10 @@
                 alert('Please select service center.');
                 return false;
             } 
-            alert(service_center_id);
+            $('.map').attr('disabled', 'disabled');
+            $('.map').val('Please wait...')
             $.ajax({method:'POST', url: ajaxUrl, data: {service_center_id:service_center_id}}).done(function(data) {
+                alert('Data has been updated successfully.');
                 location.reload();
             });
             
