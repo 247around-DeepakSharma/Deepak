@@ -5479,7 +5479,7 @@ class Booking extends CI_Controller {
         $this->load->view('employee/rescheduled_review', $data);
     }
     function review_bookings_by_status($review_status,$offset = 0,$is_partner = 0,$booking_id = NULL, $cancellation_reason_id = NULL, $partner_id = NULL, $state_code = NULL){
-        
+        $data_id = !empty($this->input->post('data_id')) ? $this->input->post('data_id') : "";
         $this->checkUserSession();
         $whereIN = $where = $join = $having = array();
         if(!$booking_id) {
@@ -5528,6 +5528,7 @@ class Booking extends CI_Controller {
         $data['partner_selected'] = $partner_id;
         
         $total_rows = $this->service_centers_model->get_admin_review_bookings($booking_id,$status,$whereIN,$is_partner,NULL,-1,$where,0,NULL,NULL,0,$join,$having);
+        
         if(!empty($total_rows)){
             $data['per_page'] = 100;
             $data['offset'] = $offset;
@@ -5563,6 +5564,7 @@ class Booking extends CI_Controller {
                 $data['bookings_data'] = $arrBookingsData;
             }   
             // Function ends here
+            $data['data_id'] = $data_id;
             $this->load->view('employee/completed_cancelled_review', $data);
         }
         else{

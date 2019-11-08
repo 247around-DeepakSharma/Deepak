@@ -1580,3 +1580,4 @@ ON en_vendor_brand_mapping (service_center_id, partner_id);
 
 ALTER TABLE `service_centres` DROP `is_booking_close_by_app_only`;
 ALTER TABLE `partners` DROP `is_booking_close_by_app_only`;
+ALTER TABLE query_report add column ownership varchar(100) NULL DEFAULT NULL ;
