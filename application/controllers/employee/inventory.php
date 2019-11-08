@@ -4044,9 +4044,7 @@ class Inventory extends CI_Controller {
         $response = $this->invoices_model->_set_partner_excel_invoice_data($a, $invoice_date, $invoice_date, "Tax Invoice", $invoice_date);
         $response['meta']['main_company_gst_number'] = $around_gst[0]['gst_number'];
         $response['meta']['main_company_state'] = $main_company_state;
-        $response['meta']['main_company_address'] = $around_gst[0]['address'] . "," 
-                    . $around_gst[0]['city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
-                    . $around_gst[0]['pincode'];
+        $response['meta']['main_company_address'] = $around_gst[0]['address'] . "," . $around_gst[0]['city'];
         
         $response['meta']['main_company_pincode'] = $around_gst[0]['pincode'];
         $response['meta']['main_company_state_code'] = $around_gst[0]['state'];
@@ -4772,7 +4770,7 @@ class Inventory extends CI_Controller {
 	  
 	    $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id,spare_parts_details.model_number, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
                 . " requested_inventory_id";
-        $post['where'] = array('spare_parts_details.requested_inventory_id' =>$data->quantity,'spare_parts_details.status'=>SPARE_PARTS_REQUESTED);
+        $post['where'] = array('spare_parts_details.requested_inventory_id' =>$data->inventory_id,'spare_parts_details.status'=>SPARE_PARTS_REQUESTED);
 		$entity_array=array(_247AROUND_SF_STRING,_247AROUND_PARTNER_STRING);
         $post['where_in'] = array('spare_parts_details.entity_type' => $entity_array);
         $post['is_inventory'] = true;
@@ -5215,9 +5213,7 @@ class Inventory extends CI_Controller {
                 $response['meta']['main_company_gst_number'] = $invoiceValue['data'][0]['from_gst_number'];
                 $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $invoiceValue['data'][0]['from_state_code']))[0]['state'];
                 $response['meta']['main_company_state_code'] = $invoiceValue['data'][0]['from_state_code'];
-                $response['meta']['main_company_address'] = $invoiceValue['data'][0]['from_address'] . "," 
-                            . $invoiceValue['data'][0]['from_city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
-                            . $invoiceValue['data'][0]['from_pincode'];
+                $response['meta']['main_company_address'] = $invoiceValue['data'][0]['from_address'] . "," . $invoiceValue['data'][0]['from_city'];
 
                 $response['meta']['main_company_pincode'] = $invoiceValue['data'][0]['from_pincode'];
                 $response['meta']['main_company_seal'] = $invoiceValue['data'][0]['state_stamp_pic'];
