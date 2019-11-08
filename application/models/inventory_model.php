@@ -1659,7 +1659,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('inventory_master_list as iml', " iml.inventory_id = spare_parts_details.shipped_inventory_id", "left");
         $this->db->join('service_centres sc', 'spare_parts_details.partner_id = sc.id', 'left');
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
-        $this->db->join('courier_company_invoice_details as cci', 'cci.id = spare_parts_details.awb_by_sf', 'left');
+        $this->db->join('courier_company_invoice_details as cci', 'cci.awb_number = spare_parts_details.awb_by_sf', 'left');
         
         if (!empty($where)) {
             $this->db->where($where, false);
