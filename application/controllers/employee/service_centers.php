@@ -6186,7 +6186,10 @@ function do_multiple_spare_shipping(){
                     $actor = $booking['actor'] = $partner_status[2];
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Warehouse Received Defective Spare Parts", $actor, $next_action, $is_cron);
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Warehouse Received Defective Spare Parts", $actor,$next_action,$is_cron);
+                if(!empty($post_data['remarks'])) {
+                    $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, $post_data['remarks'], $actor,$next_action,$is_cron);
+                }        
 
                 $this->booking_model->update_booking($booking_id, $booking);
             } else {
