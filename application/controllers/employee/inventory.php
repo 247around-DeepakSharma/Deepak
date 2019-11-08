@@ -4029,9 +4029,7 @@ class Inventory extends CI_Controller {
         $response = $this->invoices_model->_set_partner_excel_invoice_data($a, $invoice_date, $invoice_date, "Tax Invoice", $invoice_date);
         $response['meta']['main_company_gst_number'] = $around_gst[0]['gst_number'];
         $response['meta']['main_company_state'] = $main_company_state;
-        $response['meta']['main_company_address'] = $around_gst[0]['address'] . "," 
-                    . $around_gst[0]['city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
-                    . $around_gst[0]['pincode'];
+        $response['meta']['main_company_address'] = $around_gst[0]['address'] . "," . $around_gst[0]['city'];
         
         $response['meta']['main_company_pincode'] = $around_gst[0]['pincode'];
         $response['meta']['main_company_state_code'] = $around_gst[0]['state'];
@@ -5169,9 +5167,7 @@ class Inventory extends CI_Controller {
                 $response['meta']['main_company_gst_number'] = $invoiceValue['data'][0]['from_gst_number'];
                 $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $invoiceValue['data'][0]['from_state_code']))[0]['state'];
                 $response['meta']['main_company_state_code'] = $invoiceValue['data'][0]['from_state_code'];
-                $response['meta']['main_company_address'] = $invoiceValue['data'][0]['from_address'] . "," 
-                            . $invoiceValue['data'][0]['from_city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
-                            . $invoiceValue['data'][0]['from_pincode'];
+                $response['meta']['main_company_address'] = $invoiceValue['data'][0]['from_address'] . "," . $invoiceValue['data'][0]['from_city'];
 
                 $response['meta']['main_company_pincode'] = $invoiceValue['data'][0]['from_pincode'];
                 $response['meta']['main_company_seal'] = $invoiceValue['data'][0]['state_stamp_pic'];
