@@ -1,4 +1,7 @@
-<?php if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no =  $this->uri->segment(3) +1; } else{ $sn_no = 1;} ?>
+<?php
+$tab_class = !empty($data_id) ? $data_id : "all";
+if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no =  $this->uri->segment(3) +1; } else{ $sn_no = 1;} 
+?>
 <script type="text/javascript" src="<?php echo base_url();?>js/base_url.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>      
 <input type='hidden' name='arr_bookings' id='arr_bookings' value='<?= json_encode($bookings_data); ?>'>
@@ -60,6 +63,7 @@
                     <option value=""></option>
                     <?php foreach($states as $state) { ?>
                     <option value="<?= $state['state_code']; ?>" <?php if(!empty($state_selected) && $state['state_code'] == $state_selected) { echo 'selected';} ?>><?= $state['state']; ?></option>
+                    
                   
                     <?php } ?>
                 </select>
@@ -106,7 +110,7 @@
                               <th class="jumbotron" >Admin Remarks</th>
                               <th class="jumbotron" >Vendor Remarks</th>
                               <th class="jumbotron" >Vendor Cancellation Reason</th>
-                              <th class="jumbotron" ><input type="checkbox" id="selecctall" /></th>
+                              <th class="jumbotron" ><input type="checkbox" id="selecctall" class="selecctall <?php echo $tab_class?>" data-id="<?php echo $tab_class?>"/></th>
                               <th class="jumbotron" >Action</th>
                            </tr>
                         </thead>
@@ -225,7 +229,7 @@
                               <td style="text-align: left;white-space: inherit;font-size:90%">
                                  <p id="<?php echo "cancellation_reason".$count; ?>"><?php echo $value['cancellation_reason']; ?></p>
                               </td>
-                              <td><input id="approved_close" type="checkbox"  class="checkbox1 <?php echo "app_".$value['booking_id'];?>" name="approved_booking[]" value="<?php echo $value['booking_id']; ?>"
+                              <td><input id="approved_close" type="checkbox"  class="checkbox1 <?php echo $tab_class;?> <?php echo "app_".$value['booking_id'];?>" name="approved_booking[]" value="<?php echo $value['booking_id']; ?>"
                                          <?php if($status == _247AROUND_COMPLETED){?> onchange="is_sn_correct_validation('<?php echo $value['booking_id']?>')"<?php } ?>></input></td>
                               <td>
                                  <?php echo "<a class='btn btn-sm btn-primary' "
@@ -314,12 +318,14 @@
     });    
    
    $(document).ready(function(){
-        $("#selecctall").change(function(){
-            var isChecked = document.getElementById('selecctall').checked;
-            $(".checkbox1").prop('checked', $(this).prop("checked"));
+        $(".selecctall").change(function(){
+            var dataId = $(this).attr('data-id');
+            var isChecked = $("."+dataId).prop("checked");
+            
+            $("."+dataId).prop('checked', $(this).prop("checked"));
             if(isChecked){
                 var outputArray = []; 
-                $('.checkbox1').each(function() {
+                $('.'+dataId).each(function() {
                       outputArray.push(is_sn_correct_validation($(this).val(),'Yes'));
                  })
                   if(outputArray.includes('no')){
