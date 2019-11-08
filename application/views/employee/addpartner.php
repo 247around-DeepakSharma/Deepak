@@ -2904,10 +2904,11 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <select name="service_center" id="service_center" multiple>
+                                        <?php if(!empty($unmapped_service_centers)) { ?>
                                         <option value="all">All</option>
                                         <?php foreach($unmapped_service_centers as $unmapped_service_center) { ?>
                                         <option value="<?php echo $unmapped_service_center['id']; ?>"><?php echo $unmapped_service_center['name']; ?></option>
-                                        <?php } ?>
+                                        <?php } } ?>
                                     </select>
                                 </div>
                             </div>
@@ -4568,8 +4569,7 @@
 <script type="text/javascript">
     
     $('#service_center').select2({
-        placeholder: "Select Service Center",
-        multiple: true,
+        placeholder: "Service Center",
         allowClear: true
     });
     $('#contact_person_states').select2({
