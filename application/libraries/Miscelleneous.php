@@ -471,7 +471,7 @@ class Miscelleneous {
                         
                         if ($booking['upcountry_distance'] > 300) {
                             $subject = "Upcountry Distance More Than 300 - Booking ID " . $query1[0]['booking_id'];
-                            $to = ANUJ_EMAIL_ID.$partner_am_email;
+                            $to = $partner_am_email;
                             $cc = "";
                         } else {
                             $subject = "Upcountry Charges Approval Required - Booking ID " . $query1[0]['booking_id'];
@@ -536,10 +536,10 @@ class Miscelleneous {
                 $this->My_CI->booking_model->update_booking($booking_id, $booking);
                 $is_saas = $this->My_CI->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                 if($is_saas){
-                    $to = ANUJ_EMAIL_ID . " , ". $rm_email;
+                    $to = $rm_email;
                 }
                 else{
-                    $to = ANUJ_EMAIL_ID . ", sales@247around.com , ". $rm_email;
+                    $to = "sales@247around.com , ". $rm_email;
                     $cc = "abhaya@247around.com";
                 }
                 $message1 = "Upcountry did not calculate for " . $booking_id;
@@ -912,7 +912,7 @@ class Miscelleneous {
                             $to = NITS_ANUJ_EMAIL_ID;
                             $message = $booking['booking_id'] . " BOOKING CITY " . $booking['city'] . " SF ID "
                                     . $data['vendor_id'] . " DISTRICT PINCODE " . $data['upcountry_pincode'];
-                            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",UPCOUNTRY_LIMIT_EXCEED);
+//                            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",UPCOUNTRY_LIMIT_EXCEED);
 
                             return false;
                         }
@@ -926,7 +926,7 @@ class Miscelleneous {
                             $to = NITS_ANUJ_EMAIL_ID;
                             $message = $booking['booking_id'] . " BOOKING CITY " . $booking['city'] . " SF ID "
                                     . $data['vendor_id'] . " DISTRICT PINCODE " . $data['upcountry_pincode'];
-                            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",UPCOUNTRY_LIMIT_EXCEED);
+//                            $this->My_CI->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "",UPCOUNTRY_LIMIT_EXCEED);
                         }
                         return false;
                     }
