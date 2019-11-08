@@ -3451,7 +3451,13 @@ class engineerApi extends CI_Controller {
             if(!empty($booking_data)){
                 $response['booking_details'] = $booking_data;
                 if($requestData['booking_status'] === _247AROUND_COMPLETED){
-                   $response['consumption_details'] =  $this->service_centers_model->get_engineer_consumed_details("engineer_consumed_spare_details.*, consumed_status", array("booking_id" => $requestData["booking_id"])); 
+                   $consumption_details =  $this->service_centers_model->get_engineer_consumed_details("engineer_consumed_spare_details.*, consumed_status", array("booking_id" => $requestData["booking_id"])); 
+                   if(!empty($consumption_details)){
+                       $response['consumption_details'] = $consumption_details;
+                   }
+                   else{
+                       $response['consumption_details'] = array();
+                   }
                 }
                 $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array('0000', "Booking details found successfully"));
