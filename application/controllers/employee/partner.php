@@ -8583,7 +8583,7 @@ class Partner extends CI_Controller {
     function update_en_vendor_brand_mapping($partner_id) {
         $post_data = $this->input->post();
         if(!empty($post_data['service_center_id']) && is_array($post_data['service_center_id'])) {
-            $this->partner_model->insert_en_vendor_brand_mapping($partner_id, $post_data['service_center_id']);
+            $this->partner_model->insert_en_vendor_brand_mapping($partner_id, array_filter($post_data['service_center_id']));
         } else {
             $this->partner_model->update_en_vendor_brand_mapping($partner_id, $post_data['service_center_id'], $post_data);
         }
