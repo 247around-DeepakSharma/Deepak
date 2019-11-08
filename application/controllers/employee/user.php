@@ -447,18 +447,24 @@ class User extends CI_Controller {
 //          // print_r($selState);
            if(!empty($diffState)){
                 foreach ($diffState as $key => $value){
-                    $res=   $this->employee_model->remove_all_rm_state_map($value);            
+                    //pick all info for state in employee_relation
+                         
+                    $this->remove_rm_map_for_state($value);
+
+
+
                 }
            }
            
         }
-        
+      //  exit();
         foreach ($data["state_name"] as $key => $value){
-               $res=   $this->employee_model->remove_all_rm_state_map($value);            
+            $this->remove_rm_map_for_state($value);       
         }
+     
         foreach ($data["state_name"] as $key => $value){
             
-               $res=   $this->employee_model->update_rm_state_mapping($data["rm_asm"], $value);            
+                $res=   $this->employee_model->update_rm_state_mapping($data["rm_asm"], $value);            
         }
 
         $res=$this->employee_model->update_asm_manager_mapping($data["rm_asm"]);
@@ -472,6 +478,27 @@ class User extends CI_Controller {
         $this->load->view('employee/rm_state_mapping', $data);
         
     }
+
+
+    // value is state name
+    function remove_rm_map_for_state($value)
+    {
+        $employee_rel =   $this->employee_model->pick_all_rm_state_map($value);
+        // pick service center for state
+        $service_center = $this->reporting_utils->find_all_service_centers_by_state($value);
+        foreach ($employee_rel as $key => $emp_rel){
+            
+            $ser_center = explode( "," , $service_center[0]["service_center_id"]);
+
+            $str1=implode(",", array_diff(explode(",",  $emp_rel["service_centres_id"]), $ser_center));
+            $str2=implode(",", array_diff( explode(",",  $emp_rel["individual_service_centres_id"]), $ser_center));
+            $str3=implode(",", array_diff(explode(",",  $emp_rel["state_code"]), array($service_center[0]["state_id"])));
+           
+            $this->employee_model->update_rm_relation_details($emp_rel["id"],$str1,$str2,$str3);
+            
+        }  
+    }
+
     /**
      * @Desc: This function is used to process employee add form
      * @parmas: POST Array

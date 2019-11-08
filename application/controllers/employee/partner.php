@@ -1116,8 +1116,15 @@ class Partner extends CI_Controller {
        $micro_wh_lists = $this->inventory_model->get_micro_wh_lists_by_partner_id($select, array('micro_wh_mp.partner_id' => $id)); 
        $results['partner_am_mapping'] = $this->partner_model->getpartner_data("partners.public_name, agent_filters.*, employee.full_name, employee.groups", array("partners.id" => $id, "agent_filters.entity_id IS NOT NULL" => NULL),"",TRUE,0,1);
        $this->miscelleneous->load_nav_header();
+       $mapped_service_centers = $this->partner_model->get_mapped_service_center($id);
+       $mapped_service_center_where = ['active' => 1];
+       if(!empty($mapped_service_centers)) {
+           $mapped_service_centers_ids = implode(',', array_column($mapped_service_centers, 'service_center_id'));
+           $mapped_service_center_where = ['active' => 1, "id not in ({$mapped_service_centers_ids})" => NULL];
+       }
+       $unmapped_service_centers = $this->reusable_model->get_search_result_data("service_centres","id, name",$mapped_service_center_where,NULL,NULL,NULL,NULL,NULL);
        $this->load->view('employee/addpartner', array('query' => $query, 'results' => $results, 'employee_list' => $employee_list, 'form_type' => 'update','department'=>$departmentArray, 
-           'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh,'saas_flag' => $saas_flag));
+           'charges_type'=>$charges_type, 'micro_wh_lists'=>$micro_wh_lists,'is_wh'=>$is_wh,'saas_flag' => $saas_flag, 'mapped_service_centers' => $mapped_service_centers, 'unmapped_service_centers' => $unmapped_service_centers));
     }
 
     /**
@@ -4890,7 +4897,7 @@ class Partner extends CI_Controller {
      */
     function process_partner_learning_collaterals(){
         $partner = $this->input->post('partner_id');
-        if(!empty($this->input->post('l_c_model')) && !empty($this->input->post('l_c_capacity'))){
+        if(!empty($this->input->post('l_c_model') || !empty($this->input->post('text_model'))) && !empty($this->input->post('l_c_capacity'))){
             $this->session->set_userdata('error', 'Either Select Capacity OR Select Model, Please Do not select Both Together');
             redirect(base_url() . 'employee/partner/editpartner/' . $partner);
             return FALSE;
@@ -4935,6 +4942,13 @@ class Partner extends CI_Controller {
             }
             if($this->input->post('l_c_model') && !empty($this->input->post('l_c_model'))){
               $l_c_capacity = $this->input->post('l_c_model');  
+              $is_model =  1;
+            }
+            if($this->input->post('text_model') && !empty($this->input->post('text_model'))){
+              $text_model = $this->input->post('text_model');  
+              $l_c_capacity = explode(',', $text_model);
+              $l_c_capacity = array_filter($l_c_capacity);
+              $l_c_capacity = array_map('trim', $l_c_capacity);
               $is_model =  1;
             }
              if($this->input->post('description') && $this->input->post('description') !=''){
@@ -7882,8 +7896,16 @@ class Partner extends CI_Controller {
     
     public function brandCollateral()
     {
+        if(!empty($this->session->userdata('service_center_id')))
+        {
+            $this->load->view('service_centers/header');
+        }
+        else
+        {
+            $this->miscelleneous->load_nav_header();
+        }
+        
         $partnerArray = array();
-        $this->miscelleneous->load_nav_header();
         $partners = $this->partner_model->getpartner();
         foreach($partners as $partnersDetails){
             $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
@@ -8553,7 +8575,18 @@ class Partner extends CI_Controller {
         }
        
     }
-
-
+    
+    /**
+     * 
+     * @param type $partner_id
+     */
+    function update_en_vendor_brand_mapping($partner_id) {
+        $post_data = $this->input->post();
+        if(!empty($post_data['service_center_id']) && is_array($post_data['service_center_id'])) {
+            $this->partner_model->insert_en_vendor_brand_mapping($partner_id, $post_data['service_center_id']);
+        } else {
+            $this->partner_model->update_en_vendor_brand_mapping($partner_id, $post_data['service_center_id'], $post_data);
+        }
+    }
 
 }
