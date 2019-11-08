@@ -4772,7 +4772,7 @@ class Inventory extends CI_Controller {
 	  
 	    $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id,spare_parts_details.model_number, spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
                 . " requested_inventory_id";
-        $post['where'] = array('spare_parts_details.requested_inventory_id' =>$data->quantity,'spare_parts_details.status'=>SPARE_PARTS_REQUESTED);
+        $post['where'] = array('spare_parts_details.requested_inventory_id' =>$data->inventory_id,'spare_parts_details.status'=>SPARE_PARTS_REQUESTED);
 		$entity_array=array(_247AROUND_SF_STRING,_247AROUND_PARTNER_STRING);
         $post['where_in'] = array('spare_parts_details.entity_type' => $entity_array);
         $post['is_inventory'] = true;
