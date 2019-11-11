@@ -597,7 +597,7 @@
                                             $selected=(($value['defect_id'] == 0) ? 'selected' :''); 
                                             if($this->session->userdata('is_engineer_app') == 1){ 
                                                 if(isset($bookng_unit_details[0]['en_defect_id'])){
-                                                   if($value['id'] == $bookng_unit_details[0]['en_defect_id']){
+                                                   if(!empty($value['id']) && $value['id'] == $bookng_unit_details[0]['en_defect_id']){
                                                        $selected = 'selected';
                                                    } 
                                                 }
