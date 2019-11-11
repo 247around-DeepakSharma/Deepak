@@ -947,12 +947,19 @@ class Invoice_lib {
 
             $partner_details = array();
 
-            if ($spare_parts_details[0][0]['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
-                $partner_details = $this->ci->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name', array('partners.id' => $spare_parts_details[0][0]['booking_partner_id']));
-            } 
-                     
+            $select1 = "warehouse_details.warehouse_address_line1 as company_name, concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address, contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number";
+            $partner_details = $this->ci->inventory_model->get_warehouse_details($select1, array("contact_person.entity_type" => _247AROUND_PARTNER_STRING, "contact_person.entity_id" => $spare_parts_details[0][0]['booking_partner_id']), true, true);
+            if (!empty($partner_details)) {
+                $partner_details[0]['gst_number'] = '';
+                $partner_details[0]['owner_name'] = '';
+            } else {
+                if ($spare_parts_details[0][0]['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
+                    $partner_details = $this->ci->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name', array('partners.id' => $spare_parts_details[0][0]['booking_partner_id']));
+                }
+            }
+
             $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
-                       
+
             log_message('info', __FUNCTION__ . 'sf challan debugging spare_id: ' . $spare_id, true);
 
             $wh_challan_number = $spare_parts_details[0][0]['wh_challan_number'];
