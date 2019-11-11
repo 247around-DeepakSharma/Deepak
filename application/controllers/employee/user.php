@@ -493,8 +493,7 @@ class User extends CI_Controller {
             $str1=implode(",", array_diff(explode(",",  $emp_rel["service_centres_id"]), $ser_center));
             $str2=implode(",", array_diff( explode(",",  $emp_rel["individual_service_centres_id"]), $ser_center));
             $str3=implode(",", array_diff(explode(",",  $emp_rel["state_code"]), array($service_center[0]["state_id"])));
-           
-            $this->employee_model->update_rm_relation_details($emp_rel["id"],$str1,$str2,$str3);
+            $this->employee_model->update_rm_relation_details($emp_rel["agent_id"],$str1,$str2,$str3);
             
         }  
     }
