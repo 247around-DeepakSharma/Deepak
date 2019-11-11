@@ -1338,7 +1338,7 @@
                         //$("#upload_serial_number_pic"+count).css('display', "block");
                         $("#duplicate_sno_required"+count).val('0');
                         $('body').loadingModal('destroy');
-                        if(data.code == "247" || data.code == "-247") {
+                        if(data.code == "247" || (data.message.indexOf('Serial Number not valid') !== -1)) {
                             $("#submitform").attr("disabled",true);
                         }
                     }
