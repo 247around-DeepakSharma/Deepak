@@ -1249,7 +1249,7 @@ class User_invoice extends CI_Controller {
             $this->invoices_model->insert_inventory_invoice($m);
         }
         $invoices[0]['invoice_id'] = $invoice_id;
-        if($invoices[0]['state'] ==  $main_company_state){
+        if(strcasecmp($invoices[0]['state'], $main_company_state) == 0){
             $invoices[0]['c_s_gst'] = TRUE;
         } else {
             $invoices[0]['c_s_gst'] = FALSE; 
@@ -1266,9 +1266,7 @@ class User_invoice extends CI_Controller {
 
         $response['meta']['third_party_entity'] = _247AROUND_SF_STRING;
         $response['meta']['third_party_entity_id'] = $wh_id;
-        $response['meta']['main_company_address'] = $around_gst[0]['address'] . "," 
-                    . $around_gst[0]['city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
-                    . $around_gst[0]['pincode'];
+        $response['meta']['main_company_address'] = $around_gst[0]['address'] . "," . $around_gst[0]['city'];
         $response['meta']['main_company_pincode'] = $around_gst[0]['pincode'];
         $response['meta']['main_company_state_code'] = $around_gst[0]['state'];
         $response['meta']['main_company_state'] = $main_company_state;
@@ -1428,7 +1426,7 @@ class User_invoice extends CI_Controller {
 
             $receiver_state = (($receiver_entity_type == _247AROUND_PARTNER_STRING) ? $this->invoices_model->get_state_code(array('state_code' => $around_gst[0]['state']))[0]['state'] : $receiver_details[0]['state']);
 //                    $invoices[0]['c_s_gst'] = $this->invoices_model->check_gst_tax_type($entity_details[0]['state']);
-            if($entity_details[0]['state'] ==  $receiver_state){
+            if(strcasecmp($entity_details[0]['state'], $receiver_state) == 0){
                 $invoices[0]['c_s_gst'] = TRUE;
             } else {
                 $invoices[0]['c_s_gst'] = FALSE; 
@@ -1463,19 +1461,19 @@ class User_invoice extends CI_Controller {
             if($receiver_entity_type == _247AROUND_PARTNER_STRING) { 
                 $response['meta']['third_party_entity'] = _247AROUND_PARTNER_STRING;
                 $response['meta']['third_party_entity_id'] = $this->input->post('partner_id');
-                $response['meta']['main_company_address'] = $around_gst[0]['address'] . "," 
-                            . $around_gst[0]['city'] . "," . $response['meta']['main_company_state'] . ", Pincode: "
+                $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $around_gst[0]['state']))[0]['state'];
+                $response['meta']['main_company_address'] = $around_gst[0]['address'] . ", " 
+                            . $around_gst[0]['city'] . ", " . $response['meta']['main_company_state'] . ", Pincode: "
                             . $around_gst[0]['pincode'];
                 $response['meta']['main_company_pincode'] = $around_gst[0]['pincode'];
                 $response['meta']['main_company_state_code'] = $around_gst[0]['state'];
-                $response['meta']['main_company_state'] = $this->invoices_model->get_state_code(array('state_code' => $around_gst[0]['state']))[0]['state'];
                 $response['meta']['main_company_gst_number'] = $around_gst[0]['gst_number'];
             }
             else {
                 $response['meta']['third_party_entity'] = NULL;
                 $response['meta']['third_party_entity_id'] = NULL;
                 $response['meta']['main_company_name'] = $receiver_details[0]['company_name'];
-                $response['meta']['main_company_address'] = $receiver_details[0]['address'] . ", " .$receiver_details[0]['district'] . ", Pincode -" . $receiver_details[0]['pincode'] . ", " . $receiver_details[0]['state'];
+                $response['meta']['main_company_address'] = $receiver_details[0]['address'];
                 $response['meta']['main_company_pincode'] = $receiver_details[0]['pincode'];
                 $response['meta']['main_company_state_code'] = $this->invoices_model->get_state_code(array('state' => $receiver_details[0]['state']))[0]['state_code'];
                 $response['meta']['main_company_state'] = $receiver_details[0]['state'];

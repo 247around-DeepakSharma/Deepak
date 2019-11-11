@@ -1808,7 +1808,7 @@ class engineerApi extends CI_Controller {
             $select = "count(distinct(booking_details.booking_id)) as bookings";
             $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
-                    . 'booking_details.create_date, symptom.symptom';
+                    . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks';
             $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $tommorow_bookings_count = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $morning_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_10AM_TO_1PM, $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
@@ -1925,7 +1925,7 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
-                    . "symptom.symptom";
+                    . "symptom.symptom, booking_details.booking_remarks";
             $missed_bookings = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($missed_bookings as $key => $value) {
                 if($requestData['engineer_pincode']){
@@ -1953,7 +1953,7 @@ class engineerApi extends CI_Controller {
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, "
-                    . "booking_details.service_id, booking_details.create_date, symptom.symptom";
+                    . "booking_details.service_id, booking_details.create_date, symptom.symptom, booking_details.booking_remarks";
             $tomorrowBooking = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             foreach ($tomorrowBooking as $key => $value) {
                 if($requestData['engineer_pincode']){
@@ -3420,12 +3420,27 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $response = array();
+        $consumption = array();
         if(!empty($requestData["booking_id"])){
             $booking_data = $this->engineer_model->engineer_completed_bookings_details($requestData["booking_id"]);
             if(!empty($booking_data)){
                 $response['booking_details'] = $booking_data;
                 if($requestData['booking_status'] === _247AROUND_COMPLETED){
-                   $response['consumption_details'] =  $this->service_centers_model->get_engineer_consumed_details("engineer_consumed_spare_details.*, consumed_status", array("booking_id" => $requestData["booking_id"])); 
+                    $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.parts_requested_type, spare_parts_details.status, inventory_master_list.part_number as spare_part_name', ['booking_id' => $requestData["booking_id"], 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]); 
+                    foreach ($spare_parts_details as $key => $value){
+                        $consumption_details =  $this->service_centers_model->get_engineer_consumed_details("engineer_consumed_spare_details.*, consumed_status", array("booking_id" => $requestData["booking_id"], "spare_id" => $value['id']));  
+                        $consumption_data = array(
+                            "spare_part_number" => $value['spare_part_name'],
+                            "spare_parts_requested" => $value['parts_requested'],
+                            "spare_parts_requested_type" => $value['parts_requested_type'],
+                            "spare_status" => $value['status'],
+                            "consumed_status" => $consumption_details[0]['consumed_status'],
+                            "wrong_part_name" => $consumption_details[0]['part_name'],
+                            "wrong_part_remarks" => $consumption_details[0]['remarks'],
+                        );
+                        array_push($consumption, $consumption_data);
+                    }
+                    $response['consumption_details'] = $consumption;
                 }
                 $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array('0000', "Booking details found successfully"));

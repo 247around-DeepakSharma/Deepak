@@ -6140,7 +6140,7 @@ function do_multiple_spare_shipping(){
                     $insert_data = [];
                     $insert_data['entity_id'] = $this->session->userdata('service_center_id');
                     $insert_data['entity_type'] = _247AROUND_SF_STRING;
-                    $insert_data['inventory_id'] = $spare_part_detail['shipped_quantity'];
+                    $insert_data['inventory_id'] = $spare_part_detail['shipped_inventory_id'];
                     $insert_data['stock'] = $spare_part_detail['shipped_quantity'];
                     $insert_data['create_date'] = date('Y-m-d H:i:s');
 
@@ -6182,7 +6182,10 @@ function do_multiple_spare_shipping(){
                     $actor = $booking['actor'] = $partner_status[2];
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Warehouse Received Defective Spare Parts", $actor, $next_action, $is_cron);
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Warehouse Received Defective Spare Parts", $actor,$next_action,$is_cron);
+                if(!empty($post_data['remarks'])) {
+                    $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, $post_data['remarks'], $actor,$next_action,$is_cron);
+                }        
 
                 $this->booking_model->update_booking($booking_id, $booking);
             } else {

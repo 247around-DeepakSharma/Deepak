@@ -935,7 +935,7 @@
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                     <tr>
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
-                                        <td><?php if(!empty($sp['part_number'])){ echo $sp['part_number'];}else{echo 'Not Available';} ?></td>
+                                        <td><?php if(!empty($sp['shipped_part_number'])){ echo $sp['shipped_part_number'];}else{echo 'Not Available';} ?></td>
                                         <td><?php echo $sp['shipped_quantity']; ?></td>
                                         <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
                                         <?php

@@ -471,7 +471,7 @@ function addBookingDialog(chanel = '') {
                     }
                 }
                 if(!is_sf_panel && !(firstPartNumaricValidation && secondPartNumaricValidation && firstPartLengthValidation && secondPartLengthValidation)){
-                    alert("Please Enter Correct Order ID , Space Should not be there in Order ID");
+                    alert("Please Enter Correct Order ID");
                     return false;
                 }
             }
