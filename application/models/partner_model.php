@@ -2435,10 +2435,15 @@ function get_data_for_partner_callback($booking_id) {
      * @return Array
      * 
      */
-    function getpartner_data($select, $where = "", $is_reporting_mail="",$is_am_details = null,$is_booking_source = 0,$is_am = 0, $group_by = "") {
+    function getpartner_data($select, $where = "", $is_reporting_mail="",$is_am_details = null,$is_booking_source = 0,$is_am = 0, $group_by = "", $where_in = "") {
         $this->db->select($select, false);
         if(!empty($where)){
             $this->db->where($where);
+        }
+        if(!empty($where_in)){
+            foreach($where_in as $index => $value){
+                $this->db->where_in($index, $value);
+            } 
         }
         $this->db->from('partners');
         if ($is_reporting_mail != "") {

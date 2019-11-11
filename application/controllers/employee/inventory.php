@@ -30,23 +30,6 @@ class Inventory extends CI_Controller {
         $this->load->library('invoice_lib');
         $this->load->library('table');
         
-        // Mention those functions whom you want to put create/generate invoice validations
-        $arr_functions_on_validation = ['spare_invoice_list', 'upload_docket_number'];
-        $arr_url_segments = $this->uri->segments; 
-        $allowedForAll = 1;
-        if(!empty(array_intersect($arr_functions_on_validation, $arr_url_segments))){        
-            $allowedForAll = 0;
-        }
-        if(!$allowedForAll){
-            if (($this->session->userdata('user_group') === 'admin') || ($this->session->userdata('user_group') === 'developer') || ($this->session->userdata('user_group') === 'accountant')) {
-                return TRUE;
-            } else {
-                redirect(base_url() . "employee/login");
-            } 
-        }
-        else{
-            return TRUE;
-        }
     }
 
     public function index() {
@@ -975,7 +958,7 @@ class Inventory extends CI_Controller {
      * @return boolean
      */
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') && (($this->session->userdata('user_group') === 'admin') || ($this->session->userdata('user_group') === 'developer') || ($this->session->userdata('user_group') === 'accountant'))) {
             return TRUE;
         } else {
             redirect(base_url() . "employee/login");
@@ -6383,7 +6366,7 @@ class Inventory extends CI_Controller {
                 . "if(spare_parts_details.partner_warehouse_courier_invoice_id is null,'',spare_parts_details.partner_warehouse_courier_invoice_id) as 'Partner Warehouse Courier Invoice', "
                 . "if(spare_parts_details.partner_courier_invoice_id is null,'',spare_parts_details.partner_courier_invoice_id) as 'Partner Courier Invoice', "
                 . "if(spare_parts_details.vendor_courier_invoice_id is null,'',spare_parts_details.vendor_courier_invoice_id) as 'SF Courier Invoice', "
-                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice', cci.billable_weight as 'Packet Weight ', cci.box_count as 'Packet Count' ";
+                . "if(spare_parts_details.partner_warehouse_packaging_invoice_id is null,'',spare_parts_details.partner_warehouse_packaging_invoice_id) as 'Partner Warehouse Packaging Courier Invoice',";
         //$where = array("spare_parts_details.status NOT IN('" . SPARE_PARTS_REQUESTED . "')" => NULL);
         $where = array();
         $group_by = "spare_parts_details.id";
