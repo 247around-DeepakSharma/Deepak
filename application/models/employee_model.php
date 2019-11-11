@@ -443,14 +443,19 @@ FROM
 
 
    function update_rm_relation_details($id,$service_centres_id,$individual_service_centres_id, $state_code) {
-    //$data=$this->db->query("SELECT GROUP_CONCAT(id SEPARATOR ',') as 'service_center' FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL")->result_array();
-    $query="UPDATE `employee_relation` SET "
-                      ."   `service_centres_id`= '".$service_centres_id."',"
-                     ."`individual_service_centres_id` = '".$individual_service_centres_id."',"
-                     ."`state_code`= '".$state_code."'"
-                     ."   WHERE `agent_id`=".$id;
-   // print_r($query);
-    return $this->db->query($query);
+//     //$data=$this->db->query("SELECT GROUP_CONCAT(id SEPARATOR ',') as 'service_center' FROM `service_centres` WHERE `state`= '".$state."' GROUP BY NULL")->result_array();
+//     $query="UPDATE `employee_relation` SET "
+//                       ."   `service_centres_id`= '".$service_centres_id."',"
+//                      ."`individual_service_centres_id` = '".$individual_service_centres_id."',"
+//                      ."`state_code`= '".$state_code."'"
+//                      ."   WHERE `agent_id`=".$id;
+//    // print_r($query);
+
+   $this->db->set("service_centres_id",$service_centres_id);
+   $this->db->set("individual_service_centres_id",$individual_service_centres_id);
+   $this->db->set("state_code",$state_code);
+   $this->db->where('agent_id', $id);
+   $this->db->update("employee_relation");
 }
 
    /**
@@ -459,7 +464,10 @@ FROM
     * @return type
     */
    function pick_all_rm_state_map($state) {
-        $sql_individual_service_centres_id = "select emp_rel.id,emp_rel.service_centres_id,emp_rel.individual_service_centres_id,emp_rel.state_code from `employee_relation` as emp_rel 
+
+        
+
+        $sql_individual_service_centres_id = "select emp_rel.agent_id,emp_rel.service_centres_id,emp_rel.individual_service_centres_id,emp_rel.state_code from `employee_relation` as emp_rel 
         LEFT JOIN `state_code` ON FIND_IN_SET(`state_code`.`state_code` , emp_rel.`state_code`) 
         WHERE `state_code`.`state` = '".trim($state)."'";
        
