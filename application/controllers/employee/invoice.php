@@ -42,23 +42,6 @@ class Invoice extends CI_Controller {
         $this->load->library("invoice_lib");
         $this->load->library('email');
 
-        // Mention those functions whom you want to put create/generate invoice validations
-        $arr_functions_on_validation = ['get_invoices_form', 'process_invoices_form', 'insert_update_invoice', 'process_insert_update_invoice', 'show_purchase_brackets_credit_note_form', 'process_purchase_bracket_credit_note', 'generate_oow_parts_invoice', 'generate_spare_purchase_invoice'];
-        $arr_url_segments = $this->uri->segments; 
-        $allowedForAll = 1;
-        if(!empty(array_intersect($arr_functions_on_validation, $arr_url_segments))){        
-            $allowedForAll = 0;
-        }
-        if(!$allowedForAll){
-            if (($this->session->userdata('user_group') === 'admin') || ($this->session->userdata('user_group') === 'developer') || ($this->session->userdata('user_group') === 'accountant')) {
-                return TRUE;
-            } else {
-                redirect(base_url() . "employee/login");
-            } 
-        }
-        else{
-            return TRUE;
-        }
     }
 
     /**
@@ -4463,7 +4446,7 @@ class Invoice extends CI_Controller {
     }
             
     function checkUserSession() {
-        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee') && (($this->session->userdata('user_group') === 'admin') || ($this->session->userdata('user_group') === 'developer') || ($this->session->userdata('user_group') === 'accountant'))) {
             return TRUE;
         } else {
             echo PHP_EOL . 'Terminal Access Not Allowed' . PHP_EOL;
