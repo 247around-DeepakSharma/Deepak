@@ -1565,13 +1565,13 @@ class vendor extends CI_Controller {
             $agent_id = $this->session->userdata('id');
             $employeeID = $this->session->userdata('employee_id');
             $escalation = $this->miscelleneous->process_escalation($booking_id,$vendor_id,$escalation_reason_id,$remarks,$checkValidation,$agent_id,$employeeID);
-            if($escalation && $status){
+            if($escalation && !empty($status)){
                 redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
                 
             } else if($escalation && !$status){
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);  
                 
-            } else if(!$escalation && $status){
+            } else if(!$escalation && !empty($status)){
                 $this->session->set_userdata(array("error"=> "Escalation Added But Penalty Not Added"));
                 redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
             } else {
@@ -3978,11 +3978,14 @@ class vendor extends CI_Controller {
      }else{
          $this->session->set_userdata('success', 'Error In Remopving Penalty!!! Please Try Again');
      }
-    if($status === _247AROUND_PENDING || $status === _247AROUND_RESCHEDULED){
-        redirect(base_url() . 'employee/booking/view_bookings_by_status/'._247AROUND_PENDING);
-    }else{
-        redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
-    }
+     
+    if(!empty($status)) {
+        if($status === _247AROUND_PENDING || $status === _247AROUND_RESCHEDULED){
+            redirect(base_url() . 'employee/booking/view_bookings_by_status/'._247AROUND_PENDING);
+        }else{
+            redirect(base_url() . 'employee/booking/view_bookings_by_status/' . $status);
+        }
+    }    
     }
     
     function get_penalty_details_data($booking_id, $status){
