@@ -9,27 +9,27 @@
                     <div class="" role="tabpanel" data-example-id="togglable-tabs">
                         <ul id="myTabs" class="nav nav-tabs bar_tabs" role="tablist">
                             <li role="presentation" class="active">
-                                <a href="#tabs-1" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_rescheduled_bookings/1">
+                                <a href="#tabs-1" data-id="rescheduled" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_rescheduled_bookings/1">
                                     Rescheduled Bookings
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Completed/0">
+                                <a href="#tabs-2" data-id="completed" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Completed/0">
                                     Completed Bookings By SF 
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-3" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Cancelled/0">
+                                <a href="#tabs-3" data-id="cancelled" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Cancelled/0">
                                     Cancelled Bookings By SF
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Cancelled/0/1">
+                                <a href="#tabs-4" data-id="cancelled_review" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Cancelled/0/1">
                                    Cancelled Bookings Under Partner Review
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-5" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Completed_By_SF/0">
+                                <a href="#tabs-5" data-id="service_category_changed" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php //echo base_url();?>employee/booking/review_bookings_by_status/Completed_By_SF/0">
                                    Service Category Changed By SF(Completed)
                                 </a>
                             </li>
@@ -52,7 +52,7 @@
         </div>
     </div>
     <script>
-     function load_view(url, tab,link_id) {
+     function load_view(url, tab,link_id, data_id) {
          if(link_id){
              document.getElementById(link_id).style.background_color = "red";
          }
@@ -62,7 +62,7 @@
         $.ajax({
             type: "POST",
             url: "<?php echo base_url() ?>" + url,
-            data: {is_ajax:true},
+            data: {is_ajax:true, data_id:data_id},
             success: function (data) {
                 $(tab).html(data);
             },
@@ -72,14 +72,15 @@
         });
     }
     $(function () {
-        load_view('employee/booking/review_rescheduled_bookings/1', '#tabs-1',0);
+        load_view('employee/booking/review_rescheduled_bookings/1', '#tabs-1',0, 'rescheduled');
     });
     
      $('#myTabs a').click(function (e) {
         e.preventDefault();
         var url = $(this).attr("data-url");
+        var data_id = $(this).attr("data-id");
         var href = this.hash;
-        load_view(url,href,0);
+        load_view(url,href,0,data_id);
     });
     $("#search").keyup(function () {
     var value = this.value.toLowerCase().trim();
