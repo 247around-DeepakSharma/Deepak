@@ -1042,7 +1042,9 @@ class Do_background_upload_excel extends CI_Controller {
                     if (stristr($prod, "Treadmill")) {
                         $data['valid_data'][$key]['appliance'] = 'Treadmill';
                     }
-                    
+                    if(!isset($data['valid_data'][$key]['appliance'])){ 
+                         $data['valid_data'][$key]['appliance'] = $prod;
+                    }
                 }
                 else{
                      $data['valid_data'][$key]['appliance'] = $prod;
@@ -1071,7 +1073,6 @@ class Do_background_upload_excel extends CI_Controller {
                     if ($flag == 0) {
                         $service_id = $this->booking_model->getServiceId($data['valid_data'][$key]['appliance']);
                         if ($service_id) {
-
                             $data['valid_data'][$key]['service_id'] = $service_id;
                         } else {
                             unset($data['valid_data'][$key]);

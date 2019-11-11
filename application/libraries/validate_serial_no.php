@@ -855,7 +855,7 @@ class Validate_serial_no {
                     return array('code' => SUCCESS_CODE);
                 }
                 else{
-                    return array('code' => FAILURE_CODE, "message" => "Serial Number should be a valid 9 digit numeric value");
+                    return array('code' => FAILURE_CODE, "message" => "Serial Number not valid. It should be a 9 digit numeric value");
                 }
             default:
                 return array('code' => SUCCESS_CODE);

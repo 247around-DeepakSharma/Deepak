@@ -19,7 +19,7 @@
         align-items: center;
     }
     #msl_info a{font-size:18px;color: #254d5d;}
-    #msl_info .count{text-decoration: underline;font-size: 36px;
+    #msl_info .count{text-decoration: underline;font-size: 36px;}
 </style>
 <div class="container-fluid">
     <div class="row" >
@@ -56,15 +56,19 @@
             <div class="x_body">
                 <div>
                     <a><label>MSL Security</label></a>
-                    <div class="count <?php if($msl['security']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
-                        <strong><?php echo $msl['security']; ?>/-</strong>
-                    </div>
+                    <a href="<?php echo base_url();?>service_center/msl_security_details">
+                        <div class="count <?php if($msl['security']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
+                            <strong><?php echo $msl['security']; ?>/-</strong>
+                        </div>
+                    </a>
                 </div>
                 <div>
                     <a><label>MSL Spare</label>  <label class="badge badge-success text-danger" style="vertical-align:middle;" data-toggle="tooltip" title="MSL spares worth Rs <?php echo $msl['amount']; ?> are with SF and have to be returned."><small><i class="fa fa-info"></i></small></label></a>
-                    <div class="count <?php if($msl['amount']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
-                        <strong><?php echo $msl['amount']; ?>/-</strong>
-                    </div>
+                    <a href="<?php echo base_url();?>service_center/msl_spare_details">
+                       <div class="count <?php if($msl['amount']>0){ ?>text-success<?php }else{ ?>text-danger<?php }?>">
+                            <strong><?php echo $msl['amount']; ?>/-</strong>
+                        </div>
+                    </a>
                 </div>
             </div>
         </div>
