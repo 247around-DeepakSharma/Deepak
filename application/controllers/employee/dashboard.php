@@ -3152,9 +3152,9 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $am_id=$this->input->post('am_id');
         $am_partner_array=$this->partner_model->get_am_partner($am_id);
         $partnerWhere['partners.is_active'] = 1;
-        $partnerWhere["agent_filters.agent_id"] = $am_id;
+//        $partnerWhere["agent_filters.agent_id"] = $am_id;
 //        $partner_arr= $this->partner_model->getpartner_details('partners.id,partners.public_name',$partnerWhere);
-        $partner_arr = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,1);
+        $partner_arr = $this->partner_model->getpartner_data('distinct partners.id,partners.public_name',$partnerWhere,"",null,1,1,"",array("agent_filters.agent_id" => $am_id));
        
         $data=array(
             'am_compare'=>$am_partner_array,
