@@ -522,12 +522,22 @@
                                         <td><?php echo $spare_part_detail['status']?></td>
                                         <td>
                                             <input type="hidden" name="spare_qty[<?php echo $spare_part_detail['id']; ?>]" value="<?php echo $spare_part_detail['quantity']; ?>">
-                                            <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" value="" id="wrong_part_<?php echo $spare_part_detail['id']; ?>">
+                                            <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" id="wrong_part_<?php echo $spare_part_detail['id']; ?>" value='<?php
+                                            if(isset($en_consumpton_details)){
+                                                echo $en_consumpton_details[$spare_part_detail['id']]['wrong_part_data']; 
+                                            } 
+                                            ?>'>
                                             <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
                                                 <option value="" selected disabled>Select Reason</option>
                                                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
                                                     if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
-                                                    <option value="<?php echo $status['id']; ?>" data-shipped_inventory_id="<?php echo $spare_part_detail['shipped_inventory_id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"><?php echo $status['consumed_status']; ?></option>
+                                                    <option value="<?php echo $status['id']; ?>" data-shipped_inventory_id="<?php echo $spare_part_detail['shipped_inventory_id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"
+                                                    <?php if(isset($en_consumpton_details)){
+                                                        if($en_consumpton_details[$spare_part_detail['id']]['consumption_status_id'] == $status['id']){
+                                                           echo "selected"; 
+                                                        }
+                                                    } ?>
+                                                    ><?php echo $status['consumed_status']; ?></option>
                                                 <?php $description_no++; } ?>
                                             </select>
                                         </td>
@@ -1416,17 +1426,7 @@
     }
     
     $(document).on('change',"#wrong_part", function() {
-        var wrong_part_name_id = $('#wrong_part').val();
-        if(!!wrong_part_name_id) {
-            $.ajax({
-                method: 'POST',
-                url : '<?php echo base_url(); ?>employee/inventory/get_part_number',
-                data: {text_input:1, service_id: $('#service').val(), part_name:$('#wrong_part').children("option:selected").text()},
-                success: function(data){
-                    $('#part_number').val(data);
-                }
-            });
-        }
+        $('#part_number').val($('#wrong_part').children("option:selected").data('part_number'));
     });
 </script>
 <!-- end alert message -->

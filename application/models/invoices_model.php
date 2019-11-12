@@ -1182,7 +1182,7 @@ class invoices_model extends CI_Model {
                     sc.address as company_address, sc.owner_phone_1 as owner_phone_1,
                     sc.state, gst_no as gst_number
                     
-                    FROM brackets,service_centres as sc  WHERE brackets.received_date >= "' . $from_date . '" 
+                    FROM brackets,service_centres as sc  WHERE brackets.received_date >= "' . date('Y-m-d', strtotime($from_date)) . '" 
                     AND brackets.received_date <= "' . $to_date . '" AND brackets.is_received= "1" 
                     AND brackets.order_received_from = "' . $vendor_id . '" 
                     AND invoice_id IS NULL
@@ -1376,6 +1376,7 @@ class invoices_model extends CI_Model {
                 WHERE  
                 
                 ud.booking_status =  'Completed'
+                AND bd.current_status =  'Completed'
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
@@ -1801,7 +1802,7 @@ class invoices_model extends CI_Model {
                     AND `booking_details`.assigned_vendor_id = `service_centres`.id AND current_status = 'Completed' AND pay_from_sf = 1
                     $is_invoice_null
                     AND assigned_vendor_id = '" . $vendor_id . "' "
-                    . " AND `booking_unit_details`.booking_status = 'Completed' $where";
+                    . " AND `booking_unit_details`.booking_status = 'Completed' AND booking_details.current_status = 'Completed'  $where";
 
 
             $query = $this->db->query($sql);
@@ -1835,6 +1836,7 @@ class invoices_model extends CI_Model {
                 FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
                 WHERE ud.booking_status =  'Completed'
                 AND ud.booking_id = bd.booking_id
+                AND bd.current_status =  'Completed'
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND ud.ud_closed_date >=  '$from_date'
                 AND ud.ud_closed_date <  '$to_date'
@@ -2146,17 +2148,15 @@ class invoices_model extends CI_Model {
         }
         $sql = " SELECT GROUP_CONCAT(sp.id) as sp_id, GROUP_CONCAT(bd.booking_id) as booking_id, 
                  SUM(sp.courier_charges_by_sf) as courier_charges_by_sf 
-                FROM  booking_details as bd, booking_unit_details as ud,
+                FROM  booking_details as bd,
                 spare_parts_details as sp
                 WHERE 
-                ud.booking_status =  '"._247AROUND_COMPLETED."'
+                bd.current_status =  '"._247AROUND_COMPLETED."'
                 AND bd.assigned_vendor_id = '$vendor_id'
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
                 AND sp.booking_id = bd.booking_id
-                AND bd.booking_id = ud.booking_id
-                AND ud.ud_closed_date >=  '$from_date'
-                AND ud.ud_closed_date <  '$to_date'
-                AND pay_to_sf = '1'
+                AND bd.closed_date >=  '$from_date'
+                AND bd.closed_date <  '$to_date'
                 AND `approved_defective_parts_by_partner` = 1
                 AND around_pickup_from_service_center = 0
                 $invoice_check

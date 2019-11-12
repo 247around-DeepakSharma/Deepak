@@ -287,7 +287,7 @@
                         <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control filter_table"  id="pending_dependency" name="status[]" multiple="">
-                                             <option value="247Around">Admin</option>
+                                             <option value="247Around:Warehouse">Admin</option>
                                             <option value="Partner">Partner</option>
                                             <option value="Vendor:not_define" selected="selected">SF</option>
                                         </select>
@@ -384,6 +384,7 @@
                            <td>{{x.TAT_8}} <br> ({{x.TAT_8_per}}%)</td>
                            <td>{{x.TAT_16}} <br> ({{x.TAT_16_per}}%)</td>
                             <td>{{x.Total_Pending}} <br> ({{x.TAT_total_per}}%)</td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>
@@ -674,7 +675,7 @@
                         <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control" id="pending_dependency_am" name="status[]" multiple="">
-                                            <option value="247Around" selected="selected">247Around</option>
+                                            <option value="247Around:Warehouse" selected="selected">247Around</option>
                                             <option value="Partner">Partner</option>
                                             <option value="Vendor:not_define" selected="selected">SF</option>
                                         </select>

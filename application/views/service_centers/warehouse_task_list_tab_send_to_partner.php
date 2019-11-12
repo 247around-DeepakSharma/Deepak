@@ -450,7 +450,17 @@
         $.each(postData, function(index, element) {
             formData.append(index, element);
         });
-        
+        if(!/^\d+(\.\d+)?$/g.test(postData['courier_price_by_wh'])){              //should be number only with one decimal 
+            $('#submit_courier_form').html("Submit").attr('disabled',false);
+            alert("Courier price should be numerical and should not contain alphabets and special characters except decimal.")
+            return false;
+        }
+        var courier_price= parseFloat(postData['courier_price_by_wh']);
+        if(courier_price<0 || courier_price>2000){                              //should be in between 0 and 2000
+            $('#submit_courier_form').html("Submit").attr('disabled',false);
+            alert('Courier price should be in between 0 and 2000.');
+            return false;
+        }
         if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['from_gst_number']){
             $.ajax({
                 method:'POST',

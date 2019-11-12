@@ -311,7 +311,7 @@
                                         <div class="form-group">
                                             <label for="quantity" class="col-md-4">Quantity *</label>
                                             <div class="col-md-6">
-                                                <input type="text"   min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
+                                                <input type="text"  required=""   min="1" readonly=""  value="1" class="form-control quantity  spare_parts" id="parts_quantity_0" name="part[0][quantity]" >
                                                 <span id="error_span_0" style="color:red;" class="hide"></span>
 
                                             </div>
@@ -428,7 +428,7 @@
                                             <div class="form-group">
                                                 <label for="quantity" class="col-md-4">Quantity *</label>
                                                 <div class="col-md-6">
-                                                    <input type="text"   min="1" readonly="" value="1" class="form-control  spare_parts" id="quantity" >
+                                                    <input type="text"  required=""  min="1" readonly="" value="1" class="form-control  spare_parts" id="quantity" >
                                                     <span id="error_span" style="color:red;" class="hide"></span>
                                                 </div>
                                             </div>
@@ -643,11 +643,16 @@ function alpha(e) {
                         html += "</select>";
                         html += "<input type='hidden' id='model_number' name='model_number'>";
                         $("#appliance_model_div").html(html);
+                        $('#model_number_id').select2();
                         var model_number = "<?php echo $unit_model_number; ?>";
                         $('#model_number_id option').map(function() {
-                        if ($(this).text() == model_number) return this;
-                        }).attr('selected', 'selected');
-                         $('#model_number_id').select2();
+                        if ($(this).text() == model_number){
+                            var model_no = $(this).val();
+                            $("#model_number_id").val(model_no).change();
+                        }                            
+                        });
+                         
+                        var model_id = $( "#model_number_id option:selected" ).val();
                         $(".select2-container--default").css('width','100%');
                 }
             }
@@ -1123,15 +1128,17 @@ function alpha(e) {
     $(document).ready(function(){
         var model_number = $("#model_number_id option:selected").val();
         if(model_number !=''){
-            $("#model_number_id").select2('destroy'); 
-            $("#model_number_id").attr('readonly',"readonly");
-            $("#model_number_id").css("cursor", "not-allowed");
-            $("#model_number_id").css("pointer-events","none");
+            <?php if($is_disable){ ?>
+                $("#model_number_id").select2('destroy'); 
+                $("#model_number_id").attr('readonly',"readonly");
+                $("#model_number_id").css("cursor", "not-allowed");
+                $("#model_number_id").css("pointer-events","none");
+            <?php } ?>
             
         }
     });
         
-    <?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ ?>
+    <?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ if($is_disable){  ?>
         $("#dop").attr('readonly', 'readonly');
         $("#dop").css("cursor", "not-allowed");
         $("#dop").css("pointer-events","none");
@@ -1139,20 +1146,20 @@ function alpha(e) {
         $("#dat_of_puchase").css("pointer-events","none");
         $("#dop_calendar").attr("onclick", "").unbind("click");
         
-     <?php } ?>
+     <?php } } ?>
          
-    <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ ?>
+    <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ if($is_disable){ ?>
         $("#serial_number_pic").attr('readonly', 'readonly');
         $("#serial_number_pic").css("cursor", "not-allowed");
         $("#serial_number_pic").css("pointer-events","none");
         $("#serial_text").css("cursor", "not-allowed");
         $("#serial_text").css("pointer-events","none");
-    <?php } ?>
-    <?php if(isset($unit_serial_number) && !empty($unit_serial_number)){ ?> 
+    <?php } } ?>
+    <?php if(isset($unit_serial_number) && !empty($unit_serial_number)){ if($is_disable){ ?> 
         $("#serial_number").attr('readonly', 'readonly');
         $("#serial_number").css("cursor", "not-allowed");
         $("#serial_number").css("pointer-events","none");
-    <?php }  ?>
+    <?php } } ?>
     // function ends here ---------------------------------------------------------------- 
 </script>
 <style type="text/css">

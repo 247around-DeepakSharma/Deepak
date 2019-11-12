@@ -243,19 +243,6 @@
                             </div>
                             <div class="col-md-6">
                                 <div class='form-group'>
-                                    <label for="from_gst_number" class="col-md-4">From GST Number *</label>
-                                    <div class="col-md-8">
-                                        <select class="form-control" id="from_gst_number" required>
-                                            <option selected disabled value="">Select from GST number</option>
-                                            <?php
-                                            foreach ($from_gst_number as $gst_numbers => $gst_number) {
-                                            ?>
-                                            <option value="<?php echo $gst_number['id']  ?>"><?php echo $gst_number['state']." - ".$gst_number['gst_number'] ?></option>
-                                            <?php    
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -420,7 +407,7 @@
         postData['courier_price_by_wh'] = $('#courier_price_id').val();
         postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_id').val();
         postData['exist_courier_image'] = $('#exist_courier_image').val();
-        postData['from_gst_number'] = $('#from_gst_number').val();
+        //postData['from_gst_number'] = $('#from_gst_number').val();
         //postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
         //postData['eway_vehicle_number'] = $('#eway_vehicle_number').val();
         postData['shipped_spare_parts_boxes_count'] = $('#shipped_spare_parts_boxes_count').val();
@@ -459,8 +446,20 @@
         $.each(postData, function(index, element) {
             formData.append(index, element);
         });
+
+        if(!/^\d+(\.\d+)?$/g.test(postData['courier_price_by_wh'])){              //should be number only with one decimal 
+            $('#submit_courier_form_id').html("Submit").attr('disabled',false);
+            alert("Courier price should be numerical and should not contain alphabets and special characters except decimal.")
+            return false;
+        }
+        var courier_price= parseFloat(postData['courier_price_by_wh']);
+        if(courier_price<0 || courier_price>2000){                              //should be in between 0 and 2000
+            $('#submit_courier_form_id').html("Submit").attr('disabled',false);
+            alert('Courier price should be in between 0 and 2000.');
+            return false;
+        }
         
-        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['from_gst_number'] && postData['shipped_spare_parts_boxes_count'] && postData['shipped_spare_parts_weight_in_kg']  && postData['shipped_spare_parts_weight_in_gram']){
+        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['shipped_spare_parts_boxes_count'] && postData['shipped_spare_parts_weight_in_kg']  && postData['shipped_spare_parts_weight_in_gram']){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/send_defective_to_partner_from_wh_on_challan',
@@ -494,7 +493,7 @@
     function get_partner_ack(){
         $.ajax({
             type:'POST',
-            url:'<?php echo base_url();?>employee/service_centers/warehouse_ack_partner_list',
+            url:'<?php echo base_url();?>employee/service_centers/get_partner_list',
             data:{is_wh:true},
             success:function(response){
                 if(response === 'Error'){

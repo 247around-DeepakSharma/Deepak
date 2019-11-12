@@ -2564,7 +2564,6 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         system(" chmod 777 " . $details_excel, $res1);
         return $details_excel;
     }
-
     /**
      * @desc This function is used to send sms sharp bookings 
      */
@@ -2590,7 +2589,7 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
                     $sms['type_id'] = $value['user_id'];
                     $sms['smsData']['user_name'] = $value['name'];
                     $sms['smsData']['appliance_name'] = "Water Purifier";
-                    $sms['smsData']['link'] = $this->miscelleneous->getShortUrl(SHARP_WATER_PURIFIER_INSTALLATION_VIDEO);
+                    $sms['smsData']['link'] = SHARP_WATER_PURIFIER_INSTALLATION_VIDEO;
                     $this->notify->send_sms_msg91($sms);
                 }
             }

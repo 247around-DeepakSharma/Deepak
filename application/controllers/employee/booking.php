@@ -1981,10 +1981,10 @@ class Booking extends CI_Controller {
      */
     function get_edit_booking_form($booking_id, $appliance_id = "",$is_repeat = NULL) {
         log_message('info', __FUNCTION__ . " Appliance ID  " . print_r($appliance_id, true) . " Booking ID: " . print_r($booking_id, true));
-        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);
+        $booking = $this->booking_creation_lib->get_edit_booking_form_helper_data($booking_id,$appliance_id,$is_repeat);      
         if($booking){            
             $booking['is_saas'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-            $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);        
+            $booking['is_spare_requested'] = $this->booking_utilities->is_spare_requested($booking);  
             $this->miscelleneous->load_nav_header();
             $this->load->view('employee/update_booking', $booking);
         }
@@ -2475,8 +2475,14 @@ class Booking extends CI_Controller {
         }
         
         // update spare parts.
+
         $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details, $status);
         if($is_update_spare_parts){
+             $booking['current_status'] = _247AROUND_PENDING;
+             $booking['internal_status'] = DEFECTIVE_PARTS_PENDING;
+             
+            
+        } else {
             $booking['current_status'] = $internal_status;
             $booking['internal_status'] = $internal_status;
             $booking['closed_date'] = date('Y-m-d H:i:s');
@@ -6001,7 +6007,7 @@ class Booking extends CI_Controller {
         $data['part_name'] = $post_data['part_name'];
         $data['service_id'] = $post_data['service_id'];
         $data['shipped_inventory_id'] = $post_data['shipped_inventory_id'];
-        $data['parts'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name', ['service_id' => $data['service_id'], 'inventory_id not in (1,2)' => NULL]);
+        $data['parts'] = $this->inventory_model->get_inventory_master_list_data('inventory_id, part_name, part_number', ['service_id' => $data['service_id'], 'inventory_id not in (1,2)' => NULL]);
         
         if(!empty($post_data['wrong_flag'])) {
 

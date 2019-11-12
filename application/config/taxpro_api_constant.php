@@ -2,7 +2,7 @@
 //taxpayer api credentials
 define('ASP_ID', '1606680918');
 define('ASP_PASSWORD', 'priya@b30');
-define('_247_AROUND_GSTIN', '09AAFCB1281J1ZM');
+define('_247_AROUND_GSTIN', '07AAFCB1281J1ZQ');
 define('USER_NAME_GSTIN', 'blackmelon.750');
 
 //taxpro OTP request URL

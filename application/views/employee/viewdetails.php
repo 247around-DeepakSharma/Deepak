@@ -1135,10 +1135,14 @@
                     <?php foreach($unit_details as $unit){?>
                     <tr>
                         <td><?php echo $unit["price_tags"];?></td>
-                        <td><?php if($unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
-                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
+                        <td><?php if(isset($unit['en_is_broken']) && $unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
+                        <td>
+                            <?php if(isset($unit['en_serial_number'])){ ?>
+                            <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a>
+                            <?php } ?>
+                        </td>
                         
-                        <td><?php  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
+                        <td><?php if(isset($unit['en_current_status']) && isset($unit['en_internal_status']))  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
                     </tr>
                     <?php }?>
                 </tbody>
@@ -2439,10 +2443,10 @@ function OpenWindowWithPost(url, windowoption, name, params)
                     $("#reject_btn").attr("onclick","reject_parts()");
                     $('#myModal2').modal('hide');
                     alert("Approved Successfully");
-                    spare_parts_requested_table.ajax.reload( function ( json ) { 
-                      $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
-                    },false );
-                    
+                    // spare_parts_requested_table.ajax.reload( function ( json ) { 
+                    //   $("#total_unapprove").html('(<i>'+json.unapproved+'</i>)').css({"font-size": "14px;", "color": "red","background-color":"#fff"});
+                    // },false );
+                    location.reload();
                 } else {
                     alert("Spare Parts Cancellation Failed!");
                 }
@@ -2470,7 +2474,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                   //  $("#"+booking_id+"_1").hide()
                     $('#myModal2').modal('hide');
                     alert("Updated Successfully");
-                    load_table(table_type);
+                    location.reload();
                 } else {
                     alert("Spare Parts Cancellation Failed!");
                 }
