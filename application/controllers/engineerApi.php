@@ -3511,7 +3511,7 @@ class engineerApi extends CI_Controller {
         $phone_number = "";
         $booking_id = "";
         $data = array();
-        $validation = $this->validateKeys(array("search_value", "engineer_id", "service_center_id"), $requestData);
+        $validation = $this->validateKeys(array("search_value", "engineer_id", "service_center_id", "engineer_pincode"), $requestData);
         if($validation['status']){
             $search = preg_replace('/[^A-Za-z0-9\-]/', '',trim($requestData['search_value']));
             //echo $search; die();
@@ -3522,7 +3522,7 @@ class engineerApi extends CI_Controller {
                     $booking_id = $search;
                 }
             }
-            $select = "services.services, users.phone_number, users.name as customername, users.phone_number, booking_details.*";
+            $select = "services.services, users.phone_number, users.name as name, users.phone_number, booking_details.*";
             $post['length'] = -1;
             if(!empty($booking_id)){
                 $post['search_value'] = $booking_id;
@@ -3544,7 +3544,22 @@ class engineerApi extends CI_Controller {
                     );
                 $data['Bookings'] = $this->engineer_model->engineer_bookings_on_user($select, $where);
             } 
+            
             if(!empty($data['Bookings'])){
+                $engineer_pincode = $requestData["engineer_pincode"];
+                foreach ($data['Bookings'] as $key => $value) {
+                    if($engineer_pincode){
+                        $distance_details = $this->upcountry_model->calculate_distance_between_pincode($engineer_pincode, "", $value->booking_pincode, "");
+                        $distance_array = explode(" ",$distance_details['distance']['text']);
+                        $distance = sprintf ("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
+                        $data['Bookings'][$key]->booking_distance = $distance;
+                        
+                        $unit_data = $this->booking_model->get_unit_details(array("booking_id" => $value->booking_id), false, "appliance_brand, appliance_category, appliance_capacity");
+                        $data['Bookings'][$key]->appliance_brand = $unit_data[0]['appliance_brand'];
+                        $data['Bookings'][$key]->appliance_category = $unit_data[0]['appliance_category'];
+                        $data['Bookings'][$key]->appliance_capacity = $unit_data[0]['appliance_capacity'];
+                    }
+                }
                 $this->jsonResponseString['response'] = $data;
                 $this->sendJsonResponse(array('0000', "Details found successfully"));
             }

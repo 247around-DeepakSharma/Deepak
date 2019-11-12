@@ -304,9 +304,9 @@
                         <td>
                             <?php
                                 if (is_null($row->booking_jobcard_filename)) {
-                                    echo $row->booking_id;
+                                    echo $row->booking_id . ($row->internal_status == REJECTED_FROM_REVIEW_STATUS ? "<br><img width='150px' heigth='50px' src='".base_url().'images/rejected_from_review.png'."'>" : '');
                                 } else {
-                                    echo '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';
+                                    echo '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>'. ($row->internal_status == REJECTED_FROM_REVIEW_STATUS ? "<br><img width='150px' heigth='50px' src='".base_url().'images/rejected_from_review.png'."'>" : '');
                                 }
                                 ?>
                         </td>
@@ -359,8 +359,9 @@
                             <?php
                                 if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
                                 {
+                                    $redirect_url = base_url()."employee/booking/get_complete_booking_form/".$row->booking_id;
                                     echo "<a class='btn btn-sm btn-color' "
-                                    . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+                                    . "href=" . base_url() ."employee/booking/get_edit_request_type_form/".urlencode(base64_encode($row->booking_id))."/".urlencode(base64_encode($redirect_url))." title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
                                 } else if ($row->current_status == 'Review')
                                 {
                                     echo "<a class='btn btn-sm btn-color' "
