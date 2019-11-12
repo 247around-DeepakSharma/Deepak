@@ -411,6 +411,10 @@ class engineerApi extends CI_Controller {
                 $this->getSearchData(); 
                 break;
             
+            case 'incentiveEearnedBookings':
+                $this->getIncentiveEearnedBookingsByEngineer(); 
+                break;
+            
             default:
                 break;
             
@@ -1826,6 +1830,13 @@ class engineerApi extends CI_Controller {
             $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
                     . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks';
+            $incentive_select = "sum(partner_incentive) as total_earning";
+            $incentive_where = array(
+                                "booking_details.assigned_vendor_id" => $requestData["service_center_id"], 
+                                "booking_details.assigned_engineer_id" => $requestData["engineer_id"],
+                                "engineer_incentive_details.is_active" => 1,
+                                "engineer_incentive_details.is_paid" => 0,
+                            );
             $missed_bookings_count = $this->getMissedBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $tommorow_bookings_count = $this->getTommorowBookingList($select, $requestData["service_center_id"], $requestData["engineer_id"]);
             $morning_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_10AM_TO_1PM, $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
@@ -1833,6 +1844,7 @@ class engineerApi extends CI_Controller {
             $evening_slot_bookings = $this->getTodaysSlotBookingList($slot_select, TIMESLOT_4PM_TO_7PM, $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
             $en_rating = $this->engineer_model->get_engineer_rating($requestData["engineer_id"], $requestData["service_center_id"])[0];
             $en_D0_data = $this->engineer_model->get_engineer_D0_closure($requestData["engineer_id"], $requestData["service_center_id"]);
+            $en_incentive_data = $this->engineer_model->get_en_incentive_details($incentive_select, $incentive_where);
             if(!empty($en_D0_data)){
                 if($en_D0_data[0]['total_closure']>0){
                     $D0 = round(($en_D0_data[0]['same_day_closure']*100)/$en_D0_data[0]['total_closure']);
@@ -1850,6 +1862,12 @@ class engineerApi extends CI_Controller {
             else{
                 $rating = $en_rating['rating'];
             }
+            if(!empty($en_incentive_data)){
+                $incentive = $en_incentive_data[0]['total_earning'];
+            }
+            else{
+                $incentive = 0;
+            }
             
             $response['missedBookingsCount'] = $missed_bookings_count[0]['bookings'];
             $response['tomorrowBookingsCount'] = $tommorow_bookings_count[0]['bookings'];
@@ -1858,6 +1876,7 @@ class engineerApi extends CI_Controller {
             $response['todayEveningBooking'] = $evening_slot_bookings;
             $response['rating'] = $rating;
             $response['same_day_closure'] = $D0;
+            $response['incentive'] = $incentive;
             
             log_message("info", __METHOD__ . "Bookings Found Successfully");
             $this->jsonResponseString['response'] = $response;
@@ -2017,7 +2036,6 @@ class engineerApi extends CI_Controller {
                 }
                
                 $response['cancelledBookings'] = $this->engineer_model->get_engineer_booking_details($select, $where, true, false, false, false, false, false);
-                
                 if(!empty($response['cancelledBookings'])){
                     log_message("info", __METHOD__ . "Bookings Found Successfully");
                     $this->jsonResponseString['response'] = $response;
@@ -3446,18 +3464,27 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $response = array();
+        $consumption = array();
         if(!empty($requestData["booking_id"])){
             $booking_data = $this->engineer_model->engineer_completed_bookings_details($requestData["booking_id"]);
             if(!empty($booking_data)){
                 $response['booking_details'] = $booking_data;
                 if($requestData['booking_status'] === _247AROUND_COMPLETED){
-                   $consumption_details =  $this->service_centers_model->get_engineer_consumed_details("engineer_consumed_spare_details.*, consumed_status", array("booking_id" => $requestData["booking_id"])); 
-                   if(!empty($consumption_details)){
-                       $response['consumption_details'] = $consumption_details;
-                   }
-                   else{
-                       $response['consumption_details'] = array();
-                   }
+                    $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.parts_requested_type, spare_parts_details.status, inventory_master_list.part_number as spare_part_name', ['booking_id' => $requestData["booking_id"], 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]); 
+                    foreach ($spare_parts_details as $key => $value){
+                        $consumption_details =  $this->service_centers_model->get_engineer_consumed_details("engineer_consumed_spare_details.*, consumed_status", array("booking_id" => $requestData["booking_id"], "spare_id" => $value['id']));  
+                        $consumption_data = array(
+                            "spare_part_number" => $value['spare_part_name'],
+                            "spare_parts_requested" => $value['parts_requested'],
+                            "spare_parts_requested_type" => $value['parts_requested_type'],
+                            "spare_status" => $value['status'],
+                            "consumed_status" => $consumption_details[0]['consumed_status'],
+                            "wrong_part_name" => $consumption_details[0]['part_name'],
+                            "wrong_part_remarks" => $consumption_details[0]['remarks'],
+                        );
+                        array_push($consumption, $consumption_data);
+                    }
+                    $response['consumption_details'] = $consumption;
                 }
                 $this->jsonResponseString['response'] = $response;
                 $this->sendJsonResponse(array('0000', "Booking details found successfully"));
@@ -3523,12 +3550,44 @@ class engineerApi extends CI_Controller {
             }
             else{
                 log_message("info", __METHOD__ . "Data not found");
-                $this->sendJsonResponse(array("0062", "Data not found"));
+                $this->sendJsonResponse(array("0061", "Data not found"));
             }
         }
         else{
             log_message("info", __METHOD__ . $validation['message']);
-            $this->sendJsonResponse(array("0061", $validation['message']));
+            $this->sendJsonResponse(array("0062", $validation['message']));
+        }
+    }
+    
+    /*
+     *@Desc - This function is used to get bookings on which engineer earns incentive    
+     *@param - $engineer_id, $service_center_id
+     *@response - json
+     */
+    function getIncentiveEearnedBookingsByEngineer(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if(!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])){
+            $select = "booking_details.booking_id, partner_incentive, services.services, booking_details.request_type";
+            $where = array(
+                        "booking_details.assigned_vendor_id" => $requestData['service_center_id'],
+                        "booking_details.assigned_engineer_id" => $requestData['engineer_id'],
+                        "engineer_incentive_details.is_active" => 1,
+                        "engineer_incentive_details.is_paid" => 0,
+                    );
+            $incentive_details = $this->engineer_model->get_en_incentive_details($select, $where);
+            if(!empty($incentive_details)){
+                $this->jsonResponseString['response'] = $incentive_details;
+                $this->sendJsonResponse(array('0000', "Booking details found successfully"));
+            }
+            else{
+                log_message("info", __METHOD__ . "Data not found");
+                $this->sendJsonResponse(array("0063", "Data not found"));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . "Engineer id or Service Center id not found");
+            $this->sendJsonResponse(array("0064", "Engineer id or Service Center id not found"));
         }
     }
 }
