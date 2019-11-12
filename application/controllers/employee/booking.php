@@ -5573,6 +5573,66 @@ class Booking extends CI_Controller {
             echo "<center style='margin-top:30px;'>No Booking Found</center>";
         }
     }
+    
+    function download_review_bookings_data() {
+        
+        $post_data = $this->input->get();
+        $review_status = $post_data['review_status'];
+        $is_partner = $post_data['is_partner'];
+        $whereIN = $having = [];
+        
+        if($this->session->userdata('user_group') == 'regionalmanager'){
+            $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
+            $serviceCenters = $sf_list[0]['service_centres_id'];
+            $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
+        }
+        if($this->session->userdata('is_am') == '1'){
+            $am_id = $this->session->userdata('id');
+            $where['agent_filters.agent_id ='.$am_id] = NULL;
+            $where['partners.is_active =1'] = NULL;
+            $where["agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."'"] = NULL;
+            $join['agent_filters'] =  "partners.id=agent_filters.entity_id";
+        }
+        
+        $status = $review_status;
+        if($review_status === "Completed") {
+            $having['count(sc.booking_id)=sum(if(sc.added_by_SF=0,1,0))'] = NULL;
+        }
+        if($review_status === "Completed_By_SF") {
+            $status="Completed";
+            $whereIN['sc.added_by_SF'] = [1];
+        }
+
+        if(!empty($post_data['partner_id'])) {
+           $whereIN['booking_details.partner_id'] = [$post_data['partner_id']];
+        }
+
+        if(!empty($post_data['state_id'])) {
+           $state =  $this->reusable_model->get_search_result_data("state_code", "*", array('state_code' => $post_data['state_id']), NULL, NULL, NULL, NULL, NULL, array())[0]['state'];
+           $whereIN['booking_details.state'] = [$state];
+        }
+
+        if(!empty($post_data['cancellation_reason_id'])) {
+           $cancellation_reason =  $this->reusable_model->get_search_result_data("booking_cancellation_reasons", "*", array('id' => $post_data['cancellation_reason_id']), NULL, NULL, NULL, NULL, NULL, array())[0]['reason'];
+           $whereIN['sc.cancellation_reason'] = [$cancellation_reason];
+        }
+        
+        $data = $this->booking_model->get_booking_for_review(NULL, $status,$whereIN, $is_partner,NULL,-1,$having);
+        
+        foreach($data as $k => $d) {
+            unset($data[$k]['unit_details']);
+            unset($data[$k]['booking']);
+            unset($data[$k]['spare_parts']);
+            unset($data[$k]['sf_purchase_invoice']);
+            unset($data[$k]['booking_create_date']);
+            unset($data[$k]['booking_primary_contact_no']);
+            unset($data[$k]['partner_id']);
+            unset($data[$k]['is_upcountry']);
+        }
+        //echo"<pre>";print_r($data);exit;
+        $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Due',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age', 'Amount Paid'], 'data_'.date('Ymd-His'));
+    }
+    
     function sms_test($number,$text){
           $this->notify->sendTransactionalSmsMsg91($number,$text,SMS_WITHOUT_TAG);
     }
