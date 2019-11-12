@@ -411,6 +411,10 @@ class engineerApi extends CI_Controller {
                 $this->getSearchData(); 
                 break;
             
+            case 'incentiveEearnedBookings':
+                $this->getIncentiveEearnedBookingsByEngineer(); 
+                break;
+            
             default:
                 break;
             
@@ -3546,12 +3550,44 @@ class engineerApi extends CI_Controller {
             }
             else{
                 log_message("info", __METHOD__ . "Data not found");
-                $this->sendJsonResponse(array("0062", "Data not found"));
+                $this->sendJsonResponse(array("0061", "Data not found"));
             }
         }
         else{
             log_message("info", __METHOD__ . $validation['message']);
-            $this->sendJsonResponse(array("0061", $validation['message']));
+            $this->sendJsonResponse(array("0062", $validation['message']));
+        }
+    }
+    
+    /*
+     *@Desc - This function is used to get bookings on which engineer earns incentive    
+     *@param - $engineer_id, $service_center_id
+     *@response - json
+     */
+    function getIncentiveEearnedBookingsByEngineer(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        if(!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])){
+            $select = "booking_details.booking_id, partner_incentive, services.services, booking_details.request_type";
+            $where = array(
+                        "booking_details.assigned_vendor_id" => $requestData['service_center_id'],
+                        "booking_details.assigned_engineer_id" => $requestData['engineer_id'],
+                        "engineer_incentive_details.is_active" => 1,
+                        "engineer_incentive_details.is_paid" => 0,
+                    );
+            $incentive_details = $this->engineer_model->get_en_incentive_details($select, $where);
+            if(!empty($incentive_details)){
+                $this->jsonResponseString['response'] = $incentive_details;
+                $this->sendJsonResponse(array('0000', "Booking details found successfully"));
+            }
+            else{
+                log_message("info", __METHOD__ . "Data not found");
+                $this->sendJsonResponse(array("0063", "Data not found"));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . "Engineer id or Service Center id not found");
+            $this->sendJsonResponse(array("0064", "Engineer id or Service Center id not found"));
         }
     }
 }
