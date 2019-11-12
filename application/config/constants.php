@@ -695,7 +695,5 @@ define('SHARP_WATER_PURIFIER_INSTALLATION_VIDEO', 'http://tinyurl.com/y4s42ml4')
 // Warehouse Aurangabad id
 define('_247AROUND_WAREHOUSE_ID', 15);
 
-define('SHARP_WATER_PURIFIER_INSTALLATION_VIDEO', 'https://s3.amazonaws.com/bookings-collateral/misc-images/sharp_water_purifier_installation_demo.mp4');
-
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
