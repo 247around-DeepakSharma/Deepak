@@ -1888,7 +1888,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             //Filter on request Type
             if($request_type !="not_set"){
                 $requestTypeArray = explode(':',$request_type);
-                $join['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id";
+                $join['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id AND spare_parts_details.status != '"._247AROUND_CANCELLED."' ";
                 $joinType['spare_parts_details']  = "left";
                 foreach($requestTypeArray as $request_type){
                     if($request_type == 'Repair_with_part'){
@@ -1897,6 +1897,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                             . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR '
                             . 'booking_details.request_type LIKE "%AMC%")'] = NULL;              
                         $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
+                        $where['spare_parts_details.status != "'._247AROUND_CANCELLED.'"'] = NULL;
                     }
                     else if($request_type == 'Repair_without_part'){
                         $where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
