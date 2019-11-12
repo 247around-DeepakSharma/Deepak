@@ -58,7 +58,7 @@
                <div class="form-group">
                   <label for="cancellation_reason" class="col-md-2"> </label>
                   <div class="col-md-6">
-                     <textarea class="form-control" id="cancellation_reason_text" name="cancellation_reason_text" value="<?php echo set_value('cancellation_reason'); ?>"  rows="8" ><?php if($this->session->userdata('is_engineer_app') == 1){ if(!empty($engineer_data)){ echo $engineer_data[0]['cancellation_remark']; }  } ?></textarea>
+                     <textarea placeholder="Enter Remarks" class="form-control" id="cancellation_reason_text" name="cancellation_reason_text" value="<?php echo set_value('cancellation_reason'); ?>"  rows="8" ><?php if($this->session->userdata('is_engineer_app') == 1){ if(!empty($engineer_data)){ echo $engineer_data[0]['cancellation_remark']; }  } ?></textarea>
                   </div>
                </div>
                 <input type="hidden" name="partner_id" value="<?php if (isset($user_and_booking_details[0]['partner_id'])) {echo $user_and_booking_details[0]['partner_id']; } ?>">
@@ -68,7 +68,7 @@
                 <input type="hidden" name="service_id" value="<?php if (isset($user_and_booking_details[0]['service_id'])) {echo $user_and_booking_details[0]['service_id']; } ?>">
                 <input type="hidden" name="en_closed_date" value="<?php if($this->session->userdata('is_engineer_app') == 1){ if(!empty($engineer_data)){ if(!is_null($engineer_data[0]['closed_date'])){ echo $engineer_data[0]['closed_date']; } }  } ?>">
                <div>
-                <div class="col-md-6 col-md-offset-3">
+                <div class="col-md-6 col-md-offset-2">
                    <?php $isdisable = false; if(isset($user_and_booking_details['spare_parts'])){ 
                        foreach($user_and_booking_details['spare_parts'] as $sp){
                            switch ($sp['status']){
