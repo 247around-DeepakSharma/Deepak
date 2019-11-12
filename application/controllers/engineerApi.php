@@ -2254,6 +2254,10 @@ class engineerApi extends CI_Controller {
             $curl_response = curl_exec($ch);
             curl_close($ch);
             if($curl_response){
+                /*Update model number and purchase date in booking unit details*/
+                $booking_update_data = array("sf_model_number" => $requestData['model_number'], "sf_purchase_date" => $requestData['dop']);
+                $this->booking_model->update_booking_unit_details($requestData["booking_id"], $booking_update_data);
+                /*End*/
                 log_message("info", __METHOD__ . "Part  Updated successfully");
                 $this->jsonResponseString['response'] = "Booking Updated Successfully";
                 $this->sendJsonResponse(array('0000', 'success'));
@@ -2820,7 +2824,7 @@ class engineerApi extends CI_Controller {
                     $partner_id = $booking_history[0]['partner_id'];
                     $user_id = $booking_history[0]['user_id'];
                     $price_tags = $requestData['price_tags'];
-                    $appliance_id = $booking_history[0]['appliance_id'];
+                    $appliance_id = $booking_history[0]['service_id'];
                     $model_number = $requestData['model_number'];
                     
                     if (!ctype_alnum($serial_number)) {
