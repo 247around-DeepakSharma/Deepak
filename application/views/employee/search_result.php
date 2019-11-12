@@ -304,9 +304,9 @@
                         <td>
                             <?php
                                 if (is_null($row->booking_jobcard_filename)) {
-                                    echo $row->booking_id;
+                                    echo $row->booking_id . ($row->internal_status == REJECTED_FROM_REVIEW_STATUS ? "<br><img width='150px' heigth='50px' src='".base_url().'images/rejected_from_review.png'."'>" : '');
                                 } else {
-                                    echo '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>';
+                                    echo '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/jobcards-pdf/' . $row->booking_jobcard_filename . '">' . $row->booking_id . '</a>'. ($row->internal_status == REJECTED_FROM_REVIEW_STATUS ? "<br><img width='150px' heigth='50px' src='".base_url().'images/rejected_from_review.png'."'>" : '');
                                 }
                                 ?>
                         </td>
