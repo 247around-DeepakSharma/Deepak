@@ -1889,7 +1889,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             //Filter on request Type
             if($request_type !="not_set"){
                 $requestTypeArray = explode(':',$request_type);
-                $join['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id";
+                $join['spare_parts_details'] = "spare_parts_details.booking_id = booking_details.booking_id AND spare_parts_details.status != '"._247AROUND_CANCELLED."' ";
                 $joinType['spare_parts_details']  = "left";
                 foreach($requestTypeArray as $request_type){
                     if($request_type == 'Repair_with_part'){
@@ -1898,6 +1898,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                             . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR '
                             . 'booking_details.request_type LIKE "%AMC%")'] = NULL;              
                         $where['spare_parts_details.booking_id IS NOT NULL'] = NULL;
+                        $where['spare_parts_details.status != "'._247AROUND_CANCELLED.'"'] = NULL;
                     }
                     else if($request_type == 'Repair_without_part'){
                         $where['(booking_details.request_type  LIKE "%Repair%" OR booking_details.request_type  LIKE "%Repeat%" OR booking_details.request_type  LIKE "%Extended Warranty%" '
@@ -1905,6 +1906,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                             . 'OR booking_details.request_type  LIKE "%Wet%" OR booking_details.request_type LIKE "%Spare Parts%" OR booking_details.request_type LIKE "%Inspection%" OR '
                             . 'booking_details.request_type LIKE "%AMC%")'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
+                        $where['spare_parts_details.status != "'._247AROUND_CANCELLED.'"'] = NULL;
                     }
                     else if($request_type == 'Installation'){
                         $where['(booking_details.request_type NOT LIKE "%Repair%" AND booking_details.request_type NOT LIKE "%Repeat%" AND booking_details.request_type NOT LIKE "%Extended Warranty%" '
@@ -1912,6 +1914,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                             . 'AND booking_details.request_type NOT LIKE "%Wet%" AND booking_details.request_type NOT LIKE "%Spare Parts%" AND booking_details.request_type NOT LIKE "%Inspection%" AND ' 
                             . 'booking_details.request_type NOT LIKE "%AMC%")'] = NULL;
                         $where['spare_parts_details.booking_id IS NULL'] = NULL;
+                        $where['spare_parts_details.status != "'._247AROUND_CANCELLED.'"'] = NULL;
                     }
                 }
                 $count = count($requestTypeArray);

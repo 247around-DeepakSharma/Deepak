@@ -359,8 +359,9 @@
                             <?php
                                 if ($row->current_status == 'Pending' || $row->current_status == 'Rescheduled')
                                 {
+                                    $redirect_url = base_url()."employee/booking/get_complete_booking_form/".$row->booking_id;
                                     echo "<a class='btn btn-sm btn-color' "
-                                    . "href=" . base_url() . "employee/booking/get_complete_booking_form/$row->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+                                    . "href=" . base_url() ."employee/booking/get_edit_request_type_form/".urlencode(base64_encode($row->booking_id))."/".urlencode(base64_encode($redirect_url))." title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
                                 } else if ($row->current_status == 'Review')
                                 {
                                     echo "<a class='btn btn-sm btn-color' "
