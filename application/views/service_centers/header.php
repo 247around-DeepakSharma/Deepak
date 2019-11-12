@@ -223,6 +223,10 @@
                                 <li>
                                     <a href="<?php echo base_url() ?>service_center/get_engineers" > <strong> View Engineers</strong></a>
                                 </li>
+                                <li role="separator" class="divider" style="height: 2px;"></li>
+                                <li>
+                                    <a href="<?php echo base_url() ?>service_center/engineer_wise_calls" > <strong> Engineers Wise Bookings </strong></a>
+                                </li>
                             </ul>
                         </li>
                         <?php if($this->session->userdata('service_center_id') == '10'){ ?>

@@ -23,7 +23,7 @@
         <select name="wrong_part" id="wrong_part" class="form-control" style="width:100%;">
             <option value="" selected disabled>Select Wrong Part</option>
             <?php foreach($parts as $part) { ?>
-            <option value="<?php echo $part['inventory_id']; ?>"><?php echo $part['part_name']; ?></option>
+            <option data-part_number="<?php echo $part['part_number']; ?>" value="<?php echo $part['inventory_id']; ?>"><?php echo $part['part_name']; ?></option>
             <?php } ?>
         </select>
         

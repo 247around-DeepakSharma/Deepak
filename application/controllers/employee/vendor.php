@@ -1085,8 +1085,7 @@ class vendor extends CI_Controller {
          $this->form_validation->set_rules('service', 'Vendor ID', 'required|trim');
          $this->form_validation->set_rules('remarks', 'Remarks', 'required|trim');
         if ($this->form_validation->run()) {
-         //   $spare_data = $this->inventory_model->get_spare_parts_details("id, status", array("booking_id"=>$this->input->post('booking_id')));
-        //    if(!empty($spare_data)){
+            $spare_data = $this->inventory_model->get_spare_parts_details("id, status", array("booking_id"=>$this->input->post('booking_id'), "status != '"._247AROUND_CANCELLED."'" => NULL));
                 $booking_id = $this->input->post('booking_id');
                 $service_center_id = $this->input->post('service');
                 $remarks = $this->input->post('remarks');
@@ -1117,15 +1116,19 @@ class vendor extends CI_Controller {
                     'cancellation_reason' => NULL,
                     'upcountry_distance' => NULL,
                     'internal_status' => _247AROUND_PENDING);
-
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+                
                 $actor = $next_action = 'not_define';
-                if (!empty($partner_status)) {
-                    $assigned_data['partner_current_status'] = $partner_status[0];
-                    $assigned_data['partner_internal_status'] = $partner_status[1];
-                    $actor = $assigned_data['actor'] = $partner_status[2];
-                    $next_action = $assigned_data['next_action'] = $partner_status[3];
+                if(empty($spare_data)){
+                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, ASSIGNED_VENDOR, $previous_sf_id[0]['partner_id'], $booking_id);
+
+                    if (!empty($partner_status)) {
+                        $assigned_data['partner_current_status'] = $partner_status[0];
+                        $assigned_data['partner_internal_status'] = $partner_status[1];
+                        $actor = $assigned_data['actor'] = $partner_status[2];
+                        $next_action = $assigned_data['next_action'] = $partner_status[3];
+                    }
                 }
+                
                 $this->booking_model->update_booking($booking_id, $assigned_data);
 
                 $this->vendor_model->delete_previous_service_center_action($booking_id);
@@ -1236,14 +1239,6 @@ class vendor extends CI_Controller {
                 //End
 
                 redirect(base_url() . DEFAULT_SEARCH_PAGE);
-        // }
-        // else{
-        //     $booking_id = $this->input->post('booking_id');
-        //     $output = "You cann't reassign this booking because spare part already requested. If you want to reassign then please cancel part request.";
-        //     $userSession = array('error' => $output);
-        //     $this->session->set_userdata($userSession);
-        //     redirect(base_url() . "employee/vendor/get_reassign_vendor_form/".$booking_id);
-        // }
         } else {
             $booking_id = $this->input->post('booking_id');
             $output = "All Fields are required";
@@ -5539,7 +5534,7 @@ class vendor extends CI_Controller {
         //Sending Welcome Vendor Mail
         //Getting template from Database
         $template = $this->booking_model->get_booking_email_template("new_vendor_creation");
-        if (!empty($template)) {
+        if (!empty($template) && !empty($this->input->post('company_name')) && !empty($this->input->post('district'))) {
             $subject = "Welcome to 247around ".$this->input->post('company_name')." (".$this->input->post('district').")";
             $emailBody = $template[0];
             $this->notify->sendEmail($template[2], $new_vendor_mail, $template[3].",".$rm_official_email, '', $subject, $emailBody, "",'new_vendor_creation');
@@ -5876,21 +5871,47 @@ class vendor extends CI_Controller {
     }
     
     function engineer_wise_calls() {
-        
-        $this->load->view('service_centers/header');
-        $data['engineers'] = $this->reusable_model->get_search_result_data("engineer_details","engineer_details.id,name",[],NULL,NULL,array("name"=>"ASC"),NULL,array());
-        $data['status'] = ['Pending', 'FollowUp', 'Completed', 'Rescheduled', 'Cancelled'];
-        $this->load->view('service_centers/view_engineer_vise_calls',$data);
-        
+        if($this->session->userdata('userType') == 'service_center'){
+            $service_center_id = $this->session->userdata('service_center_id');
+            $this->load->view('service_centers/header');
+            $data['engineers'] = $this->reusable_model->get_search_result_data("engineer_details","engineer_details.id,name",['service_center_id'=>$service_center_id],NULL,NULL,array("name"=>"ASC"),NULL,array());
+            $data['status'] = ['Pending', 'InProcess', 'Completed', 'Cancelled'];
+            $this->load->view('service_centers/view_engineer_vise_calls',$data);
+        }
     }
     
     function get_engineer_vise_call_details() {
         $post = $this->get_post_data();
         if ($this->input->post('engineer_id')) {
-            $post[''] = array();
-          
-            $list = $this->engineer_model->get_engineer_vise_call_list($this->input->post());
-           
+            $post['column_order'] = array();
+
+            $post['order'] = array('booking_details.booking_date' => "DESC");
+            $post['column_search'] = array('booking_details.booking_id');
+            $post['where'] = array('engineer_booking_action.engineer_id' => $this->input->post('engineer_id'), 'engineer_booking_action.current_status' => $this->input->post('status'));
+            $post['join'] = array(
+                "engineer_booking_action" => "engineer_booking_action.booking_id = booking_details.booking_id",
+                "partners" => "booking_details.partner_id = partners.id",
+                "users" => "booking_details.user_id = users.user_id",
+                "services" => "booking_details.service_id = services.id",
+            );
+            $post['joinType'] = array(
+                "engineer_booking_action" => "INNER",
+                "partners" => "LEFT",
+                "users" => "LEFT",
+                "services" => "LEFT",
+            );
+            
+            $select = "distinct(booking_details.booking_id), booking_details.booking_address, booking_details.request_type, booking_details.booking_date, booking_details.count_escalation,
+                    booking_details.booking_primary_contact_no, engineer_booking_action.internal_status,
+                    users.name as username,
+                    partners.public_name as partner_name,
+                    services.services,
+                    DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE( booking_details.initial_booking_date, '%d-%m-%Y')) as age_of_booking,
+                    (SELECT GROUP_CONCAT(DISTINCT brand.appliance_brand) FROM booking_unit_details brand WHERE brand.booking_id = booking_details.booking_id GROUP BY brand.booking_id ) as appliance_brand";
+
+            $list = $this->reusable_model->get_datatable_data("booking_details", $select, $post);
+            //$list = $this->engineer_model->get_engineer_vise_call_list($this->input->post());
+            
             $data = array();
             $no = $post['start'];
             foreach ($list as $call_list) {
@@ -5905,7 +5926,7 @@ class vendor extends CI_Controller {
 
             $output = array(
                 "draw" => $this->input->post('draw'),
-                "recordsTotal" => count($list),
+                "recordsTotal" => $this->reusable_model->count_all_result("engineer_booking_action", $post['where']),
                 "recordsFiltered" => count($list),
                 'stock' => 0,
                 "data" => $data,
@@ -5927,15 +5948,16 @@ class vendor extends CI_Controller {
         $row = array();
         
         $row[] = $sn;
-        $row[] = '<span>' . $call_list['booking_id'] . '</span>';
-        $row[] = '<span>' . $call_list['username']."<br>".$call_list['booking_primary_contact_no'] . '</span>';
-        $row[] = '<span>' . $call_list['booking_address'] . '</span>';
-        $row[] = '<span><b>' . $call_list['request_type'] .'</b> '.$call_list['services'] . '</span>';
-        $row[] = '<span>' . $call_list['booking_date'] . '</span>';
-        $row[] = '<span>' . $call_list['age_of_booking'] . '</span>';
-        $row[] = '<span>' . $call_list['partner_name'] . '</span>';
-        $row[] = '<span>' . $call_list['appliance_brand'] . '</span>';
-        $row[] = '<span>' . $call_list['count_escalation'] . '</span>';
+        $row[] = '<span>' . $call_list->booking_id . '</span>';
+        $row[] = '<span>' . $call_list->username."<br>".$call_list->booking_primary_contact_no . '</span>';
+        $row[] = '<span>' . $call_list->booking_address . '</span>';
+        $row[] = '<span><b>' . $call_list->request_type .'</b> '.$call_list->services . '</span>';
+        $row[] = '<span>' . $call_list->booking_date . '</span>';
+        $row[] = '<span>' . $call_list->age_of_booking . '</span>';
+        $row[] = '<span>' . $call_list->partner_name . '</span>';
+        $row[] = '<span>' . $call_list->appliance_brand . '</span>';
+        $row[] = '<span>' . $call_list->internal_status . '</span>';
+        $row[] = '<span>' . $call_list->count_escalation . '</span>';
 
         return $row;
     }
