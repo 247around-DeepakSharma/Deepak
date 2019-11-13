@@ -8544,7 +8544,7 @@ class Partner extends CI_Controller {
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
     
                 $unit_array=array(
-                        'serial_number'=>$update_pending['serial_number']
+                        'serial_number'=>$update_pending['serial_number'],
                         'sf_model_number'=>$update_pending['model_number_shipped'],
                         'serial_number_pic'=>$update_pending['serial_number_pic']
                 );
@@ -8598,7 +8598,8 @@ class Partner extends CI_Controller {
                if($review_counter==0){
                 $review_update_array=array(
                     'current_status'=>'Pending',
-                    'internal_status'=>SF_BOOKING_COMPLETE_STATUS
+                    'internal_status'=>SF_BOOKING_COMPLETE_STATUS,
+                    'actor'=>'247Around'
                 );
                 $this->booking_model->update_booking($booking_id, $review_update_array);
 
@@ -8606,13 +8607,19 @@ class Partner extends CI_Controller {
                $data_service_center_review=array(
                         'current_status'=>'InProcess',
                         'internal_status'=>'Completed',
-                        'serial_number'=>$update_pending['serial_number']
+                        'serial_number'=>$update_pending['serial_number'],
                         'model_number'=>$update_pending['model_number_shipped'],
                         'serial_number_pic'=>$update_pending['serial_number_pic']
                 );
 
                 $this->vendor_model->update_service_center_action($booking_id, $data_service_center_review);
 
+                }else{
+
+                $review_update_array=array(
+                    'actor'=>'Vendor'
+                );
+                $this->booking_model->update_booking($booking_id, $review_update_array);  
                 }
 
                 $new_state=NRN_APPROVED_BY_PARTNER;
