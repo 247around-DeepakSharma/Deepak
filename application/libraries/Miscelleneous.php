@@ -4869,7 +4869,7 @@ function generate_image($base64, $image_name,$directory){
                         $up['status'] = $status;
                      }
                 }
-                
+
                 if((empty($spare_part_detail['defective_part_shipped']) && empty($spare_part_detail['defective_part_shipped_date'])) || $defective_part_required == 0) {
                     $this->My_CI->reusable_model->update_table('spare_parts_details', $up, ['id' => $spare_id]);
                 }
@@ -4914,4 +4914,65 @@ function generate_image($base64, $image_name,$directory){
         }
     }
 
+    function change_consumption_by_warehouse($post_data, $booking_id) {
+        if (!empty($post_data['spare_consumption_status'])) {
+            foreach ($post_data['spare_consumption_status'] as $spare_id => $status_id) {
+
+                $spare_part_detail = $this->My_CI->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+                $status = "";
+                $defective_part_required = $spare_part_detail['defective_part_required'];
+
+                // check record exist in wrong spare part details.
+                $check_wrong_part_record_exist = $this->My_CI->reusable_model->get_search_result_data('wrong_part_shipped_details', '*', ['spare_id' => $spare_id], NULL, NULL, NULL, NULL, NULL);
+
+                $consumption_status_tag = $this->My_CI->reusable_model->get_search_result_data('spare_consumption_status', 'tag', ['id' => $status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
+
+                if ($consumption_status_tag == PART_CONSUMED_TAG) {
+                    $status = DEFECTIVE_PARTS_PENDING;
+                    if(!empty($check_wrong_part_record_exist[0])) {
+                        $this->My_CI->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
+                    }
+                }
+
+                if ($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
+                    $status = COURIER_LOST;
+                    $courier_lost_spare[] = $spare_part_detail;
+                    if(!empty($check_wrong_part_record_exist[0])) {
+                        $this->My_CI->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
+                    }
+                }
+
+                if ($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG) {
+                    $status = OK_PART_TO_BE_SHIPPED;
+                    if(!empty($check_wrong_part_record_exist[0])) {
+                        $this->My_CI->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
+                    }
+                }
+
+                if ($consumption_status_tag == WRONG_PART_RECEIVED_TAG && !empty($post_data['wrong_part'])) {
+                    $status = OK_PART_TO_BE_SHIPPED;
+
+                    $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
+                    $this->My_CI->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
+                }
+
+                if ($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
+                    $status = DAMAGE_PART_TO_BE_SHIPPED;
+                    if(!empty($check_wrong_part_record_exist[0])) {
+                        $this->My_CI->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
+                    }
+                }
+
+                $up = array('consumed_part_status_id' => $status_id);
+                $up['status'] = $status;
+
+                $this->My_CI->reusable_model->update_table('spare_parts_details', $up, ['id' => $spare_id]);
+            }
+            
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
 }
