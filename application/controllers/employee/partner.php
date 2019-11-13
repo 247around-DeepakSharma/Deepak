@@ -8532,6 +8532,7 @@ class Partner extends CI_Controller {
             $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
 
             $review_counter=0;
+            $sc_action=array();
             foreach ($spare_inventory_update as  $update_pending) {
 
 
@@ -8550,6 +8551,16 @@ class Partner extends CI_Controller {
                 );
                 $this->booking_model->update_booking_unit_details($booking_id,$unit_array);
 
+                if (!empty($update_pending['serial_number'])) {
+                    $sc_action['serial_number']=$update_pending['serial_number'];
+                }
+                if (!empty($update_pending['model_number_shipped'])) {
+                    $sc_action['model_number']=$update_pending['model_number_shipped'];
+                }
+                if (!empty($update_pending['serial_number_pic'])) {
+                    $sc_action['serial_number_pic']=$update_pending['serial_number_pic'];
+                }
+
                 $review_counter++;
 
                 }else{
@@ -8560,6 +8571,15 @@ class Partner extends CI_Controller {
                     'nrn_approv_by_partner'=>1
                 );
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
+                if (!empty($update_pending['serial_number'])) {
+                    $sc_action['serial_number']=$update_pending['serial_number'];
+                }
+                if (!empty($update_pending['model_number_shipped'])) {
+                    $sc_action['model_number']=$update_pending['model_number_shipped'];
+                }
+                if (!empty($update_pending['serial_number_pic'])) {
+                    $sc_action['serial_number_pic']=$update_pending['serial_number_pic'];
+                }
 
 
                 if ($update_pending['entity_type']==_247AROUND_SF_STRING) {
@@ -8607,9 +8627,9 @@ class Partner extends CI_Controller {
                $data_service_center_review=array(
                         'current_status'=>'InProcess',
                         'internal_status'=>'Completed',
-                        'serial_number'=>$update_pending['serial_number'],
-                        'model_number'=>$update_pending['model_number_shipped'],
-                        'serial_number_pic'=>$update_pending['serial_number_pic']
+                        'serial_number'=>$sc_action['serial_number'],
+                        'model_number'=>$sc_action['model_number_shipped'],
+                        'serial_number_pic'=>$sc_action['serial_number_pic']
                 );
 
                 $this->vendor_model->update_service_center_action($booking_id, $data_service_center_review);
