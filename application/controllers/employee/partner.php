@@ -8544,7 +8544,7 @@ class Partner extends CI_Controller {
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
     
                 $unit_array=array(
-                        'serial_number'=>$update_pending['serial_number']
+                        'serial_number'=>$update_pending['serial_number'],
                         'sf_model_number'=>$update_pending['model_number_shipped'],
                         'serial_number_pic'=>$update_pending['serial_number_pic']
                 );
