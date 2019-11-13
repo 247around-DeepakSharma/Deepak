@@ -8590,7 +8590,7 @@ class Partner extends CI_Controller {
                $data_service_center_review=array(
                         'current_status'=>'InProcess',
                         'internal_status'=>'Completed',
-                        'serial_number'=>$update_pending['serial_number']
+                        'serial_number'=>$update_pending['serial_number'],
                         'model_number'=>$update_pending['model_number_shipped'],
                         'serial_number_pic'=>$update_pending['serial_number_pic']
                 );
