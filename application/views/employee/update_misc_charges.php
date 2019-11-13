@@ -100,7 +100,7 @@
                                                 }
                                                 ?>
                                     <label for="detailed Invoice">Approval/Email File </label>
-                                    <input type="file" class="form-control" id="approval_email_file" name="approval_email_file" <?php if($required) { "required";}?>  >
+                                    <input type="file" class="form-control" id="approval_misc_charges_file" name="approval_misc_charges_file" <?php if($required) { "required";}?>  >
                                     <input type="hidden" name="file_required" value="<?php if($required) { echo "1";} else { echo "0";}?>" >
                                 </div>
                                 
