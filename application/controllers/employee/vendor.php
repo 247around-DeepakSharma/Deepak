@@ -5099,13 +5099,13 @@ class vendor extends CI_Controller {
             
             if($is_partner){
                 $html .=  "<th>Partner Invoice Id</th>";
-                $html .=  "<th>Approval File</th><th>Remarks</th>";
+                $html .=  "<th>Approval File</th>";
             }
             if($is_sf){
                 $html  .= "<th>Vendor Invoice Id</th>";
             }
             
-            
+            $html .=  "<th>Remarks</th>";
             if($this->session->userdata('userType') == 'employee'){ 
                 $html .=  "<th>Action</th>";
             }
