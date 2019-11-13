@@ -317,10 +317,12 @@ class Engineer_model extends CI_Model {
         }
         
         $sql = 'SELECT DISTINCT(eb.booking_id), s.name as service_center_name, e.name as engineer_name, 
-            eb.`current_status`, eb.`internal_status`, eb.`cancellation_reason`, eb.`cancellation_remark`,
-            eb.`closing_remark`, eb.closed_date, if(et.mismatch_pincode = 1, "No", "Yes") as pincode_matched
+            eb.`current_status`, eb.`internal_status`, partners.public_name as partner_name, bud.appliance_brand, eb.`cancellation_reason`, eb.`cancellation_remark`,
+            eb.`closing_remark`, bd.initial_booking_date, eb.closed_date, if(et.mismatch_pincode = 1, "No", "Yes") as pincode_matched
             FROM `engineer_booking_action` as eb JOIN service_centres as s on s.id = eb.`service_center_id`
             JOIN engineer_details as e on e.id = eb.`engineer_id` LEFT JOIN engineer_table_sign as et on et.booking_id = eb.booking_id
+            JOIN booking_details as bd on bd.booking_id = eb.booking_id JOIN partners on partners.id = bd.partner_id
+            JOIN booking_unit_details as bud on bud.booking_id = bd.booking_id
             WHERE eb.closed_date IS NOT NULL AND eb.closed_date >= "'.$start_date.'" AND eb.closed_date <= "'.$end_date.'" ORDER BY `eb`.`closed_date` DESC';
        
         $query = $this->db->query($sql);
@@ -331,7 +333,7 @@ class Engineer_model extends CI_Model {
      *@Desc - This function is used to get all booking details for viewing booking details completed by engineer from App
      *@param - $service_center_id, @engineer_id
      *@return - resultant array
-     */
+     */ 
     function engineer_completed_bookings_details($booking_id){
         $sql = "SELECT engineer_booking_action.*, booking_details.booking_date, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, 
                 services.services, booking_details.request_type, booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, 
