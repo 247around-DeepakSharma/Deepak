@@ -8598,7 +8598,8 @@ class Partner extends CI_Controller {
                if($review_counter==0){
                 $review_update_array=array(
                     'current_status'=>'Pending',
-                    'internal_status'=>SF_BOOKING_COMPLETE_STATUS
+                    'internal_status'=>SF_BOOKING_COMPLETE_STATUS,
+                    'actor'=>'247Around'
                 );
                 $this->booking_model->update_booking($booking_id, $review_update_array);
 
@@ -8613,6 +8614,12 @@ class Partner extends CI_Controller {
 
                 $this->vendor_model->update_service_center_action($booking_id, $data_service_center_review);
 
+                }else{
+
+                $review_update_array=array(
+                    'actor'=>'Vendor'
+                );
+                $this->booking_model->update_booking($booking_id, $review_update_array);  
                 }
 
                 $new_state=NRN_APPROVED_BY_PARTNER;
