@@ -339,7 +339,7 @@ class Engineer extends CI_Controller {
         $endDate = date("Y-m-d", strtotime(trim($daterange[1]))); 
         $list = $this->engineer_model->get_engineer_closed_bookings($vendors, $startDate, $endDate);
         if(!empty($list)){
-            $headings = array("Booking Id", "Service Center Name", "Engineer Name", "Current Status", "Internal Status", "Cancellation Reason", "Cancellation Remark", "Closing Remark", "Closed Date", "PinCode Matched");
+            $headings = array("Booking Id", "Service Center Name", "Engineer Name", "Current Status", "Internal Status", "Partner Name", "Appliance Brand", "Cancellation Reason", "Cancellation Remark", "Closing Remark", "Initial Booking Date", "Closed Date", "PinCode Matched");
             $this->miscelleneous->downloadCSV($list, $headings,"engineer_bookings");
         }
         else{
