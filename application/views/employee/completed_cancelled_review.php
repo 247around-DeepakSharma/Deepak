@@ -8,10 +8,21 @@ if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no
 <input type="hidden" name="comment_booking_id" value="" id="comment_booking_id">
 <div class="" style="margin-top: 30px;">
          <div class="row">
+                <?php if($status == 'Completed') { ?>
+                    <div class="col-md-1 pull-right" style="margin-top:20px;">
+                        <a href="javascript:void(0);" class="btn btn-primary pull-right download" name="download_complete_booking" value="Download" title="Download Complete Bookings List">Export</a>
+                    </div>
+                <?php } ?>                
+                <?php if($status == 'Cancelled') { ?>
+                    <div class="col-md-1 pull-right" style="margin-top:20px;">
+                        <a href="javascript:void(0);" class="btn btn-primary pull-right download" name="download_cancelled_booking" value="Download" title="Download Cancelled Bookings List">Export</a>
+                    </div>
+                <?php } ?>
             <div class="col-md-3 pull-right" style="margin-top:20px;">
                
                 <input type="search" class="form-control pull-right"  id="search_<?=$review_status?>_<?=$is_partner?>" placeholder="search" onchange="review_search('<?php echo $review_status ?>',<?php echo $is_partner; ?>)">
             </div>
+             
              <?php if($status == 'Completed') { ?>
              <div class="col-md-3 pull-right" style="margin-top:20px;">
               
@@ -274,10 +285,12 @@ if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no
              }
              for($i=0;$i<=$total_pages;$i++){
                  $offset = $per_page*$i;
+                 if(!empty($review_status)){
                  ?>
-    <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $review_status?>/<?php echo $offset;?>/<?php echo $is_partner; ?>/0/<?php echo $cancellation_reason_selected; ?>/<?php echo $partner_selected;?>/<?php echo $state_selected; ?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
+                 <a id="link_<?php echo $i;?>" style="background: #d7eaea;padding: 5px;" onclick="load_view('employee/booking/review_bookings_by_status/<?php echo  $review_status?>/<?php echo $offset;?>/<?php echo $is_partner; ?>/0/<?php echo $cancellation_reason_selected; ?>/<?php echo $partner_selected;?>/<?php echo $state_selected; ?>','<?php echo $tab ?>','link_<?php echo $i;?>')"><?php echo $i+1; ?></a>
                  <?php
-             }
+                }                
+            }
              ?>
                  </div>
 
@@ -313,6 +326,25 @@ if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no
       </div>
    </div>
 <script>
+    $('.download').on('click', function() {
+        var download_btn = $(this).attr('name');
+        
+        if(download_btn == 'download_complete_booking') {
+            var partner_id = $('#partner_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>').val();
+            var state_id = $('#state_completed_<?php echo $is_partner; ?>_<?php echo $review_status;?>').val();
+            
+            window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>", '_blank');
+        }
+        
+        if(download_btn == 'download_cancelled_booking') {
+            var partner_id = $('#partner_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?>').val();
+            var state_id = $('#state_cancelled_<?php echo $is_partner; ?>_<?php echo $review_status;?>').val();
+            var cancellation_reason_id = $('#cancellation_reason_<?php echo $is_partner; ?>').val();
+
+            window.open("<?php echo base_url(); ?>employee/booking/download_review_bookings_data?partner_id="+partner_id+"&state_id="+state_id+"&is_partner=<?php echo $is_partner; ?>&review_status=<?php echo $review_status;?>&cancellation_reason_id="+cancellation_reason_id, '_blank');
+        }
+    });
+
     $('#cancellation_reason_<?php echo $is_partner; ?>').select2({
        placeholder: 'Cancellation Reason'
     }); 
