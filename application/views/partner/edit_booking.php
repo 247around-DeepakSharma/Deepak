@@ -23,7 +23,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     #dealer_list li:hover{background:#e9ebee;cursor: pointer;}
     
      <?php if(!empty($str_disabled)) { ?> 
-    .appliance_brand, .appliance_category, .appliance_capacity, #purchase_date, #model_number_1{
+    .appliance_brand, .appliance_category, .appliance_capacity, #purchase_date, #model_number_1, .price_checkbox{
         pointer-events : none !important;
         background : #eee !important;
     }    

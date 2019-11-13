@@ -1590,3 +1590,21 @@ ON en_vendor_brand_mapping (service_center_id, partner_id);
 ALTER TABLE `service_centres` DROP `is_booking_close_by_app_only`;
 ALTER TABLE `partners` DROP `is_booking_close_by_app_only`;
 ALTER TABLE query_report add column ownership varchar(100) NULL DEFAULT NULL ;
+
+--Kalyani 12-11-2019
+CREATE TABLE `engineer_incentive_details` (
+  `id` int(11) NOT NULL,
+  `booking_details_id` int(11) NOT NULL,
+  `partner_incentive` int(11) NOT NULL DEFAULT '0',
+  `247around_incentive` int(11) NOT NULL DEFAULT '0',
+  `is_active` int(11) NOT NULL DEFAULT '1',
+  `is_paid` int(11) NOT NULL DEFAULT '0',
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `engineer_incentive_details`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `engineer_incentive_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+COMMIT;
