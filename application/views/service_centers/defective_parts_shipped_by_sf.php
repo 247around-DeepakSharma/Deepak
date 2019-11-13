@@ -132,18 +132,7 @@
                                 </td>
                                 <td>
                                     <?php if (!empty($row['defective_part_shipped'])) { ?>
-                                        <div class="dropdown" >
-                                            <a href="#" class="dropdown-toggle btn btn-sm btn-danger" type="button" data-toggle="dropdown">Reject
-                                                <span class="caret"></span></a>
-                                            <ul class="dropdown-menu" style="right: 0px;left: auto;">
-                                                <?php foreach ($internal_status as $value) { ?>
-                                                    <li><a href="<?php echo base_url(); ?>service_center/reject_defective_part/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo urlencode(base64_encode($row['partner_id'])); ?>/<?php echo urlencode(base64_encode($value->status)); ?>"><?php echo $value->status; ?></a></li>
-                                                    <li class="divider"></li>
-                                                <?php } ?>
-
-                                            </ul>
-
-                                        </div>
+                                    <a class="btn btn-sm btn-danger reject_defective" id="reject_defective_<?php echo $row['id']; ?>" onclick="open_reject_spare_consumption_model(this.id, '<?php echo $row['booking_id']; ?>', '<?php echo $row['id']; ?>')" >Reject</a>
                                     <?php } ?>
                                 </td>
 
@@ -165,6 +154,20 @@
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Change Consumption Reason</h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Reject spare parts modal -->
+<div id="RejectSpareConsumptionModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="reject_spare_consumption_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Reject Defective Part</h4>
             </div>
             <div class="modal-body" >
             </div>
@@ -268,7 +271,7 @@ function get_awb_details(courier_code,awb_number,status,id){
             $("#"+id).attr('disabled',false);
             return false;
         }
-//    return false;
+
         $.ajax({
             type: 'POST',
             url: '<?php echo base_url(); ?>employee/service_centers/change_consumption',
@@ -276,6 +279,28 @@ function get_awb_details(courier_code,awb_number,status,id){
             success: function (data) {
                 $("#spare_consumption_model").children('.modal-content').children('.modal-body').html(data);   
                 $('#SpareConsumptionModal').modal({backdrop: 'static', keyboard: false});
+            }
+        });
+        
+        $("#"+id).attr('disabled',false);
+    }
+
+    function open_reject_spare_consumption_model(id, booking_id, spare_id) {
+    
+        $("#"+id).attr('disabled',true);
+        var c = confirm("Continue?");
+        if(!c) {
+            $("#"+id).attr('disabled',false);
+            return false;
+        }
+
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/service_centers/reject_spare_part',
+            data: {spare_part_detail_id:spare_id, booking_id:booking_id},
+            success: function (data) {
+                $("#reject_spare_consumption_model").children('.modal-content').children('.modal-body').html(data);   
+                $('#RejectSpareConsumptionModal').modal({backdrop: 'static', keyboard: false});
             }
         });
         
