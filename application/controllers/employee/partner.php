@@ -8506,29 +8506,55 @@ class Partner extends CI_Controller {
             'approval_file'=>$approval_file_name,
             'remark'=>trim($remarks)
         );
-
- $where_shipped = array('booking_id' => trim($booking_id),'shipped_date IS NOT NULL'=>NULL);
- $check_shipped_status = $this->partner_model->get_spare_parts_by_any("*",$where_shipped);
+ 
         $response = $this->partner_model->insert_nrn_approval($data_nrn);
-        if ($response  && empty($check_shipped_status)) {
+        if ($response) {
 
-            $select_invemtory = "partner_id,requested_inventory_id,quantity,booking_id,status,entity_type";
+            $select_invemtory = "spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number_shipped,spare_parts_details.serial_number_pic";
             $where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
             $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
 
+            $review_counter=0;
             foreach ($spare_inventory_update as  $update_pending) {
-                 
-                $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
-            }
 
-        
-                $where = array('booking_id' => trim($booking_id));
+
+                if (!empty($update_pending['shipped_date'])) {
+                   
+                $where = array('id' => trim($update_pending['id']));
+                $data = array(
+                    'nrn_approv_by_partner'=>1
+                );
+                $response = $this->service_centers_model->update_spare_parts($where, $data);
+    
+                $unit_array=array(
+                        'serial_number'=>$update_pending['serial_number']
+                        'sf_model_number'=>$update_pending['model_number_shipped'],
+                        'serial_number_pic'=>$update_pending['serial_number_pic']
+                );
+                $this->booking_model->update_booking_unit_details($booking_id,$unit_array);
+
+                $review_counter++;
+
+                }else{
+
+                $where = array('id' => trim($update_pending['id']));
                 $data = array(
                     'status'=>NRN_APPROVED_BY_PARTNER,
                     'nrn_approv_by_partner'=>1
                 );
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
 
+
+                if ($update_pending['entity_type']==_247AROUND_SF_STRING) {
+                    
+                    $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
+                }
+                    
+                }
+   
+            }
+
+        
                     $booking['internal_status'] =NRN_APPROVED_BY_PARTNER;
                     $booking['current_status'] = _247AROUND_PENDING;
                     $actor="";
@@ -8546,12 +8572,35 @@ class Partner extends CI_Controller {
 
                $data_service_center=array(
                         'current_status'=>_247AROUND_PENDING,
-                        'internal_status'=>NRN_APPROVED_BY_PARTNER
+                        'internal_status'=>NRN_APPROVED_BY_PARTNER,
                 );
+
+
                $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
+               /// Move To Review Booking ///
+               if($review_counter==0){
+                $review_update_array=array(
+                    'current_status'=>'Pending',
+                    'internal_status'=>SF_BOOKING_COMPLETE_STATUS
+                );
+                $this->booking_model->update_booking($booking_id, $review_update_array);
+
+
+               $data_service_center_review=array(
+                        'current_status'=>'InProcess',
+                        'internal_status'=>'Completed',
+                        'serial_number'=>$update_pending['serial_number']
+                        'model_number'=>$update_pending['model_number_shipped'],
+                        'serial_number_pic'=>$update_pending['serial_number_pic']
+                );
+
+                $this->vendor_model->update_service_center_action($booking_id, $data_service_center_review);
+
+                }
 
                 $new_state=NRN_APPROVED_BY_PARTNER;
                     $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor,$next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
+
                 echo "1";   
         }else{
            echo "0";
