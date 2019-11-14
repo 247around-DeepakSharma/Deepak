@@ -4802,6 +4802,13 @@ function generate_image($base64, $image_name,$directory){
      * @return boolean
      */
     public function update_spare_consumption_status($post_data, $booking_id, $service_center_details = [], $complete = 0) {
+        
+        // check spare parts with DEFECTIVE_PARTS_SHIPPED status exists in the booking. If yes booking should not be completed.
+        $spare_parts_details = $this->My_CI->partner_model->get_spare_parts_by_any('*', array('status' => DEFECTIVE_PARTS_SHIPPED, 'booking_id' => $booking_id));
+        if(!empty($spare_parts_details)) {
+            return DEFECTIVE_PARTS_SHIPPED;
+        }
+        
         if (!empty($post_data['spare_consumption_status'])) {
             $courier_lost_spare = [];
             $a = false;
