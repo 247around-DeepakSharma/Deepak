@@ -425,7 +425,6 @@ class Partner extends CI_Controller {
 
                         redirect(base_url() . "partner/pending_booking");
                     } else if ($responseData['data']['code'] == 247) {
-                        $this->partner_cb->partner_callback($booking['booking_id']);
                         $output = "Booking Inserted Successfully, Booking ID: " . $responseData['data']['response']['247aroundBookingID'];
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
@@ -8541,7 +8540,6 @@ class Partner extends CI_Controller {
                    
                 $where = array('id' => trim($update_pending['id']));
                 $data = array(
-                    'status'=>_247AROUND_CANCELLED,
                     'nrn_approv_by_partner'=>1
                 );
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
@@ -8569,7 +8567,7 @@ class Partner extends CI_Controller {
 
                 $where = array('id' => trim($update_pending['id']));
                 $data = array(
-                    'status'=>NRN_APPROVED_BY_PARTNER,
+                    'status'=>_247AROUND_CANCELLED,
                     'nrn_approv_by_partner'=>1
                 );
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
