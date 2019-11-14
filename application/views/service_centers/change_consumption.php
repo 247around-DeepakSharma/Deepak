@@ -23,14 +23,14 @@
 
     <div class="row form-group"> 
         <div class="col-md-3"> 
-            <label>Remarks</label>
+            <label>Remarks&nbsp;<span style="color:red;">*</span></label>
         </div>        
         <div class="col-md-9"> 
-            <textarea class="form-control" rows="4" name="remarks"></textarea>
+            <textarea class="form-control" rows="4" name="remarks" id="consumption-remarks"></textarea>
         </div>        
     </div>    
     
-    <input type="submit" name="change-consumption" value="Done" class="btn btn-primary">
+    <input type="submit" name="change-consumption" class="btn btn-primary change-consumption" value="Change" class="btn btn-primary">
 </form>
 
 <!-- Wrong spare parts modal -->
@@ -73,4 +73,14 @@
     $(document).on('change',"#wrong_part", function() {
         $('#part_number').val($('#wrong_part').children("option:selected").data('part_number'));
     });
+
+    $(document).on('click',".change-consumption", function() {
+        if($('#consumption-remarks').val() == '' || $('#consumption-remarks').val() == null) {
+            alert('Please enter remarks.');
+            return false;
+        }
+        
+        return true;
+    });
+
 </script>
