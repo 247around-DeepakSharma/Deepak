@@ -48,8 +48,8 @@ class Booking_model extends CI_Model {
         $data['around_comm_basic_charges'] = $around_total_basic_charges - $data['around_st_or_vat_basic_charges'];
         $data['vendor_basic_charges'] = $vendor_total_basic_charges - $data['vendor_st_or_vat_basic_charges'];
 
-        $total_vendor_addition_charge = $data['customer_paid_extra_charges'] * addtitional_percentage;
-        $total_around_additional_charge = $data['customer_paid_extra_charges'] - $total_vendor_addition_charge;
+        $total_vendor_addition_charge = (float) $data['customer_paid_extra_charges'] * (float) addtitional_percentage;
+        $total_around_additional_charge = (float) $data['customer_paid_extra_charges'] - (float) $total_vendor_addition_charge;
 
         $data['around_st_extra_charges'] = $this->get_calculated_tax_charge($total_around_additional_charge, $data['tax_rate']);
         $data['vendor_st_extra_charges'] = $this->get_calculated_tax_charge($total_vendor_addition_charge, $data['tax_rate']  );
@@ -57,8 +57,8 @@ class Booking_model extends CI_Model {
         $data['around_comm_extra_charges'] = $total_around_additional_charge - $data['around_st_extra_charges'];
         $data['vendor_extra_charges'] = $total_vendor_addition_charge - $data['vendor_st_extra_charges'] ;
 
-        $total_vendor_parts_charge = $data['customer_paid_parts'] * parts_percentage;
-        $total_around_parts_charge =  $data['customer_paid_parts'] - $total_vendor_parts_charge;
+        $total_vendor_parts_charge = (float) $data['customer_paid_parts'] * (float) parts_percentage;
+        $total_around_parts_charge =  (float) $data['customer_paid_parts'] - (float) $total_vendor_parts_charge;
         $data['around_st_parts'] = $this->get_calculated_tax_charge($total_around_parts_charge, $data['tax_rate'] );
         $data['vendor_st_parts'] =  $this->get_calculated_tax_charge($total_vendor_parts_charge,  $data['tax_rate']);
         $data['around_comm_parts'] =  $total_around_parts_charge - $data['around_st_parts'];
@@ -73,7 +73,7 @@ class Booking_model extends CI_Model {
             } 
         } 
 
-        $vendor_around_charge = ($data['customer_paid_basic_charges'] + $data['customer_paid_parts'] + $data['customer_paid_extra_charges']) - ($vendor_total_basic_charges + $total_vendor_addition_charge + $total_vendor_parts_charge );
+        $vendor_around_charge = ((float) $data['customer_paid_basic_charges'] + (float) $data['customer_paid_parts'] + (float) $data['customer_paid_extra_charges']) - ((float) $vendor_total_basic_charges + (float) $total_vendor_addition_charge + (float) $total_vendor_parts_charge );
 
         if($vendor_around_charge > 0){
 
@@ -94,7 +94,6 @@ class Booking_model extends CI_Model {
              $data['around_st_or_vat_basic_charges'] = 0;
              $data['around_comm_basic_charges'] = 0;
         }
-       
         $this->db->where('id', $data['id']);
         $this->db->update('booking_unit_details',$data);
     }
