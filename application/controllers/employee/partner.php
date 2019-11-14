@@ -8510,7 +8510,7 @@ class Partner extends CI_Controller {
         $response = $this->partner_model->insert_nrn_approval($data_nrn);
         if ($response) {
 
-            $select_invemtory = "spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number_shipped,spare_parts_details.serial_number_pic";
+            $select_invemtory = "spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic";
             $where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
             $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
 
@@ -8529,7 +8529,7 @@ class Partner extends CI_Controller {
     
                 $unit_array=array(
                         'serial_number'=>$update_pending['serial_number'],
-                        'sf_model_number'=>$update_pending['model_number_shipped'],
+                        'sf_model_number'=>$update_pending['model_number'],
                         'serial_number_pic'=>$update_pending['serial_number_pic']
                 );
                 $this->booking_model->update_booking_unit_details($booking_id,$unit_array);
@@ -8537,8 +8537,8 @@ class Partner extends CI_Controller {
                 if (!empty($update_pending['serial_number'])) {
                     $sc_action['serial_number']=$update_pending['serial_number'];
                 }
-                if (!empty($update_pending['model_number_shipped'])) {
-                    $sc_action['model_number']=$update_pending['model_number_shipped'];
+                if (!empty($update_pending['model_number'])) {
+                    $sc_action['model_number']=$update_pending['model_number'];
                 }
                 if (!empty($update_pending['serial_number_pic'])) {
                     $sc_action['serial_number_pic']=$update_pending['serial_number_pic'];
@@ -8557,8 +8557,8 @@ class Partner extends CI_Controller {
                 if (!empty($update_pending['serial_number'])) {
                     $sc_action['serial_number']=$update_pending['serial_number'];
                 }
-                if (!empty($update_pending['model_number_shipped'])) {
-                    $sc_action['model_number']=$update_pending['model_number_shipped'];
+                if (!empty($update_pending['model_number'])) {
+                    $sc_action['model_number']=$update_pending['model_number'];
                 }
                 if (!empty($update_pending['serial_number_pic'])) {
                     $sc_action['serial_number_pic']=$update_pending['serial_number_pic'];
