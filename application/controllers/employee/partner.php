@@ -8623,13 +8623,22 @@ class Partner extends CI_Controller {
                 );
                 $this->booking_model->update_booking($booking_id, $review_update_array);
 
-
+                if (!empty($sc_action['serial_number'])) {
+                    $serial_number = $sc_action['serial_number'];
+                }else{
+                    $serial_number = NULL;
+                }
+                if (!empty($sc_action['serial_number_pic'])) {
+                    $serial_number_pic = $sc_action['serial_number_pic'];
+                }else{
+                    $serial_number_pic = NULL;
+                }
                $data_service_center_review=array(
                         'current_status'=>'InProcess',
                         'internal_status'=>'Completed',
-                        'serial_number'=>$sc_action['serial_number'],
+                        'serial_number'=>$serial_number,
                         'model_number'=>$sc_action['model_number'],
-                        'serial_number_pic'=>$sc_action['serial_number_pic']
+                        'serial_number_pic'=>$serial_number_pic
                 );
 
                 $this->vendor_model->update_service_center_action($booking_id, $data_service_center_review);
