@@ -2023,13 +2023,14 @@ function get_data_for_partner_callback($booking_id) {
     {
 
         $group_by=array('`collateral_type`.`collateral_type`','`collateral`.`model`','`collateral`.`category`','`collateral`.`capacity`','`collateral`.`file`','`collateral`.`document_description`','`collateral`.`start_date`');
-        $this->db->select("collateral.id,collateral.appliance_id,collateral.collateral_id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,collateral_type.document_type,collateral.request_type");
+        $this->db->select("collateral.id,collateral.appliance_id,collateral.collateral_id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,collateral_type.document_type,collateral.request_type, partners.public_name, collateral.create_date");
         $this->db->from("collateral");
         $this->db->where('entity_type','partner');
         $this->db->where('is_valid',1);
         $this->db->where('collateral_type.collateral_tag','Brand_Collateral');
         $this->db->join('collateral_type','collateral_type.id=collateral.collateral_id','left');
         $this->db->join('services','services.id=collateral.appliance_id','left');
+        $this->db->join('partners','partners.id=collateral.entity_id');
         $this->db->group_by($group_by);
         $this->db->order_by($order_by_column,$sorting_type);
         
