@@ -8540,6 +8540,7 @@ class Partner extends CI_Controller {
                    
                 $where = array('id' => trim($update_pending['id']));
                 $data = array(
+                    'status'=>_247AROUND_CANCELLED,
                     'nrn_approv_by_partner'=>1
                 );
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
