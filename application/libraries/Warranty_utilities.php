@@ -42,7 +42,14 @@ class Warranty_utilities {
             // if Service Id is there, get service specific plans also
             if(!empty($rec_data['service_id']))
             {
-                $arrOrWhere["((appliance_model_details.model_number = '".trim($rec_data['model_number'])."' OR (warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL)) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+                if(!empty($rec_data['model_number']))
+                {
+                    $arrOrWhere["((appliance_model_details.model_number = '".trim($rec_data['model_number'])."' OR (warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL)) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+                }
+                else
+                {
+                    $arrOrWhere["((warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+                }                
             }
             else
             {
@@ -175,8 +182,8 @@ class Warranty_utilities {
         $arrModelWiseWarrantyData = $this->get_model_wise_warranty_data($arrWarrantyData);         
         foreach($arrBookings as $key => $arrBooking)
         {            
-            $model_number = trim($arrBooking['model_number']);
-            if(!empty($arrModelWiseWarrantyData[$model_number]))
+            $model_number = (!empty($arrBooking['model_number']) ? trim($arrBooking['model_number']) : "");
+            if(!empty($model_number) && !empty($arrModelWiseWarrantyData[$model_number]))
             {   
                 $arrBookings[$key] = $this->map_warranty_period_to_booking($arrBooking, $arrModelWiseWarrantyData[$model_number]);
             }
