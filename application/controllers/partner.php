@@ -1733,7 +1733,7 @@ class Partner extends CI_Controller {
 //                            $message = "Pincode " . $booking['booking_pincode'] . " not found for Booking ID: " . $booking['booking_id'];
 //                            $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", 'Pincode Not Found', $message, "");
 //                        }
-                        $this->partner_cb->partner_callback($booking['booking_id']);
+                        
                         //Send response
                         $this->jsonResponseString['response'] = array(
                             "orderID" => $booking['order_id'],
