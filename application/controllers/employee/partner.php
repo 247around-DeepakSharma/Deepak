@@ -4573,7 +4573,7 @@ class Partner extends CI_Controller {
             }
             if (($_FILES['contract_file']['error'][$index] != 4) && !empty($_FILES['contract_file']['tmp_name'][$index])) {
                 $tmpFile = $_FILES['contract_file']['tmp_name'][$index];
-                $contract_file = "Partner-" . $partnerName . '-Contract_' . $contract_type . "_" . date('Y-m-d') . "." . explode(".", $_FILES['contract_file']['name'][$index])[1];
+                $contract_file = "Partner-" . str_replace(' ', '_', $partnerName) . '-Contract_' . $contract_type . "_" . date('Y-m-d') . "." . explode(".", $_FILES['contract_file']['name'][$index])[1];
                 move_uploaded_file($tmpFile, TMP_FOLDER . $contract_file);
                 //Upload files to AWS
                 $bucket = BITBUCKET_DIRECTORY;
