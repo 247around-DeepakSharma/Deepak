@@ -700,7 +700,7 @@
                                             ?>
                                         </td>
                                         <td style=" word-break: break-all;"><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
-                                        <td><?php echo $sp['acknowledge_date']; ?></td>
+                                        <td><?php echo date("d-m-Y", strtotime($sp['acknowledge_date'])); ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
                                         <td><?php echo $sp['part_cancel_reason'];?></td>
@@ -868,7 +868,7 @@
                                             <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span>
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
                                         </td>                                       
-                                        <td> <input type="hidden" value="<?php echo $sp['status'];  ?>" id="<?php echo $sp['id']."_status";?>" /><?php echo $sp['shipped_date']; ?></td>
+                                        <td> <input type="hidden" value="<?php echo $sp['status'];  ?>" id="<?php echo $sp['id']."_status";?>" /><?php echo date("d-m-Y", strtotime($sp['shipped_date'])); ?></td>
                                         <td><?php echo $sp['edd']; ?></td>
                                         <td><?php echo $sp['remarks_by_partner']; ?></td>
                                         <td>                                         
@@ -962,7 +962,7 @@
                                                                 ?></td>
                                        <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
-                                        <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
+                                        <td><?php echo date('d-m-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                         <td><?php echo $sp['sf_challan_number']; ?></td>
