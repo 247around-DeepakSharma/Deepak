@@ -177,7 +177,7 @@
 
 
                                         <br>
-                                        <div class="form-group       " id="approval_file">
+                                        <div class="form-group" id="approval_file">
                                             <br>
                                     <label for="AWS Receipt" class="col-md-4">Approval File </label>
                                     <div class="col-md-6">
@@ -501,8 +501,9 @@ $('body').on('click', '.approved_nrn_booking', function() {
                                 $(".close").click();
                                  swal({title: "Approved !", text: "Your NRN is  approved .", type: "success"},
                                     function(){ 
-                              
+                                    spare_table.ajax.reload(null, false);
                                     }
+
                             );  
                              }else{
                                   swal({title: "Error !", text: "Your approval not processed . Some parts may be already shipped !", type: "error"},
