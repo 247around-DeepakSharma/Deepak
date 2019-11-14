@@ -425,7 +425,6 @@ class Partner extends CI_Controller {
 
                         redirect(base_url() . "partner/pending_booking");
                     } else if ($responseData['data']['code'] == 247) {
-                        $this->partner_cb->partner_callback($booking['booking_id']);
                         $output = "Booking Inserted Successfully, Booking ID: " . $responseData['data']['response']['247aroundBookingID'];
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
@@ -8529,7 +8528,7 @@ class Partner extends CI_Controller {
         if ($response) {
 
             $select_invemtory = "spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic";
-            $where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
+            $where_inventory = array('booking_id' => trim($booking_id));
             $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
 
             $review_counter=0;
@@ -8568,7 +8567,7 @@ class Partner extends CI_Controller {
 
                 $where = array('id' => trim($update_pending['id']));
                 $data = array(
-                    'status'=>NRN_APPROVED_BY_PARTNER,
+                    'status'=>_247AROUND_CANCELLED,
                     'nrn_approv_by_partner'=>1
                 );
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
