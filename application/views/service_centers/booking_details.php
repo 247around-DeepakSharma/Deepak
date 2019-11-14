@@ -446,7 +446,7 @@
                                     } ?>
                                 </td>
                                 <td><?php echo $sp['serial_number']; ?></td>
-                                <td><?php echo $sp['acknowledge_date']; ?></td>
+                                <td><?php echo date('d-m-Y', strtotime($sp['acknowledge_date'])); ?></td>
                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                 <td><?php echo $sp['status'];?></td>
                                 <td><?php echo $sp['part_cancel_reason'];?></td>
@@ -558,7 +558,7 @@
                                 <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_partner'])); ?></td>
                                 <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_partner']; ?>','<?php echo $sp['awb_by_partner']; ?>','<?php echo $sp['status']; ?>','<?php echo "awb_loader_".$sp['awb_by_partner']; ?>')"><?php echo $sp['awb_by_partner']; ?></a> 
                                             <span id=<?php echo "awb_loader_".$sp['awb_by_partner'];?> style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
-                                <td><?php echo $sp['shipped_date']; ?></td>
+                                <td><?php echo date('d-m-Y', strtotime($sp['shipped_date'])); ?></td>
                                 <td><?php echo $sp['edd']; ?></td>
                                 <td><?php echo $sp['remarks_by_partner']; ?></td>
                                 <?php if($this->session->userdata('is_wh')) { ?> 
@@ -627,7 +627,7 @@
                                         }
                                    ?></td>
                                 <td><?php echo $sp['courier_charges_by_sf']; ?></td>
-                                <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
+                                <td><?php echo date('d-m-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                 <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                 <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                 <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
