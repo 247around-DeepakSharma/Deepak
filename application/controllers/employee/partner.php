@@ -4827,7 +4827,8 @@ class Partner extends CI_Controller {
         $data['category'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT category",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['capacity'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT capacity",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['model'] = $this->reusable_model->get_search_result_data("appliance_model_details","DISTINCT model_number as model",array('service_id'=>$service_id,'entity_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
-        $data['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type","id,concat(collateral_type, '_', document_type) as collateral_type",array('collateral_tag'=>LEARNING_DOCUMENT),NULL,NULL,NULL,NULL,NULL,array());
+        $data['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type","id, collateral_type",array('collateral_tag'=>LEARNING_DOCUMENT),NULL,NULL,NULL,NULL,NULL,array());
+        $data['document_type'] =  $this->reusable_model->get_search_result_data("collateral_type","distinct(document_type) as document_type",array('document_type IS NOT NULL'=>NULL),NULL,NULL,NULL,NULL,NULL,array());
         echo json_encode($data);
     }
     /*
@@ -4894,11 +4895,10 @@ class Partner extends CI_Controller {
         }
         $validation = TRUE;
         $file = 0;
-        $contract_typeTemp = $this->input->post('l_c_type');
-        $tArray = explode("_",$contract_typeTemp);
-        $contract_type = $tArray[0];
+        $contract_type = $this->input->post('l_c_type');
+        $document_type = $this->input->post('l_c_doc_type');
         if(!$this->input->post('l_c_url')){
-             $validation =  $this->brand_collaterals_file_validations($_FILES['l_c_file'],$tArray[2]);
+             $validation =  $this->brand_collaterals_file_validations($_FILES['l_c_file'],$document_type);
              $file = 1;
         }
         else{
@@ -8560,6 +8560,32 @@ class Partner extends CI_Controller {
             $this->partner_model->update_en_vendor_brand_mapping($partner_id, $post_data['service_center_id'], $post_data);
         }
     }
-
-
+   
+    /*This function is used to download all brand booking collateral*/
+    function download_all_brand_collateral(){
+        $list = array();
+        $post['length'] = -1;
+        $order_by_column='collateral.id';
+        $sorting_type='ASC';
+        $collateral_data = $this->partner_model->get_brand_collateral_data($post,$order_by_column,$sorting_type);
+        foreach ($collateral_data as $key => $value) {
+            $data = array();  
+            $data['partner_name'] = $value['public_name'];
+            $data['document_description'] = $value['document_description'];
+            $data['brand'] = $value['brand'];
+            $data['services'] = $value['services'];
+            $data['category'] = $value['category'];
+            $data['capacity'] = $value['capacity'];
+            $data['model'] = $value['model'];
+            $data['request_type'] = $value['request_type'];
+            $data['document_type'] = $value['document_type'];
+            $data['file'] = $value['file'];
+            $data['create_date'] = $value['create_date'];
+            array_push($list, $data);
+        }
+        if(!empty($collateral_data)){
+            $headings = array("Partner Name", "Document Description", "Brand", "Appliance", "Category", "Capacity", "Model", "Request Type", "Document Type", "Document Link", "Create Date");
+            $this->miscelleneous->downloadCSV($list, $headings,"brand-collateral");
+        }
+    }
 }
