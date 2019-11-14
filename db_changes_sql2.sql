@@ -1581,3 +1581,7 @@ ON en_vendor_brand_mapping (service_center_id, partner_id);
 ALTER TABLE `service_centres` DROP `is_booking_close_by_app_only`;
 ALTER TABLE `partners` DROP `is_booking_close_by_app_only`;
 ALTER TABLE query_report add column ownership varchar(100) NULL DEFAULT NULL ;
+--  Prity 12-11-2019
+UPDATE `header_navigation` SET `level` = '3', parent_ids = 256 WHERE `header_navigation`.`id` = 251;
+UPDATE `header_navigation` SET `level` = '3', parent_ids = 256 WHERE `header_navigation`.`id` = 248;
+UPDATE `header_navigation` SET `title` = 'Add Models to Plan' WHERE `header_navigation`.`id` = 257;

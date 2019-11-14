@@ -1222,6 +1222,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             // prepare mail
             $to = $email_template[1];
             $from = $email_template[2];
+            $cc = NULL;
             if(!empty($email_template[3])) {
                 $cc = $email_template[3];
             }
