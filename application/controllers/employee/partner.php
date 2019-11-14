@@ -8616,11 +8616,16 @@ class Partner extends CI_Controller {
                 }else{
                     $serial_number_pic = NULL;
                 }
+                if (!empty($sc_action['model_number'])) {
+                    $model_number = $sc_action['model_number'];
+                }else{
+                    $model_number = NULL;
+                }
                $data_service_center_review=array(
                         'current_status'=>'InProcess',
                         'internal_status'=>'Completed',
                         'serial_number'=>$serial_number,
-                        'model_number'=>$sc_action['model_number'],
+                        'model_number'=>$model_number,
                         'serial_number_pic'=>$serial_number_pic
                 );
 
