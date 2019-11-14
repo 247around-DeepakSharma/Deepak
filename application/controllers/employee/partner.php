@@ -8628,7 +8628,7 @@ class Partner extends CI_Controller {
                         'current_status'=>'InProcess',
                         'internal_status'=>'Completed',
                         'serial_number'=>$sc_action['serial_number'],
-                        'model_number'=>$sc_action['model_number_shipped'],
+                        'model_number'=>$sc_action['model_number'],
                         'serial_number_pic'=>$sc_action['serial_number_pic']
                 );
 
