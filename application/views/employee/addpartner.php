@@ -1373,7 +1373,7 @@
                         <tr>
                             <td><?php echo $index; ?></td>
                             <td><?php echo $value['collateral_type'] ?></td>
-                            <td><a target="_blank" href=<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".$value['file']?>><?php echo $value['file'] ?></a></td>
+                            <td><a target="_blank" href="<?php echo "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/vendor-partner-docs/".urlencode($value['file']);?>"><?php echo $value['file'] ?></a></td>
                             <td><?php echo $value['document_description'] ?></td>
                             <td><?php echo $value['start_date'] ?></td>
                             <td><?php echo $value['end_date'] ?></td>
@@ -1518,6 +1518,11 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
+                                    <label for="Services">Select Document Type*</label>
+                                    <select class="form-control" id="l_c_doc_type" name="l_c_doc_type" disabled="">
+                                    </select>
+                                </div>
+                                <div class="form-group">
                                     <label for="Services">Select Collateral Type*</label>
                                     <select class="form-control" id="l_c_type" name="l_c_type" disabled="">
                                     </select>
@@ -1552,8 +1557,8 @@
                             <th>Appliance</th>
                             <th>Brand</th>
 <!--                            <th>Category</th>
-                            <th>Capacity</th>
-                            <th>Model</th>-->
+                            <th>Capacity</th>-->
+                            <th>Model</th>
                             <th>Request Type</th>
                             <th>File</th>
                             <th>Description</th>
@@ -1582,8 +1587,8 @@
                             <td><?php echo $value['services'] ?></td>
                             <td><?php echo $value['brand'] ?></td>
 <!--                            <td><?php //echo $value['category'] ?></td>
-                            <td><?php //echo $value['capacity'] ?></td>
-                            <td><?php //echo $value['model'] ?></td>-->
+                            <td><?php //echo $value['capacity'] ?></td>-->
+                            <td><?php echo $value['model'] ?></td>
                             <td><?php echo ucfirst($value['request_type']); ?></td>
                             <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
                             <td><?php echo $value['document_description'] ?></td>
@@ -4016,6 +4021,7 @@
        var capacityDropdownString  = '';
        var modelDropdownString = '';
        var collateral_typeDropdownString ='<option value="">Select Collateral</option>';
+       var collateral_docTypeDropdownString ='<option value="">Select Document Type</option>';
        var obj = JSON.parse(brandMappingJson);
        for(var i=0;i<obj.brand.length;i++){
                var brandDropdownString = brandDropdownString+"<option value='"+obj.brand[i].brand+"'>"+obj.brand[i].brand+"</option>";
@@ -4030,7 +4036,10 @@
                var modelDropdownString = modelDropdownString+"<option value='"+obj.model[i].model+"'>"+obj.model[i].model+"</option>";
        }
        for(var i=0;i<obj.collateral_type.length;i++){
-               var collateral_typeDropdownString = collateral_typeDropdownString+"<option value='"+obj.collateral_type[i].id+"_"+obj.collateral_type[i].collateral_type+"'>"+obj.collateral_type[i].collateral_type+"</option>";
+               var collateral_typeDropdownString = collateral_typeDropdownString+"<option value='"+obj.collateral_type[i].id+"'>"+obj.collateral_type[i].collateral_type+"</option>";
+       }
+       for(var i=0;i<obj.document_type.length;i++){
+               var collateral_docTypeDropdownString = collateral_docTypeDropdownString+"<option value='"+obj.document_type[i].document_type+"'>"+obj.document_type[i].document_type+"</option>";
        }
        if(brandDropdownString !== ''){
            document.getElementById("l_c_brands").disabled = false;
@@ -4063,6 +4072,10 @@
            document.getElementById("l_c_type").disabled = false;
            document.getElementById("l_c_type").innerHTML = collateral_typeDropdownString;
        }
+       if(collateral_docTypeDropdownString !== ''){
+           document.getElementById("l_c_doc_type").disabled = false;
+           document.getElementById("l_c_doc_type").innerHTML = collateral_docTypeDropdownString;
+       }
     }
     function get_brand_category_capacity_model_for_service(service,partner,partner_source){
         $.ajax({
@@ -4089,6 +4102,7 @@
     service = $("#l_c_service").val();
     brands = $("#l_c_brands").val();
     category = $("#l_c_category").val();
+    document_type = $("#l_c_doc_type").val();
     collateral_type = $("#l_c_type").val();
     request_type = $("#l_c_request_type").val();
     file = $("#l_c_file").val();
@@ -4101,7 +4115,7 @@
        alert("Either add file or Add URL");
        return false; 
     }
-    if(service && brands && category && collateral_type && (file || url)&& request_type){
+    if(service && brands && category && document_type && collateral_type && (file || url)&& request_type){
        document.getElementById("l_c_form").submit();
     }
     else{

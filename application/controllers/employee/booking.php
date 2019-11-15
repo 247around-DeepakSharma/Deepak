@@ -346,10 +346,12 @@ class Booking extends CI_Controller {
                                         $agent_details['agent_type'] =  $agentType = _247AROUND_SF_STRING;
                                     }
                             }
-                            $result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state'], $b_key,$agent_details);
+                            $arr_result = $this->booking_model->update_booking_in_booking_details($services_details, $booking_id, $booking['state'], $b_key,$agent_details);
+                            foreach ($arr_result as $result_key => $result) {
+                                array_push($updated_unit_id, $arr_result[$result_key]['unit_id']);
+                                array_push($price_tag, $arr_result[$result_key]['price_tags']);
+                            }
                             
-                            array_push($updated_unit_id, $result['unit_id']);
-                            array_push($price_tag, $result['price_tags']);
                             $booking_symptom = $this->booking_model->getBookingSymptom($booking_id);
                             if(count($booking_symptom)>0)
                             {
@@ -1842,7 +1844,7 @@ class Booking extends CI_Controller {
         else {
             $data['symptom'][0] = array("symptom" => "Default");
             
-            if(in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
+            if(!empty($data['booking_history'][0]['internal_status']) && in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
                 $data['completion_symptom'][0] = array("symptom" => "Default");
                 $data['technical_defect'][0] = array("defect" => "Default");
                 $data['technical_solution'][0] = array("technical_solution" => "Default");
@@ -2461,11 +2463,12 @@ class Booking extends CI_Controller {
         // update spare parts.
         //$is_update_spare_parts = $this->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details);
         $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details, $status);
-        if($is_update_spare_parts){
-             $booking['current_status'] = _247AROUND_PENDING;
-             $booking['internal_status'] = DEFECTIVE_PARTS_PENDING;
-             
-            
+        if($is_update_spare_parts == DEFECTIVE_PARTS_SHIPPED) {
+            $booking['current_status'] = _247AROUND_PENDING;
+            $booking['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
+        } else if($is_update_spare_parts) {
+            $booking['current_status'] = _247AROUND_PENDING;
+            $booking['internal_status'] = DEFECTIVE_PARTS_PENDING;
         } else {
             $booking['current_status'] = $internal_status;
             $booking['internal_status'] = $internal_status;

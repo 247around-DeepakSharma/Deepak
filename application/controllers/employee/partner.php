@@ -673,11 +673,14 @@ class Partner extends CI_Controller {
                     }
                     */
                     $html .= "</ul>";
-                    $to = $am_email. ",". $this->session->userdata("official_email");
-                    $cc = ACCOUNTANT_EMAILID.", ".ANUJ_EMAIL_ID;
-                    $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
-                    
-                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
+                    // ----------------------------------------------------------------
+                    $email_data['to'] = $am_email. ",". $this->session->userdata("official_email");
+                    $email_data['cc'] = ACCOUNTANT_EMAILID.", ".ANUJ_EMAIL_ID;
+                    $email_data['subject'] = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
+                    $email_data['html'] = $html;
+                    $sendUrl = base_url().'employee/partner/send_email_to_am_on_partner_update';
+                    $this->asynchronous_lib->do_background_process($sendUrl, $email_data);
+                    // ----------------------------------------------------------------                    
                 }
                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
             } else { 
@@ -1831,9 +1834,11 @@ class Partner extends CI_Controller {
                 
                 $agent_details['agent_id'] = $this->session->userdata('agent_id');
                 $agent_details['agent_type'] = _247AROUND_PARTNER_STRING;
-                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key,$agent_details);
-                array_push($price_tag, $result['price_tags']);
-                array_push($updated_unit_id, $result['unit_id']);
+                $arr_result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key,$agent_details);
+                foreach ($arr_result as $result_key => $result) {
+                    array_push($updated_unit_id, $arr_result[$result_key]['unit_id']);
+                    array_push($price_tag, $arr_result[$result_key]['price_tags']);
+                }
             }
 
             if (!empty($updated_unit_id)) {
@@ -4837,7 +4842,8 @@ class Partner extends CI_Controller {
         $data['category'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT category",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['capacity'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT capacity",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['model'] = $this->reusable_model->get_search_result_data("appliance_model_details","DISTINCT model_number as model",array('service_id'=>$service_id,'entity_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
-        $data['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type","id,concat(collateral_type, '_', document_type) as collateral_type",array('collateral_tag'=>LEARNING_DOCUMENT),NULL,NULL,NULL,NULL,NULL,array());
+        $data['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type","id, collateral_type",array('collateral_tag'=>LEARNING_DOCUMENT),NULL,NULL,NULL,NULL,NULL,array());
+        $data['document_type'] =  $this->reusable_model->get_search_result_data("collateral_type","distinct(document_type) as document_type",array('document_type IS NOT NULL'=>NULL),NULL,NULL,NULL,NULL,NULL,array());
         echo json_encode($data);
     }
     /*
@@ -4904,11 +4910,10 @@ class Partner extends CI_Controller {
         }
         $validation = TRUE;
         $file = 0;
-        $contract_typeTemp = $this->input->post('l_c_type');
-        $tArray = explode("_",$contract_typeTemp);
-        $contract_type = $tArray[0];
+        $contract_type = $this->input->post('l_c_type');
+        $document_type = $this->input->post('l_c_doc_type');
         if(!$this->input->post('l_c_url')){
-             $validation =  $this->brand_collaterals_file_validations($_FILES['l_c_file'],$tArray[2]);
+             $validation =  $this->brand_collaterals_file_validations($_FILES['l_c_file'],$document_type);
              $file = 1;
         }
         else{
@@ -6693,7 +6698,7 @@ class Partner extends CI_Controller {
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
                 . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
-                . " GROUP_CONCAT(DISTINCT spare_parts_details.quantity) as quantity, "
+                . " GROUP_CONCAT(spare_parts_details.quantity) as quantity, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.model_number) as model_number, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
@@ -8528,7 +8533,7 @@ class Partner extends CI_Controller {
         if ($response) {
 
             $select_invemtory = "spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic";
-            $where_inventory = array('booking_id' => trim($booking_id),'entity_type'=>_247AROUND_SF_STRING,'status'=>SPARE_PARTS_REQUESTED);
+            $where_inventory = array('booking_id' => trim($booking_id));
             $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
 
             $review_counter=0;
@@ -8567,7 +8572,7 @@ class Partner extends CI_Controller {
 
                 $where = array('id' => trim($update_pending['id']));
                 $data = array(
-                    'status'=>NRN_APPROVED_BY_PARTNER,
+                    'status'=>_247AROUND_CANCELLED,
                     'nrn_approv_by_partner'=>1
                 );
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
@@ -8633,11 +8638,16 @@ class Partner extends CI_Controller {
                 }else{
                     $serial_number_pic = NULL;
                 }
+                if (!empty($sc_action['model_number'])) {
+                    $model_number = $sc_action['model_number'];
+                }else{
+                    $model_number = NULL;
+                }
                $data_service_center_review=array(
                         'current_status'=>'InProcess',
                         'internal_status'=>'Completed',
                         'serial_number'=>$serial_number,
-                        'model_number'=>$sc_action['model_number'],
+                        'model_number'=>$model_number,
                         'serial_number_pic'=>$serial_number_pic
                 );
 
@@ -8676,5 +8686,43 @@ class Partner extends CI_Controller {
             $this->partner_model->update_en_vendor_brand_mapping($partner_id, $post_data['service_center_id'], $post_data);
         }
     }
-
+    
+    /*This function is used to download all brand booking collateral*/
+    function download_all_brand_collateral(){
+        $list = array();
+        $post['length'] = -1;
+        $order_by_column='collateral.id';
+        $sorting_type='ASC';
+        $collateral_data = $this->partner_model->get_brand_collateral_data($post,$order_by_column,$sorting_type);
+        foreach ($collateral_data as $key => $value) {
+            $data = array();  
+            $data['partner_name'] = $value['public_name'];
+            $data['document_description'] = $value['document_description'];
+            $data['brand'] = $value['brand'];
+            $data['services'] = $value['services'];
+            $data['category'] = $value['category'];
+            $data['capacity'] = $value['capacity'];
+            $data['model'] = $value['model'];
+            $data['request_type'] = $value['request_type'];
+            $data['document_type'] = $value['document_type'];
+            $data['file'] = $value['file'];
+            $data['create_date'] = $value['create_date'];
+            array_push($list, $data);
+        }
+        if(!empty($collateral_data)){
+            $headings = array("Partner Name", "Document Description", "Brand", "Appliance", "Category", "Capacity", "Model", "Request Type", "Document Type", "Document Link", "Create Date");
+            $this->miscelleneous->downloadCSV($list, $headings,"brand-collateral");
+        }
+    }
+    
+    /**
+     * @desc : this method send mail to AM after updating partner details
+     */
+    function send_email_to_am_on_partner_update($data) {
+        $to = $data['to'];
+        $cc = $data['cc'];
+        $subject = $data['subject'];
+        $html = $data['html'];
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
+    }
 }
