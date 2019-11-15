@@ -673,11 +673,14 @@ class Partner extends CI_Controller {
                     }
                     */
                     $html .= "</ul>";
-                    $to = $am_email. ",". $this->session->userdata("official_email");
-                    $cc = ACCOUNTANT_EMAILID.", ".ANUJ_EMAIL_ID;
-                    $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
-                    
-                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
+                    // ----------------------------------------------------------------
+                    $email_data['to'] = $am_email. ",". $this->session->userdata("official_email");
+                    $email_data['cc'] = ACCOUNTANT_EMAILID.", ".ANUJ_EMAIL_ID;
+                    $email_data['subject'] = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
+                    $email_data['html'] = $html;
+                    $sendUrl = base_url().'employee/partner/send_email_to_am_on_partner_update';
+                    $this->asynchronous_lib->do_background_process($sendUrl, $email_data);
+                    // ----------------------------------------------------------------                    
                 }
                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
             } else { 
@@ -1831,9 +1834,11 @@ class Partner extends CI_Controller {
                 
                 $agent_details['agent_id'] = $this->session->userdata('agent_id');
                 $agent_details['agent_type'] = _247AROUND_PARTNER_STRING;
-                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key,$agent_details);
-                array_push($price_tag, $result['price_tags']);
-                array_push($updated_unit_id, $result['unit_id']);
+                $arr_result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key,$agent_details);
+                foreach ($arr_result as $result_key => $result) {
+                    array_push($updated_unit_id, $arr_result[$result_key]['unit_id']);
+                    array_push($price_tag, $arr_result[$result_key]['price_tags']);
+                }
             }
 
             if (!empty($updated_unit_id)) {
@@ -6693,7 +6698,7 @@ class Partner extends CI_Controller {
                 . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
                 . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
                 . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
-                . " GROUP_CONCAT(DISTINCT spare_parts_details.quantity) as quantity, "
+                . " GROUP_CONCAT(spare_parts_details.quantity) as quantity, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.model_number) as model_number, "
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.serial_number) as serial_number,"
                 . " GROUP_CONCAT(DISTINCT spare_parts_details.remarks_by_sc) as remarks_by_sc, spare_parts_details.partner_id, "
@@ -8708,5 +8713,16 @@ class Partner extends CI_Controller {
             $headings = array("Partner Name", "Document Description", "Brand", "Appliance", "Category", "Capacity", "Model", "Request Type", "Document Type", "Document Link", "Create Date");
             $this->miscelleneous->downloadCSV($list, $headings,"brand-collateral");
         }
+    }
+    
+    /**
+     * @desc : this method send mail to AM after updating partner details
+     */
+    function send_email_to_am_on_partner_update($data) {
+        $to = $data['to'];
+        $cc = $data['cc'];
+        $subject = $data['subject'];
+        $html = $data['html'];
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
     }
 }

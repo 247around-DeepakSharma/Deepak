@@ -5030,6 +5030,7 @@ class Inventory extends CI_Controller {
         $partner_spare = array();
         $micro_spare = array();
         $warehouse_spare = array();
+        $invoice = array();
 
         foreach ($postData1 as $value) {
             if ($value['is_micro_wh'] == 0 ) {
