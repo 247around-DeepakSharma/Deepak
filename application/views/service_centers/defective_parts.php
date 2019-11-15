@@ -151,17 +151,10 @@
                                     <div class="col-md-6">
                                         <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count" required="">
                                             <option selected="" disabled="" value="">Select Boxes</option>
-                                                                                        <option value="1">1</option>
-                                                                                        <option value="2">2</option>
-                                                                                        <option value="3">3</option>
-                                                                                        <option value="4">4</option>
-                                                                                        <option value="5">5</option>
-                                                                                        <option value="6">6</option>
-                                                                                        <option value="7">7</option>
-                                                                                        <option value="8">8</option>
-                                                                                        <option value="9">9</option>
-                                                                                        <option value="10">10</option>
-                                                                                    </select>
+                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                            <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
                                                                     </div>
                                 <div class="form-group       " id="exist_courier_image_row">
@@ -187,7 +180,9 @@
                                              
                                             </select>
                                     </div>
-                                                                    </div>
+                                   
+                                </div>
+                                 <br>
                                 <div class="form-group ">
                                     <label for="shipment_date" class="col-md-4">Shipment Date *</label>
                                     <div class="col-md-6">
@@ -287,6 +282,14 @@
                });
  
     }
+    
+    
+    
+   $('#courier_name_by_sf').select2({
+        width: '100%',
+        placeholder:'Select Courier Name',
+        allowClear:true
+    });
 
 
     $('#defective_part_shipped_date').daterangepicker({
@@ -312,6 +315,77 @@
     
     $('#defective_part_shipped_date').on('cancel.daterangepicker', function (ev, picker) {
         $(this).val('');
+    });
+    
+    $("#defective_parts_shipped_weight_in_kg").on({
+        "click": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+    
+    $("#defective_parts_shipped_weight_in_gram").on({
+        "click": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+    
+        $('#defective_parts_shipped_weight_in_gram,#defective_parts_shipped_weight_in_kg').bind('keydown', function (event) {
+        switch (event.keyCode) {
+            case 8:  // Backspace
+            case 9:  // Tab
+            case 13: // Enter
+            case 37: // Left
+            case 38: // Up
+            case 39: // Right
+            case 40: // Down
+                break;
+            default:
+                var regex = new RegExp("^[a-zA-Z0-9,]+$");
+                var key = event.key;
+                if (!regex.test(key)) {
+                    event.preventDefault();
+                    return false;
+                }
+                break;
+        }
     });
 
 function check_checkbox(){
