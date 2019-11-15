@@ -673,11 +673,14 @@ class Partner extends CI_Controller {
                     }
                     */
                     $html .= "</ul>";
-                    $to = $am_email. ",". $this->session->userdata("official_email");
-                    $cc = ACCOUNTANT_EMAILID.", ".ANUJ_EMAIL_ID;
-                    $subject = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
-                    
-                    $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
+                    // ----------------------------------------------------------------
+                    $email_data['to'] = $am_email. ",". $this->session->userdata("official_email");
+                    $email_data['cc'] = ACCOUNTANT_EMAILID.", ".ANUJ_EMAIL_ID;
+                    $email_data['subject'] = "Partner Updated :  " . $this->input->post('public_name') . ' - By ' . $logged_user_name;
+                    $email_data['html'] = $html;
+                    $sendUrl = base_url().'employee/partner/send_email_to_am_on_partner_update';
+                    $this->asynchronous_lib->do_background_process($sendUrl, $email_data);
+                    // ----------------------------------------------------------------                    
                 }
                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
             } else { 
@@ -8691,5 +8694,16 @@ class Partner extends CI_Controller {
             $headings = array("Partner Name", "Document Description", "Brand", "Appliance", "Category", "Capacity", "Model", "Request Type", "Document Type", "Document Link", "Create Date");
             $this->miscelleneous->downloadCSV($list, $headings,"brand-collateral");
         }
+    }
+    
+    /**
+     * @desc : this method send mail to AM after updating partner details
+     */
+    function send_email_to_am_on_partner_update($data) {
+        $to = $data['to'];
+        $cc = $data['cc'];
+        $subject = $data['subject'];
+        $html = $data['html'];
+        $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, $html, "",PARTNER_DETAILS_UPDATED);
     }
 }
