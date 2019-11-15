@@ -1585,3 +1585,27 @@ ALTER TABLE query_report add column ownership varchar(100) NULL DEFAULT NULL ;
 UPDATE `header_navigation` SET `level` = '3', parent_ids = 256 WHERE `header_navigation`.`id` = 251;
 UPDATE `header_navigation` SET `level` = '3', parent_ids = 256 WHERE `header_navigation`.`id` = 248;
 UPDATE `header_navigation` SET `title` = 'Add Models to Plan' WHERE `header_navigation`.`id` = 257;
+
+ALTER TABLE `booking_details` ADD `nrn_approved` INT(2) NOT NULL DEFAULT '0' AFTER `technical_solution`;
+ 
+
+--Kalyani 12-11-2019
+CREATE TABLE `engineer_incentive_details` (
+  `id` int(11) NOT NULL,
+  `booking_details_id` int(11) NOT NULL,
+  `partner_incentive` int(11) NOT NULL DEFAULT '0',
+  `247around_incentive` int(11) NOT NULL DEFAULT '0',
+  `is_active` int(11) NOT NULL DEFAULT '1',
+  `is_paid` int(11) NOT NULL DEFAULT '0',
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `engineer_incentive_details`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `engineer_incentive_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+COMMIT;
+
+--Ankit 15-11-2019
+ALTER TABLE spare_consumption_status ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1 AFTER update_date;
