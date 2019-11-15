@@ -1834,9 +1834,11 @@ class Partner extends CI_Controller {
                 
                 $agent_details['agent_id'] = $this->session->userdata('agent_id');
                 $agent_details['agent_type'] = _247AROUND_PARTNER_STRING;
-                $result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key,$agent_details);
-                array_push($price_tag, $result['price_tags']);
-                array_push($updated_unit_id, $result['unit_id']);
+                $arr_result = $this->booking_model->update_booking_in_booking_details($unit_details, $booking_id, $booking_details['state'], $key,$agent_details);
+                foreach ($arr_result as $result_key => $result) {
+                    array_push($updated_unit_id, $arr_result[$result_key]['unit_id']);
+                    array_push($price_tag, $arr_result[$result_key]['price_tags']);
+                }
             }
 
             if (!empty($updated_unit_id)) {
