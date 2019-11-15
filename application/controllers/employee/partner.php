@@ -425,7 +425,6 @@ class Partner extends CI_Controller {
 
                         redirect(base_url() . "partner/pending_booking");
                     } else if ($responseData['data']['code'] == 247) {
-                        $this->partner_cb->partner_callback($booking['booking_id']);
                         $output = "Booking Inserted Successfully, Booking ID: " . $responseData['data']['response']['247aroundBookingID'];
                         $userSession = array('success' => $output);
                         $this->session->set_userdata($userSession);
