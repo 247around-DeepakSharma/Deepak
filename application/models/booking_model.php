@@ -2208,6 +2208,7 @@ class Booking_model extends CI_Model {
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
         $this->db->join('booking_files', "booking_files.id = ( SELECT booking_files.id from booking_files WHERE booking_files.booking_id = booking_details.booking_id AND booking_files.file_description_id = '".BOOKING_PURCHASE_INVOICE_FILE_TYPE."' LIMIT 1 )",'left');
+        $this->db->join('engineer_details', 'booking_details.assigned_engineer_id = engineer_details.id','left');
         if(!isset($post['unit_not_required'])){
             $this->db->join('booking_unit_details', 'booking_details.booking_id = booking_unit_details.booking_id', 'left');
         }
