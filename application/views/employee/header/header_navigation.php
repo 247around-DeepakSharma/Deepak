@@ -143,7 +143,11 @@
                                  foreach($main_nav['navFlow']["id_".$childID] as $subchildID){
                                     $subChildLink='';
                                     if( $main_nav['navData']["id_".$subchildID]['link'] !=''){
-                                    $subChildLink =  base_url(). $main_nav['navData']["id_".$subchildID]['link'];
+                                        if($main_nav['navData']["id_".$subchildID]['id'] == '258') {
+                                            $subChildLink =  $main_nav['navData']["id_".$subchildID]['link'];
+                                        } else {
+                                            $subChildLink =  base_url(). $main_nav['navData']["id_".$subchildID]['link'];
+                                        }
                                     }
                                  ?>
                                     <li><a href="<?php echo $subChildLink?>"><i class="fa fa-fw fa-desktop"></i> <strong> <?php echo  $main_nav['navData']["id_".$subchildID]['title']?></strong></a>
