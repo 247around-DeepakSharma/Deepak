@@ -499,7 +499,7 @@ class Service_centers extends CI_Controller {
         }
 
         $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
-        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',NULL, NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $this->load->view('service_centers/header');
         $this->load->view('service_centers/complete_booking_form', $data);
     }
@@ -1577,7 +1577,7 @@ class Service_centers extends CI_Controller {
                 $this->notify->insert_state_change($booking_id, "InProcess_Rescheduled", "", $data['reschedule_reason'], $service_center_id, "Engineer","not_define","not_define", NULL, $service_center_id); 
             }
             $partner_id = $this->input->post("partner_id");
-            $this->update_booking_internal_status($booking_id, $reason,  $partner_id);
+            $this->update_booking_internal_status($booking_id, $reason,  $partner_id, 'reshedule');
             if(!$this->input->post("call_from_api")){
                 $userSession = array('success' => 'Booking Updated');
                 $this->session->set_userdata($userSession);
@@ -2231,8 +2231,7 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $this->session->userdata('service_center_id'));
     }
 
-    function update_booking_internal_status($booking_id, $internal_status, $partner_id) {
-
+    function update_booking_internal_status($booking_id, $internal_status, $partner_id, $booking_action = null){
         $booking['internal_status'] = $internal_status;
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
@@ -2240,6 +2239,11 @@ class Service_centers extends CI_Controller {
             $booking['partner_internal_status'] = $partner_status[1];
             $booking['actor'] = $partner_status[2];
             $booking['next_action'] = $partner_status[3];
+            
+            if(!empty($booking_action) && $booking_action == 'reshedule'){
+                unset($booking['actor']);
+                unset($booking['next_action']);                
+            }
         }
 
         $this->booking_model->update_booking($booking_id, $booking);

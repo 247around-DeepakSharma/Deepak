@@ -4445,7 +4445,8 @@ function generate_image($base64, $image_name,$directory){
                         'challan_approx_value' => $data['challan_approx_value'],
                         'requested_inventory_id' => $data['inventory_id'],
                         'parts_requested' => $data['part_name'],
-                        'parts_requested_type' => $data['type']
+                        'parts_requested_type' => $data['type'],
+                        'wh_ack_received_part'=>1
                     );
                     
                     $spare_pending_on_to='';

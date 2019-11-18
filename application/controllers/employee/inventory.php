@@ -1147,7 +1147,7 @@ class Inventory extends CI_Controller {
                     break;
 
                 case 'REJECT_COURIER_INVOICE':
-                    $where = array('booking_id' => $booking_id);
+                    $where = array('id' => $id);
                     $data = array("approved_defective_parts_by_admin" => 0, 'status' => DEFECTIVE_PARTS_REJECTED, 'remarks_defective_part_by_sf' => $remarks);
                     $new_state = "Courier Invoice Rejected By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
