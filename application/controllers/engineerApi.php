@@ -2393,7 +2393,22 @@ class engineerApi extends CI_Controller {
             $missing_key = "";
             $keys = array("part_warranty_status", "parts_type", "parts_name", "quantity", "requested_inventory_id");
             foreach($requestData['part'] as $parts){
+                $ptypes = array();
                 foreach ($keys as $key){
+                    /** Request part max quantity validation **/
+                    $current = $parts['parts_type'];
+                    if (count($ptypes)>0) {
+                    $n = in_array($current, $ptypes);
+                    if ($n) {
+                       $check = false;
+                       $missing_key = "Same part type can not be requested, For multiple part please fill quantity.";
+                    }else{
+                        array_push($ptypes, $current);
+                    } 
+                    }else{
+                        array_push($ptypes, $current);
+                    }
+                    /** End **/
                     if (!array_key_exists($key, $parts)){ 
                         $check = false;
                         $missing_key = "Part array key missing - ".$key;
@@ -3538,7 +3553,7 @@ class engineerApi extends CI_Controller {
                 $post['where']['assigned_engineer_id'] = $requestData['engineer_id'];
                 $post['where']['assigned_vendor_id'] = $requestData['service_center_id'];
                 
-                $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select, array(), 1)->result_array();
+                $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select, array(), 2)->result_array();
             }
             else {
                 $where = array(
