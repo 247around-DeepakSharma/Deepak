@@ -298,8 +298,6 @@
         case 'pdf':
         case 'PDF':
              flag=true;
-        default:
-             flag=false;
         }
         //here I CHECK if the FILE SIZE is bigger than 5 MB (numbers below are in bytes)
         if (f.size > 5242882 || f.fileSize > 5242882 || flag==false)
@@ -321,8 +319,6 @@ $("#on_invoice_file").change(function(){
         case 'pdf':
         case 'PDF':
              flag=true;
-        default:
-             flag=false;
         }
         //here I CHECK if the FILE SIZE is bigger than 5 MB (numbers below are in bytes)
         if (f.size > 5242882 || f.fileSize > 5242882 || flag==false)
