@@ -1608,3 +1608,6 @@ ALTER TABLE `engineer_incentive_details`
 ALTER TABLE `engineer_incentive_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
+
+--Ankit 15-11-2019
+ALTER TABLE spare_consumption_status ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1 AFTER update_date;
