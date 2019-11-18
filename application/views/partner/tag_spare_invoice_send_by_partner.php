@@ -507,6 +507,7 @@ $("#invoice_file").change(function(){
 
         var f = this.files[0];
         var flag = false;
+        var ext = this.value.match(/\.(.+)$/)[1];
         switch (ext) {
         case 'pdf':
         case 'PDF':
@@ -527,6 +528,7 @@ $("#on_invoice_file").change(function(){
 
         var f = this.files[0];
         var flag =false;
+        var ext = this.value.match(/\.(.+)$/)[1];
         switch (ext) {
         case 'pdf':
         case 'PDF':
