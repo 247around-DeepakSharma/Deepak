@@ -1035,9 +1035,9 @@
         if (Number(upcountry_flag) === 1) {
             var upcountry_charges = $("#upcountry_charges").val();
             if (Number(upcountry_charges) === 0) {
-                flag = 1;
                 document.getElementById('upcountry_charges').style.borderColor = "red";
                 alert("Please Enter Upcountry Charges which Paid by Customer");
+                flag = 1;
                 return false;
             } else if (Number(upcountry_charges) > 0) {
                 flag = 0;
