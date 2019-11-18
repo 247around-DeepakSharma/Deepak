@@ -1194,14 +1194,14 @@
                     <div class="panel panel-default">
                         <div class="panel-heading"><b>Partner Operation Region</b></div>
                         <div class="panel-body">
-                            <?php
+                            <?php 
                                 foreach ($results['services'] as $value) {
                                     //Checking Operation regions if Present for User Edit
                                     $operation_region_state = [];
                                     if (!empty($results['partner_operation_region'])) {
                                         foreach ($results['partner_operation_region'] as $val) {
                                             if ($val['service_id'] == $value->id) {
-                                                $operation_region_state[] = $val['state'];
+                                                $operation_region_state[] = strtolower($val['state']);
                                             }
                                         }
                                     }
@@ -1211,7 +1211,7 @@
                                 <select name ="select_state[<?php echo $value->id ?>][]" class=" col-md-4 select_state" multiple="multiple">
                                     <option value="all">ALL</option>
                                     <?php foreach ($results['select_state'] as $val) { ?>
-                                    <option value="<?php echo $val['state'] ?>" <?php echo (isset($operation_region_state) && in_array($val['state'], $operation_region_state)) ? 'selected="selected"' : '' ?> ><?php echo $val['state'] ?></option>
+                                    <option value="<?php echo $val['state'] ?>" <?php echo (isset($operation_region_state) && in_array(strtolower($val['state']), $operation_region_state)) ? 'selected="selected"' : '' ?> ><?php echo $val['state'] ?></option>
                                     <?php } ?>
                                 </select>
                             </div>
