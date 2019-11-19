@@ -667,7 +667,39 @@
                 }
                 },
                 submitHandler: function (form) {
-                form.submit();
+
+                                    var ptypes =[];
+                    var flag = false;
+                    $(".parts_type_check").each(function(i) {
+                    var current = $(this).val();
+                    if (ptypes.length>0) {
+ 
+                     var n = ptypes.includes(current);
+                    if (n) {
+                    //alert("Same part type can not be requested.For multiple part please fill quantity.");
+                    // checkbox_value = 0;
+                   //  return false;
+                   flag=true;
+                  }else{
+                    ptypes.push(current);
+               } 
+             }else{
+          
+               ptypes.push(current); 
+
+             }
+          
+           });
+
+
+            if (flag) {
+                swal("Error !", "Same part type can not be shipped.For multiple part please fill quantity.");
+ 
+            }else{
+
+                form.submit(); 
+            }    
+
                 }
             });
             }
