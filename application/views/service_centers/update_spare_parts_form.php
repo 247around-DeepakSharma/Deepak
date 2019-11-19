@@ -564,7 +564,7 @@
 
 
             if (flag) {
-                swal("Error !", "Same part type can not be requested.For multiple part please fill quantity.");
+                swal("Error !", "Same part type can not be shipped. For multiple part please fill quantity.");
  
             }else{
 
