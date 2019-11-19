@@ -2400,8 +2400,8 @@ class engineerApi extends CI_Controller {
             $check = true;
             $missing_key = "";
             $keys = array("part_warranty_status", "parts_type", "parts_name", "quantity", "requested_inventory_id");
+            $ptypes = array();
             foreach($requestData['part'] as $parts){
-                $ptypes = array();
                 foreach ($keys as $key){
                     if (!array_key_exists($key, $parts)){
                         $check = false;
