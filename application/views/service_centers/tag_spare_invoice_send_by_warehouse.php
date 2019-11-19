@@ -294,12 +294,11 @@
 
         var f = this.files[0];
         var flag =false;
+        var ext = this.value.match(/\.(.+)$/)[1];
         switch (ext) {
         case 'pdf':
         case 'PDF':
              flag=true;
-        default:
-             flag=false;
         }
         //here I CHECK if the FILE SIZE is bigger than 5 MB (numbers below are in bytes)
         if (f.size > 5242882 || f.fileSize > 5242882 || flag==false)
@@ -316,13 +315,11 @@ $("#on_invoice_file").change(function(){
 
         var f = this.files[0];
         var flag = false;
-
+        var ext = this.value.match(/\.(.+)$/)[1];
         switch (ext) {
         case 'pdf':
         case 'PDF':
              flag=true;
-        default:
-             flag=false;
         }
         //here I CHECK if the FILE SIZE is bigger than 5 MB (numbers below are in bytes)
         if (f.size > 5242882 || f.fileSize > 5242882 || flag==false)
