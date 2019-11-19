@@ -201,9 +201,21 @@
                     </div> -->
                     <div class="form-group col-md-6">
                         <label for="contact" class="col-md-5 vertical_align" id="label_contact">Email *</label>
-                        
+                        <?php
+                        $notification_email = "";
+                        if(isset($courier_details)) {
+                            if($courier_details[0]->contact_person_name)
+                            {
+                                $notification_email = $courier_details[0]->contact_person_name; 
+                            }
+                            elseif(!empty($courier_details[0]->notification_email))
+                            {
+                                $notification_email = $courier_details[0]->notification_email;
+                            }
+                        }
+                        ?>
                         <input type="email" id="email_input" name="email_input" class="form-control <?php if(!isset($courier_details)) echo 'disabledbutton'?>"
-                               value="<?php if(isset($courier_details)) { if($courier_details[0]->contact_person_name) echo $courier_details[0]->contact_person_name; else echo $courier_details[0]->notification_email; } ?>"/>
+                               value="<?php echo $notification_email;?>"/>
                     </div>
                     
                     <div class="clear"></div>
