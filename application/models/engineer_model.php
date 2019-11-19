@@ -363,7 +363,7 @@ class Engineer_model extends CI_Model {
         $this->db->where($where);
         $this->db->join("booking_details", "booking_details.user_id = users.user_id");
         $this->db->join("services", "services.id = booking_details.service_id");
-        $this->db->order_by("booking_details.booking_id", "ASC");
+        $this->db->order_by("booking_details.create_date", "DESC");
         $query = $this->db->get();
         //echo $this->db->last_query(); die();
         return $query->result_array();
