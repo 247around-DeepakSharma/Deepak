@@ -2460,6 +2460,7 @@ class Miscelleneous {
         $data= $this->My_CI->reusable_model->get_search_result_data("header_navigation","header_navigation.*,GROUP_CONCAT(p_m.title) as parent_name",$where,
                 array("header_navigation p_m"=>"FIND_IN_SET(p_m.id,header_navigation.parent_ids)"),NULL,$orderBYArray,NULL,array("header_navigation p_m"=>"LEFT"),array('header_navigation.id'));
          foreach($data as $navData){
+            $structuredData["id_".$navData['id']]['id'] = $navData['id']; 
             $structuredData["id_".$navData['id']]['title'] = $navData['title'];
             $structuredData["id_".$navData['id']]['title_icon'] = $navData['title_icon'];
             $structuredData["id_".$navData['id']]['link'] = $navData['link'];

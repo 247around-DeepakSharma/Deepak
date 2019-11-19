@@ -674,7 +674,7 @@
                         <div class="form-group col-md-3" style="margin-left: 33px;">
                                          <label for="">Dependency</label>
                                          <select class="form-control" id="pending_dependency_am" name="status[]" multiple="">
-                                            <option value="247Around:Warehouse" selected="selected">247Around</option>
+                                            <option value="247Around:Warehouse">247Around</option>
                                             <option value="Partner">Partner</option>
                                             <option value="Vendor:not_define" selected="selected">SF</option>
                                         </select>
