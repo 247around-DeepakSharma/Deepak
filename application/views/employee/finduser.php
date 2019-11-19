@@ -114,7 +114,7 @@
                             <select name="partner" id="partner" class="form-control">
                                 <option value="">Select Partner</option>
                                 <?php foreach ($partner as  $value) { ?>
-                                <option value="<?php echo $value['partner_id']?>" <?php if($value['source'] == "Snapdeal") {echo "selected"; } ?>><?php echo $value['source']; ?></option>
+                                <option value="<?php echo $value['partner_id']?>"><?php echo $value['source']; ?></option>
                                 <?php  } ?>
 
                             </select>
