@@ -356,16 +356,14 @@ class Engineer_model extends CI_Model {
      *@param - $service_center_id, @engineer_id
      *@return - resultant array
      */
-    function engineer_bookings_on_user($select, $where){
-        $this->db->distinct();
-        $this->db->select($select, false);
-        $this->db->from('users');
-        $this->db->where($where);
-        $this->db->join("booking_details", "booking_details.user_id = users.user_id");
-        $this->db->join("services", "services.id = booking_details.service_id");
-        $this->db->order_by("booking_details.create_date", "DESC");
-        $query = $this->db->get();
-        //echo $this->db->last_query(); die();
+    function engineer_bookings_on_user($phone_number, $engineer_id, $service_center_id){
+        $sql = "SELECT DISTINCT services.services, users.phone_number, users.name as name, users.phone_number, booking_details.* "
+             . "FROM (`users`) JOIN `booking_details` ON `booking_details`.`user_id` = `users`.`user_id` AND `booking_details`.`assigned_engineer_id` = '".$engineer_id."' AND `booking_details`.`assigned_vendor_id` = '".$service_center_id."' "
+             . "JOIN `services` ON `services`.`id` = `booking_details`.`service_id`"
+             . " WHERE `users`.`phone_number` = '".$phone_number."' OR booking_details.booking_primary_contact_no = '".$phone_number."' OR booking_details.booking_alternate_contact_no = '".$phone_number."'"
+             . " ORDER BY `booking_details`.`create_date` DESC";
+        
+        $query = $this->db->query($sql);
         return $query->result_array();
     }
     

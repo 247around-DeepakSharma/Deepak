@@ -3581,12 +3581,7 @@ class engineerApi extends CI_Controller {
                 $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select, array(), 2)->result_array();
             }
             else {
-                $where = array(
-                        'booking_details.assigned_engineer_id' => $requestData['engineer_id'],
-                        'booking_details.assigned_vendor_id' => $requestData['service_center_id'],
-                        'users.phone_number = "'.$phone_number.'" OR booking_details.booking_primary_contact_no = "'.$phone_number.'" OR booking_details.booking_alternate_contact_no = "'.$phone_number.'"' => NULL 
-                    );
-                $data['Bookings'] = $this->engineer_model->engineer_bookings_on_user($select, $where);
+                $data['Bookings'] = $this->engineer_model->engineer_bookings_on_user($phone_number, $requestData['engineer_id'], $requestData['service_center_id']);
             } 
             
             if(!empty($data['Bookings'])){
