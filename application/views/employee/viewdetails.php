@@ -442,11 +442,9 @@
                                 <th>Total Amount Paid</th>
                                 <?php } ?>
                                 <th>Booking Status</th>
-                                <?php if($booking_history[0]['current_status'] === 'Completed'){ ?>
                                 <th>Vendor Cash Invoice ID</th>
                                 <th>Vendor Foc Invoice ID</th>
                                 <th>Partner Invoice ID</th>
-                                <?php } ?>
                                 <th>SF Earning</th>
                                 <th>Warranty Status</th>
                             </tr>
@@ -542,11 +540,11 @@
                                         }
                                         }?>
                                     <td><?php print_r($unit_detail['booking_status']); ?></td>
-                                    <?php if($booking_history[0]['current_status'] === 'Completed'){ ?>
+                                    
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['vendor_cash_invoice_id']; ?>')" ><?php echo $unit_detail['vendor_cash_invoice_id']; ?></a></td>
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['vendor_foc_invoice_id']; ?>')" ><?php echo $unit_detail['vendor_foc_invoice_id']; ?></a></td>
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['partner_invoice_id']; ?>')"><?php echo $unit_detail['partner_invoice_id'];?></a></td>
-                                    <?php }  ?>
+                                    
                                     <td>
                                         <?php echo sprintf("%0.2f",$unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'] + 
                                             $unit_detail['vendor_extra_charges']  +  $unit_detail['vendor_st_extra_charges']  + 
