@@ -192,6 +192,9 @@
                                         } ?>">
                                         <label  for="public_name" class="col-md-4">Public Name *</label>
                                         <div class="col-md-8">
+                                            <input  type="hidden" id="original_public_name" name="original_public_name" value = "<?php if (isset($query[0]['public_name'])) {
+                                                echo $query[0]['public_name'];
+                                                } ?>" >
                                             <input  type="text" class="form-control blockspacialchar" id="public_name" name="public_name" value = "<?php if (isset($query[0]['public_name'])) {
                                                 echo $query[0]['public_name'];
                                                 } ?>" >

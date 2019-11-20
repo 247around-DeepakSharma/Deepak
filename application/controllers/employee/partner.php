@@ -917,12 +917,17 @@ class Partner extends CI_Controller {
      * @return : If validation ok returns true else false
      */
     function check_partner_Validation() {
+        $arr_post = $this->input->post();
         $this->form_validation->set_rules('company_name', 'Company Name', 'trim|required');
         $this->form_validation->set_rules('public_name', 'Public Name', 'trim|required');
         $this->form_validation->set_rules('address', 'Partner Address', 'trim|required');
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('district', 'District', 'trim|required');
         $this->form_validation->set_rules('partner_type', 'Partner Type', 'trim|required');
+        if(isset($arr_post['original_public_name']) && isset($arr_post['public_name']) && (trim($arr_post['original_public_name']) != trim($arr_post['public_name']))
+        {
+            $this->form_validation->set_rules('public_name', 'Public Name', 'trim|required|is_unique[partners.public_name]');
+        }
         return $this->form_validation->run();
     }
 
