@@ -410,12 +410,12 @@ class Paytm_gateway extends CI_Controller {
             }else{
                 echo "<h1>Invalid Payment</h1>";
                 echo "<br> Something went wrong.";
-                echo "For more information. you can contact 247around Team";
+                echo "For more information. you can contact backoffice Team";
             }
         }else{
             echo "<h1>Invalid Key</h1>";
             echo "<br> The key in your link is not a valid key.";
-            echo "For more information. you can contact 247around Team";
+            echo "For more information. you can contact backoffice Team";
         }
     }
     

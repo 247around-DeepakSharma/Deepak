@@ -270,7 +270,7 @@ class Login extends CI_Controller {
                 redirect(base_url() . 'dealers/add_booking');
                 
             } else {
-                $userSession = array('error' => 'Login De-Activated! Please contact 247Around Team');
+                $userSession = array('error' => 'Login De-Activated! Please contact Backoffice Team');
                 $this->session->set_userdata($userSession);
                 redirect(base_url() . "dealer/login");
             }

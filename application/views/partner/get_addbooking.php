@@ -614,7 +614,7 @@
         }
         
         if(not_visible === 0){
-             display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+             display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
              return false;
         }
         
@@ -1012,7 +1012,7 @@
                     //console.log(data);
                      if(data === "ERROR"){
                         
-                         // alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
+                         // alert("Outstation Bookings Are Not Allowed, Please Contact backoffice Team.");
     
                      } else { 
                           var data1 = jQuery.parseJSON(data);
@@ -1086,7 +1086,7 @@
                     //console.log(data);
                      if(data === "ERROR"){
                         
-                         // alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
+                         // alert("Outstation Bookings Are Not Allowed, Please Contact backoffice Team.");
     
                      } else { 
                           var data1 = jQuery.parseJSON(data);
@@ -1158,7 +1158,7 @@
                 async: false,
                 success: function (data) {
                     if(data.includes("ERROR")){
-                        alert("Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+                        alert("Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
                         $('#'+btn_submit).prop('disabled', true);
                         $("#not_visible").val('0');
                     }
@@ -1335,8 +1335,8 @@
     
     if(Number(not_visible) === 0){
       
-     alert('Service Temporarily Un-available In This Pincode, Please Contact 247around Team');
-     display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+     alert('Service Temporarily Un-available In This Pincode, Please Contact backoffice Team');
+     display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
       $('#submitform').attr('disabled', true);
          return false;
     } else {
