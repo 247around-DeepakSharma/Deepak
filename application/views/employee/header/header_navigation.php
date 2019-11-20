@@ -126,7 +126,11 @@
                      foreach($main_nav['navFlow']["id_".$p_id] as $childID){
                          $childLink='';
                             if($main_nav['navData']["id_".$childID]['link'] !=''){
-                            $childLink =  base_url().$main_nav['navData']["id_".$childID]['link'];
+                                if($main_nav['navData']["id_".$childID]['id'] == '258') {
+                                    $childLink =  $main_nav['navData']["id_".$childID]['link'];
+                                } else {
+                                    $childLink =  base_url().$main_nav['navData']["id_".$childID]['link'];
+                                }
                             }
                          if(!array_key_exists("id_".$childID, $main_nav['navFlow'])){
                          ?>
