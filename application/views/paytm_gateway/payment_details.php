@@ -183,7 +183,7 @@
                     $('#acnt_bal').html(obj.data.amount_details.prepaid_amount);
                     $('#aggrement_end_date').html(date.toString('dd MMM yyyy'));
                 }else if(obj.status === 'error'){
-                    alert('Some Error Occures!!! Please Contact 247Around Team');
+                    alert('Some Error Occures!!! Please Contact backoffice Team');
                 }
                 
                 get_final_amount();
