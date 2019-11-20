@@ -259,14 +259,14 @@
                                         <label for="shipped_part_type" class="col-md-4">Shipped Parts Type *</label>
                                         <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                         <div class="col-md-7">
-                                            <select required="" class="form-control shipped_part_type spare_parts" onchange="change_shipped_part_type('<?php echo $key;?>')" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]">
+                                            <select required="" class="form-control parts_type_check shipped_part_type spare_parts" onchange="change_shipped_part_type('<?php echo $key;?>')" id="<?php echo "shippedparttype_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]">
                                                 <option selected disabled>Select Part Type</option>
                                             </select>
                                             <span id="<?php echo "spinner_". $key?>" style="display:none"></span>
                                         </div>
                                         <?php } else { ?> 
                                         <div class="col-md-7">                                            
-                                            <select required="" class="form-control spare_parts_type" id="<?php echo "shippedpart_type_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]" value = "">
+                                            <select required="" class="form-control parts_type_check spare_parts_type" id="<?php echo "shippedpart_type_".$key ?>" name="part[<?php echo $key;?>][shipped_part_type]" value = "">
                                                 <option selected disabled>Select Part Type</option>
                                             </select>
                                         </div>
@@ -427,7 +427,7 @@
                                             <label for="shipped_part_type" class="col-md-4">Shipped Parts Type *</label>
                                             <?php if (isset($inventory_details) && !empty($inventory_details)) { ?> 
                                             <div class="col-md-7">
-                                                <select class="form-control spare_parts part_type_data" id="shippedparttype" >
+                                                <select class="form-control spare_parts parts_type_check part_type_data" id="shippedparttype" >
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                                 <span id="spinner" style="display:none"></span>
