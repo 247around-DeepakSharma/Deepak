@@ -2552,8 +2552,9 @@ class Miscelleneous {
             }
             //Send Push Notification
             $rmArray = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+            $agent_id = !empty($rmArray[0]['agent_id']) ? $rmArray[0]['agent_id'] : 0;
             $receiverArray['vendor']= array($vendor_id);
-            $receiverArray['employee']= array($rmArray[0]['agent_id']);
+            $receiverArray['employee']= array($agent_id);
             $notificationTextArray['msg'] = array($booking_id,"Cancelled");
             $notificationTextArray['title'] = array("Cancelled(Rescheduled)");
             $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
