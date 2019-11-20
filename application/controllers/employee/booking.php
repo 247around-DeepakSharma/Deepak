@@ -139,7 +139,7 @@ class Booking extends CI_Controller {
         } else {
             //Logging error message if No input is provided
             log_message('info', __FUNCTION__ . " Error in Booking Insert User ID: " . $user_id);
-            $heading = "247Around Booking Error";
+            $heading = "Booking Error";
             $message = "Oops... No input provided !";
             $error = & load_class('Exceptions', 'core');
             echo $error->show_error($heading, $message, 'custom_error');
@@ -5887,20 +5887,20 @@ class Booking extends CI_Controller {
                         }                        
                     } else {
                         //Redirect to edit booking page if validation err occurs
-                        $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact 247around Team');
+                        $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact BackOffice Team');
                         $this->session->set_userdata($userSession);
                         redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
                     }
                 } else {
                     //Redirect to edit booking page if validation err occurs
-                    $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact 247around Team');
+                    $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact Backoffice Team.');
                     $this->session->set_userdata($userSession);
                     redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
                 }
             } else {
                 //Logging error if No input is provided
                 log_message('info', __FUNCTION__ . "Error in Update Booking ID  " . print_r($booking_id, true) . " User ID: " . print_r($user_id, true));
-                $heading = "247Around Booking Error";
+                $heading = "Booking Error";
                 $message = "Oops... No input provided !";
                 $error = & load_class('Exceptions', 'core');
                 echo $error->show_error($heading, $message, 'custom_error');
