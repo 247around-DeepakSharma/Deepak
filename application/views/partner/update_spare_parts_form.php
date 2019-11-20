@@ -244,7 +244,7 @@
                                     <div class="form-group ">
                                         <label for="parts_type" class="col-md-4">Requested Parts Type</label>
                                         <div class="col-md-7">
-                                            <input type="text"  class="form-control" id="<?php echo "requestedpartstype_". $key; ?>" name="part[<?php echo $key;?>][requested_parts_type]" readonly="readonly" value="<?php echo $value->parts_requested_type; ?>" required>
+                                            <input type="text"  class="form-control parts_type_check" id="<?php echo "requestedpartstype_". $key; ?>" name="part[<?php echo $key;?>][requested_parts_type]" readonly="readonly" value="<?php echo $value->parts_requested_type; ?>" required>
                                         </div>
                                     </div>
                                     <div class="form-group ">
@@ -668,7 +668,7 @@
                 },
                 submitHandler: function (form) {
 
-                                    var ptypes =[];
+                    var ptypes =[];
                     var flag = false;
                     $(".parts_type_check").each(function(i) {
                     var current = $(this).val();
