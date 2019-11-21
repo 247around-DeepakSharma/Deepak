@@ -174,7 +174,7 @@
                                 <div class="form-group col-md-12 " id="purchase_d">
                                     <label for="Purchase Date">Purchase Date <span id="error_purchase" style="color: red;"></label>
                                 <div class="input-group date">
-                                    <input id="purchase_date" class="form-control purchase_date"  name="purchase_date" type="text" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
+                                    <input id="purchase_date" class="form-control purchase_date"  name="purchase_date" type="date" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -406,7 +406,7 @@
         
         
         if(not_visible === 0){
-             display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+             display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
              return false;
         }
         
@@ -665,7 +665,7 @@
                    
                      if(data === "ERROR"){
                         
-                         //alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
+                         //alert("Outstation Bookings Are Not Allowed, Please Contact backoffice Team.");
 
                      } else { 
                           var data1 = jQuery.parseJSON(data);
@@ -710,7 +710,7 @@
                         $('#submitform').prop('disabled', false);
                         $("#not_visible").val('1');
                     } else {
-                        alert("Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+                        alert("Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
                         $('#submitform').prop('disabled', true);
                         $("#not_visible").val('0');
                         
@@ -824,7 +824,7 @@
                          document.getElementById("checkbox_upcountry").checked = false;
                          final_price();
 
-                        alert("Out-Station Booking Not Allowed, Please Contact 247around.");
+                        alert("Out-Station Booking Not Allowed, Please Contact backoffice team.");
 
                     } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
                         alert("This Is Out-Station Booking, Please Wait For Brand Approval.");
@@ -888,8 +888,8 @@
     
     if(Number(not_visible) === 0){
       
-     alert('Service Temporarily Un-available In This Pincode, Please Contact 247around Team');
-     display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+     alert('Service Temporarily Un-available In This Pincode, Please Contact backoffice Team');
+     display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
       $('#submitform').attr('disabled', true);
          return false;
     } else {
