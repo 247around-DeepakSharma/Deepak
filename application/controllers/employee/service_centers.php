@@ -8259,4 +8259,28 @@ function do_multiple_spare_shipping(){
         $this->load->view('service_centers/reject_spare_part', $data);
     }
     
+    
+    /*
+     * It's function used to get service centers list
+     * @echo option
+     */
+        
+    function get_service_centers_list() {
+
+        $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("service_centres.active" => 1, "service_centres.is_micro_wh" => $this->input->post('is_micro_wh')));
+
+        $option = '<option selected="" disabled="">Select Service Centres</option>';
+        foreach ($vendor_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            if (count($partner_list) == 1) {
+                $option .= " selected> ";
+            } else {
+                $option .= "> ";
+            }
+
+            $option .= $value['name'] . "</option>";
+        }
+        echo $option;
+    }
+
 }

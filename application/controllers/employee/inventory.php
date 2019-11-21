@@ -6341,10 +6341,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
         echo json_encode($res);
     }
 
-    function download_spare_consolidated_data($partner_id = NULL) {
+    function download_spare_consolidated_data() {
         log_message('info', __METHOD__ . ' Processing...');
 
         $partner_id = $this->input->post('partner_id');
+        $service_center_id = $this->input->post('service_center_id');
         $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', service_centres.name as 'SF Name', service_centres.district as 'SF City', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status',"
                 . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as 'NRN Status', service_center_closed_date as 'Service Center Closed Date', spare_parts_details.spare_cancelled_date as 'Spare Part Cancellation Date', spare_parts_details.spare_cancellation_reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', spare_parts_details.date_of_request as 'Spare Part Requested Date',"
                 . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
@@ -6373,7 +6374,11 @@ function get_bom_list_by_inventory_id($inventory_id) {
         if (!empty($partner_id) && is_numeric($partner_id)) {
             $where['booking_details.partner_id'] = $partner_id;
         }
-
+        
+        if (!empty($service_center_id) && is_numeric($service_center_id)) {
+            $where['booking_details.assigned_vendor_id'] = $service_center_id;
+        }
+        
         $spare_details = $this->inventory_model->get_spare_consolidated_data($select, $where, $group_by);
 
         $this->load->dbutil();
