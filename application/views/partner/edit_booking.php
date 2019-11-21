@@ -668,7 +668,10 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                 $('#appliance_brand_1').append(data).change();
                                 // Set selected 
                                 setTimeout(function(){
-                                    $('#appliance_brand_1').val('<?php echo $unit_details[0]['appliance_brand']; ?>');
+                                    var brandValue = $('#appliance_brand_1 option').filter(function() { 
+                                        return this.value.toLowerCase() == '<?php echo strtolower($unit_details[0]['appliance_brand']); ?>'; 
+                                    }).attr('value');    
+                                    $('#appliance_brand_1').val(brandValue);
                                     <?php if(empty($str_disabled)) { ?>
                                         $('#appliance_brand_1').change();
                                     <?php } ?>
