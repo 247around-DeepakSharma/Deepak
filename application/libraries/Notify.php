@@ -1015,7 +1015,7 @@ class Notify {
                 $message .= "SMS Tag :".$tag."<br>";
                 $message .= "Body :".$body."<br><br>";
                 $message .= "<b>Note</b> If SMS tag is 'tag_not_available' please create a template for this sms and mark is_exception_for_length TRUE (If length is needed more than 160 Character)";
-                $to = 'chhavid@247around.com';
+                $to = '247around_dev@247around.com';
                 $this->sendEmail(NOREPLY_EMAIL_ID, $to, "", "", $subject, $message, "","sms_length_overruns");
             }
         }
