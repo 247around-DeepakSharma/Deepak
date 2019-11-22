@@ -917,6 +917,7 @@ class Partner extends CI_Controller {
      * @return : If validation ok returns true else false
      */
     function check_partner_Validation() {
+        $arr_post = $this->input->post();
         $this->form_validation->set_rules('company_name', 'Company Name', 'trim|required');
         $this->form_validation->set_rules('public_name', 'Public Name', 'trim|required');
         $this->form_validation->set_rules('address', 'Partner Address', 'trim|required');
@@ -2832,7 +2833,7 @@ class Partner extends CI_Controller {
         $option = "<option selected disabled value=''>Select Brand</option>";
         foreach ($data as $value) {
             $option .= "<option ";
-            if ($appliace_brand == $value['brand_name'] || count($data) == 1) {
+            if (strtolower($appliace_brand) == strtolower($value['brand_name']) || count($data) == 1) {
                 $option .= " ";
             }
             else{
@@ -8420,11 +8421,11 @@ class Partner extends CI_Controller {
       //       $order['column'] =$columnMappingArray["column_".$postData['order'][0]['column']];
       //       $order['sorting'] = $postData['order'][0]['dir'];
       //   }
+
        $partner_id = $this->session->userdata('partner_id');
-       // $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND  spare_parts_details.entity_type =  '"._247AROUND_PARTNER_STRING."' AND status IN('".NRN_APPROVED_BY_PARTNER."') " 
-       //          . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') "
-       //          . " ";
-       $where = "booking_details.nrn_approved=1";
+       $where = "booking_details.nrn_approved ='1'";
+       // $flag_nrn='1';
+       // $where = "booking_details.nrn_approved=".$flag_nrn."";
        if($this->input->post('state')){
            $state = $this->input->post('state');
            $where = $where." AND booking_details.state = '$state'";
@@ -8600,7 +8601,7 @@ class Partner extends CI_Controller {
                 $this->booking_model->update_booking($booking_id, $booking);
 
                $data_service_center=array(
-                        'current_status'=>_247AROUND_PENDING,
+                        'current_status'=>"InProcess",
                         'internal_status'=>NRN_APPROVED_BY_PARTNER,
                 );
 

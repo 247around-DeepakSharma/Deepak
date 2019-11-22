@@ -227,7 +227,7 @@
             data: {service_id: service_id,partner_id:partner_id,brand: brand},
             success: function (data) {
                 //First Resetting Options values present if any
-                $('#model').html("<option selected disabled  >Select Model</option>");
+                $('#model').html("<option selected disabled value=''>Select Model</option>");
                 $('#model').append(data);
                // $('#model').trigger("change");
             }

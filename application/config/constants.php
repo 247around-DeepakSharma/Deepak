@@ -391,7 +391,7 @@ define('PRODUCT_DELIVERED', 'PRODUCT_DELIVERED');
 
 //SMS deactivation constant
 define('SMS_DEACTIVATION_MAIL_SERVER','{imap.gmail.com:993/imap/ssl/novalidate-cert}');
-define('SMS_DEACTIVATION_EMAIL','chhavid@247around.com');
+define('SMS_DEACTIVATION_EMAIL','247around_dev@247around.com');
 define('SMS_DEACTIVATION_PASSWORD','chhavid247');
 define('SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS','-1 day');
 define('SMS_DEACTIVATION_EMAIL_SUBJECT','has requested for opt-out!');
