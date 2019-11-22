@@ -8532,7 +8532,7 @@ class Partner extends CI_Controller {
                 $this->booking_model->update_booking($booking_id, $booking);
 
                $data_service_center=array(
-                        'current_status'=>_247AROUND_PENDING,
+                        'current_status'=>"InProcess",
                         'internal_status'=>NRN_APPROVED_BY_PARTNER
                 );
                $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
