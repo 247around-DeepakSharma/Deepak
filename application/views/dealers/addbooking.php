@@ -174,7 +174,7 @@
                                 <div class="form-group col-md-12 " id="purchase_d">
                                     <label for="Purchase Date">Purchase Date <span id="error_purchase" style="color: red;"></label>
                                 <div class="input-group date">
-                                    <input id="purchase_date" class="form-control purchase_date"  name="purchase_date" type="text" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
+                                    <input id="purchase_date" class="form-control purchase_date"  name="purchase_date" type="date" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>

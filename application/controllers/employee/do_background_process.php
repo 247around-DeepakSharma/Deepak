@@ -498,7 +498,7 @@ class Do_background_process extends CI_Controller {
                    log_message('error', __FUNCTION__ . "Function End With Error Sending Email To Partner".$partnerDetails[0]['email']);
                    $subject = 'Error In Sending Requested Partner Report';
                    $message = print_r($this->input->post(),true);
-                   $this->notify->sendEmail(NOREPLY_EMAIL_ID, "chhavid@247around.com", "", "", $subject, $message, $csv,"Requested PartnerReport Not Send");
+                   $this->notify->sendEmail(NOREPLY_EMAIL_ID, "247around_dev@247around.com", "", "", $subject, $message, $csv,"Requested PartnerReport Not Send");
                 }
                 unlink($csv);
     }
