@@ -74,7 +74,7 @@ else
                     <input type="hidden" name="dealer_id" id="dealer_id" value="<?php if(isset($booking_history[0]['dealer_id'])){ echo $booking_history[0]['dealer_id']; } ?>">
                     <input type="hidden"  id="booking_user_email" name="user_email" value = "<?php echo $booking_history[0]['user_email']; ?>">
                     <input type="hidden"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php echo $booking_history[0]['alternate_phone_number']?>">
-                    <input type="hidden"  id="source_code" name="source_code" value = "<?php echo $booking_history[0]['partner_id']?>">
+                    <input type="hidden"  id="source_code" name="source_code" value = "<?php echo $booking_history[0]['source']?>">
                     <input type="hidden"  id="partner_source" name="partner_source" value = "<?php echo $booking_history[0]['partner_source']?>">
                     <input type="hidden" value="<?php echo $parentBkng; ?>" name="parent_id" id="parent_id">
                     <input type="hidden" name= "dealer_name" value="<?php if(isset($booking_history[0]['dealer_name'])){ echo $booking_history[0]['dealer_name']; } ?>" id="dealer_name"/>
@@ -525,7 +525,7 @@ else
             var model_number = $(".input-model").val();
         }
         var dop = $("#purchase_date_1").val();
-        var partner_id = $("#source_code").val();
+        var partner_id = $("#partner_id").val();
         var service_id = $("#service_id").val();
         var booking_id = "<?= $booking_history[0]['booking_id']?>";
         var booking_request_types = []; 
@@ -687,7 +687,7 @@ else
     postData['clone_number'] = 1;
     postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
     postData['capacity'] = $("#appliance_capacity_1").val();
-    postData['partner_id'] = $("#source_code").val();
+    postData['partner_id'] = $("#partner_id").val();
 //    $('#submitform').attr('disabled',true);
 
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {
