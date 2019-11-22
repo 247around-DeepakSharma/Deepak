@@ -925,6 +925,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('district', 'District', 'trim|required');
         $this->form_validation->set_rules('partner_type', 'Partner Type', 'trim|required');
         if (isset($arr_post['original_public_name']) && isset($arr_post['public_name']) && (trim($arr_post['original_public_name']) != trim($arr_post['public_name']))) {
+
             $this->form_validation->set_rules('public_name', 'Public Name', 'trim|required|is_unique[partners.public_name]');
         }
         return $this->form_validation->run();
@@ -7890,6 +7891,23 @@ class Partner extends CI_Controller {
         $this->load->view('partner/show_appliance_model_mapping');
         $this->load->view('partner/partner_footer');
     }
+
+    
+    public function brand_collaterals(){
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        
+        $this->miscelleneous->load_partner_nav_header();
+        $partnerArray = array();
+        $partners = $this->partner_model->getpartner();
+        foreach($partners as $partnersDetails){
+            $partnerArray[$partnersDetails['id']] = $partnersDetails['public_name'];
+        }               
+        $this->load->view('partner/partner_brand_collateral', array("partnerArray"=>$partnerArray));
+        $this->load->view('partner/partner_footer');
+    }
+    
+
     public function brandCollateral()
     {
         if(!empty($this->session->userdata('service_center_id')))

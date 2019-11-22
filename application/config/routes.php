@@ -242,6 +242,7 @@ $route['partner/inventory/download_missing_serviceable_bom'] = 'employee/partner
 $route['partner/inventory/download_part_master'] = 'employee/partner/show_download_part_master';
 $route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
 $route['partner/inventory/download_mwh_invoice_ledger'] = 'employee/inventory/mwh_invoice_ledger';
+$route['partner/brand_collaterals']='employee/partner/brand_collaterals';
 
 //$route['service_center/inventory/appliance_model_list'] = 'employee/inventory/appliance_model_list';
 
