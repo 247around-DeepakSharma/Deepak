@@ -1,8 +1,14 @@
 <script src="<?php echo base_url(); ?>js/base_url.js"></script>
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
 <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
-<div class="right_col" role="main">
-    <h1 class="col-md-6 col-sm-12 col-xs-12"><b> Brand Collateral </b></h1>
+<div  role="main">
+    <div class="col-md-12 col-sm-12 col-xs-12">
+    <div class="col-md-10"><h1><b> Brand Collateral </b></h1></div>
+    <form action="<?php echo base_url() ?>employee/partner/download_all_brand_collateral" method="POST">
+        <div class="col-md-2"><button type="submit" class="btn btn-primary" style="margin-top: 15%;">Download All</button></div>
+    </form>
+    </div>
+    <hr>
     <div class="clearfix"></div>
     <div style='margin:3%;'>
         <form method="POST" action="#">

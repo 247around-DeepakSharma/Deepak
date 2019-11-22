@@ -8162,4 +8162,52 @@ function do_multiple_spare_shipping(){
         
         $this->load->view('service_centers/wrong_spare_part', $data);
     }
+    
+    function change_consumption() {
+        $post_data = $this->input->post();
+        $data['spare_id'] = $post_data['spare_part_detail_id'];
+        $data['booking_id'] = $post_data['booking_id'];
+        $data['booking_details'] = $this->reusable_model->get_search_result_data('booking_details', '*', ['booking_id' => $data['booking_id']], NULL, NULL, NULL, NULL, NULL)[0];
+        $data['spare_part_detail'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['spare_parts_details.id' => $data['spare_id'], 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];        
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+        $this->load->view('service_centers/change_consumption', $data);
+    }
+    
+    function reject_spare_part() {
+        $post_data = $this->input->post();
+        $data['spare_id'] = $post_data['spare_part_detail_id'];
+        $data['booking_id'] = $post_data['booking_id'];
+        $data['booking_details'] = $this->reusable_model->get_search_result_data('booking_details', '*', ['booking_id' => $data['booking_id']], NULL, NULL, NULL, NULL, NULL)[0];
+        $data['spare_part_detail'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['spare_parts_details.id' => $data['spare_id'], 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];        
+        
+        $reject_options = [];
+        $where_internal_status = array("page" => "defective_parts", "active" => '1');
+        $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
+
+        $this->load->view('service_centers/reject_spare_part', $data);
+    }
+    
+    /*
+     * It's function used to get service centers list
+     * @echo option
+     */
+        
+    function get_service_centers_list() {
+
+        $vendor_list = $this->vendor_model->getVendorDetails("service_centres.id, service_centres.name, service_centres.company_name", array("service_centres.active" => 1, "service_centres.is_micro_wh" => $this->input->post('is_micro_wh')));
+
+        $option = '<option selected="" disabled="">Select Service Centres</option>';
+        foreach ($vendor_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            if (count($partner_list) == 1) {
+                $option .= " selected> ";
+            } else {
+                $option .= "> ";
+            }
+
+            $option .= $value['name'] . "</option>";
+        }
+        echo $option;
+    }
+
 }

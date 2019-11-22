@@ -24,4 +24,4 @@ define('INSTALLATION_MISSED_CALL_NOTIFICATION','installation_missed_call');
 define('POOR_RATING_MISSED_CALL_NOTIFICATION_EMPLOYYE_IDS','19');
 define('POOR_RATING_MISSED_CALL_NOTIFICATION','poor_rating_missed_call');
 define('INVALID_SUBSCRIBER_ID_MSG','Invalid Subscriber IDs found in subscriber list.');
-define('PUSH_NOTIFICATION_ERROR_NOTIFY_EMAIL','chhavid@247around.com');
+define('PUSH_NOTIFICATION_ERROR_NOTIFY_EMAIL','247around_dev@247around.com');
