@@ -1907,6 +1907,7 @@ class Service_centers extends CI_Controller {
                 $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                 if ($data['bookinghistory'][0]['nrn_approved']==1) {
                 $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
+                $data['nrn_flag'] = 1;
                 }
                 
                 $this->load->view('service_centers/header');
