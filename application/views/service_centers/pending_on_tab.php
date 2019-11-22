@@ -129,9 +129,22 @@
                                             </div>
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
-                                        <?php if($is_engineer_app && $row->nrn_approved==0){ ?>
-                                        <td style="vertical-align: middle;"><select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select>
+                                        <?php if($is_engineer_app){ ?>
+                                        <td style="vertical-align: middle;">
+                                            <?php if ($row->nrn_approved==0) { ?>
+                                                    
+                                            <select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select>
+
                                             <a href='<?php echo base_url(); ?>service_center/add_engineer/<?php echo urlencode(base64_encode($row->booking_id)); ?>' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user' aria-hidden='true'></i></a>
+
+                                            <?php }else{ ?>
+
+                                                <select class="disabled">
+                                                    <option >Select Engineer</option>
+                                                </select>
+
+                                            <?php } ?>
+                                            
                                         </td>
                                         <?php }
                                         if(isset($saas_module) && (!$saas_module)) { ?>
@@ -807,7 +820,7 @@
                                             <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id))?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary <?php if(!empty($row->service_center_closed_date)) { echo " disabled";} ?>"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
                                         <?php }else{ ?>
 
-                                                <a target=" " href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
+                                                <a target="#" href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
 
                                         <?php } ?>
                                         </td>
@@ -821,7 +834,7 @@
 
                                             <a class="btn btn-sm btn-primary disabled" href="#" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>
 
-                                        ?php } ?>
+                                        <?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
