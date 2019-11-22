@@ -924,8 +924,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('district', 'District', 'trim|required');
         $this->form_validation->set_rules('partner_type', 'Partner Type', 'trim|required');
-        if(isset($arr_post['original_public_name']) && isset($arr_post['public_name']) && (trim($arr_post['original_public_name']) != trim($arr_post['public_name'])))
-        {
+        if (isset($arr_post['original_public_name']) && isset($arr_post['public_name']) && (trim($arr_post['original_public_name']) != trim($arr_post['public_name']))) {
             $this->form_validation->set_rules('public_name', 'Public Name', 'trim|required|is_unique[partners.public_name]');
         }
         return $this->form_validation->run();
@@ -2835,7 +2834,7 @@ class Partner extends CI_Controller {
         $option = "<option selected disabled value=''>Select Brand</option>";
         foreach ($data as $value) {
             $option .= "<option ";
-            if ($appliace_brand == $value['brand_name'] || count($data) == 1) {
+            if (strtolower($appliace_brand) == strtolower($value['brand_name']) || count($data) == 1) {
                 $option .= " ";
             }
             else{
@@ -8633,7 +8632,7 @@ class Partner extends CI_Controller {
                 $this->booking_model->update_booking($booking_id, $booking);
 
                $data_service_center=array(
-                        'current_status'=>_247AROUND_PENDING,
+                        'current_status'=>"InProcess",
                         'internal_status'=>NRN_APPROVED_BY_PARTNER,
                 );
 

@@ -578,7 +578,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
             document.getElementById('error_remarks').innerHTML = "";  
         }
         <?php if(count($unique_appliance) > 1){ ?>
-             alert("Please Contact 247Around Team To Update This Booking");
+             alert("Please Contact backoffice Team To Update This Booking");
              return false;
         <?php }?>
             
@@ -668,7 +668,10 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                 $('#appliance_brand_1').append(data).change();
                                 // Set selected 
                                 setTimeout(function(){
-                                    $('#appliance_brand_1').val('<?php echo $unit_details[0]['appliance_brand']; ?>');
+                                    var brandValue = $('#appliance_brand_1 option').filter(function() { 
+                                        return this.value.toLowerCase() == '<?php echo strtolower($unit_details[0]['appliance_brand']); ?>'; 
+                                    }).attr('value');    
+                                    $('#appliance_brand_1').val(brandValue);
                                     <?php if(empty($str_disabled)) { ?>
                                         $('#appliance_brand_1').change();
                                     <?php } ?>
@@ -840,7 +843,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                    //console.log(data);
                      if(data === "ERROR"){
                          // $("#total_price").text("Price is not defined" );
-                          alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
+                          alert("Outstation Bookings Are Not Allowed, Please Contact backoffice Team.");
     
                      } else {                         
                           var data1 = jQuery.parseJSON(data);
@@ -929,7 +932,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                          getPrice();
                         
                     } else {
-                        alert("Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+                        alert("Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
                         $('#submitform').prop('disabled', true);
                         
                     }
@@ -1089,8 +1092,8 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     
     //        if(Number(not_visible) === 0){
     //
-    //         alert('Service Temporarily Un-available In This Pincode, Please Contact 247around Team');
-    //         display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+    //         alert('Service Temporarily Un-available In This Pincode, Please Contact backoffice Team');
+    //         display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
     //          $('#submitform').attr('disabled', true);
     //             return false;
     //        } else {
