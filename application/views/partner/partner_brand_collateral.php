@@ -9,12 +9,12 @@
             <div class="x_panel">
                 <div class="x_title">
                     <form action="<?php echo base_url() ?>employee/partner/download_all_brand_collateral" method="POST">
+                        <input type="hidden" id="partner_id" name="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>">
                         <h2>Brand Collateral</h2>
                         <ul class="nav navbar-right panel_toolbox">
                             <button type="submit" class="btn btn-success" style="margin-top: 10px;">Download All</button>
                         </ul>
                     </form>
-                    <input type="hidden" id="partner_id" value="<?php echo $this->session->userdata('partner_id'); ?>">
                     <div class="clearfix"></div>
                 </div>
                 <div class="x_content">

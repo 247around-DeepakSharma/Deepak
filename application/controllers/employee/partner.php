@@ -8708,11 +8708,17 @@ class Partner extends CI_Controller {
     
     /*This function is used to download all brand booking collateral*/
     function download_all_brand_collateral(){
+        if($this->input->post("partner_id")){
+           $where = array("entity_id" =>$this->input->post("partner_id"));
+        }
+        else{
+           $where = array();
+        }
         $list = array();
         $post['length'] = -1;
         $order_by_column='collateral.id';
         $sorting_type='ASC';
-        $collateral_data = $this->partner_model->get_brand_collateral_data($post,$order_by_column,$sorting_type);
+        $collateral_data = $this->partner_model->get_brand_collateral_data($post,$order_by_column,$sorting_type, $where);
         foreach ($collateral_data as $key => $value) {
             $data = array();  
             $data['partner_name'] = $value['public_name'];
@@ -8728,10 +8734,9 @@ class Partner extends CI_Controller {
             $data['create_date'] = $value['create_date'];
             array_push($list, $data);
         }
-        if(!empty($collateral_data)){
-            $headings = array("Partner Name", "Document Description", "Brand", "Appliance", "Category", "Capacity", "Model", "Request Type", "Document Type", "Document Link", "Create Date");
-            $this->miscelleneous->downloadCSV($list, $headings,"brand-collateral");
-        }
+        
+        $headings = array("Partner Name", "Document Description", "Brand", "Appliance", "Category", "Capacity", "Model", "Request Type", "Document Type", "Document Link", "Create Date");
+        $this->miscelleneous->downloadCSV($list, $headings,"brand-collateral");
     }
     
     /**
