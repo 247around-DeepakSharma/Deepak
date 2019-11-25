@@ -2019,12 +2019,15 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert('partner_sample_no_picture',$data);
         return $this->db->insert_id();
     }
-    function get_brand_collateral_data($condition,$order_by_column,$sorting_type)
+    function get_brand_collateral_data($condition,$order_by_column,$sorting_type, $where=array())
     {
 
         $group_by=array('`collateral_type`.`collateral_type`','`collateral`.`model`','`collateral`.`category`','`collateral`.`capacity`','`collateral`.`file`','`collateral`.`document_description`','`collateral`.`start_date`');
         $this->db->select("collateral.id,collateral.appliance_id,collateral.collateral_id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,collateral_type.document_type,collateral.request_type, partners.public_name, collateral.create_date");
         $this->db->from("collateral");
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         $this->db->where('entity_type','partner');
         $this->db->where('is_valid',1);
         $this->db->where('collateral_type.collateral_tag','Brand_Collateral');
