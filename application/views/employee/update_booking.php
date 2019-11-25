@@ -39,7 +39,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     <?php } ?>
     
     <?php if(!empty($str_disabled)) { ?> 
-    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, .price_checkbox {
+    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, .price_checkbox, #source_code, #partner_source, #service_id {
         pointer-events : none !important;
         background : #eee !important;
     }    
@@ -1005,13 +1005,16 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     $(".select-model").select2({
         width:"239px"
     });
+    <?php if(empty($str_disabled)) { ?> 
     $(".booking_source").select2();
+    $("#partner_source").select2();
+    <?php } ?> 
     //$("#service_id").select2();
     $('#service_id').css('pointer-events','none'); 
     $("#booking_city").select2({
          tags: true
     });
-    $("#partner_source").select2();
+    
 
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
        getPartnerChannel();
