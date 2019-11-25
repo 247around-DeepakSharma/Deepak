@@ -462,7 +462,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                 <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
                                                     <option selected disabled>Select Appliance Model</option>
                                                     <?php foreach ($model[0] as $value) { ?>
-                                                    <option <?php if(!empty($booking_model_number)) {if($value['model'] == $booking_model_number) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
+                                                    <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
                                                         ><?php echo $value['model']; ?></option>
                                                     <?php } ?>
                                                 </select>

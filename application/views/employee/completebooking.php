@@ -380,7 +380,8 @@
                                                                     if(isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ 
                                                                         $isModelMandatory =1 ;
                                                                         $arrModels = array_column($unit_details['model_dropdown'], 'model_number');
-                                                                        if(!empty($selected_model) && !in_array($selected_model, $arrModels)){ ?>
+                                                                        $arrModels = array_map('strtoupper', $arrModels);
+                                                                        if(!empty($selected_model) && !in_array(strtoupper($selected_model), $arrModels)){ ?>
                                                                             <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
                                                                                 <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $selected_model ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
                                                                             </div>
@@ -389,7 +390,7 @@
                                                                         <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" style="width:266px;">
                                                                             <option value="" selected="" disabled="">Model Number</option>
                                                                             <?php foreach ($unit_details['model_dropdown'] as $m) { ?>
-                                                                            <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $selected_model ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
+                                                                            <option value="<?php echo $m['model_number'];?>" <?php if(trim(strtoupper($m['model_number'])) == trim(strtoupper($selected_model))){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
                                                                             <?php }?>
                                                                         </select>
                                                                         <?php }  else { 

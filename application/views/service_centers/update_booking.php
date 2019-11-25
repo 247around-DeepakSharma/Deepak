@@ -120,10 +120,11 @@ else
                                         }
                                         if(!empty($booking_model_number) && !empty($model[0]) && $booking_history['is_spare_requested']){
                                             $arrModels = array_column($model[0], 'model');
-                                            if(!in_array($booking_model_number, $arrModels)){ ?>
+                                            $arrModels = array_map('strtoupper', $arrModels);
+                                            if(!in_array(strtoupper($booking_model_number), $arrModels)){ ?>
                                                 <input type="hidden" name="model_not_mapped" id="model_not_mapped" value="1"/>
                                                 <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
-                                                    <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $booking_model_number ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
+                                                    <span class="text-primary" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $booking_model_number ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
                                                 </div>
                                             <?php }
                                         }
@@ -137,7 +138,7 @@ else
                                                     <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" required onchange="getCapacityCategoryForModel(this.value, this.id);check_booking_request();" style="<?= $str_disabled?>">
                                                         <option selected disabled value="">Select Appliance Model</option>
                                                         <?php foreach ($model[0] as $value) { ?>
-                                                        <option <?php if(!empty($booking_model_number)) {if($value['model'] == $booking_model_number) { echo "selected"; }} elseif(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; }}?>
+                                                        <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; }} elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; }}?>
                                                             ><?php echo $value['model']; ?></option>
                                                         <?php } ?>
                                                     </select>

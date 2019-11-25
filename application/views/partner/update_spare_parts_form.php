@@ -143,7 +143,7 @@
                                             <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $key;?>')" id="<?php echo "shippedmodelnumberid_".$key;?>" name="part[<?php echo $key; ?>][shipped_model_number_id]" required="">
                                                 <option value="" disabled="" selected="">Select Model Number</option>
                                                 <?php foreach ($inventory_details as $key1 => $value1) { ?> 
-                                                <option value="<?php echo $value1['id']; ?>" <?php if($value1['model_number'] == $value->model_number){ echo "selected"; } ?> ><?php echo $value1['model_number']; ?></option>
+                                                <option value="<?php echo $value1['id']; ?>" <?php if(trim(strtoupper($value1['model_number'])) == trim(strtoupper($value->model_number))){ echo "selected"; } ?> ><?php echo $value1['model_number']; ?></option>
                                                 <?php } ?>
                                             </select>
                                             <input type="hidden" id="<?php echo "shippedmodelnumber_".$key;?>" name="part[<?php echo $key;?>][shipped_model_number]">
@@ -153,7 +153,7 @@
                                             <select class="form-control spare_parts shipped_model_number_id" onchange="change_shipped_model('<?php echo $key;?>')" id="<?php echo "shippedmodelnumberid_".$key;?>" name="part[<?php echo $key; ?>][shipped_model_number_id]" required="">
                                                 <option value="" disabled="" selected="">Select Model Number</option>
                                                 <?php foreach ($appliance_model_details as $key1 => $value1) { ?> 
-                                                <option value="<?php echo $value1['id']; ?>" <?php if($value1['model_number'] == $value->model_number){ echo "selected"; } ?> ><?php echo $value1['model_number']; ?></option>
+                                                <option value="<?php echo $value1['id']; ?>" <?php if(trim(strtoupper($value1['model_number'])) == trim(strtoupper($value->model_number))){ echo "selected"; } ?> ><?php echo $value1['model_number']; ?></option>
                                                 <?php } ?>
                                             </select>
                                         </div>

@@ -137,7 +137,7 @@
                                             <select class="form-control spare_parts" id="model_number_id" name="model_number_id"  onchange="check_booking_request()">
                                                 <option value="" disabled="" selected="">Select Model Number <?php  //echo $unit_model_number; ?></option>
                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
-                                                <option value="<?php echo $value['id']; ?>"   <?php if($unit_model_number==$value['model_number']){ $is_modal_number = true; echo 'selected';} ?>   ><?php echo $value['model_number']; ?></option>
+                                                <option value="<?php echo $value['id']; ?>"   <?php if(trim(strtoupper($unit_model_number))==trim(strtoupper($value['model_number']))){ $is_modal_number = true; echo 'selected';} ?>   ><?php echo $value['model_number']; ?></option>
                                                 <?php } ?>
                                             </select>
                                             
@@ -646,7 +646,7 @@ function alpha(e) {
                         $('#model_number_id').select2();
                         var model_number = "<?php echo $unit_model_number; ?>";
                         $('#model_number_id option').map(function() {
-                        if ($(this).text() == model_number){
+                        if ($.trim(($(this).text()).toUpperCase()) == $.trim(model_number.toUpperCase())){
                             var model_no = $(this).val();
                             $("#model_number_id").val(model_no).change();
                         }                            

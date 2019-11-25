@@ -3051,7 +3051,7 @@ class Partner extends CI_Controller {
             $model = "";
             foreach ($data as $value) {
                 $model .= "<option ";
-                if (trim($model_number) === trim($value['model_number'])) {
+                if (trim(strtoupper($model_number)) === trim(strtoupper($value['model_number']))) {
                     $model .= " selected ";
                 } else if (count($data) == 1) {
                     $model .= " selected ";
