@@ -6475,6 +6475,14 @@ class Partner extends CI_Controller {
         $whereIN['booking_id'] = $postArray['booking_id']; 
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
         if(!empty($tempArray)){
+            $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$postArray['booking_id'], "internal_status"=>_247AROUND_CANCELLED, "current_status" => _247AROUND_CANCELLED));
+            if(!empty($engineer_action)){
+                $eng_data = array(
+                    "internal_status" => _247AROUND_PENDING,
+                    "current_status" => _247AROUND_PENDING
+                );
+                $this->engineer_model->update_engineer_table($eng_data, array("booking_id"=>$postArray['booking_id']));
+            }
             //$this->booking_model->mark_booking_in_process(array($postArray['booking_id']));
             echo "Booking Updated Successfully";
             $postArray = $this->input->post();
