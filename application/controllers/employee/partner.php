@@ -786,6 +786,10 @@ class Partner extends CI_Controller {
                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
             }
         } else {
+            if (!empty($this->input->post('id'))) { 
+                $this->session->set_userdata('error', validation_errors());
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('id'));
+            }
             $this->get_add_partner_form();
         }
     }
