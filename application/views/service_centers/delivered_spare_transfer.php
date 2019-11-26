@@ -177,7 +177,7 @@
                                     <tr>
                                         <td  ><?php echo $from['parts_requested']; ?> ( <?php echo $from['requested_inventory_id']; ?> )</td>
                                         <td><?php echo $from['model_number']; ?></td>  
-                                        <td><input data-value="<?php echo $from['requested_inventory_id']; ?>" class="frominventory" required="required" type="radio" value="<?php echo $from['id']; ?>" name="fromspareid" />
+                                        <td><input data-value="<?php echo $from['shipped_inventory_id']; ?>" class="frominventory" required="required" type="radio" value="<?php echo $from['id']; ?>" name="fromspareid" />
                                            
                                         </td> 
                                     </tr>
