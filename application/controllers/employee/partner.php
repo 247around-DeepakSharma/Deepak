@@ -8573,7 +8573,7 @@ class Partner extends CI_Controller {
                         'sf_model_number'=>$update_pending['model_number'],
                         'serial_number_pic'=>$update_pending['serial_number_pic']
                 );
-                $this->booking_model->update_booking_unit_details($booking_id,$unit_array);
+                //$this->booking_model->update_booking_unit_details($booking_id,$unit_array);
 
                 if (!empty($update_pending['serial_number'])) {
                     $sc_action['serial_number']=$update_pending['serial_number'];
@@ -8645,7 +8645,7 @@ class Partner extends CI_Controller {
                     'internal_status'=>SF_BOOKING_COMPLETE_STATUS,
                     'actor'=>'247Around'
                 );
-                $this->booking_model->update_booking($booking_id, $review_update_array);
+               // $this->booking_model->update_booking($booking_id, $review_update_array);
 
                 if (!empty($sc_action['serial_number'])) {
                     $serial_number = $sc_action['serial_number'];
@@ -8670,7 +8670,7 @@ class Partner extends CI_Controller {
                         'serial_number_pic'=>$serial_number_pic
                 );
 
-                $this->vendor_model->update_service_center_action($booking_id, $data_service_center_review);
+                //$this->vendor_model->update_service_center_action($booking_id, $data_service_center_review);
 
                 }else{
 
