@@ -167,7 +167,7 @@
                         <table class="table">
                             <thead>
                                 <tr>
-                                    <th>Part Requested ( <?php echo $frombooking; ?> ) </th>
+                                    <th>Part Shipped ( <?php echo $frombooking; ?> ) </th>
                                     <th>Model Number</th>  
                                     <th>Select</th>  
                                 </tr>
@@ -175,8 +175,8 @@
                             <tbody>
                                 <?php foreach ($from_booking as $from) { ?>
                                     <tr>
-                                        <td  ><?php echo $from['parts_requested']; ?> ( <?php echo $from['shipped_inventory_id']; ?> )</td>
-                                        <td><?php echo $from['model_number']; ?></td>  
+                                        <td  ><?php echo $from['parts_shipped']; ?> ( <?php echo $from['shipped_inventory_id']; ?> )</td>
+                                        <td><?php echo $from['model_number_shipped']; ?></td>  
                                         <td><input data-value="<?php echo $from['shipped_inventory_id']; ?>" class="frominventory" required="required" type="radio" value="<?php echo $from['id']; ?>" name="fromspareid" />
                                            
                                         </td> 
