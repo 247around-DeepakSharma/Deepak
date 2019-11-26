@@ -786,6 +786,10 @@ class Partner extends CI_Controller {
                 redirect(base_url() . 'employee/partner/editpartner/' . $partner_id);
             }
         } else {
+            if (!empty($this->input->post('id'))) { 
+                $this->session->set_userdata('error', validation_errors());
+                redirect(base_url() . 'employee/partner/editpartner/' . $this->input->post('id'));
+            }
             $this->get_add_partner_form();
         }
     }
@@ -3061,7 +3065,7 @@ class Partner extends CI_Controller {
             $model = "";
             foreach ($data as $value) {
                 $model .= "<option ";
-                if (trim($model_number) === trim($value['model_number'])) {
+                if (trim(strtoupper($model_number)) === trim(strtoupper($value['model_number']))) {
                     $model .= " selected ";
                 } else if (count($data) == 1) {
                     $model .= " selected ";
@@ -6482,6 +6486,14 @@ class Partner extends CI_Controller {
         $whereIN['booking_id'] = $postArray['booking_id']; 
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id",$where,NULL,NULL,NULL,$whereIN,NULL,array());
         if(!empty($tempArray)){
+            $engineer_action = $this->engineer_model->getengineer_action_data("id", array("booking_id"=>$postArray['booking_id'], "internal_status"=>_247AROUND_CANCELLED, "current_status" => _247AROUND_CANCELLED));
+            if(!empty($engineer_action)){
+                $eng_data = array(
+                    "internal_status" => _247AROUND_PENDING,
+                    "current_status" => _247AROUND_PENDING
+                );
+                $this->engineer_model->update_engineer_table($eng_data, array("booking_id"=>$postArray['booking_id']));
+            }
             //$this->booking_model->mark_booking_in_process(array($postArray['booking_id']));
             echo "Booking Updated Successfully";
             $postArray = $this->input->post();
@@ -8708,11 +8720,17 @@ class Partner extends CI_Controller {
     
     /*This function is used to download all brand booking collateral*/
     function download_all_brand_collateral(){
+        if($this->input->post("partner_id")){
+           $where = array("entity_id" =>$this->input->post("partner_id"));
+        }
+        else{
+           $where = array();
+        }
         $list = array();
         $post['length'] = -1;
         $order_by_column='collateral.id';
         $sorting_type='ASC';
-        $collateral_data = $this->partner_model->get_brand_collateral_data($post,$order_by_column,$sorting_type);
+        $collateral_data = $this->partner_model->get_brand_collateral_data($post,$order_by_column,$sorting_type, $where);
         foreach ($collateral_data as $key => $value) {
             $data = array();  
             $data['partner_name'] = $value['public_name'];
@@ -8728,10 +8746,9 @@ class Partner extends CI_Controller {
             $data['create_date'] = $value['create_date'];
             array_push($list, $data);
         }
-        if(!empty($collateral_data)){
-            $headings = array("Partner Name", "Document Description", "Brand", "Appliance", "Category", "Capacity", "Model", "Request Type", "Document Type", "Document Link", "Create Date");
-            $this->miscelleneous->downloadCSV($list, $headings,"brand-collateral");
-        }
+        
+        $headings = array("Partner Name", "Document Description", "Brand", "Appliance", "Category", "Capacity", "Model", "Request Type", "Document Type", "Document Link", "Create Date");
+        $this->miscelleneous->downloadCSV($list, $headings,"brand-collateral");
     }
     
     /**

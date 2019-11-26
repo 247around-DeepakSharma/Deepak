@@ -273,7 +273,7 @@
                                                                 <option value="" selected disabled>Please Select Model Number</option>
                                                                 <?php foreach ($model_data as $m) { ?>
                                                                 <option value="<?php echo $m['model_number'];?>"
-                                                                        <?php if($unit_details['sf_model_number'] == $m['model_number']) { echo 'selected'; } else { echo 'disabled'; }  ?>
+                                                                        <?php if(trim(strtoupper($unit_details['sf_model_number'])) == trim(strtoupper($m['model_number']))) { echo 'selected'; } else { echo 'disabled'; }  ?>
                                                                 ><?php echo $m['model_number'];?></option>
                                                                 <?php }?>
                                                             </select>
