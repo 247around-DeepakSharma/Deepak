@@ -1522,7 +1522,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="Services">Select Document Type*</label>
-                                    <select class="form-control" id="l_c_doc_type" name="l_c_doc_type" disabled="">
+                                    <select class="form-control" id="l_c_doc_type" name="l_c_doc_type" disabled="" onchange="document_type_changed()">
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -5780,5 +5780,15 @@
         var ret = ((keyCode >= 48 && keyCode <= 57) || (keyCode >= 65 && keyCode <= 90) || keyCode == 32 || keyCode == 44 || (keyCode >= 97 && keyCode <= 122) || (specialKeys.indexOf(e.keyCode) != -1 && e.charCode != e.keyCode));
         document.getElementById("model_error").style.display = ret ? "none" : "inline";
         return ret;
+    }
+    
+    function document_type_changed(){
+        var d_type = $("#l_c_doc_type").val();
+        if(d_type === "software"){
+            $("#l_c_file").attr("disabled", true);
+        }
+        else{
+            $("#l_c_file").attr("disabled", false);
+        }
     }
 </script>
