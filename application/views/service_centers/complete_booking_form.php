@@ -26,7 +26,7 @@
                     }
                 }
 
-                if($value['status'] == SPARE_PARTS_REQUESTED){
+                if(empty($value['parts_shipped']) && empty($value['shipped_date'])){
                     $date1=date_create($value['date_of_request']);
                     $date2=date_create(date('Y-m-d'));
                     $diff=date_diff($date1,$date2);
