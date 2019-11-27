@@ -2596,5 +2596,23 @@ FIND_IN_SET(state_code.state_code,employee_relation.state_code) WHERE india_pinc
         }
         
     }
+    
+    /*Desc - This function is used to call akai API again when any api failure within 30 days*/
+    function akai_failed_api_callback(){
+        $current_date = date("Y-m-d");
+        $prev_date = date('Y-m-d', strtotime('-30 days', strtotime($current_date)));
+        $where = array(
+                    "create_date >= $prev_date" => NULL,
+                    "api_status" => 0
+                );
+        $callback_data = $this->partner_model->get_callback_api_booking_details("*", $where);
+        foreach ($callback_data as $key => $value) {
+            $booking_data = $this->partner_model->get_data_for_partner_callback($value['booking_id']);
+            if(!empty($booking_data)){
+                $booking_data["call_by_cron"] = true;
+                $this->partner_sd_cb->update_akai_closed_details($booking_data);
+            }
+        }
+    }
 
 }

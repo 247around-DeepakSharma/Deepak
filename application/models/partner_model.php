@@ -2577,6 +2577,34 @@ function get_data_for_partner_callback($booking_id) {
         
         return true;
     }
-
+    
+    /*Desc - This function is used to insert booking callback details genrally we make an entry into it, only if calback API fails*/
+    function insert_callback_api_booking_details($details) {
+        $this->db->insert('callback_api_booking_details', $details);
+        return $this->db->insert_id();
+    }
+    
+    /*Desc - This function is used to increase api call count*/
+    function update_callback_api_count($data, $where) {
+        $this->db->where($where);
+        $this->db->set("api_call_count", "api_call_count + 1", false);
+        $this->db->update("callback_api_booking_details", $data);
+        if ($this->db->affected_rows() > 0) {
+            $res = TRUE;
+        } else {
+            $res = False;
+        }
+        return $res;
+    }
+    
+    /*Desc - This function is used to get akai api failure booking details*/
+    function get_callback_api_booking_details($select, $where) {
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $query = $this->db->get('callback_api_booking_details');
+        return $query->result_array();
+    }
 }
 

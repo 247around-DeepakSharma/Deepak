@@ -760,9 +760,11 @@ class partner_sd_cb {
             if(!empty($res)){
                 $s = json_decode($res, true);
                 if (strpos($s['Status'], 'Success:') === false) {
+                    $this->insertCallbackFailure();
                     $this->callbackAPIFailed();
                 }
             } else {
+                $this->insertCallbackFailure();
                 $this->callbackAPIFailed();
             }
             
@@ -878,13 +880,36 @@ class partner_sd_cb {
             $response = json_decode($res, TRUE);
             if(isset($response['Status']) && $response['Status'] == 'Success'){
                 log_message('info', __METHOD__. " Updated " . $data['booking_id']);
+                if(isset($data["call_by_cron"])){
+                    $this->updateCallbackSuccess($data['booking_id']);
+                }
             } else {
-                 log_message('info', __METHOD__. " Not Updated " . $data['booking_id']);
+                log_message('info', __METHOD__. " Not Updated " . $data['booking_id']);
+                $this->updateCallbackFailure($data['booking_id']);
                 $this->callbackAPIFailed();
             }
             
             
         }
     }
-
+    
+    function insertCallbackFailure($booking_id){
+        $insertCallbackFailure = array();
+        $insertCallbackFailure['booking_id'] = $booking_id;
+        $insertCallbackFailure['api_status'] = 0;
+        $insertCallbackFailure['api_call_count'] = 1;
+        $this->My_CI->partner_model->insert_callback_api_booking_details($insertCallbackFailure);
+    }
+    
+    function updateCallbackFailure($booking_id){
+        $data = array("api_status" => 0);
+        $where = array("booking_id" => $booking_id);
+        $this->My_CI->partner_model->update_callback_api_count($data, $where);
+    }
+    
+    function updateCallbackSuccess($booking_id){
+        $data = array("api_status" => 1);
+        $where = array("booking_id" => $booking_id);
+        $this->My_CI->partner_model->update_callback_api_count($data, $where);
+    }
 }
