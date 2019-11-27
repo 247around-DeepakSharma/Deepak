@@ -2266,7 +2266,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                         $("#response_err").html("Process is successful").css({"color": "green"});
                         $("#new_booking_id").val("");
                     }else if(response=='fail_close'){
-                        $("#response_err").html("Process is failed. Booking already closed.").css({"color": "red"});
+                        $("#response_err").html("Process is failed. Booking already closed or booking is of different partner or have different service center").css({"color": "red"});
                     }else{
                         
                         $("#response_err").html("Process is failed").css({"color": "red"});
