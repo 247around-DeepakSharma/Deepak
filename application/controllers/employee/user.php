@@ -434,15 +434,15 @@ class User extends CI_Controller {
         
         $currentState=$this->employee_model->get_rm_mapped_state($data["rm_asm"]);
         $statusFlg = true;
-        if(!empty($currentState)){
-           
-            $reqState = array();
-           foreach ($data["state_name"] as $key => $value){
-              // $selState[]=array($value);  
-               array_push($reqState, $value);
-            }
+        $reqState = array();
+        $selState1 = array();
+        foreach ($data["state_name"] as $key => $value){
+            // $selState[]=array($value);  
+             array_push($reqState, $value);
+          }
 
-            $selState1 = array();
+        if(!empty($currentState)){
+             
            foreach ($currentState as $key => $value){
                
                array_push($selState1, $value['state']);            
@@ -461,7 +461,13 @@ class User extends CI_Controller {
         }
       //  exit();
       if( $statusFlg) {
-        foreach ($data["state_name"] as $key => $value){
+        $diffState =array();
+        if($isRM) {
+        $diffState =array_diff($reqState, $selState1);
+        } else {
+            $diffState = $reqState;
+        }
+        foreach ($diffState as $key => $value){
             $this->remove_rm_map_for_state($value, false);       
         }
      
@@ -482,7 +488,7 @@ class User extends CI_Controller {
     }
     else
     {
-        $data["msg"]="Error! Please remove mapping of states from ASM for the states";
+        $data["msg"]="Error! Please remove mapping of state(s) from ASM.";
         $data['employee_rm'] = $this->employee_model->get_rm_details();
         $data['state'] = $this->employee_model->get_states();
         $data['error'] = $this->session->flashdata('error');
