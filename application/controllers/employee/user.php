@@ -487,7 +487,7 @@ class User extends CI_Controller {
         $data['state'] = $this->employee_model->get_states();
         $data['error'] = $this->session->flashdata('error');
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/rm_state_mapping/'.$data["rm_asm"], $data);
+        $this->load->view('employee/rm_state_mapping', $data);
     }
         
     }
