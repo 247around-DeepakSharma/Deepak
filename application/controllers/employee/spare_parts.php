@@ -1462,7 +1462,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 . ', spare_parts_details.service_center_id, spare_parts_details.model_number, spare_parts_details.serial_number,'
                 . ' spare_parts_details.date_of_purchase, spare_parts_details.invoice_gst_rate, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.invoice_pic,'
                 . ' spare_parts_details.defective_parts_pic, spare_parts_details.defective_back_parts_pic, spare_parts_details.serial_number_pic, spare_parts_details.requested_inventory_id, spare_parts_details.is_micro_wh,'
-                . 'spare_parts_details.part_warranty_status,booking_details.partner_id as booking_partner_id,booking_details.service_id';
+                . 'spare_parts_details.part_warranty_status,booking_details.partner_id as booking_partner_id,booking_details.service_id,booking_details.assigned_vendor_id';
 
                 $b_select = "*";
                 $new_booking =  $this->input->post('new_booking_id');
@@ -1481,6 +1481,11 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         if (!empty($spare_parts_id)) {
 
             $spare_parts_list = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_parts_id), true, false);
+
+                if (($spare_parts_list[0]['booking_partner_id']!=$response_booking[0]['partner_id']) || ($spare_parts_list[0]['assigned_vendor_id']!=$response_booking[0]['assigned_vendor_id'])) {
+                        echo 'fail_close';
+                        exit;
+                }
 
             if (!empty($spare_parts_list)) {
                 $new_booking_id = $this->input->post('new_booking_id');
