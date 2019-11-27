@@ -1609,3 +1609,6 @@ COMMIT;
 
 --Ankit 15-11-2019
 ALTER TABLE spare_consumption_status ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1 AFTER update_date;
+
+--Kalyani 27-11-2019
+INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Software', 'software');

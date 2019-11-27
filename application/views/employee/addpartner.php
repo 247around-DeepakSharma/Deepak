@@ -1512,7 +1512,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="Services">Select Document Type*</label>
-                                    <select class="form-control" id="l_c_doc_type" name="l_c_doc_type" disabled="">
+                                    <select class="form-control" id="l_c_doc_type" name="l_c_doc_type" disabled="" onchange="document_type_changed()">
                                     </select>
                                 </div>
                                 <div class="form-group">
