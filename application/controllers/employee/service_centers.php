@@ -864,6 +864,7 @@ class Service_centers extends CI_Controller {
         $model_number = $this->input->post('model_number');
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('appliance_id');
+        $brand = $this->input->post('brand');
         $array = array();
         if (!empty($model_number)) {
             foreach ($model_number as $unit_id => $value) {
@@ -872,7 +873,7 @@ class Service_centers extends CI_Controller {
                     $unit = $this->booking_model->get_unit_details(array('id' => $unit_id), false, 'appliance_capacity, vendor_basic_percentage, customer_total, partner_paid_basic_charges,'
                             . ' appliance_brand, price_tags, around_net_payable, appliance_category, customer_net_payable, partner_net_payable');
                     $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $value,
-                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
+                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1, 'partner_appliance_details.brand' => $brand));
                     $sc_change = false;
                     if (($unit[0]['appliance_category'] == $model_details[0]['category']) && ($unit[0]['appliance_capacity'] == $model_details[0]['capacity'])) {
                         $sc_change = false;
