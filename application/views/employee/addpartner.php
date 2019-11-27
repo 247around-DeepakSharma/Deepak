@@ -1522,7 +1522,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="Services">Select Document Type*</label>
-                                    <select class="form-control" id="l_c_doc_type" name="l_c_doc_type" disabled="">
+                                    <select class="form-control" id="l_c_doc_type" name="l_c_doc_type" disabled="" onchange="document_type_changed()">
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -5778,5 +5778,15 @@
             
         }
 
+    }
+    
+    function document_type_changed(){
+        var d_type = $("#l_c_doc_type").val();
+        if(d_type === "software"){
+            $("#l_c_file").attr("disabled", true);
+        }
+        else{
+            $("#l_c_file").attr("disabled", false);
+        }
     }
 </script>
