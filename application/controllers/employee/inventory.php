@@ -4780,28 +4780,32 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return :$res JSON
      */
-    function send_defective_parts_to_partner_from_wh() { 
+    function send_defective_parts_to_partner_from_wh() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
         $this->check_WH_UserSession();
-        
-        $sender_entity_id = $this->input->post('sender_entity_id');
-        $sender_entity_type = $this->input->post('sender_entity_type');
-        $awb_by_wh = $this->input->post('awb_by_wh');
-        $courier_name_by_wh = $this->input->post('courier_name_by_wh');
-        $courier_price_by_wh = $this->input->post('courier_price_by_wh');
-        $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
-        $postData = json_decode($this->input->post('data'));
-        //$wh_name = $this->input->post('wh_name');
-        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
-            $exist_courier_image = $this->input->post("exist_courier_image");
-            if (!empty($exist_courier_image)) {
-                $courier_file['status'] = true;
-                $courier_file['message'] = $exist_courier_image;
-            } else {
-                $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
-            }
+        $is_r = $this->is_reverse_purchase_invoice_generated();
+        if (!empty($is_r)) {
+            $res['status'] = false;
+            $res['message'] = 'Reverse Invoice already generated for the booking id: ' . $is_r;
+        } else {
+            $sender_entity_id = $this->input->post('sender_entity_id');
+            $sender_entity_type = $this->input->post('sender_entity_type');
+            $awb_by_wh = $this->input->post('awb_by_wh');
+            $courier_name_by_wh = $this->input->post('courier_name_by_wh');
+            $courier_price_by_wh = $this->input->post('courier_price_by_wh');
+            $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
+            $postData = json_decode($this->input->post('data'));
+            //$wh_name = $this->input->post('wh_name');
+            if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
+                $exist_courier_image = $this->input->post("exist_courier_image");
+                if (!empty($exist_courier_image)) {
+                    $courier_file['status'] = true;
+                    $courier_file['message'] = $exist_courier_image;
+                } else {
+                    $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+                }
 
-            if ($courier_file['status']) {
+                if ($courier_file['status']) {
                     $courier_details['sender_entity_id'] = $sender_entity_id;
                     $courier_details['sender_entity_type'] = $sender_entity_type;
                     $courier_details['receiver_entity_id'] = $this->input->post('receiver_partner_id');
@@ -4816,20 +4820,20 @@ class Inventory extends CI_Controller {
                     $courier_details['status'] = COURIER_DETAILS_STATUS;
                     $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
 
-                    if (!empty($insert_courier_details)) { 
+                    if (!empty($insert_courier_details)) {
                         log_message('info', 'Courier Details added successfully.');
 
                         $eway_details = array();
                         $eway_file = $this->upload_defective_parts_shipped_eway_file($_FILES);
-                        if($eway_file['status']){
+                        if ($eway_file['status']) {
                             $eway_details['ewaybill_file'] = $eway_file['message'];
                         }
                         $eway_details['courier_details_id'] = $insert_courier_details;
                         $eway_details['ewaybill_no'] = $this->input->post("eway_bill_by_wh");
                         $eway_details['vehicle_number'] = $this->input->post("eway_vehicle_number");
-                        
+
                         $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $insert_courier_details);
-                        if(!empty($invoice['invoice'][0])){
+                        if (!empty($invoice['invoice'][0])) {
                             $eway_details['invoice_id'] = $invoice['invoice'][0];
                         }
                         $this->inventory_model->insert_ewaybill_details($eway_details);
@@ -4859,7 +4863,6 @@ class Inventory extends CI_Controller {
                                 $res['message'] = "These Bookings not updated " . implode(',', $invoice['not_update_booking_id']) .
                                         " Please Contact to 247Around.";
                             }
-
                         } else {
                             $res['status'] = false;
                             $res['message'] = "There is an issue in the invoice generation";
@@ -4869,16 +4872,35 @@ class Inventory extends CI_Controller {
                         $res['status'] = false;
                         $res['message'] = "Courier Details is not inserted";
                     }
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = $courier_file['message'];
+                }
             } else {
                 $res['status'] = false;
-                $res['message'] = $courier_file['message'];
+                $res['message'] = 'All fields are required';
             }
-        } else {
-            $res['status'] = false;
-            $res['message'] = 'All fields are required';
         }
 
         echo json_encode($res);
+    }
+
+    /**
+     * @desc This function is used to check 
+     * @return String
+     */
+    function is_reverse_purchase_invoice_generated(){
+        $postData1 = json_decode($this->input->post('data'), true);
+        $booking_id = "";
+        foreach ($postData1 as $value) {
+            $spareData = $this->partner_model->get_spare_parts_by_any("reverse_purchase_invoice_id",array('id' => $value['spare_id']));
+            if(!empty($spareData) && !empty($spareData[0]['reverse_purchase_invoice_id'])){
+                 $booking_id = $value['booking_id'];
+                break;
+            } 
+        }
+        
+        return $booking_id;
     }
     
      /**
@@ -4889,7 +4911,6 @@ class Inventory extends CI_Controller {
      function send_defective_to_partner_from_wh_on_challan() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
         $this->check_WH_UserSession();
-        $postData = json_decode($this->input->post('data'), true);
         $awb_by_wh = $this->input->post('awb_by_wh');
         $courier_name_by_wh = $this->input->post('courier_name_by_wh');
         $courier_price_by_wh = $this->input->post('courier_price_by_wh');
