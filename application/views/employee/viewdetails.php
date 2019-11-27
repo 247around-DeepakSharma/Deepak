@@ -2262,7 +2262,8 @@ function OpenWindowWithPost(url, windowoption, name, params)
                 method:"POST",
                 data : {spare_parts_id: spare_parts_id, new_booking_id: new_booking_id,status:status},
                 url:'<?php echo base_url(); ?>employee/spare_parts/copy_booking_details_by_spare_parts_id',
-                success: function(response){                  
+                success: function(response){   
+                var response = $.trim(response);               
                     if(response=='success'){
                         $("#response_err").html("Process is successful").css({"color": "green"});
                         $("#new_booking_id").val("");
