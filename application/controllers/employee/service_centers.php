@@ -864,6 +864,7 @@ class Service_centers extends CI_Controller {
         $model_number = $this->input->post('model_number');
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('appliance_id');
+        $brand = $this->input->post('brand');
         $array = array();
         if (!empty($model_number)) {
             foreach ($model_number as $unit_id => $value) {
@@ -872,7 +873,7 @@ class Service_centers extends CI_Controller {
                     $unit = $this->booking_model->get_unit_details(array('id' => $unit_id), false, 'appliance_capacity, vendor_basic_percentage, customer_total, partner_paid_basic_charges,'
                             . ' appliance_brand, price_tags, around_net_payable, appliance_category, customer_net_payable, partner_net_payable');
                     $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $value,
-                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
+                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1, 'partner_appliance_details.brand' => $brand));
                     $sc_change = false;
                     if (($unit[0]['appliance_category'] == $model_details[0]['category']) && ($unit[0]['appliance_capacity'] == $model_details[0]['capacity'])) {
                         $sc_change = false;
@@ -6740,7 +6741,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','".DEFECTIVE_PARTS_RECEIVED."') ";
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','".DEFECTIVE_PARTS_RECEIVED."') AND spare_parts_details.consumed_part_status_id <> 5 ";
             $where .= " AND booking_details.partner_id = " . $partner_id;
             
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
@@ -8398,6 +8399,30 @@ class Service_centers extends CI_Controller {
         foreach ($vendor_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
             if (count($partner_list) == 1) {
+                $option .= " selected> ";
+            } else {
+                $option .= "> ";
+            }
+
+            $option .= $value['name'] . "</option>";
+        }
+        echo $option;
+    }
+    
+     /*
+     * It's function used to get partner wise SF list
+     * @echo option
+     */
+    
+    function get_partners_wise_sf_list() {
+
+        $partner_id = $this->input->post('partner_id');
+        $vendor_list = $this->inventory_model->get_micro_wh_lists_by_partner_id("service_centres.id, service_centres.name, service_centres.company_name", array('micro_wh_mp.partner_id' => $partner_id));
+
+        $option = '<option selected="" disabled="">Select Service Centres</option>';
+        foreach ($vendor_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            if (count($vendor_list) == 1) {
                 $option .= " selected> ";
             } else {
                 $option .= "> ";

@@ -1464,13 +1464,34 @@ class Spare_parts extends CI_Controller {
                 . ', spare_parts_details.service_center_id, spare_parts_details.model_number, spare_parts_details.serial_number,'
                 . ' spare_parts_details.date_of_purchase, spare_parts_details.invoice_gst_rate, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.invoice_pic,'
                 . ' spare_parts_details.defective_parts_pic, spare_parts_details.defective_back_parts_pic, spare_parts_details.serial_number_pic, spare_parts_details.requested_inventory_id, spare_parts_details.is_micro_wh,'
-                . 'spare_parts_details.part_warranty_status,booking_details.partner_id as booking_partner_id,booking_details.service_id';
+                . 'spare_parts_details.part_warranty_status,booking_details.partner_id as booking_partner_id,booking_details.service_id,booking_details.assigned_vendor_id';
+
+                $b_select = "*";
+                $new_booking =  $this->input->post('new_booking_id');
+                $b_where = array('booking_id'=>$new_booking);
+                $response_booking = $this->booking_model->get_booking_details($b_select,$b_where);
+                
+                if (!empty($response_booking)) {
+                    if (!empty($response_booking[0]['service_center_closed_date'])) {
+                         //print_r($response_booking);  exit;
+                        echo 'fail_close';
+                        exit;
+                    }
+
+                }
 
         if (!empty($spare_parts_id)) {
 
             $spare_parts_list = $this->partner_model->get_spare_parts_by_any($select, array('spare_parts_details.id' => $spare_parts_id), true, false);
 
+                if (($spare_parts_list[0]['booking_partner_id']!=$response_booking[0]['partner_id']) || ($spare_parts_list[0]['assigned_vendor_id']!=$response_booking[0]['assigned_vendor_id'])) {
+                        echo 'fail_close';
+                        exit;
+                }
+
             if (!empty($spare_parts_list)) {
+                $new_booking_id = $this->input->post('new_booking_id');
+
                 $spare_parts_list[0]['date_of_request'] = date('Y-m-d');
                 $spare_parts_list[0]['booking_id'] = $this->input->post('new_booking_id');
                 $booking_id = $this->input->post('new_booking_id');
@@ -1582,7 +1603,7 @@ class Spare_parts extends CI_Controller {
                     }
                     $this->miscelleneous->send_spare_requested_sms_to_customer($spare_parts_list[0]['parts_requested'], $this->input->post('new_booking_id'), SPARE_REQUESTED_CUSTOMER_SMS_TAG);
 
-                    $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUESTED, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, $partner_id, NULL);
+                    $this->notify->insert_state_change($booking_id, SPARE_PARTS_REQUESTED, "", $reason, $this->session->userdata('id'), $this->session->userdata('emp_name'), $actor, $next_action, _247AROUND_DEFAULT_AGENT, NULL);
 
 		  
                     

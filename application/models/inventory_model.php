@@ -2979,4 +2979,129 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
+    /*
+     *  @desc : This function is used to get service centers consumption list
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    function get_service_centers_consumption_list($post, $select = "") {
+        $this->_get_service_centers_consumption_list($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+
+        $query = $this->db->get();
+                
+        return $query->result();
+    }
+
+    /**
+     * @Desc: This function is used to get data from the alternate inventory_master_list table
+     * @params: $post array
+     * @params: $select string
+     * @return: void
+     * 
+     */
+    function _get_service_centers_consumption_list($post,$select){
+        
+        if (empty($select)) {
+            $select = '*';
+        }
+        
+        $this->db->distinct();
+        $this->db->select($select,FALSE);
+        $this->db->from('vendor_partner_invoices as v');
+        $this->db->join('invoice_details as i', 'i.invoice_id = v.invoice_id');
+        $this->db->join('inventory_master_list as im', 'im.inventory_id = i.inventory_id');
+        $this->db->join('service_centres as sc', 'v.vendor_partner_id = sc.id','left');
+        $this->db->join('partners', 'im.entity_id = partners.id','left');
+        $this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = i.from_gst_number','left');
+        $this->db->join('entity_gst_details', 'entity_gst_details.id = i.to_gst_number','left');
+        
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('v.id','ASC');
+        }
+        
+        if(!empty($post['group_by'])){
+            $this->db->group_by($post['group_by']);
+        }
+    }
+    
+    
+     /**
+     *  @desc : This function is used to get total service centers consumption
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_service_centers_consumption_list($post) {
+        $this->_get_service_centers_consumption_list($post, 'count(distinct(v.id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    
+    /**
+     *  @desc : This function is used to get total filtered service centers consumption
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_filtered_service_centers_consumption_list($post){
+        $this->_get_service_centers_consumption_list($post, 'count(distinct(v.id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    
+    
+    /*
+     * @desc: This function is used to Service Centers Consumption Data
+     * @params: $select
+     * @params: Array $where
+     * @return: Json
+     */
+   
+    function get_service_centers_consumption_data($select, $where, $group_by = '') {
+        $this->db->select($select, false);
+        $this->db->from('vendor_partner_invoices as v');
+        $this->db->join('invoice_details as i', 'i.invoice_id = v.invoice_id');
+        $this->db->join('inventory_master_list as im', 'im.inventory_id = i.inventory_id');
+        $this->db->join('service_centres as sc', 'v.vendor_partner_id = sc.id','left');
+        $this->db->join('partners', 'im.entity_id = partners.id','left');
+        $this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = i.from_gst_number','left');
+        $this->db->join('entity_gst_details', 'entity_gst_details.id = i.to_gst_number','left');
+        
+        if (!empty($where)) {
+            $this->db->where($where, false);
+        }
+
+        if (!empty($group_by)) {
+            $this->db->group_by($group_by, false);
+        }
+        $query = $this->db->get();
+
+        return $query;
+    }
+    
 }

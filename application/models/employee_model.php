@@ -280,6 +280,21 @@ class Employee_model extends CI_Model{
    }
 
     /**
+   * @desc : This funtion  checks employee is Manager
+   * @param : employee id
+   * @return : array(employee managerial detail)
+   */
+
+
+  function isRManager($empId){
+    $this->db->where('manager_id',$empId);
+   $query = $this->db->get('employee_hierarchy_mapping');
+   return $query->result_array();
+}
+
+ 
+ 
+   /**
     * @Desc: This function is used to get roles
     * @params: void
     * @return: Array
@@ -361,7 +376,8 @@ class Employee_model extends CI_Model{
                  $emp_rel["create_date"] = date('Y-m-d H:i:s');
                 $this->insertEmployeeRelation($emp_rel);
             }
-        }       
+        }
+
    }
    /**
     * @Desc: This function is used to get assigned states 
