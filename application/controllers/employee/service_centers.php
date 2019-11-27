@@ -8285,5 +8285,29 @@ function do_multiple_spare_shipping(){
         }
         echo $option;
     }
+    
+     /*
+     * It's function used to get partner wise SF list
+     * @echo option
+     */
+    
+    function get_partners_wise_sf_list() {
+
+        $partner_id = $this->input->post('partner_id');
+        $vendor_list = $this->inventory_model->get_micro_wh_lists_by_partner_id("service_centres.id, service_centres.name, service_centres.company_name", array('micro_wh_mp.partner_id' => $partner_id));
+
+        $option = '<option selected="" disabled="">Select Service Centres</option>';
+        foreach ($vendor_list as $value) {
+            $option .= "<option value='" . $value['id'] . "'";
+            if (count($vendor_list) == 1) {
+                $option .= " selected> ";
+            } else {
+                $option .= "> ";
+            }
+
+            $option .= $value['name'] . "</option>";
+        }
+        echo $option;
+    }
 
 }
