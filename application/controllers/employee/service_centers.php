@@ -864,6 +864,7 @@ class Service_centers extends CI_Controller {
         $model_number = $this->input->post('model_number');
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('appliance_id');
+        $brand = $this->input->post('brand');
         $array = array();
         if (!empty($model_number)) {
             foreach ($model_number as $unit_id => $value) {
@@ -872,7 +873,7 @@ class Service_centers extends CI_Controller {
                     $unit = $this->booking_model->get_unit_details(array('id' => $unit_id), false, 'appliance_capacity, vendor_basic_percentage, customer_total, partner_paid_basic_charges,'
                             . ' appliance_brand, price_tags, around_net_payable, appliance_category, customer_net_payable, partner_net_payable');
                     $model_details = $this->partner_model->get_model_number('category, capacity', array('appliance_model_details.model_number' => $value,
-                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1));
+                        'appliance_model_details.entity_id' => $partner_id, 'appliance_model_details.active' => 1, 'partner_appliance_details.active' => 1, 'partner_appliance_details.brand' => $brand));
                     $sc_change = false;
                     if (($unit[0]['appliance_category'] == $model_details[0]['category']) && ($unit[0]['appliance_capacity'] == $model_details[0]['capacity'])) {
                         $sc_change = false;
@@ -1907,6 +1908,7 @@ class Service_centers extends CI_Controller {
                 $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                 if ($data['bookinghistory'][0]['nrn_approved']==1) {
                 $data['spare_flag'] = SPARE_PART_RADIO_BUTTON_NOT_REQUIRED;
+                $data['nrn_flag'] = 1;
                 }
                 
                 $this->load->view('service_centers/header');
@@ -6739,7 +6741,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','".DEFECTIVE_PARTS_RECEIVED."') ";
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','".DEFECTIVE_PARTS_RECEIVED."') AND spare_parts_details.consumed_part_status_id <> 5 ";
             $where .= " AND booking_details.partner_id = " . $partner_id;
             
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
@@ -8034,9 +8036,9 @@ class Service_centers extends CI_Controller {
         $from = trim($this->input->post('frombooking'));
         $to = trim($this->input->post('tobooking'));
         if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
-            $from_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' =>SPARE_DELIVERED_TO_SF));
+            $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' =>SPARE_DELIVERED_TO_SF));
             $frominventory_req_id = $from_details[0]['requested_inventory_id'];
-            $to_details = $this->partner_model->get_spare_parts_by_any("*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
+            $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
             $toinventory_req_id = $to_details[0]['requested_inventory_id'];
             if (empty($from_details) || empty($to_details)) {
                 $this->session->set_flashdata('error_msg', "Spare transfer for this  is not allowed");

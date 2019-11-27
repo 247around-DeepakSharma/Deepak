@@ -699,7 +699,15 @@
                                             ?>
                                         </td>
                                         <td style=" word-break: break-all;"><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
-                                        <td><?php echo date("d-m-Y", strtotime($sp['acknowledge_date'])); ?></td>
+
+                                        <?php if (!empty($sp['acknowledge_date'])) { ?>
+                                           <td><?php echo date("d-m-Y", strtotime($sp['acknowledge_date'])); ?></td>  
+                                        <?php }else{ ?>
+
+                                           <td> - </td> 
+                                        <?php } ?>
+                                        
+
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
                                         <td><?php echo $sp['part_cancel_reason'];?></td>
@@ -2252,11 +2260,15 @@ function OpenWindowWithPost(url, windowoption, name, params)
                 method:"POST",
                 data : {spare_parts_id: spare_parts_id, new_booking_id: new_booking_id,status:status},
                 url:'<?php echo base_url(); ?>employee/spare_parts/copy_booking_details_by_spare_parts_id',
-                success: function(response){                  
+                success: function(response){   
+                var response = $.trim(response);               
                     if(response=='success'){
                         $("#response_err").html("Process is successful").css({"color": "green"});
                         $("#new_booking_id").val("");
+                    }else if(response=='fail_close'){
+                        $("#response_err").html("Process is failed. Booking already closed.").css({"color": "red"});
                     }else{
+                        
                         $("#response_err").html("Process is failed").css({"color": "red"});
                     }                    
                 }

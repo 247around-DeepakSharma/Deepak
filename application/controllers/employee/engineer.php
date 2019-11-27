@@ -237,7 +237,7 @@ class Engineer extends CI_Controller {
         $data = array();
         $no = $post['start'];
         
-        $list =  $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, engineer_details.create_date, service_centres.name as company_name", $post);
+        $list =  $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, engineer_details.create_date, service_centres.name as company_name, service_centres.state, service_centres.district", $post);
         //echo $this->db->last_query(); die();
         foreach ($list as $key => $value) {
            $service_id  = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$value->id, "is_active"=>1), "service_id");
@@ -285,6 +285,8 @@ class Engineer extends CI_Controller {
         $row[] = $no;
         if(!$this->input->post("service_center_id")){
             $row[] = $engineer_list->company_name;
+            $row[] = $engineer_list->state;
+            $row[] = $engineer_list->district;
         }
         $row[] = "<a href='".base_url()."employee/vendor/get_edit_engineer_form/".$engineer_list->id."'>".$engineer_list->name."</a>"; 
         $row[] = $engineer_list->appliance_name;

@@ -23,7 +23,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     #dealer_list li:hover{background:#e9ebee;cursor: pointer;}
     
      <?php if(!empty($str_disabled)) { ?> 
-    .appliance_brand, .appliance_category, .appliance_capacity, #purchase_date, #model_number_1, .price_checkbox{
+    .appliance_brand, .appliance_category, .appliance_capacity, #purchase_date, #model_number_1, .price_checkbox, #service_name, #partner_source{
         pointer-events : none !important;
         background : #eee !important;
     }    
@@ -619,9 +619,9 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
         $("#appliance_brand_1").select2();
         $("#appliance_capacity_1").select2();
         $("#appliance_category_1").select2();
-    <?php } ?> 
+        $("#partner_source").select2();
+    <?php } ?>     
     
-    $("#partner_source").select2();
     var today = new Date();
     
     var startDate = today.getHours() >=12 ? today.add(1).day() : today;

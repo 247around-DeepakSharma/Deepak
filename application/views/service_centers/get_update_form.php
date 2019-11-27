@@ -96,27 +96,27 @@
                             <hr/>
                             <?php if($bookinghistory[0]['is_upcountry'] == 1 ){ ?>
                             <div class="radio ">
-                                <label>
+                                <label class="<?php if(!empty($nrn_flag) && $nrn_flag==1){ echo "hide"; } ?>">
                                 <input type="radio" id="reschedule_for_upcountry" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo RESCHEDULE_FOR_UPCOUNTRY; ?>" >
                                 <?php echo RESCHEDULE_FOR_UPCOUNTRY. "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Reschedule"; ?>
                                 </label>
                             </div>
                             <?php }?>
                             <div class="radio ">
-                                <label>
+                                <label class="<?php if(!empty($nrn_flag) && $nrn_flag==1){ echo "hide"; } ?>" >
                                 <input type="radio" id="rescheduled" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo CUSTOMER_ASK_TO_RESCHEDULE; ?>" >
                                 <?php echo CUSTOMER_ASK_TO_RESCHEDULE. "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Reschedule"; ?>
                                 </label>
                             </div>
                             <div class="radio ">
-                                <label>
+                                <label class="<?php if(!empty($nrn_flag) && $nrn_flag==1){ echo "hide"; } ?>">
                                 <input type="radio" id="product_not_delivered" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>" >
                                 <?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER . " - Reschedule"; ?>
                                 </label>
                             </div>
                             <?php if(!empty($spare_shipped_flag)){ ?>
                             <div class="radio ">
-                                <label>
+                                <label class="<?php if(!empty($nrn_flag) && $nrn_flag==1){ echo "hide"; } ?>">
                                 <input type="radio" id="spare_not_delivered" onclick="internal_status_check(this.id)" name="reason" class="internal_status" value="<?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF; ?>" >
                                 <?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF. "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Reschedule"; ?>
                                 </label>
@@ -137,7 +137,7 @@
                                             <select class="form-control spare_parts" id="model_number_id" name="model_number_id"  onchange="check_booking_request()">
                                                 <option value="" disabled="" selected="">Select Model Number <?php  //echo $unit_model_number; ?></option>
                                                 <?php foreach ($inventory_details as $key => $value) { ?> 
-                                                <option value="<?php echo $value['id']; ?>"   <?php if($unit_model_number==$value['model_number']){ $is_modal_number = true; echo 'selected';} ?>   ><?php echo $value['model_number']; ?></option>
+                                                <option value="<?php echo $value['id']; ?>"   <?php if(trim(strtoupper($unit_model_number))==trim(strtoupper($value['model_number']))){ $is_modal_number = true; echo 'selected';} ?>   ><?php echo $value['model_number']; ?></option>
                                                 <?php } ?>
                                             </select>
                                             
@@ -646,7 +646,7 @@ function alpha(e) {
                         $('#model_number_id').select2();
                         var model_number = "<?php echo $unit_model_number; ?>";
                         $('#model_number_id option').map(function() {
-                        if ($(this).text() == model_number){
+                        if ($.trim(($(this).text()).toUpperCase()) == $.trim(model_number.toUpperCase())){
                             var model_no = $(this).val();
                             $("#model_number_id").val(model_no).change();
                         }                            

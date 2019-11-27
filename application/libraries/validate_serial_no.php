@@ -294,14 +294,12 @@ class Validate_serial_no {
             $msg = "";
             $isDuplicate = false;
             foreach ($data as $key =>$value) {
-               
+               $booking_details = $this->MY_CI->booking_model->get_bookings_count_by_any('user_id', array('booking_id' => $value['booking_id']));
                if($value['booking_status'] == _247AROUND_COMPLETED){
 
                     $d = date_diff(date_create($value['ud_closed_date']), date_create('today')); 
-                    if($d->days < BOOKING_WARRANTY_DAYS){
-                      
-                        $booking_details = $this->MY_CI->booking_model->get_bookings_count_by_any('user_id', array('booking_id' => $value['booking_id']));
-                      
+                    if($d->days < BOOKING_WARRANTY_DAYS){                      
+                        
                         if($booking_details[0]['user_id'] == $user_id){
                         
                             if($price_tags == $value['price_tags']){
@@ -317,9 +315,18 @@ class Validate_serial_no {
                         }
                     }
                } else {
-                   $msg = " You already used in Booking ID - ".$value['booking_id'];
-                   $isDuplicate = TRUE;
-                   break;
+                   if($booking_details[0]['user_id'] == $user_id){                        
+                        if($price_tags == $value['price_tags']){
+
+                            $msg = " You already used in Booking ID - ".$value['booking_id'];
+                            $isDuplicate = TRUE;
+                            break;
+                        }
+                    } else {
+                        $msg = " You already used in Booking ID - ".$value['booking_id'];
+                        $isDuplicate = TRUE;
+                        break;
+                    }
                }
             }
             if($isDuplicate){
