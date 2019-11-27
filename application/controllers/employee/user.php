@@ -418,6 +418,7 @@ class User extends CI_Controller {
      * @Desc: This function is used to process rm state mapping form
      * @parmas: POST Array
      * @return: void
+     * @assumption funtion to be called by employee where group is regionalmanager
      * @Developer: Pranjal
      * @Date: 8/22/2019
      */
@@ -425,17 +426,22 @@ class User extends CI_Controller {
         $data = $this->input->post();
 //        print_r($data);
 //        exit;
-         $res=$this->employee_model->chk_entry_in_employee_relation($data["rm_asm"]);
-         
-        $currentState=$this->employee_model->get_rm_mapped_state($data["rm_asm"]);
+        
+        $res=$this->employee_model->chk_entry_in_employee_relation($data["rm_asm"]);
+        
+        $isRM = count($this->employee_model->isRManager($data["rm_asm"])) > 0 ? true : false;
 
+        
+        $currentState=$this->employee_model->get_rm_mapped_state($data["rm_asm"]);
+        $statusFlg = true;
         if(!empty($currentState)){
            
-            $selState = array();
+            $reqState = array();
            foreach ($data["state_name"] as $key => $value){
               // $selState[]=array($value);  
-               array_push($selState, $value);
+               array_push($reqState, $value);
             }
+
             $selState1 = array();
            foreach ($currentState as $key => $value){
                
@@ -443,23 +449,20 @@ class User extends CI_Controller {
             }
 
              $diffState =array();
-           $diffState =array_diff($selState1,$selState);
+           $diffState =array_diff($selState1,$reqState);
 //          // print_r($selState);
            if(!empty($diffState)){
                 foreach ($diffState as $key => $value){
-                    //pick all info for state in employee_relation
-                         
-                    $this->remove_rm_map_for_state($value);
-
-
-
+                    //pick all info for state in employee_relation                         
+                    $statusFlg = $this->remove_rm_map_for_state($value, $isRM);
                 }
            }
            
         }
       //  exit();
+      if( $statusFlg) {
         foreach ($data["state_name"] as $key => $value){
-            $this->remove_rm_map_for_state($value);       
+            $this->remove_rm_map_for_state($value, false);       
         }
      
         foreach ($data["state_name"] as $key => $value){
@@ -476,26 +479,41 @@ class User extends CI_Controller {
         $data['error'] = $this->session->flashdata('error');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/rm_state_mapping', $data);
+    }
+    else
+    {
+        $data["msg"]="Error! Please remove mapping of states from ASM for the states";
+        $data['employee_rm'] = $this->employee_model->get_rm_details();
+        $data['state'] = $this->employee_model->get_states();
+        $data['error'] = $this->session->flashdata('error');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/rm_state_mapping/'.$data["rm_asm"], $data);
+    }
         
     }
 
 
     // value is state name
-    function remove_rm_map_for_state($value)
+    function remove_rm_map_for_state($value, $isRM)
     {
         $employee_rel =   $this->employee_model->pick_all_rm_state_map($value);
         // pick service center for state
-        $service_center = $this->reporting_utils->find_all_service_centers_by_state($value);
-        foreach ($employee_rel as $key => $emp_rel){
-            
-            $ser_center = explode( "," , $service_center[0]["service_center_id"]);
+        if(count($employee_rel) > 1 && $isRM) {
+            return false;
+        } else {
+            $service_center = $this->reporting_utils->find_all_service_centers_by_state($value);
+            foreach ($employee_rel as $key => $emp_rel){
+                
+                $ser_center = explode( "," , $service_center[0]["service_center_id"]);
 
-            $str1=implode(",", array_diff(explode(",",  $emp_rel["service_centres_id"]), $ser_center));
-            $str2=implode(",", array_diff( explode(",",  $emp_rel["individual_service_centres_id"]), $ser_center));
-            $str3=implode(",", array_diff(explode(",",  $emp_rel["state_code"]), array($service_center[0]["state_id"])));
-            $this->employee_model->update_rm_relation_details($emp_rel["agent_id"],$str1,$str2,$str3);
-            
-        }  
+                $str1=implode(",", array_diff(explode(",",  $emp_rel["service_centres_id"]), $ser_center));
+                $str2=implode(",", array_diff( explode(",",  $emp_rel["individual_service_centres_id"]), $ser_center));
+                $str3=implode(",", array_diff(explode(",",  $emp_rel["state_code"]), array($service_center[0]["state_id"])));
+                $this->employee_model->update_rm_relation_details($emp_rel["agent_id"],$str1,$str2,$str3);
+                
+            }  
+            return true;
+        }
     }
 
     /**
