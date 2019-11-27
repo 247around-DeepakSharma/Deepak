@@ -3861,7 +3861,7 @@ class Invoice extends CI_Controller {
             
             $margin = $this->inventory_model->get_oow_margin($inventory_id, $where_cond);
                
-            $repair_around_oow_percentage = $margin['oow_vendor_margin']/100;
+            $repair_around_oow_percentage = $margin['oow_around_margin']/100;
             
             $data = array();
             $data[0]['description'] = ucwords($sp_data[0]->parts_requested) . " (" . $sp_data[0]->booking_id . ") ";
