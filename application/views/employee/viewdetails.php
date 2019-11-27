@@ -653,7 +653,7 @@
                                         <th>Move To Vendor</th>
                                         <th>Move To Partner</th>
                                         <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
-                                        <th>Copy Booking Id</th>
+                                        <!-- <th>Copy Booking Id</th> -->
                                         <?php  } ?>
                                     </tr>
                                 </thead>
@@ -744,7 +744,7 @@
                                          <?php } } ?>
                                        
                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ( $sp['part_warranty_status'] == 2 )){ } else{ ?>
-                                        <td><button type="button" class="copy_booking_id  btn btn-info" data-toggle="modal" id="<?php echo $sp['booking_id']."_".$sp['id']; ?>" data-target="#copy_booking_id">Copy</button>
+                                        <td><button type="button" class="copy_booking_id hide  btn btn-info" data-toggle="modal" id="<?php echo $sp['booking_id']."_".$sp['id']; ?>" data-target="#copy_booking_id">Copy</button>
                                        </td>                                
                                      <?php } ?>
                                    
