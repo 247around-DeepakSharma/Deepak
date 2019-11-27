@@ -110,7 +110,11 @@
              foreach($main_nav['parents'] as $index =>$p_id){
                 $link='';
                 if($main_nav['navData']["id_".$p_id]['link'] !=''){
-                    $link =  base_url().$main_nav['navData']["id_".$p_id]['link'];
+                    if($main_nav['navData']["id_".$p_id]['id'] == '258') {
+                        $link =  $main_nav['navData']["id_".$p_id]['link'];
+                    } else {
+                        $link =  base_url().$main_nav['navData']["id_".$p_id]['link'];
+                    }
                 }
                 if(!array_key_exists("id_".$p_id, $main_nav['navFlow'])){
                     ?>

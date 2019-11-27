@@ -1679,7 +1679,7 @@ EOD;
             $email_body = $this->load->view('employee/partner_report',$emailTemplateDataArray,true);
             $subject = "247around Services Report  - ".$partners['public_name']." - " . date('d-M-Y');
             $this->notify->sendEmail(NOREPLY_EMAIL_ID,"anuj@247around.com,nits@247around.com", "arunk@247around.com,souvikg@247around.com,suresh@247around.com,oza@247around.com",
-                    "chhavid@247around.com", $subject, $email_body,"","partner_summary_report_percentage_format");
+                    "247around_dev@247around.com", $subject, $email_body,"","partner_summary_report_percentage_format");
         }
     }
     

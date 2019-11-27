@@ -17,7 +17,7 @@
 	    <div class="content">
 		<img src="<?php echo base_url(); ?>images/error-img.png" title="error" />
 		<p><?php //echo $message;?></p>
-                <p>Please contact 247Around Team for update.</p>
+                <p>Please contact Backoffice Team for update.</p>
 		<a href="<?php echo base_url(); ?>employee/user">Back To Home</a>
 		<div class="copy-right">
 

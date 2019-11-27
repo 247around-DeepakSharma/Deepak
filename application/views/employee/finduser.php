@@ -149,3 +149,9 @@
 <script type="text/javascript">
     $('#partner').select2();
 </script>
+<style>
+    .select2-selection__rendered
+    {
+        color: #999 !important;
+    }
+</style>

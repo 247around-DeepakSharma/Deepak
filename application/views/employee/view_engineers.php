@@ -43,6 +43,8 @@
             <tr>
           	<th>S.No</th>
                 <th>Service Center Name</th>
+                <th>State</th>
+                <th>City</th>
           	<th>Engineer Name</th>
                 <th>Appliances</th>
           	<th>Mobile</th>

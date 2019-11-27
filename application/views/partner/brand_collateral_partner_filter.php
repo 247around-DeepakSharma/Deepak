@@ -227,7 +227,7 @@
             data: {service_id: service_id,partner_id:partner_id,brand: brand},
             success: function (data) {
                 //First Resetting Options values present if any
-                $('#model').html("<option selected disabled  >Select Model</option>");
+                $('#model').html("<option selected disabled value=''>Select Model</option>");
                 $('#model').append(data);
                // $('#model').trigger("change");
             }
@@ -248,7 +248,7 @@
                     extend: 'excel',
                     text: '<span class="fa fa-file-excel-o"></span> Export',
                     pageSize: 'LEGAL',
-                    title: 'partner_brand_collateral',
+                    title: 'brand_collateral',
                     exportOptions: {
                        columns: [0,1,2,3,4,6,7],
                         modifier : {
