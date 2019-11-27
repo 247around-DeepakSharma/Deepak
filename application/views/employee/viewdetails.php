@@ -653,7 +653,7 @@
                                         <th>Move To Vendor</th>
                                         <th>Move To Partner</th>
                                         <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
-                                        <th>Copy Booking Id</th>
+                                        <!-- <th>Copy Booking Id</th> -->
                                         <?php  } ?>
                                     </tr>
                                 </thead>
@@ -752,7 +752,7 @@
                                          <?php } } ?>
                                        
                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ( $sp['part_warranty_status'] == 2 )){ } else{ ?>
-                                        <td><button type="button" class="copy_booking_id  btn btn-info" data-toggle="modal" id="<?php echo $sp['booking_id']."_".$sp['id']; ?>" data-target="#copy_booking_id">Copy</button>
+                                        <td><button type="button" class="copy_booking_id hide  btn btn-info" data-toggle="modal" id="<?php echo $sp['booking_id']."_".$sp['id']; ?>" data-target="#copy_booking_id">Copy</button>
                                        </td>                                
                                      <?php } ?>
                                    
@@ -2260,11 +2260,15 @@ function OpenWindowWithPost(url, windowoption, name, params)
                 method:"POST",
                 data : {spare_parts_id: spare_parts_id, new_booking_id: new_booking_id,status:status},
                 url:'<?php echo base_url(); ?>employee/spare_parts/copy_booking_details_by_spare_parts_id',
-                success: function(response){                  
+                success: function(response){   
+                var response = $.trim(response);               
                     if(response=='success'){
                         $("#response_err").html("Process is successful").css({"color": "green"});
                         $("#new_booking_id").val("");
+                    }else if(response=='fail_close'){
+                        $("#response_err").html("Process is failed. Booking already closed or booking is of different partner or have different service center").css({"color": "red"});
                     }else{
+                        
                         $("#response_err").html("Process is failed").css({"color": "red"});
                     }                    
                 }

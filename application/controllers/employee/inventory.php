@@ -4781,28 +4781,32 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return :$res JSON
      */
-    function send_defective_parts_to_partner_from_wh() { 
+    function send_defective_parts_to_partner_from_wh() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
         $this->check_WH_UserSession();
-        
-        $sender_entity_id = $this->input->post('sender_entity_id');
-        $sender_entity_type = $this->input->post('sender_entity_type');
-        $awb_by_wh = $this->input->post('awb_by_wh');
-        $courier_name_by_wh = $this->input->post('courier_name_by_wh');
-        $courier_price_by_wh = $this->input->post('courier_price_by_wh');
-        $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
-        $postData = json_decode($this->input->post('data'));
-        //$wh_name = $this->input->post('wh_name');
-        if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
-            $exist_courier_image = $this->input->post("exist_courier_image");
-            if (!empty($exist_courier_image)) {
-                $courier_file['status'] = true;
-                $courier_file['message'] = $exist_courier_image;
-            } else {
-                $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
-            }
+        $is_r = $this->is_reverse_purchase_invoice_generated();
+        if (!empty($is_r)) {
+            $res['status'] = false;
+            $res['message'] = 'Reverse Invoice already generated for the booking id: ' . $is_r;
+        } else {
+            $sender_entity_id = $this->input->post('sender_entity_id');
+            $sender_entity_type = $this->input->post('sender_entity_type');
+            $awb_by_wh = $this->input->post('awb_by_wh');
+            $courier_name_by_wh = $this->input->post('courier_name_by_wh');
+            $courier_price_by_wh = $this->input->post('courier_price_by_wh');
+            $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
+            $postData = json_decode($this->input->post('data'));
+            //$wh_name = $this->input->post('wh_name');
+            if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
+                $exist_courier_image = $this->input->post("exist_courier_image");
+                if (!empty($exist_courier_image)) {
+                    $courier_file['status'] = true;
+                    $courier_file['message'] = $exist_courier_image;
+                } else {
+                    $courier_file = $this->upload_defective_parts_shipped_courier_file($_FILES);
+                }
 
-            if ($courier_file['status']) {
+                if ($courier_file['status']) {
                     $courier_details['sender_entity_id'] = $sender_entity_id;
                     $courier_details['sender_entity_type'] = $sender_entity_type;
                     $courier_details['receiver_entity_id'] = $this->input->post('receiver_partner_id');
@@ -4817,20 +4821,20 @@ class Inventory extends CI_Controller {
                     $courier_details['status'] = COURIER_DETAILS_STATUS;
                     $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
 
-                    if (!empty($insert_courier_details)) { 
+                    if (!empty($insert_courier_details)) {
                         log_message('info', 'Courier Details added successfully.');
 
                         $eway_details = array();
                         $eway_file = $this->upload_defective_parts_shipped_eway_file($_FILES);
-                        if($eway_file['status']){
+                        if ($eway_file['status']) {
                             $eway_details['ewaybill_file'] = $eway_file['message'];
                         }
                         $eway_details['courier_details_id'] = $insert_courier_details;
                         $eway_details['ewaybill_no'] = $this->input->post("eway_bill_by_wh");
                         $eway_details['vehicle_number'] = $this->input->post("eway_vehicle_number");
-                        
+
                         $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $insert_courier_details);
-                        if(!empty($invoice['invoice'][0])){
+                        if (!empty($invoice['invoice'][0])) {
                             $eway_details['invoice_id'] = $invoice['invoice'][0];
                         }
                         $this->inventory_model->insert_ewaybill_details($eway_details);
@@ -4860,7 +4864,6 @@ class Inventory extends CI_Controller {
                                 $res['message'] = "These Bookings not updated " . implode(',', $invoice['not_update_booking_id']) .
                                         " Please Contact to 247Around.";
                             }
-
                         } else {
                             $res['status'] = false;
                             $res['message'] = "There is an issue in the invoice generation";
@@ -4870,16 +4873,35 @@ class Inventory extends CI_Controller {
                         $res['status'] = false;
                         $res['message'] = "Courier Details is not inserted";
                     }
+                } else {
+                    $res['status'] = false;
+                    $res['message'] = $courier_file['message'];
+                }
             } else {
                 $res['status'] = false;
-                $res['message'] = $courier_file['message'];
+                $res['message'] = 'All fields are required';
             }
-        } else {
-            $res['status'] = false;
-            $res['message'] = 'All fields are required';
         }
 
         echo json_encode($res);
+    }
+
+    /**
+     * @desc This function is used to check 
+     * @return String
+     */
+    function is_reverse_purchase_invoice_generated(){
+        $postData1 = json_decode($this->input->post('data'), true);
+        $booking_id = "";
+        foreach ($postData1 as $value) {
+            $spareData = $this->partner_model->get_spare_parts_by_any("reverse_purchase_invoice_id",array('id' => $value['spare_id']));
+            if(!empty($spareData) && !empty($spareData[0]['reverse_purchase_invoice_id'])){
+                 $booking_id = $value['booking_id'];
+                break;
+            } 
+        }
+        
+        return $booking_id;
     }
     
      /**
@@ -4890,7 +4912,6 @@ class Inventory extends CI_Controller {
      function send_defective_to_partner_from_wh_on_challan() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
         $this->check_WH_UserSession();
-        $postData = json_decode($this->input->post('data'), true);
         $awb_by_wh = $this->input->post('awb_by_wh');
         $courier_name_by_wh = $this->input->post('courier_name_by_wh');
         $courier_price_by_wh = $this->input->post('courier_price_by_wh');
@@ -7858,6 +7879,143 @@ class Inventory extends CI_Controller {
 
          echo 'success';
 
+    }
+    
+    /**
+     * @desc: This function is used to SF download consumption 
+     * @params: void
+     * @return: void
+     */
+    
+    function service_centers_consumption_details(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/service_centers_consumption_details");
+    }
+    
+    
+     /**
+     *  @desc : This function is used to show alternate inventory master list data
+     *  @param : void
+     *  @return : void
+     */
+    function get_partner_wise_service_centers_consumption_list() {
+        $data = $this->get_service_centers_consumption_list_data();
+       
+        $post = $data['post'];
+        if (!empty($data['data'])) {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_service_centers_consumption_list($post),
+                "recordsFiltered" => $this->inventory_model->count_filtered_service_centers_consumption_list($post),
+                "data" => $data['data'],
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => $data['data'],
+            );
+        }
+        echo json_encode($output);
+    }
+    
+    
+   function get_service_centers_consumption_list_data() {
+        $post = $this->get_post_data();
+        $entity_type = trim($this->input->post('entity_type'));
+        $entity_id = trim($this->input->post('entity_id'));
+        $service_centers_id = trim($this->input->post('service_centers_id'));
+        $data = array();
+        if (!empty($service_centers_id)) {
+            $post['column_order'] = array();
+            $post['column_search'] = array('v.invoice_id', 'v.create_date');
+            $post['where'] = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category = 'MSL' AND v.vendor_partner_id = " . $service_centers_id;
+            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, im.description, im.hsn_code, i.qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type, entt_gst_dtl.gst_number as from_gst, entity_gst_details.gst_number as to_gst, v.sub_category";
+            $list = $this->inventory_model->get_service_centers_consumption_list($post, $select);
+            $data = array();
+            $no = $post['start'];
+            foreach ($list as $consumption_list) {
+                $no++;
+                $row = $this->get_service_centers_consumption_list_table($consumption_list, $no);
+                $data[] = $row;
+            }
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+    
+    
+    
+     function get_service_centers_consumption_list_table($consumption_list, $no) {
+        $row = array();
+            
+        $row[] = $no;
+        $row[] = "<a href='#'>".$consumption_list->invoice_id."</a>";
+        $row[] = $consumption_list->create_date;
+        $row[] = "<span style='word-break: break-all;'>" . $consumption_list->type_code . "</span>";
+        $row[] = "<span style='word-break: break-all;'>" . $consumption_list->part_number . "</span>";
+        $row[] = "<span style='word-break: break-all;'>" . $consumption_list->description . "</span>";
+        $row[] = $consumption_list->hsn_code;
+        $row[] = $consumption_list->qty;
+        $row[] = "<i class ='fa fa-inr'></i> " . $consumption_list->rate;
+        $row[] = $consumption_list->taxable_value;
+        $row[] = $consumption_list->gst_rate;
+        $row[] = $consumption_list->gst_tax_amount;
+        $row[] = $consumption_list->total_amount;
+        $row[] = $consumption_list->type;
+        $row[] = $consumption_list->from_gst;
+        $row[] = $consumption_list->to_gst;
+        $row[] = $consumption_list->sub_category;
+    
+        return $row;
+    }
+    
+    
+    
+    
+    function download_service_centers_consumption_data() {
+        log_message('info', __METHOD__ . ' Processing...');
+
+        $entity_id = $this->input->post('partner_id');
+        $service_center_id = $this->input->post('service_center_id');
+     
+      if(!empty($entity_id) && !empty($service_center_id)){
+          
+        $select = "v.invoice_id AS 'Invoice Id', v.create_date AS 'Invoice Date', case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', im.part_number AS 'Part Number', im.description AS 'Description', im.hsn_code AS 'HSN Code', i.qty AS 'Quantity', i.rate AS 'Rate', i.taxable_value AS 'Taxable Value', (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS 'GST Rate', (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS 'GST Tax Amount', i.total_amount AS 'Total Amount', v.type AS 'Type', entt_gst_dtl.gst_number AS 'From GST Number', entity_gst_details.gst_number AS 'To GST Number', v.sub_category AS 'Sub Category'";
+        $where = array("im.entity_id" => $entity_id, "im.entity_type"=> _247AROUND_PARTNER_STRING,  "v.sub_category" => 'MSL', "v.vendor_partner_id"=> $service_center_id);
+        $spare_details = $this->inventory_model->get_service_centers_consumption_data($select, $where);
+       
+        $this->load->dbutil();
+        $this->load->helper('file');
+
+        $file_name = 'service_centers_consumption_data_' . date('j-M-Y-H-i-s') . ".csv";
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
+        write_file(TMP_FOLDER . $file_name, $new_report);
+
+        if (file_exists(TMP_FOLDER . $file_name)) {
+            log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+            $res1 = 0;
+            system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+            $res['status'] = true;
+            $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+        } else {
+            log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+            $res['status'] = FALSE;
+            $res['msg'] = 'error in generating file';
+        }
+      }else{
+       $res['msg'] = 'Please select partner and SF';   
+      }
+
+        echo json_encode($res);
     }
 
 }
