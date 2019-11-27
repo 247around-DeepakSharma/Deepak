@@ -7859,5 +7859,142 @@ class Inventory extends CI_Controller {
          echo 'success';
 
     }
+    
+    /**
+     * @desc: This function is used to SF download consumption 
+     * @params: void
+     * @return: void
+     */
+    
+    function service_centers_consumption_details(){
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("employee/service_centers_consumption_details");
+    }
+    
+    
+     /**
+     *  @desc : This function is used to show alternate inventory master list data
+     *  @param : void
+     *  @return : void
+     */
+    function get_partner_wise_service_centers_consumption_list() {
+        $data = $this->get_service_centers_consumption_list_data();
+       
+        $post = $data['post'];
+        if (!empty($data['data'])) {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_service_centers_consumption_list($post),
+                "recordsFiltered" => $this->inventory_model->count_filtered_service_centers_consumption_list($post),
+                "data" => $data['data'],
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => $data['data'],
+            );
+        }
+        echo json_encode($output);
+    }
+    
+    
+   function get_service_centers_consumption_list_data() {
+        $post = $this->get_post_data();
+        $entity_type = trim($this->input->post('entity_type'));
+        $entity_id = trim($this->input->post('entity_id'));
+        $service_centers_id = trim($this->input->post('service_centers_id'));
+        $data = array();
+        if (!empty($service_centers_id)) {
+            $post['column_order'] = array();
+            $post['column_search'] = array('v.invoice_id', 'v.create_date');
+            $post['where'] = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category = 'MSL' AND v.vendor_partner_id = " . $service_centers_id;
+            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, im.description, im.hsn_code, i.qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type, entt_gst_dtl.gst_number as from_gst, entity_gst_details.gst_number as to_gst, v.sub_category";
+            $list = $this->inventory_model->get_service_centers_consumption_list($post, $select);
+            $data = array();
+            $no = $post['start'];
+            foreach ($list as $consumption_list) {
+                $no++;
+                $row = $this->get_service_centers_consumption_list_table($consumption_list, $no);
+                $data[] = $row;
+            }
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+    
+    
+    
+     function get_service_centers_consumption_list_table($consumption_list, $no) {
+        $row = array();
+            
+        $row[] = $no;
+        $row[] = "<a href='#'>".$consumption_list->invoice_id."</a>";
+        $row[] = $consumption_list->create_date;
+        $row[] = "<span style='word-break: break-all;'>" . $consumption_list->type_code . "</span>";
+        $row[] = "<span style='word-break: break-all;'>" . $consumption_list->part_number . "</span>";
+        $row[] = "<span style='word-break: break-all;'>" . $consumption_list->description . "</span>";
+        $row[] = $consumption_list->hsn_code;
+        $row[] = $consumption_list->qty;
+        $row[] = "<i class ='fa fa-inr'></i> " . $consumption_list->rate;
+        $row[] = $consumption_list->taxable_value;
+        $row[] = $consumption_list->gst_rate;
+        $row[] = $consumption_list->gst_tax_amount;
+        $row[] = $consumption_list->total_amount;
+        $row[] = $consumption_list->type;
+        $row[] = $consumption_list->from_gst;
+        $row[] = $consumption_list->to_gst;
+        $row[] = $consumption_list->sub_category;
+    
+        return $row;
+    }
+    
+    
+    
+    
+    function download_service_centers_consumption_data() {
+        log_message('info', __METHOD__ . ' Processing...');
+
+        $entity_id = $this->input->post('partner_id');
+        $service_center_id = $this->input->post('service_center_id');
+     
+      if(!empty($entity_id) && !empty($service_center_id)){
+          
+        $select = "v.invoice_id AS 'Invoice Id', v.create_date AS 'Invoice Date', case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', im.part_number AS 'Part Number', im.description AS 'Description', im.hsn_code AS 'HSN Code', i.qty AS 'Quantity', i.rate AS 'Rate', i.taxable_value AS 'Taxable Value', (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS 'GST Rate', (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS 'GST Tax Amount', i.total_amount AS 'Total Amount', v.type AS 'Type', entt_gst_dtl.gst_number AS 'From GST Number', entity_gst_details.gst_number AS 'To GST Number', v.sub_category AS 'Sub Category'";
+        $where = array("im.entity_id" => $entity_id, "im.entity_type"=> _247AROUND_PARTNER_STRING,  "v.sub_category" => 'MSL', "v.vendor_partner_id"=> $service_center_id);
+        $spare_details = $this->inventory_model->get_service_centers_consumption_data($select, $where);
+       
+        $this->load->dbutil();
+        $this->load->helper('file');
+
+        $file_name = 'service_centers_consumption_data_' . date('j-M-Y-H-i-s') . ".csv";
+        $delimiter = ",";
+        $newline = "\r\n";
+        $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
+        write_file(TMP_FOLDER . $file_name, $new_report);
+
+        if (file_exists(TMP_FOLDER . $file_name)) {
+            log_message('info', __FUNCTION__ . ' File created ' . $file_name);
+            $res1 = 0;
+            system(" chmod 777 " . TMP_FOLDER . $file_name, $res1);
+            $res['status'] = true;
+            $res['msg'] = base_url() . "file_process/downloadFile/" . $file_name;
+        } else {
+            log_message('info', __FUNCTION__ . ' error in generating file ' . $file_name);
+            $res['status'] = FALSE;
+            $res['msg'] = 'error in generating file';
+        }
+      }else{
+       $res['msg'] = 'Please select partner and SF';   
+      }
+
+        echo json_encode($res);
+    }
 
 }
