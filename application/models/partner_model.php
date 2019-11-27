@@ -1080,7 +1080,7 @@ function get_data_for_partner_callback($booking_id) {
     function get_tollfree_and_contact_persons(){
         $sql = "SELECT 'Toll Free Number' as name,customer_care_contact as contact,partners.public_name as partner,vendor_partner_variable_charges.entity_id as paid_service_centers FROM partners "
                 . "LEFT JOIN vendor_partner_variable_charges ON vendor_partner_variable_charges.entity_id = partners.id AND vendor_partner_variable_charges.entity_type = 'partner' AND "
-                . "vendor_partner_variable_charges.charges_type = 3 AND partners.is_active = 1;";
+                . "vendor_partner_variable_charges.charges_type = 3 AND vendor_partner_variable_charges.status = 1 AND partners.is_active = 1;";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
