@@ -164,6 +164,7 @@
                                             <?php } else {?> width:16.95%;<?php }?>">
                                             <div class="col-md-12 ">
                                                  <label> Brand</label>
+                                                 <input type="hidden" name="brand" id="brand" value="<?php echo $unit_details['brand']; ?>"/>
                                                 <select type="text" disabled="" class="form-control appliance_brand"    name="appliance_brand[]" id="appliance_brand_1" >
                                                     <option selected disabled><?php echo $unit_details['brand']; ?></option>
                                                 </select>
