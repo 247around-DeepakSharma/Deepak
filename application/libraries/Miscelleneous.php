@@ -2816,7 +2816,7 @@ class Miscelleneous {
   Your browser does not support HTML5 video.
 </video>';
         }
-        if ($type == 'pdf') {
+        if ($type == 'pdf' || $type == 'software') {
             $finalString = '<a target="_blank" href="' . $url . '">View</a>';
         }
         if ($type == 'audio') {
