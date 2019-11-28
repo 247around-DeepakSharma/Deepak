@@ -1470,7 +1470,7 @@
                                 <div class="form-group">
                                     <label for="Services">Select Model </label>
                                     <div class="checkbox" style="float:right;"><input onchange="select_all_models()" id="models_all" type="checkbox" value="">Select All</div>
-                                    <select class="form-control" id="l_c_model" name="l_c_model[]" multiple="multiple" disabled="">
+                                    <select class="form-control" id="l_c_model" name="l_c_model[]" multiple="multiple" disabled="" onchange="disable_inputs(this)">
                                     </select>
                                 </div>
                                 <div class="col-md-12" style="padding: 10px 0px;width: 102%;">
@@ -5757,6 +5757,8 @@
         if(input_type === "l_c_doc_type"){
             if(input_value === "software"){
                 $("#l_c_file").attr("disabled", true);
+                $("#l_c_url").attr("disabled", false);
+                $("#l_c_file").val(null);
             }
             else{
                 $("#l_c_file").attr("disabled", false);
@@ -5770,7 +5772,7 @@
                 $("#l_c_model").attr("disabled", false);
             }
         }
-        else if(input_type === "l_c_url"){ alert("here");
+        else if(input_type === "l_c_url"){
             if(input_value){
                 $("#l_c_file").attr("disabled", true);
             }
@@ -5784,6 +5786,14 @@
             }
             else{
                 $("#l_c_url").attr("disabled", false);
+            }
+        }
+        else if(input_type === "l_c_model"){
+            if(input_value){
+                $("#l_c_capacity").attr("disabled", true);
+            }
+            else{
+                $("#l_c_capacity").attr("disabled", false);
             }
         }
     }
