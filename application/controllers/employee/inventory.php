@@ -7954,7 +7954,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $row = array();
             
         $row[] = $no;
-        $row[] = "<a href='#'>".$consumption_list->invoice_id."</a>";
+        $row[] = "<a href='" .base_url(). "employee/inventory/invoice_details/" . $consumption_list->invoice_id."'>".$consumption_list->invoice_id."</a>";
         $row[] = $consumption_list->create_date;
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->type_code . "</span>";
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->part_number . "</span>";
@@ -8014,6 +8014,35 @@ function get_bom_list_by_inventory_id($inventory_id) {
       }
 
         echo json_encode($res);
+    }
+    
+    
+    /**
+     * @Desc: This function is used to show data from the inventory ledger table
+     * @params: $page string
+     * @params: $entity_type string
+     * @params: $entity_id string
+     * @params: $inventory_id string
+     * @params: $offset string
+     * @return: void
+     * 
+     */
+    function invoice_details($invoice_id) {
+        log_message('info', __METHOD__ . ' Processing...');
+        $this->miscelleneous->load_nav_header();
+        $data = array();
+        if(!empty($invoice_id)){
+            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, im.description, im.hsn_code, i.qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type, entt_gst_dtl.gst_number as from_gst, entity_gst_details.gst_number as to_gst, v.sub_category";
+            $post['where'] = array("v.invoice_id" => $invoice_id);
+            $post['length'] = 100000;
+            $post['start'] = 0;
+            $data['invoice_details'] = $this->inventory_model->get_service_centers_consumption_list($post, $select , true);
+        } else {
+            $data['invoice_details'] = array();
+        }
+                      
+        $this->load->view("employee/show_invoice_list", $data);
+       
     }
 
 }
