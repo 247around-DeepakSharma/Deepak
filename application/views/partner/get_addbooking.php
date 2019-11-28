@@ -848,7 +848,7 @@
             success: function (data) {
                                
                     //First Resetting Options values present if any
-                    $("#appliance_brand_1 option[value !='option1']").remove();
+                    $('#appliance_brand_1').find('option').remove();
                     $('#appliance_brand_1').append(data).change();
             },
             complete: function(){
