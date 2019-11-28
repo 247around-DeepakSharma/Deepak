@@ -50,7 +50,7 @@
                     }
                 }
             
-                if($value['status'] == SPARE_PARTS_REQUESTED){
+                if(empty($value['parts_shipped']) && empty($value['shipped_date'])){
                     $date1=date_create($value['date_of_request']);
                     $date2=date_create(date('Y-m-d'));
                     $diff=date_diff($date1,$date2);
@@ -1062,7 +1062,7 @@
             alert("Please Enter Upcountry Charges which Paid by Customer");
             return false;
         } else if (Number(upcountry_charges) > 0) {
-            flag = 0;
+//            flag = 0;
             document.getElementById('upcountry_charges').style.borderColor = "green";
         }
     }
