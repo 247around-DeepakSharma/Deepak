@@ -4893,7 +4893,7 @@ class Inventory extends CI_Controller {
         $postData1 = json_decode($this->input->post('data'), true);
         $booking_id = "";
         foreach ($postData1 as $value) {
-            $spareData = $this->partner_model->get_spare_parts_by_any("reverse_purchase_invoice_id",array('id' => $value['spare_id']));
+            $spareData = $this->partner_model->get_spare_parts_by_any("reverse_purchase_invoice_id",array('spare_parts_details.id' => $value['spare_id']));
             if(!empty($spareData) && !empty($spareData[0]['reverse_purchase_invoice_id'])){
                  $booking_id = $value['booking_id'];
                 break;
