@@ -1062,7 +1062,7 @@
             alert("Please Enter Upcountry Charges which Paid by Customer");
             return false;
         } else if (Number(upcountry_charges) > 0) {
-            flag = 0;
+//            flag = 0;
             document.getElementById('upcountry_charges').style.borderColor = "green";
         }
     }
