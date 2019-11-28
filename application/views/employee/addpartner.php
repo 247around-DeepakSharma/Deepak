@@ -1477,7 +1477,7 @@
                                     <div class="col-md-4" style="padding: 0px;width: 40%;">
                                         <div class="form-group" style="">
                                             <label for="Services">Select File </label>
-                                            <input type="file" class="form-control"  name="l_c_file" id="l_c_file" disabled="">
+                                            <input type="file" class="form-control"  name="l_c_file" id="l_c_file" disabled="" onchange="disable_inputs(this)">
                                         </div>
                                     </div>
                                     <div class="col-md-4" style="padding: 0px;width: 20%;padding-left: 64px;">
@@ -1486,7 +1486,7 @@
                                     <div class="col-md-4" style="width: 40%;">
                                         <div class="form-group">
                                             <label for="Services">Add URL </label>
-                                            <input type="text" class="form-control"  name="l_c_url" id="l_c_url" disabled="">
+                                            <input type="text" class="form-control"  name="l_c_url" id="l_c_url" disabled="" onkeyup="disable_inputs(this)">
                                         </div>
                                     </div>
                                 </div>
@@ -1507,20 +1507,20 @@
                                 <div class="form-group">
                                     <label for="Services">Select Capacity</label>
                                     <div class="checkbox" style="float:right;"><input disabled="disabled" onchange="select_all_capacity()" id="capacity_all" type="checkbox" value="">Select All</div>
-                                    <select class="form-control" id="l_c_capacity" name="l_c_capacity[]" multiple="multiple" disabled="">
+                                    <select class="form-control" id="l_c_capacity" name="l_c_capacity[]" multiple="multiple" disabled="" onchange="disable_inputs(this)">
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="Services">Select Document Type*</label>
-                                    <select class="form-control" id="l_c_doc_type" name="l_c_doc_type" disabled="" onchange="document_type_changed()">
+                                    <select class="form-control" id="l_c_doc_type" name="l_c_doc_type" disabled="" onchange="disable_inputs(this)">
                                     </select>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" style="padding-top: 8px;">
                                     <label for="Services">Select Collateral Type*</label>
                                     <select class="form-control" id="l_c_type" name="l_c_type" disabled="">
                                     </select>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" style="padding-top: 10px;">
                                     <label for="description">Description</label>
                                     <input type="text" class="form-control" id="l_c_description" name="description" disabled="" placeholder="Add Description">
                                     </select>
@@ -5748,6 +5748,44 @@
             
         }
 
+    }
+
+    
+    function disable_inputs(input){
+        var input_value = $(input).val();
+        var input_type = $(input).attr("id");
+        if(input_type === "l_c_doc_type"){
+            if(input_value === "software"){
+                $("#l_c_file").attr("disabled", true);
+            }
+            else{
+                $("#l_c_file").attr("disabled", false);
+            }
+        }
+        else if(input_type === "l_c_capacity"){
+            if(input_value){
+                $("#l_c_model").attr("disabled", true);
+            }
+            else{
+                $("#l_c_model").attr("disabled", false);
+            }
+        }
+        else if(input_type === "l_c_url"){ alert("here");
+            if(input_value){
+                $("#l_c_file").attr("disabled", true);
+            }
+            else{
+                $("#l_c_file").attr("disabled", false);
+            }
+        }
+        else if(input_type === "l_c_file"){
+            if(input_value){
+                $("#l_c_url").attr("disabled", true);
+            }
+            else{
+                $("#l_c_url").attr("disabled", false);
+            }
+        }
     }
 
 </script>
