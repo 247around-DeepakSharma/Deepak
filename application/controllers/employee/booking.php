@@ -1687,7 +1687,13 @@ class Booking extends CI_Controller {
      *  @param : booking id
      *  @return : booking details and load view
      */
-    function viewdetails($booking_id) {
+    function viewdetails($booking_id = null) {
+        if(empty($booking_id)){
+            $message = "function Booking::viewdetails() Booking Id Not Found, REFERRER : ".$_SERVER['HTTP_REFERER'];
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, 'pritys@247around.com', NULL, NULL, 'ERROR', $message, "","BOOKING_VIEW_DETAILS");
+            return;
+        }
+        
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $data['file_type'] = $this->booking_model->get_file_type();
@@ -5339,6 +5345,7 @@ class Booking extends CI_Controller {
         $post['order'] = NULL;
         $post['draw'] = NULL;
         if($booking_status == 'Pending'){
+            $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL); 
             $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
             services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
             booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
