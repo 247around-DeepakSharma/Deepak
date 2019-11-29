@@ -1108,7 +1108,7 @@ class Partner extends CI_Controller {
                 . 'collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,'
                 . 'collateral_type.document_type,GROUP_CONCAT(DISTINCT collateral.request_type) as request_type,collateral.appliance_id,collateral.collateral_id',
                 array("entity_id" => $id, "entity_type" => "partner","is_valid"=>1), array("collateral_type" => "collateral_type.id=collateral.collateral_id","services"=>"services.id=collateral.appliance_id"), 
-                NULL, NULL, NULL, array('services'=>'LEFT'),$group_by_arr);
+                NULL, array("collateral.start_date" => "DESC"), NULL, array('services'=>'LEFT'),$group_by_arr);
         $results['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type", '*', array("collateral_tag" => "Contract"), NULL, NULL, array("collateral_type" => "ASC"), NULL, NULL);
         $employee_list = $this->employee_model->get_employee_by_group(array("groups IN ('accountmanager') AND active = '1'" => NULL));
         $departmentArray = $this->reusable_model->get_search_result_data("entity_role", 'DISTINCT department',array("entity_type" => 'partner'),NULL, NULL, array('department'=>'ASC'), NULL, NULL,array());  
@@ -8729,7 +8729,11 @@ class Partner extends CI_Controller {
             $data['model'] = $value['model'];
             $data['request_type'] = $value['request_type'];
             $data['document_type'] = $value['document_type'];
-            $data['file'] = $value['file'];
+            if (filter_var($value['file'], FILTER_VALIDATE_URL)) {
+                $data['file'] = $value['file'];
+            } else {
+                $data['file'] = S3_WEBSITE_URL."vendor-partner-docs/".$value['file'];
+            }
             $data['create_date'] = $value['create_date'];
             array_push($list, $data);
         }
