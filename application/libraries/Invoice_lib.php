@@ -941,7 +941,6 @@ class Invoice_lib {
         if (!empty($spare_parts_details)) {
             $partner_challan_number = trim(implode(',', array_column($spare_parts_details, 'partner_challan_number')), ',');
 
-
             $shipped_inventory_id = '';
             foreach ($spare_parts_details as $spare_key => $spare_parts_details_value) {
 
@@ -995,17 +994,8 @@ class Invoice_lib {
                     $partner_details = $this->ci->partner_model->getpartner_details("company_name, concat(partners.address,',',partners.district,',',partners.state,',',partners.pincode) AS address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name", array('partners.id' => $spare_parts_details[0][0]['booking_partner_id']));
                 }
             }
-
             $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
-
-            log_message('info', __FUNCTION__ . 'sf challan debugging spare_id: ' . $spare_id, true);
-
-            $wh_challan_number = $spare_parts_details[0][0]['wh_challan_number'];
-
-            if (empty($wh_challan_number)) {
-                $wh_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
-            }
-
+            $wh_challan_number = $this->ci->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code']);
             $wh_challan_file = $this->process_create_sf_challan_file($partner_details, $sf_details, $wh_challan_number, $spare_parts_details, $partner_challan_number, $service_center_closed_date);
 
             $data['wh_challan_number'] = $wh_challan_number;
