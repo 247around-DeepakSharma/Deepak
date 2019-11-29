@@ -153,7 +153,11 @@
 </body>
 
 </html>
-
+<?php
+if ($this->session->userdata('success')) {
+    $this->session->unset_userdata('success');
+}
+?>
 <script type="text/javascript">
     $('#partner').select2();
 </script>
