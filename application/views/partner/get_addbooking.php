@@ -125,7 +125,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group col-md-12 <?php if( form_error('appliance_capacity') ) { echo 'has-error';} ?>">
-                            <label for="appliance_capacity_1">Capacity   <span style="color:grey;display:none" id="capacity_loading">Loading ...</span> <span id="error_capacity" style="color: red;"></label>
+                            <label for="appliance_capacity_1">Capacity *  <span style="color:grey;display:none" id="capacity_loading">Loading ...</span> <span id="error_capacity" style="color: red;"></label>
                             <select class="form-control appliance_capacity"   id="appliance_capacity_1" name="appliance_capacity" onchange="return get_models(), getPrice()">
                                 <option selected disabled value="option1">Select Appliance Capacity</option>
                             </select>
@@ -314,7 +314,7 @@
                     <div class="x_content">
                         <div class="col-md-4 ">
                             <div class="form-group col-md-12  <?php if (form_error('alternate_phone_number')) { echo 'has-error';} ?>">
-                                <label for="booking_alternate_contact_no">Alternate Mobile</label>
+                                <label for="booking_alternate_contact_no">Alternate Mobile<span id="error_alternate_contact_no" style="color: red;"></span></label>
                                 <input class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if (isset($user[0]['alternate_phone_number'])) {
                                     echo $user[0]['alternate_phone_number'];
                                     } else {
@@ -480,6 +480,7 @@
         var not_visible = $("#not_visible").val();
         var purchase_date = $("#purchase_date").val();
         var symptom = $('#booking_request_symptom option:selected').text();
+        var alternate_contact_no = $("#booking_alternate_contact_no").val();
         //var model_value = $("#model_number_1").val();
         var user_regex = /^([a-zA-Z\s]*)$/;
         if(!mobile_number.match(exp1)){
@@ -655,6 +656,12 @@
         } else {
             document.getElementById('remarks').style.borderColor = "green";
             document.getElementById('error_remarks').innerHTML = "";  
+        }
+        
+        if(alternate_contact_no !== "" && !alternate_contact_no.match(exp1)){
+            alert('Please Enter Valid Alternate Phone Number');   
+            display_message("booking_alternate_contact_no","error_alternate_contact_no","red","Please Enter Valid Alternate Mobile");
+            return false;
         }
         
         var delivered_price_tags = [];
@@ -848,7 +855,7 @@
             success: function (data) {
                                
                     //First Resetting Options values present if any
-                    $("#appliance_brand_1 option[value !='option1']").remove();
+                    $('#appliance_brand_1').find('option').remove();
                     $('#appliance_brand_1').append(data).change();
             },
             complete: function(){

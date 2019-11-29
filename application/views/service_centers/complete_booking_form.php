@@ -25,7 +25,7 @@
                     }
                 }
 
-                if(empty($value['parts_shipped']) && empty($value['shipped_date'])){
+                if(empty($value['parts_shipped']) && empty($value['shipped_date']) && $value['status'] != _247AROUND_CANCELLED && $value['status'] != _247AROUND_COMPLETED){
                     $date1=date_create($value['date_of_request']);
                     $date2=date_create(date('Y-m-d'));
                     $diff=date_diff($date1,$date2);
@@ -1040,7 +1040,7 @@
                 flag = 1;
                 return false;
             } else if (Number(upcountry_charges) > 0) {
-                flag = 0;
+//                flag = 0;
                 document.getElementById('upcountry_charges').style.borderColor = "green";
             }
         }
