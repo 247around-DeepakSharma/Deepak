@@ -1479,7 +1479,7 @@
                                     <div id="l_c_model_div">
                                         <label for="Services">Select Model </label>                                   
                                         <div class="checkbox" style="float:right;"><input onchange="select_all_models()" id="models_all" type="checkbox" value="">Select All</div>
-                                        <select class="form-control" id="l_c_model" name="l_c_model[]" multiple="multiple" disabled="">
+                                        <select class="form-control" id="l_c_model" name="l_c_model[]" multiple="multiple" disabled="" onchange="disable_inputs(this)">
                                         </select>
                                     </div>
                                 </div>
@@ -1487,7 +1487,7 @@
                                     <div class="col-md-4" style="padding: 0px;width: 40%;">
                                         <div class="form-group" style="">
                                             <label for="Services">Select File </label>
-                                            <input type="file" class="form-control"  name="l_c_file" id="l_c_file" disabled="">
+                                            <input type="file" class="form-control"  name="l_c_file" id="l_c_file" disabled="" onchange="disable_inputs(this)">
                                         </div>
                                     </div>
                                     <div class="col-md-4" style="padding: 0px;width: 20%;padding-left: 64px;">
@@ -1496,7 +1496,7 @@
                                     <div class="col-md-4" style="width: 40%;">
                                         <div class="form-group">
                                             <label for="Services">Add URL </label>
-                                            <input type="text" class="form-control"  name="l_c_url" id="l_c_url" disabled="">
+                                            <input type="text" class="form-control"  name="l_c_url" id="l_c_url" disabled="" onkeyup="disable_inputs(this)">
                                         </div>
                                     </div>
                                 </div>
@@ -1517,20 +1517,20 @@
                                 <div class="form-group">
                                     <label for="Services">Select Capacity</label>
                                     <div class="checkbox" style="float:right;"><input disabled="disabled" onchange="select_all_capacity()" id="capacity_all" type="checkbox" value="">Select All</div>
-                                    <select class="form-control" id="l_c_capacity" name="l_c_capacity[]" multiple="multiple" disabled="">
+                                    <select class="form-control" id="l_c_capacity" name="l_c_capacity[]" multiple="multiple" disabled="" onchange="disable_inputs(this)">
                                     </select>
                                 </div>
                                 <div class="form-group">
                                     <label for="Services">Select Document Type*</label>
-                                    <select class="form-control" id="l_c_doc_type" name="l_c_doc_type" disabled="" onchange="document_type_changed()">
+                                    <select class="form-control" id="l_c_doc_type" name="l_c_doc_type" disabled="" onchange="disable_inputs(this)">
                                     </select>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" style="padding-top: 8px;">
                                     <label for="Services">Select Collateral Type*</label>
                                     <select class="form-control" id="l_c_type" name="l_c_type" disabled="">
                                     </select>
                                 </div>
-                                <div class="form-group">
+                                <div class="form-group" style="padding-top: 10px;">
                                     <label for="description">Description</label>
                                     <input type="text" class="form-control" id="l_c_description" name="description" disabled="" placeholder="Add Description">
                                     </select>
@@ -1596,7 +1596,7 @@
                             <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
                             <td><?php echo $value['document_description'] ?></td>
                             <td><div class="checkbox"> <input type="checkbox" name="coll_id[]" value="<?php echo $group_data ?>"> </div></td>
-                            <td><?php echo $value['start_date'] ?></td>
+                            <td><?php echo date("d-m-Y", strtotime($value['start_date'])); ?></td>
                         </tr>
                         <tr>
                             <?php
@@ -4102,6 +4102,7 @@
     return values.toString();
     }
     function validate_l_c_form(){
+    var url_regx = /^(http[s]?:\/\/){0,1}(www\.){0,1}[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,5}[\.]{0,1}/;
     service = $("#l_c_service").val();
     brands = $("#l_c_brands").val();
     category = $("#l_c_category").val();
@@ -4115,8 +4116,14 @@
        return false;
     }
     if(!(file || url)){
-       alert("Either add file or Add URL");
-       return false; 
+        alert("Either add file or Add URL");
+        return false; 
+    }  
+    if(url){
+        if(!url_regx.test(url)){
+            alert("Please Enter Vaild File URL");
+            return false;
+        }
     }
     if(service && brands && category && document_type && collateral_type && (file || url)&& request_type){
        document.getElementById("l_c_form").submit();
@@ -5782,13 +5789,51 @@
         return ret;
     }
     
-    function document_type_changed(){
-        var d_type = $("#l_c_doc_type").val();
-        if(d_type === "software"){
-            $("#l_c_file").attr("disabled", true);
+    function disable_inputs(input){
+        var input_value = $(input).val();
+        var input_type = $(input).attr("id");
+        if(input_type === "l_c_doc_type"){
+            if(input_value === "software"){
+                $("#l_c_file").attr("disabled", true);
+                $("#l_c_url").attr("disabled", false);
+                $("#l_c_file").val(null);
+            }
+            else{
+                $("#l_c_file").attr("disabled", false);
+            }
         }
-        else{
-            $("#l_c_file").attr("disabled", false);
+        else if(input_type === "l_c_capacity"){
+            if(input_value){
+                $("#l_c_model").attr("disabled", true);
+            }
+            else{
+                $("#l_c_model").attr("disabled", false);
+            }
+        }
+        else if(input_type === "l_c_url"){
+            if(input_value){
+                $("#l_c_file").attr("disabled", true);
+            }
+            else{
+                $("#l_c_file").attr("disabled", false);
+            }
+        }
+        else if(input_type === "l_c_file"){
+            if(input_value){
+                $("#l_c_url").attr("disabled", true);
+            }
+            else{
+                $("#l_c_url").attr("disabled", false);
+            }
+        }
+        else if(input_type === "l_c_model"){
+            if(input_value){
+                $("#l_c_capacity").attr("disabled", true);
+            }
+            else{
+                $("#l_c_capacity").attr("disabled", false);
+            }
         }
     }
+    
 </script>

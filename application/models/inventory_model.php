@@ -2985,7 +2985,7 @@ class Inventory_model extends CI_Model {
      *  @param : $select string
      *  @return: Array()
      */
-    function get_service_centers_consumption_list($post, $select = "") {
+    function get_service_centers_consumption_list($post, $select = "", $is_array = false) {
         $this->_get_service_centers_consumption_list($post, $select);
         if ($post['length'] != -1) {
             $this->db->limit($post['length'], $post['start']);
@@ -2993,7 +2993,11 @@ class Inventory_model extends CI_Model {
 
         $query = $this->db->get();
                 
-        return $query->result();
+       if($is_array){
+            return $query->result_array();
+        }else{
+            return $query->result();
+        }
     }
 
     /**
@@ -3102,6 +3106,28 @@ class Inventory_model extends CI_Model {
         $query = $this->db->get();
 
         return $query;
+    }
+    
+    /*
+     * @Desc: This function is MSL invoice details
+     * @params: $select string
+     * @params: $where array
+     * @return: $query array
+     * 
+     */
+    function get_msl_invoice_details($select, $where) {
+
+        $this->db->select($select, false);
+        $this->db->from('inventory_master_list');
+        $this->db->join('invoice_details', 'inventory_master_list.inventory_id = invoice_details.inventory_id');
+
+        if (!empty($where)) {
+            $this->db->where($where, false);
+        }
+       
+        $query = $this->db->get();
+        
+        return $query->result_array();
     }
     
 }
