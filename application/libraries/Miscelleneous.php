@@ -3113,40 +3113,48 @@ function generate_image($base64, $image_name,$directory){
      * @param String $name
      * @return String
      */
-    function create_sf_challan_id($name,$is_wh = false){
-        $challan_id_tmp = $name."-DC-";
+    function create_sf_challan_id($name, $is_wh = false) {
+        $challan_id_tmp = $name . "-DC-";
         $where['length'] = -1;
-        
-        if($is_wh){
-            $where['where'] = array("( partner_challan_number LIKE '%".$challan_id_tmp."%' )" => NULL);
-            $where['select'] = "partner_challan_number as challan_number";
-        }else{
-            $where['where'] = array("( sf_challan_number LIKE '%".$challan_id_tmp."%' )" => NULL);
-            $where['select'] = "sf_challan_number as challan_number";
-        }
-        
-        $challan_no_temp = $this->My_CI->partner_model->get_spare_parts_by_any($where['select'], $where['where']);
+        $where1['length'] = -1;
+        $where2['length'] = -1;
+
+        $where['where'] = array("( partner_challan_number LIKE '%" . $challan_id_tmp . "%' )" => NULL);
+        $where['select'] = "partner_challan_number as challan_number";
+        $challan_no_temp1 = $this->My_CI->partner_model->get_spare_parts_by_any($where['select'], $where['where']);
+
+        $where1['where'] = array("( sf_challan_number LIKE '%" . $challan_id_tmp . "%' )" => NULL);
+        $where1['select'] = "sf_challan_number as challan_number";
+
+        $challan_no_temp2 = $this->My_CI->partner_model->get_spare_parts_by_any($where1['select'], $where1['where']);
+
+        $where2['where'] = array("( wh_challan_number LIKE '%" . $challan_id_tmp . "%' )" => NULL);
+        $where2['select'] = "wh_challan_number as challan_number";
+
+        $challan_no_temp3 = $this->My_CI->partner_model->get_spare_parts_by_any($where2['select'], $where2['where']);
+
+        $challan_no_temp = array_merge($challan_no_temp1, $challan_no_temp2, $challan_no_temp3);
         
         $challan_no = 1;
         $int_challan_no = array();
-        
+
         if (!empty($challan_no_temp)) {
-           
-            foreach ($challan_no_temp as  $value) {
+
+            foreach ($challan_no_temp as $value) {
                 $c_explode = explode(",", $value['challan_number']);
                 foreach ($c_explode as $value1) {
                     $explode = explode($challan_id_tmp, $value1);
-                 
+
                     array_push($int_challan_no, $explode[1] + 1);
                 }
-                
             }
             rsort($int_challan_no);
             $challan_no = $int_challan_no[0];
         }
-        
+
         return trim($challan_id_tmp . sprintf("%'.04d\n", $challan_no));
     }
+
     function create_serviceability_report_csv($postData){
         log_message('info', __FUNCTION__ . " Function Start With Request  ".print_r($postData,true));
         $services = $postData['service_id'];
