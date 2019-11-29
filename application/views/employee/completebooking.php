@@ -50,7 +50,7 @@
                     }
                 }
             
-                if(empty($value['parts_shipped']) && empty($value['shipped_date'])){
+                if(empty($value['parts_shipped']) && empty($value['shipped_date']) && $value['status'] != _247AROUND_CANCELLED && $value['status'] != _247AROUND_COMPLETED){
                     $date1=date_create($value['date_of_request']);
                     $date2=date_create(date('Y-m-d'));
                     $diff=date_diff($date1,$date2);
