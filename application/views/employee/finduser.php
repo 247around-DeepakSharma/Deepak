@@ -65,6 +65,14 @@
 <body>
     <div id="page-wrapper">
         <div class="container-fluid">
+            <?php if ($this->session->userdata('success')) { ?>
+             <div class="alert alert-success alert-dismissible" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <center><strong><?php echo $this->session->userdata('success') ?></strong></center>                        
+            </div>
+            <?php } ?>
             <div class="row">
                 <div class="col-lg-12">
 
