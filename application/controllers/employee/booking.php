@@ -5327,6 +5327,8 @@ class Booking extends CI_Controller {
 
     
      function download_pending_bookings($status) {
+        $arr_post = $this->input->post();
+        $bulk_booking_id = !empty($arr_post['bookingIDString']) ? $arr_post['bookingIDString'] : "";
         $booking_status = trim($status);
         //RM Specific Bookings
          $sfIDArray =array();
@@ -5354,6 +5356,10 @@ class Booking extends CI_Controller {
         $post['search_value'] = NULL;
         $post['order'] = NULL;
         $post['draw'] = NULL;
+        if(!empty($bulk_booking_id))
+        {
+            $post['where_in']['booking_details.booking_id'] =  explode(",",$bulk_booking_id);
+        }
         if($booking_status == 'Pending'){
             $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
             services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
