@@ -1596,7 +1596,7 @@
                             <td><?php echo $this->miscelleneous->get_reader_by_file_type($value['document_type'],$url,"200")?></td>
                             <td><?php echo $value['document_description'] ?></td>
                             <td><div class="checkbox"> <input type="checkbox" name="coll_id[]" value="<?php echo $group_data ?>"> </div></td>
-                            <td><?php echo $value['start_date'] ?></td>
+                            <td><?php echo date("d-m-Y", strtotime($value['start_date'])); ?></td>
                         </tr>
                         <tr>
                             <?php
@@ -4102,6 +4102,7 @@
     return values.toString();
     }
     function validate_l_c_form(){
+    var url_regx = /^(http[s]?:\/\/){0,1}(www\.){0,1}[a-zA-Z0-9\.\-]+\.[a-zA-Z]{2,5}[\.]{0,1}/;
     service = $("#l_c_service").val();
     brands = $("#l_c_brands").val();
     category = $("#l_c_category").val();
@@ -4115,8 +4116,14 @@
        return false;
     }
     if(!(file || url)){
-       alert("Either add file or Add URL");
-       return false; 
+        alert("Either add file or Add URL");
+        return false; 
+    }  
+    if(url){
+        if(!url_regx.test(url)){
+            alert("Please Enter Vaild File URL");
+            return false;
+        }
     }
     if(service && brands && category && document_type && collateral_type && (file || url)&& request_type){
        document.getElementById("l_c_form").submit();
