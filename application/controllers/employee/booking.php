@@ -121,7 +121,7 @@ class Booking extends CI_Controller {
                     log_message('info', __FUNCTION__ . " Booking ID " . $status['booking_id']);
                     
                     $this->partner_cb->partner_callback($status['booking_id']);
-                    
+                    $this->session->set_userdata(['success' => 'Booking inserted successfully with Booking Id : '.$status["booking_id"]]);
                     //Redirect to Default Search Page
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
