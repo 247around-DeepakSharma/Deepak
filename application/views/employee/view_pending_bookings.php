@@ -115,7 +115,10 @@
 <div id="page-wrapper" >
     <div class="row">
         <h1 style="float:left;"> <?php echo ucfirst($booking_status);?> Bookings</h1>
-        <a href="<?php echo  base_url()?>employee/booking/download_pending_bookings/<?php echo  $booking_status?>" id="download_btn"  name="download_btn" class="col-xs-1 btn btn-primary"  style="float:right;margin-top: 25px;">Download</a>
+        <form class="form-horizontal" action="<?php echo base_url() ?>employee/booking/download_pending_bookings/<?php echo  $booking_status?>" method="POST">
+            <input type="hidden" id="bookingIDString" name="bookingIDString" value="<?php if(isset($bookingIDString)){ echo $bookingIDString; }  ?>" >
+            <button type="submit" id="download_btn"  name="download_btn" class="col-xs-1 btn btn-primary"  style="float:right;margin-top: 25px;">Download</button>
+        </form>
         <a href="<?php echo  base_url()?>employee/dashboard" id="btn_dashboard"  name="btn_dashboard" class="col-s-1 btn btn-success"  style="float:right;margin-right:10px;margin-top: 25px;"><i class="fa fa-arrow-left"></i>&nbsp;Go To Dashboard</a>
         <div class="clear"></div>
         <hr>
@@ -150,8 +153,7 @@
             ?> 
         <div class="table_filter" id="table_filter">
             <img id="loader_gif" src="<?php echo base_url(); ?>images/loader.gif" style="width:50px;" class="col-md-offset-6">
-        </div>
-        <input type="hidden" id="bookingIDString" value="<?php if(isset($bookingIDString)){ echo $bookingIDString; }  ?>" >
+        </div>        
         <hr>
         <div class="bookings_table">
             <table id="datatable1" class="table table-bordered table-responsive">
