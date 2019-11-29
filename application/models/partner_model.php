@@ -888,7 +888,7 @@ function get_data_for_partner_callback($booking_id) {
         $join = "";
         $group_by = "";
         if($flag_select){
-            $select = "SELECT spare_parts_details.*, services.services, i.part_number, i.part_name, i.type, shipped_inventory.part_number as shipped_part_number, shipped_inventory.part_name as shipped_part_name, shipped_inventory.type as shipped_part_type, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
+            $select = "SELECT spare_parts_details.*, services.services, i.part_number, IF(i.part_name IS NULL,spare_parts_details.parts_requested,i.part_name) as part_name, IF(i.type IS NULL,spare_parts_details.parts_requested_type,i.type) as type, shipped_inventory.part_number as shipped_part_number, IF(shipped_inventory.part_name IS NULL,spare_parts_details.parts_shipped,shipped_inventory.part_name) as shipped_part_name, IF(shipped_inventory.type IS NULL,spare_parts_details.shipped_parts_type,shipped_inventory.type) as shipped_part_type, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
                 . " booking_details.booking_address,booking_details.create_date,booking_details.booking_date,booking_details.closed_date,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
                     . "booking_details.amount_due,booking_details.state, booking_details.service_center_closed_date, booking_details.request_type, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state as sf_state, service_centres.gst_no, "
@@ -956,7 +956,7 @@ function get_data_for_partner_callback($booking_id) {
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
             }
             }
-        $query = $this->db->query($sql);        
+        $query = $this->db->query($sql);       
         return $query->result_array();
     }
 
