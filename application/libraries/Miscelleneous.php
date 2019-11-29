@@ -4806,18 +4806,19 @@ function generate_image($base64, $image_name,$directory){
      */
     public function update_spare_consumption_status($post_data, $booking_id, $service_center_details = [], $complete = 0) {
         
-        // check spare parts with DEFECTIVE_PARTS_SHIPPED status exists in the booking. If yes booking should not be completed.
-        $spare_parts_details = $this->My_CI->partner_model->get_spare_parts_by_any('*', array('status' => DEFECTIVE_PARTS_SHIPPED, 'booking_id' => $booking_id));
-        if(!empty($spare_parts_details)) {
-            return DEFECTIVE_PARTS_SHIPPED;
-        }
-        
+        $spare_part_shipped_count = 0;
         if (!empty($post_data['spare_consumption_status'])) {
             $courier_lost_spare = [];
             $a = false;
+            $count_part_shipped = 0;
             foreach ($post_data['spare_consumption_status'] as $spare_id => $status_id) {
 
                 $spare_part_detail = $this->My_CI->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+                if($spare_part_detail['status'] == DEFECTIVE_PARTS_SHIPPED) {
+                    $spare_part_shipped_count = $spare_part_shipped_count + 1;
+                    continue;
+                }
+                
                 $status = "";
                 $defective_part_required = $spare_part_detail['defective_part_required'];
 
@@ -4927,8 +4928,13 @@ function generate_image($base64, $image_name,$directory){
             if (!empty($courier_lost_spare) && !empty($this->My_CI->session->userdata('service_center_id'))) {
                 $this->My_CI->service_centers_model->get_courier_lost_email_template($booking_id, $courier_lost_spare);
             }
-
-            return $a;
+            
+            if($spare_part_shipped_count > 0) {
+                return DEFECTIVE_PARTS_SHIPPED;
+            } else {
+                return $a;
+            }
+            
         } else {
             return false;
         }
