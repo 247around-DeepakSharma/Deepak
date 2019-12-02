@@ -868,6 +868,9 @@ class Notify {
                         default:
                         $data  = $this->send_sms_using_msg91($phone_number, $body);
                 }
+                default:
+                $data  = $this->send_sms_using_msg91($phone_number, $body);
+
         break;
         }
         
@@ -894,7 +897,7 @@ class Notify {
                 log_message('info', __METHOD__ . print_r($status, 1));
 
                 //sometimes we get a 24 char random value, other times we get 'success'
-                if ((isset($status['content']) && !empty($status['content']))  && (ctype_alnum($status['content']) && strlen($status['content']) == 24) || (ctype_alnum($status['content']) && strlen($status['content']) == 25) 
+                if ((ctype_alnum($status['content']) && strlen($status['content']) == 24) || (ctype_alnum($status['content']) && strlen($status['content']) == 25) 
                         || ($status['content'] == 'success') || (isset($status['message']) && ($status['message'] == "success") )){
                     $this->add_sms_sent_details($sms['type_id'], $sms['type'], $sms['phone_no'], $smsBody, $sms['booking_id'], $sms['tag'], $status['content']);
                 } else {
