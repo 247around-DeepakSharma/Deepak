@@ -43,6 +43,8 @@
             <tr>
           	<th>S.No</th>
                 <th>Service Center Name</th>
+                <th>State</th>
+                <th>City</th>
           	<th>Engineer Name</th>
                 <th>Appliances</th>
           	<th>Mobile</th>
@@ -82,7 +84,7 @@
                     pageSize: 'LEGAL',
                     title: 'engineers',
                     exportOptions: {
-                       columns: [1,2,3,4,5,6,7],
+                       columns: [1,2,3,4,5,6,7,9],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'

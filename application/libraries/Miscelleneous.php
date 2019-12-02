@@ -2460,6 +2460,7 @@ class Miscelleneous {
         $data= $this->My_CI->reusable_model->get_search_result_data("header_navigation","header_navigation.*,GROUP_CONCAT(p_m.title) as parent_name",$where,
                 array("header_navigation p_m"=>"FIND_IN_SET(p_m.id,header_navigation.parent_ids)"),NULL,$orderBYArray,NULL,array("header_navigation p_m"=>"LEFT"),array('header_navigation.id'));
          foreach($data as $navData){
+            $structuredData["id_".$navData['id']]['id'] = $navData['id']; 
             $structuredData["id_".$navData['id']]['title'] = $navData['title'];
             $structuredData["id_".$navData['id']]['title_icon'] = $navData['title_icon'];
             $structuredData["id_".$navData['id']]['link'] = $navData['link'];
@@ -2551,8 +2552,9 @@ class Miscelleneous {
             }
             //Send Push Notification
             $rmArray = $this->My_CI->vendor_model->get_rm_sf_relation_by_sf_id($vendor_id);
+            $agent_id = !empty($rmArray[0]['agent_id']) ? $rmArray[0]['agent_id'] : 0;
             $receiverArray['vendor']= array($vendor_id);
-            $receiverArray['employee']= array($rmArray[0]['agent_id']);
+            $receiverArray['employee']= array($agent_id);
             $notificationTextArray['msg'] = array($booking_id,"Cancelled");
             $notificationTextArray['title'] = array("Cancelled(Rescheduled)");
             $this->My_CI->push_notification_lib->create_and_send_push_notiifcation(BOOKING_UPDATED_BY_247AROUND,$receiverArray,$notificationTextArray);
@@ -2836,7 +2838,7 @@ class Miscelleneous {
   Your browser does not support HTML5 video.
 </video>';
         }
-        if ($type == 'pdf') {
+        if ($type == 'pdf' || $type == 'software') {
             $finalString = '<a target="_blank" href="' . $url . '">View</a>';
         }
         if ($type == 'audio') {
@@ -4472,7 +4474,8 @@ function generate_image($base64, $image_name,$directory){
                         'challan_approx_value' => $data['challan_approx_value'],
                         'requested_inventory_id' => $data['inventory_id'],
                         'parts_requested' => $data['part_name'],
-                        'parts_requested_type' => $data['type']
+                        'parts_requested_type' => $data['type'],
+                        'wh_ack_received_part'=>1
                     );
                     
                     $spare_pending_on_to='';
@@ -4803,18 +4806,19 @@ function generate_image($base64, $image_name,$directory){
      */
     public function update_spare_consumption_status($post_data, $booking_id, $service_center_details = [], $complete = 0) {
         
-        // check spare parts with DEFECTIVE_PARTS_SHIPPED status exists in the booking. If yes booking should not be completed.
-        $spare_parts_details = $this->My_CI->partner_model->get_spare_parts_by_any('*', array('status' => DEFECTIVE_PARTS_SHIPPED, 'booking_id' => $booking_id));
-        if(!empty($spare_parts_details)) {
-            return DEFECTIVE_PARTS_SHIPPED;
-        }
-        
+        $spare_part_shipped_count = 0;
         if (!empty($post_data['spare_consumption_status'])) {
             $courier_lost_spare = [];
             $a = false;
+            $count_part_shipped = 0;
             foreach ($post_data['spare_consumption_status'] as $spare_id => $status_id) {
 
                 $spare_part_detail = $this->My_CI->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+                if($spare_part_detail['status'] == DEFECTIVE_PARTS_SHIPPED) {
+                    $spare_part_shipped_count = $spare_part_shipped_count + 1;
+                    continue;
+                }
+                
                 $status = "";
                 $defective_part_required = $spare_part_detail['defective_part_required'];
 
@@ -4924,8 +4928,13 @@ function generate_image($base64, $image_name,$directory){
             if (!empty($courier_lost_spare) && !empty($this->My_CI->session->userdata('service_center_id'))) {
                 $this->My_CI->service_centers_model->get_courier_lost_email_template($booking_id, $courier_lost_spare);
             }
-
-            return $a;
+            
+            if($spare_part_shipped_count > 0) {
+                return DEFECTIVE_PARTS_SHIPPED;
+            } else {
+                return $a;
+            }
+            
         } else {
             return false;
         }

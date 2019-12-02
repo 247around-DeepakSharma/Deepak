@@ -74,7 +74,7 @@ else
                     <input type="hidden" name="dealer_id" id="dealer_id" value="<?php if(isset($booking_history[0]['dealer_id'])){ echo $booking_history[0]['dealer_id']; } ?>">
                     <input type="hidden"  id="booking_user_email" name="user_email" value = "<?php echo $booking_history[0]['user_email']; ?>">
                     <input type="hidden"  id="booking_alternate_contact_no" name="booking_alternate_contact_no" value = "<?php echo $booking_history[0]['alternate_phone_number']?>">
-                    <input type="hidden"  id="source_code" name="source_code" value = "<?php echo $booking_history[0]['partner_id']?>">
+                    <input type="hidden"  id="source_code" name="source_code" value = "<?php echo $booking_history[0]['source']?>">
                     <input type="hidden"  id="partner_source" name="partner_source" value = "<?php echo $booking_history[0]['partner_source']?>">
                     <input type="hidden" value="<?php echo $parentBkng; ?>" name="parent_id" id="parent_id">
                     <input type="hidden" name= "dealer_name" value="<?php if(isset($booking_history[0]['dealer_name'])){ echo $booking_history[0]['dealer_name']; } ?>" id="dealer_name"/>
@@ -119,10 +119,11 @@ else
                                         }
                                         if(!empty($booking_model_number) && !empty($model[0]) && $booking_history['is_spare_requested']){
                                             $arrModels = array_column($model[0], 'model');
-                                            if(!in_array($booking_model_number, $arrModels)){ ?>
+                                            $arrModels = array_map('strtoupper', $arrModels);
+                                            if(!in_array(strtoupper($booking_model_number), $arrModels)){ ?>
                                                 <input type="hidden" name="model_not_mapped" id="model_not_mapped" value="1"/>
                                                 <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
-                                                    <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $booking_model_number ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
+                                                    <span class="text-primary" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $booking_model_number ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
                                                 </div>
                                             <?php }
                                         }
@@ -136,7 +137,7 @@ else
                                                     <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" required onchange="getCapacityCategoryForModel(this.value, this.id);check_booking_request();" style="<?= $str_disabled?>">
                                                         <option selected disabled value="">Select Appliance Model</option>
                                                         <?php foreach ($model[0] as $value) { ?>
-                                                        <option <?php if(!empty($booking_model_number)) {if($value['model'] == $booking_model_number) { echo "selected"; }} elseif(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; }}?>
+                                                        <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; }} elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; }}?>
                                                             ><?php echo $value['model']; ?></option>
                                                         <?php } ?>
                                                     </select>
@@ -524,7 +525,7 @@ else
             var model_number = $(".input-model").val();
         }
         var dop = $("#purchase_date_1").val();
-        var partner_id = $("#source_code").val();
+        var partner_id = $("#partner_id").val();
         var service_id = $("#service_id").val();
         var booking_id = "<?= $booking_history[0]['booking_id']?>";
         var booking_request_types = []; 
@@ -686,7 +687,7 @@ else
     postData['clone_number'] = 1;
     postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
     postData['capacity'] = $("#appliance_capacity_1").val();
-    postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
+    postData['partner_id'] = $("#partner_id").val();
 //    $('#submitform').attr('disabled',true);
 
     sendAjaxRequest(postData, pricesForCategoryCapacityUrl).done(function(data) {

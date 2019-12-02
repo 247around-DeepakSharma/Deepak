@@ -97,7 +97,6 @@ class File_upload extends CI_Controller {
                     }
                    
                     //save file into database send send response based on file upload status  
-
                     if (isset($response['status']) && ($response['status'])) {
 
                         //save file and upload on s3
@@ -909,113 +908,123 @@ class File_upload extends CI_Controller {
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
         if ($check_header['status']) {
-
+            $nonValidData = array();
             //get file data to process
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
-               
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
                     if (!empty($this->input->post('partner_id')) && !empty($this->input->post('service_id')) && !empty($rowData['model'])) {
-                        $partner_model_id = "";
-                        $model_description = "";
-                        $partner_brand_id = "";
-                        if(isset($rowData['partner_model_id'])){
-                            $partner_model_id = $rowData['partner_model_id'];
+                        $validate_model_number = true;
+                        if(strpos($rowData['model'], "'")){
+                            $validate_model_number = false;
                         }
-                        
-                        if(isset($rowData['model_description'])){
-                            $model_description = $rowData['model_description'];
+                        else if(strpos($rowData['model'], '"')){
+                            $validate_model_number = false;
                         }
-                        
-                        if(isset($rowData['partner_brand_id'])){
-                            $partner_brand_id = $rowData['partner_brand_id'];
-                        }
-                        
-                        $aplliance_model_where = array(
-                            'service_id' => $this->input->post('service_id'),
-                            'model_number' => $rowData['model'],
-                            'entity_type' => 'partner',
-                            'entity_id' => $this->input->post('partner_id')
-                        );
-                        $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
-                        if(empty($model_detail)){
-                            $aplliance_model_where["partner_model_id"] =  $partner_model_id;
-                            $aplliance_model_where["model_description"] =  $model_description;
-                            $appliance_model_id = $this->inventory_model->insert_appliance_model_data($aplliance_model_where); 
-                        }
-                        else{
-                            $appliance_model_id = $model_detail[0]['id'];
-                        }
+                        if($validate_model_number){
+                            $partner_model_id = "";
+                            $model_description = "";
+                            $partner_brand_id = "";
+                            if(isset($rowData['partner_model_id'])){
+                                $partner_model_id = $rowData['partner_model_id'];
+                            }
 
-                        $partner_model_where = array(
-                            "partner_id" => $this->input->post('partner_id'),
-                            "service_id" => $this->input->post('service_id'),
-                            "brand" => $rowData['brand'],
-                            "category" => $rowData['category'],
-                            "capacity" => $rowData['capacity'],
-                            "model" => $appliance_model_id
-                        );
-                        $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where, 'id');
-                        if(empty($partner_model_details)){
-                            // ---------------------------------------------------------------------
-                            // Check case if model exists with some other capacity/category
-                            // update data in this case
-                            // Added by Prity Sharma on 01-07-2019
-                            $partner_model_where_without_category_capacity = array(
+                            if(isset($rowData['model_description'])){
+                                $model_description = $rowData['model_description'];
+                            }
+
+                            if(isset($rowData['partner_brand_id'])){
+                                $partner_brand_id = $rowData['partner_brand_id'];
+                            }
+
+                            $aplliance_model_where = array(
+                                'service_id' => $this->input->post('service_id'),
+                                'model_number' => $rowData['model'],
+                                'entity_type' => 'partner',
+                                'entity_id' => $this->input->post('partner_id')
+                            );
+                            $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
+                            if(empty($model_detail)){
+                                $aplliance_model_where["partner_model_id"] =  $partner_model_id;
+                                $aplliance_model_where["model_description"] =  $model_description;
+                                $appliance_model_id = $this->inventory_model->insert_appliance_model_data($aplliance_model_where); 
+                            }
+                            else{
+                                $appliance_model_id = $model_detail[0]['id'];
+                            }
+
+                            $partner_model_where = array(
                                 "partner_id" => $this->input->post('partner_id'),
                                 "service_id" => $this->input->post('service_id'),
                                 "brand" => $rowData['brand'],
+                                "category" => $rowData['category'],
+                                "capacity" => $rowData['capacity'],
                                 "model" => $appliance_model_id
                             );
-                            $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where_without_category_capacity, 'id, model');
-                            if(!empty($partner_model_details))
-                            {
-                                $partner_appliance_id = $this->partner_model->update_partner_appliance_details(array("id"=>$partner_model_details[0]['id']), array("category"=>$partner_model_where["category"], 'capacity' => $partner_model_where["capacity"]));
-                            }
-                            else {
-                                // ----------------------------------------------------------------------
-                                unset($partner_model_where["model"]); 
-                                $partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"] = NULL;
-                                $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where, 'id, model');
-                                if(!empty($partner_model_details)){
-                                    if($partner_model_details[0]['model'] == NULL){
-                                       $partner_appliance_id = $this->partner_model->update_partner_appliance_details(array("id"=>$partner_model_details[0]['id']), array("model"=>$appliance_model_id));
+                            $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where, 'id');
+                            if(empty($partner_model_details)){
+                                // ---------------------------------------------------------------------
+                                // Check case if model exists with some other capacity/category
+                                // update data in this case
+                                // Added by Prity Sharma on 01-07-2019
+                                $partner_model_where_without_category_capacity = array(
+                                    "partner_id" => $this->input->post('partner_id'),
+                                    "service_id" => $this->input->post('service_id'),
+                                    "brand" => $rowData['brand'],
+                                    "model" => $appliance_model_id
+                                );
+                                $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where_without_category_capacity, 'id, model');
+                                if(!empty($partner_model_details))
+                                {
+                                    $partner_appliance_id = $this->partner_model->update_partner_appliance_details(array("id"=>$partner_model_details[0]['id']), array("category"=>$partner_model_where["category"], 'capacity' => $partner_model_where["capacity"]));
+                                }
+                                else {
+                                    // ----------------------------------------------------------------------
+                                    unset($partner_model_where["model"]); 
+                                    $partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"] = NULL;
+                                    $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where, 'id, model');
+                                    if(!empty($partner_model_details)){
+                                        if($partner_model_details[0]['model'] == NULL){
+                                           $partner_appliance_id = $this->partner_model->update_partner_appliance_details(array("id"=>$partner_model_details[0]['id']), array("model"=>$appliance_model_id));
+                                        }
+                                        else if($partner_model_details[0]['model'] != $appliance_model_id){
+                                            unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
+                                            $partner_model_where['model'] = $appliance_model_id;
+                                            $partner_model_where['partner_brand_id'] = $partner_brand_id;
+                                            $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
+                                        }
                                     }
-                                    else if($partner_model_details[0]['model'] != $appliance_model_id){
+                                    else{
                                         unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
                                         $partner_model_where['model'] = $appliance_model_id;
                                         $partner_model_where['partner_brand_id'] = $partner_brand_id;
                                         $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
                                     }
+                                }                            
+                            }
+                            else{
+                               $partner_appliance_id =  $partner_model_details[0]['id'];
+                            }
+                            if ($partner_appliance_id) {
+                                log_message("info", __METHOD__ . " partner appliance file data inserted succcessfully");
+                                //check brand_name and service_id is exist in appliance_brand table or not
+                                $not_exist_data = $this->booking_model->get_not_exist_appliance_brand_data();
+                                if ($not_exist_data) {
+                                    $this->booking_model->insert_not_exist_appliance_brand_data($not_exist_data);
+                                    log_message('info', __FUNCTION__ . 'Not exist brand name and service id added into the table appliance_brand');
                                 }
-                                else{
-                                    unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
-                                    $partner_model_where['model'] = $appliance_model_id;
-                                    $partner_model_where['partner_brand_id'] = $partner_brand_id;
-                                    $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
-                                }
-                            }                            
+                                $response['status'] = TRUE;
+                                $response['message'] = "Details inserted successfully.";
+                            } else {
+                                log_message("info", __METHOD__ . " error in inserting partner appliance file data");
+                                $response['status'] = FALSE;
+                                $response['message'] = "Something went wrong in inserting data.";
+                            }
                         }
                         else{
-                           $partner_appliance_id =  $partner_model_details[0]['id'];
-                        }
-                        
-                        if ($partner_appliance_id) {
-                            log_message("info", __METHOD__ . " partner appliance file data inserted succcessfully");
-                            //check brand_name and service_id is exist in appliance_brand table or not
-                            $not_exist_data = $this->booking_model->get_not_exist_appliance_brand_data();
-                            if ($not_exist_data) {
-                                $this->booking_model->insert_not_exist_appliance_brand_data($not_exist_data);
-                                log_message('info', __FUNCTION__ . 'Not exist brand name and service id added into the table appliance_brand');
-                            }
-                            $response['status'] = TRUE;
-                            $response['message'] = "Details inserted successfully.";
-                        } else {
-                            log_message("info", __METHOD__ . " error in inserting partner appliance file data");
-                            $response['status'] = FALSE;
-                            $response['message'] = "Something went wrong in inserting data.";
+                            array_push($nonValidData, $rowData['model']); 
                         }
                     }
                     else {
@@ -1029,6 +1038,14 @@ class File_upload extends CI_Controller {
                     $response['status'] = FALSE;
                     $response['message'] = "Please Select Partner And Appliance Both OR Model Number can not be empty";
                 }
+            }
+            if(!empty($nonValidData)){
+                $model_string = "";
+                foreach ($nonValidData as $model_number) {
+                   $model_string = $model_number.", ".$model_string;
+                }
+                $response['status'] = FALSE;
+                $response['message'] = "Model Number has quotes, Please remove and upload again - ".rtrim($model_string, ' ,');
             }
         } else {
             $response['status'] = FALSE;
@@ -1242,9 +1259,9 @@ class File_upload extends CI_Controller {
                         log_message("info", __METHOD__ . " error in creating mapping.");
                         $response['status'] = FALSE;
                         if(!empty($data['saas_module'])){
-                           $response['message'] = "Either mapping already exists or something gone wrong. Please contact to backend team.";
+                           $response['message'] = "Either mapping already exists or something gone wrong. Please contact to backoffice team.";
                         } else {
-                          $response['message'] = "Either mapping already exists or something gone wrong. Please contact 247around developer.";  
+                          $response['message'] = "Either mapping already exists or something gone wrong. Please contact backoffice team.";  
                         }
                     }
                 } else {

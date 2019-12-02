@@ -415,6 +415,9 @@ class engineerApi extends CI_Controller {
                 $this->getIncentiveEearnedBookingsByEngineer(); 
                 break;
             
+            case 'todaysSlotBookings':
+                $this->getTodaysSlotBookings();
+            
             default:
                 break;
             
@@ -2245,93 +2248,102 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($postData['submitSparePartsOrder'], true);
         $requestData["call_from_api"] = TRUE;
         $validation = $this->validateSparePartsOrderRequest($requestData);
-        if($validation['status']){ 
-            /*Check part warranty status*/
-            $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
-            foreach ($requestData['part'] as $key => $value){
-                if(strpos($bookingDetails[0]['request_type'],'Out Of Warranty') == true || strpos($bookingDetails[0]['request_type'],'Gas Recharge - Out') == true ){
-                    $requestData['part'][$key]['part_warranty_status'] = 2;
-                }else{
-                    $requestData['part'][$key]['part_warranty_status'] = 1;
+        if($validation['status']){
+            /** Check serial number validation **/
+            $booking_history = $this->booking_model->getbooking_history($requestData['booking_id']);
+            $check_serial = $this->checkVaidationOnSerialNumber($booking_history[0]['partner_id'], $requestData['serial_number'], $requestData['price_tags'], $booking_history[0]['user_id'], $requestData['booking_id'], $booking_history[0]['service_id'], $requestData['model_number']);
+            if($check_serial['status']){
+                /*Check part warranty status*/
+                $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
+                foreach ($requestData['part'] as $key => $value){
+                    if(strpos($bookingDetails[0]['request_type'],'Out Of Warranty') == true || strpos($bookingDetails[0]['request_type'],'Gas Recharge - Out') == true ){
+                        $requestData['part'][$key]['part_warranty_status'] = 2;
+                    }else{
+                        $requestData['part'][$key]['part_warranty_status'] = 1;
+                    }
+                    //upload defective front part pic
+                    if($value["defective_front_parts"]){
+                        $defective_part_pic = "Defective_Parts_".date("YmdHis").".png";
+                        $this->miscelleneous->generate_image($value["defective_front_parts"], $defective_part_pic, "misc-images");
+                        $requestData['part'][$key]['defective_parts'] = $defective_part_pic;
+                    }
+
+                    //upload defective back part pick
+                    if($value["defective_back_parts"]){
+                        $defective_back_part_pic = "Defective_Parts_".date("YmdHis").".png";
+                        $this->miscelleneous->generate_image($value["defective_back_parts"], $defective_back_part_pic, "misc-images");
+                        $requestData['part'][$key]['defective_back_parts_pic'] = $defective_back_part_pic;
+                    }
                 }
-                //upload defective front part pic
-                if($value["defective_front_parts"]){
-                    $defective_part_pic = "Defective_Parts_".date("YmdHis").".png";
-                    $this->miscelleneous->generate_image($value["defective_front_parts"], $defective_part_pic, "misc-images");
-                    $requestData['part'][$key]['defective_parts'] = $defective_part_pic;
-                }
-                
-                //upload defective back part pick
-                if($value["defective_back_parts"]){
-                    $defective_back_part_pic = "Defective_Parts_".date("YmdHis").".png";
-                    $this->miscelleneous->generate_image($value["defective_back_parts"], $defective_back_part_pic, "misc-images");
-                    $requestData['part'][$key]['defective_back_parts_pic'] = $defective_back_part_pic;
-                }
-            }
-        
-        
-            if(isset($requestData['serial_number_pic_exist'])){
-                if($requestData['serial_number_pic_exist']){
-                    $serial_number_pic = "serial_number_pic_".date("YmdHis").".png";
-                    $this->miscelleneous->generate_image($requestData['serial_number_pic_exist'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
-                    $requestData['serial_number_pic'] = $serial_number_pic;
-                }
-            }
-            else{
-                if(isset($requestData['existing_serial_number_pic'])){
-                    if($requestData['existing_serial_number_pic']){
+
+
+                if(isset($requestData['serial_number_pic_exist'])){
+                    if($requestData['serial_number_pic_exist']){
                         $serial_number_pic = "serial_number_pic_".date("YmdHis").".png";
-                        $this->miscelleneous->generate_image($requestData['existing_serial_number_pic'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
+                        $this->miscelleneous->generate_image($requestData['serial_number_pic_exist'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
                         $requestData['serial_number_pic'] = $serial_number_pic;
                     }
                 }
-            }
+                else{
+                    if(isset($requestData['existing_serial_number_pic'])){
+                        if($requestData['existing_serial_number_pic']){
+                            $serial_number_pic = "serial_number_pic_".date("YmdHis").".png";
+                            $this->miscelleneous->generate_image($requestData['existing_serial_number_pic'], $serial_number_pic, SERIAL_NUMBER_PIC_DIR);
+                            $requestData['serial_number_pic'] = $serial_number_pic;
+                        }
+                    }
+                }
 
-            if(isset($requestData['invoice_number_pic_exist'])){
-                if($requestData['invoice_number_pic_exist']){
-                    $invoice_pic = "invoice_".$requestData['booking_id']."_".date("YmdHis").".png";
-                    $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "misc-images");
-                    $requestData['invoice_pic'] = $invoice_pic;
+                if(isset($requestData['invoice_number_pic_exist'])){
+                    if($requestData['invoice_number_pic_exist']){
+                        $invoice_pic = "invoice_".$requestData['booking_id']."_".date("YmdHis").".png";
+                        $this->miscelleneous->generate_image($requestData['invoice_number_pic_exist'], $invoice_pic, "misc-images");
+                        $requestData['invoice_pic'] = $invoice_pic;
+                    }
                 }
+                else{
+                    if($requestData['existing_purchase_invoice']){
+                        $invoice_pic = "invoice_".$requestData['booking_id']."_".date("YmdHis").".png";
+                        $this->miscelleneous->generate_image($requestData['existing_purchase_invoice'], $invoice_pic, "misc-images");
+                        $requestData['invoice_pic'] = $invoice_pic;
+                    }
+                }
+
+                //Call curl for updating spare parts using code from where service center ask for spare parts
+                $url = base_url()."employee/service_centers/update_spare_parts"; 
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_HEADER, false);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
+                $curl_response = curl_exec($ch);
+                curl_close($ch);
+                if($curl_response){
+                    /*Update model number and purchase date in booking unit details*/
+                    $booking_update_data = array("sf_model_number" => $requestData['model_number'], "sf_purchase_date" => $requestData['dop']);
+                    $this->booking_model->update_booking_unit_details($requestData["booking_id"], $booking_update_data);
+                    /*End*/
+                    log_message("info", __METHOD__ . "Part  Updated successfully");
+                    $this->jsonResponseString['response'] = "Booking Updated Successfully";
+                    $this->sendJsonResponse(array('0000', 'success'));
+                }
+                /*
+                $response = json_decode($curl_response);
+                if($response->status){
+                    log_message("info", __METHOD__ . "Part  Updated successfully");
+                    $this->jsonResponseString['response'] = $response->message;
+                    $this->sendJsonResponse(array('0000', 'success'));
+                }
+                else{
+                    log_message("info", __METHOD__ . "Part Not Updated Error - ".$response->message);
+                    $this->sendJsonResponse(array('0035', $response->message));
+                }
+                */
             }
             else{
-                if($requestData['existing_purchase_invoice']){
-                    $invoice_pic = "invoice_".$requestData['booking_id']."_".date("YmdHis").".png";
-                    $this->miscelleneous->generate_image($requestData['existing_purchase_invoice'], $invoice_pic, "misc-images");
-                    $requestData['invoice_pic'] = $invoice_pic;
-                }
+                log_message("info", __METHOD__ . "Serial number validation failed");
+                $this->sendJsonResponse(array($check_serial['code'], $check_serial['message']));
             }
-            
-            //Call curl for updating spare parts using code from where service center ask for spare parts
-            $url = base_url()."employee/service_centers/update_spare_parts"; 
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_HEADER, false);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POST, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData));
-            $curl_response = curl_exec($ch);
-            curl_close($ch);
-            if($curl_response){
-                /*Update model number and purchase date in booking unit details*/
-                $booking_update_data = array("sf_model_number" => $requestData['model_number'], "sf_purchase_date" => $requestData['dop']);
-                $this->booking_model->update_booking_unit_details($requestData["booking_id"], $booking_update_data);
-                /*End*/
-                log_message("info", __METHOD__ . "Part  Updated successfully");
-                $this->jsonResponseString['response'] = "Booking Updated Successfully";
-                $this->sendJsonResponse(array('0000', 'success'));
-            }
-            /*
-            $response = json_decode($curl_response);
-            if($response->status){
-                log_message("info", __METHOD__ . "Part  Updated successfully");
-                $this->jsonResponseString['response'] = $response->message;
-                $this->sendJsonResponse(array('0000', 'success'));
-            }
-            else{
-                log_message("info", __METHOD__ . "Part Not Updated Error - ".$response->message);
-                $this->sendJsonResponse(array('0035', $response->message));
-            }
-            */
         }
         else{
             log_message("info", __METHOD__ . "Request validation failed ".$validation['message']);
@@ -2388,17 +2400,33 @@ class engineerApi extends CI_Controller {
             $response['message'] = "Parts Array not found";
         }
         else if(isset($requestData['part'])){
-           
             $check = true;
             $missing_key = "";
             $keys = array("part_warranty_status", "parts_type", "parts_name", "quantity", "requested_inventory_id");
+            $ptypes = array();
             foreach($requestData['part'] as $parts){
                 foreach ($keys as $key){
-                    if (!array_key_exists($key, $parts)){ 
+                    if (!array_key_exists($key, $parts)){
                         $check = false;
                         $missing_key = "Part array key missing - ".$key;
                     }
                 }
+                /** Request part max quantity validation **/
+                if($check){
+                    $current = $parts['parts_type'];
+                    if (count($ptypes)>0) {
+                        $n = in_array($current, $ptypes);
+                        if ($n) {
+                           $check = false;
+                           $missing_key = "Same part type can not be requested, For multiple part please fill quantity.";
+                        }else{
+                            array_push($ptypes, $current);
+                        } 
+                    }else{
+                        array_push($ptypes, $current);
+                    }
+                }
+                /** End **/
             }
             if($check){
                 $response['status'] = true;
@@ -2869,6 +2897,37 @@ class engineerApi extends CI_Controller {
         }
     }
     
+    function checkVaidationOnSerialNumber($partner_id, $serial_number, $price_tags, $user_id, $booking_id, $appliance_id, $model_number){
+        $response = array();
+        if (!ctype_alnum($serial_number)) {
+            log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
+            $response['status'] = false;
+            $response['code'] = "0052";
+            $response['message'] = "Serial Number Entered With Special Character, This is not allowed."; 
+        }
+        else {
+            $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id,$model_number);
+            if (!empty($status)) {
+                if($status['code'] == SUCCESS_CODE){
+                    $response['status'] = true;
+                    $response['code'] = "0000";
+                    $response['message'] = "Serial Number Successfully Validated."; 
+                }
+                else{
+                    $response['status'] = false;
+                    $response['code'] = "0053";
+                    $response['message'] = $status['message']; 
+                }
+            } else {
+                log_message('info',__METHOD__. 'Partner serial no validation is not define');
+                $response['status'] = true;
+                $response['code'] = "0000";
+                $response['message'] = "Serial no validation not required"; 
+            }
+        }
+        return $response;
+    }
+            
     function getValidateSerialNumber(){
         log_message("info", __METHOD__. " Entering..");
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
@@ -2885,24 +2944,8 @@ class engineerApi extends CI_Controller {
                     $appliance_id = $booking_history[0]['service_id'];
                     $model_number = $requestData['model_number'];
                     
-                    if (!ctype_alnum($serial_number)) {
-                        log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
-                        $this->sendJsonResponse(array('0052', 'Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.'));
-                    }
-                    else {
-                        $status = $this->validate_serial_no->validateSerialNo($partner_id, trim($serial_number), trim($price_tags), $user_id, $booking_id, $appliance_id,$model_number);
-                        if (!empty($status)) {
-                            if($status['code'] == SUCCESS_CODE){
-                                $this->sendJsonResponse(array('0000', 'Serial Number Successfully Validated'));
-                            }
-                            else{
-                                $this->sendJsonResponse(array('0053', $status['message']));
-                            }
-                        } else {
-                            log_message('info',__METHOD__. 'Partner serial no validation is not define');
-                            $this->sendJsonResponse(array('0000', 'Serial no validation not required'));
-                        }
-                    }
+                    $check_serial = $this->checkVaidationOnSerialNumber($partner_id, $serial_number, $price_tags, $user_id, $booking_id, $appliance_id, $model_number);
+                    $this->sendJsonResponse(array($check_serial['code'], $check_serial['message']));
                 }
                 else{
                     log_message("info", __METHOD__ . " Price Tag Not Found ");
@@ -3538,15 +3581,10 @@ class engineerApi extends CI_Controller {
                 $post['where']['assigned_engineer_id'] = $requestData['engineer_id'];
                 $post['where']['assigned_vendor_id'] = $requestData['service_center_id'];
                 
-                $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select, array(), 1)->result_array();
+                $data['Bookings'] = $this->booking_model->get_bookings_by_status($post,$select, array(), 2)->result_array();
             }
             else {
-                $where = array(
-                        'booking_details.assigned_engineer_id' => $requestData['engineer_id'],
-                        'booking_details.assigned_vendor_id' => $requestData['service_center_id'],
-                        'users.phone_number = "'.$phone_number.'" OR booking_details.booking_primary_contact_no = "'.$phone_number.'" OR booking_details.booking_alternate_contact_no = "'.$phone_number.'"' => NULL 
-                    );
-                $data['Bookings'] = $this->engineer_model->engineer_bookings_on_user($select, $where);
+                $data['Bookings'] = $this->engineer_model->engineer_bookings_on_user($phone_number, $requestData['engineer_id'], $requestData['service_center_id']);
             } 
             
             if(!empty($data['Bookings'])){
@@ -3607,6 +3645,32 @@ class engineerApi extends CI_Controller {
         else{
             log_message("info", __METHOD__ . "Engineer id or Service Center id not found");
             $this->sendJsonResponse(array("0064", "Engineer id or Service Center id not found"));
+        }
+    }
+    
+    /*Desc - This function is used to get todays booking list on the basis of working slots*/
+    function getTodaysSlotBookings(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("engineer_id", "service_center_id", "engineer_pincode", "booking_slot"), $requestData);
+        if($validation['status']){
+            $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
+                    . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
+                    . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks';
+            $response = $this->getTodaysSlotBookingList($slot_select, $requestData["booking_slot"], $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
+            if(!empty($response)){
+                log_message("info", __METHOD__ . "Bookings Found Successfully");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            else{
+                log_message("info", __METHOD__ . "Bookings not found");
+                $this->sendJsonResponse(array('0065', 'Bookings not found'));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->sendJsonResponse(array("0066", $validation['message']));
         }
     }
 }

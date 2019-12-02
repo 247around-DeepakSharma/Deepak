@@ -119,13 +119,12 @@ function getCapacityForCategory(category, div_id, add_booking) {
     postData['category'] = category;
     postData['partner_type'] = $("#partner_type").val();
     postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
-
-
+    postData['capacity'] = $("#appliance_capacity_" + div_no[2]).val();
     sendAjaxRequest(postData, CapacityForCategoryUrl).done(function (data) {
 
 
         $("#appliance_capacity_" + div_no[2]).html(data).change();
-
+        $("#appliance_capacity_" + div_no[2]).val(postData['capacity']);
         if (data !== "<option></option>") {
             $("#priceList_" + div_no[2]).html("");
             if(category){

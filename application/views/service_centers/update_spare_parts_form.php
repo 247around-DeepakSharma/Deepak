@@ -177,7 +177,7 @@
                                         } ?>">
                                         <label for="shipped_part_type" class="col-md-4">Shipped Part Type *</label>
                                         <div class="col-md-6">
-                                            <select onchange="change_shipped_part_type('<?php echo $skey;?>')" class="form-control spare_parts shipped_part_type" id="<?php echo "shippedparttype_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_part_type]" required="">
+                                            <select onchange="change_shipped_part_type('<?php echo $skey;?>')" class="form-control parts_type_check spare_parts shipped_part_type" id="<?php echo "shippedparttype_".$skey;?>" name="part[<?php echo $skey; ?>][shipped_part_type]" required="">
                                                 <option selected disabled>Select Part Type</option>
                                             </select>
                                             <?php echo form_error('shipped_part_type'); ?>
@@ -228,7 +228,7 @@
                                         <label for="shipped_parts_name" class="col-md-4">Shipped Quantity *</label>
                                         <div class="col-md-6">
 
-                                            <input class="form-control quantity" type="text" min="1" value="<?php echo $sp->quantity; ?>" id="<?php echo "shippedquantity_".$skey;?>" name="part[<?php echo $skey;?>][shipped_quantity]" readonly="" required />
+                                            <input class="form-control quantity" type="text" readonly="" min="1" value="<?php echo $sp->quantity; ?>" id="<?php echo "shippedquantity_".$skey;?>" name="part[<?php echo $skey;?>][shipped_quantity]" readonly="" required />
                                             <span id="error_span_0" style="color:red;" class="hide"></span>
 
                                             <?php echo form_error('quantity'); ?>
@@ -325,7 +325,7 @@
                                         <div class="form-group ">
                                             <label for="shippedquantity" class="col-md-4">Shipped Quantity *</label>
                                             <div class="col-md-6">
-                                                <input type="text" min="1" class="form-control shippedquantity qua" readonly="" value="1" id="shippedquantity"  />
+                                                <input type="text" min="1" class="form-control shippedquantity quantity" readonly="" value="1" id="shippedquantity"  />
                                                  <span id="error_span" style="color:red;" class="hide"></span>
                                             </div>
                                         </div>
@@ -347,7 +347,7 @@
                                         <div class="form-group ">
                                             <label for="shipped_part_type" class="col-md-4">Shipped Part Type *</label>
                                             <div class="col-md-6">
-                                                <select  class="form-control spare_parts" id="shippedparttype" >
+                                                <select  class="form-control spare_parts parts_type_check" id="shippedparttype" >
                                                     <option selected disabled>Select Part Type</option>
                                                 </select>
                                             </div>
@@ -517,7 +517,7 @@
                 rules: {
                 
                 courier_name:"required",
-                awb: "required",
+                awb: "required",                                         
                 shipment_date:"required",
                 courier_price_by_partner:{
                     digits:true,
@@ -536,7 +536,41 @@
               
                 },
                 submitHandler: function (form) {
-                form.submit();
+
+
+
+                    var ptypes =[];
+                    var flag = false;
+                    $(".parts_type_check").each(function(i) {
+                    var current = $(this).val();
+                    if (ptypes.length>0) {
+ 
+                     var n = ptypes.includes(current);
+                    if (n) {
+                    //alert("Same part type can not be requested.For multiple part please fill quantity.");
+                    // checkbox_value = 0;
+                   //  return false;
+                   flag=true;
+                  }else{
+                    ptypes.push(current);
+               } 
+             }else{
+          
+               ptypes.push(current); 
+
+             }
+          
+           });
+
+
+            if (flag) {
+                swal("Error !", "Same part type can not be shipped. For multiple part please fill quantity.");
+ 
+            }else{
+
+                form.submit(); 
+            }
+                
                 }
             });
             }

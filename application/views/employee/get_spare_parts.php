@@ -59,8 +59,12 @@
                </div>                           
                <div class="pull-right" style="margin-right: 100px;">
                    <select class="form-control" name="partner_id"  id="partner_id" required=""></select>
-                   <span id="partner_err"></span>
-               </div>                           
+                   <p id="partner_err"></p>
+               </div>    
+               <div class="pull-right" style="margin-right: 100px;">
+                   <select class="form-control" name="service_centers_id"  id="service_centers_id" required=""></select>
+                   <p id="service_centers_id_err"></p>
+               </div>    
            </div>
        </div>
        </br>
@@ -156,6 +160,7 @@
         $("#schedule_pickup").attr('disabled', true);        
         spare_booking_on_tab();
         get_partner_list();
+        get_service_centers_list();
     });
     
     function spare_booking_on_tab(){
@@ -341,14 +346,17 @@
     
       $('#download_spare_list').click(function(){
         var partner_id = $("#partner_id").val();
-        
-        if(partner_id!=null && partner_id!=''){
+        var service_center_id = $("#service_centers_id").val();
+        if(partner_id!=null && partner_id!='' || service_center_id !=null && service_center_id !=''){
+            
             $("#partner_err").html('');
+            $("#service_centers_id_err").html('');
+            
             $('#download_spare_list').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/inventory/download_spare_consolidated_data',
-                data: {partner_id : partner_id},
+                data: { partner_id : partner_id, service_center_id : service_center_id },
                 success: function (data) {
                     $('#download_spare_list').html("Download").attr('disabled',false);
                     var obj = JSON.parse(data); 
@@ -360,7 +368,8 @@
                 }
             });
         }else{
-        $("#partner_err").html("Please select partner").css('color','red');
+        $("#service_centers_id_err").html("Please select Service Center.").css('color','red');
+        $("#partner_err").html("Please select partner.").css('color','red');
         }
     });
     
@@ -479,9 +488,29 @@
     }
     
     
+    function get_service_centers_list(){
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url() ?>employee/service_centers/get_service_centers_list',
+            data:{ is_micro_wh : 1 },
+            success: function (response) {
+                $("#service_centers_id").html(response);                
+            }
+        });
+    }
+    
+    
     $('#partner_id').select2({
-           placeholder:'Select Partner'
-       });
+        placeholder:'Select Partner'
+    });
+
+    $('#service_centers_id').select2({
+        placeholder:'Select Service Center'
+    });
+    
+    $("#service_centers_id").on("change",function(){
+    
+    });
 </script>
 <?php 
     if ($this->session->userdata('error')) {

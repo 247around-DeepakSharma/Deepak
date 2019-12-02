@@ -130,19 +130,45 @@
                                             <?php  echo $row->count_escalation." times"; ?>
                                         </td>
                                         <?php if($is_engineer_app){ ?>
-                                        <td style="vertical-align: middle;"><select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select>
+                                        <td style="vertical-align: middle;">
+                                            <?php if ($row->nrn_approved==0) { ?>
+                                                    
+                                            <select id="engineer_<?php echo $sn_no; ?>" class="engineer_select" service-id="<?php echo $row->service_id; ?>" engineer-id="<?php echo $row->assigned_engineer_id; ?>" booking-id="<?php echo $row->booking_id; ?>"></select>
+
                                             <a href='<?php echo base_url(); ?>service_center/add_engineer/<?php echo urlencode(base64_encode($row->booking_id)); ?>' class='btn btn-info btn-sm' target='_blank'><i class='fa fa-user' aria-hidden='true'></i></a>
+
+                                            <?php }else{ ?>
+
+                                                <select class="disabled">
+                                                    <option >Select Engineer</option>
+                                                </select>
+
+                                            <?php } ?>
+                                            
                                         </td>
                                         <?php }
                                         if(isset($saas_module) && (!$saas_module)) { ?>
                                         <td style="vertical-align: middle;">
-                                            <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id))?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary <?php if(!empty($row->service_center_closed_date)) { echo " disabled";} ?>"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
+                                            <?php if ($row->nrn_approved==0) { ?>
+                                                
+                                                 <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id))?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary <?php if(!empty($row->service_center_closed_date)) { echo " disabled";} ?>"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>    
+
+                                           <?php  }else{ ?>
+
+                                                 <a target="_blank" href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary  disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
+
+                                           <?php } ?>
+                                           
                                         </td>
                                         <?php } ?>
                                         <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>
                                         <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/warranty/<?= $row->partner_id ?>/<?= $row->service_id ?>/<?= $row->appliance_brand ?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker'><i class='fa fa-certificate' aria-hidden='true'></i></a></td>
                                         <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>
+                                        <?php }else{ ?>
+                                            <a class="btn btn-sm btn-primary disabled" href="#" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>
+                                        <?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
@@ -152,7 +178,13 @@
                                         </td>                                        
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a class="btn btn-sm btn-primary <?php if ((is_null($row->assigned_engineer_id) && $is_engineer_app == '1') || !empty($row->service_center_closed_date)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                        <?php }else{ ?>
+
+                                            <a class="btn btn-sm btn-primary disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="#" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+
+                                        <?php } ?>
                                         </td>
                                         <?php } ?>
                                         <?php if($this->session->userdata('is_update') == 0){ ?>
@@ -164,10 +196,23 @@
                                             <?php
                                                 $redirect_url = base_url()."service_center/complete_booking_form/".urlencode(base64_encode($row->booking_id));
                                             ?>
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php  if($is_engineer_app == '1')  { if (is_null($row->assigned_engineer_id) || (!empty($row->is_booking_close_by_app_active))) { 
                                             ?>  disabled <?php } } }  if(!empty($row->service_center_closed_date)) { echo 'disabled';}?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                                        <?php }else{ ?>
+
+                                            <a href="#" class='btn btn-sm btn-success disabled' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+
+                                        <?php } ?>
                                         </td>
-                                        <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel' <?php if(!empty($row->service_center_closed_date)) { echo 'disabled'; } ?>><i class='fa fa-times' aria-hidden='true'></i></a>
+                                        <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
+                                            <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel' <?php if(!empty($row->service_center_closed_date)) { echo 'disabled'; } ?>><i class='fa fa-times' aria-hidden='true'></i></a>
+                                        <?php }else{ ?>
+
+                                             <a href="#" class='btn btn-sm btn-danger disabled' title='Cancel' <?php if(!empty($row->service_center_closed_date)) { echo 'disabled'; } ?>><i class='fa fa-times' aria-hidden='true'></i></a>
+
+                                        <?php } ?>
                                         </td>                                        
                                         <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/jobcards-pdf/<?php echo $row->booking_jobcard_filename; ?> " class='btn btn-sm btn-warning btn-sm' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                                     </tr>
@@ -341,11 +386,21 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>
+                                        <?php }else{ ?>
+
+                                            <a class="btn btn-sm btn-primary disabled" href="#" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>
+                                        <?php } ?>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id) && $is_engineer_app == '1') { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                        <?php }else{ ?>
+
+                                            <a class="btn btn-sm btn-primary disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                        <?php } ?>
                                         </td>
                                         <?php } ?>
                                         <?php if($this->session->userdata('is_update') == 0){ ?>
@@ -354,15 +409,29 @@
                                         </td>
                                         <?php } ?>
                                         <!--                        <td><a class='btn btn-sm btn-primary <?php //if($this->session->userdata('is_update') == 1){ ?> <?php //if (is_null($row->assigned_engineer_id)) { ?>  disabled <?php //} } ?>' href="<?php//echo base_url();?>service_center/booking_details/<?php //echo urlencode(base64_encode($row->booking_id));?>"  title='View'><i class='fa fa-eye' aria-hidden='true'></i></a></td>-->
-                                        <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'  
+                                        <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
+                                            <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'  
                                         ><i class='fa fa-times' aria-hidden='true'></i></a>
+                                    <?php }else{ ?>
+
+                                            <a href="#" class='btn btn-sm btn-danger disabled' title='Cancel'  
+                                        ><i class='fa fa-times' aria-hidden='true'></i></a>
+
+                                    <?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <?php
                                                 $redirect_url = base_url()."service_center/complete_booking_form/".urlencode(base64_encode($row->booking_id));
                                             ?>
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if($is_engineer_app == '1') { if (is_null($row->assigned_engineer_id) || !empty($row->is_booking_close_by_app_active)) { 
                                             ?>  disabled <?php } } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                                        <?php }else{ ?>
+
+                                            <a href="#" class='btn btn-sm btn-success disabled' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+
+                                        <?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                                        <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>                                        
@@ -545,11 +614,19 @@
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Content" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
                                         </td>
                                         <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>
+                                        <?php }else{ ?>
+                                            <a class="btn btn-sm btn-primary disabled" href="#" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>
+                                         <?php } ?>
                                         </td>
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a class="btn btn-sm btn-primary <?php if (is_null($row->assigned_engineer_id)) { ?> <?php if ($is_engineer_app == '1') { ?>  disabled <?php }  ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                        <?php }else{ ?>
+                                            <a class="btn btn-sm btn-primary  disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                        <?php } ?>
                                         </td>
                                         <?php } ?>
                                         <?php if($this->session->userdata('is_update') == 0){ ?>
@@ -557,14 +634,27 @@
                                             <button type="button"  class="btn btn-sm btn-success" onclick="setbooking_id('<?=$row->booking_id?>')" data-toggle="modal" data-target="#myModal" ><i class='fa fa-calendar' aria-hidden='true'></i></button>
                                         </td>
                                         <?php } ?>
-                                        <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                                        <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
+                                            <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                                        <?php }else{ ?>
+
+                                            <a href="#" class='btn btn-sm btn-danger disabled' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+
+                                        <?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <?php
                                                 $redirect_url = base_url()."service_center/complete_booking_form/".urlencode(base64_encode($row->booking_id));
                                             ?>
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php   if($is_engineer_app == '1') { if (is_null($row->assigned_engineer_id) || !empty($row->is_booking_close_by_app_active)) { 
                                             ?>  disabled <?php } } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                                        <?php }else{ ?>
+
+                                            <a href="#" class="disabled" title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+
+                                        <?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/jobcards-pdf/<?php echo $row->booking_jobcard_filename?> " class='btn btn-sm btn-warning btn-sm <?php if($this->session->userdata('is_update') == 1){ ?><?php if (is_null($row->assigned_engineer_id)) { ?>  //disabled <?php } } ?>' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                                             <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>                                        
@@ -726,13 +816,25 @@
                                         <?php }
                                         if(isset($saas_module) && (!$saas_module)) { ?>
                                         <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a target="_blank" href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id))?>" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary <?php if(!empty($row->service_center_closed_date)) { echo " disabled";} ?>"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
+                                        <?php }else{ ?>
+
+                                                <a target="#" href="#" style="width: 36px;background: #795b95;border: #795b95;" class="btn btn-sm btn-primary disabled"  title="Edit Request Type"><i class="fa fa-edit" aria-hidden="true"></i></a>
+
+                                        <?php } ?>
                                         </td>
                                         <?php } ?>
                                         <td style="vertical-align: middle;"><button type="button" class="btn btn-sm btn-warning btn-sm" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral(<?php echo "'".$row->booking_id."'" ?>)"><i class="fa fa-file-text-o" aria-hidden="true" ></i></button></td>
                                         <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/warranty/<?= $row->partner_id ?>/<?= $row->service_id ?>/<?= $row->appliance_brand ?>" target="_blank" class='btn btn-sm btn-success' title='Warranty Checker'><i class='fa fa-certificate' aria-hidden='true'></i></a></td>
                                         <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a class="btn btn-sm btn-primary" href="<?php echo base_url(); ?>service_center/inventory/inventory_list_by_model/<?php echo $row->partner_id; ?>/<?php echo $row->service_id; ?>/<?php echo $row->booking_id; ?>" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>
+                                        <?php }else{ ?>
+
+                                            <a class="btn btn-sm btn-primary disabled" href="#" target="_blank"><i class="fa fa-inr" aria-hidden="true"></i></a>
+
+                                        <?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;">
                                             <a style="width: 36px;" class="btn btn-sm btn-primary  relevant_content_button" data-toggle="modal" title="Relevant  Contact" id ="<?php echo $row->booking_id?>"  onclick="show_contacts(this.id,1,'<?php echo $row->partner_id; ?>')"><i class="fa fa-phone" aria-hidden="true" style="padding-top: 0px;margin-top: 0px"></i></a>
@@ -742,7 +844,13 @@
                                         </td>                                        
                                         <?php if($this->session->userdata('is_update') == 1){ ?>
                                         <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a class="btn btn-sm btn-primary <?php if ((is_null($row->assigned_engineer_id) && $is_engineer_app == '1') || !empty($row->service_center_closed_date)) { ?>  disabled <?php } ?>" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_status/<?php echo urlencode(base64_encode($row->booking_id));?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                        <?php }else{ ?>
+
+                                            <a class="btn btn-sm btn-primary disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+
+                                        <?php } ?>
                                         </td>
                                         <?php } ?>
                                         <?php if($this->session->userdata('is_update') == 0){ ?>
@@ -754,10 +862,23 @@
                                             <?php
                                                 $redirect_url = base_url()."service_center/complete_booking_form/".urlencode(base64_encode($row->booking_id));
                                             ?>
+                                             <?php if ($row->nrn_approved==0) { ?>
                                             <a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php  if($is_engineer_app == '1' ) {  if (is_null($row->assigned_engineer_id) || !empty($row->is_booking_close_by_app_active)) { 
                                             ?>  disabled <?php } } }?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                                        <?php }else{ ?>
+
+                                            <a href="#" class='btn btn-sm btn-success disabled' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+
+                                         <?php } ?>
                                         </td>
-                                        <td style="vertical-align: middle;"><a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                                        <td style="vertical-align: middle;">
+                                             <?php if ($row->nrn_approved==0) { ?>
+                                            <a href="<?php echo base_url(); ?>service_center/cancel_booking_form/<?php echo urlencode(base64_encode($row->booking_id)); ?>" class='btn btn-sm btn-danger' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+                                        <?php }else{ ?>
+
+                                            <a href="#" class='btn btn-sm btn-danger  disabled' title='Cancel'><i class='fa fa-times' aria-hidden='true'></i></a>
+
+                                        <?php } ?>
                                         </td>                                        
                                         <td style="vertical-align: middle;"><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/jobcards-pdf/<?php echo $row->booking_jobcard_filename; ?> " class='btn btn-sm btn-warning btn-sm' download  ><i class="fa fa-download" aria-hidden="true"></i></a></td>
                                     </tr>
@@ -856,7 +977,13 @@
                                         </td>
                                         <td style="vertical-align: middle;">
                                         <?php if(($row['status'] == SPARE_PART_ON_APPROVAL && ( $row['part_warranty_status'] == SPARE_PART_IN_WARRANTY_STATUS || $row['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS ))){ ?>
+                                             <?php if (isset($row->nrn_approved) && $row->nrn_approved==0) { ?>
                                            <a class="btn btn-sm btn-primary" style="background-color:#2C9D9C; border-color: #2C9D9C;" href="<?php echo base_url(); ?>service_center/update_booking_spare_parts_required/<?php echo urlencode(base64_encode($row['id'])); ?>" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+                                       <?php }else{ ?>
+
+                                            <a class="btn btn-sm btn-primary disabled" style="background-color:#2C9D9C; border-color: #2C9D9C;" ><i class='fa fa-edit' aria-hidden='true'></i></a>
+
+                                      <?php  } ?>
                                         <?php } ?>
                                         </td>
                                         <td style="vertical-align: middle;">

@@ -391,7 +391,7 @@ define('PRODUCT_DELIVERED', 'PRODUCT_DELIVERED');
 
 //SMS deactivation constant
 define('SMS_DEACTIVATION_MAIL_SERVER','{imap.gmail.com:993/imap/ssl/novalidate-cert}');
-define('SMS_DEACTIVATION_EMAIL','chhavid@247around.com');
+define('SMS_DEACTIVATION_EMAIL','247around_dev@247around.com');
 define('SMS_DEACTIVATION_PASSWORD','chhavid247');
 define('SMS_DEACTIVATION_SCRIPT_RUNNING_DAYS','-1 day');
 define('SMS_DEACTIVATION_EMAIL_SUBJECT','has requested for opt-out!');
@@ -682,5 +682,7 @@ define('DEFAULT_IN_WARRANTY_PERIOD', 12);
 define('_247AROUND_WAREHOUSE_ID', 15);
 
 define('SHARP_WATER_PURIFIER_INSTALLATION_VIDEO', 'http://tinyurl.com/y4s42ml4');
+
+define('SPARE_PENDING_FOR_ACKNOWLEDGE_MSG', 'Spare part is pending for acknowledge on warehouse, so booking cannot be completed.');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

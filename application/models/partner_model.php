@@ -888,7 +888,7 @@ function get_data_for_partner_callback($booking_id) {
         $join = "";
         $group_by = "";
         if($flag_select){
-            $select = "SELECT spare_parts_details.*, services.services, i.part_number, i.part_name, i.type, shipped_inventory.part_number as shipped_part_number, shipped_inventory.part_name as shipped_part_name, shipped_inventory.type as shipped_part_type, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
+            $select = "SELECT spare_parts_details.*, services.services, i.part_number, IF(i.part_name IS NULL,spare_parts_details.parts_requested,i.part_name) as part_name, IF(i.type IS NULL,spare_parts_details.parts_requested_type,i.type) as type, shipped_inventory.part_number as shipped_part_number, IF(shipped_inventory.part_name IS NULL,spare_parts_details.parts_shipped,shipped_inventory.part_name) as shipped_part_name, IF(shipped_inventory.type IS NULL,spare_parts_details.shipped_parts_type,shipped_inventory.type) as shipped_part_type, users.name, users.phone_number as customer_mobile, booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id,"
                 . " booking_details.booking_address,booking_details.create_date,booking_details.booking_date,booking_details.closed_date,booking_details.initial_booking_date, booking_details.is_upcountry, booking_details.upcountry_paid_by_customer,"
                     . "booking_details.amount_due,booking_details.state, booking_details.service_center_closed_date, booking_details.request_type, booking_details.current_status, booking_details.partner_current_status, booking_details.partner_internal_status,"
                 . " service_centres.name as vendor_name, service_centres.address, service_centres.district as sf_city,service_centres.state as sf_state, service_centres.gst_no, "
@@ -956,7 +956,7 @@ function get_data_for_partner_callback($booking_id) {
                     . " AND ".$where . $orderBy.", spare_parts_details.create_date ASC $limit";
             }
             }
-        $query = $this->db->query($sql);        
+        $query = $this->db->query($sql);       
         return $query->result_array();
     }
 
@@ -1080,7 +1080,7 @@ function get_data_for_partner_callback($booking_id) {
     function get_tollfree_and_contact_persons(){
         $sql = "SELECT 'Toll Free Number' as name,customer_care_contact as contact,partners.public_name as partner,vendor_partner_variable_charges.entity_id as paid_service_centers FROM partners "
                 . "LEFT JOIN vendor_partner_variable_charges ON vendor_partner_variable_charges.entity_id = partners.id AND vendor_partner_variable_charges.entity_type = 'partner' AND "
-                . "vendor_partner_variable_charges.charges_type = 3 AND partners.is_active = 1;";
+                . "vendor_partner_variable_charges.charges_type = 3 AND vendor_partner_variable_charges.status = 1 AND partners.is_active = 1;";
         $query = $this->db->query($sql);
         return $query->result_array();
     }
@@ -2029,12 +2029,15 @@ function get_data_for_partner_callback($booking_id) {
         $this->db->insert('partner_sample_no_picture',$data);
         return $this->db->insert_id();
     }
-    function get_brand_collateral_data($condition,$order_by_column,$sorting_type)
+    function get_brand_collateral_data($condition,$order_by_column,$sorting_type, $where=array())
     {
 
         $group_by=array('`collateral_type`.`collateral_type`','`collateral`.`model`','`collateral`.`category`','`collateral`.`capacity`','`collateral`.`file`','`collateral`.`document_description`','`collateral`.`start_date`');
         $this->db->select("collateral.id,collateral.appliance_id,collateral.collateral_id,collateral.document_description,collateral.file,collateral.is_file,collateral.start_date,collateral.model,collateral.end_date,collateral_type.collateral_type,collateral_type.collateral_tag,services.services,collateral.brand,collateral.category,collateral.capacity,collateral_type.document_type,collateral.request_type, partners.public_name, collateral.create_date");
         $this->db->from("collateral");
+        if(!empty($where)){
+            $this->db->where($where);
+        }
         $this->db->where('entity_type','partner');
         $this->db->where('is_valid',1);
         $this->db->where('collateral_type.collateral_tag','Brand_Collateral');
@@ -2586,6 +2589,34 @@ function get_data_for_partner_callback($booking_id) {
         
         return true;
     }
-
+    
+    /*Desc - This function is used to insert booking callback details genrally we make an entry into it, only if calback API fails*/
+    function insert_callback_api_booking_details($details) {
+        $this->db->insert('callback_api_booking_details', $details);
+        return $this->db->insert_id();
+    }
+    
+    /*Desc - This function is used to increase api call count*/
+    function update_callback_api_count($data, $where) {
+        $this->db->where($where);
+        $this->db->set("api_call_count", "api_call_count + 1", false);
+        $this->db->update("callback_api_booking_details", $data);
+        if ($this->db->affected_rows() > 0) {
+            $res = TRUE;
+        } else {
+            $res = False;
+        }
+        return $res;
+    }
+    
+    /*Desc - This function is used to get akai api failure booking details*/
+    function get_callback_api_booking_details($select, $where) {
+        $this->db->select($select);
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        $query = $this->db->get('callback_api_booking_details');
+        return $query->result_array();
+    }
 }
 

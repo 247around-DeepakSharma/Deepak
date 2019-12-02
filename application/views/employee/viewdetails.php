@@ -442,11 +442,9 @@
                                 <th>Total Amount Paid</th>
                                 <?php } ?>
                                 <th>Booking Status</th>
-                                <?php if($booking_history[0]['current_status'] === 'Completed'){ ?>
                                 <th>Vendor Cash Invoice ID</th>
                                 <th>Vendor Foc Invoice ID</th>
                                 <th>Partner Invoice ID</th>
-                                <?php } ?>
                                 <th>SF Earning</th>
                                 <th>Warranty Status</th>
                             </tr>
@@ -542,11 +540,11 @@
                                         }
                                         }?>
                                     <td><?php print_r($unit_detail['booking_status']); ?></td>
-                                    <?php if($booking_history[0]['current_status'] === 'Completed'){ ?>
+                                    
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['vendor_cash_invoice_id']; ?>')" ><?php echo $unit_detail['vendor_cash_invoice_id']; ?></a></td>
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['vendor_foc_invoice_id']; ?>')" ><?php echo $unit_detail['vendor_foc_invoice_id']; ?></a></td>
                                     <td><a  href="javascript:void(0)" onclick="get_invoice_data('<?php echo $unit_detail['partner_invoice_id']; ?>')"><?php echo $unit_detail['partner_invoice_id'];?></a></td>
-                                    <?php }  ?>
+                                    
                                     <td>
                                         <?php echo sprintf("%0.2f",$unit_detail['vendor_basic_charges'] + $unit_detail['vendor_st_or_vat_basic_charges'] + 
                                             $unit_detail['vendor_extra_charges']  +  $unit_detail['vendor_st_extra_charges']  + 
@@ -655,7 +653,7 @@
                                         <th>Move To Vendor</th>
                                         <th>Move To Partner</th>
                                         <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ($booking_history[0]['request_type']==REPAIR_OOW_TAG)){ } else{ ?>
-                                        <th>Copy Booking Id</th>
+                                        <!-- <th>Copy Booking Id</th> -->
                                         <?php  } ?>
                                     </tr>
                                 </thead>
@@ -701,7 +699,15 @@
                                             ?>
                                         </td>
                                         <td style=" word-break: break-all;"><span class="serial_no_text" id="<?php echo $sp['id']."|serial_number";?>"><?php echo $sp['serial_number']; ?></span> <span class="serial_no_edit"><i class="fa fa-pencil fa-lg"></i></span></td>
-                                        <td><?php echo date("d-m-Y", strtotime($sp['acknowledge_date'])); ?></td>
+
+                                        <?php if (!empty($sp['acknowledge_date'])) { ?>
+                                           <td><?php echo date("d-m-Y", strtotime($sp['acknowledge_date'])); ?></td>  
+                                        <?php }else{ ?>
+
+                                           <td> - </td> 
+                                        <?php } ?>
+                                        
+
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
                                         <td><?php echo $sp['part_cancel_reason'];?></td>
@@ -746,7 +752,7 @@
                                          <?php } } ?>
                                        
                                        <?php if(($booking_history[0]['request_type']==HOME_THEATER_REPAIR_SERVICE_TAG_OUT_OF_WARRANTY) || ( $sp['part_warranty_status'] == 2 )){ } else{ ?>
-                                        <td><button type="button" class="copy_booking_id  btn btn-info" data-toggle="modal" id="<?php echo $sp['booking_id']."_".$sp['id']; ?>" data-target="#copy_booking_id">Copy</button>
+                                        <td><button type="button" class="copy_booking_id hide  btn btn-info" data-toggle="modal" id="<?php echo $sp['booking_id']."_".$sp['id']; ?>" data-target="#copy_booking_id">Copy</button>
                                        </td>                                
                                      <?php } ?>
                                    
@@ -1707,17 +1713,17 @@ function sf_tab_active(){
                         }
                     }
                     console.log(parent_string);
-                    if(parent_string !== null){
+                    if(parent_string !== null && parent_string.toLowerCase() !== 'null'){
                         $('#parent_holder').html(parent_string);
                     }else{
                         $('#parent_holder').html("<span>NA</span>");
                     }
-                    if(sibling_string !== null){
+                    if(sibling_string !== null && sibling_string.toLowerCase() !== 'null'){
                         $('#sibling_holder').html(sibling_string);
                     }else{
                         $('#sibling_holder').html("<span>NA</span>");
                     }
-                    if(child_string !== null){
+                    if(child_string !== null && child_string.toLowerCase() !== 'null'){
                         $('#child_holder').html(child_string);
                     }else{
                         $('#child_holder').html("<span>NA</span>");
@@ -2254,11 +2260,15 @@ function OpenWindowWithPost(url, windowoption, name, params)
                 method:"POST",
                 data : {spare_parts_id: spare_parts_id, new_booking_id: new_booking_id,status:status},
                 url:'<?php echo base_url(); ?>employee/spare_parts/copy_booking_details_by_spare_parts_id',
-                success: function(response){                  
+                success: function(response){   
+                var response = $.trim(response);               
                     if(response=='success'){
                         $("#response_err").html("Process is successful").css({"color": "green"});
                         $("#new_booking_id").val("");
+                    }else if(response=='fail_close'){
+                        $("#response_err").html("Process is failed. Booking already closed or booking is of different partner or have different service center").css({"color": "red"});
                     }else{
+                        
                         $("#response_err").html("Process is failed").css({"color": "red"});
                     }                    
                 }

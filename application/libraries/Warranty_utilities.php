@@ -44,7 +44,9 @@ class Warranty_utilities {
             {
                 if(!empty($rec_data['model_number']))
                 {
-                    $arrOrWhere["((appliance_model_details.model_number = '".trim($rec_data['model_number'])."' OR (warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL)) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+                    //removes the single as well as double quotes from start and end
+                    $model_number = str_replace('"', '', str_replace("'", "", $rec_data['model_number']));
+                    $arrOrWhere["((appliance_model_details.model_number = '".$model_number."' OR (warranty_plans.service_id = '".$rec_data['service_id']."' AND appliance_model_details.id IS NULL)) and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
                 }
                 else
                 {
@@ -53,7 +55,9 @@ class Warranty_utilities {
             }
             else
             {
-                $arrOrWhere["(appliance_model_details.model_number = '".$rec_data['model_number']."' and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
+                //removes the single as well as double quotes from start and end
+                $model_number = str_replace('"', '', str_replace("'", "", $rec_data['model_number']));
+                $arrOrWhere["(appliance_model_details.model_number = '".$model_number."' and date(warranty_plans.period_start) <= '".$purchase_date."' and date(warranty_plans.period_end) >= '".$purchase_date."' and warranty_plans.partner_id = '".$rec_data['partner_id']."')"] = null; 
             }            
         }  
                 
@@ -211,7 +215,7 @@ class Warranty_utilities {
         }
         $booking_request_type = $this->My_CI->booking_utilities->get_booking_request_type($selected_booking_request_types); 
         $booking_id = $arrBookings[0]['booking_id'];
-        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'PDI'], 'EW' => ['Extended', 'AMC', 'Repeat', 'PDI']];
+        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation', 'PDI', 'Demo', 'Tech Visit'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat', 'PDI', 'Tech Visit'], 'EW' => ['Extended', 'AMC', 'Repeat', 'PDI', 'Tech Visit']];
         $arr_warranty_status_full_names = ['IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty'];
         $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
         // If no data found against warranty, consider booking as of Out Warranty

@@ -41,18 +41,20 @@ class Engineer extends CI_Controller {
         if($this->session->userdata('service_center_id')){
             $where['where']['engineer_booking_action.service_center_id'] = $this->session->userdata('service_center_id');
         }
-        $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid, engineer_table_sign.remarks, engineer_table_sign.mismatch_pincode");
+        $data = $this->engineer_model->get_engineer_action_table_list($where, "engineer_booking_action.booking_id, amount_due, engineer_table_sign.amount_paid, engineer_table_sign.mismatch_pincode");
        
         foreach ($data as $key => $value) {
             $unitWhere = array("engineer_booking_action.booking_id" => $value->booking_id);
-            $ac_data = $this->engineer_model->getengineer_action_data("engineer_booking_action.engineer_id, internal_status,", $unitWhere);
+            $ac_data = $this->engineer_model->getengineer_action_data("engineer_booking_action.engineer_id, internal_status, cancellation_remark, closing_remark", $unitWhere);
             $status = _247AROUND_CANCELLED;
+            $booking_remraks = $ac_data[0]['cancellation_remark'];
             foreach ($ac_data as $ac_table) {
                 if($ac_table['internal_status'] == _247AROUND_COMPLETED){
                     $status = _247AROUND_COMPLETED;
+                    $booking_remraks = $ac_data[0]['closing_remark'];
                 }
             }
-           
+            $data[$key]->remarks = $booking_remraks;
             $data[$key]->status = $status;
             if(!empty($ac_data[0]['engineer_id'])){
                 $data[$key]->engineer_name = $this->engineer_model->get_engineers_details(array("id" => $ac_data[0]['engineer_id']), "name");
@@ -235,7 +237,7 @@ class Engineer extends CI_Controller {
         $data = array();
         $no = $post['start'];
         
-        $list =  $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, engineer_details.create_date, service_centres.name as company_name", $post);
+        $list =  $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, engineer_details.create_date, service_centres.name as company_name, service_centres.state, service_centres.district", $post);
         //echo $this->db->last_query(); die();
         foreach ($list as $key => $value) {
            $service_id  = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$value->id, "is_active"=>1), "service_id");
@@ -283,6 +285,8 @@ class Engineer extends CI_Controller {
         $row[] = $no;
         if(!$this->input->post("service_center_id")){
             $row[] = $engineer_list->company_name;
+            $row[] = $engineer_list->state;
+            $row[] = $engineer_list->district;
         }
         $row[] = "<a href='".base_url()."employee/vendor/get_edit_engineer_form/".$engineer_list->id."'>".$engineer_list->name."</a>"; 
         $row[] = $engineer_list->appliance_name;

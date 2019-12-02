@@ -165,16 +165,16 @@
                             <div class="col-md-4 col-md-12">
                                 <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                                     <label for="Booking Date ">Booking Date *</label>
-                                    <input type="date" class="form-control"  id="booking_date" name="booking_date"  value = "<?php if(date('H') < '12'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} ?>"  >
+                                    <input type="date" class="form-control"  id="booking_date" name="booking_date"  value = "<?php if(date('H') < '12'){echo  date("Y-m-d");}else{ echo date("Y-m-d", strtotime("+1 day"));} ?>"  readonly style="background : #fff;cursor:pointer;">
                                     <!--   -->
                                     <?php echo form_error('booking_date'); ?>
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 " id="purchase_d">
-                                    <label for="Purchase Date">Purchase Date <span id="error_purchase" style="color: red;"></label>
+                                    <label for="Purchase Date">Purchase Date *<span id="error_purchase" style="color: red;"></label>
                                 <div class="input-group date">
-                                    <input id="purchase_date" class="form-control purchase_date"  name="purchase_date" type="text" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
+                                    <input id="purchase_date" class="form-control purchase_date"  name="purchase_date" type="date" value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" readonly style="background : #fff;cursor:pointer;">
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -258,7 +258,7 @@
                             </div>
                             <div class="col-md-4 ">
                                 <div class="form-group col-md-12  <?php if( form_error('alternate_phone_number') ) { echo 'has-error';} ?>">
-                                    <label for="alternate_phone_number ">Alternate Mobile</label>
+                                    <label for="alternate_phone_number ">Alternate Mobile<span id="error_alternate_phone_number" style="color: red;"></span></label>
                                     <input type="text" class="form-control booking_alternate_contact_no"  id="booking_alternate_contact_no" name="alternate_phone_number" value = "<?php if(isset($user[0]['alternate_phone_number'])){  echo $user[0]['alternate_phone_number']; } else { echo set_value('alternate_phone_number');} ?>" placeholder ="Please Enter Alternate Contact No" >
                                     <?php echo form_error('alternate_phone_number'); ?>
                                 </div>
@@ -280,7 +280,7 @@
             </div>
                             <div class="col-md-3">
                                  <div class="form-group col-md-12  ">
-                                     <label for="landmark ">Remarks  <span id="error_remarks" style="color: red;"></label>
+                                     <label for="landmark ">Remarks * <span id="error_remarks" style="color: red;"></label>
                                     <textarea class="form-control" rows="2" id="remarks" name="booking_remarks"  placeholder="Enter Remarks" ></textarea>
                                    
                                 </div>
@@ -316,6 +316,7 @@
       
         var booking_address = $('#booking_address').val();
         var mobile_number = $('#booking_primary_contact_no').val();
+        var alternate_phone_number = $('#booking_alternate_contact_no').val();
         var city = $('#booking_city').val();
         var pincode = $('#booking_pincode').val();
        
@@ -406,7 +407,7 @@
         
         
         if(not_visible === 0){
-             display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+             display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
              return false;
         }
         
@@ -423,6 +424,14 @@
            
              $("#selected_service").css("color","black");
           
+        }
+        
+        if(alternate_phone_number !== "" && alternate_phone_number.match(/^[6-9]{1}[0-9]{9}$/) === null){
+            display_message("booking_alternate_contact_no","error_alternate_phone_number","red","Please Enter Valid Alternate Mobile Number");
+            return false;
+        } else {
+            display_message("booking_alternate_contact_no","error_alternate_phone_number","green","");
+             
         }
         
         if(booking_address === ""){
@@ -665,7 +674,7 @@
                    
                      if(data === "ERROR"){
                         
-                         //alert("Outstation Bookings Are Not Allowed, Please Contact 247around Team.");
+                         //alert("Outstation Bookings Are Not Allowed, Please Contact backoffice Team.");
 
                      } else { 
                           var data1 = jQuery.parseJSON(data);
@@ -710,7 +719,7 @@
                         $('#submitform').prop('disabled', false);
                         $("#not_visible").val('1');
                     } else {
-                        alert("Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+                        alert("Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
                         $('#submitform').prop('disabled', true);
                         $("#not_visible").val('0');
                         
@@ -824,7 +833,7 @@
                          document.getElementById("checkbox_upcountry").checked = false;
                          final_price();
 
-                        alert("Out-Station Booking Not Allowed, Please Contact 247around.");
+                        alert("Out-Station Booking Not Allowed, Please Contact backoffice team.");
 
                     } else if (data1.message === "UPCOUNTRY LIMIT EXCEED" && partner_approval === 1) {
                         alert("This Is Out-Station Booking, Please Wait For Brand Approval.");
@@ -888,8 +897,8 @@
     
     if(Number(not_visible) === 0){
       
-     alert('Service Temporarily Un-available In This Pincode, Please Contact 247around Team');
-     display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact 247around Team.");
+     alert('Service Temporarily Un-available In This Pincode, Please Contact backoffice Team');
+     display_message("not_visible","error_not_visible","red","Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
       $('#submitform').attr('disabled', true);
          return false;
     } else {

@@ -39,7 +39,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     <?php } ?>
     
     <?php if(!empty($str_disabled)) { ?> 
-    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, .price_checkbox {
+    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, .price_checkbox, #source_code, #partner_source, #service_id {
         pointer-events : none !important;
         background : #eee !important;
     }    
@@ -462,7 +462,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                 <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
                                                     <option selected disabled>Select Appliance Model</option>
                                                     <?php foreach ($model[0] as $value) { ?>
-                                                    <option <?php if(!empty($booking_model_number)) {if($value['model'] == $booking_model_number) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if($value['model'] == $unit_details[0]['model_number']) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
+                                                    <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
                                                         ><?php echo $value['model']; ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -1005,13 +1005,16 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     $(".select-model").select2({
         width:"239px"
     });
+    <?php if(empty($str_disabled)) { ?> 
     $(".booking_source").select2();
+    $("#partner_source").select2();
+    <?php } ?> 
     //$("#service_id").select2();
     $('#service_id').css('pointer-events','none'); 
     $("#booking_city").select2({
          tags: true
     });
-    $("#partner_source").select2();
+    
 
      $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: 0, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>'});
        getPartnerChannel();

@@ -288,6 +288,49 @@
     <!--Modal end-->
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 <script>
+
+
+    $("#invoice_file").change(function(){
+
+        var f = this.files[0];
+        var flag =false;
+        var ext = this.value.match(/\.(.+)$/)[1];
+        switch (ext) {
+        case 'pdf':
+        case 'PDF':
+             flag=true;
+        }
+        //here I CHECK if the FILE SIZE is bigger than 5 MB (numbers below are in bytes)
+        if (f.size > 5242882 || f.fileSize > 5242882 || flag==false)
+        {
+           //show an alert to the user
+           swal("Error!", "Allowed file size exceeded. (Max. 5 MB) and must be PDF", "error")
+           //reset file upload control
+           this.value = null;
+        }
+
+});
+
+$("#on_invoice_file").change(function(){
+
+        var f = this.files[0];
+        var flag = false;
+        var ext = this.value.match(/\.(.+)$/)[1];
+        switch (ext) {
+        case 'pdf':
+        case 'PDF':
+             flag=true;
+        }
+        //here I CHECK if the FILE SIZE is bigger than 5 MB (numbers below are in bytes)
+        if (f.size > 5242882 || f.fileSize > 5242882 || flag==false)
+        {
+           //show an alert to the user
+           swal("Error!", "Allowed file size exceeded. (Max. 5 MB) and must be PDF", "error")
+           //reset file upload control
+           this.value = null;
+        }
+
+});
     
     $("#wh_id").on('change',function(){
         var wh_name = $("#wh_id option:selected").text();

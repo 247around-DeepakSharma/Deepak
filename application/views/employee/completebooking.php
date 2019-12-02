@@ -26,7 +26,7 @@
                 } 
                 ?>
         <?php $isModelMandatory =0 ; $dop_mendatory=0; /* $required_sp_id = array(); */ $can_sp_id = array(); ?>
-        <?php  $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
+        <?php $is_spare_pending_for_acknowledge = false; $flag = 0; $requestedParts = false; if(isset($booking_history['spare_parts'])){ 
             foreach ($booking_history['spare_parts'] as  $value) {
                 if($value['status'] == _247AROUND_COMPLETED || $value['status'] == _247AROUND_CANCELLED){} else {
                     if($value['defective_part_required'] == 1 && $value['status'] != SPARE_PARTS_REQUESTED){
@@ -44,13 +44,16 @@
                                     $flag = 1; 
                                 }
                                 break;
+                                case DEFECTIVE_PARTS_SHIPPED:
+                                    $is_spare_pending_for_acknowledge = true;
+                                break;    
                             }
                               
                         }
                     }
                 }
             
-                if($value['status'] == SPARE_PARTS_REQUESTED){
+                if(empty($value['parts_shipped']) && empty($value['shipped_date']) && $value['status'] != _247AROUND_CANCELLED && $value['status'] != _247AROUND_COMPLETED){
                     $date1=date_create($value['date_of_request']);
                     $date2=date_create(date('Y-m-d'));
                     $diff=date_diff($date1,$date2);
@@ -76,28 +79,20 @@
                     <span style="font-weight:bold;">You don't have permission to complete booking.</span>
                 </div>
                 <?php  } ?>
-                <?php if($requestedParts || !$enable_button || $is_invoice_generated) { ?>
+                <?php if($requestedParts || !$enable_button || $is_invoice_generated || $is_spare_pending_for_acknowledge) { ?>
             <div class="alert alert-warning">
                 <span><?php if($requestedParts) { ?><span style="color:red; font-weight: bold;" ><?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?></span><?php } ?></span>
                 <span><?php if(!$enable_button) { ?><span style="color:red; font-weight: bold;" ><?php echo CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT;?></span><?php } ?></span>
-
-                <?php if($requestedParts) { ?>
+                <span><?php if($is_spare_pending_for_acknowledge) { ?> <span style="color:red; font-weight: bold;" ><?php echo SPARE_PENDING_FOR_ACKNOWLEDGE_MSG;?></span><?php }?></span>
                 <div style="font-weight: bold;">
-                    <?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?>
-
+                <?php if($requestedParts) { ?>
                 <?php } elseif(!empty ($is_invoice_generated)) { ?>
                      <span style="font-weight: bold;">
                     <?php echo "<p style='color:red; '>".UNABLE_TO_COMPLETE_BOOKING_INVOICE_GENERATED_MSG."</p>";?>
                 </span>
                 <?php } else { ?>
-                <center>
-                    <?php if(!$enable_button) { 
-                        echo "<p style='color:red; '>".CAN_NOT_ALLOW_RE_COMPLETE_BOOKING_TEXT."</p>";
-                    }
-                    ?>
-                </center>
-                </div>
                 <?php } ?>
+                </div>
             </div>
                 <?php } ?>
                 
@@ -378,7 +373,8 @@
                                                                     if(isset($unit_details['model_dropdown']) && !empty($unit_details['model_dropdown'])){ 
                                                                         $isModelMandatory =1 ;
                                                                         $arrModels = array_column($unit_details['model_dropdown'], 'model_number');
-                                                                        if(!empty($selected_model) && !in_array($selected_model, $arrModels)){ ?>
+                                                                        $arrModels = array_map('strtoupper', $arrModels);
+                                                                        if(!empty($selected_model) && !in_array(strtoupper($selected_model), $arrModels)){ ?>
                                                                             <div class="col-md-12" style="padding-bottom:10px;padding-top:0px;padding-left:0px;">
                                                                                 <span class="text-danger" ><i class="fa fa-warning"></i>&nbsp;Model Number '<?= $selected_model ?>' filled during Spare Request is not mapped with the partner! Please Contact Admin.</span>
                                                                             </div>
@@ -387,7 +383,7 @@
                                                                         <select class="form-control model_number" id="<?php echo "model_number_" . $count ?>" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" style="width:266px;">
                                                                             <option value="" selected="" disabled="">Model Number</option>
                                                                             <?php foreach ($unit_details['model_dropdown'] as $m) { ?>
-                                                                            <option value="<?php echo $m['model_number'];?>" <?php if($m['model_number'] == $selected_model ){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
+                                                                            <option value="<?php echo $m['model_number'];?>" <?php if(trim(strtoupper($m['model_number'])) == trim(strtoupper($selected_model))){ echo 'selected="selected"';} ?> ><?php echo $m['model_number'];?></option>  
                                                                             <?php }?>
                                                                         </select>
                                                                         <?php }  else { 
@@ -694,7 +690,7 @@
                         <?php } else { ?>
                         <center>
                             <input type="hidden" id="customer_id" name="customer_id" value="<?php echo $booking_history[0]['user_id']; ?>">
-                            <?php if($enable_button && empty($is_invoice_generated) && in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE])){
+                            <?php if($enable_button && empty($is_invoice_generated) && empty($is_spare_pending_for_acknowledge) && in_array($this->session->userdata['user_group'], [_247AROUND_ADMIN, _247AROUND_CLOSURE])){
                             ?>
                             <input type="submit" id="submitform" onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $k_count; ?>')" class="btn btn-info" value="Complete Booking">
                             <?php } else {
@@ -1061,7 +1057,7 @@
             alert("Please Enter Upcountry Charges which Paid by Customer");
             return false;
         } else if (Number(upcountry_charges) > 0) {
-            flag = 0;
+//            flag = 0;
             document.getElementById('upcountry_charges').style.borderColor = "green";
         }
     }

@@ -96,6 +96,8 @@ class Dashboard extends CI_Controller {
             $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_CALLCENTER."%'" => NULL);
         }else if($this->session->userdata('user_group') == _247AROUND_RM){
             $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_RM."%'" => NULL);
+        }else if($this->session->userdata('user_group') == _247AROUND_AM){
+            $where = array('active' => 1,'type'=> 'service',"role like '%"._247AROUND_AM."%'" => NULL);
         }else{
             $where = array('active' => 1,'type'=> 'service');
         }
@@ -1991,6 +1993,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                     $conditionArray['where']['(current_status = "Cancelled" OR internal_status ="InProcess_Cancelled")'] = NULL; 
                 }
             }
+            // Filter for excluding NRN Bookings 
+            $conditionArray['where']['booking_details.nrn_approved = 0'] = NULL;
             //only is sf closed date is not null
             //$conditionArray['where']['service_center_closed_date IS NOT NULL'] = NULL;
             //Group by on booking_tat
@@ -2016,6 +2020,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $conditionArray['groupBy'] = array("TAT","entity");
             //only is sf closed date is null
             $conditionArray['where']['service_center_closed_date IS NULL'] = NULL;
+            // Filter for excluding NRN Bookings
+            $conditionArray['where']['booking_details.nrn_approved = 0'] = NULL;
             return $conditionArray;
         }
         function get_booking_tat_report_by_AM($is_pending,$startDateField,$conditionsArray,$request_type){
