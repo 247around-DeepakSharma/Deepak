@@ -990,7 +990,7 @@ class Invoice_lib {
                 }
             } else {
                 if ($spare_parts_details[0][0]['defective_return_to_entity_type'] == _247AROUND_SF_STRING) {
-                    $partner_details = $this->ci->partner_model->getpartner_details('company_name, address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name', array('partners.id' => $spare_parts_details[0][0]['booking_partner_id']));
+                    $partner_details = $this->ci->partner_model->getpartner_details("company_name, concat(partners.address,',',partners.district,',',partners.state,',',partners.pincode) AS address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name", array('partners.id' => $spare_parts_details[0][0]['booking_partner_id']));
                 }
             }
             $partner_details[0]['is_gst_doc'] = $sf_details[0]['is_gst_doc'];
