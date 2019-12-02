@@ -3332,10 +3332,8 @@ class Inventory extends CI_Controller {
             $this->inventory_model->update_pending_inventory_stock_request($spare_details[0]['entity_type'], $spare_details[0]['partner_id'], $spare_details[0]['requested_inventory_id'], -1);
         }
 
-        echo "1";
         //create job card
         $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
-        echo "2";
     }
 
     /**
