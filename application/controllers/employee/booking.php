@@ -121,7 +121,7 @@ class Booking extends CI_Controller {
                     log_message('info', __FUNCTION__ . " Booking ID " . $status['booking_id']);
                     
                     $this->partner_cb->partner_callback($status['booking_id']);
-                    
+                    $this->session->set_userdata(['success' => 'Booking inserted successfully with Booking Id : '.$status["booking_id"]]);
                     //Redirect to Default Search Page
                     redirect(base_url() . DEFAULT_SEARCH_PAGE);
                 } else {
@@ -2469,12 +2469,12 @@ class Booking extends CI_Controller {
         // update spare parts.
         //$is_update_spare_parts = $this->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details);
         $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details, $status);
-        if($is_update_spare_parts == DEFECTIVE_PARTS_SHIPPED) {
-            $booking['current_status'] = _247AROUND_PENDING;
-            $booking['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
-        } else if($is_update_spare_parts) {
+        if($is_update_spare_parts && $is_update_spare_parts != DEFECTIVE_PARTS_SHIPPED) { 
             $booking['current_status'] = _247AROUND_PENDING;
             $booking['internal_status'] = DEFECTIVE_PARTS_PENDING;
+        } else if($is_update_spare_parts == DEFECTIVE_PARTS_SHIPPED) {
+            $booking['current_status'] = _247AROUND_PENDING;
+            $booking['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
         } else {
             $booking['current_status'] = $internal_status;
             $booking['internal_status'] = $internal_status;
@@ -5317,6 +5317,8 @@ class Booking extends CI_Controller {
 
     
      function download_pending_bookings($status) {
+        $arr_post = $this->input->post();
+        $bulk_booking_id = !empty($arr_post['bookingIDString']) ? $arr_post['bookingIDString'] : "";
         $booking_status = trim($status);
         //RM Specific Bookings
          $sfIDArray =array();
@@ -5344,6 +5346,10 @@ class Booking extends CI_Controller {
         $post['search_value'] = NULL;
         $post['order'] = NULL;
         $post['draw'] = NULL;
+        if(!empty($bulk_booking_id))
+        {
+            $post['where_in']['booking_details.booking_id'] =  explode(",",$bulk_booking_id);
+        }
         if($booking_status == 'Pending'){
             $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL); 
             $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
