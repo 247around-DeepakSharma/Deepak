@@ -849,7 +849,6 @@ class Notify {
         return $data;
     }
     function send_sms_using_msg91($phone_number,$body){
-        print_r($body); echo "2";
         $data = array();
         $message = urlencode($body);
         $url = "https://control.msg91.com/api/sendhttp.php?authkey=".MSG91_AUTH_KEY."&mobiles="
@@ -857,16 +856,12 @@ class Notify {
                 . "&sender=".MSG91_SENDER_NAME."&route=4&country=91";
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $data['content'] = curl_exec($ch); 
-        echo "3";
-        print_r($data);
-        echo "--0";  exit;
+        $data['content'] = curl_exec($ch);
                         log_message('info', __METHOD__. "Transactional SMS91 Log: ".$data['content']);
                         curl_close($ch);
         return  $data;
     }
     function sendTransactionalSmsMsg91($phone_number, $body,$tag) {
-        echo "transactional";
         $this->validate_sms_length($phone_number,$body,$tag);
         $data = array();
         log_message("info",__METHOD__);
