@@ -46,11 +46,11 @@ class Service_centers_model extends CI_Model {
                 //Future Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) <=- -1) ";
                     $booking = " ";
-                    $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.nrn_approved = 0 ";
+                    $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' ";
                 } else if($i == 3){
                     // Rescheduled Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
-                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') AND bd.nrn_approved = 0  ";
+                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') ";
                 } 
                 
             } else {
