@@ -46,31 +46,32 @@ class Service_centers_model extends CI_Model {
                 //Future Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) <=- -1) ";
                     $booking = " ";
-                    $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending'";
+                    $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.nrn_approved = 0 ";
                 } else if($i == 3){
                     // Rescheduled Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
-                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending')  ";
+                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') AND bd.nrn_approved = 0  ";
                 } 
                 
             } else {
                 if($i ==1){
                 // Today Day
                 $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) >= 0) ";
-                $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending'";
+                $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.nrn_approved = 0  ";
                 
                 } else if($i==2) {
                 //Tomorrow Booking
                 $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) = -1) ";
-                $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending'";
+                $status = " AND (bd.current_status='Pending' OR bd.current_status='Rescheduled') AND sc.current_status = 'Pending' AND bd.nrn_approved = 0  ";
                 } else if($i == 3){
                     // Rescheduled Booking
                     $day  = " AND (DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(bd.booking_date, '%d-%m-%Y')) < -1) ";
-                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending')  ";
+                    $status = " AND (bd.current_status='Rescheduled' AND sc.current_status = 'Pending') AND bd.nrn_approved = 0  ";
                 } else if ($i== 4) {
                     $day = " ";
-                    $status = " AND sc.current_status='InProcess' AND sc.internal_status IN (".$this->stored_internal_status().")";
+                    $status = " AND sc.current_status='InProcess' AND bd.nrn_approved = 0  AND sc.internal_status IN (".$this->stored_internal_status().")";
                 }
+                
                 
             }
             
