@@ -891,7 +891,6 @@ class Notify {
     }
     
     function send_sms_msg91($sms) {
-        print_r($sms);
         $template = $this->My_CI->vendor_model->getVendorSmsTemplate($sms['tag']);
         if (!empty($template)) {
             $smsBody = vsprintf($template, $sms['smsData']);
