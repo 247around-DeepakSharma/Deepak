@@ -1131,9 +1131,7 @@ class Inventory extends CI_Controller {
                     $sc_data['admin_remarks'] = $remarks;
                     
                     if ($line_items < 2) {
-                        echo "ser";
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
-                        echo "11";
                     }
                     break;
                 case 'CANCEL_COMPLETED_BOOKING_PARTS':
@@ -1227,11 +1225,9 @@ class Inventory extends CI_Controller {
                     break;
             }
             if ($flag) {
-                echo "7";
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
                 if ($response && ($requestType == "CANCEL_PARTS" || $requestType == "DELIVERED_PART_CANCELLED")) { 
                     $this->update_inventory_on_cancel_parts($id, $booking_id, $old_state);
-                    echo "2";
                 }
             }
 
@@ -1241,7 +1237,6 @@ class Inventory extends CI_Controller {
                 $entity_id = _247AROUND;
 
                 $this->notify->insert_state_change($booking_id, $new_state, $old_state, $remarks, $agent_id, $agent_name, ACTOR_NOT_DEFINE, NEXT_ACTION_NOT_DEFINE, $entity_id);
-                echo "3";
             } else if ($this->session->userdata('partner_id')) {
                 $agent_id = $this->session->userdata('agent_id');
                 $agent_name = $this->session->userdata('partner_name');
@@ -1269,7 +1264,6 @@ class Inventory extends CI_Controller {
                 }
 
                 $this->booking_model->update_booking($booking_id, $b);
-                echo "4";
             }
 
 
@@ -3338,8 +3332,10 @@ class Inventory extends CI_Controller {
             $this->inventory_model->update_pending_inventory_stock_request($spare_details[0]['entity_type'], $spare_details[0]['partner_id'], $spare_details[0]['requested_inventory_id'], -1);
         }
 
+        echo "1";
         //create job card
         $this->booking_utilities->lib_prepare_job_card_using_booking_id($booking_id);
+        echo "2";
     }
 
     /**
