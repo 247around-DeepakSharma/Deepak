@@ -760,11 +760,11 @@ class partner_sd_cb {
             if(!empty($res)){
                 $s = json_decode($res, true);
                 if (strpos($s['Status'], 'Success:') === false) {
-                    $this->insertCallbackFailure();
+                    $this->insertCallbackFailure($data['booking_id']);
                     $this->callbackAPIFailed();
                 }
             } else {
-                $this->insertCallbackFailure();
+                $this->insertCallbackFailure($data['booking_id']);
                 $this->callbackAPIFailed();
             }
             
