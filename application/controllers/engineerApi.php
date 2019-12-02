@@ -415,6 +415,10 @@ class engineerApi extends CI_Controller {
                 $this->getIncentiveEearnedBookingsByEngineer(); 
                 break;
             
+            case 'todaysSlotBookings':
+                $this->getTodaysSlotBookings();
+                break;
+            
             default:
                 break;
             
@@ -3642,6 +3646,33 @@ class engineerApi extends CI_Controller {
         else{
             log_message("info", __METHOD__ . "Engineer id or Service Center id not found");
             $this->sendJsonResponse(array("0064", "Engineer id or Service Center id not found"));
+        }
+    }
+    
+    /*Desc - This function is used to get todays booking list on the basis of working slots*/
+    function getTodaysSlotBookings(){
+        log_message("info", __METHOD__. " Entering..");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("engineer_id", "service_center_id", "engineer_pincode", "booking_slot"), $requestData);
+        if($validation['status']){
+            $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
+                    . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
+                    . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks';
+            $response = $this->getTodaysSlotBookingList($slot_select, $requestData["booking_slot"], $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
+            if(!empty($response)){
+                log_message("info", __METHOD__ . "Bookings Found Successfully");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array('0000', 'success'));
+            }
+            else{
+                log_message("info", __METHOD__ . "Bookings not found");
+                $this->jsonResponseString['response'] = array();
+                $this->sendJsonResponse(array('0000', 'Bookings not found'));
+            }
+        }
+        else{
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->sendJsonResponse(array("0066", $validation['message']));
         }
     }
 }
