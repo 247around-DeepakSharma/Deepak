@@ -584,6 +584,7 @@ $("#on_invoice_file").change(function(){
 
     var onBookingIndex = 0;
     var is_valid_booking = true;
+    var partArr = new Array();
     $(document).ready(function () {
         
         partIndex = 0;
@@ -1095,6 +1096,7 @@ $("#on_invoice_file").change(function(){
                 $('span.error').text('');
                 $("#spareForm").find('input:text, input:file, select').css('border-color','#ccc');
                 $("#confirmation").val('0');    
+                partArr = new Array();
             }
         });
     }
@@ -1166,6 +1168,10 @@ $("#on_invoice_file").change(function(){
                     $('#partGstRate_'+index).val('');
                     $('#partHsnCode_'+index).val('');
                     $('#quantity_'+index).val('');
+                    $('#partName_'+index+' option').removeAttr('disabled');
+                    for(var key in partArr[service_id]) {
+                        $('#partName_'+index+' option[value="'+partArr[service_id][key]+'"]').attr('disabled','disabled');
+                    }
                 }
             });
         }else{
@@ -1178,6 +1184,16 @@ $("#on_invoice_file").change(function(){
         var partner_id = $('#partner_id').val();
         var service_id = $('#serviceId_'+index).val();
         var part_name = $('#partName_'+index).val();
+        if($.inArray(part_name,partArr[service_id]) > 0) {
+           alert("Please select another part as this is already selected!!");
+           return false;
+        }
+        if( partArr[service_id] === undefined ) {
+            partArr[service_id] = new Array();
+        }
+        if(part_name !== undefined) {
+            partArr[service_id].push(part_name);
+        }
         if(partner_id){
             $.ajax({
                 type: 'POST',
@@ -1357,6 +1373,18 @@ $("#on_invoice_file").change(function(){
 
                         $("#sparelineitem_"+count).html(obj.data);
                         $(".part_name").select2();
+                        var service_id = $('#onserviceId_'+count).val();
+                        var part_name = $('#onpartName_'+count).val();
+                        if($.inArray(part_name,partArr[service_id]) > 0) {
+                            alert("Please select another part as this is already selected!!");
+                            return false;
+                        }
+                        if( partArr[service_id] === undefined ) {
+                            partArr[service_id] = new Array();
+                        }
+                        if(part_name !== undefined) {
+                            partArr[service_id].push(part_name);
+                        }
                     } else {
                         alert(obj.data);
                         return false;
@@ -1402,7 +1430,16 @@ $("#on_invoice_file").change(function(){
             var partner_id = $('#onpartnerId_'+index).val();
             var service_id = $('#onserviceId_'+index).val();
             var part_name = $('#onpartName_'+index).val();
-            
+            if($.inArray(part_name,partArr[service_id]) > 0) {
+                alert("Please select another part as this is already selected!!");
+                return false;
+            }
+            if( partArr[service_id] === undefined ) {
+                partArr[service_id] = new Array();
+            }
+            if(part_name !== undefined) {
+                partArr[service_id].push(part_name);
+            }
             if(partner_id){
                 $.ajax({
                     type: 'POST',
@@ -1681,6 +1718,11 @@ $("#on_invoice_file").change(function(){
                .find('[id="onspareType"]').attr('name', 'part[' + onBookingIndex + '][type]').attr('id', 'onspareType_'+onBookingIndex).end()
                
             $('#onpartName_'+onBookingIndex).select2();
+            var service_id = $('#onserviceId_'+onBookingIndex).val();
+            $('#onpartName_'+onBookingIndex+' option').removeAttr('disabled');
+            for(var key in partArr[service_id]) {
+                $('#onpartName_'+onBookingIndex+' option[value="'+partArr[service_id][key]+'"]').attr('disabled','disabled');
+            }
             
        })
     
