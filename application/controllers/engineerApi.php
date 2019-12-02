@@ -3665,7 +3665,8 @@ class engineerApi extends CI_Controller {
             }
             else{
                 log_message("info", __METHOD__ . "Bookings not found");
-                $this->sendJsonResponse(array('0065', 'Bookings not found'));
+                $this->jsonResponseString['response'] = array();
+                $this->sendJsonResponse(array('0000', 'Bookings not found'));
             }
         }
         else{

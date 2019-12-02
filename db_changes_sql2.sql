@@ -1614,3 +1614,20 @@ ALTER TABLE spare_consumption_status ADD COLUMN active tinyint(1) NOT NULL DEFAU
 
 --Kalyani 27-11-2019
 INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Software', 'software');
+
+-- Kalyani 02-12-2019
+CREATE TABLE `callback_api_booking_details` (
+  `id` int(11) NOT NULL,
+  `booking_id` varchar(255) NOT NULL,
+  `api_status` tinyint(1) NOT NULL DEFAULT '0',
+  `api_call_count` int(11) NOT NULL,
+  `update_date` int(11) DEFAULT NULL,
+  `create_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `callback_api_booking_details`
+  ADD PRIMARY KEY (`id`);
+
+ALTER TABLE `callback_api_booking_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+COMMIT;
