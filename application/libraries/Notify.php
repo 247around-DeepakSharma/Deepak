@@ -832,6 +832,7 @@ class Notify {
         }
     }
     function send_sms_using_knowlarity($phone_number, $body){
+        echo "fsdfjkdf";
         $params = json_encode(array("client_id"=>KNOWLARITY_CLIENT_ID,"passphrase"=>KNOWLARITY_PASSPHRASE,"sender_id"=>KNOWLARITY_SENDER_ID,"sms_text"=>$body,"sms_number"=>"+91".$phone_number));
         $session = curl_init(KNOWLARITY_SMS_URL);
         curl_setopt_array($session, array(
