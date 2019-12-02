@@ -441,53 +441,6 @@ class Paytm_gateway extends CI_Controller {
 
         $this->asynchronous_lib->do_background_process($url, $postData);
     }
-    
-    function incentive_test(){
-        /* initialize an array */
-        $paytmParams = array();
-
-        /* Find Sub Wallet GUID in your Paytm Dashboard at https://dashboard.paytm.com */
-        $paytmParams["subwalletGuid"] = "SUBWALLET_GUID_HERE";
-
-        /* Enter your unique order id, this should be unique for every disbursal */
-        $paytmParams["orderId"] = "YOUR_ORDER_ID";
-
-        /* Enter Beneficiary Phone Number against which the disbursal needs to be made */
-        $paytmParams["beneficiaryPhoneNo"] = "BENEFICIARY_PHONE_NUMBER";
-
-        /* Amount in INR payable to beneficiary */
-        $paytmParams["amount"] = "AMOUNT_TO_DISBURSE";
-
-        /* prepare JSON string for request body */
-        $post_data = json_encode($paytmParams, JSON_UNESCAPED_SLASHES);
-
-        /**
-        * Generate checksum by parameters we have in body
-        * Find your Merchant Key in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys 
-        */
-        $checksum = getChecksumFromString($post_data, "YOUR_KEY_HERE");
-
-        /* Find your MID in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys */
-        $x_mid = "YOUR_MID_HERE";
-
-        /* put generated checksum value here */
-        $x_checksum = $checksum;
-
-        /* Solutions offered are: food, gift, gratification, loyalty, allowance, communication */
-
-        /* for Staging */
-        $url = "https://staging-dashboard.paytm.com/bpay/api/v1/disburse/order/wallet/{solution}";
-
-        /* for Production */
-        // $url = "https://dashboard.paytm.com/bpay/api/v1/disburse/order/wallet/{solution}";
-
-        $ch = curl_init($url);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type: application/json", "x-mid: " . $x_mid, "x-checksum: " . $x_checksum)); 
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
-        $response = curl_exec($ch);
-    }
 }
 
 /* End of file welcome.php */
