@@ -1133,6 +1133,7 @@ class Inventory extends CI_Controller {
                     if ($line_items < 2) {
                         echo "ser";
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
+                        echo "11";
                     }
                     break;
                 case 'CANCEL_COMPLETED_BOOKING_PARTS':
