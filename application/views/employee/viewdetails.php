@@ -1166,7 +1166,7 @@
                     </tr>
                     <tbody>
                         <tr>
-                            <td><?php echo $signature_details[0]['amount_paid']; ?></td>
+                            <td><?php if(isset($unit_details[0]['en_amount_paid'])){ echo $unit_details[0]['en_amount_paid']; } ?></td>
                             <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
                             <td><?php echo $signature_details[0]['closed_date']; ?></td>
                             <td><?php echo $signature_details[0]['address']; ?></td>
@@ -1718,17 +1718,17 @@ function sf_tab_active(){
                     if(parent_string !== null && parent_string.toLowerCase() !== 'null'){
                         $('#parent_holder').html(parent_string);
                     }else{
-                        $('#parent_holder').html("<span>NA</span>");
+                        $('#parent_holder').html("<span>N/A</span>");
                     }
                     if(sibling_string !== null && sibling_string.toLowerCase() !== 'null'){
                         $('#sibling_holder').html(sibling_string);
                     }else{
-                        $('#sibling_holder').html("<span>NA</span>");
+                        $('#sibling_holder').html("<span>N/A</span>");
                     }
                     if(child_string !== null && child_string.toLowerCase() !== 'null'){
                         $('#child_holder').html(child_string);
                     }else{
-                        $('#child_holder').html("<span>NA</span>");
+                        $('#child_holder').html("<span>N/A</span>");
                     }
                 }
              }

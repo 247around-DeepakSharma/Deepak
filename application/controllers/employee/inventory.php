@@ -1226,7 +1226,7 @@ class Inventory extends CI_Controller {
             }
             if ($flag) {
                 $response = $this->service_centers_model->update_spare_parts($where, $data);
-                if ($response && ($requestType == "CANCEL_PARTS" || $requestType == "DELIVERED_PART_CANCELLED")) { 
+                if ($response && ($requestType == "CANCEL_PARTS" || $requestType == "DELIVERED_PART_CANCELLED") || $requestType == "QUOTE_REQUEST_REJECTED" ) { 
                     $this->update_inventory_on_cancel_parts($id, $booking_id, $old_state);
                 }
             }
