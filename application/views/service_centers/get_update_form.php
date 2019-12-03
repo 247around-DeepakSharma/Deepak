@@ -157,7 +157,7 @@
                                         <label for="dop" class="col-md-4" id="dat_of_puchase">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ echo date('Y-m-d', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
+                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on" id="dop_calendar" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -484,8 +484,11 @@ function alpha(e) {
     
     
     <?php if(isset($inventory_details) && !empty($inventory_details)) { ?> 
-        
-        $('#model_number_id').select2();
+        <?php if(!$is_disable) { ?>
+            $('#model_number_id').select2();
+        <?php } else { ?>
+            $("#model_number_id").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
+        <?php } ?>
         $('#parts_name_0').select2({
             placeholder: "Select Part Name",
             allowClear:true
@@ -643,7 +646,11 @@ function alpha(e) {
                         html += "</select>";
                         html += "<input type='hidden' id='model_number' name='model_number'>";
                         $("#appliance_model_div").html(html);
-                        $('#model_number_id').select2();
+                        <?php if(!$is_disable) { ?>
+                            $('#model_number_id').select2();
+                        <?php } else { ?>
+                            $("#model_number_id").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
+                        <?php } ?>
                         var model_number = "<?php echo $unit_model_number; ?>";
                         $('#model_number_id option').map(function() {
                         if ($.trim(($(this).text()).toUpperCase()) == $.trim(model_number.toUpperCase())){
@@ -920,7 +927,7 @@ function alpha(e) {
     }
     
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: +1, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>', changeMonth: true,changeYear: true});
-    $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true, 
+    $("#dop").datepicker({dateFormat: 'dd-mm-yy', changeMonth: true,changeYear: true, 
                 maxDate:0});
     $("#reschduled_booking_date").datepicker({
                 dateFormat: 'yy-mm-dd', 
@@ -1126,16 +1133,7 @@ function alpha(e) {
     }
     
     $(document).ready(function(){
-        var model_number = $("#model_number_id option:selected").val();
-        if(model_number !=''){
-            <?php if($is_disable){ ?>
-                $("#model_number_id").select2('destroy'); 
-                $("#model_number_id").attr('readonly',"readonly");
-                $("#model_number_id").css("cursor", "not-allowed");
-                $("#model_number_id").css("pointer-events","none");
-            <?php } ?>
-            
-        }
+        var model_number = $("#model_number_id option:selected").val();        
     });
         
     <?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ if($is_disable){  ?>
