@@ -679,6 +679,7 @@ class Booking extends CI_Controller {
             }
             return $booking;
         } else {
+            $this->session->set_userdata(['error_msg' => 'Order Id is not Valid']);
             return false;
         }
     }
@@ -5902,13 +5903,27 @@ class Booking extends CI_Controller {
                         //Redirect to edit booking page if validation err occurs
                         $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact BackOffice Team');
                         $this->session->set_userdata($userSession);
-                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                        if(!empty($arr_post['redirect_url']))
+                        {
+                            redirect($arr_post['redirect_url']);
+                        }
+                        else
+                        {
+                            redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                        }   
                     }
                 } else {
                     //Redirect to edit booking page if validation err occurs
                     $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact Backoffice Team.');
                     $this->session->set_userdata($userSession);
-                    redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                    if(!empty($arr_post['redirect_url']))
+                    {
+                        redirect($arr_post['redirect_url']);
+                    }
+                    else
+                    {
+                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                    }
                 }
             } else {
                 //Logging error if No input is provided
