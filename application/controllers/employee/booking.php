@@ -4260,14 +4260,14 @@ class Booking extends CI_Controller {
         }
         
         if(empty($order_list->penalty_active)){
-            $penalty_row = "<a class='btn btn-sm btn-color' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='cursor:not-allowed;opacity:0.5;'><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+            $penalty_row = "<a class='btn btn-sm btn-color' href='javascript:void(0);' title='Remove Penalty' style='cursor:not-allowed;opacity:0.5;'><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
         }else if($order_list->penalty_active === '1'){
             $penalty_modal = "onclick='";
             $penalty_modal .= "get_penalty_details(".'"'.$order_list->booking_id.'"';
             $penalty_modal .= ', "'.$booking_status.'"';
             $penalty_modal .= ', "'.$order_list->assigned_vendor_id.'"';
             $penalty_modal .= ")' ";
-            $penalty_row = "<a class='btn btn-sm btn-color' href='javascript:void(0);' title='Remove Penalty' target='_blank' $penalty_modal><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+            $penalty_row = "<a class='btn btn-sm btn-color' href='javascript:void(0);' title='Remove Penalty' $penalty_modal><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
         }
         
         if($order_list->count_escalation > 0){
