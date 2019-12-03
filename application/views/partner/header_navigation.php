@@ -340,7 +340,7 @@
                                 ?>
                                 <li>
                                     <a href="https://drive.google.com/drive/folders/1_ptRWlu7r8kGUHfiTbHVx3f-UrQxJPyX" target="_blank">
-                                        <i class="fa fa-laptop" title="CRM Training"></i>
+                                        <i class="fa fa-laptop" data-toggle="tooltip" data-placement="right" title="" data-original-title="Tutorials"></i>
                                         <!--<img id="crm_training" src="<?php// echo base_url(); ?>images/crm_training.png" style="width:20px;height:20px;">-->
                                     </a>
                                 </li>

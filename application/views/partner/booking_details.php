@@ -832,7 +832,7 @@
                     if(res){
                     $("#relative_holder").show();
                     var obj = JSON.parse(res);
-                    parent_string = child_string = sibling_string = "NULL";
+                    parent_string = child_string = sibling_string = "N/A";
                     if(obj.parent){
                         parent_string = "<a href = '<?php echo base_url(); ?>partner/booking_details/"+obj.parent+"' target = '_blank'>"+obj.parent+"</a>";
                     }
