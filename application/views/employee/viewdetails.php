@@ -1718,17 +1718,17 @@ function sf_tab_active(){
                     if(parent_string !== null && parent_string.toLowerCase() !== 'null'){
                         $('#parent_holder').html(parent_string);
                     }else{
-                        $('#parent_holder').html("<span>NA</span>");
+                        $('#parent_holder').html("<span>N/A</span>");
                     }
                     if(sibling_string !== null && sibling_string.toLowerCase() !== 'null'){
                         $('#sibling_holder').html(sibling_string);
                     }else{
-                        $('#sibling_holder').html("<span>NA</span>");
+                        $('#sibling_holder').html("<span>N/A</span>");
                     }
                     if(child_string !== null && child_string.toLowerCase() !== 'null'){
                         $('#child_holder').html(child_string);
                     }else{
-                        $('#child_holder').html("<span>NA</span>");
+                        $('#child_holder').html("<span>N/A</span>");
                     }
                 }
              }
