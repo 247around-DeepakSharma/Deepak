@@ -858,7 +858,7 @@ class Validate_serial_no {
     function sharp_serialNoValidation($partnerID,$serialNo,$applianceID){
         switch ($applianceID) {
             case _247AROUND_WATER_PURIFIER_SERVICE_ID:
-                if((preg_match('/^[0-9]{9}$/', $serialNo)) && ((int) $serialNo != 0)){
+                if(((preg_match('/^[0-9]{9}$/', $serialNo)) && ((int) $serialNo != 0)) || (preg_match('/^[0-9]{2}[A-Za-z][0-9]{6}$/', $serialNo))){
                     return array('code' => SUCCESS_CODE);
                 }
                 else{
