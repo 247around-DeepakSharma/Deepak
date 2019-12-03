@@ -1110,7 +1110,7 @@ class Invoice_lib {
      * @param String $invoice_id
      * @return boolean
      */
-    function settle_inventory_invoice_annexure($postData, $from_gst_id = "") {
+    function settle_inventory_invoice_annexure($postData, $from_gst_id = "", $to_gst_id = "") {
         $processPostData = array();
         $not_updated = array();
         $booking_partner_id = "";
@@ -1119,6 +1119,9 @@ class Invoice_lib {
                 $booking_partner_id = $value['booking_partner_id'];
                 $where = array('inventory_id' => $value['inventory_id'],
                     'vendor_partner_id' => $value['booking_partner_id'], "invoice_details.is_settle" => 0);
+                if (!empty($to_gst_id)) {
+                    $where['from_gst_number'] = $to_gst_id;
+                }
                 if (!empty($from_gst_id)) {
                     $where['to_gst_number'] = $from_gst_id;
                 }

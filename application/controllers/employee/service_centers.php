@@ -6745,6 +6745,12 @@ class Service_centers extends CI_Controller {
             $where .= " AND booking_details.partner_id = " . $partner_id;
             
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
+            
+            $to_gst_where = array(
+                "entity_type" => _247AROUND_PARTNER_STRING,
+                "entity_id" => $this->input->post("partner_id")
+            );
+            $data['to_gst_number'] = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $to_gst_where);
         } else {
             $data['spare_parts'] = array();
         }
