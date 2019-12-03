@@ -139,7 +139,7 @@ class Booking extends CI_Controller {
         } else {
             //Logging error message if No input is provided
             log_message('info', __FUNCTION__ . " Error in Booking Insert User ID: " . $user_id);
-            $heading = "247Around Booking Error";
+            $heading = "Booking Error";
             $message = "Oops... No input provided !";
             $error = & load_class('Exceptions', 'core');
             echo $error->show_error($heading, $message, 'custom_error');
@@ -549,13 +549,8 @@ class Booking extends CI_Controller {
             }
         }
         
-        if($this->session->userdata('service_center_id')){
-            $validate_order_id = true;
-
-        } else {
-            $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
-        }
         
+        $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
       
         if ($validate_order_id) {
             $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id'], $booking['state']);
@@ -1698,6 +1693,7 @@ class Booking extends CI_Controller {
             $this->notify->sendEmail(NOREPLY_EMAIL_ID, 'pritys@247around.com', NULL, NULL, 'ERROR', $message, "","BOOKING_VIEW_DETAILS");
             return;
         }
+        
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $data['file_type'] = $this->booking_model->get_file_type();
@@ -1705,7 +1701,7 @@ class Booking extends CI_Controller {
         if(!empty($data['booking_history'])){
             if(empty($data['booking_history'][0]['assigned_vendor_id']) && ($data['booking_history'][0]['type'] == 'Booking') && ($data['booking_history'][0]['is_upcountry'] == '1')) {
                 $arr = array('is_inventory' => 1, 'is_original_inventory' => 1, 'spare_cancel_reason' => 1);
-                $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason', array('booking_id' => $booking_id),false,false,false,$arr);
+                $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason, sc.name AS send_defective_to', array('booking_id' => $booking_id),false,false,false,$arr,TRUE);
                 if(!empty($query1)) {
                     $data['booking_history']['spare_parts'] = $query1;
                 }
@@ -1746,7 +1742,6 @@ class Booking extends CI_Controller {
                     $booking_unit_details[$key1]['en_is_broken'] = $en[0]['is_broken'];
                     $booking_unit_details[$key1]['en_internal_status'] = $en[0]['internal_status'];
                     $booking_unit_details[$key1]['en_current_status'] = $en[0]['current_status'];
-                    $booking_unit_details[$key1]['en_amount_paid'] = $en[0]['amount_paid'];
                     
                     $engineer_action_not_exit = true;
                 }
@@ -2336,7 +2331,7 @@ class Booking extends CI_Controller {
             
             if(!empty($data['serial_number_pic'])){
                 $this->partner_model->insert_partner_serial_number(array('partner_id' =>$partner_id,"serial_number" => $data['serial_number'], "active" =>1, "added_by" => "vendor" ));
-//                $serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
+                //$serialNumberMandatoryPartners = explode(',',SERIAL_NUMBER_MENDATORY);
 //                if(!empty($insertd)  && in_array($partner_id, $serialNumberMandatoryPartners)){
 //                    //$this->miscelleneous->inform_partner_for_serial_no($booking_id, $service_center_details[0]['service_center_id'], $partner_id, $data['serial_number'], $data['serial_number_pic']);
 //                }
@@ -2363,23 +2358,14 @@ class Booking extends CI_Controller {
                         if(!empty($b_unit_details)){
                             $closed_date  = $b_unit_details[0]['ud_closed_date'];
                         } 
-                           
-//                        if($spare_parts_required == 1){
-//                            $data_service_center['closed_date'] = $closed_date;
-//                            $data['booking_status'] = _247AROUND_PENDING;
-//                            $internal_status = _247AROUND_COMPLETED;
-//                            $data_service_center['current_status'] = "InProcess";
-//                            $data_service_center['internal_status'] = DEFECTIVE_PARTS_PENDING;
-//                            
-//                        } else {
-                            $data_service_center['current_status'] = $data_service_center['internal_status'] = _247AROUND_COMPLETED;
+                        
+                        $data_service_center['current_status'] = $data_service_center['internal_status'] = _247AROUND_COMPLETED;
                             $data['booking_status'] = _247AROUND_COMPLETED;
                             $internal_status = _247AROUND_COMPLETED;
-                            
-                            $data_service_center['closed_date'] = $data['ud_closed_date'] = $closed_date;
-//                        }
 
-                        log_message('info', __FUNCTION__ . " New unit selected, previous unit " . print_r($unit_id, true)
+                            $data_service_center['closed_date'] = $data['ud_closed_date'] = $closed_date;
+
+                            log_message('info', __FUNCTION__ . " New unit selected, previous unit " . print_r($unit_id, true)
                                 . " Service charges id: "
                                 . print_r($service_charges_id, true)
                                 . " Data: " . print_r($data, true) . " State: " . print_r($state['state'], true));
@@ -2417,6 +2403,7 @@ class Booking extends CI_Controller {
                 $service_center['closed_date'] = $data['ud_closed_date'] = $closed_date;
                 $service_center['current_status'] = $data['booking_status'];
                 $service_center['internal_status'] = $data['booking_status'];
+                
                 $data['id'] = $unit_id;
 
                 log_message('info', ": " . " update booking unit details data " . print_r($data, TRUE));
@@ -2459,8 +2446,6 @@ class Booking extends CI_Controller {
             $this->miscelleneous->update_appliance_details($unit_id);
             $k = $k + 1;
         }
-        
-       
         // insert in booking files.
         $booking_file = [];
         $booking_file['booking_id'] = $booking_id;
@@ -2473,8 +2458,7 @@ class Booking extends CI_Controller {
         if($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
             $rowsStatus = $this->booking_model->update_symptom_defect_details($booking_id, $booking_symptom);
             
-            if(!$rowsStatus)
-            {
+            if(!$rowsStatus){
                 $booking_symptom['booking_id'] = $booking_id;
                 $booking_symptom['symptom_id_booking_creation_time'] = 0;
                 $booking_symptom['create_date'] = date("Y-m-d H:i:s");
@@ -2483,14 +2467,14 @@ class Booking extends CI_Controller {
         }
         
         // update spare parts.
-
+        //$is_update_spare_parts = $this->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details);
         $is_update_spare_parts = $this->miscelleneous->update_spare_consumption_status($this->input->post(), $booking_id, $service_center_details, $status);
         if($is_update_spare_parts && $is_update_spare_parts != DEFECTIVE_PARTS_SHIPPED) { 
             $booking['current_status'] = _247AROUND_PENDING;
             $booking['internal_status'] = DEFECTIVE_PARTS_PENDING;
         } else if($is_update_spare_parts == DEFECTIVE_PARTS_SHIPPED) {
             $booking['current_status'] = _247AROUND_PENDING;
-            $booking['internal_status'] = DEFECTIVE_PARTS_SHIPPED; 
+            $booking['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
         } else {
             $booking['current_status'] = $internal_status;
             $booking['internal_status'] = $internal_status;
@@ -2533,11 +2517,12 @@ class Booking extends CI_Controller {
             //get engineer close date
             $eng_booking = $this->engineer_model->getengineer_action_data("closed_date", array("booking_id" => $booking_id, "closed_date IS NOT NULL" => NULL));
             if(!empty($eng_booking)){
-                $booking['service_center_closed_date'] = $eng_booking[0]['closed_date'];
+               $booking['service_center_closed_date'] = $eng_booking[0]['closed_date'];
             }
-            else{ 
-                $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
+            else{
+               $booking['service_center_closed_date'] = date('Y-m-d H:i:s');
             }
+            
         }
         
         if($internal_status == _247AROUND_CANCELLED){
@@ -2557,7 +2542,7 @@ class Booking extends CI_Controller {
             } else if($sp['status'] == SPARE_PARTS_REQUESTED && !$sp['spare_lost']){
                 $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => _247AROUND_CANCELLED));
             } else if(!$sp['spare_lost']) {
-//                $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
+        //        $this->service_centers_model->update_spare_parts(array('id'=> $sp['id']), array('old_status' => $sp['status'],'status' => $internal_status));
             }
         }
         
@@ -2605,100 +2590,99 @@ class Booking extends CI_Controller {
         }
     }
 
-//    /**
-//     * 
-//     * @param type $post_data
-//     * @return boolean
-//     */
-//    public function update_spare_consumption_status($post_data, $booking_id, $service_center_details) {
-//        if(!empty($post_data['spare_consumption_status'])) {
-//            foreach($post_data['spare_consumption_status'] as $spare_id => $status_id) {
-//                
-//                $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details','*',['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
-//                $status = "";
-//                $defective_part_required = $spare_part_detail['defective_part_required'];
-//                
-//                // check record exist in wrong spare part details.
-//                $check_wrong_part_record_exist = $this->reusable_model->get_search_result_data('wrong_part_shipped_details', '*', ['spare_id' => $spare_id], NULL, NULL, NULL, NULL, NULL);
-//                
-//                $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status','tag',['id' => $status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
-//                
-//                if($consumption_status_tag == PART_CONSUMED_TAG) {
-//                    $status = DEFECTIVE_PARTS_PENDING;
-//                    $defective_part_required = 1;
-//                    if(!empty($check_wrong_part_record_exist[0])) {
-//                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
-//                    }
+    /**
+     * 
+     * @param type $post_data
+     * @return boolean
+     */
+    public function update_spare_consumption_status($post_data, $booking_id, $service_center_details) {
+        if(!empty($post_data['spare_consumption_status'])) {
+            foreach($post_data['spare_consumption_status'] as $spare_id => $status_id) {
+                
+                $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details','*',['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
+                $status = "";
+                $defective_part_required = $spare_part_detail['defective_part_required'];
+                
+                // check record exist in wrong spare part details.
+                $check_wrong_part_record_exist = $this->reusable_model->get_search_result_data('wrong_part_shipped_details', '*', ['spare_id' => $spare_id], NULL, NULL, NULL, NULL, NULL);
+                
+                $consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status','tag',['id' => $status_id], NULL, NULL, NULL, NULL, NULL)[0]['tag'];
+                
+                if($consumption_status_tag == PART_CONSUMED_TAG) {
+                    $status = DEFECTIVE_PARTS_PENDING;
+                    $defective_part_required = 1;
+                    if(!empty($check_wrong_part_record_exist[0])) {
+                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
+                    }
+                }
+                
+                if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
+                    $status = COURIER_LOST;
+                    if(!empty($check_wrong_part_record_exist[0])) {
+                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
+                    }
+                }
+                
+//                if($consumption_status_tag == PART_CANCELLED_STATUS_TAG && empty($spare_part_detail['parts_shipped'])) {
+//                    $status = _247AROUND_CANCELLED;
 //                }
-//                
-//                if($consumption_status_tag == PART_NOT_RECEIVED_COURIER_LOST_TAG) {
-//                    $status = COURIER_LOST;
-//                    if(!empty($check_wrong_part_record_exist[0])) {
-//                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
-//                    }
+                
+                if($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG) {
+                    $status = OK_PART_TO_BE_SHIPPED;
+                    $defective_part_required = 1;
+                    if(!empty($check_wrong_part_record_exist[0])) {
+                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
+                    }
+                }
+                
+                if($consumption_status_tag == WRONG_PART_RECEIVED_TAG && !empty($post_data['wrong_part'])) {
+                    $status = OK_PART_TO_BE_SHIPPED;
+                    $defective_part_required = 1;
+                    if(empty($check_wrong_part_record_exist[0])) {
+                        $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
+                        $this->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
+                    }
+                }
+                
+                if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
+                    $status = DAMAGE_PART_TO_BE_SHIPPED;
+                    $defective_part_required = 1;
+                    if(!empty($check_wrong_part_record_exist[0])) {
+                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
+                    }
+                }
+
+//                if($consumption_status_tag == PART_NRN_APPROVED_STATUS_TAG) {
+//                    $status = NRN_APPROVED_BY_PARTNER;
 //                }
-//                
-////                if($consumption_status_tag == PART_CANCELLED_STATUS_TAG && empty($spare_part_detail['parts_shipped'])) {
-////                    $status = _247AROUND_CANCELLED;
-////                }
-//                
-//                if($consumption_status_tag == PART_SHIPPED_BUT_NOT_USED_TAG) {
-//                    $status = OK_PART_TO_BE_SHIPPED;
-//                    $defective_part_required = 1;
-//                    if(!empty($check_wrong_part_record_exist[0])) {
-//                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
-//                    }
-//                }
-//                
-//                if($consumption_status_tag == WRONG_PART_RECEIVED_TAG && !empty($post_data['wrong_part'])) {
-//                    $status = OK_PART_TO_BE_SHIPPED;
-//                    $defective_part_required = 1;
-//                    if(empty($check_wrong_part_record_exist[0])) {
-//                        $wrong_part_data = json_decode($post_data['wrong_part'][$spare_id]);
-//                        $this->reusable_model->insert_into_table('wrong_part_shipped_details', $wrong_part_data);
-//                    }
-//                }
-//                
-//                if($consumption_status_tag == DAMAGE_BROKEN_PART_RECEIVED_TAG) {
-//                    $status = DAMAGE_PART_TO_BE_SHIPPED;
-//
-//                    $defective_part_required = 1;
-//                    if(!empty($check_wrong_part_record_exist[0])) {
-//                        $this->reusable_model->update_table('wrong_part_shipped_details',['active' => 0], ['spare_id' => $spare_id]);
-//                    }
-//                }
-//
-////                if($consumption_status_tag == PART_NRN_APPROVED_STATUS_TAG) {
-////                    $status = NRN_APPROVED_BY_PARTNER;
-////                }
-//
-//                if(!empty($status)) {
-//                    // update in service center booking action.
-//                    $this->vendor_model->update_service_center_action($booking_id, ['internal_status' => $status, 'current_status' => 'InProcess']);
-//                    $this->booking_model->update_booking($booking_id, ['internal_status' => $status]);
-//                }
-//                       
-//                
-//                $this->reusable_model->update_table('spare_parts_details', [
-//                    'consumed_part_status_id' => $status_id,
-//                    'defective_part_required' => $defective_part_required,
-//                    'old_status' => $spare_part_detail['status'],
-//                    'status' => $status,
-//                ], ['id' => $spare_id]);
-//                
-//                if(!empty($defective_part_required) && $defective_part_required == 1 && !empty($service_center_details[0])) {
-//                    $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-//                    if (!$partner_on_saas) {
-//                        if(empty($spare_part_detail['sf_challan_file'])){
-//                        $this->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id']);
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//        
-//        return true;
-//    }
+                
+                if(!empty($status)) {
+                    // update in service center booking action.
+                    $this->vendor_model->update_service_center_action($booking_id, ['internal_status' => $status, 'current_status' => 'InProcess']);
+                    $this->booking_model->update_booking($booking_id, ['internal_status' => $status]);
+                }
+                
+                $this->reusable_model->update_table('spare_parts_details', [
+                    'consumed_part_status_id' => $status_id,
+                    'defective_part_required' => $defective_part_required,
+                    'old_status' => $spare_part_detail['status'],
+                    'status' => $status,
+                ], ['id' => $spare_id]);
+                
+                if(!empty($defective_part_required) && $defective_part_required == 1 && !empty($service_center_details[0])) {
+                    $partner_on_saas= $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
+                    if (!$partner_on_saas) {
+                        if(empty($spare_part_detail['sf_challan_file'])){
+                            $this->invoice_lib->generate_challan_file($spare_id, $service_center_details[0]['service_center_id']);
+                        }
+                    }
+                }
+                
+            }
+        }
+        
+        return true;
+    }
     
     
 /**
@@ -4261,14 +4245,14 @@ class Booking extends CI_Controller {
         }
         
         if(empty($order_list->penalty_active)){
-            $penalty_row = "<a class='btn btn-sm btn-color' href='javascript:void(0);' title='Remove Penalty' style='cursor:not-allowed;opacity:0.5;'><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+            $penalty_row = "<a class='btn btn-sm btn-color' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='cursor:not-allowed;opacity:0.5;'><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
         }else if($order_list->penalty_active === '1'){
             $penalty_modal = "onclick='";
             $penalty_modal .= "get_penalty_details(".'"'.$order_list->booking_id.'"';
             $penalty_modal .= ', "'.$booking_status.'"';
             $penalty_modal .= ', "'.$order_list->assigned_vendor_id.'"';
             $penalty_modal .= ")' ";
-            $penalty_row = "<a class='btn btn-sm btn-color' href='javascript:void(0);' title='Remove Penalty' $penalty_modal><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+            $penalty_row = "<a class='btn btn-sm btn-color' href='javascript:void(0);' title='Remove Penalty' target='_blank' $penalty_modal><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
         }
         
         if($order_list->count_escalation > 0){
@@ -4292,8 +4276,9 @@ class Booking extends CI_Controller {
             . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
         } else {
             if ($order_list->current_status == _247AROUND_PENDING || $order_list->current_status == _247AROUND_RESCHEDULED) {
+                $redirect_url = base_url()."employee/booking/get_complete_booking_form/".$order_list->booking_id;
                 $complete = "<a target='_blank' class='btn btn-sm btn-color btn-sm' "
-                . "href=" . base_url() . "employee/booking/get_complete_booking_form/$order_list->booking_id title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
+                . "href=" . base_url() ."employee/booking/get_edit_request_type_form/".urlencode(base64_encode($order_list->booking_id))."/".urlencode(base64_encode($redirect_url))." title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true' ></i></a>";
             } else if ($order_list->current_status == 'Review') {
                 $complete = "<a target='_blank' class='btn btn-sm btn-color btn-sm' "
                 . "href=" . base_url() . "employee/booking/review_bookings/$order_list->booking_id title='Complete'><i class='fa fa-eye-slash' aria-hidden='true' ></i></a>";
@@ -4453,7 +4438,6 @@ class Booking extends CI_Controller {
     public function get_queries_detailed_data($query_status,$pincode_status) {
         $post = $this->get_post_data();
         $new_post = $this->get_filterd_post_data($post, $query_status, "query");
-        
         $select = "services.services,users.name as customername, users.phone_number,booking_details.* ,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_day,booking_unit_details.appliance_description, booking_unit_details.appliance_brand";
 
         $list = $this->booking_model->get_queries($new_post,$pincode_status,$query_status,$select);
@@ -5367,7 +5351,7 @@ class Booking extends CI_Controller {
             $post['where_in']['booking_details.booking_id'] =  explode(",",$bulk_booking_id);
         }
         if($booking_status == 'Pending'){
-            $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL);
+            $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL); 
             $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
             services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
             booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
@@ -5650,7 +5634,7 @@ class Booking extends CI_Controller {
         //echo"<pre>";print_r($data);exit;
         $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Due',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age', 'Amount Paid'], 'data_'.date('Ymd-His'));
     }
-    
+            
     function sms_test($number,$text){
           $this->notify->sendTransactionalSmsMsg91($number,$text,SMS_WITHOUT_TAG);
     }
@@ -5929,7 +5913,7 @@ class Booking extends CI_Controller {
             } else {
                 //Logging error if No input is provided
                 log_message('info', __FUNCTION__ . "Error in Update Booking ID  " . print_r($booking_id, true) . " User ID: " . print_r($user_id, true));
-                $heading = "247Around Booking Error";
+                $heading = "Booking Error";
                 $message = "Oops... No input provided !";
                 $error = & load_class('Exceptions', 'core');
                 echo $error->show_error($heading, $message, 'custom_error');
@@ -6101,63 +6085,6 @@ class Booking extends CI_Controller {
         }
         
         $this->load->view('employee/wrong_spare_part', $data);
-    }    
-
-   /**
-     * @desc: This method finds the TAT of booking id and computes penalty on final amount for per
-     * puts penalty on the booking
-     * @param input $booking_id
-     * @return booking id
-     * @develop: Pranjal
-     * @date: 9/5/2019 (mm/dd/yyyy)
-     * 
-     */
-    public function update_tat_based_penalty($booking_id) {
-        $booking = $this->booking_model->get_booking_TAT($booking_id)[0];
-        $penalty = 0;
-        $res = $this->miscelleneous->get_SF_payout($booking_id, $booking["assigned_vendor_id"], $booking['amount_due'], $booking['flat_upcountry']);
-        $criteriaid=0;
-        if ($booking["is_upcountry"] == 1) //for upcounty call
-        {
-             if ($booking["TAT"] >= 48 && $booking["TAT"]<72) {
-                $criteriaid =_KENSTAR_PENALTY_UPCOUNTRY_48;
-                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_UPCOUNTRY_48)[0]["Penalty"];
-             }
-             else if ($booking["TAT"] >= 72 && $booking["TAT"]<120) {
-                $criteriaid =_KENSTAR_PENALTY_UPCOUNTRY_72;
-                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_UPCOUNTRY_72)[0]["Penalty"];
-             }
-             else if ($booking["TAT"] >= 120) {
-                $criteriaid =_KENSTAR_PENALTY_UPCOUNTRY_120;
-                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_UPCOUNTRY_120)[0]["Penalty"];
-            }
-        } else {
-            if ($booking["TAT"] >= 24 && $booking["TAT"]<48) {
-                $criteriaid =_KENSTAR_PENALTY_LOCAL_24;
-                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_LOCAL_24)[0]["Penalty"];
-            }
-            else if ($booking["TAT"] >= 48 && $booking["TAT"]<72) {
-                $criteriaid =_KENSTAR_PENALTY_LOCAL_48;
-                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_LOCAL_48)[0]["Penalty"];
-            }
-            else if ($booking["TAT"] >= 72) {
-                $criteriaid =_KENSTAR_PENALTY_LOCAL_72;
-                $penalty=$this->booking_model->compute_penalty($res,_KENSTAR_PENALTY_LOCAL_72)[0]["Penalty"];
-           }
-        }
-        if($penalty >0) {
-
-            $criteria = $this->reusable_model->get_search_result_data('penalty_details', 'criteria', ['id' => $criteriaid], NULL, NULL, NULL, NULL, NULL)[0];
-            $record = [];
-            $record['agent_id'] = _247AROUND_DEFAULT_AGENT;
-            $record['remarks'] = 'Booking Not Updated On Time';
-            $record = array('criteria' => $criteria, 'active' => '1');
-            $record['booking_id'] = $booking_id;
-            $record['assigned_vendor_id'] = $booking["assigned_vendor_id"];
-            $record['agent_type'] = 'admin';
-            $this->penalty_model->get_data_penalty_on_booking($record, $where,$penalty);
-        }
-
     }
     
     function get_edit_request_type_form($booking_id, $redirect_url = null)

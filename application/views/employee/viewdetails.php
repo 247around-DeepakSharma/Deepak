@@ -922,18 +922,19 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
-                                        <th >Shipped Parts </th>
-                                        <th >Shipped Parts Number</th>
-                                        <th >Shipped Quantity</th>
-                                        <th >Courier Name </th>
+                                        <th>Send Defective To</th>
+                                        <th>Shipped Parts </th>
+                                        <th>Shipped Parts Number</th>
+                                        <th>Shipped Quantity</th>
+                                        <th>Courier Name </th>
                                         <th>AWB </th>
                                         <th> No. Of Boxes </th>
                                         <th> Weight</th>
-                                        <th >Courier Charge </th>
+                                        <th>Courier Charge </th>
                                         <th> Courier Invoice</th>
-                                        <th >Shipped date </th>
-                                        <th >Remarks By SF </th>
-                                        <th >Remarks By Partner </th>
+                                        <th>Shipped date </th>
+                                        <th>Remarks By SF </th>
+                                        <th>Remarks By Partner </th>
                                         <th>SF Challan Number</th>
                                         <th>SF Challan File</th>
                                         <th>Update Courier Details</th>
@@ -942,6 +943,7 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                     <tr>
+                                        <td><?php if(!empty($sp['send_defective_to'])) { echo $sp['send_defective_to']; } ?></td>   
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                         <td><?php if(!empty($sp['shipped_part_number'])){ echo $sp['shipped_part_number'];}else{echo 'Not Available';} ?></td>
                                         <td><?php echo $sp['shipped_quantity']; ?></td>
@@ -972,7 +974,7 @@
                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                         <td><?php echo date('d-m-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
-                                        <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
+                                        <td style="word-break: break-all;"><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                         <td><?php echo $sp['sf_challan_number']; ?></td>
                                         <td>
                                             <?php if(!empty($sp['sf_challan_file'])){ ?> 
