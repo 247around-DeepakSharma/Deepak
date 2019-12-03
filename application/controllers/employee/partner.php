@@ -120,6 +120,8 @@ class Partner extends CI_Controller {
      * @desc: this is used to display completed booking for specific service center
      */
     function closed_booking($state, $offset = 0, $booking_id = "") {
+        ini_set('memory_limit', '-1');
+        ini_set('max_execution_time', 36000);
         $this->checkUserSession();
         $partner_id = $this->session->userdata('partner_id');
         $stateCity = 0;
