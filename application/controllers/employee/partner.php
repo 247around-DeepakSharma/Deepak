@@ -4828,7 +4828,7 @@ class Partner extends CI_Controller {
         $data['category'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT category",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['capacity'] = $this->reusable_model->get_search_result_data("service_centre_charges","DISTINCT capacity",array('service_id'=>$service_id,'partner_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
         $data['model'] = $this->reusable_model->get_search_result_data("appliance_model_details","DISTINCT model_number as model",array('service_id'=>$service_id,'entity_id'=>$partner_id),NULL,NULL,NULL,NULL,NULL,array());
-        $data['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type","id, collateral_type",array('collateral_tag'=>LEARNING_DOCUMENT),NULL,NULL,NULL,NULL,NULL,array());
+        $data['collateral_type'] = $this->reusable_model->get_search_result_data("collateral_type","id, concat(collateral_type, ' (', document_type, ') ') as collateral_type",array('collateral_tag'=>LEARNING_DOCUMENT),NULL,NULL,NULL,NULL,NULL,array());
         $data['document_type'] =  $this->reusable_model->get_search_result_data("collateral_type","distinct(document_type) as document_type",array('document_type IS NOT NULL'=>NULL),NULL,NULL,NULL,NULL,NULL,array());
         echo json_encode($data);
     }
@@ -4991,6 +4991,7 @@ class Partner extends CI_Controller {
             }
                 $this->session->set_userdata('success', $msg);
             }
+        //    echo "here".$partner; die();
         redirect(base_url() . 'employee/partner/editpartner/' . $partner);
     }
     
