@@ -1166,7 +1166,7 @@
                     </tr>
                     <tbody>
                         <tr>
-                            <td><?php echo $signature_details[0]['amount_paid']; ?></td>
+                            <td><?php if(isset($unit_details[0]['en_amount_paid'])){ echo $unit_details[0]['en_amount_paid']; } ?></td>
                             <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
                             <td><?php echo $signature_details[0]['closed_date']; ?></td>
                             <td><?php echo $signature_details[0]['address']; ?></td>

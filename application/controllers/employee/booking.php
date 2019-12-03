@@ -1746,6 +1746,7 @@ class Booking extends CI_Controller {
                     $booking_unit_details[$key1]['en_is_broken'] = $en[0]['is_broken'];
                     $booking_unit_details[$key1]['en_internal_status'] = $en[0]['internal_status'];
                     $booking_unit_details[$key1]['en_current_status'] = $en[0]['current_status'];
+                    $booking_unit_details[$key1]['en_amount_paid'] = $en[0]['amount_paid'];
                     
                     $engineer_action_not_exit = true;
                 }
