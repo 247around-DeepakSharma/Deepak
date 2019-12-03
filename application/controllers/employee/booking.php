@@ -679,6 +679,7 @@ class Booking extends CI_Controller {
             }
             return $booking;
         } else {
+            $this->session->set_userdata(['error_msg' => 'Order Id is not Valid']);
             return false;
         }
     }
@@ -1701,7 +1702,7 @@ class Booking extends CI_Controller {
         if(!empty($data['booking_history'])){
             if(empty($data['booking_history'][0]['assigned_vendor_id']) && ($data['booking_history'][0]['type'] == 'Booking') && ($data['booking_history'][0]['is_upcountry'] == '1')) {
                 $arr = array('is_inventory' => 1, 'is_original_inventory' => 1, 'spare_cancel_reason' => 1);
-                $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason', array('booking_id' => $booking_id),false,false,false,$arr);
+                $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason, sc.name AS send_defective_to', array('booking_id' => $booking_id),false,false,false,$arr,TRUE);
                 if(!empty($query1)) {
                     $data['booking_history']['spare_parts'] = $query1;
                 }
@@ -5903,13 +5904,27 @@ class Booking extends CI_Controller {
                         //Redirect to edit booking page if validation err occurs
                         $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact BackOffice Team');
                         $this->session->set_userdata($userSession);
+                        if(!empty($arr_post['redirect_url']))
+                        {
+                            redirect($arr_post['redirect_url']);
+                        }
+                        else
+                        {
                         redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                    }
                     }
                 } else {
                     //Redirect to edit booking page if validation err occurs
                     $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact Backoffice Team.');
                     $this->session->set_userdata($userSession);
+                    if(!empty($arr_post['redirect_url']))
+                    {
+                        redirect($arr_post['redirect_url']);
+                    }
+                    else
+                    {
                     redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                }
                 }
             } else {
                 //Logging error if No input is provided
