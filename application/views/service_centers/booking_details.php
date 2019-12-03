@@ -118,9 +118,7 @@
                            
                             <tr>
                                 <th>Cancellation Reason </th>
-                                <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>
-                                  <th>Closed date </th>
-                                <td><?php echo $booking_history[0]['service_center_closed_date']; ?></td>
+                                <td><?php echo $booking_history[0]['cancellation_reason']; ?></td>                                
                             </tr>
                             <tr>
                                 <th>Symptom (Booking Creation Time)</th>
@@ -1165,7 +1163,7 @@ function OpenWindowWithPost(url, windowoption, name, params)
                 success: function(res){
                     if(res){
                     var obj = JSON.parse(res);
-                    parent_string = child_string = sibling_string = "NULL";
+                    parent_string = child_string = sibling_string = "N/A";
                     if(obj.parent){
                         parent_string = "<a href = '<?php echo base_url(); ?>service_center/booking_details/"+encodeURIComponent(window.btoa(obj.parent))+"' target = '_blank'>"+obj.parent+"</a>";
                     }

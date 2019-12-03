@@ -2423,7 +2423,7 @@ class Service_centers extends CI_Controller {
                 $data['serial_number_pic'] = $this->input->post('serial_number_pic');
                 $data['model_number'] = $this->input->post('model_number');
                 $data['serial_number'] = $this->input->post('serial_number');
-                $data['date_of_purchase'] = $this->input->post('dop');
+                $data['date_of_purchase'] = date("Y-m-d", strtotime($this->input->post('dop')));
                 
                 $dataunit_details =array(
                     'sf_model_number'=>trim($data['model_number']),
