@@ -441,7 +441,16 @@
                             <a target='_blank' href="<?php echo base_url();?>employee/vendor/get_reassign_vendor_form/<?php echo $row->booking_id; ?>" class='btn btn-sm btn-color' title="Re- assign"><i class="fa fa-repeat" aria-hidden="true"></i></a>
                         </td>
                         <td>
-                            <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-color' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                            <?php if ($row->nrn_approved==0) { ?>
+                                 
+                                <a target='_blank' href="<?php echo base_url(); ?>employee/vendor/get_vendor_escalation_form/<?php echo $row->booking_id; ?>" <?php if($row->assigned_vendor_id == null){ echo "disabled"; }?> class='btn btn-sm btn-color' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+
+                            <?php }else{ ?>
+
+                            <a style="background-color: #fa0202;" target='_blank' href="#" class='btn btn-sm btn-color disabled nrn_approved ' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+
+                            <?php }  ?>
+                            
                         </td>
                         <td>
                             <a class='btn btn-sm btn-color col-md-4' style='margin-left:10px;padding-right: 17px;' onclick='get_penalty_details("<?php echo $row->booking_id; ?>","<?php echo $row->current_status; ?>","<?php echo $row->assigned_vendor_id;?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
@@ -936,4 +945,12 @@
          }
        });
     }
+
+
+$(".nrn_approved").click(function(){
+
+    swal("Error", "Booking is NRN Approved. So escalation is not allowed", "error");
+
+});
+
 </script>
