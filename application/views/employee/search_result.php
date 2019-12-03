@@ -448,7 +448,7 @@
 
                             <?php }else{ ?>
 
-                            <a style="background-color: #fa0202;" target='_blank' href="#" class='btn btn-sm btn-color disabled nrn_approved ' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
+                            <a style="background-color: #fa0202;"  href="#" class='btn btn-sm btn-color  nrn_approved ' title="Escalate"><i class="fa fa-circle" aria-hidden="true"></i></a>
 
                             <?php }  ?>
                             
