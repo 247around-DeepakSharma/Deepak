@@ -296,5 +296,6 @@ $route['partner/inventory/upload_bom_file'] = 'employee/inventory/upload_bom_fil
 $route['partner/inventory/upload_alternate_spare_parts_file'] = 'employee/spare_parts/upload_alternate_spare_parts_file/0';
 $route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
 $route['engineer/download_engineer_bookings'] = 'employee/engineer/download_engineer_bookings';
+$route['employee/courier/add_courier_service'] = 'employee/spare_parts/add_courier_service';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

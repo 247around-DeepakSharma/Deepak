@@ -2608,7 +2608,89 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/tag_courier_details_by_invoice_id',$data);
-    }        
+    }     
+    /*
+     *  @desc : This function is used add create new courier service.
+     *  @return : void();
+     */
+    function add_courier_service() {
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/add_courier_service_details',$data);
+    }    
+    
+    /*
+     *  @desc : This function is used manage courier service as add and edit.
+     *  @status : Json data
+     */
+    
+    function manage_courier_service() {
+        log_message('info', __METHOD__ . json_encode($this->input->post(), true));
+        $courier_id = $this->input->post("courier_services_id");
+        $courier_name = $this->input->post("courier_name");
+        $courier_code = $this->input->post("courier_code");
+        $status = array();
+        $data = array();
+        if (!empty($courier_id)) {
+            $data['courier_name'] = $courier_name;
+            $data['courier_code'] = $courier_code;
+            if (!empty($data)) {
+                $where = array("courier_services.id" => $courier_id);
+                $affected_id = $this->inventory_model->update_courier_services($data,$where);
+                if ($affected_id) {
+                    $status["message"] = "Courier service successfuly Updated.";
+                } else {
+                    $status["message"] = "Courier service not Updated.";
+                }
+            }
+        } else {
+            if (!empty($courier_name)) {
+                $data['courier_name'] = $courier_name;
+                $data['courier_code'] = $courier_code;
+                if (!empty($data)) {
+                    $insert_id = $this->inventory_model->insert_courier_services_data($data);
+                    if (!empty($insert_id)) {
+                        $status["message"] = "Courier service successfuly added.";
+                    } else {
+                        $status["message"] = "Courier service not added.";
+                    }
+                }
+            }
+        }
+        echo json_encode($status);
+    }    
+   /*
+    *  @desc : This function is used manage courier service edit.
+    *  @status : Json data
+    */
+    function manage_courier_service_satus() {
+        log_message('info', __METHOD__ . json_encode($this->input->post(), true));
+        $error = array();
+        $data = array();
+        $courier_id = $this->input->post('data')['id'];
+        $status = $this->input->post('data')['status'];
+        if (!empty($courier_id)) {
+            $where = array("courier_services.id" => $courier_id);
+            if ($status == 1) {
+                $active = 0;
+            } else {
+                $active = 1;
+            }
+            $data['status'] = $active;
+            if (!empty($data)) {
+                $affected_id = $this->inventory_model->update_courier_services($data, $where);
+                if ($affected_id) {
+                    $error["message"] = "Courier service successfuly Updated.";
+                } else {
+                    $error["message"] = "Courier service not Updated.";
+                }
+            }
+        }else{
+          $error["message"] = "Courier service id should not be blank.";  
+        }
+        echo json_encode($error);
+    }
+
     /**
      *  @desc : This function is used to tag courier details by invoice ids
      *  @return : void();

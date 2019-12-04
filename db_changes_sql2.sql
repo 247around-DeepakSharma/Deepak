@@ -1627,3 +1627,5 @@ ALTER TABLE `callback_api_booking_details`
 ALTER TABLE `callback_api_booking_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
+--Gorakh 03-12-2019
+ALTER TABLE `courier_services` ADD `status` TINYINT NOT NULL DEFAULT '1' AFTER `courier_code`;
