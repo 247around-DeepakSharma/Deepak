@@ -3969,7 +3969,14 @@ class Booking extends CI_Controller {
                     . "</i></a><p style='text-align:center;color: red;'>$unreachableCount</p>";
         }
         
-        $row[] = "<a class='btn btn-sm btn-color col-md-12' href='".base_url()."employee/vendor/get_escalate_booking_form/".$order_list->booking_id."/".$booking_status."' title='Add Penalty' target='_blank'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
+        if ($order_list->booking_id==0) {
+            
+            $row[] = "<a class='btn btn-sm btn-color col-md-12' href='".base_url()."employee/vendor/get_escalate_booking_form/".$order_list->booking_id."/".$booking_status."' title='Add Penalty' target='_blank'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
+
+        }else{
+            $row[] = "<a style='background-color: #fa0202;' class='btn btn-sm  col-md-12' href='#' title='Add Penalty'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
+
+        }
         
         
         return $row;
@@ -4398,7 +4405,16 @@ class Booking extends CI_Controller {
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
+
+
+        if ($order_list->nrn_approved==0) {
+             $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
+        }else{
+
+            $row[] = "<a style='background-color: #fa0202;' class = 'btn btn-sm btn-color' href = '#' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
+        }
+
+
         $row[] = $penalty_row;
         $row[] = "<a class = 'btn btn-sm btn-color' title = 'Helper Document' data-toggle='modal' data-target='#showBrandCollateral' onclick=get_brand_collateral('".$order_list->booking_id."')><i class='fa fa-file-text-o' aria-hidden='true'></i></a>";
         
