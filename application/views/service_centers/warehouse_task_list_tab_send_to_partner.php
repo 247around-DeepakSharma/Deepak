@@ -227,6 +227,25 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="to_gst_number" class="col-md-4">To GST Number *</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="to_gst_number" required>
+                                            <option selected disabled value="">Select To GST number</option>
+                                            <?php
+                                            foreach ($to_gst_number as $gst_numbers => $gst_number) {
+                                            ?>
+                                            <option value="<?php echo $gst_number['id']  ?>"><?php echo $gst_number['state']." - ".$gst_number['gst_number'] ?></option>
+                                            <?php    
+                                            }
+                                            ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <br>
                         <h4 class="modal-title">E-Way Bill Details</h4>
                         <hr>
@@ -416,6 +435,7 @@
         postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_by_wh').val();
         postData['exist_courier_image'] = $('#exist_courier_image').val();
         postData['from_gst_number'] = $('#from_gst_number').val();
+        postData['to_gst_number'] = $('#to_gst_number').val();
         postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
         postData['eway_vehicle_number'] = $('#eway_vehicle_number').val();
         var exist_courier_image = $("#exist_courier_image").val();       
@@ -461,7 +481,7 @@
             alert('Courier price should be in between 0 and 2000.');
             return false;
         }
-        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['from_gst_number']){
+        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['from_gst_number'] && postData['to_gst_number']){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/send_defective_parts_to_partner_from_wh',

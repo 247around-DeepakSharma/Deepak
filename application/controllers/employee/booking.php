@@ -679,6 +679,7 @@ class Booking extends CI_Controller {
             }
             return $booking;
         } else {
+            $this->session->set_userdata(['error_msg' => 'Order Id is not Valid']);
             return false;
         }
     }
@@ -3959,7 +3960,14 @@ class Booking extends CI_Controller {
                     . "</i></a><p style='text-align:center;color: red;'>$unreachableCount</p>";
         }
         
-        $row[] = "<a class='btn btn-sm btn-color col-md-12' href='".base_url()."employee/vendor/get_escalate_booking_form/".$order_list->booking_id."/".$booking_status."' title='Add Penalty' target='_blank'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
+        if ($order_list->booking_id==0) {
+            
+            $row[] = "<a class='btn btn-sm btn-color col-md-12' href='".base_url()."employee/vendor/get_escalate_booking_form/".$order_list->booking_id."/".$booking_status."' title='Add Penalty' target='_blank'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
+
+        }else{
+            $row[] = "<a style='background-color: #fa0202;' class='btn btn-sm  col-md-12' href='#' title='Add Penalty'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
+
+        }
         
         
         return $row;
@@ -4245,14 +4253,14 @@ class Booking extends CI_Controller {
         }
         
         if(empty($order_list->penalty_active)){
-            $penalty_row = "<a class='btn btn-sm btn-color' href='javascript:void(0);' title='Remove Penalty' target='_blank' style='cursor:not-allowed;opacity:0.5;'><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+            $penalty_row = "<a class='btn btn-sm btn-color' href='javascript:void(0);' title='Remove Penalty' style='cursor:not-allowed;opacity:0.5;'><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
         }else if($order_list->penalty_active === '1'){
             $penalty_modal = "onclick='";
             $penalty_modal .= "get_penalty_details(".'"'.$order_list->booking_id.'"';
             $penalty_modal .= ', "'.$booking_status.'"';
             $penalty_modal .= ', "'.$order_list->assigned_vendor_id.'"';
             $penalty_modal .= ")' ";
-            $penalty_row = "<a class='btn btn-sm btn-color' href='javascript:void(0);' title='Remove Penalty' target='_blank' $penalty_modal><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
+            $penalty_row = "<a class='btn btn-sm btn-color' href='javascript:void(0);' title='Remove Penalty' $penalty_modal><i class='fa fa-times-circle' aria-hidden='true'></i></a>";
         }
         
         if($order_list->count_escalation > 0){
@@ -4389,7 +4397,16 @@ class Booking extends CI_Controller {
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
+
+
+        if ($order_list->nrn_approved==0) {
+             $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
+        }else{
+
+            $row[] = "<a style='background-color: #fa0202;' class = 'btn btn-sm btn-color' href = '#' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
+        }
+
+
         $row[] = $penalty_row;
         $row[] = "<a class = 'btn btn-sm btn-color' title = 'Helper Document' data-toggle='modal' data-target='#showBrandCollateral' onclick=get_brand_collateral('".$order_list->booking_id."')><i class='fa fa-file-text-o' aria-hidden='true'></i></a>";
         
@@ -5902,13 +5919,27 @@ class Booking extends CI_Controller {
                         //Redirect to edit booking page if validation err occurs
                         $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact BackOffice Team');
                         $this->session->set_userdata($userSession);
-                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                        if(!empty($arr_post['redirect_url']))
+                        {
+                            redirect($arr_post['redirect_url']);
+                        }
+                        else
+                        {
+                            redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                        }   
                     }
                 } else {
                     //Redirect to edit booking page if validation err occurs
                     $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact Backoffice Team.');
                     $this->session->set_userdata($userSession);
-                    redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                    if(!empty($arr_post['redirect_url']))
+                    {
+                        redirect($arr_post['redirect_url']);
+                    }
+                    else
+                    {
+                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                    }
                 }
             } else {
                 //Logging error if No input is provided

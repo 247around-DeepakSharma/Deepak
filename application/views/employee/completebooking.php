@@ -9,6 +9,17 @@
             </div>
         </div>
         <?php }?>
+        <?php
+        if ($this->session->userdata('error') || $this->session->userdata('error_msg')) {
+            $error_msg = ($this->session->userdata('error_msg')) ? $this->session->userdata('error_msg') : $this->session->userdata('error');
+            echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:10px;">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <strong>' . $error_msg . '</strong>
+                </div>';
+        }
+        ?>
         <?php $enable_button = TRUE; 
                 if($booking_history[0]['current_status'] == _247AROUND_COMPLETED){
                     if($booking_history[0]['current_status'] == _247AROUND_COMPLETED && empty($is_invoice_generated)
@@ -1402,3 +1413,8 @@
         }    
     <?php } ?>
 </style>
+<?php 
+if($this->session->userdata('error')){$this->session->unset_userdata('error');} 
+if($this->session->userdata('error_msg')){$this->session->unset_userdata('error_msg');} 
+if($this->session->userdata('success')){$this->session->unset_userdata('success');} 
+?>
