@@ -425,7 +425,7 @@ class Spare_parts extends CI_Controller {
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.spare_cancelled_date,spare_parts_details.part_warranty_status,spare_parts_details.model_number, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,spare_parts_details.part_requested_on_approval, spare_parts_details.part_warranty_status,"
                 . "defective_part_required, spare_parts_details.parts_shipped, spare_parts_details.shipped_quantity, spare_parts_details.parts_requested_type,spare_parts_details.is_micro_wh, status, inventory_master_list.part_number, booking_cancellation_reasons.reason as part_cancel_reason, booking_details.state ";
-        $post['column_order'] = array( NULL, NULL,NULL,NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'spare_cancelled_date',NULL, NULL);
+        $post['column_order'] = array( NULL, NULL,NULL,NULL,NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_request',NULL, 'age_of_request');
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type', 'booking_details.state');
         //$post['where_in']=array('booking_details.current_status'=>array(_247AROUND_PENDING,_247AROUND_RESCHEDULED));
@@ -1144,7 +1144,7 @@ class Spare_parts extends CI_Controller {
             $part_status_text = REPAIR_IN_WARRANTY_TAG;
         }
         $row[] = $part_status_text;
-        $row[] = (empty($spare_list->spare_cancelled_date)) ? '0 Days' : $spare_list->spare_cancelled_date . " Days";
+        $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
         return $row;
         
     }
@@ -2613,7 +2613,89 @@ class Spare_parts extends CI_Controller {
         $data['courier_details'] = $this->inventory_model->get_courier_services('*');
         $this->miscelleneous->load_nav_header();
         $this->load->view('employee/tag_courier_details_by_invoice_id',$data);
-    }        
+    }     
+    /*
+     *  @desc : This function is used add create new courier service.
+     *  @return : void();
+     */
+    function add_courier_service() {
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/add_courier_service_details',$data);
+    }    
+    
+    /*
+     *  @desc : This function is used manage courier service as add and edit.
+     *  @status : Json data
+     */
+    
+    function manage_courier_service() {
+        log_message('info', __METHOD__ . json_encode($this->input->post(), true));
+        $courier_id = $this->input->post("courier_services_id");
+        $courier_name = $this->input->post("courier_name");
+        $courier_code = $this->input->post("courier_code");
+        $status = array();
+        $data = array();
+        if (!empty($courier_id)) {
+            $data['courier_name'] = $courier_name;
+            $data['courier_code'] = $courier_code;
+            if (!empty($data)) {
+                $where = array("courier_services.id" => $courier_id);
+                $affected_id = $this->inventory_model->update_courier_services($data,$where);
+                if ($affected_id) {
+                    $status["message"] = "Courier service successfuly Updated.";
+                } else {
+                    $status["message"] = "Courier service not Updated.";
+                }
+            }
+        } else {
+            if (!empty($courier_name)) {
+                $data['courier_name'] = $courier_name;
+                $data['courier_code'] = $courier_code;
+                if (!empty($data)) {
+                    $insert_id = $this->inventory_model->insert_courier_services_data($data);
+                    if (!empty($insert_id)) {
+                        $status["message"] = "Courier service successfuly added.";
+                    } else {
+                        $status["message"] = "Courier service not added.";
+                    }
+                }
+            }
+        }
+        echo json_encode($status);
+    }    
+   /*
+    *  @desc : This function is used manage courier service edit.
+    *  @status : Json data
+    */
+    function manage_courier_service_satus() {
+        log_message('info', __METHOD__ . json_encode($this->input->post(), true));
+        $error = array();
+        $data = array();
+        $courier_id = $this->input->post('data')['id'];
+        $status = $this->input->post('data')['status'];
+        if (!empty($courier_id)) {
+            $where = array("courier_services.id" => $courier_id);
+            if ($status == 1) {
+                $active = 0;
+            } else {
+                $active = 1;
+            }
+            $data['status'] = $active;
+            if (!empty($data)) {
+                $affected_id = $this->inventory_model->update_courier_services($data, $where);
+                if ($affected_id) {
+                    $error["message"] = "Courier service successfuly Updated.";
+                } else {
+                    $error["message"] = "Courier service not Updated.";
+                }
+            }
+        }else{
+          $error["message"] = "Courier service id should not be blank.";  
+        }
+        echo json_encode($error);
+    }
+
     /**
      *  @desc : This function is used to tag courier details by invoice ids
      *  @return : void();

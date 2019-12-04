@@ -7896,7 +7896,7 @@ class Inventory extends CI_Controller {
     
     
      /**
-     *  @desc : This function is used to show alternate inventory master list data
+     *  @desc : This function is used to get Download service centers consumption details.
      *  @param : void
      *  @return : void
      */
@@ -8046,6 +8046,79 @@ class Inventory extends CI_Controller {
                       
         $this->load->view("employee/show_invoice_list", $data);
        
+    }
+    
+    /*
+     *  @desc : This function is used to get courier service list.
+     *  @param : void
+     *  @return : void
+     */
+    function get_courier_service_list() {
+        $data = $this->get_courier_service_list_data();
+        $post = $data['post'];
+        if (!empty($data['data'])) {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_courier_service_list($post),
+                "recordsFiltered" => $this->inventory_model->count_courier_service_list($post),
+                "data" => $data['data'],
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => $data['data'],
+            );
+        }
+        echo json_encode($output);
+    }
+
+    function get_courier_service_list_data() {
+        $post = $this->get_post_data();
+        $courier_flag = trim($this->input->post('courier_flag'));
+        $data = array();
+        if (!empty($courier_flag)) {
+            $post['column_order'] = array();
+            $post['column_search'] = array('courier_services.courier_name', 'courier_services.courier_code');
+            $post['where'] = "";
+            $select = "courier_services.id, courier_services.courier_name, courier_services.courier_code, courier_services.status, courier_services.create_date";
+            $list = $this->inventory_model->get_courier_service_list($post, $select);
+            $data = array();
+            $no = $post['start'];
+            foreach ($list as $courier_list) {
+                $no++;
+                $row = $this->get_courier_service_list_table($courier_list, $no);
+                $data[] = $row;
+            }
+        }
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+    function get_courier_service_list_table($courier_list, $no) {
+        $row = array();
+        $json_data = json_encode($courier_list);
+        $row[] = $no;
+        $row[] = $courier_list->courier_name;
+        $row[] = $courier_list->courier_code;
+        $row[] = date('d-F-Y', strtotime($courier_list->create_date));
+        if ($courier_list->status == 1) {
+         $update = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_courier_service' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";  
+        } else {
+         $update = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_courier_service' data-id='$json_data' style='cursor:not-allowed' title='Edit not allowed account deactivated'><i class = 'fa fa-edit'></i></a>";    
+        }
+        $row[] = $update;
+        if( $courier_list->status == 1){
+          $action = "<button type='button' class='btn btn-default' style='background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;' id='manage_courier_status' data-id='$json_data'>Deactivate</button>"; 
+        }else{
+          $action ="<button type='button' class='btn btn-danger' style='background-color: #01903a; border-color: #fff; width: 90px; color: #fff;' id='manage_courier_status' data-id='$json_data'>Activate</button>";
+        }
+        $row[] = $action;
+        
+        return $row;
     }
 
 }

@@ -300,7 +300,17 @@
                 <?php
             }
             ?>
-                  <td><?php echo $values['Total_Pending'] ."<br>(".$values['TAT_total_per']."%)";?></td>
+                <td>
+                      <?php if(!empty($values['TAT_Total_bookings'])) { ?>
+                        <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
+                            <input type="hidden" name="booking_id_status" value="<?php echo  $values['TAT_Total_bookings']; ?>">
+                            <input type="submit" value="<?php echo $values['Total_Pending'];?>" class="btn btn-success">
+                        </form>
+                        <?php echo "(".$values['TAT_total_per']."%)";?>
+                      <?php } else { ?>
+                            <?php echo $values['Total_Pending'] ."<br>(".$values['TAT_total_per']."%)";?>
+                      <?php } ?>
+                  </td>
                 <?php
             }
                 ?>
@@ -454,13 +464,20 @@
             <td><?php echo $values['TAT_16'] ."<br>(".$values['TAT_16_per']."%)";?></td>
             <?php
                 }
-                ?>
-                             <td><?php echo $values['Total_Pending'] ."<br>(".$values['TAT_total_per']."%)";?></td>
-            <?php
             }
 ?>
         <?php if ($is_pending) {?>
-            <td><?php echo $values['Total_Pending'] ."<br>(".$values['TAT_total_per']."%)";?></td>
+            <td>
+                <?php if(!empty($values['TAT_Total_bookings'])) { ?>
+                  <form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank">
+                      <input type="hidden" name="booking_id_status" value="<?php echo  $values['TAT_Total_bookings']; ?>">
+                      <input type="submit" value="<?php echo $values['Total_Pending'];?>" class="btn btn-success">
+                  </form>
+                  <?php echo "(".$values['TAT_total_per']."%)";?>
+                <?php } else { ?>
+                      <?php echo $values['Total_Pending'] ."<br>(".$values['TAT_total_per']."%)";?>
+                <?php } ?>
+            </td>
         <?php  } ?>        
         </tr>
         <?php

@@ -69,77 +69,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php 
-                            $sn_no = 1;
-                        foreach ($spare_parts as $key => $row) {
-
-                            $spareStatus = DELIVERED_SPARE_STATUS;
-                            if (!$row['defactive_part_received_date_by_courier_api']) {
-                                $spareStatus = $row['status'];
-                            }
-                            ?>
-                            <tr style="text-align: center;<?php if($row['defective_part_rejected_by_partner']==1){echo "background-color: #d89e9e !important;font-weight: 900";} ?>">
-                                <td>
-                                    <?php echo $sn_no; ?>
-                                </td>
-                                <td>
-                                    <a  style="color:black" href="<?php echo base_url(); ?>service_center/booking_details/<?php echo urlencode(base64_encode($row['booking_id']));?>"  title='View'><?php echo $row['booking_id']; ?></a>
-                                </td>
-                                <td>
-                                    <?php echo $row['user_name']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $row['sf_name']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $row['sf_city']; ?>
-                                </td>
-    <!--                                    <td>
-                                    <?php //echo $row['age_of_booking'];  ?>
-                                </td>-->
-                                <td style="word-break: break-all;">
-                                    <?php echo $row['defective_part_shipped']; ?>
-                                </td>
-
-                                <td style="word-break: break-all;">
-                                    <?php echo $row['shipped_quantity']; ?>
-                                </td>
-                                
-                                <td style="word-break: break-all;">
-                                    <?php echo $row['part_number']; ?>
-                                </td>
-                                <td>
-                                    <?php echo $row['courier_name_by_sf']; ?>
-                                </td>
-                                <td>
-                                    <a href="javascript:void(0)" onclick="get_awb_details('<?php echo $row['courier_name_by_sf']; ?>','<?php echo $row['awb_by_sf']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sn_no; ?>')"><?php echo $row['awb_by_sf']; ?></a> 
-                                    <span id="<?php echo "awb_loader_".$sn_no; ?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span>
-                                </td>
-                                <td>
-                                    <?php if (!is_null($row['defective_part_shipped_date'])) {
-                                        echo date("d-m-Y", strtotime($row['defective_part_shipped_date']));
-                                    } ?>
-                                </td>
-                                    <td style="width: 15% !important;">
-                                <?php echo $row['remarks_defective_part_by_sf']; ?>
-                                </td>
-                                <td><?php if($row['is_consumed'] == 1) { echo 'Yes'; } else { echo 'No';} ?></td>
-                                <td><?php echo $row['consumed_status']; ?></td>                                
-                                <td>
-                                <?php if (!empty($row['defective_part_shipped'])) { ?> 
-                                    <a class="btn btn-sm btn-primary recieve_defective" id="defective_parts_<?php echo $row['id']; ?>" onclick="open_spare_consumption_model(this.id, '<?php echo $row['booking_id']; ?>', '<?php echo $row['id']; ?>')" href="javascript:void(0);" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a> <input type="checkbox" class="checkbox_revieve_class" name="revieve_checkbox"  data-url="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/1"  />
-                                <?php } ?>
-                                </td>
-                                <td>
-                                    <?php if (!empty($row['defective_part_shipped'])) { ?>
-                                    <a class="btn btn-sm btn-danger reject_defective" id="reject_defective_<?php echo $row['id']; ?>" onclick="open_reject_spare_consumption_model(this.id, '<?php echo $row['booking_id']; ?>', '<?php echo $row['id']; ?>')" >Reject</a>
-                                    <?php } ?>
-                                </td>
-
-
-                            </tr>
-                        <?php $sn_no++;
-                    } ?>
+                         
                     </tbody>
                 </table>
         </div>
@@ -206,21 +136,51 @@
 </style>
 
         <script>
-            $('#defective_spare_shipped_by_sf').DataTable({
-                dom: 'Bfrtip',
-                buttons: [
-                    {
-                        extend: 'excel',
-                        text: 'Export',
-                        exportOptions: {
-                            columns: [ 0, 1, 2,3,4, 5,6,7,8]
-                        },
-                        title: 'defective_spare_shipped_by_sf_to_wh'
-                    }
-                ],
-                "bSortClasses": false,
-                "pageLength":2000,
-            });
+
+
+
+
+    $(document).ready(function () {
+        get_defective_spare_shipped_by_sf();
+    });
+
+
+
+  function get_defective_spare_shipped_by_sf(){
+        inventory_spare_table = $('#defective_spare_shipped_by_sf').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "language": {
+                "processing": "<div class='spinner'>\n\
+                                    <div class='rect1' style='background-color:#db3236'></div>\n\
+                                    <div class='rect2' style='background-color:#4885ed'></div>\n\
+                                    <div class='rect3' style='background-color:#f4c20d'></div>\n\
+                                    <div class='rect4' style='background-color:#3cba54'></div>\n\
+                                </div>",
+                "emptyTable":     "No Data Found"
+            },
+            "order": [],
+            "pageLength": 25,
+            "ordering": false,
+            "ajax": {
+                url: "<?php echo base_url(); ?>employee/service_centers/get_defective_parts_shipped_by_sf_list",
+                type: "POST",
+                data: function(d){
+                    
+                    // var entity_details = get_entity_details();
+                    // d.sender_entity_id = entity_details.sender_entity_id,
+                    // d.sender_entity_type = entity_details.sender_entity_type,
+                    // d.receiver_entity_id = entity_details.receiver_entity_id,
+                    // d.receiver_entity_type = entity_details.receiver_entity_type,
+                    // d.is_wh_ack = entity_details.is_wh_ack,
+                    // d.is_wh_micro = entity_details.is_wh_micro
+                }
+            },
+            "deferRender": true
+        });
+    }
+
+
         </script>
 <?php if(empty($is_ajax)) { ?> 
     </div>
@@ -250,6 +210,7 @@ if(flag) {
     $('.checkbox_revieve_class').prop('checked', false);
     for (var index in url)
     {
+        console.log("Receiving..");
         $.ajax({
             type: "POST",
             url: url[index],
@@ -307,6 +268,7 @@ function get_awb_details(courier_code,awb_number,status,id){
             url: '<?php echo base_url(); ?>employee/service_centers/change_consumption',
             data: {spare_part_detail_id:spare_id, booking_id:booking_id},
             success: function (data) {
+                inventory_spare_table.ajax.reload();
                 $("#spare_consumption_model").children('.modal-content').children('.modal-body').html(data);   
                 $('#SpareConsumptionModal').modal({backdrop: 'static', keyboard: false});
             }
@@ -329,6 +291,7 @@ function get_awb_details(courier_code,awb_number,status,id){
             url: '<?php echo base_url(); ?>employee/service_centers/reject_spare_part',
             data: {spare_part_detail_id:spare_id, booking_id:booking_id},
             success: function (data) {
+                inventory_spare_table.ajax.reload();
                 $("#reject_spare_consumption_model").children('.modal-content').children('.modal-body').html(data);   
                 $('#RejectSpareConsumptionModal').modal({backdrop: 'static', keyboard: false});
             }
