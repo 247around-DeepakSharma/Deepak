@@ -1704,6 +1704,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tTempArray['TAT_5_bookings'] = implode(",",$values['TAT_5']);
             $tTempArray['TAT_8_bookings'] = implode(",",$values['TAT_8']);
             $tTempArray['TAT_16_bookings'] = implode(",",$values['TAT_16']);
+            $tTempArray['TAT_Total_bookings'] = implode(",",array_merge($values['TAT_0'], $values['TAT_1'], $values['TAT_2'], $values['TAT_3'], $values['TAT_4'], $values['TAT_5'], $values['TAT_8'], $values['TAT_16']));
             $tTempArray["entity"] =  $values['entity_name'];
             $tTempArray['id'] =  $values['entity_id'];
             $totalArray[] = $tTempArray;
@@ -1738,7 +1739,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if(strlen($pendingDetails['TAT_16_bookings']) != 0){
                 $tArray['TAT_16'] = count(explode(",",$pendingDetails['TAT_16_bookings']));
             }
-            
             $tArray['TAT_GREATER_THAN_3'] = $tArray['TAT_4'] + $tArray['TAT_5'] + $tArray['TAT_8'] + $tArray['TAT_16'];
             $tArray['TAT_0_bookings'] = $pendingDetails['TAT_0_bookings'];
             $tArray['TAT_1_bookings'] = $pendingDetails['TAT_1_bookings'];
@@ -1749,6 +1749,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tArray['TAT_8_bookings'] = $pendingDetails['TAT_8_bookings'];
             $tArray['TAT_16_bookings'] = $pendingDetails['TAT_16_bookings'];
             $tArray['TAT_16_bookings'] = $pendingDetails['TAT_16_bookings'];
+            $tArray['TAT_Total_bookings'] = $pendingDetails['TAT_Total_bookings'];
             $tArray['Total_Pending'] =  $tArray['TAT_0'] + $tArray['TAT_1'] + $tArray['TAT_2'] + $tArray['TAT_3'] + $tArray['TAT_4'] + $tArray['TAT_5']+ $tArray['TAT_8'] + $tArray['TAT_16'];
             $total_0 = $total_0+$tArray['TAT_0'];
             $total_1 = $total_1+$tArray['TAT_1'];
