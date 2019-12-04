@@ -7299,7 +7299,7 @@ class Inventory extends CI_Controller {
 //    }
     
     function get_partner_gst_number(){
-        $html = "<option value='' selected disabled>Selet GST Number</option>";
+        $html = "<option value='' selected disabled>Select GST Number</option>";
         $where = array(
             "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => $this->input->post("partner_id")
@@ -7314,7 +7314,7 @@ class Inventory extends CI_Controller {
     function get_247around_wh_gst_number(){
 
         $state_vendor = $this->vendor_model->viewvendor($this->session->userdata('service_center_id'));
-        $html = "<option value='' selected disabled>Selet GST Number</option>";
+        $html = "<option value='' selected disabled>Select GST Number</option>";
         $where = array(
             "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => _247AROUND,
