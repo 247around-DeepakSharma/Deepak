@@ -5696,12 +5696,34 @@ function do_multiple_spare_shipping(){
      * @param: void
      * @return void
      */
-   function get_defective_parts_shipped_by_sf($page = 0, $offset = 0){
-        
+ 
+
+    function get_defective_parts_shipped_by_sf(){
+
+          $this->check_WH_UserSession();
+          $this->load->view('service_centers/defective_parts_shipped_by_sf_new');
+         
+    }
+
+
+    function get_defective_parts_shipped_by_sf_list($page = 0, $offset = 0){
+        $post  = $this->get_post_view_data();
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
         
+
+        if (!empty($post['search_value'])) {
+        
+        $where = array(
+            "spare_parts_details.defective_part_required" => 1,
+            "approved_defective_parts_by_admin" => 1,
+            "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
+            "status IN ('".DEFECTIVE_PARTS_SHIPPED."','". DEFECTIVE_PARTS_PENDING."','". COURIER_LOST."','". OK_PART_TO_BE_SHIPPED ."','". DAMAGE_PART_TO_BE_SHIPPED."', '".OK_PARTS_SHIPPED."')" => NULL,
+        );
+
+        }else{
+
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
@@ -5710,22 +5732,108 @@ function do_multiple_spare_shipping(){
             "status IN ('".DEFECTIVE_PARTS_SHIPPED."','". DEFECTIVE_PARTS_PENDING."','". COURIER_LOST."','". OK_PART_TO_BE_SHIPPED ."','". DAMAGE_PART_TO_BE_SHIPPED."', '".OK_PARTS_SHIPPED."')" => NULL,
         );
 
+        }
+
 
         $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, "
                . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',i.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.status";
         $group_by = "spare_parts_details.id";
+        $limit  = $post['length'];
+        $offset = $post['start'];
+        $post['column_search'] = array('spare_parts_details.booking_id');
         $order_by = "spare_parts_details.defective_part_shipped_date DESC, spare_parts_details.booking_id";
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
-        $where_internal_status = array("page" => "defective_parts", "active" => '1');
-        $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
-        $data['is_ajax'] = $this->input->post('is_ajax');
-        if(empty($this->input->post('is_ajax'))){
-            $this->load->view('service_centers/header');
-            $this->load->view('service_centers/defective_parts_shipped_by_sf', $data);
-        }else{
-            $this->load->view('service_centers/defective_parts_shipped_by_sf', $data);
+        $list = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by,$offset,$limit,0,NULL,$post);
+
+         $no = $post['start'];
+         //$no =0;
+        foreach ($list as $spare_list) {
+            $no++;
+            $row =  $this->defective_parts_shipped_by_sf_table_data($spare_list, $no);
+            $data[] = $row;
         }
+        
+  
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => count($data),
+            "recordsFiltered" =>  count($data),
+            "data" => $data
+        );
+        
+        echo json_encode($output);
+    
+      
+       // $this->load->view('employee/get_spare_parts', $data);
+    }
+
+
+    function defective_parts_shipped_by_sf_table_data($spare_list, $no){
+ 
+        $row = array();
+ 
+         $spareStatus = DELIVERED_SPARE_STATUS;
+                            if (!$spare_list['defactive_part_received_date_by_courier_api']) {
+                                $spareStatus = $spare_list['status'];
+                            }
+        $row[] = $no;
+        $row[] = '<a href="'.base_url().'service_center/booking_details/' .urlencode(base64_encode($spare_list['booking_id'])).'" >'.$spare_list['booking_id'].'</a>';
+
+        $row[] = $spare_list['user_name'];
+        $row[] = $spare_list['sf_name'];
+        $row[] = $spare_list['sf_city'];
+        $row[] = $spare_list['defective_part_shipped'];
+        $row[] = $spare_list['shipped_quantity'];
+        $row[] = $spare_list['part_number'];
+        $row[] = $spare_list['courier_name_by_sf'];
+ 
+        $c = "<a href='javascript:void(0);' onclick='";
+        $c .= "get_awb_details(" . '"' . $spare_list['courier_name_by_sf'] . '"';
+        $c .= ', "' . $spare_list['awb_by_sf'] . ',"'.$spareStatus.',"awb_loader_"'.$no;
+        $c .= ")'>".$spare_list['awb_by_sf']."</a><span id='awb_loader_".$no."' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
+  
+        $row[] = $c;
+
+        $row[] = date("d-m-Y", strtotime($spare_list['defective_part_shipped_date']));
+        $row[] = $spare_list['remarks_defective_part_by_sf'];
+        if ($spare_list['is_consumed']==1) {
+           $row[] = "Yes";  
+        }else{
+            $row[] = "No";
+        }
+        
+
+        $row[] = $spare_list['consumed_status'];
+
+
+        if (!empty($spare_list['defective_part_shipped'])) {  
+
+        $a = "<a href='javascript:void(0);' id='defective_parts_' class='btn btn-sm btn-primary recieve_defective' onclick='";
+        $a .= "open_spare_consumption_model(this.id," . '"' . $spare_list['booking_id'] . '"';
+        $a .= ', "' . $spare_list['id'] . '"';
+        $a .= ")'>Recieve</a>";
+        $a .= "<input type='checkbox' class='checkbox_revieve_class' name='revieve_checkbox'";
+        $a .=" data-url='".base_url()."service_center/acknowledge_received_defective_parts/".$spare_list['id']."/".$spare_list['booking_id']."/".$spare_list['partner_id']."/1'   />";
+
+
+        $row[] = $a;
+
+        }else{
+
+            $row[] = '<a class="btn btn-sm btn-primary disabled="disabled"  >Received</a> <input type="checkbox" class="checkbox_revieve_class" name="revieve_checkbox"/>';
+        } 
+
+
+        $b = "<a href='javascript:void(0);' id='reject_defective_' class='btn btn-sm btn-danger reject_defective' onclick='";
+        $b .= "open_reject_spare_consumption_model(this.id," . '"' . $spare_list['booking_id'] . '"';
+        $b .= ', "' . $spare_list['id'] . '"';
+        $b .= ")'>Reject</a>";
+ 
+        $row[] = $b;
+    
+        return $row;
+        
+
     }
 
     /**

@@ -1743,6 +1743,7 @@ class Booking extends CI_Controller {
                     $booking_unit_details[$key1]['en_is_broken'] = $en[0]['is_broken'];
                     $booking_unit_details[$key1]['en_internal_status'] = $en[0]['internal_status'];
                     $booking_unit_details[$key1]['en_current_status'] = $en[0]['current_status'];
+                    $booking_unit_details[$key1]['en_amount_paid'] = $en[0]['amount_paid'];
                     
                     $engineer_action_not_exit = true;
                 }
@@ -3970,6 +3971,7 @@ class Booking extends CI_Controller {
         }
         
         
+        
         return $row;
     }
     /*
@@ -4398,15 +4400,13 @@ class Booking extends CI_Controller {
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
 
-
         if ($order_list->nrn_approved==0) {
              $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
         }else{
 
             $row[] = "<a style='background-color: #fa0202;' class = 'btn btn-sm btn-color' href = '#' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
         }
-
-
+        
         $row[] = $penalty_row;
         $row[] = "<a class = 'btn btn-sm btn-color' title = 'Helper Document' data-toggle='modal' data-target='#showBrandCollateral' onclick=get_brand_collateral('".$order_list->booking_id."')><i class='fa fa-file-text-o' aria-hidden='true'></i></a>";
         
@@ -5925,8 +5925,8 @@ class Booking extends CI_Controller {
                         }
                         else
                         {
-                            redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
-                        }   
+                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                    }
                     }
                 } else {
                     //Redirect to edit booking page if validation err occurs
@@ -5938,8 +5938,8 @@ class Booking extends CI_Controller {
                     }
                     else
                     {
-                        redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
-                    }
+                    redirect(base_url() . 'employee/service_centers/get_sf_edit_booking_form/'.urlencode(base64_encode($booking_id)));
+                }
                 }
             } else {
                 //Logging error if No input is provided
@@ -6138,4 +6138,5 @@ class Booking extends CI_Controller {
         }
     }
 
+    
 }
