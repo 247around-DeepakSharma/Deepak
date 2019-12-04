@@ -1534,8 +1534,8 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array()
      * 
      */
-    function get_spare_parts_by_any($select,$where,$is_join=false,$sf_details = FALSE, $group_by = false, $post= array()){
-       
+    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, $post= array(), $wh_details = false){
+        
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
         //$this->db->where('status',)
@@ -1565,6 +1565,11 @@ function get_data_for_partner_callback($booking_id) {
         if(!empty($post['spare_cancel_reason'])){
             $this->db->join('booking_cancellation_reasons','booking_cancellation_reasons.id = spare_parts_details.spare_cancellation_reason', "left");
         }
+        
+        if(!empty($wh_details)){
+            $this->db->join('service_centres AS sc','spare_parts_details.defective_return_to_entity_id = sc.id','left');
+        }
+        
         $this->db->order_by('spare_parts_details.entity_type', 'asc');
         if($group_by){
             

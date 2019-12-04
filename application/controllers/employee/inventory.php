@@ -5127,7 +5127,8 @@ class Inventory extends CI_Controller {
     function generate_inventory_invoice($postData, $sender_entity_id, $sender_entity_type, $courier_id) {
         log_message('info', __METHOD__ . " Data " . print_r($postData, TRUE) . " Entity id " . $sender_entity_id);
         $from_gst_id = $this->input->post('from_gst_number');
-        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id);
+        $to_gst_id = $this->input->post('to_gst_number');
+        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id, $to_gst_id);
         
         $booking_id_array = array();
         $sp_id = array();
@@ -6377,7 +6378,7 @@ class Inventory extends CI_Controller {
                 . "partner_challan_number AS 'Partner Challan Number', sf_challan_number as 'SF Challan Number', "
                 . "spare_parts_details.acknowledge_date as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
-                . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',spare_parts_details.courier_charges_by_sf as 'SF Courier Price',"
+                . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', wh.name as 'Send Defective To', cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',spare_parts_details.courier_charges_by_sf as 'SF Courier Price',"
                 . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', defective_part_shipped_date as 'Defective Parts Shipped Date', received_defective_part_date as 'Partner Received Defective Parts Date', "
                 . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption Reason',"
 
