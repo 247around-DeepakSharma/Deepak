@@ -266,9 +266,9 @@
 <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
 <script>
-    $(document).ready(function(){   
+    $(document).ready(function(){  
         datatable1 = $('#datatable1').DataTable({
-            "processing": true,
+            "processing": true,        
             "language":{ 
                 "processing": "<div class='spinner'>\n\
                                     <div class='rect1' style='background-color:#db3236'></div>\n\
@@ -279,7 +279,7 @@
                 "search": "Booking ID"
             },
             "serverSide": true, 
-            "order": [], 
+            "order": [],
             <?php if(isset($bookingIDString)){ ?> 
             paging: false,
             <?php } ?>
@@ -337,7 +337,7 @@
             "deferRender": true,
             "fnInitComplete": function (oSettings, response) {
                $('input[type="search"]').attr("name", "search_value");           
-            }        
+            }   
         });
         
         
