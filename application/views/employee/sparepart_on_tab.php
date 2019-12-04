@@ -902,11 +902,11 @@
             //Set column definition initialisation properties.
             columnDefs: [
                 {
-                  //  "targets": [15], //first column / numbering column
+                    "targets": [17], //first column / numbering column
                     "orderable": true //set not orderable
                 },
                 {
-                  //  "targets": [0,1,2,3,4,11,12,13,14], //first column / numbering column
+                    "targets": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
