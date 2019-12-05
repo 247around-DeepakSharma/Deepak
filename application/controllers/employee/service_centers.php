@@ -5701,7 +5701,7 @@ function do_multiple_spare_shipping(){
     function get_defective_parts_shipped_by_sf(){
 
           $this->check_WH_UserSession();
-          $this->load->view('service_centers/defective_parts_shipped_by_sf_new');
+          $this->load->view('service_centers/defective_parts_shipped_by_sf');
          
     }
 
