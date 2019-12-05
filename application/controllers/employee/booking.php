@@ -3969,7 +3969,7 @@ class Booking extends CI_Controller {
                     . "</i></a><p style='text-align:center;color: red;'>$unreachableCount</p>";
         }
         
-        if ($order_list->booking_id==0) {
+        if ($order_list->nrn_approved==0) {
             
             $row[] = "<a class='btn btn-sm btn-color col-md-12' href='".base_url()."employee/vendor/get_escalate_booking_form/".$order_list->booking_id."/".$booking_status."' title='Add Penalty' target='_blank'><i class='fa fa-plus-square' aria-hidden='true'></i></a>".$penalty_row;
 
