@@ -175,36 +175,6 @@
     </div>
 </div>
 
-    <style>
-
-    @media screen and (min-width: 768px) {
-
-        .modal-dialog {
-
-          width: 700px; /* New width for default modal */
-          height: 700px;
-        }
-
-        .modal-sm {
-
-          width: 350px; /* New width for small modal */
-          height: 400px;
-        }
-
-    }
-
-    @media screen and (min-width: 992px) {
-
-        .modal-lg {
-
-          width: 950px; /* New width for large modal */
-          height: 420px;
-        }
-
-    }
-
-</style>
-
         <script>
             $('#defective_spare_shipped_by_sf').DataTable({
                 dom: 'Bfrtip',
