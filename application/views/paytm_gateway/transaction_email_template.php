@@ -2,16 +2,6 @@
 <html>
 <head>
 <title>Payment Details</title>
-<!--
-
-    An email present from your friends at Litmus (@litmusapp)
-
-    Email is surprisingly hard. While this has been thoroughly tested, your mileage may vary.
-    It's highly recommended that you test using a service like Litmus (http://litmus.com) and your own devices.
-
-    Enjoy!
-
- -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -392,7 +382,7 @@
             <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center" style="max-width: 500px; background-color: #ccc;" class="responsive-table">
                 <tr>
                     <td align="center" style="font-size: 12px; line-height: 18px; font-family: Helvetica, Arial, sans-serif; color:#666666;padding: 15px;">
-                        B-30,Sector-59,Noida,201301, Uttar Pradesh
+                        A-34, A Block, Sector 63, Noida, Uttar Pradesh 201301
                         <br>
                     </td>
                 </tr>
