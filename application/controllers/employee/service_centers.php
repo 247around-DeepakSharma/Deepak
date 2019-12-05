@@ -6129,10 +6129,9 @@ function do_multiple_spare_shipping(){
         $post_data = $this->input->post();
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id']) {
-            $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
+            $this->miscelleneous->update_spare_consumption_status($post_data, $booking_id);
         }
 
-        $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if(!empty($spare_part_detail['consumed_part_status_id'])) {
             $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
             if(!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG])) {
@@ -6187,27 +6186,27 @@ function do_multiple_spare_shipping(){
                     $actor = $booking['actor'] = $partner_status[2];
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
-                // "Warehouse Received Defective Spare Parts"
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, $post_data['remarks'], $actor,$next_action,$is_cron);
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Warehouse Received Defective Spare Parts", $actor,$next_action,$is_cron);
+                if(!empty($post_data['remarks'])) {
+                    $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, $post_data['remarks'], $actor,$next_action,$is_cron);
+                }        
 
                 $this->booking_model->update_booking($booking_id, $booking);
             } else {
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, $post_data['remarks'], $actor,$next_action,$is_cron);
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, "Warehouse Received Defective Spare Parts", $actor, $next_action, $is_cron);
             }
-            
-            $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
-                    array('spare_parts_details.id' => $spare_id, 
-                        'booking_unit_details_id IS NOT NULL' => NULL,
-                        'sell_price > 0 ' => NULL,
-                        'sell_invoice_id IS NOT NULL' => NULL,
-                        'estimate_cost_given_date IS NOT NULL' => NULL,
-                        'spare_parts_details.part_warranty_status' => 2,
-                        'defective_part_required' => 1,
-                        'approved_defective_parts_by_partner' => 1,
-                        'status' => DEFECTIVE_PARTS_RECEIVED,
-                        '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
-                    true);
-            if(!empty($is_oow_return)){
+
+            $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", array('spare_parts_details.id' => $spare_id,
+                'booking_unit_details_id IS NOT NULL' => NULL,
+                'sell_price > 0 ' => NULL,
+                'sell_invoice_id IS NOT NULL' => NULL,
+                'estimate_cost_given_date IS NOT NULL' => NULL,
+                'spare_parts_details.part_warranty_status' => 2,
+                'defective_part_required' => 1,
+                'approved_defective_parts_by_partner' => 1,
+                'status' => DEFECTIVE_PARTS_RECEIVED,
+                '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL), true);
+            if (!empty($is_oow_return)) {
                 sleep(30);
                 $url = base_url() . "employee/invoice/generate_reverse_oow_invoice/" . $spare_id;
                 $async_data['booking_id'] = $booking_id;
@@ -6237,11 +6236,9 @@ function do_multiple_spare_shipping(){
      * @param String $status
      * @return void
      */
-    function reject_defective_part($spare_id, $booking_id, $partner_id) {
-        log_message('info', __FUNCTION__ . " Spare ID ". $spare_id ." SF ID: " . $this->session->userdata('service_center_id') . " Booking Id " . $booking_id);
+    function reject_defective_part($spare_id, $booking_id, $partner_id,$status) {
+        log_message('info', __FUNCTION__ . " Spare ID ". $spare_id ." SF ID: " . $this->session->userdata('service_center_id') . " Booking Id " . $booking_id . ' status: ' . $status);
         $this->check_WH_UserSession();
-        $post_data = $this->input->post();
-        $status = $post_data['reject_reason'][$spare_id];
         $rejection_reason = base64_decode(urldecode($status));
         $decode_partner_id = base64_decode(urldecode($partner_id));
 
@@ -6268,8 +6265,7 @@ function do_multiple_spare_shipping(){
                 $actor = $booking['actor'] = $partner_status[2];
                 $next_action = $booking['next_action'] = $partner_status[3];
             }
-            //DEFECTIVE_PARTS_REJECTED
-            $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor,$next_action);
+            $this->insert_details_in_state_change($booking_id, $rejection_reason, DEFECTIVE_PARTS_REJECTED, $actor, $next_action);
             $this->booking_model->update_booking($booking_id, $booking);
 
             $userSession = array('success' => 'Defective Parts Rejected To SF');
@@ -8186,19 +8182,4 @@ function do_multiple_spare_shipping(){
         $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',NULL, NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
         $this->load->view('service_centers/change_consumption', $data);
     }
-    
-    function reject_spare_part() {
-        $post_data = $this->input->post();
-        $data['spare_id'] = $post_data['spare_part_detail_id'];
-        $data['booking_id'] = $post_data['booking_id'];
-        $data['booking_details'] = $this->reusable_model->get_search_result_data('booking_details', '*', ['booking_id' => $data['booking_id']], NULL, NULL, NULL, NULL, NULL)[0];
-        $data['spare_part_detail'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['spare_parts_details.id' => $data['spare_id'], 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];        
-        
-        $reject_options = [];
-        $where_internal_status = array("page" => "defective_parts", "active" => '1');
-        $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
-
-        $this->load->view('service_centers/reject_spare_part', $data);
-    }
-    
 }
