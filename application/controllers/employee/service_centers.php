@@ -5747,6 +5747,7 @@ function do_multiple_spare_shipping(){
 
          $no = $post['start'];
          //$no =0;
+        $data=array();
         foreach ($list as $spare_list) {
             $no++;
             $row =  $this->defective_parts_shipped_by_sf_table_data($spare_list, $no);
