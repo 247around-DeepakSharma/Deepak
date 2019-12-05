@@ -1932,4 +1932,7 @@ $("#on_invoice_file").change(function(){
             $('#on_submit_btn').attr('disabled',false);
         }
     }
+    $(".shippingStatus").click(function(){
+        $('#on_submit_btn').attr('disabled',false);
+    });
 </script>
