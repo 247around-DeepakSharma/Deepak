@@ -4926,16 +4926,17 @@ class Inventory extends CI_Controller {
             $this->upload_defective_spare_pic();
             $booking_id = $postData[0]['booking_id'];
             $exist_courier_image = $this->input->post("exist_courier_image");
-//            $data['defective_part_shipped_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
-//            $data['courier_name_by_partner'] = $this->input->post('courier_name_by_wh');
-//            $data['courier_price_by_partner'] = $courier_price_by_wh;
-            $data['awb_by_partner'] = $awb_by_wh;
+            $data['defective_parts_shippped_date_by_wh'] = $this->input->post('defective_parts_shippped_date_by_wh');
+            $data['courier_name_by_wh'] = $this->input->post('courier_name_by_wh');
+            $data['courier_price_by_wh'] = $courier_price_by_wh;
+            $data['awb_by_wh'] = $awb_by_wh;
+            $data['defective_parts_shippped_courier_pic_by_wh'] = $exist_courier_image;
             $data['status'] = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
             $courier_details = array();
             $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb_by_wh), array());
 
             if (!empty($exist_courier_image)) {
-                $data['defective_courier_receipt'] = $exist_courier_image;
+                $data['defective_parts_shippped_courier_pic_by_wh'] = $exist_courier_image;
                 $courier_details['sender_entity_id'] = $this->input->post("sender_entity_id");
                 $courier_details['sender_entity_type'] = $this->input->post("sender_entity_type");
                 $courier_details['receiver_entity_id'] = $this->input->post("receiver_partner_id");
@@ -4949,6 +4950,7 @@ class Inventory extends CI_Controller {
                 $courier_details['create_date'] = date('Y-m-d H:i:s');
                 $courier_details['status'] = COURIER_DETAILS_STATUS;
             } else {
+                $data['defective_parts_shippped_courier_pic_by_wh'] = trim($this->input->post("sp_parts"));
                 if (empty($exist_courier_details)) {
                     $awb_data = array(
                         'awb_number' => trim($awb_by_wh),
