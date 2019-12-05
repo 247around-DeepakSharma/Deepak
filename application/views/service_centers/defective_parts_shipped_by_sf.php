@@ -127,7 +127,7 @@
                                 <td><?php echo $row['consumed_status']; ?></td>                                
                                 <td>
                                 <?php if (!empty($row['defective_part_shipped'])) { ?> 
-                                    <a class="btn btn-sm btn-primary recieve_defective" id="defective_parts_<?php echo $row['id']; ?>" onclick="open_spare_consumption_model(this.id, '<?php echo $row['booking_id']; ?>', '<?php echo $row['id']; ?>')" href="javascript:void(0);" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a> <input type="checkbox" class="checkbox_revieve_class" name="revieve_checkbox"  data-url="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/1"  />
+                                    <a class="btn btn-sm btn-primary recieve_defective" id="defective_parts_<?php echo $row['id']; ?>" onclick="return confirm_received(this.id)" href="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/0" <?php echo empty($row['defective_part_shipped']) ? 'disabled="disabled"' : '' ?>>Received</a> <input type="checkbox" class="checkbox_revieve_class" name="revieve_checkbox"  data-url="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $row['id']; ?>/<?php echo $row['booking_id']; ?>/<?php echo $row['partner_id']; ?>/1"  />
                                 <?php } ?>
                                 </td>
                                 <td>
@@ -156,22 +156,6 @@
         </div>
     </div>
 </div>
-        
-<!-- Wrong spare parts modal -->
-<div id="SpareConsumptionModal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg" id="spare_consumption_model">
-        <!-- Modal content-->
-        <div class="modal-content" >
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Change Consumption Reason</h4>
-            </div>
-            <div class="modal-body" >
-            </div>
-        </div>
-    </div>
-</div>
-
         <script>
             $('#defective_spare_shipped_by_sf').DataTable({
                 dom: 'Bfrtip',
@@ -197,7 +181,12 @@
 <?php if($this->session->userdata('success')){$this->session->unset_userdata('success');} ?>
 <script type="text/javascript">
 function confirm_received(id){
-
+    $("#"+id).attr('disabled',true);
+    var c = confirm("Continue?");
+    if(!c){
+        $("#"+id).attr('disabled',false);
+        return false;
+    }
 }
 
 $("#revieve_multiple_parts_btn").click(function(){
@@ -260,24 +249,6 @@ function get_awb_details(courier_code,awb_number,status,id){
         }
     }
 
-    function open_spare_consumption_model(id, booking_id, spare_id) {
-    
-        $("#"+id).attr('disabled',true);
-        var c = confirm("Continue?");
-        if(!c) {
-            $("#"+id).attr('disabled',false);
-            return false;
-        }
-//    return false;
-        $.ajax({
-            type: 'POST',
-            url: '<?php echo base_url(); ?>employee/service_centers/change_consumption',
-            data: {spare_part_detail_id:spare_id, booking_id:booking_id},
-            success: function (data) {
-                $("#spare_consumption_model").children('.modal-content').children('.modal-body').html(data);   
-                $('#SpareConsumptionModal').modal({backdrop: 'static', keyboard: false});
-            }
-        });
-    }
+
 
 </script>
