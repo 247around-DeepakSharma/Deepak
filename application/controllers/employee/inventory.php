@@ -6431,7 +6431,14 @@ function get_bom_list_by_inventory_id($inventory_id) {
         log_message('info', __METHOD__ . " Booking ID " . $booking_id);
         if (!empty($booking_id)) {
 
-            $where = array('status' => SPARE_PARTS_REQUESTED,
+            $sc_close_date = $this->reusable_model->get_search_query('booking_details','service_center_closed_date',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+
+            
+            if (!empty($sc_close_date[0]['service_center_closed_date'])) {
+               echo json_encode(array('code' => -247, "data" => "Booking already closed. Part shipping not allowed"));
+            }else{
+
+                $where = array('status' => SPARE_PARTS_REQUESTED,
                 'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
                 'spare_parts_details.booking_id' => $booking_id);
             if ($this->session->userdata('partner_id')) {
@@ -6451,6 +6458,9 @@ function get_bom_list_by_inventory_id($inventory_id) {
             } else {
                 echo json_encode(array('code' => -247, "data" => "There is no any spare requested for this booking."));
             }
+
+            }
+
         } else {
             echo json_encode(array('code' => -247, "data" => "Please attach Valid Booking ID"));
         }
