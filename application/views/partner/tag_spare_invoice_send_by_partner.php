@@ -1387,6 +1387,7 @@ $("#on_invoice_file").change(function(){
                         }
                     } else {
                         alert(obj.data);
+                        $("#onbookingid_" + count).val("");
                         return false;
                     }
                 }
