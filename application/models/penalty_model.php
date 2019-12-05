@@ -223,6 +223,7 @@ class Penalty_model extends CI_Model {
                 )
                 AND SCS.id = SC.service_center_id
                 AND SCS.is_update =1
+                AND BD.nrn_approved = 0
                 GROUP BY assigned_vendor_id
                 ";
 
