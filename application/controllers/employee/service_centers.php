@@ -5837,14 +5837,14 @@ function do_multiple_spare_shipping(){
         $a .= ', "' . $spare_list['id'] . '"';
         $a .= ")'>Recieve</a>";
         $a .= "<input type='checkbox' class='checkbox_revieve_class' name='revieve_checkbox'";
-        $a .=" data-url='".base_url()."service_center/acknowledge_received_defective_parts/".$spare_list['id']."/".$spare_list['booking_id']."/".$spare_list['partner_id']."/1'   />";
+        $a .=" data-consumption_status='".$spare_list['consumed_status']."' data-url='".base_url()."service_center/acknowledge_received_defective_parts/".$spare_list['id']."/".$spare_list['booking_id']."/".$spare_list['partner_id']."/1'   />";
 
 
         $row[] = $a;
 
         }else{
 
-            $row[] = '<a class="btn btn-sm btn-primary disabled="disabled"  >Received</a> <input type="checkbox" class="checkbox_revieve_class" name="revieve_checkbox"/>';
+            $row[] = '<a class="btn btn-sm btn-primary disabled"  >Received</a> ';
         } 
 
 
@@ -6305,10 +6305,16 @@ function do_multiple_spare_shipping(){
         }
         
         $post_data = $this->input->post();
+        if(!empty($post_data['consumption_data'])) { // if you receive multiple part.
+            $consumption_data = json_decode($post_data['consumption_data'], true);
+            $post_data['remarks'] = $consumption_data['remarks'];
+            $post_data['spare_consumption_status'][$spare_id] = $consumption_data['consumed_status_id'];
+            unset($post_data['consumption_data']);
+        }
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id']) {
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
-        }
+        } 
 
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if(!empty($spare_part_detail['consumed_part_status_id'])) {
@@ -6394,16 +6400,19 @@ function do_multiple_spare_shipping(){
 
             if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center/defective_spare_parts");
+                echo 'Defective Spare Parts Received.';exit;
+//                $this->session->set_userdata($userSession);
+//                redirect(base_url() . "service_center/defective_spare_parts");
             }
         } else { //if($response){
             log_message('info', __FUNCTION__ . '=> Defective Spare Parts not updated  by SF ' . $this->session->userdata('service_center_id') .
                     " booking id " . $booking_id);
             if (empty($is_cron)) {
                 $userSession = array('success' => 'There is some error. Please try again.');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center/defective_spare_parts");
+                echo 'There is some error. Please try again.';exit;
+                //return json_encode($userSession);
+//                $this->session->set_userdata($userSession);
+//                redirect(base_url() . "service_center/defective_spare_parts");
             }
         }
     }
@@ -6450,15 +6459,17 @@ function do_multiple_spare_shipping(){
             $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor,$next_action);
             $this->booking_model->update_booking($booking_id, $booking);
 
-            $userSession = array('success' => 'Defective Parts Rejected To SF');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "service_center/defective_spare_parts");
+            echo 'Defective Parts Rejected To SF';exit;
+//            $userSession = array('success' => 'Defective Parts Rejected To SF');
+//            $this->session->set_userdata($userSession);
+//            redirect(base_url() . "service_center/defective_spare_parts");
         } else { //if($response){
             log_message('info', __FUNCTION__ . '=> Defective Spare Parts Not Updated by SF' . $this->session->userdata('service_center_id') .
                     " booking id " . $booking_id);
-            $userSession = array('success' => 'There is some error. Please try again.');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "service_center/defective_spare_parts");
+            echo 'There is some error. Please try again.';exit;
+//            $userSession = array('success' => 'There is some error. Please try again.');
+//            $this->session->set_userdata($userSession);
+//            redirect(base_url() . "service_center/defective_spare_parts");
         }
     }
 
@@ -8374,6 +8385,12 @@ function do_multiple_spare_shipping(){
         }
         
         $this->load->view('service_centers/wrong_spare_part', $data);
+    }
+    
+    function change_multiple_consumption() {
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+        $data['consumption_status_selected'] = $this->input->post()['status_selected'];
+        $this->load->view('service_centers/change_multiple_part_consumption', $data);
     }
     
     function change_consumption() {

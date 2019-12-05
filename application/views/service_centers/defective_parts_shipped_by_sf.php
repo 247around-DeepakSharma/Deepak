@@ -75,6 +75,8 @@
         </div>
     </div>
 </div>
+
+<input type="hidden" name="multiple_received_part_consumption_data" id="multiple_received_part_consumption_data" value="">        
         
 <!-- Wrong spare parts modal -->
 <div id="SpareConsumptionModal" class="modal fade" role="dialog">
@@ -194,21 +196,52 @@ $(".recieve_defective").attr('disabled',true);
 $(".loader").css("display","block !important");
 var flag=false;
 var url = new Array();
+var consumption_status = new Array();
 $('.checkbox_revieve_class').each(function () {
     if (this.checked) { 
         url.push($(this).attr("data-url"));
+        consumption_status.push($(this).attr("data-consumption_status"));
         flag=true;
     }
 });
 
 if(flag) {
     $('.checkbox_revieve_class').prop('checked', false);
+    var count_consumption_status_type = jQuery.unique(consumption_status).length;
+    if(count_consumption_status_type > 1) {
+        alert('Please select part having same consumption reason.');
+        $("#revieve_multiple_parts_btn").attr('disabled',false);
+        $(".recieve_defective").attr('disabled',false);
+        return false;
+    } 
+    
+    var consumption_status_selected = jQuery.unique(consumption_status)[0];
+    $.ajax({
+        type: 'POST',
+        url: '<?php echo base_url(); ?>employee/service_centers/change_multiple_consumption',
+        data: {status_selected:consumption_status_selected},
+        success: function (data) {
+            $("#spare_consumption_model").children('.modal-content').children('.modal-body').html(data);   
+            $('#SpareConsumptionModal').modal({backdrop: 'static', keyboard: false});
+        }
+    });
+    
+    $(document).on('click',".change-consumption-multiple", function() {
+        if($('#multiple-consumption-remarks').val() == '' || $('#multiple-consumption-remarks').val() == null) {
+            alert('Please enter remarks.');
+            return false;
+        }
+        
+        $('#multiple_received_part_consumption_data').val(JSON.stringify({consumed_status_id:$('#spare_consumption_status').val(), remarks:$('#multiple-consumption-remarks').val()}))
+        $('#SpareConsumptionModal').modal('hide');
+    
     for (var index in url)
     {
         console.log("Receiving..");
         $.ajax({
             type: "POST",
             url: url[index],
+            data:{consumption_data:$('#multiple_received_part_consumption_data').val()},
             async: false,
             success: function(data)
             {
@@ -219,6 +252,9 @@ if(flag) {
  swal("Received!", "Your all selected spares are received !.", "success");
      $(".loader").css("display","none");
      location.reload();
+    });    
+
+
 }
 else {
     alert("Please Select At Least One Checkbox");
@@ -263,7 +299,6 @@ function get_awb_details(courier_code,awb_number,status,id){
             url: '<?php echo base_url(); ?>employee/service_centers/change_consumption',
             data: {spare_part_detail_id:spare_id, booking_id:booking_id},
             success: function (data) {
-                inventory_spare_table.ajax.reload();
                 $("#spare_consumption_model").children('.modal-content').children('.modal-body').html(data);   
                 $('#SpareConsumptionModal').modal({backdrop: 'static', keyboard: false});
             }
@@ -286,7 +321,6 @@ function get_awb_details(courier_code,awb_number,status,id){
             url: '<?php echo base_url(); ?>employee/service_centers/reject_spare_part',
             data: {spare_part_detail_id:spare_id, booking_id:booking_id},
             success: function (data) {
-                inventory_spare_table.ajax.reload();
                 $("#reject_spare_consumption_model").children('.modal-content').children('.modal-body').html(data);   
                 $('#RejectSpareConsumptionModal').modal({backdrop: 'static', keyboard: false});
             }
