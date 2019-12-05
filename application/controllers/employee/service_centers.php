@@ -2134,7 +2134,7 @@ class Service_centers extends CI_Controller {
             }
             else{
                 $response['status'] = false;
-                $response['message'] = 'Booking can not be rescheduled because booking is already closed by service center.';
+                $response['message'] = 'Booking can not be rescheduled because booking is in InProcess state or already closed by service center.';
             }
         }
         else{ 

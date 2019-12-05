@@ -77,6 +77,8 @@
                     <div class="form-group ">
                         <label for="reason" class="col-md-2" style="margin-top:39px;">Reason</label>
                         <div class="col-md-6" style="margin-top:39px;">
+                            <!-- If status is 'InProcess' in service_center_booking_action_action table, booking can not be rescheduled -->
+                            <?php if(!empty($bookinghistory['allow_reshedule'])) { ?>
                             <?php foreach ($internal_status as $key => $data1) { ?>
                             <div class="radio ">
                                 <label>
@@ -84,6 +86,7 @@
                                 <?php echo $data1['status']; ?>
                                 </label>
                             </div>
+                            <?php } ?>
                             <?php } ?>
                             <?php if($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED ){ ?>
                             <div class="radio ">
@@ -93,7 +96,9 @@
                                 </label>
                             </div>
                             <?php }?>
-                            <hr/>
+                            <hr id="seperator">
+                            <!-- If status is 'InProcess' in service_center_booking_action_action table, booking can not be rescheduled -->
+                            <?php if(!empty($bookinghistory['allow_reshedule'])) { ?>
                             <?php if($bookinghistory[0]['is_upcountry'] == 1 ){ ?>
                             <div class="radio ">
                                 <label>
@@ -121,6 +126,9 @@
                                 <?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF. "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Reschedule"; ?>
                                 </label>
                             </div>
+                            <?php } ?>
+                            <?php } else { ?>
+                                <div class="text-warning" style="font-size:16px;"><i class="fa fa-info-circle"></i>&nbsp;Booking In-Process, can not be Rescheduled</div>
                             <?php } ?>
                         </div>
                     </div>
@@ -484,8 +492,11 @@ function alpha(e) {
     
     
     <?php if(isset($inventory_details) && !empty($inventory_details)) { ?> 
-        
+        <?php if(!$is_disable) { ?>
         $('#model_number_id').select2();
+        <?php } else { ?>
+            $("#model_number_id").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
+        <?php } ?>
         $('#parts_name_0').select2({
             placeholder: "Select Part Name",
             allowClear:true
@@ -643,7 +654,11 @@ function alpha(e) {
                         html += "</select>";
                         html += "<input type='hidden' id='model_number' name='model_number'>";
                         $("#appliance_model_div").html(html);
+                        <?php if(!$is_disable) { ?>
                         $('#model_number_id').select2();
+                        <?php } else { ?>
+                            $("#model_number_id").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
+                        <?php } ?>
                         var model_number = "<?php echo $unit_model_number; ?>";
                         $('#model_number_id option').map(function() {
                         if ($(this).text() == model_number){
@@ -1110,6 +1125,10 @@ function alpha(e) {
                 $("#model_number_id").css("pointer-events","none");
             <?php } ?>
             
+        }
+        if (!$('input[type=radio][name=reason]').length) {
+            $("#seperator").hide();
+            $("#submitform").hide();
         }
     });
         
