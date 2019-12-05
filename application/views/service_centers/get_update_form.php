@@ -93,7 +93,9 @@
                                 </label>
                             </div>
                             <?php }?>
-                            <hr/>
+                            <hr id="seperator">
+                            <!-- If status is 'InProcess' in service_center_booking_action_action table, booking can not be rescheduled -->
+                            <?php if(!empty($bookinghistory[0]['allow_reshedule'])) { ?>
                             <?php if($bookinghistory[0]['is_upcountry'] == 1 ){ ?>
                             <div class="radio ">
                                 <label class="<?php if(!empty($nrn_flag) && $nrn_flag==1){ echo "hide"; } ?>">
@@ -121,6 +123,9 @@
                                 <?php echo SPARE_PARTS_NOT_DELIVERED_TO_SF. "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - Reschedule"; ?>
                                 </label>
                             </div>
+                            <?php } ?>
+                            <?php } else { ?>
+                                <div class="text-warning" style="font-size:16px;"><i class="fa fa-info-circle"></i>&nbsp;Booking In-Process, can not be Rescheduled</div>
                             <?php } ?>
                         </div>
                     </div>
@@ -1133,7 +1138,11 @@ function alpha(e) {
     }
     
     $(document).ready(function(){
-        var model_number = $("#model_number_id option:selected").val();        
+        var model_number = $("#model_number_id option:selected").val();    
+        if (!$('input[type=radio][name=reason]').length) {
+            $("#seperator").hide();
+            $("#submitform").hide();
+        }
     });
         
     <?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ if($is_disable){  ?>
