@@ -1372,7 +1372,7 @@ $("#on_invoice_file").change(function(){
                         //onBookingIndex = (count + Number(obj.count) - 1);
 
                         $("#sparelineitem_"+count).html(obj.data);
-                        $("#on_submit_btn").attr('disabled',true);
+                        $("#on_submit_btn").attr('disabled',false);
                         $(".part_name").select2();
                         var service_id = $('#onserviceId_'+count).val();
                         var part_name = $('#onpartName_'+count).val();
