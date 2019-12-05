@@ -2047,8 +2047,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 else{
                     $select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_details.booking_id,"
                                 . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                    }
                 }
-            }
             else{
                 if($is_pending){
                     $select = "employee.full_name as entity,employee_relation.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
@@ -2057,8 +2057,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 else{
                      $select = "employee.full_name as entity,employee_relation.agent_id as id,booking_details.booking_id,"
                              . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                    }
                 }
-            }
             $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.$service_centres_field)";
             $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
@@ -2142,7 +2142,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         else{
              $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-        }
+               }
         $sfData = array();
         if($is_am == 0){
             if($this->input->post('vendor_id')){
@@ -2191,7 +2191,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         else{
                $stateSelect = "booking_details.State as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE booking_details.State END ) as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-        }
+               }
         $stateData = array();
         if($is_am == 0){
             if($rmID != "00"){
