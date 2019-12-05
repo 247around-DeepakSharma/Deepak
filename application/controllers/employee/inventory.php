@@ -4927,16 +4927,17 @@ class Inventory extends CI_Controller {
             $this->upload_defective_spare_pic();
             $booking_id = $postData[0]['booking_id'];
             $exist_courier_image = $this->input->post("exist_courier_image");
-//            $data['defective_part_shipped_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
-//            $data['courier_name_by_partner'] = $this->input->post('courier_name_by_wh');
-//            $data['courier_price_by_partner'] = $courier_price_by_wh;
-            $data['awb_by_partner'] = $awb_by_wh;
+            $data['defective_parts_shippped_date_by_wh'] = $this->input->post('defective_parts_shippped_date_by_wh');
+            $data['courier_name_by_wh'] = $this->input->post('courier_name_by_wh');
+            $data['courier_price_by_wh'] = $courier_price_by_wh;
+            $data['awb_by_wh'] = $awb_by_wh;
+            $data['defective_parts_shippped_courier_pic_by_wh'] = $exist_courier_image;
             $data['status'] = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
             $courier_details = array();
             $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb_by_wh), array());
 
             if (!empty($exist_courier_image)) {
-                $data['defective_courier_receipt'] = $exist_courier_image;
+                $data['defective_parts_shippped_courier_pic_by_wh'] = $exist_courier_image;
                 $courier_details['sender_entity_id'] = $this->input->post("sender_entity_id");
                 $courier_details['sender_entity_type'] = $this->input->post("sender_entity_type");
                 $courier_details['receiver_entity_id'] = $this->input->post("receiver_partner_id");
@@ -4950,6 +4951,7 @@ class Inventory extends CI_Controller {
                 $courier_details['create_date'] = date('Y-m-d H:i:s');
                 $courier_details['status'] = COURIER_DETAILS_STATUS;
             } else {
+                $data['defective_parts_shippped_courier_pic_by_wh'] = trim($this->input->post("sp_parts"));
                 if (empty($exist_courier_details)) {
                     $awb_data = array(
                         'awb_number' => trim($awb_by_wh),
@@ -6370,15 +6372,15 @@ class Inventory extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $service_center_id = $this->input->post('service_center_id');
         $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', service_centres.name as 'SF Name', service_centres.district as 'SF City', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status',"
-                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as 'NRN Status', service_center_closed_date as 'Service Center Closed Date', spare_parts_details.spare_cancelled_date as 'Spare Part Cancellation Date', spare_parts_details.spare_cancellation_reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', spare_parts_details.date_of_request as 'Spare Part Requested Date',"
+                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as 'NRN Status', service_center_closed_date as 'Service Center Closed Date', spare_parts_details.spare_cancelled_date as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', spare_parts_details.date_of_request as 'Spare Part Requested Date',"
                 . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
                 . "spare_parts_details.model_number_shipped as 'Shipped Model Number',spare_parts_details.parts_shipped as 'Shipped Part',spare_parts_details.shipped_parts_type as 'Shipped Part Type',iml.part_number as 'Shipped Part Number',"
                 . "spare_parts_details.shipped_date as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', spare_parts_details.awb_by_partner as 'Partner AWB Number',"
                 . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
-                . "partner_challan_number AS 'Partner Challan Number', sf_challan_number as 'SF Challan Number', "
+                . "partner_challan_number AS 'Partner Challan Number',spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', spare_parts_details.courier_charges_by_sf as 'SF Courier Price', sf_challan_number as 'SF Challan Number', spare_parts_details.awb_by_wh as 'Warehouse AWB Number',spare_parts_details.courier_name_by_wh as 'Warehouse Courier Name', spare_parts_details.courier_price_by_wh as 'Warehouse Courier Price', spare_parts_details.wh_challan_number AS 'Warehouse Challan Number', spare_parts_details.wh_to_partner_defective_shipped_date as 'Warehouse To Partner Defective Shipped Date',"
                 . "spare_parts_details.acknowledge_date as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
-                . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', wh.name as 'Send Defective To', cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',spare_parts_details.courier_charges_by_sf as 'SF Courier Price',"
+                . " (CASE WHEN spare_parts_details.defective_part_required = 1 THEN 'Yes' ELSE 'NO' END) AS 'Defective Part Required' , IF(wh.name !='' , wh.name, 'Partner') as 'SF Dispatch Defective Part To Warehouse/Partner',, cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',"
                 . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', defective_part_shipped_date as 'Defective Parts Shipped Date', received_defective_part_date as 'Partner Received Defective Parts Date', "
                 . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption Reason',"
 

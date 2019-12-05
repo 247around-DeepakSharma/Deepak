@@ -740,6 +740,13 @@ class Booking_model extends CI_Model {
             $result1 = $query1;
             $result['spare_parts'] = $result1;
         }
+        // check if status is 'InProcess' in service_center_booking_action_action table
+        // If so, we will not allow vendor to reschedule booking
+        $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $booking_id, 'current_status' => 'InProcess'));
+        $result['allow_reshedule'] = true;
+        if(!empty($query_scba)){
+            $result['allow_reshedule'] = false;
+        }
         return $result;
     }
 
