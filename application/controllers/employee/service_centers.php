@@ -2165,7 +2165,7 @@ class Service_centers extends CI_Controller {
             }
             else{
                 $response['status'] = false;
-                $response['message'] = 'Booking can not be rescheduled because booking is already closed by service center.';
+                $response['message'] = 'Booking can not be rescheduled because booking is in InProcess state or already closed by service center.';
             }
         }
         else{ 
@@ -8599,6 +8599,18 @@ class Service_centers extends CI_Controller {
             $option .= $value['name'] . "</option>";
         }
         echo $option;
+    }
+
+
+    // function to get rejected MSL ///
+    function get_rejected_msl($offset=0){
+
+        $this->check_WH_UserSession();
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+        $data = array();
+        $this->load->view('service_centers/rejected_spares_send_by_partner', $data);
+       
+        
     }
 
 }
