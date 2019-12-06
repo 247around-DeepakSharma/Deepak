@@ -598,12 +598,13 @@
                             }
 
                         } else {
-
                             $('body').loadingModal('destroy');
                             $("#defective_parts_shippped_courier_pic_by_wh").css("display","block");
                             $("#courier_price_id").css("display","block");
                             $("#same_awb").css("display","none");
                             $("#exist_courier_image").val("");
+                            $("#shipped_spare_parts_weight_in_kg").removeAttr("readonly");
+                            $("#shipped_spare_parts_weight_in_gram").removeAttr("readonly");
                         }
 
                     }

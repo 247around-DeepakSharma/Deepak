@@ -1,4 +1,4 @@
-<form method="post" action="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $spare_part_detail['id']; ?>/<?php echo $spare_part_detail['booking_id']; ?>/<?php echo $spare_part_detail['partner_id']; ?>/0">
+<form id="change-consumption-form" method="post" action="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $spare_part_detail['id']; ?>/<?php echo $spare_part_detail['booking_id']; ?>/<?php echo $spare_part_detail['partner_id']; ?>/0">
     <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" id="wrong_part_<?php echo $spare_part_detail['id']; ?>" value=''>
 
     <div class="row form-group"> 
@@ -80,7 +80,17 @@
             return false;
         }
         
-        return true;
+        $.ajax({
+            url:"<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $spare_part_detail['id']; ?>/<?php echo $spare_part_detail['booking_id']; ?>/<?php echo $spare_part_detail['partner_id']; ?>/0",
+            method: "POST",
+            data: $("#change-consumption-form").serialize()
+        }).done(function(data){
+            $('#SpareConsumptionModal').modal('hide');
+            inventory_spare_table.ajax.reload();
+            alert(data);
+        });
+        
+        return false;
     });
 
 </script>
