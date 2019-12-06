@@ -4241,6 +4241,59 @@ class Inventory extends CI_Controller {
         return $invoice;
     }
 
+
+     /**
+     *  @desc : This function is used to show all the spare list which was send by partner to warehouse and rejected warehouse
+     *  @param : void
+     *  @return : $res JSON
+     */
+    function get_spare_send_by_partner_to_wh_rejected() {
+        ob_end_clean();
+        $post = $this->get_post_data();
+        $post['is_courier_details_required'] = TRUE;
+        $post['column_order'] = array();
+        $sender = trim($this->input->post('sender_entity_id'));
+        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id');
+
+        $post['where'] = array('i.receiver_entity_id' => trim($this->input->post('receiver_entity_id')),
+            'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
+            'i.is_wh_ack' => $this->input->post('is_wh_ack'));
+
+        if (trim($this->input->post('is_wh_micro'))) {
+            $post['where']['vendor_partner_invoices.third_party_entity_id'] = trim($this->input->post('sender_entity_id'));
+
+            $post['is_micro_wh'] = true;
+        } else {
+            $post['where']['i.sender_entity_id'] = trim($this->input->post('sender_entity_id'));
+            $post['where']['i.sender_entity_type']=trim($this->input->post('sender_entity_type'));
+            $post['is_micro_wh'] = false;
+        }
+
+        $select = "services.services,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
+                    WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
+                    WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
+                    CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
+                    WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
+                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_details.AWB_no,courier_details.courier_name,courier_details.status";
+        $list = $this->inventory_model->get_spare_need_to_acknowledge($post, $select);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $inventory_list) {
+            $no++;
+            $row = $this->get_spare_send_by_partner_to_wh_table_rejected($inventory_list, $no);
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->inventory_model->count_spare_need_to_acknowledge($post),
+            "recordsFiltered" => $this->inventory_model->count_filtered_spare_need_to_acknowledge($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+
     /**
      *  @desc : This function is used to show all the spare list which was send by partner to warehouse and not acknowledge by warehouse
      *  @param : void
@@ -4431,6 +4484,54 @@ class Inventory extends CI_Controller {
       
         return $row;
     }
+
+
+
+
+    /**
+     *  @desc : This function is used to generate data for the spare which send by partner to wh
+     *  @param : $inventory_list array()
+     *  @param : $no string
+     *  @return :void
+     */
+    function get_spare_send_by_partner_to_wh_table_rejected($inventory_list, $no) {
+        $row = array();
+
+        $row[] = $no;
+        if ($this->session->userdata('service_center_id')) {
+            $row[] = "<a href='" . base_url() . "service_center/booking_details/" . urlencode(base64_encode($inventory_list->booking_id)) . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
+        } else if ($this->session->userdata('id')) {
+            $row[] = "<a href='" . base_url() . "employee/booking/viewdetails/" . $inventory_list->booking_id . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
+        }
+        $row[] = $inventory_list->services;
+
+        if($this->input->post('is_wh_micro')){
+         $row[] = $inventory_list->micro_invoice_id;
+        }else{
+         $row[] = $inventory_list->invoice_id;  
+        }
+        $row[] = $inventory_list->type;
+        $row[] = $inventory_list->part_name;
+        $row[] = "<span style='word-break: break-all;'>" . $inventory_list->part_number . "</span>";
+        $row[] = $inventory_list->quantity;
+        $row[] = $inventory_list->description;
+        $row[] = $inventory_list->courier_name;
+        //$row[] = "<a href='#' onclick='get_msl_awb_details('".$inventory_list->courier_name."','".$inventory_list->AWB_no."','".$inventory_list->status."','msl_awb_loader_'".$inventory_list->AWB_no."')'>".$inventory_list->AWB_no."</a> <span id='msl_awb_loader_$inventory_list->AWB_no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>"; 
+        $a = "<a href='javascript:void(0);' onclick='";
+        $a .= "get_msl_awb_details(" . '"' . $inventory_list->courier_name . '"';
+        $a .= ', "' . $inventory_list->AWB_no . '"';
+        $a .= ', "' . $inventory_list->status . '"';
+        $a .= ', "msl_awb_loader_' . $no . '"';
+        $a .= ")'>" . $inventory_list->AWB_no . "</a>";
+        $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
+        $row[] = $a;
+        
+         $row[] = "<span style='color:red;font-weight: 900;'>Rejected</span>";
+      
+        return $row;
+    }
+
+
 
     /**
      *  @desc : This function is used to acknowledge data for the spare which send by partner to WH
