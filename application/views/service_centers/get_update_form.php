@@ -1,3 +1,4 @@
+<script src="<?php echo base_url();?>js/validation_js.js"></script>
 <style>
     .disable_link {
         display: none;
@@ -152,7 +153,7 @@
                                         <?php } else { ?> 
                                         <div class="col-md-6" id="appliance_model_div">
                                             <input type="hidden" id="model_number_id" name="model_number_id">
-                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php if(isset($unit_model_number) && !empty($unit_model_number)){ $is_modal_number = TRUE; echo $unit_model_number;} ?>" placeholder="Model Number" required="">
+                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php if(isset($unit_model_number) && !empty($unit_model_number)){ $is_modal_number = TRUE; echo $unit_model_number;} ?>" placeholder="Model Number" required="" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
                                         </div>
                                         <?php } ?>
                                     </div>
