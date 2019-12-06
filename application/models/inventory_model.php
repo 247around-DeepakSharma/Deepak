@@ -1060,6 +1060,7 @@ class Inventory_model extends CI_Model {
      *  @return : $res array()
      */
     function get_warehouse_details($select,$where, $join = true,$is_entity_join = false, $sf_join = false) {
+        $this->db->distinct();
         $this->db->select($select,FALSE);
         $this->db->where($where,FALSE);
         $this->db->from('warehouse_person_relationship');
