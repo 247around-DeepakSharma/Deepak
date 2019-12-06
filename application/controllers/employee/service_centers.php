@@ -5821,7 +5821,7 @@ class Service_centers extends CI_Controller {
 
           $this->check_WH_UserSession();
         
-          $this->load->view('service_centers/defective_parts_shipped_by_sf_new');
+          $this->load->view('service_centers/defective_parts_shipped_by_sf');
          
     }
 
