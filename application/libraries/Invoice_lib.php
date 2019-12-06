@@ -930,6 +930,7 @@ class Invoice_lib {
 
     function generate_challan_file_to_partner($spare_id, $service_center_id, $service_center_closed_date = "") {
 
+        $wh_city = trim($_POST['warehouse_city']);  
         $spare_parts_details = array();
         $spare_ids = explode(',', $spare_id);
         foreach ($spare_ids as $spare_id) {
@@ -979,7 +980,8 @@ class Invoice_lib {
 //            $partner_details = array();
 
             $select1 = "warehouse_details.warehouse_address_line1 as company_name, concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address, contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number, warehouse_details.warehouse_city";
-            $partner_details = $this->ci->inventory_model->get_warehouse_details($select1, array("contact_person.entity_type" => _247AROUND_PARTNER_STRING, "contact_person.entity_id" => $spare_parts_details[0][0]['booking_partner_id']), true, true);
+            $partner_details = $this->ci->inventory_model->get_warehouse_details($select1, array("contact_person.entity_type" => _247AROUND_PARTNER_STRING, "contact_person.entity_id" => $spare_parts_details[0][0]['booking_partner_id'],"warehouse_details.warehouse_city"=>$wh_city), true, true);
+            
             if (!empty($partner_details)) {
                 $warehouse_gst_details = $this->ci->inventory_model->get_entity_gst_data(" entity_gst_details.city, entity_gst_details.gst_number ", array("entity_gst_details.entity_type" => _247AROUND_PARTNER_STRING, "entity_gst_details.entity_id" => $spare_parts_details[0][0]['booking_partner_id'], "entity_gst_details.city IN('" . $partner_details[0]['warehouse_city'] . "')" => null));
                 if (!empty($warehouse_gst_details)) {
