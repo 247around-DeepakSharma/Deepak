@@ -3528,15 +3528,25 @@ class Service_centers extends CI_Controller {
     function get_warehouse_partner_list(){
 
         $partner_id = trim($_POST['partner']);
+
         $select1 = "warehouse_details.warehouse_address_line1 as company_name, concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address, contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number, warehouse_details.warehouse_city";
-        $partner_details = $this->inventory_model->get_warehouse_details($select1, array("contact_person.entity_type" => _247AROUND_PARTNER_STRING, "contact_person.entity_id" => $partner_id), true, true);
+        $partner_details = $this->inventory_model->get_warehouse_details($select1, array("contact_person.entity_type"=>_247AROUND_PARTNER_STRING, "contact_person.entity_id" => $partner_id), true, true);
 
+        $partner_details1 = $this->partner_model->getpartner_details("company_name, concat(partners.address,',',partners.district,',',partners.state,',',partners.pincode) AS address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name,partners.district as warehouse_city", array('partners.id' =>$partner_id));
 
+        $addresses =array_merge($partner_details,$partner_details1);
 
-        $option = "<option selected disabled>Select address</option>";
-        foreach ($partner_details as $key => $partner_wh) {
-          
-          $option .="<option value='".$partner_wh['warehouse_city']."' >".$partner_wh['address']."</option>";   
+        $option = "";
+        $count = 0;
+        foreach ($addresses as $key => $partner_wh) {
+          $count++;
+          if ($count==1) {
+             $selected= "selected";
+          }else{
+            $selected= "";
+
+          }
+          $option .="<option ".$selected." value='".$partner_wh['warehouse_city']."' >".$partner_wh['address']."</option>";   
 
         }
 
