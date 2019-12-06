@@ -1443,7 +1443,7 @@ function get_array_settle_data($b, $inventory_details, $restQty, $value){
                 "third_party_entity_id" => (isset($response['meta']['third_party_entity_id']))?$response['meta']['third_party_entity_id']:NULL,
                 'invoice_file_main' => $convert['main_pdf_file_name'],
                 'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
-                'invoice_detailed_excel' => $response['meta']['invoice_id'] . '-detailed.xlsx',
+                'invoice_detailed_excel' => (isset($response['meta']['invoice_detailed_excel'])?$response['meta']['invoice_detailed_excel']:NULL),
                 'from_date' => date("Y-m-d", strtotime($response['meta']['sd'])), //??? Check this next time, format should be YYYY-MM-DD
                 'to_date' => date("Y-m-d", strtotime($response['meta']['sd'])),
                 'num_bookings' => $response['meta']['service_count'],

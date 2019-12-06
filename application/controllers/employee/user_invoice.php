@@ -615,6 +615,7 @@ class User_invoice extends CI_Controller {
                 $response['meta']['invoice_file_main'] = $output_pdf_file_name;
                 $response['meta']['copy_file'] = $convert['copy_file'];
                 $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
+                $response['meta']['invoice_detailed_excel'] = NULL;
 
                 $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
                 
@@ -931,6 +932,7 @@ class User_invoice extends CI_Controller {
                     $response['meta']['invoice_file_main'] = $output_pdf_file_name;
                     $response['meta']['copy_file'] = $convert['copy_file'];
                     $response['meta']['invoice_file_excel'] = $vendor_invoice_id . ".xlsx";
+                    $response['meta']['invoice_detailed_excel'] = NULL;
                     $this->invoice_lib->upload_invoice_to_S3($vendor_invoice_id, false);
 
                     /* Send DN mail to vendor */
@@ -1277,6 +1279,7 @@ class User_invoice extends CI_Controller {
             $response['meta']['main_company_seal'] = $around_gst[0]['state_stamp_picture'];
         }
         $response['meta']['due_date'] = $response['meta']['invoice_date'];
+        $response['meta']['invoice_detailed_excel'] = $invoice_id . '-detailed.xlsx';
         $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         
         if ($status) {
@@ -1459,6 +1462,7 @@ class User_invoice extends CI_Controller {
 
             $response['meta']['owner_phone_1'] = $entity_details[0]['owner_phone_1'];
             $response['meta']['due_date'] = $response['meta']['invoice_date'];
+            $response['meta']['invoice_detailed_excel'] = $invoice_id . '-detailed.xlsx';
 
             if($receiver_entity_type == _247AROUND_PARTNER_STRING) { 
                 $response['meta']['third_party_entity'] = _247AROUND_PARTNER_STRING;
@@ -1714,6 +1718,7 @@ class User_invoice extends CI_Controller {
                 $response['meta']['invoice_file_main'] = $output_pdf_file_name;
                 $response['meta']['copy_file'] = $convert['copy_file'];
                 $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
+                $response['meta']['invoice_detailed_excel'] = NULL;
 
                 $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
                 
