@@ -160,7 +160,7 @@
         </div>
         <div class="modal-footer">
  
-         <input type= "submit" id="button_send" class="btn btn-danger"   style="text-align: center; background-color:#2C9D9C; border-color: #2C9D9C;"  data-toggle="modal" value ="Download Challan File" >
+         <input type= "submit" id="button_send" class="btn btn-danger" onclick='return check_checkbox()'  style="text-align: center; background-color:#2C9D9C; border-color: #2C9D9C;"  data-toggle="modal" value ="Download Challan File" >
          
 
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -635,10 +635,18 @@
            }
 
 
+
+
+
         if(flag ===0 ){
             alert("Please Select Atleast One Checkbox To Download Challan");
             return false;
         }else{
+
+           var wh =  $("#warehouse_select").val();
+            if (wh=="") {
+                alert("Please select address");
+            }else{
 
             $('#myModal22').modal('show');
             var partner_id= $("#partner_id").val();
@@ -650,10 +658,13 @@
             
             console.log(response); 
             $("#warehouse_select").select2();
-            $("#warehouse_select").html(response);      
+            $("#warehouse_select").html(response).change();      
                
             }
+
+
         });
+        }
         }
     }
     
