@@ -1,4 +1,5 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
+<script src="<?php echo base_url();?>js/validation_js.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <?php
 // this is used to avoid all booking related extra validations on change request type panel
@@ -132,7 +133,7 @@ else
                                             <label for="type" class="col-md-4">Appliance Model* </label>
                                             <div class="col-md-6">
                                                 <?php if(empty($model[0])) { ?>
-                                                    <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" style="<?= $str_disabled?>" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> required onfocusout="check_booking_request()">
+                                                    <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" style="<?= $str_disabled?>" value = "<?php if(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> required onfocusout="check_booking_request()"  onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
                                                 <?php } else { ?>
                                                     <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" required onchange="getCapacityCategoryForModel(this.value, this.id);check_booking_request();" style="<?= $str_disabled?>">
                                                         <option selected disabled value="">Select Appliance Model</option>

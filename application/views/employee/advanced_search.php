@@ -12,7 +12,7 @@
     <div class="clearfix"></div>
     <div class="row" ng-controller="bookingAdvancedSearchController">
         <div class="col-md-12 col-sm-12 col-xs-12">
-            <div class="x_panel" style="height: auto;">
+            <div class="x_panel" style="height: auto;border:0px;">
                 <form method="post" action="<?php echo base_url();?>employee/booking/download_booking_snapshot" >
                 <div class="col-md-12 col-sm-12 col-xs-12">
                     <div class="x_title">
@@ -137,7 +137,7 @@
                         </div>
                        </form>
                         <form action="#" method="POST" id="reAssignForm" name="reAssignForm">
-                            <table id="advance_booking_search" class="table table-striped table-bordered">
+                            <table id="advance_booking_search" class="table table-striped table-bordered" style="overflow-x: auto;">
                                 <thead>
                                     <tr>
                                         <th>No.</th>
@@ -153,6 +153,13 @@
                                         <th>Product/Service</th>
                                         <th>Current&nbsp;Status</th>
                                         <th>Internal&nbsp;Status</th>
+                                        <th>ASM&nbsp;Name</th>
+                                        <th>AM&nbsp;Name</th>
+                                        <th>Part&nbsp;Name&nbsp;Requested</th>
+                                        <th>Part&nbsp;Type&nbsp;Requested</th>
+                                        <th>Part&nbsp;Name&nbsp;Shipped</th>
+                                        <th>Part&nbsp;Type&nbsp;Shipped</th>
+                                        <th>Dependency</th>
                                     </tr>
                                 </thead>
                                 <tbody>

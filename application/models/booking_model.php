@@ -292,7 +292,7 @@ class Booking_model extends CI_Model {
     }
     
     function get_advance_search_result_data($table,$select,$where=array(),$join=array(),$limitArray=array(),$orderBYArray=array(),$whereIN=array(),$JoinTypeTableArray=array()){
-        $this->db->_reserved_identifiers = array('*','STR_TO_DATE');
+        $this->db->_reserved_identifiers = array('*','STR_TO_DATE', 'FIND_IN_SET');
        $query = $this->reusable_model->get_search_query($table,$select,$where,$join,$limitArray,$orderBYArray,$whereIN,$JoinTypeTableArray);
        return $query->result_array(); 
     }
@@ -739,6 +739,13 @@ class Booking_model extends CI_Model {
         if(!empty($query1)){
             $result1 = $query1;
             $result['spare_parts'] = $result1;
+        }
+        // check if status is 'InProcess' in service_center_booking_action_action table
+        // If so, we will not allow vendor to reschedule booking
+        $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $booking_id, 'current_status' => SF_BOOKING_INPROCESS_STATUS));
+        $result['allow_reshedule'] = true;
+        if(!empty($query_scba)){
+            $result['allow_reshedule'] = false;
         }
         return $result;
     }

@@ -209,6 +209,7 @@ class Penalty_model extends CI_Model {
                 WHERE (
                 SC.current_status =  'Pending' AND BD.current_status IN ('Pending', 'Rescheduled')
                 )
+                AND BD.nrn_approved = 0
                 AND SC.booking_id = BD.booking_id
                 AND (
                 DATEDIFF( 
@@ -216,6 +217,7 @@ class Penalty_model extends CI_Model {
                 )
                 AND SCS.id = SC.service_center_id
                 AND SCS.is_update =1
+                AND BD.nrn_approved = 0
                 GROUP BY assigned_vendor_id
                 ";
 
