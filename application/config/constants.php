@@ -685,5 +685,7 @@ define('_247AROUND_WAREHOUSE_ID', 15);
 define('SHARP_WATER_PURIFIER_INSTALLATION_VIDEO', 'http://tinyurl.com/y4s42ml4');
 
 define('SPARE_PENDING_FOR_ACKNOWLEDGE_MSG', 'Spare part is pending for acknowledge on warehouse, so booking cannot be completed.');
+define('ENGINEER_INCENTIVE_FILE_TYPE', 'Engineer-Incentive-File');
+define('ENGINEER_INCENTIVE_MAX_AMOUNT', 100);
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
