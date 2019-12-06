@@ -14,7 +14,7 @@
                             }
                         } 
                     ?>
-                    ><?php echo $status['consumed_status']; ?></option>
+                    ><?php echo $status['reason_text']; ?></option>
                 <?php $description_no++; } ?>
             </select>
         </div>        
@@ -29,7 +29,7 @@
         </div>        
     </div>    
     
-    <input type="submit" name="change-consumption" class="btn btn-primary change-consumption-multiple" value="Change" class="btn btn-primary">
+    <input type="submit" name="change-consumption" class="btn btn-primary change-consumption-multiple" value="Save" class="btn btn-primary">
 
 
 <!-- Wrong spare parts modal -->
