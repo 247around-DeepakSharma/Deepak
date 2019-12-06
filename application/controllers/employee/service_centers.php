@@ -3342,6 +3342,8 @@ class Service_centers extends CI_Controller {
                     
                     if($spare_part_detail['status'] == OK_PART_TO_BE_SHIPPED) {
                         $data['status'] = OK_PARTS_SHIPPED;
+                    } else if($spare_part_detail['status'] == DAMAGE_PART_TO_BE_SHIPPED) {
+                        $data['status'] = DAMAGE_PARTS_SHIPPED;
                     } else {
                         $data['status'] = DEFECTIVE_PARTS_SHIPPED;
                     }
@@ -5839,7 +5841,7 @@ class Service_centers extends CI_Controller {
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
             "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
-            "status IN ('".DEFECTIVE_PARTS_SHIPPED."','". DEFECTIVE_PARTS_PENDING."','". COURIER_LOST."','". OK_PART_TO_BE_SHIPPED ."','". DAMAGE_PART_TO_BE_SHIPPED."', '".OK_PARTS_SHIPPED."')" => NULL,
+            "status IN ('".DEFECTIVE_PARTS_SHIPPED."','".OK_PARTS_SHIPPED."','".DAMAGE_PARTS_SHIPPED."')" => NULL,
         );
 
         }else{
@@ -5849,7 +5851,7 @@ class Service_centers extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             "spare_parts_details.defective_return_to_entity_id" => $sf_id,
             "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
-            "status IN ('".DEFECTIVE_PARTS_SHIPPED."','".OK_PARTS_SHIPPED."')" => NULL,
+            "status IN ('".DEFECTIVE_PARTS_SHIPPED."','".OK_PARTS_SHIPPED."','".DAMAGE_PARTS_SHIPPED."')" => NULL,
         );
 
         }
