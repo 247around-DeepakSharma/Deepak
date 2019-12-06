@@ -80,6 +80,7 @@
                                case SPARE_DELIVERED_TO_SF:
                                case DEFECTIVE_PARTS_REJECTED:
                                case DEFECTIVE_PARTS_RECEIVED:
+                               case DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE:
                                case DEFECTIVE_PARTS_SHIPPED:
                                case DEFECTIVE_PARTS_PENDING:
                                case SPARE_OOW_SHIPPED:

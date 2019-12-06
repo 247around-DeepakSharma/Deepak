@@ -2679,7 +2679,7 @@ class Partner extends CI_Controller {
                         'spare_parts_details.part_warranty_status' => 2,
                         'defective_part_required' => 1,
                         'approved_defective_parts_by_partner' => 1,
-                        'status' => DEFECTIVE_PARTS_RECEIVED,
+                        'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'")' => NULL,
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id)' => NULL),
                     true);
             if(!empty($is_oow_return)){
