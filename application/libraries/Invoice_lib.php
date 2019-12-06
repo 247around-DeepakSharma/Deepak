@@ -724,7 +724,7 @@ class Invoice_lib {
                     $tmp_arr['value'] = $value2[0]['challan_approx_value'];
                     
                 } else if(isset($value2[0]['inventory_id'])){
-                    $c_value = $this->get_challan_value($value2[0]['inventory_id'], $value2[0]['shipped_quantity']);
+                    $c_value = $this->get_challan_value($value2[0]['inventory_id']);
                     if($c_value){
                          $tmp_arr['value'] = $c_value;
                          $spare_id = 0;
@@ -816,7 +816,7 @@ class Invoice_lib {
             $data = $this->ci->inventory_model->get_inventory_master_list_data($c_s, array('inventory_master_list.inventory_id' => $inventory_id));
             if(!empty($data)){
                 $estimate_cost = round($data[0]['price'] * ( 1 + $data[0]['gst_rate'] / 100), 0);
-                return (round($estimate_cost * ( 1 + $data[0]['oow_around_margin'] / 100), 0) * $shipped_quantity);
+                return round($estimate_cost * ( 1 + $data[0]['oow_around_margin'] / 100), 0);
             }
         }
         
