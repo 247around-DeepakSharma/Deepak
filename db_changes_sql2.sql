@@ -1633,3 +1633,11 @@ ALTER TABLE `callback_api_booking_details`
 COMMIT;
 --Gorakh 03-12-2019
 ALTER TABLE `courier_services` ADD `status` TINYINT NOT NULL DEFAULT '1' AFTER `courier_code`;
+
+--Ankit 06-12-2019
+ALTER TABLE spare_consumption_status ADD COLUMN reason_text text NULL DEFAULT NULL AFTER consumed_status;  
+UPDATE spare_consumption_status SET reason_text = 'Defective Part Received' where id = 1;
+UPDATE spare_consumption_status SET reason_text = 'Part not Received' where id = 2;
+UPDATE spare_consumption_status SET reason_text = 'Ok/Damage Part Received' where id = 3;
+UPDATE spare_consumption_status SET reason_text = 'Ok/Wrong Part Received' where id = 4;
+UPDATE spare_consumption_status SET reason_text = 'Ok Part Received' where id = 5;

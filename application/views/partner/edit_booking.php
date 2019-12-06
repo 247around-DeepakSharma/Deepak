@@ -1,3 +1,4 @@
+<script src="<?php echo base_url();?>js/validation_js.js"></script>
 <?php
 $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
 ?>
@@ -786,7 +787,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                         success: function (data) {
                          
                                 if($.trim(data) === "Data Not Found"){
-                                    var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model" onfocusout="check_booking_request()">';
+                                    var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model" onfocusout="check_booking_request()" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">';
                                     $("#model_number_2").html(input).change();
                                     $('.select-model').next(".select2-container").hide();
                                 } else {

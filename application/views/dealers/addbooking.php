@@ -1,3 +1,4 @@
+<script src="<?php echo base_url();?>js/validation_js.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <style type="text/css">
     /* example styles for validation form demo */
@@ -615,7 +616,7 @@
                   console.log(data);
                         if($.trim(data) === "Data Not Found"){
 
-                            var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model">';
+                            var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">';
                             $("#model_number_2").html(input).change();
                             $('.select-model').next(".select2-container").hide();
                         } else {
