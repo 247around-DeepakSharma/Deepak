@@ -3852,6 +3852,18 @@ function do_multiple_spare_shipping(){
             }
         }
     }
+    
+    /*
+     * @desc: This is used to forcefully generate
+     * @param Array $booking_address
+     * @return void 
+     */
+    
+     function forcefully_generate_sf_challan($booking_id, $sf_id){
+         $generate_challan = array("$sf_id" => $booking_id);
+         
+         $this->generate_sf_challan($generate_challan);
+     }
 
     /**
      * @desc: Call by Ajax to load group upcountry details
