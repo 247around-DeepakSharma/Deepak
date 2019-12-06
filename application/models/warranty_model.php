@@ -240,4 +240,18 @@ class Warranty_model extends CI_Model {
         $this->db->where('id', $mapping_id);
         $this->db->update('warranty_plan_model_mapping', ['is_active' => 1]);
     }
+    
+    function activate_plan($plan_id)
+    {
+        log_message ('info', __METHOD__);
+        $this->db->where('plan_id', $plan_id);
+        $this->db->update('warranty_plans', ['is_active' => 1]);
+    }
+    
+    function deactivate_plan($plan_id)
+    {
+        log_message ('info', __METHOD__);
+        $this->db->where('plan_id', $plan_id);
+        $this->db->update('warranty_plans', ['is_active' => 0]);
+    }
 }

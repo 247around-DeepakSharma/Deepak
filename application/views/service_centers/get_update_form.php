@@ -1,3 +1,4 @@
+<script src="<?php echo base_url();?>js/validation_js.js"></script>
 <style>
     .disable_link {
         display: none;
@@ -77,6 +78,8 @@
                     <div class="form-group ">
                         <label for="reason" class="col-md-2" style="margin-top:39px;">Reason</label>
                         <div class="col-md-6" style="margin-top:39px;">
+                            <!-- If status is 'InProcess' in service_center_booking_action_action table, booking can not be rescheduled -->
+                            <?php if(!empty($bookinghistory['allow_reshedule'])) { ?>
                             <?php foreach ($internal_status as $key => $data1) { ?>
                             <div class="radio ">
                                 <label>
@@ -84,6 +87,7 @@
                                 <?php echo $data1['status']; ?>
                                 </label>
                             </div>
+                            <?php } ?>
                             <?php } ?>
                             <?php if($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED ){ ?>
                             <div class="radio ">
@@ -93,7 +97,9 @@
                                 </label>
                             </div>
                             <?php }?>
-                            <hr/>
+                            <hr id="seperator">
+                            <!-- If status is 'InProcess' in service_center_booking_action_action table, booking can not be rescheduled -->
+                            <?php if(!empty($bookinghistory['allow_reshedule'])) { ?>
                             <?php if($bookinghistory[0]['is_upcountry'] == 1 ){ ?>
                             <div class="radio ">
                                 <label class="<?php if(!empty($nrn_flag) && $nrn_flag==1){ echo "hide"; } ?>">
@@ -122,6 +128,9 @@
                                 </label>
                             </div>
                             <?php } ?>
+                            <?php } else { ?>
+                                <div class="text-warning" style="font-size:16px;"><i class="fa fa-info-circle"></i>&nbsp;Booking In-Process, can not be Rescheduled</div>
+                            <?php } ?>
                         </div>
                     </div>
                     <input type="hidden" name="days" value="<?php echo $days; ?>" />    
@@ -147,7 +156,7 @@
                                         <?php } else { ?> 
                                         <div class="col-md-6" id="appliance_model_div">
                                             <input type="hidden" id="model_number_id" name="model_number_id">
-                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php if(isset($unit_model_number) && !empty($unit_model_number)){ $is_modal_number = TRUE; echo $unit_model_number;} ?>" placeholder="Model Number" required="">
+                                            <input type="text" class="form-control spare_parts" id="model_number" name="model_number" value = "<?php if(isset($unit_model_number) && !empty($unit_model_number)){ $is_modal_number = TRUE; echo $unit_model_number;} ?>" placeholder="Model Number" required="" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
                                         </div>
                                         <?php } ?>
                                     </div>
@@ -157,7 +166,7 @@
                                         <label for="dop" class="col-md-4" id="dat_of_puchase">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ echo date('Y-m-d', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
+                                                <input id="dop" class="form-control"  value="<?php if(isset($purchase_date) && (!empty($purchase_date) && $purchase_date != "0000-00-00")){ echo date('d-m-Y', strtotime($purchase_date)); } ?>"  placeholder="Select Date" name="dop" type="text" autocomplete='off' onkeypress="return false;"  onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on" id="dop_calendar" onclick="dop_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -484,8 +493,11 @@ function alpha(e) {
     
     
     <?php if(isset($inventory_details) && !empty($inventory_details)) { ?> 
-        
-        $('#model_number_id').select2();
+        <?php if(!$is_disable) { ?>
+            $('#model_number_id').select2();
+        <?php } else { ?>
+            $("#model_number_id").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
+        <?php } ?>
         $('#parts_name_0').select2({
             placeholder: "Select Part Name",
             allowClear:true
@@ -643,7 +655,11 @@ function alpha(e) {
                         html += "</select>";
                         html += "<input type='hidden' id='model_number' name='model_number'>";
                         $("#appliance_model_div").html(html);
-                        $('#model_number_id').select2();
+                        <?php if(!$is_disable) { ?>
+                            $('#model_number_id').select2();
+                        <?php } else { ?>
+                            $("#model_number_id").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
+                        <?php } ?>
                         var model_number = "<?php echo $unit_model_number; ?>";
                         $('#model_number_id option').map(function() {
                         if ($.trim(($(this).text()).toUpperCase()) == $.trim(model_number.toUpperCase())){
@@ -920,7 +936,7 @@ function alpha(e) {
     }
     
     $("#booking_date").datepicker({dateFormat: 'yy-mm-dd', minDate: +1, maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>', changeMonth: true,changeYear: true});
-    $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true, 
+    $("#dop").datepicker({dateFormat: 'dd-mm-yy', changeMonth: true,changeYear: true, 
                 maxDate:0});
     $("#reschduled_booking_date").datepicker({
                 dateFormat: 'yy-mm-dd', 
@@ -1126,15 +1142,10 @@ function alpha(e) {
     }
     
     $(document).ready(function(){
-        var model_number = $("#model_number_id option:selected").val();
-        if(model_number !=''){
-            <?php if($is_disable){ ?>
-                $("#model_number_id").select2('destroy'); 
-                $("#model_number_id").attr('readonly',"readonly");
-                $("#model_number_id").css("cursor", "not-allowed");
-                $("#model_number_id").css("pointer-events","none");
-            <?php } ?>
-            
+        var model_number = $("#model_number_id option:selected").val();    
+        if (!$('input[type=radio][name=reason]').length) {
+            $("#seperator").hide();
+            $("#submitform").hide();
         }
     });
         

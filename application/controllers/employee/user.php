@@ -469,11 +469,7 @@ class User extends CI_Controller {
         }
         foreach ($diffState as $key => $value){
             $this->remove_rm_map_for_state($value, false);       
-        }
-     
-        foreach ($data["state_name"] as $key => $value){
-            
-                $res=   $this->employee_model->update_rm_state_mapping($data["rm_asm"], $value);            
+             $res=   $this->employee_model->update_rm_state_mapping($data["rm_asm"], $value);          
         }
 
         $res=$this->employee_model->update_asm_manager_mapping($data["rm_asm"]);

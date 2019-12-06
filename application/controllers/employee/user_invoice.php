@@ -695,7 +695,7 @@ class User_invoice extends CI_Controller {
                     $result  = $this->inventory_model->update_bluk_spare_data($where_in,array('defective_part_required'=>0, 'sell_invoice_id'=>$invoice_id, 'spare_lost'=>1, 'sell_price'=>$invoice_amount[$spare_id], 'status'=>$reason[$spare_id]));
                 }
                 
-                $check_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status != "'.DEFECTIVE_PARTS_RECEIVED.'"' => NULL, 'spare_lost != 1' => NULL));
+                $check_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'")' => NULL, 'spare_lost != 1' => NULL));
                 
                 if(count($check_lost_part) === 0) {
                     $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id'=>$booking_id));
@@ -1013,6 +1013,7 @@ class User_invoice extends CI_Controller {
         $wh_name = $this->input->post('warehouse_name');
         $shipped_date = $this->input->post('shipped_date');
         $from_gst_id = $this->input->post('from_gst_number');
+        $to_gst_id = $this->input->post('to_gst_number');
         $receiver_type = $this->input->post('receiver_type');
         $receiver_id = $this->input->post('receiver_id');
         $return_data = $this->input->post();
@@ -1046,7 +1047,7 @@ class User_invoice extends CI_Controller {
                     $receiver_entity_type = ((!empty($receiver_type) && ($receiver_type == 1))?_247AROUND_SF_STRING:_247AROUND_PARTNER_STRING);
 
                     if ($receiver_entity_type == _247AROUND_PARTNER_STRING) {
-                        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id);
+                        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id, $to_gst_id);
                         if(empty($invoiceData['processData'])) {
                             exit(json_encode(array('status' => false, 'message' => 'There is no inventory invoice to tag with your selected inventory.'), true));
                         }
@@ -1056,8 +1057,9 @@ class User_invoice extends CI_Controller {
                     $invoice_date = date('Y-m-d');
                     
                     if($receiver_entity_type == _247AROUND_PARTNER_STRING) {
-//                        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id);
-                        $entity_details = $this->partner_model->getpartner_details("gst_number, primary_contact_email,state, company_name, address, district, pincode,public_name", array('partners.id' => $receiver_entity_id));
+//                        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id, $to_gst_id);
+                        $entity_details = $this->partner_model->getpartner_details("primary_contact_email, company_name, public_name", array('partners.id' => $receiver_entity_id));
+                        $entity_gst_details = $this->inventory_model->get_entity_gst_data("gst_number, state_code.state as state, address, city as district, pincode", array("entity_gst_details.id" => $to_gst_id));
                     }
                     else {
 //                        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData);
@@ -1076,7 +1078,7 @@ class User_invoice extends CI_Controller {
                     if ((($wh_type == 2) && (count($response) > 0)) || ($wh_type != 2)) {
                         
                         if ($receiver_entity_type == _247AROUND_PARTNER_STRING) { // to generate invoice when stock return from warehouse to partner
-                            $gst_number = (!empty($entity_details[0]['gst_number']) ? $entity_details[0]['gst_number'] : '');
+                            $gst_number = (!empty($entity_gst_details[0]['gst_number']) ? $entity_gst_details[0]['gst_number'] : '');
                             if (empty($gst_number)) {
 
                                 $gst_number = TRUE;
@@ -1106,16 +1108,16 @@ class User_invoice extends CI_Controller {
                                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['taxable_value'] = $value['rate']*$value['qty'];
         //                                $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['invoice_id'] = $invoice_id;
                                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['product_or_services'] = "Product";
-                                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_number'] = (!empty($entity_details[0]['gst_number']) ? $entity_details[0]['gst_number'] : '');//$value['to_gst_number'];
+                                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_number'] = (!empty($entity_gst_details[0]['gst_number']) ? $entity_gst_details[0]['gst_number'] : '');//$value['to_gst_number'];
                                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['main_gst_number'] = $value['from_gst_number'];
                                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_name'] = $entity_details[0]['company_name'];
-                                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_address'] = $entity_details[0]['address'];
-                                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['district'] = $entity_details[0]['district'];
+                                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['company_address'] = $entity_gst_details[0]['address'];
+                                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['district'] = $entity_gst_details[0]['district'];
                                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['to_gst_number_id'] = $value['to_gst_number_id'];
                                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['from_gst_number_id'] = $value['from_gst_number_id'];
-                                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['pincode'] = $entity_details[0]['pincode'];
+                                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['pincode'] = $entity_gst_details[0]['pincode'];
                                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state_code'] = $value['to_state_code'];
-                                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state'] = $entity_details[0]['state'];
+                                        $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['state'] = $entity_gst_details[0]['state'];
                                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['rate'] = $value['rate'];
                                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['gst_rate'] = $value['gst_rate'];
                                         $invoice[$value['inventory_id'] . "_" . $value['gst_rate'] . "_" . round($value['rate'], 0)]['qty'] = $value['qty'];//1;
@@ -1778,7 +1780,7 @@ class User_invoice extends CI_Controller {
                 );
                 $result  = $this->inventory_model->update_bluk_spare_data($where_in, $spare_update_data);
                 
-                $check_oow_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status != "'.DEFECTIVE_PARTS_RECEIVED.'"' => NULL, 'spare_lost != 1' => NULL));
+                $check_oow_lost_part = $this->partner_model->get_spare_parts_by_any('*', array('booking_id' => $booking_id, 'status NOT IN ("'.DEFECTIVE_PARTS_RECEIVED.'", "'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'")' => NULL, 'spare_lost != 1' => NULL));
                 
                 if(count($check_oow_lost_part) === 0) {
                     $service_center_action = $this->booking_model->get_bookings_count_by_any('service_center_closed_date', array('booking_id'=>$booking_id));

@@ -1704,6 +1704,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tTempArray['TAT_5_bookings'] = implode(",",$values['TAT_5']);
             $tTempArray['TAT_8_bookings'] = implode(",",$values['TAT_8']);
             $tTempArray['TAT_16_bookings'] = implode(",",$values['TAT_16']);
+            $tTempArray['TAT_Total_bookings'] = implode(",",array_merge($values['TAT_0'], $values['TAT_1'], $values['TAT_2'], $values['TAT_3'], $values['TAT_4'], $values['TAT_5'], $values['TAT_8'], $values['TAT_16']));
             $tTempArray["entity"] =  $values['entity_name'];
             $tTempArray['id'] =  $values['entity_id'];
             $totalArray[] = $tTempArray;
@@ -1738,7 +1739,6 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             if(strlen($pendingDetails['TAT_16_bookings']) != 0){
                 $tArray['TAT_16'] = count(explode(",",$pendingDetails['TAT_16_bookings']));
             }
-            
             $tArray['TAT_GREATER_THAN_3'] = $tArray['TAT_4'] + $tArray['TAT_5'] + $tArray['TAT_8'] + $tArray['TAT_16'];
             $tArray['TAT_0_bookings'] = $pendingDetails['TAT_0_bookings'];
             $tArray['TAT_1_bookings'] = $pendingDetails['TAT_1_bookings'];
@@ -1749,6 +1749,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
             $tArray['TAT_8_bookings'] = $pendingDetails['TAT_8_bookings'];
             $tArray['TAT_16_bookings'] = $pendingDetails['TAT_16_bookings'];
             $tArray['TAT_16_bookings'] = $pendingDetails['TAT_16_bookings'];
+            $tArray['TAT_Total_bookings'] = $pendingDetails['TAT_Total_bookings'];
             $tArray['Total_Pending'] =  $tArray['TAT_0'] + $tArray['TAT_1'] + $tArray['TAT_2'] + $tArray['TAT_3'] + $tArray['TAT_4'] + $tArray['TAT_5']+ $tArray['TAT_8'] + $tArray['TAT_16'];
             $total_0 = $total_0+$tArray['TAT_0'];
             $total_1 = $total_1+$tArray['TAT_1'];
@@ -2046,8 +2047,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 else{
                     $select = "employee_relation.region as entity,employee_relation.agent_id as id,booking_details.booking_id,"
                                 . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                    }
                 }
-            }
             else{
                 if($is_pending){
                     $select = "employee.full_name as entity,employee_relation.agent_id as id,GROUP_CONCAT(DISTINCT booking_details.booking_id) as booking_id,COUNT(DISTINCT booking_details.booking_id) as count,"
@@ -2056,8 +2057,8 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                 else{
                      $select = "employee.full_name as entity,employee_relation.agent_id as id,booking_details.booking_id,"
                              . "DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
+                    }
                 }
-            }
             $conditionsArray['join']['employee_relation'] = "FIND_IN_SET(booking_details.assigned_vendor_id,employee_relation.$service_centres_field)";
             $conditionsArray['join']['employee'] = "employee_relation.agent_id = employee.id";
             return $this->reusable_model->get_search_result_data("booking_details",$select,$conditionsArray['where'],$conditionsArray['join'],NULL,NULL,$conditionsArray['where_in'],$conditionsArray['joinType'],$conditionsArray['groupBy']);
@@ -2141,7 +2142,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         else{
              $sfSelect = "CONCAT(service_centres.district,'_',service_centres.id) as id,service_centres.name as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-        }
+               }
         $sfData = array();
         if($is_am == 0){
             if($this->input->post('vendor_id')){
@@ -2190,7 +2191,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         else{
                $stateSelect = "booking_details.State as id,(CASE WHEN booking_details.State = '' THEN 'Unknown' ELSE booking_details.State END ) as entity,booking_details.booking_id,DATEDIFF(booking_details.service_center_closed_date , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as TAT";
-        }
+               }
         $stateData = array();
         if($is_am == 0){
             if($rmID != "00"){

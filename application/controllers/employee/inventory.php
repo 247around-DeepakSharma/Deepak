@@ -4242,6 +4242,59 @@ class Inventory extends CI_Controller {
         return $invoice;
     }
 
+
+     /**
+     *  @desc : This function is used to show all the spare list which was send by partner to warehouse and rejected warehouse
+     *  @param : void
+     *  @return : $res JSON
+     */
+    function get_spare_send_by_partner_to_wh_rejected() {
+        ob_end_clean();
+        $post = $this->get_post_data();
+        $post['is_courier_details_required'] = TRUE;
+        $post['column_order'] = array();
+        $sender = trim($this->input->post('sender_entity_id'));
+        $post['column_search'] = array('inventory_master_list.part_name', 'inventory_master_list.type', 'courier_details.AWB_no', 'courier_details.courier_name', 'i.booking_id');
+
+        $post['where'] = array('i.receiver_entity_id' => trim($this->input->post('receiver_entity_id')),
+            'i.receiver_entity_type' => trim($this->input->post('receiver_entity_type')),
+            'i.is_wh_ack' => $this->input->post('is_wh_ack'));
+
+        if (trim($this->input->post('is_wh_micro'))) {
+            $post['where']['vendor_partner_invoices.third_party_entity_id'] = trim($this->input->post('sender_entity_id'));
+
+            $post['is_micro_wh'] = true;
+        } else {
+            $post['where']['i.sender_entity_id'] = trim($this->input->post('sender_entity_id'));
+            $post['where']['i.sender_entity_type']=trim($this->input->post('sender_entity_type'));
+            $post['is_micro_wh'] = false;
+        }
+
+        $select = "services.services,inventory_master_list.*,CASE WHEN(sc.name IS NOT NULL) THEN (sc.name) 
+                    WHEN(p.public_name IS NOT NULL) THEN (p.public_name) 
+                    WHEN (e.full_name IS NOT NULL) THEN (e.full_name) END as receiver, 
+                    CASE WHEN(sc1.name IS NOT NULL) THEN (sc1.name) 
+                    WHEN(p1.public_name IS NOT NULL) THEN (p1.public_name) 
+                    WHEN (e1.full_name IS NOT NULL) THEN (e1.full_name) END as sender,i.*,courier_details.AWB_no,courier_details.courier_name,courier_details.status";
+        $list = $this->inventory_model->get_spare_need_to_acknowledge($post, $select);
+        $data = array();
+        $no = $post['start'];
+        foreach ($list as $inventory_list) {
+            $no++;
+            $row = $this->get_spare_send_by_partner_to_wh_table_rejected($inventory_list, $no);
+            $data[] = $row;
+        }
+
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->inventory_model->count_spare_need_to_acknowledge($post),
+            "recordsFiltered" => $this->inventory_model->count_filtered_spare_need_to_acknowledge($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
+    }
+
     /**
      *  @desc : This function is used to show all the spare list which was send by partner to warehouse and not acknowledge by warehouse
      *  @param : void
@@ -4432,6 +4485,54 @@ class Inventory extends CI_Controller {
       
         return $row;
     }
+
+
+
+
+    /**
+     *  @desc : This function is used to generate data for the spare which send by partner to wh
+     *  @param : $inventory_list array()
+     *  @param : $no string
+     *  @return :void
+     */
+    function get_spare_send_by_partner_to_wh_table_rejected($inventory_list, $no) {
+        $row = array();
+
+        $row[] = $no;
+        if ($this->session->userdata('service_center_id')) {
+            $row[] = "<a href='" . base_url() . "service_center/booking_details/" . urlencode(base64_encode($inventory_list->booking_id)) . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
+        } else if ($this->session->userdata('id')) {
+            $row[] = "<a href='" . base_url() . "employee/booking/viewdetails/" . $inventory_list->booking_id . "'target='_blank'>" . $inventory_list->booking_id . "</a>";
+        }
+        $row[] = $inventory_list->services;
+
+        if($this->input->post('is_wh_micro')){
+         $row[] = $inventory_list->micro_invoice_id;
+        }else{
+         $row[] = $inventory_list->invoice_id;  
+        }
+        $row[] = $inventory_list->type;
+        $row[] = $inventory_list->part_name;
+        $row[] = "<span style='word-break: break-all;'>" . $inventory_list->part_number . "</span>";
+        $row[] = $inventory_list->quantity;
+        $row[] = $inventory_list->description;
+        $row[] = $inventory_list->courier_name;
+        //$row[] = "<a href='#' onclick='get_msl_awb_details('".$inventory_list->courier_name."','".$inventory_list->AWB_no."','".$inventory_list->status."','msl_awb_loader_'".$inventory_list->AWB_no."')'>".$inventory_list->AWB_no."</a> <span id='msl_awb_loader_$inventory_list->AWB_no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>"; 
+        $a = "<a href='javascript:void(0);' onclick='";
+        $a .= "get_msl_awb_details(" . '"' . $inventory_list->courier_name . '"';
+        $a .= ', "' . $inventory_list->AWB_no . '"';
+        $a .= ', "' . $inventory_list->status . '"';
+        $a .= ', "msl_awb_loader_' . $no . '"';
+        $a .= ")'>" . $inventory_list->AWB_no . "</a>";
+        $a .="<span id='msl_awb_loader_$no' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
+        $row[] = $a;
+        
+         $row[] = "<span style='color:red;font-weight: 900;'>Rejected</span>";
+      
+        return $row;
+    }
+
+
 
     /**
      *  @desc : This function is used to acknowledge data for the spare which send by partner to WH
@@ -4927,16 +5028,17 @@ class Inventory extends CI_Controller {
             $this->upload_defective_spare_pic();
             $booking_id = $postData[0]['booking_id'];
             $exist_courier_image = $this->input->post("exist_courier_image");
-//            $data['defective_part_shipped_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
-//            $data['courier_name_by_partner'] = $this->input->post('courier_name_by_wh');
-//            $data['courier_price_by_partner'] = $courier_price_by_wh;
-            $data['awb_by_partner'] = $awb_by_wh;
+            $data['defective_parts_shippped_date_by_wh'] = $this->input->post('defective_parts_shippped_date_by_wh');
+            $data['courier_name_by_wh'] = $this->input->post('courier_name_by_wh');
+            $data['courier_price_by_wh'] = $courier_price_by_wh;
+            $data['awb_by_wh'] = $awb_by_wh;
+            $data['defective_parts_shippped_courier_pic_by_wh'] = $exist_courier_image;
             $data['status'] = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
             $courier_details = array();
             $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb_by_wh), array());
 
             if (!empty($exist_courier_image)) {
-                $data['defective_courier_receipt'] = $exist_courier_image;
+                $data['defective_parts_shippped_courier_pic_by_wh'] = $exist_courier_image;
                 $courier_details['sender_entity_id'] = $this->input->post("sender_entity_id");
                 $courier_details['sender_entity_type'] = $this->input->post("sender_entity_type");
                 $courier_details['receiver_entity_id'] = $this->input->post("receiver_partner_id");
@@ -4950,6 +5052,7 @@ class Inventory extends CI_Controller {
                 $courier_details['create_date'] = date('Y-m-d H:i:s');
                 $courier_details['status'] = COURIER_DETAILS_STATUS;
             } else {
+                $data['defective_parts_shippped_courier_pic_by_wh'] = trim($this->input->post("sp_parts"));
                 if (empty($exist_courier_details)) {
                     $awb_data = array(
                         'awb_number' => trim($awb_by_wh),
@@ -5127,7 +5230,8 @@ class Inventory extends CI_Controller {
     function generate_inventory_invoice($postData, $sender_entity_id, $sender_entity_type, $courier_id) {
         log_message('info', __METHOD__ . " Data " . print_r($postData, TRUE) . " Entity id " . $sender_entity_id);
         $from_gst_id = $this->input->post('from_gst_number');
-        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id);
+        $to_gst_id = $this->input->post('to_gst_number');
+        $invoiceData = $this->invoice_lib->settle_inventory_invoice_annexure($postData, $from_gst_id, $to_gst_id);
         
         $booking_id_array = array();
         $sp_id = array();
@@ -6369,22 +6473,22 @@ class Inventory extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         $service_center_id = $this->input->post('service_center_id');
         $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', service_centres.name as 'SF Name', service_centres.district as 'SF City', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status',"
-                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Yes' ELSE 'NO' END) as 'NRN Status', service_center_closed_date as 'Service Center Closed Date', spare_parts_details.spare_cancelled_date as 'Spare Part Cancellation Date', spare_parts_details.spare_cancellation_reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', spare_parts_details.date_of_request as 'Spare Part Requested Date',"
+                . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', service_center_closed_date as 'Service Center Closed Date', spare_parts_details.spare_cancelled_date as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', spare_parts_details.date_of_request as 'Spare Part Requested Date',"
                 . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
                 . "spare_parts_details.model_number_shipped as 'Shipped Model Number',spare_parts_details.parts_shipped as 'Shipped Part',spare_parts_details.shipped_parts_type as 'Shipped Part Type',iml.part_number as 'Shipped Part Number',"
                 . "spare_parts_details.shipped_date as 'Spare Part Shipped Date', datediff(CURRENT_DATE,spare_parts_details.shipped_date) as 'Spare Shipped Age', spare_parts_details.awb_by_partner as 'Partner AWB Number',"
                 . "spare_parts_details.courier_name_by_partner as 'Partner Courier Name',spare_parts_details.courier_price_by_partner as 'Partner Courier Price',"
-                . "partner_challan_number AS 'Partner Challan Number', sf_challan_number as 'SF Challan Number', "
+                . "partner_challan_number AS 'Partner Challan Number',spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', spare_parts_details.courier_charges_by_sf as 'SF Courier Price', sf_challan_number as 'SF Challan Number',IF(wh.name !='' , wh.name, 'Partner') as 'SF Dispatch Defective Part To Warehouse/Partner',"
                 . "spare_parts_details.acknowledge_date as 'Spare Received Date',spare_parts_details.auto_acknowledeged as 'Is Spare Auto Acknowledge',"
                 . "spare_parts_details.defective_part_shipped as 'Part Shipped By SF',challan_approx_value As 'Parts Charge', "
-                . "spare_parts_details.awb_by_sf as 'SF AWB Number',spare_parts_details.courier_name_by_sf as 'SF Courier Name', wh.name as 'Send Defective To', cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',spare_parts_details.courier_charges_by_sf as 'SF Courier Price',"
+                . " (CASE WHEN spare_parts_details.defective_part_required = 1 THEN 'Yes' ELSE 'NO' END) AS 'Defective Part Required', cci.billable_weight as 'Defective Packet Weight ', cci.box_count as 'Defective Packet Count',"
                 . "remarks_defective_part_by_sf as 'Defective Parts Remarks By SF', defective_part_shipped_date as 'Defective Parts Shipped Date', received_defective_part_date as 'Partner Received Defective Parts Date', "
-                . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption Reason',"
+                . " (CASE WHEN spare_consumption_status.is_consumed = 1 THEN 'Yes' ELSE 'NO' END) as Consumption, spare_consumption_status.consumed_status as 'Consumption Reason', spare_parts_details.awb_by_wh as 'AWB Number Warehouse Dispatch Defective To Partner',spare_parts_details.courier_name_by_wh as 'Warehouse Dispatch Defective To Partner Courier Name', spare_parts_details.courier_price_by_wh as 'Warehouse Dispatch Defective To Partner Courier Price', spare_parts_details.wh_challan_number AS 'Warehouse Dispatch Defective To Partner Challan Number', spare_parts_details.wh_to_partner_defective_shipped_date as 'Warehouse Dispatch Defective Shipped Date To Partner',"
 
                 . "if(spare_parts_details.reverse_sale_invoice_id is null,'',spare_parts_details.reverse_sale_invoice_id) as 'Reverse Sale Invoice', "
                 . "if(spare_parts_details.reverse_purchase_invoice_id is null,'',spare_parts_details.reverse_purchase_invoice_id) as 'Reverse Purchased Invoice', "
                 . "if(spare_parts_details.purchase_invoice_id is null,'',spare_parts_details.purchase_invoice_id) as 'Purchase Invoice', "
-                . "if(spare_parts_details.sell_invoice_id is null,'',spare_parts_details.sell_invoice_id) as 'Sell Invoice', "
+                . "if(spare_parts_details.sell_invoice_id is null,'',spare_parts_details.sell_invoice_id) as 'Sale Invoice', "
                 . "if(spare_parts_details.warehouse_courier_invoice_id is null,'',spare_parts_details.warehouse_courier_invoice_id) as 'Warehouse Courier Invoice', "
                 . "if(spare_parts_details.partner_warehouse_courier_invoice_id is null,'',spare_parts_details.partner_warehouse_courier_invoice_id) as 'Partner Warehouse Courier Invoice', "
                 . "if(spare_parts_details.partner_courier_invoice_id is null,'',spare_parts_details.partner_courier_invoice_id) as 'Partner Courier Invoice', "
@@ -6431,7 +6535,14 @@ class Inventory extends CI_Controller {
         log_message('info', __METHOD__ . " Booking ID " . $booking_id);
         if (!empty($booking_id)) {
 
-            $where = array('status' => SPARE_PARTS_REQUESTED,
+            $sc_close_date = $this->reusable_model->get_search_query('booking_details','service_center_closed_date',array('booking_id'=>$booking_id),NULL,NULL,NULL,NULL,NULL)->result_array();
+
+            
+            if (!empty($sc_close_date[0]['service_center_closed_date'])) {
+               echo json_encode(array('code' => -247, "data" => "Booking already closed. Part shipping not allowed"));
+            }else{
+
+                $where = array('status' => SPARE_PARTS_REQUESTED,
                 'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
                 'spare_parts_details.booking_id' => $booking_id);
             if ($this->session->userdata('partner_id')) {
@@ -6451,6 +6562,9 @@ class Inventory extends CI_Controller {
             } else {
                 echo json_encode(array('code' => -247, "data" => "There is no any spare requested for this booking."));
             }
+
+            }
+
         } else {
             echo json_encode(array('code' => -247, "data" => "Please attach Valid Booking ID"));
         }
@@ -7298,7 +7412,7 @@ class Inventory extends CI_Controller {
 //    }
     
     function get_partner_gst_number(){
-        $html = "<option value='' selected disabled>Selet GST Number</option>";
+        $html = "<option value='' selected disabled>Select GST Number</option>";
         $where = array(
             "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => $this->input->post("partner_id")
@@ -7313,7 +7427,7 @@ class Inventory extends CI_Controller {
     function get_247around_wh_gst_number(){
 
         $state_vendor = $this->vendor_model->viewvendor($this->session->userdata('service_center_id'));
-        $html = "<option value='' selected disabled>Selet GST Number</option>";
+        $html = "<option value='' selected disabled>Select GST Number</option>";
         $where = array(
             "entity_type" => _247AROUND_PARTNER_STRING,
             "entity_id" => _247AROUND,
@@ -7895,7 +8009,7 @@ class Inventory extends CI_Controller {
     
     
      /**
-     *  @desc : This function is used to show alternate inventory master list data
+     *  @desc : This function is used to get Download service centers consumption details.
      *  @param : void
      *  @return : void
      */
@@ -8045,6 +8159,79 @@ class Inventory extends CI_Controller {
                       
         $this->load->view("employee/show_invoice_list", $data);
        
+    }
+    
+    /*
+     *  @desc : This function is used to get courier service list.
+     *  @param : void
+     *  @return : void
+     */
+    function get_courier_service_list() {
+        $data = $this->get_courier_service_list_data();
+        $post = $data['post'];
+        if (!empty($data['data'])) {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => $this->inventory_model->count_all_courier_service_list($post),
+                "recordsFiltered" => $this->inventory_model->count_courier_service_list($post),
+                "data" => $data['data'],
+            );
+        } else {
+            $output = array(
+                "draw" => $this->input->post('draw'),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => $data['data'],
+            );
+        }
+        echo json_encode($output);
+    }
+
+    function get_courier_service_list_data() {
+        $post = $this->get_post_data();
+        $courier_flag = trim($this->input->post('courier_flag'));
+        $data = array();
+        if (!empty($courier_flag)) {
+            $post['column_order'] = array();
+            $post['column_search'] = array('courier_services.courier_name', 'courier_services.courier_code');
+            $post['where'] = "";
+            $select = "courier_services.id, courier_services.courier_name, courier_services.courier_code, courier_services.status, courier_services.create_date";
+            $list = $this->inventory_model->get_courier_service_list($post, $select);
+            $data = array();
+            $no = $post['start'];
+            foreach ($list as $courier_list) {
+                $no++;
+                $row = $this->get_courier_service_list_table($courier_list, $no);
+                $data[] = $row;
+            }
+        }
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+    function get_courier_service_list_table($courier_list, $no) {
+        $row = array();
+        $json_data = json_encode($courier_list);
+        $row[] = $no;
+        $row[] = $courier_list->courier_name;
+        $row[] = $courier_list->courier_code;
+        $row[] = date('d-F-Y', strtotime($courier_list->create_date));
+        if ($courier_list->status == 1) {
+         $update = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_courier_service' data-id='$json_data' title='Edit Details'><i class = 'fa fa-edit'></i></a>";  
+        } else {
+         $update = "<a href='javascript:void(0)' class ='btn btn-primary' id='edit_courier_service' data-id='$json_data' style='cursor:not-allowed' title='Edit not allowed account deactivated'><i class = 'fa fa-edit'></i></a>";    
+        }
+        $row[] = $update;
+        if( $courier_list->status == 1){
+          $action = "<button type='button' class='btn btn-default' style='background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;' id='manage_courier_status' data-id='$json_data'>Deactivate</button>"; 
+        }else{
+          $action ="<button type='button' class='btn btn-danger' style='background-color: #01903a; border-color: #fff; width: 90px; color: #fff;' id='manage_courier_status' data-id='$json_data'>Activate</button>";
+        }
+        $row[] = $action;
+        
+        return $row;
     }
 
 }

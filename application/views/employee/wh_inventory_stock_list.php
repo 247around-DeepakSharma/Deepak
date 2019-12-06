@@ -178,7 +178,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class='form-group'>
-                                    <label for="from_gst_number" class="col-md-4">To GST Number *</label>
+                                    <label for="from_gst_number" class="col-md-4">From GST Number *</label>
                                     <div class="col-md-8">
                                         <select class="form-control" id="from_gst_number" required>
                                             <option selected disabled value="">Select from GST number</option>
@@ -202,13 +202,32 @@
                                 </div>
                             </div>-->
                         </div>
-                        <div class='row' id='receiver_entity' style='display:none;'>
-                            <div class="col-md-6">
+                        <div class='row'>
+                            <div class="col-md-6" id='receiver_entity' style='display:none;'>
                                 <div class='form-group'>
                                     <label for="courier" class="col-md-4">Partner/Warehouse *</label>
                                     <div class="col-md-8">
                                         <input type="radio" class='receiver_type' id="radio_partner" name="receiver_type" value='0' checked>&nbsp;&nbsp;Partner
                                         <input type="radio" class='receiver_type' id="radio_wh" name="receiver_type" value='1' style="margin-left:10px;">&nbsp;&nbsp;Warehouse
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6" id='to_gst'>
+                                <div class='form-group'>
+                                    <label for="to_gst_number" class="col-md-4">To GST Number *</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="to_gst_number" required>
+                                            <option selected disabled value="">Select from GST number</option>
+                                            <?php
+                                            if(!empty($to_gst_number)) {
+                                                foreach ($to_gst_number as $gst_numbers => $gst_number) {
+                                                ?>
+                                                <option value="<?php echo $gst_number['id']  ?>"><?php echo $gst_number['state']." - ".$gst_number['gst_number'] ?></option>
+                                                <?php    
+                                                }
+                                            }
+                                            ?>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -416,8 +435,10 @@
         var receiver = $('input[type=radio]:checked').attr('id');
         if(receiver){
             $('#to_wh').css('display','none');
+            $('#to_gst').css('display','block');
             if(receiver == 'radio_wh') {
                 $('#to_wh').css('display','block');
+                $('#to_gst').css('display','none');
             }
         }else{
             alert('Please Select Partner or Warehouse');

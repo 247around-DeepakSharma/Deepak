@@ -137,8 +137,41 @@
                         </tbody>
                         </table>
                         <center> 
-                          <input type= "submit" id="button_send" class="btn btn-danger" onclick='return check_checkbox()' style="text-align: center; background-color:#2C9D9C; border-color: #2C9D9C;"  data-toggle="modal" value ="Download Challan File" >
+                          <input type= "button" id="button_send" class="btn btn-danger" onclick='return check_checkbox()' style="text-align: center; background-color:#2C9D9C; border-color: #2C9D9C;"  data-toggle="modal" value ="Select Address" >
                         </center>
+
+
+                          <!-- Modal -->
+  <div class="modal fade" id="myModal22" role="dialog">
+    <div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Select Warehouse</h4>
+        </div>
+        <div class="modal-body">
+           <div id="warehouse_address">
+               <select id="warehouse_select" class="form-control" required="" name="warehouse_city">
+                   
+               </select>
+           </div>
+        </div>
+        <div class="modal-footer">
+ 
+         <input type= "submit" id="button_send" class="btn btn-danger" onclick='return check_checkbox()'  style="text-align: center; background-color:#2C9D9C; border-color: #2C9D9C;"  data-toggle="modal" value ="Download Challan File" >
+         
+
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+
+
                     </form>
                     </div>
                 <?php }else { ?>
@@ -565,12 +598,13 @@
                             }
 
                         } else {
-
                             $('body').loadingModal('destroy');
                             $("#defective_parts_shippped_courier_pic_by_wh").css("display","block");
                             $("#courier_price_id").css("display","block");
                             $("#same_awb").css("display","none");
                             $("#exist_courier_image").val("");
+                            $("#shipped_spare_parts_weight_in_kg").removeAttr("readonly");
+                            $("#shipped_spare_parts_weight_in_gram").removeAttr("readonly");
                         }
 
                     }
@@ -601,9 +635,36 @@
            }
 
 
+
+
+
         if(flag ===0 ){
             alert("Please Select Atleast One Checkbox To Download Challan");
             return false;
+        }else{
+
+           var wh =  $("#warehouse_select").val();
+            if (wh=="") {
+                alert("Please select address");
+            }else{
+
+            $('#myModal22').modal('show');
+            var partner_id= $("#partner_id").val();
+            $.ajax({
+            type:'POST',
+            url:'<?php echo base_url();?>employee/service_centers/get_warehouse_partner_list',
+            data:{partner:partner_id},
+            success:function(response){
+            
+            console.log(response); 
+            $("#warehouse_select").select2();
+            $("#warehouse_select").html(response).change();      
+               
+            }
+
+
+        });
+        }
         }
     }
     

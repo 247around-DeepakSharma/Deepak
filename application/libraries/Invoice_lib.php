@@ -724,7 +724,7 @@ class Invoice_lib {
                     $tmp_arr['value'] = $value2[0]['challan_approx_value'];
                     
                 } else if(isset($value2[0]['inventory_id'])){
-                    $c_value = $this->get_challan_value($value2[0]['inventory_id']);
+                    $c_value = $this->get_challan_value($value2[0]['inventory_id'], $value2[0]['shipped_quantity']);
                     if($c_value){
                          $tmp_arr['value'] = $c_value;
                          $spare_id = 0;
@@ -809,13 +809,13 @@ class Invoice_lib {
      * @param int $inventory_id
      * @return boolean
      */
-    function get_challan_value($inventory_id){
+    function get_challan_value($inventory_id, $shipped_quantity){
         if(!empty($inventory_id)){
             $c_s = "inventory_master_list.oow_around_margin, inventory_master_list.gst_rate, inventory_master_list.price";
             $data = $this->ci->inventory_model->get_inventory_master_list_data($c_s, array('inventory_master_list.inventory_id' => $inventory_id));
             if(!empty($data)){
                 $estimate_cost = round($data[0]['price'] * ( 1 + $data[0]['gst_rate'] / 100), 0);
-                return round($estimate_cost * ( 1 + $data[0]['oow_around_margin'] / 100), 0);
+                return (round($estimate_cost * ( 1 + $data[0]['oow_around_margin'] / 100), 0) * $shipped_quantity);
             }
         }
         
@@ -928,6 +928,7 @@ class Invoice_lib {
      */
  function generate_challan_file_to_partner($spare_id, $service_center_id, $service_center_closed_date = "") {
 
+        $wh_city = trim($_POST['warehouse_city']);  
         $spare_parts_details = array();
         $spare_ids = explode(',', $spare_id);
         foreach ($spare_ids as $spare_id) {
@@ -977,7 +978,8 @@ class Invoice_lib {
 //            $partner_details = array();
 
             $select1 = "warehouse_details.warehouse_address_line1 as company_name, concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address, contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number, warehouse_details.warehouse_city";
-            $partner_details = $this->ci->inventory_model->get_warehouse_details($select1, array("contact_person.entity_type" => _247AROUND_PARTNER_STRING, "contact_person.entity_id" => $spare_parts_details[0][0]['booking_partner_id']), true, true);
+            $partner_details = $this->ci->inventory_model->get_warehouse_details($select1, array("contact_person.entity_type" => _247AROUND_PARTNER_STRING, "contact_person.entity_id" => $spare_parts_details[0][0]['booking_partner_id'],"warehouse_details.warehouse_city"=>$wh_city), true, true);
+            
             if (!empty($partner_details)) {
                 $warehouse_gst_details = $this->ci->inventory_model->get_entity_gst_data(" entity_gst_details.city, entity_gst_details.gst_number ", array("entity_gst_details.entity_type" => _247AROUND_PARTNER_STRING, "entity_gst_details.entity_id" => $spare_parts_details[0][0]['booking_partner_id'], "entity_gst_details.city IN('" . $partner_details[0]['warehouse_city'] . "')" => null));
                 if (!empty($warehouse_gst_details)) {
@@ -1100,7 +1102,7 @@ class Invoice_lib {
      * @param String $invoice_id
      * @return boolean
      */
-    function settle_inventory_invoice_annexure($postData, $from_gst_id = "") {
+    function settle_inventory_invoice_annexure($postData, $from_gst_id = "", $to_gst_id = "") {
         $processPostData = array();
         $not_updated = array();
         $booking_partner_id = "";
@@ -1109,6 +1111,9 @@ class Invoice_lib {
                 $booking_partner_id = $value['booking_partner_id'];
                 $where = array('inventory_id' => $value['inventory_id'],
                     'vendor_partner_id' => $value['booking_partner_id'], "invoice_details.is_settle" => 0);
+                if (!empty($to_gst_id)) {
+                    $where['from_gst_number'] = $to_gst_id;
+                }
                 if (!empty($from_gst_id)) {
                     $where['to_gst_number'] = $from_gst_id;
                 }

@@ -1,4 +1,5 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
+<script src="<?php echo base_url();?>js/validation_js.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <?php
 $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";
@@ -458,7 +459,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(!empty($booking_model_number)) { echo $booking_model_number; } elseif(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> onfocusout="check_booking_request()">
+                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(!empty($booking_model_number)) { echo $booking_model_number; } elseif(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> onfocusout="check_booking_request()"  onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
                                                 <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
                                                     <option selected disabled>Select Appliance Model</option>
                                                     <?php foreach ($model[0] as $value) { ?>
@@ -496,7 +497,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                             <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                             <div class="col-md-6">
                                             <div class="input-group date">
-                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo $booking_model_purchase_date; } elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo $unit_details[0]['purchase_date']; }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()">
+                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo date("d-m-Y", strtotime($booking_model_purchase_date)); } elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo date("d-m-Y", strtotime($unit_details[0]['purchase_date'])); }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()">
                                                 <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                             </div>
@@ -736,7 +737,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                 <label for="purchase_date" class="col-md-4">Purchase Date *</label>
                                 <div class="col-md-6">
                                 <div class="input-group date">
-                                    <input class="form-control purchase_date" name= "purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)) { echo $booking_model_purchase_date; } elseif(isset($booking_unit_details['purchase_date']) && $booking_unit_details['purchase_date'] != '0000-00-00') { echo $booking_unit_details['purchase_date']; } ?>" id="<?php echo "purchase_date_".$number ;?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()"/>
+                                    <input class="form-control purchase_date" name= "purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)) { echo date("d-m-Y", strtotime($booking_model_purchase_date)); } elseif(isset($booking_unit_details['purchase_date']) && $booking_unit_details['purchase_date'] != '0000-00-00') { echo date("d-m-Y", strtotime($booking_unit_details['purchase_date'])); } ?>" id="<?php echo "purchase_date_".$number ;?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request()"/>
                                     <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                 </div>
                                 </div>
@@ -1176,12 +1177,12 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     }
    
 });
-  $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd', changeYear: true, changeMonth: true});
+  $("#purchase_date").datepicker({dateFormat: 'dd-mm-yy', changeYear: true, changeMonth: true});
   $('.purchase_date').each(function () {
     if ($(this).hasClass('hasDatepicker')) {
         $(this).removeClass('hasDatepicker');
     } 
-    $(this).datepicker({dateFormat: 'yy-mm-dd', maxDate: 0, changeYear: true, changeMonth: true});
+    $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
  });
   
   function readonly_select(objs, action) {

@@ -19,8 +19,10 @@ define('SPARE_PARTS_REQUESTED', 'Spare Parts Requested');
 define('DEFECTIVE_PARTS_PENDING','Defective Part To Be Shipped By SF');
 // Defective Parts Shipped by SF
 define('DEFECTIVE_PARTS_SHIPPED','Defective Part Shipped By SF');
-// Defective Parts Received by SF
+// Defective Parts Received by Partner
 define('DEFECTIVE_PARTS_RECEIVED','Defective Part Received By Partner');
+// Defective Parts Received by Warehouse
+define('DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE','Defective Part Received By Warehouse');
 // Defective Parts Received by SF
 define('DEFECTIVE_PARTS_REJECTED','Defective Part Rejected By Partner');
 //Zopper booking- Part Arrange By Same Vendor
@@ -162,3 +164,4 @@ define('DAMAGE_PART_TO_BE_SHIPPED', 'Damage Part To Be Shipped');
 
 define('OK_PARTS_SHIPPED','Ok Part Shipped By SF');
 define('CONSUMED_WRONG_PART_STATUS_ID', '4');
+define('DAMAGE_PARTS_SHIPPED', 'Damage Part Shipped By SF');
