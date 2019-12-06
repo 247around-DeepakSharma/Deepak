@@ -1,8 +1,5 @@
 <style>
-    #inventory_master_list_filter{
-        text-align: right;
-    }
-    
+      
     @-webkit-keyframes sk-stretchdelay {
         0%, 40%, 100% { -webkit-transform: scaleY(0.4) }  
         20% { -webkit-transform: scaleY(1.0) }

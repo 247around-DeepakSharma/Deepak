@@ -3521,6 +3521,39 @@ class Service_centers extends CI_Controller {
         return false;
     }
 
+         /**
+     * @desc This function is used to get partner warehouses list
+     */
+
+    function get_warehouse_partner_list(){
+
+        $partner_id = trim($_POST['partner']);
+
+        $select1 = "warehouse_details.warehouse_address_line1 as company_name, concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address, contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number, warehouse_details.warehouse_city";
+        $partner_details = $this->inventory_model->get_warehouse_details($select1, array("contact_person.entity_type"=>_247AROUND_PARTNER_STRING, "contact_person.entity_id" => $partner_id), true, true);
+
+        $partner_details1 = $this->partner_model->getpartner_details("company_name, concat(partners.address,',',partners.district,',',partners.state,',',partners.pincode) AS address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name,partners.district as warehouse_city", array('partners.id' =>$partner_id));
+
+        $addresses =array_merge($partner_details,$partner_details1);
+
+        $option = "";
+        $count = 0;
+        foreach ($addresses as $key => $partner_wh) {
+          $count++;
+          if ($count==1) {
+             $selected= "selected";
+          }else{
+            $selected= "";
+
+          }
+          $option .="<option ".$selected." value='".$partner_wh['warehouse_city']."' >".$partner_wh['address']."</option>";   
+
+        }
+
+        echo $option;
+
+    }
+
      /**
      * @desc This function is used to download partner challan/Address
      */
@@ -5782,12 +5815,35 @@ class Service_centers extends CI_Controller {
      * @param: void
      * @return void
      */
-    function get_defective_parts_shipped_by_sf($page = 0, $offset = 0){
+
+
+    function get_defective_parts_shipped_by_sf(){
+
+          $this->check_WH_UserSession();
         
+          $this->load->view('service_centers/defective_parts_shipped_by_sf_new');
+         
+    }
+
+
+    function get_defective_parts_shipped_by_sf_list($page = 0, $offset = 0){
+        $post  = $this->get_post_view_data();
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
         
+
+        if (!empty($post['search_value'])) {
+        
+        $where = array(
+            "spare_parts_details.defective_part_required" => 1,
+            "approved_defective_parts_by_admin" => 1,
+            "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
+            "status IN ('".DEFECTIVE_PARTS_SHIPPED."','". DEFECTIVE_PARTS_PENDING."','". COURIER_LOST."','". OK_PART_TO_BE_SHIPPED ."','". DAMAGE_PART_TO_BE_SHIPPED."', '".OK_PARTS_SHIPPED."')" => NULL,
+        );
+
+        }else{
+
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "approved_defective_parts_by_admin" => 1,
@@ -5796,22 +5852,108 @@ class Service_centers extends CI_Controller {
             "status IN ('".DEFECTIVE_PARTS_SHIPPED."','".OK_PARTS_SHIPPED."')" => NULL,
         );
 
+        }
+
 
         $select = "defective_part_shipped,spare_parts_details.defective_part_rejected_by_partner, spare_parts_details.shipped_quantity,spare_parts_details.id, spare_consumption_status.consumed_status, spare_consumption_status.is_consumed, "
                . " spare_parts_details.booking_id, users.name as 'user_name', courier_name_by_sf, awb_by_sf,defective_part_shipped_date,"
                . "remarks_defective_part_by_sf,booking_details.partner_id,service_centres.name as 'sf_name',service_centres.district as 'sf_city',i.part_number, spare_parts_details.defactive_part_received_date_by_courier_api, spare_parts_details.status";
         $group_by = "spare_parts_details.id";
+        $limit  = $post['length'];
+        $offset = $post['start'];
+        $post['column_search'] = array('spare_parts_details.booking_id');
         $order_by = "spare_parts_details.defective_part_shipped_date DESC, spare_parts_details.booking_id";
-        $data['spare_parts'] = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by);
-        $where_internal_status = array("page" => "defective_parts", "active" => '1');
-        $data['internal_status'] = $this->booking_model->get_internal_status($where_internal_status);
-        $data['is_ajax'] = $this->input->post('is_ajax');
-        if(empty($this->input->post('is_ajax'))){
-            $this->load->view('service_centers/header');
-            $this->load->view('service_centers/defective_parts_shipped_by_sf', $data);
-        }else{
-            $this->load->view('service_centers/defective_parts_shipped_by_sf', $data);
+        $list = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by,$offset,$limit,0,NULL,$post);
+
+         $no = $post['start'];
+         //$no =0;
+        foreach ($list as $spare_list) {
+            $no++;
+            $row =  $this->defective_parts_shipped_by_sf_table_data($spare_list, $no);
+            $data[] = $row;
         }
+        
+  
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => count($data),
+            "recordsFiltered" =>  count($data),
+            "data" => $data
+        );
+        
+        echo json_encode($output);
+    
+      
+       // $this->load->view('employee/get_spare_parts', $data);
+    }
+
+
+    function defective_parts_shipped_by_sf_table_data($spare_list, $no){
+ 
+        $row = array();
+ 
+         $spareStatus = DELIVERED_SPARE_STATUS;
+                            if (!$spare_list['defactive_part_received_date_by_courier_api']) {
+                                $spareStatus = $spare_list['status'];
+                            }
+        $row[] = $no;
+        $row[] = '<a href="'.base_url().'service_center/booking_details/' .urlencode(base64_encode($spare_list['booking_id'])).'" >'.$spare_list['booking_id'].'</a>';
+
+        $row[] = $spare_list['user_name'];
+        $row[] = $spare_list['sf_name'];
+        $row[] = $spare_list['sf_city'];
+        $row[] = $spare_list['defective_part_shipped'];
+        $row[] = $spare_list['shipped_quantity'];
+        $row[] = $spare_list['part_number'];
+        $row[] = $spare_list['courier_name_by_sf'];
+ 
+        $c = "<a href='javascript:void(0);' onclick='";
+        $c .= "get_awb_details(" . '"' . $spare_list['courier_name_by_sf'] . '"';
+        $c .= ', "' . $spare_list['awb_by_sf'] . ',"'.$spareStatus.',"awb_loader_"'.$no;
+        $c .= ")'>".$spare_list['awb_by_sf']."</a><span id='awb_loader_".$no."' style='display:none;'><i class='fa fa-spinner fa-spin'></i></span>";
+  
+        $row[] = $c;
+
+        $row[] = date("d-m-Y", strtotime($spare_list['defective_part_shipped_date']));
+        $row[] = $spare_list['remarks_defective_part_by_sf'];
+        if ($spare_list['is_consumed']==1) {
+           $row[] = "Yes";  
+        }else{
+            $row[] = "No";
+        }
+        
+
+        $row[] = $spare_list['consumed_status'];
+
+
+        if (!empty($spare_list['defective_part_shipped'])) {  
+
+        $a = "<a href='javascript:void(0);' id='defective_parts_' class='btn btn-sm btn-primary recieve_defective' onclick='";
+        $a .= "open_spare_consumption_model(this.id," . '"' . $spare_list['booking_id'] . '"';
+        $a .= ', "' . $spare_list['id'] . '"';
+        $a .= ")'>Recieve</a>";
+        $a .= "<input type='checkbox' class='checkbox_revieve_class' name='revieve_checkbox'";
+        $a .=" data-consumption_status='".$spare_list['consumed_status']."' data-url='".base_url()."service_center/acknowledge_received_defective_parts/".$spare_list['id']."/".$spare_list['booking_id']."/".$spare_list['partner_id']."/1'   />";
+
+
+        $row[] = $a;
+
+        }else{
+
+            $row[] = '<a class="btn btn-sm btn-primary disabled"  >Received</a> ';
+        } 
+
+
+        $b = "<a href='javascript:void(0);' id='reject_defective_' class='btn btn-sm btn-danger reject_defective' onclick='";
+        $b .= "open_reject_spare_consumption_model(this.id," . '"' . $spare_list['booking_id'] . '"';
+        $b .= ', "' . $spare_list['id'] . '"';
+        $b .= ")'>Reject</a>";
+ 
+        $row[] = $b;
+    
+        return $row;
+        
+
     }
     
     /**
@@ -6264,10 +6406,16 @@ class Service_centers extends CI_Controller {
         }
         
         $post_data = $this->input->post();
+        if(!empty($post_data['consumption_data'])) { // if you receive multiple part.
+            $consumption_data = json_decode($post_data['consumption_data'], true);
+            $post_data['remarks'] = $consumption_data['remarks'];
+            $post_data['spare_consumption_status'][$spare_id] = $consumption_data['consumed_status_id'];
+            unset($post_data['consumption_data']);
+        }
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if($post_data['spare_consumption_status'][$spare_id] != $spare_part_detail['consumed_part_status_id']) {
             $this->miscelleneous->change_consumption_by_warehouse($post_data, $booking_id);
-        }
+        } 
 
         $spare_part_detail = $this->reusable_model->get_search_result_data('spare_parts_details', '*', ['id' => $spare_id], NULL, NULL, NULL, NULL, NULL)[0];
         if(!empty($spare_part_detail['consumed_part_status_id'])) {
@@ -6354,16 +6502,19 @@ class Service_centers extends CI_Controller {
 
             if (empty($is_cron)) {
                 $userSession = array('success' => ' Received Defective Spare Parts');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center/defective_spare_parts");
+                echo 'Defective Spare Parts Received.';exit;
+//                $this->session->set_userdata($userSession);
+//                redirect(base_url() . "service_center/defective_spare_parts");
             }
         } else { //if($response){
             log_message('info', __FUNCTION__ . '=> Defective Spare Parts not updated  by SF ' . $this->session->userdata('service_center_id') .
                     " booking id " . $booking_id);
             if (empty($is_cron)) {
                 $userSession = array('success' => 'There is some error. Please try again.');
-                $this->session->set_userdata($userSession);
-                redirect(base_url() . "service_center/defective_spare_parts");
+                echo 'There is some error. Please try again.';exit;
+                //return json_encode($userSession);
+//                $this->session->set_userdata($userSession);
+//                redirect(base_url() . "service_center/defective_spare_parts");
             }
         }
     }
@@ -6410,15 +6561,17 @@ class Service_centers extends CI_Controller {
             $this->insert_details_in_state_change($booking_id, $rejection_reason, $post_data['remarks'], $actor,$next_action);
             $this->booking_model->update_booking($booking_id, $booking);
 
-            $userSession = array('success' => 'Defective Parts Rejected To SF');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "service_center/defective_spare_parts");
+            echo 'Defective Parts Rejected To SF';exit;
+//            $userSession = array('success' => 'Defective Parts Rejected To SF');
+//            $this->session->set_userdata($userSession);
+//            redirect(base_url() . "service_center/defective_spare_parts");
         } else { //if($response){
             log_message('info', __FUNCTION__ . '=> Defective Spare Parts Not Updated by SF' . $this->session->userdata('service_center_id') .
                     " booking id " . $booking_id);
-            $userSession = array('success' => 'There is some error. Please try again.');
-            $this->session->set_userdata($userSession);
-            redirect(base_url() . "service_center/defective_spare_parts");
+            echo 'There is some error. Please try again.';exit;
+//            $userSession = array('success' => 'There is some error. Please try again.');
+//            $this->session->set_userdata($userSession);
+//            redirect(base_url() . "service_center/defective_spare_parts");
         }
     }
     
@@ -8368,13 +8521,19 @@ class Service_centers extends CI_Controller {
         $this->load->view('service_centers/wrong_spare_part', $data);
     }
     
+    function change_multiple_consumption() {
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,reason_text,status_description,tag',['active' => 1], NULL, NULL, ['reason_text' => SORT_ASC], NULL, NULL);
+        $data['consumption_status_selected'] = $this->input->post()['status_selected'];
+        $this->load->view('service_centers/change_multiple_part_consumption', $data);
+    }
+    
     function change_consumption() {
         $post_data = $this->input->post();
         $data['spare_id'] = $post_data['spare_part_detail_id'];
         $data['booking_id'] = $post_data['booking_id'];
         $data['booking_details'] = $this->reusable_model->get_search_result_data('booking_details', '*', ['booking_id' => $data['booking_id']], NULL, NULL, NULL, NULL, NULL)[0];
         $data['spare_part_detail'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['spare_parts_details.id' => $data['spare_id'], 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];        
-        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,reason_text,status_description,tag',['active' => 1], NULL, NULL, ['reason_text' => SORT_ASC], NULL, NULL);
         $this->load->view('service_centers/change_consumption', $data);
     }
     

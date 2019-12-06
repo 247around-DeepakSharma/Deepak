@@ -1,4 +1,4 @@
-<form method="post" action="<?php echo base_url(); ?>service_center/reject_defective_part/<?php echo $spare_id; ?>/<?php echo $booking_id; ?>/<?php echo urlencode(base64_encode($booking_details['partner_id'])); ?>">
+<form id="reject-defective-form" method="post" action="<?php echo base_url(); ?>service_center/reject_defective_part/<?php echo $spare_id; ?>/<?php echo $booking_id; ?>/<?php echo urlencode(base64_encode($booking_details['partner_id'])); ?>">
     <div class="row form-group"> 
         <div class="col-md-3"> 
             <label>Reject  Reason&nbsp;<span style="color:red;">*</span></label>
@@ -40,6 +40,16 @@
             return false;
         }
 
-        return true;
+        $.ajax({
+            url:"<?php echo base_url(); ?>service_center/reject_defective_part/<?php echo $spare_id; ?>/<?php echo $booking_id; ?>/<?php echo urlencode(base64_encode($booking_details['partner_id'])); ?>",
+            method: "POST",
+            data: $("#reject-defective-form").serialize()
+        }).done(function(data){
+            $('#RejectSpareConsumptionModal').modal('hide');
+            inventory_spare_table.ajax.reload();
+            alert(data);
+        });
+        
+        return false;
     });
 </script>

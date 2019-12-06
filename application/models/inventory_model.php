@@ -1060,6 +1060,7 @@ class Inventory_model extends CI_Model {
      *  @return : $res array()
      */
     function get_warehouse_details($select,$where, $join = true,$is_entity_join = false, $sf_join = false) {
+        $this->db->distinct();
         $this->db->select($select,FALSE);
         $this->db->where($where,FALSE);
         $this->db->from('warehouse_person_relationship');
@@ -1665,6 +1666,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('service_centres as wh', 'spare_parts_details.defective_return_to_entity_id = wh.id', 'left');
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('courier_company_invoice_details as cci', 'cci.awb_number = spare_parts_details.awb_by_sf', 'left');
+        $this->db->join('booking_cancellation_reasons as bcr', 'spare_parts_details.spare_cancellation_reason = bcr.id', 'left');
         
         if (!empty($where)) {
             $this->db->where($where, false);
@@ -3131,4 +3133,124 @@ class Inventory_model extends CI_Model {
         return $query->result_array();
     }
     
+    /*
+     *  @desc : This function is used to get details from courier service table.
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    function get_courier_service_list($post, $select = "", $is_array = false) {
+        $this->_get_courier_service_list($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+
+        $query = $this->db->get();
+                
+       if($is_array){
+            return $query->result_array();
+        }else{
+            return $query->result();
+        }
+    }
+        
+    /*
+     * @Desc: This function is used to get data from courier_services table
+     * @params: $post array
+     * @params: $select string
+     * @return: void
+     * 
+     */
+    function _get_courier_service_list($post, $select) {
+
+        if (empty($select)) {
+            $select = '*';
+        }
+
+        $this->db->distinct();
+        $this->db->select($select, FALSE);
+        $this->db->from('courier_services');
+
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) {
+
+                if ($key === 0) {
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('courier_services.id', 'ASC');
+        }
+
+        if (!empty($post['group_by'])) {
+            $this->db->group_by($post['group_by']);
+        }
+    }
+        
+    /**
+     *  @desc : This function is used to get total courier service
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_courier_service_list($post) {
+        $this->_get_courier_service_list($post, 'count(distinct(courier_services.id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    
+    /**
+     *  @desc : This function is used to get total filtered service centers consumption
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_courier_service_list($post){
+        $this->_get_courier_service_list($post, 'count(distinct(courier_services.id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    /*
+     * @desc This is used to insert details into courier_services table
+     * @param Array $data
+     * @return string
+     */
+    function insert_courier_services_data($data) {
+      $this->db->insert('courier_services', $data);
+      return $this->db->insert_id();
+    }
+    
+    
+    /*
+     * @Desc: This function is used to update courier_services
+     * @data: Array
+     * @where: Array, Int id
+     * @return: boolean
+     */
+    function update_courier_services($data,$where){
+        $this->db->where($where);
+	$this->db->update('courier_services', $data);
+        if($this->db->affected_rows() > 0){
+            return true;
+        }else{
+            return false;
+        }
+        
+    }
+    
+
 }

@@ -147,9 +147,21 @@ function crate_table(){
     
 }
 
+function get_partner_gst_number(){
+    $.ajax({
+        type: 'POST',
+        url: baseUrl + '/employee/inventory/get_partner_gst_number',
+        data:{partner_id:$('#partner_id').val()},
+        success: function (response) {
+            $("#to_gst_number").html(response);
+        }
+    });
+}
+
 function open_selected_parts_to_return(){
     $('#sellItem').attr('disabled',true);
     $('#radio_partner').prop('checked',true).change();
+    get_partner_gst_number();
     if(returnItemArray.length > 0){
         $("#return_new_parts_data").show();
         crate_table();
@@ -226,6 +238,7 @@ function return_new_parts(){
     formData.append("warehouse_id", $("#wh_id").val());
     formData.append("warehouse_name", $("#wh_id").find(':selected').text().split("-")[0]);
     formData.append("from_gst_number", $("#from_gst_number").val());
+    formData.append("to_gst_number", $("#to_gst_number").val());
     formData.append("receiver_id", $("#to_wh_id").val());
    // console.log(JSON.stringify(returnItemArray));
     $.ajax({
