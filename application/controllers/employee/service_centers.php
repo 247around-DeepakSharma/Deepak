@@ -8388,7 +8388,7 @@ function do_multiple_spare_shipping(){
     }
     
     function change_multiple_consumption() {
-        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,reason_text,status_description,tag',['active' => 1], NULL, NULL, ['reason_text' => SORT_ASC], NULL, NULL);
         $data['consumption_status_selected'] = $this->input->post()['status_selected'];
         $this->load->view('service_centers/change_multiple_part_consumption', $data);
     }
@@ -8399,7 +8399,7 @@ function do_multiple_spare_shipping(){
         $data['booking_id'] = $post_data['booking_id'];
         $data['booking_details'] = $this->reusable_model->get_search_result_data('booking_details', '*', ['booking_id' => $data['booking_id']], NULL, NULL, NULL, NULL, NULL)[0];
         $data['spare_part_detail'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['spare_parts_details.id' => $data['spare_id'], 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL, 'parts_shipped is not null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true])[0];        
-        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+        $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,reason_text,status_description,tag',['active' => 1], NULL, NULL, ['reason_text' => SORT_ASC], NULL, NULL);
         $this->load->view('service_centers/change_consumption', $data);
     }
     

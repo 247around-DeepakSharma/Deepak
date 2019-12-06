@@ -190,6 +190,12 @@ function confirm_received(id){
 
 }
 
+
+$('.close').on('click', function(data) {
+    $("#revieve_multiple_parts_btn").attr('disabled',false);
+    $(".recieve_defective").attr('disabled',false);
+});
+
 $("#revieve_multiple_parts_btn").click(function(){
 $("#revieve_multiple_parts_btn").attr('disabled',true);
 $(".recieve_defective").attr('disabled',true);
