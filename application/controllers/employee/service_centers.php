@@ -8599,4 +8599,16 @@ class Service_centers extends CI_Controller {
         echo $option;
     }
 
+
+    // function to get rejected MSL ///
+    function get_rejected_msl($offset=0){
+
+        $this->check_WH_UserSession();
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+        $data = array();
+        $this->load->view('service_centers/rejected_spares_send_by_partner', $data);
+       
+        
+    }
+
 }
