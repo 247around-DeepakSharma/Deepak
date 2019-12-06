@@ -13,6 +13,7 @@ if (isset($user_and_booking_details['spare_parts'])) {
             case DEFECTIVE_PARTS_RECEIVED:
             case DEFECTIVE_PARTS_SHIPPED:
             case DEFECTIVE_PARTS_PENDING:
+            case DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE:
             case _247AROUND_COMPLETED:
             case DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH:
             case SPARE_OOW_SHIPPED:

@@ -2155,7 +2155,7 @@ class invoices_model extends CI_Model {
                 WHERE 
                 bd.current_status =  '"._247AROUND_COMPLETED."'
                 AND bd.assigned_vendor_id = '$vendor_id'
-                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
+                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."', '".DEFECTIVE_PARTS_RECEIVED."', '".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."')
                 AND sp.booking_id = bd.booking_id
                 AND bd.closed_date >=  '$from_date'
                 AND bd.closed_date <  '$to_date'
@@ -2192,7 +2192,7 @@ class invoices_model extends CI_Model {
                 WHERE
                 bd.current_status =  '"._247AROUND_COMPLETED."'
                 AND bd.partner_id = '$partner_id'
-                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
+                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."', '".DEFECTIVE_PARTS_RECEIVED."', '".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."')
                 AND bd.closed_date >=  '$from_date'
                 AND bd.closed_date <  '$to_date'
                 AND `approved_defective_parts_by_partner` = 1
@@ -2226,7 +2226,7 @@ class invoices_model extends CI_Model {
                  bd.current_status =  '"._247AROUND_COMPLETED."'
                 AND bd.partner_id = '$partner_id'
                 AND sp.partner_id = '$partner_id'
-                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."')
+                AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."', '".DEFECTIVE_PARTS_RECEIVED."', '".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."')
                 AND sp.booking_id = bd.booking_id
                 AND bd.closed_date >=  '$from_date'
                 AND bd.closed_date <  '$to_date'
