@@ -3528,15 +3528,25 @@ class Service_centers extends CI_Controller {
     function get_warehouse_partner_list(){
 
         $partner_id = trim($_POST['partner']);
+
         $select1 = "warehouse_details.warehouse_address_line1 as company_name, concat('C/o ',contact_person.name,',', warehouse_address_line1,',',warehouse_address_line2,',',warehouse_details.warehouse_city,' Pincode -',warehouse_pincode, ',',warehouse_details.warehouse_state) as address, contact_person.name as contact_person_name,contact_person.official_contact_number as contact_number, warehouse_details.warehouse_city";
-        $partner_details = $this->inventory_model->get_warehouse_details($select1, array("contact_person.entity_type" => _247AROUND_PARTNER_STRING, "contact_person.entity_id" => $partner_id), true, true);
+        $partner_details = $this->inventory_model->get_warehouse_details($select1, array("contact_person.entity_type"=>_247AROUND_PARTNER_STRING, "contact_person.entity_id" => $partner_id), true, true);
 
+        $partner_details1 = $this->partner_model->getpartner_details("company_name, concat(partners.address,',',partners.district,',',partners.state,',',partners.pincode) AS address,gst_number,primary_contact_name as contact_person_name ,primary_contact_phone_1 as contact_number, primary_contact_name as contact_person_name,owner_name,partners.district as warehouse_city", array('partners.id' =>$partner_id));
 
+        $addresses =array_merge($partner_details,$partner_details1);
 
-        $option = "<option selected disabled>Select address</option>";
-        foreach ($partner_details as $key => $partner_wh) {
-          
-          $option .="<option value='".$partner_wh['warehouse_city']."' >".$partner_wh['address']."</option>";   
+        $option = "";
+        $count = 0;
+        foreach ($addresses as $key => $partner_wh) {
+          $count++;
+          if ($count==1) {
+             $selected= "selected";
+          }else{
+            $selected= "";
+
+          }
+          $option .="<option ".$selected." value='".$partner_wh['warehouse_city']."' >".$partner_wh['address']."</option>";   
 
         }
 
@@ -5811,7 +5821,7 @@ class Service_centers extends CI_Controller {
 
           $this->check_WH_UserSession();
         
-          $this->load->view('service_centers/defective_parts_shipped_by_sf_new');
+          $this->load->view('service_centers/defective_parts_shipped_by_sf');
          
     }
 
@@ -5839,7 +5849,7 @@ class Service_centers extends CI_Controller {
             "approved_defective_parts_by_admin" => 1,
             "spare_parts_details.defective_return_to_entity_id" => $sf_id,
             "spare_parts_details.defective_return_to_entity_type" => _247AROUND_SF_STRING,
-            "status IN ('".DEFECTIVE_PARTS_SHIPPED."','". DEFECTIVE_PARTS_PENDING."','". COURIER_LOST."','". OK_PART_TO_BE_SHIPPED ."','". DAMAGE_PART_TO_BE_SHIPPED."', '".OK_PARTS_SHIPPED."')" => NULL,
+            "status IN ('".DEFECTIVE_PARTS_SHIPPED."','".OK_PARTS_SHIPPED."')" => NULL,
         );
 
         }
@@ -5956,7 +5966,8 @@ class Service_centers extends CI_Controller {
         $this->check_WH_UserSession();
         $sf_id = $this->session->userdata('service_center_id');
         $where = "spare_parts_details.partner_id = '" . $sf_id . "' AND spare_parts_details.entity_type = '" . _247AROUND_SF_STRING . "'"
-                . " AND status IN ('".SPARE_DELIVERED_TO_SF."', '".SPARE_SHIPPED_BY_PARTNER."', '" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_SHIPPED . "', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."', '".OK_PARTS_SHIPPED."')  ";
+                . " AND status NOT IN ('"._247AROUND_CANCELLED."')  "
+                . " AND spare_parts_details.shipped_date IS NOT NULL ";
 
         $config['base_url'] = base_url() . 'service_center/get_shipped_parts_list';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
@@ -6428,8 +6439,8 @@ class Service_centers extends CI_Controller {
             }
         }
         
-        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED,
-            'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED,
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
+            'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
             'received_defective_part_date' => date("Y-m-d H:i:s")));
         
         if ($response) {
@@ -6442,7 +6453,7 @@ class Service_centers extends CI_Controller {
             
             $is_exist = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id", 
                     array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.defective_part_required' => 1 ,"status NOT IN  ('"._247AROUND_CANCELLED."', '"._247AROUND_COMPLETED
-                        ."', '".DEFECTIVE_PARTS_RECEIVED."') " => NULL));
+                        ."', '".DEFECTIVE_PARTS_RECEIVED."', '".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."') " => NULL));
             
             
             $actor = $next_action = 'not_define';
@@ -6451,7 +6462,7 @@ class Service_centers extends CI_Controller {
                 $sc_data['internal_status'] = _247AROUND_COMPLETED;
                 $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                 
-                $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED;
+                $booking['internal_status'] = DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE;
                 
 
                 $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
@@ -6463,11 +6474,11 @@ class Service_centers extends CI_Controller {
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
                 // "Warehouse Received Defective Spare Parts"
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, $post_data['remarks'], $actor,$next_action,$is_cron);
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE, $post_data['remarks'], $actor,$next_action,$is_cron);
 
                 $this->booking_model->update_booking($booking_id, $booking);
             } else {
-                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED, $post_data['remarks'], $actor,$next_action,$is_cron);
+                $this->insert_details_in_state_change($booking_id, DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE, $post_data['remarks'], $actor,$next_action,$is_cron);
             }
             
             $is_oow_return = $this->partner_model->get_spare_parts_by_any("booking_unit_details_id, purchase_price, sell_price, sell_invoice_id", 
@@ -6479,11 +6490,11 @@ class Service_centers extends CI_Controller {
                         'spare_parts_details.part_warranty_status' => 2,
                         'defective_part_required' => 1,
                         'approved_defective_parts_by_partner' => 1,
-                        'status' => DEFECTIVE_PARTS_RECEIVED,
+                        'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'")' => NULL,
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
                     true);
             if(!empty($is_oow_return)){
-                sleep(30);
+                sleep(40);
                 $url = base_url() . "employee/invoice/generate_reverse_oow_invoice/".$spare_id;
                 $async_data['booking_id'] = $booking_id;
                 $this->asynchronous_lib->do_background_process($url, $async_data);
@@ -6801,7 +6812,7 @@ class Service_centers extends CI_Controller {
             "spare_parts_details.entity_type" => _247AROUND_SF_STRING,
             "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.is_micro_wh IN (1,2)" => NULL, 
-            "status IN ('"._247AROUND_COMPLETED."') " => NULL);
+            "status IN ('"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."') " => NULL);
 
         $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
         if(!empty($partner_id)){
@@ -6840,7 +6851,7 @@ class Service_centers extends CI_Controller {
             "spare_parts_details.entity_type" => _247AROUND_PARTNER_STRING,
             "spare_parts_details.defective_part_required" => 1, 
             "spare_parts_details.is_micro_wh IN (0)" => NULL,
-            "status IN ('"._247AROUND_COMPLETED."','".DEFECTIVE_PARTS_RECEIVED."') " => NULL
+            "status IN ('"._247AROUND_COMPLETED."','".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."') " => NULL
             );
 
         $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
@@ -6884,7 +6895,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','".DEFECTIVE_PARTS_RECEIVED."') AND spare_parts_details.consumed_part_status_id <> 5 ";
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."') AND spare_parts_details.consumed_part_status_id <> 5 ";
             $where .= " AND booking_details.partner_id = " . $partner_id;
             
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
@@ -6925,7 +6936,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . "AND spare_parts_details.wh_to_partner_defective_shipped_date IS NULL AND defective_part_required = '1' AND status IN ('" . DEFECTIVE_PARTS_RECEIVED . "','"._247AROUND_COMPLETED."') ";
+                    . "AND spare_parts_details.wh_to_partner_defective_shipped_date IS NULL AND defective_part_required = '1' AND status IN ('" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "','"._247AROUND_COMPLETED."') ";
             $where .= " AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
 
