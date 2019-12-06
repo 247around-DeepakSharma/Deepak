@@ -1145,6 +1145,7 @@ class Upload_buyback_process extends CI_Controller {
                     $response['meta']['invoice_file_main'] = $output_pdf_file_name;
                     $response['meta']['copy_file'] = $convert['copy_file'];
                     $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
+                    $response['meta']['invoice_detailed_excel'] = NULL;
 
                     $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
                 }
