@@ -1,3 +1,4 @@
+<script src="<?php echo base_url();?>js/validation_js.js"></script>
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <?php $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "";?>
 <div id="page-wrapper" >
@@ -402,7 +403,7 @@
                                                                         <?php }  else { 
                                                                             $isModelMandatory =1 ;
                                                                         ?>
-                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?= $selected_model ?>" class="form-control model_number" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" >
+                                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?= $selected_model ?>" class="form-control model_number" id="<?php echo "model_number_text_" . $count ?>" placeholder = "ENTER MODEL NUMBER" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
                                                                         <?php } 
                                                                         if(!empty($price['serial_number_pic'])) {
                                                                             $price_unit=$price['unit_id'];

@@ -1,3 +1,4 @@
+<script src="<?php echo base_url();?>js/validation_js.js"></script>
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.9/jquery.validate.min.js"></script>
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
  <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
@@ -282,7 +283,7 @@
                                                             <input type="hidden" name="is_model_dropdown" value="1" />
                                                            <?php } else { ?>
                                                              <input type="hidden" name="is_model_dropdown" value="0" />
-                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php echo $unit_details['sf_model_number'];?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" style="pointer-events: none;background:#eee;">
+                                                            <input type="text" name="<?php echo "model_number[" . $price['unit_id'] . "]" ?>" value="<?php echo $unit_details['sf_model_number'];?>" class="form-control" id="<?php echo "model_number_text_" . $count ?>" style="pointer-events: none;background:#eee;"  onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
                                                           <?php } ?>
                                                             <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_dop_".$key1."_".$key;?>" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>" />

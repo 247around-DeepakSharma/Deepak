@@ -1,4 +1,5 @@
 <script src="<?php echo base_url();?>js/base_url.js"></script>
+<script src="<?php echo base_url();?>js/validation_js.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <style>
       
@@ -263,7 +264,7 @@
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
                                                 <?php echo form_error('model_number'); ?>
-                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" disabled=""  onfocusout="check_booking_request()">
+                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" disabled=""  onfocusout="check_booking_request()" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
                                                 <select class="form-control select-model"   id="model_number_1" name="model_number[]" style="display:none;" onchange="check_booking_request()">
                                                     <option selected disabled>Select Appliance Model</option>
                                                 </select>
@@ -630,6 +631,7 @@ function check_booking_request()
     }
 }
 // function ends here ---------------------------------------------------------------- 
+
 </script>
 <style type="text/css">
 #errmsg1

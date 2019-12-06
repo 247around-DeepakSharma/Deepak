@@ -1,3 +1,4 @@
+<script src="<?php echo base_url();?>js/validation_js.js"></script>
 <style>
     .col-md-3{
     width: 25%;
@@ -960,7 +961,7 @@
                     partner_type:partner_type},           
             success: function (data) {
                 if($.trim(data) === "Data Not Found"){  
-                    var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model">';
+                    var input = '<input type="text" name="model_number" id="model_number_1" class="form-control" placeholder="Please Enter Model" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">';
                     $("#model_number_2").html(input).change();
                     $('.select-model').next(".select2-container").hide();
                 } else {
