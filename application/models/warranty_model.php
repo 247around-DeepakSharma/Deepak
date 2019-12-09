@@ -133,6 +133,7 @@ class Warranty_model extends CI_Model {
         
         $this->db->select($strSelect);
         $this->db->or_where($arrOrWhere);
+        $this->db->where(['warranty_plans.is_active' => 1, 'warranty_plan_model_mapping.is_active' => 1]);
         $this->db->from('warranty_plans');
         $this->db->join('warranty_plan_model_mapping', ' warranty_plans.plan_id = warranty_plan_model_mapping.plan_id', 'left');
         $this->db->join('appliance_model_details', 'warranty_plan_model_mapping.model_id = appliance_model_details.id', 'left');
