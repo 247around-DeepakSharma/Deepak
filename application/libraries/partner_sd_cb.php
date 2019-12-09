@@ -894,7 +894,7 @@ class partner_sd_cb {
     }
     
     function insertCallbackFailure($booking_id){
-        $booking_exist = $this->partner_model->get_callback_api_booking_details("booking_id, ", array("booking_id" => $booking_id));
+        $booking_exist = $this->My_CI->partner_model->get_callback_api_booking_details("booking_id, ", array("booking_id" => $booking_id));
         if(empty($booking_exist)){
             $insertCallbackFailure = array();
             $insertCallbackFailure['booking_id'] = $booking_id;
