@@ -232,8 +232,10 @@ if(flag) {
         }
     });
     
-    $(document).on('click',".change-consumption-multiple", function() {
+    $(document).on('click',".change-consumption-multiple", function(e) {
         if($('#multiple-consumption-remarks').val() == '' || $('#multiple-consumption-remarks').val() == null) {
+            e.stopImmediatePropagation(); // to prevent multiple alerts
+            e.preventDefault();
             alert('Please enter remarks.');
             return false;
         }
