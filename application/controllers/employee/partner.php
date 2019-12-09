@@ -252,14 +252,21 @@ class Partner extends CI_Controller {
         
          $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
          $awb = NULL;
-        if (!empty($spare_parts_details)) {           
-             $awb =$spare_parts_details[0]['awb_by_sf'];
-             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb), array());
-            
-           if(!empty($courier_boxes_weight)){
-               $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
-           }
-            
+         $select = "courier_company_invoice_details.id, courier_company_invoice_details.awb_number, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.invoice_id, courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.update_date, courier_company_invoice_details.partner_id, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.partner_invoice_id, courier_company_invoice_details.booking_id, courier_company_invoice_details.box_count, courier_company_invoice_details.courier_invoice_file, courier_company_invoice_details.shippment_date, courier_company_invoice_details.created_by, courier_company_invoice_details.is_exist";
+         if (!empty($spare_parts_details)) {
+            $awb = $spare_parts_details[0]['awb_by_sf'];
+            $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', $select, array('awb_number' => $awb), array());
+            if (!empty($courier_boxes_weight)) {
+                $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
+            }
+        }
+
+        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_wh', array('spare_parts_details.booking_id' => $booking_id, "spare_parts_details.awb_by_wh IS NOT NULL " => NULL));
+        if (!empty($spare_parts_list)) {
+            $courier_boxes_weight_wh = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', $select, array('awb_number' => $spare_parts_list[0]['awb_by_wh']), array());
+            if (!empty($courier_boxes_weight_wh)) {
+                $data['wh_courier_boxes_weight_details'] = $courier_boxes_weight_wh[0];
+            }
         }
         
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
