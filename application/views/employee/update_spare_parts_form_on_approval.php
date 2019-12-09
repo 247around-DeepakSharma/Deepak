@@ -41,7 +41,7 @@
                                         <label for="purchase_date" class="col-md-4">Date of Purchase *</label>
                                         <div class="col-md-6">
                                             <div class="input-group input-append date">
-                                                <input id="purchase_date" class="form-control" placeholder="Select Date" name="dop" type="text" value="<?php echo $spare_parts_details['date_of_purchase']; ?>" autocomplete='off' onkeypress="return false;">
+                                                <input id="purchase_date" class="form-control" placeholder="Select Date" name="dop" type="text" value="<?php echo date("d-m-Y", strtotime($spare_parts_details['date_of_purchase'])); ?>" autocomplete='off' onkeypress="return false;">
                                                 <span class="input-group-addon add-on" onclick="purchase_date_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </div>
@@ -284,7 +284,7 @@ $(document).ready(function(){
             load_parts_type(part_type);           
         });
         
-        $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true,maxDate:0});
+        $("#purchase_date").datepicker({dateFormat: 'dd-mm-yy', changeMonth: true,changeYear: true,maxDate:0});
         
         $("#serial_number_pic").on('change',function(){
             var serial_number_pic = $("#serial_number_pic").val();

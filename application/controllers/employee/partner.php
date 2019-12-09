@@ -252,14 +252,21 @@ class Partner extends CI_Controller {
         
          $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
          $awb = NULL;
-        if (!empty($spare_parts_details)) {           
-             $awb =$spare_parts_details[0]['awb_by_sf'];
-             $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb), array());
-            
-           if(!empty($courier_boxes_weight)){
-               $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
-           }
-            
+         $select = "courier_company_invoice_details.id, courier_company_invoice_details.awb_number, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.invoice_id, courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.update_date, courier_company_invoice_details.partner_id, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.partner_invoice_id, courier_company_invoice_details.booking_id, courier_company_invoice_details.box_count, courier_company_invoice_details.courier_invoice_file, courier_company_invoice_details.shippment_date, courier_company_invoice_details.created_by, courier_company_invoice_details.is_exist";
+         if (!empty($spare_parts_details)) {
+            $awb = $spare_parts_details[0]['awb_by_sf'];
+            $courier_boxes_weight = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', $select, array('awb_number' => $awb), array());
+            if (!empty($courier_boxes_weight)) {
+                $data['courier_boxes_weight_details'] = $courier_boxes_weight[0];
+            }
+        }
+
+        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_wh', array('spare_parts_details.booking_id' => $booking_id, "spare_parts_details.awb_by_wh IS NOT NULL " => NULL));
+        if (!empty($spare_parts_list)) {
+            $courier_boxes_weight_wh = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', $select, array('awb_number' => $spare_parts_list[0]['awb_by_wh']), array());
+            if (!empty($courier_boxes_weight_wh)) {
+                $data['wh_courier_boxes_weight_details'] = $courier_boxes_weight_wh[0];
+            }
         }
         
         log_message('info', 'Partner view booking details booking  partner id' . $this->session->userdata('partner_id') . " Partner name" . $this->session->userdata('partner_name'));
@@ -488,7 +495,7 @@ class Partner extends CI_Controller {
         $post['capacity'] = $this->input->post('appliance_capacity');
         $post['model'] = $this->input->post('model_number');
         $post['serial_number'] = $this->input->post('serial_number');
-        $post['purchase_date'] = $this->input->post('purchase_date');
+        $post['purchase_date'] = date('Y-m-d', strtotime($this->input->post('purchase_date')));;
         $post['partner_source'] = $this->input->post('partner_source');
         $post['remarks'] = $this->input->post('query_remarks');
         $post['orderID'] = $this->input->post('order_id');
@@ -1743,7 +1750,7 @@ class Partner extends CI_Controller {
 
             $user['state'] = $distict_details['state'];
             $booking_details['parent_booking'] = $post['parent_booking'];
-            $booking_details['booking_date'] = $post['booking_date'];
+            $booking_details['booking_date'] = date("d-m-Y", strtotime($post['booking_date']));
             $booking_details['partner_id'] = $post['partner_id'];
             $booking_details['booking_primary_contact_no'] = $post['mobile'];
             $booking_details['booking_alternate_contact_no'] = $post['alternate_phone_number'];
@@ -1771,7 +1778,7 @@ class Partner extends CI_Controller {
             $unit_details['appliance_capacity'] = $appliance_details['capacity'] = $post['capacity'];
             $unit_details['model_number'] = $appliance_details['model_number'] = $post['model'];
             $unit_details['partner_serial_number'] = $appliance_details['serial_number'] = $post['serial_number'];
-            $unit_details['purchase_date'] = $appliance_details['purchase_date'] = $post['purchase_date'];
+            $unit_details['purchase_date'] = $appliance_details['purchase_date'] = date("Y-m-d", strtotime($post['purchase_date']));
             $unit_details['partner_id'] = $post['partner_id'];
             $unit_details['booking_id'] = $booking_details['booking_id'] = $booking_id;
             // Get Existing Price Tags

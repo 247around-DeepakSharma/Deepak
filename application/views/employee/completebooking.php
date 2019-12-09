@@ -276,7 +276,7 @@
                     ?>
                     <!-- row End  -->
                     <?php $k_count = 0;$count = 1; foreach ($booking_unit_details as $keys => $unit_details) { ?>
-                    <?php $selected_dop = !empty($booking_history['spare_parts'][0]['date_of_purchase']) ? $this->miscelleneous->get_formatted_date($booking_history['spare_parts'][0]['date_of_purchase']) : $this->miscelleneous->get_formatted_date($unit_details['sf_purchase_date']);  ?>
+                    <?php $selected_dop = $this->miscelleneous->get_formatted_date_dmy($unit_details['sf_purchase_date']);  ?>
                     <div class="clonedInput panel panel-info " id="clonedInput1">
                         <!--  <i class="fa fa-plus addsection pull-right fa-3x" aria-hidden="true" style ="margin-top:15px; margin-bottom: 15px; margin-right:40px; "></i>
                             <i class="fa fa-times pull-right deletesection  fa-3x"  style ="margin-top:15px; margin-bottom: 15px; margin-right:20px; " aria-hidden="true"></i>-->
@@ -1380,7 +1380,7 @@
     }
       function dop_calendar(id){
          $("#"+id).datepicker({
-             dateFormat: 'dd-M-yy', 
+             dateFormat: 'dd-mm-yy', 
              changeMonth: true,
              changeYear: true,
              maxDate:0
