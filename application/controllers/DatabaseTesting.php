@@ -653,4 +653,104 @@ class DatabaseTesting extends CI_Controller {
             }
         }
     }
+ 
+    
+    /*
+     *@upload file from local temp folder to live s3  
+     */
+        
+    function upload_state_wise_seal() {
+       $bucket = "bookings-collateral";//BITBUCKET_DIRECTORY;
+       // Uploading to S3
+       $directory1 = "vendor-partner-docs/delivery_challan_LP-4840511907201_95_30_Oct_2019_15_52_50.pdf";
+       $is_s1 = $this->s3->putObjectFile(TMP_FOLDER . "delivery_challan_LP-4840511907201_95_30_Oct_2019_15_52_50.pdf", $bucket, $directory1, S3::ACL_PUBLIC_READ);
+
+       if ($is_s1) {
+           echo"<br> PDF upload success";
+
+       } else {
+           echo"<br> PDF upload failed";
+       }
+   }
+
+
+
+
+function pending_count(){
+
+
+  $sql = "SELECT inventory_stocks.*, count(spare_parts_details.id) as count, pending_request_count FROM `inventory_stocks`, spare_parts_details WHERE spare_parts_details.requested_inventory_id = `inventory_id` AND partner_id = `entity_id` AND spare_parts_details.entity_type = 'vendor' AND status = 'Spare Parts Requested' Group by inventory_id, partner_id Having count(spare_parts_details.id) != pending_request_count";
+   $query  = $this->db->query($sql);
+   $result = $query->result();
+   foreach ($result as $key => $value) {
+      
+      echo "<pre>";
+      print_r($value);
+
+     if (($value->count>$value->pending_request_count) && $value->stock >= $value->count) {
+        
+
+      $data=array(
+        'pending_request_count'=>$value->count
+      );
+
+      $this->db->where('id',$value->id);
+      $this->db->update('inventory_stocks',$data);
+
+
+     }
+
+
+      if (($value->count>$value->pending_request_count) && $value->count >= $value->stock) {
+        
+
+      $data=array(
+        'pending_request_count'=>$value->stock
+      );
+
+      $this->db->where('id',$value->id);
+      $this->db->update('inventory_stocks',$data);
+
+
+     }
+
+
+     if (($value->pending_request_count>$value->count) && $value->stock >= $value->count) {
+       
+
+      $data=array(
+        'pending_request_count'=>$value->count
+      );
+
+      $this->db->where('id',$value->id);
+      $this->db->update('inventory_stocks',$data);
+
+
+     }
+
+   }
+
+
+}
+
+function pending_count2(){
+
+   $sql = "SELECT inventory_stocks.* FROM `inventory_stocks` WHERE pending_request_count > 0 AND NOT EXISTS (SELECT 1 FROM spare_parts_details WHERE status = 'Spare parts Requested' AND inventory_id = requested_inventory_id AND `entity_id` =partner_id )";
+   $query  = $this->db->query($sql);
+   $result = $query->result();
+
+   foreach ($result as $key => $value) {
+    print_r($value);
+    $data=array(
+        'pending_request_count'=>0
+      );
+
+      $this->db->where('id',$value->id);
+      $this->db->update('inventory_stocks',$data);
+      echo "updated id--" .$value->id;
+
+   }
+
+}
+ 
 }
