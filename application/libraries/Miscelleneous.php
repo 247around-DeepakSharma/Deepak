@@ -4774,6 +4774,18 @@ function generate_image($base64, $image_name,$directory){
         }
     }
     
+    public function get_formatted_date_dmy($date, $time = false) {
+        if(!empty($date) && $date != '0000-00-00') {
+            if($time) {
+                return date_format(date_create($date), "d-M-Y g:i A");
+            } else {
+                return date_format(date_create($date), "d-m-Y");
+            }
+        } else {
+            return '';
+        }
+    }
+    
     public function convert_date_to_database_format($date, $time = false) {
         if($time) {
             return date_format(date_create($date), "Y-m-d g:i:s");

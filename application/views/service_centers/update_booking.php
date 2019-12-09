@@ -111,13 +111,12 @@ else
                                         </div>
                                         <?php 
                                         $booking_model_number = !empty($unit_details[0]['sf_model_number']) ?  $unit_details[0]['sf_model_number'] : "";
-                                        $booking_model_purchase_date = (!empty($unit_details[0]['sf_purchase_date']) && $unit_details[0]['sf_purchase_date'] != '0000-00-00') ?  $unit_details[0]['sf_purchase_date'] : "";
-
+                                        $booking_model_purchase_date = (!empty($unit_details[0]['sf_purchase_date']) && $unit_details[0]['sf_purchase_date'] != '0000-00-00') ?  date("d-m-Y", strtotime($unit_details[0]['sf_purchase_date'])) : "";
                                         if(!empty($booking_history['spare_parts'][0]['model_number']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED){
                                             $booking_model_number = $booking_history['spare_parts'][0]['model_number'];
                                         }
                                         if(!empty($booking_history['spare_parts'][0]['date_of_purchase'])){
-                                            $booking_model_purchase_date = $booking_history['spare_parts'][0]['date_of_purchase'];
+                                            $booking_model_purchase_date = date("d-m-Y",strtotime($booking_history['spare_parts'][0]['date_of_purchase']));
                                         }
                                         if(!empty($booking_model_number) && !empty($model[0]) && $booking_history['is_spare_requested']){
                                             $arrModels = array_column($model[0], 'model');
@@ -149,7 +148,7 @@ else
                                         <div class="form-group ">
                                             <label for="dop" class="col-md-4">Purchase Date* </label>
                                             <div class="col-md-6">
-                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo $booking_model_purchase_date; }elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo $unit_details[0]['purchase_date']; }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" required onchange="check_booking_request()" style="<?= $str_disabled?>">
+                                                <input <?php if($is_repeat && (!empty($booking_model_purchase_date))){ echo 'readonly="readonly"'; } ?> id="purchase_date_1" class="form-control purchase_date"  name="purchase_date[]" type="text" value = "<?php if(!empty($booking_model_purchase_date)){ echo $booking_model_purchase_date; }elseif(isset($unit_details[0]['purchase_date']) && $unit_details[0]['purchase_date'] != '0000-00-00'){ echo date("d-m-Y", strtotime($unit_details[0]['purchase_date'])); }?>" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" required onchange="check_booking_request()" style="<?= $str_disabled?>">
                                             </div>
                                         </div>                                        
                                         <div class="form-group">
@@ -704,12 +703,12 @@ else
     });
    
 });
-  $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd', changeYear: true, changeMonth: true});
+  $("#purchase_date").datepicker({dateFormat: 'dd-mm-yy', changeYear: true, changeMonth: true});
   $('.purchase_date').each(function () {
     if ($(this).hasClass('hasDatepicker')) {
         $(this).removeClass('hasDatepicker');
     } 
-    $(this).datepicker({dateFormat: 'yy-mm-dd', maxDate: 0, changeYear: true, changeMonth: true});
+    $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
  });
   
   function readonly_select(objs, action) {
