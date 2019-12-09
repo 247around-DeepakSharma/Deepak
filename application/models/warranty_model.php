@@ -133,6 +133,7 @@ class Warranty_model extends CI_Model {
         
         $this->db->select($strSelect);
         $this->db->or_where($arrOrWhere);
+        $this->db->where(['warranty_plans.is_active' => 1, 'warranty_plan_model_mapping.is_active' => 1]);
         $this->db->from('warranty_plans');
         $this->db->join('warranty_plan_model_mapping', ' warranty_plans.plan_id = warranty_plan_model_mapping.plan_id', 'left');
         $this->db->join('appliance_model_details', 'warranty_plan_model_mapping.model_id = appliance_model_details.id', 'left');
@@ -239,5 +240,19 @@ class Warranty_model extends CI_Model {
         log_message ('info', __METHOD__);
         $this->db->where('id', $mapping_id);
         $this->db->update('warranty_plan_model_mapping', ['is_active' => 1]);
+    }
+    
+    function activate_plan($plan_id)
+    {
+        log_message ('info', __METHOD__);
+        $this->db->where('plan_id', $plan_id);
+        $this->db->update('warranty_plans', ['is_active' => 1]);
+    }
+    
+    function deactivate_plan($plan_id)
+    {
+        log_message ('info', __METHOD__);
+        $this->db->where('plan_id', $plan_id);
+        $this->db->update('warranty_plans', ['is_active' => 0]);
     }
 }

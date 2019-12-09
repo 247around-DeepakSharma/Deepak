@@ -74,8 +74,10 @@
         $('#part_number').val($('#wrong_part').children("option:selected").data('part_number'));
     });
 
-    $(document).on('click',".change-consumption", function() {
+    $(document).on('click',".change-consumption", function(e) {
         if($('#consumption-remarks').val() == '' || $('#consumption-remarks').val() == null) {
+            e.stopImmediatePropagation(); // to prevent multiple alerts
+            e.preventDefault();
             alert('Please enter remarks.');
             return false;
         }

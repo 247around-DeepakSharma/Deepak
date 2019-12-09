@@ -718,7 +718,7 @@ class Booking_model extends CI_Model {
                     . "service_centres.phone_1, service_centres.min_upcountry_distance as municipal_limit, isEngineerApp ";
 	        $service_centre = ", service_centres ";
             $condition = " and booking_details.assigned_vendor_id =  service_centres.id";
-            $partner_name = ", partners.public_name, partners.account_manager_id ";
+            $partner_name = ", partners.public_name ";
             $partner = ", partners  ";
             $condition .= " and booking_details.partner_id =  partners.id";
         }
@@ -742,7 +742,7 @@ class Booking_model extends CI_Model {
         }
         // check if status is 'InProcess' in service_center_booking_action_action table
         // If so, we will not allow vendor to reschedule booking
-        $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $booking_id, 'current_status' => 'InProcess'));
+        $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $booking_id, 'current_status' => SF_BOOKING_INPROCESS_STATUS));
         $result['allow_reshedule'] = true;
         if(!empty($query_scba)){
             $result['allow_reshedule'] = false;

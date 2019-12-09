@@ -384,4 +384,30 @@ class Engineer_model extends CI_Model {
         //echo $this->db->last_query(); die();
         return $query->result_array();
     }
+    
+    /*
+     *@Desc - This function is used to get booking details and engineer incentive details
+     *@param - $select, @where
+     *@return - resultant array
+     */
+    function get_booking_with_eng_incentive($select, $where){
+        $this->db->select($select, false);
+        $this->db->from("booking_details");
+        $this->db->where($where);
+        $this->db->join("engineer_incentive_details", "booking_details.id = engineer_incentive_details.booking_details_id", "left");
+        $this->db->order_by("engineer_incentive_details.id", "DESC");
+        $query = $this->db->get();
+        //echo $this->db->last_query(); die();
+        return $query->result_array();
+    }
+    
+    /*
+     *@Desc - This function is used to insert engineer incentive details
+     *@param - $data
+     *@return - resultant last insert id
+     */
+    function insert_eng_incentive_details($data){
+        $this->db->insert("engineer_incentive_details", $data);
+        return $this->db->insert_id();
+    }
 }

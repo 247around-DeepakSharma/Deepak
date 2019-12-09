@@ -64,7 +64,19 @@
                     foreach ($plan_data as $key => $row) {
                         ?>
                         <tr>
-                            <td><?php echo $row->plan_name; ?></td>
+                            <td>
+                                <?php if(!empty($row->is_active_plan)) { ?>
+                                    <button id='<?php echo "deactivate_model_btn" . $key; ?>' class="btn btn-sucess deactivate" 
+                                        value="<?php echo $row->plan_name?>" data-id="<?php echo $row->plan_id; ?>" onclick="deactivate_plan(<?php echo $key; ?>)" title="Deactivate Plan">               
+                                        <?php echo $row->plan_name?>
+                                    </button>
+                                <?php } else { ?>
+                                    <button id='<?php echo "activate_model_btn" . $key; ?>' class="btn btn-warning activate" 
+                                        value="<?php echo $row->plan_name?>" data-id="<?php echo $row->plan_id; ?>" onclick="activate_plan(<?php echo $key; ?>)" title="Activate Plan">               
+                                        <?php echo $row->plan_name?>
+                                    </button>
+                                <?php } ?>
+                            </td>
                             <td><?php echo $row->plan_description; ?></td>
                             <td><?php echo date('jS M, Y', strtotime($row->period_start)); ?></td>                            
                             <td><?php echo date('jS M, Y', strtotime($row->period_end)); ?></td>   
@@ -168,6 +180,38 @@
                 {
                     alert("Model Added Successfully");
                     $("#column" + key).html("");
+                }
+            }
+        });
+    }
+    
+    function deactivate_plan(key) {
+        var plan_id = $("#deactivate_model_btn" + key).attr('data-id');
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/warranty/deactivate_plan',
+            data: {plan_id: plan_id},
+            success: function (data) {
+                console.log(data);
+                if($.trim(data) == "success")
+                {
+                    alert("Plan Deactivated Successfully");
+                }
+            }
+        });
+    }
+    
+    function activate_plan(key) {
+        var plan_id = $("#activate_model_btn" + key).attr('data-id');
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/warranty/activate_plan',
+            data: {plan_id: plan_id},
+            success: function (data) {
+                console.log(data);
+                if($.trim(data) == "success")
+                {
+                    alert("Plan Activated Successfully");
                 }
             }
         });

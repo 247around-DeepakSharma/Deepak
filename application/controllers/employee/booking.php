@@ -1802,11 +1802,9 @@ class Booking extends CI_Controller {
             
 
         }
-        if(!empty($data['booking_history'][0]['account_manager_id'])){
-            $account_manager = $this->booking_model->get_am_by_booking($booking_id, "employee.full_name");
-            if(!empty($account_manager)){
-                $data['booking_history'][0]['account_manager_name'] = $account_manager[0]['full_name'];
-            }
+        $account_manager = $this->booking_model->get_am_by_booking($booking_id, "employee.full_name");
+        if(!empty($account_manager)){
+            $data['booking_history'][0]['account_manager_name'] = $account_manager[0]['full_name'];
         }
         }else{
             $data['booking_history'] = array();

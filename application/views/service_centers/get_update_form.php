@@ -78,6 +78,8 @@
                     <div class="form-group ">
                         <label for="reason" class="col-md-2" style="margin-top:39px;">Reason</label>
                         <div class="col-md-6" style="margin-top:39px;">
+                            <!-- If status is 'InProcess' in service_center_booking_action_action table, booking can not be rescheduled -->
+                            <?php if(!empty($bookinghistory['allow_reshedule'])) { ?>
                             <?php foreach ($internal_status as $key => $data1) { ?>
                             <div class="radio ">
                                 <label>
@@ -85,6 +87,7 @@
                                 <?php echo $data1['status']; ?>
                                 </label>
                             </div>
+                            <?php } ?>
                             <?php } ?>
                             <?php if($spare_flag != SPARE_PART_RADIO_BUTTON_NOT_REQUIRED ){ ?>
                             <div class="radio ">
@@ -96,7 +99,7 @@
                             <?php }?>
                             <hr id="seperator">
                             <!-- If status is 'InProcess' in service_center_booking_action_action table, booking can not be rescheduled -->
-                            <?php if(!empty($bookinghistory[0]['allow_reshedule'])) { ?>
+                            <?php if(!empty($bookinghistory['allow_reshedule'])) { ?>
                             <?php if($bookinghistory[0]['is_upcountry'] == 1 ){ ?>
                             <div class="radio ">
                                 <label class="<?php if(!empty($nrn_flag) && $nrn_flag==1){ echo "hide"; } ?>">
