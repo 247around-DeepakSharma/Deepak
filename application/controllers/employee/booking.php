@@ -4164,7 +4164,7 @@ class Booking extends CI_Controller {
                 // select field to display
         $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_details.request_type,booking_unit_details.product_or_services,booking_details."
-                . "current_status,booking_details.internal_status, employee.full_name as asm_name,emp2.full_name as am_name as am_name, spare_parts_details.parts_requested,requested_inventory.part_number as requested_part_number,"
+                . "current_status,booking_details.internal_status, employee.full_name as asm_name,emp2.full_name as am_name, spare_parts_details.parts_requested,requested_inventory.part_number as requested_part_number,"
                 . "spare_parts_details.parts_shipped,shipped_inventory.part_number as shipped_part_number,booking_details.actor as Dependency";
         $select_explode=explode(',',$select);
         array_unshift($select_explode,"s.no");
