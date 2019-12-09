@@ -894,11 +894,17 @@ class partner_sd_cb {
     }
     
     function insertCallbackFailure($booking_id){
-        $insertCallbackFailure = array();
-        $insertCallbackFailure['booking_id'] = $booking_id;
-        $insertCallbackFailure['api_status'] = 0;
-        $insertCallbackFailure['api_call_count'] = 1;
-        $this->My_CI->partner_model->insert_callback_api_booking_details($insertCallbackFailure);
+        $booking_exist = $this->partner_model->get_callback_api_booking_details("booking_id, ", array("booking_id" => $booking_id));
+        if(empty($booking_exist)){
+            $insertCallbackFailure = array();
+            $insertCallbackFailure['booking_id'] = $booking_id;
+            $insertCallbackFailure['api_status'] = 0;
+            $insertCallbackFailure['api_call_count'] = 1;
+            $this->My_CI->partner_model->insert_callback_api_booking_details($insertCallbackFailure);
+        }
+        else{
+            $this->My_CI->partner_model->update_callback_api_count(array(), array("booking_id" => $booking_id));
+        }
     }
     
     function updateCallbackFailure($booking_id){
