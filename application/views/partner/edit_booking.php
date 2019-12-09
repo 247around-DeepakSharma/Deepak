@@ -155,7 +155,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                         <div class="col-md-4">
                             <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                                 <label for="booking_date">Booking Date *</label>
-                                <input type="text" class="form-control" readonly style="background-color:#FFF;"   id="booking_date" name="booking_date"  value = "<?php if(!empty($booking_history[0]['booking_date']) && !$is_repeat){ echo date('Y-m-d', strtotime($booking_history[0]['booking_date'])); } else { echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day"));}?>">
+                                <input type="text" class="form-control" readonly style="background-color:#FFF;"   id="booking_date" name="booking_date"  value = "<?php if(!empty($booking_history[0]['booking_date']) && !$is_repeat){ echo date('d-m-Y', strtotime($booking_history[0]['booking_date'])); } else { echo date('H') >= 12 ? date("d-m-Y", strtotime("+1 day")):date("d-m-Y", strtotime("+0 day"));}?>">
                                 <?php echo form_error('booking_date'); ?>
                             </div>
                         </div>
@@ -302,7 +302,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                     <div class="col-md-12">
                                         <div class="form-group col-md-12  <?php if( form_error('purchase_date') ) { echo 'has-error';} ?>">
                                             <label for="purchase_date">Purchase Date * <span id="error_purchase_date" style="color: red;"></span></label>
-                                            <input style="background-color:#FFF;"  type="text" class="form-control" readonly  id="purchase_date" name="purchase_date"  value = "<?php if(isset($unit_details[0]['purchase_date'])){echo $unit_details[0]['purchase_date'];} ?>" <?php if($is_repeat){echo 'readonly';} ?> max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request();">
+                                            <input style="background-color:#FFF;"  type="text" class="form-control" readonly  id="purchase_date" name="purchase_date"  value = "<?php if(isset($unit_details[0]['purchase_date'])){echo date("d-m-Y", strtotime($unit_details[0]['purchase_date']));} ?>" <?php if($is_repeat){echo 'readonly';} ?> max="<?=date('d-m-Y');?>" autocomplete='off' onkeydown="return false" onchange="check_booking_request();">
                                             <?php echo form_error('purchase_date'); ?>
                                         </div>
                                     </div>
@@ -632,14 +632,14 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                 singleDatePicker: true,
                 showDropdowns: true,
                 minDate:startDate,
-                maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>',
+                maxDate: '<?php echo date("d-m-Y", strtotime("+15 day")); ?>',
                 locale:{
-                    format: 'YYYY-MM-DD'
+                    format: 'DD-MM-YYYY'
                 }
             });
             
     $('#booking_date').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+        $(this).val(picker.startDate.format('DD-MM-YYYY'));
     });
     
     $('#booking_date').on('cancel.daterangepicker', function(ev, picker) {
@@ -1362,15 +1362,15 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                 autoUpdateInput: false,
                 singleDatePicker: true,
                 showDropdowns: true,
-                minDate:"1998-01-01",
+                minDate:"01-01-1998",
                 maxDate:today,
                 locale:{
-                    format: 'YYYY-MM-DD'
+                    format: 'DD-MM-YYYY'
                 }
             });
             
     $('#purchase_date').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+        $(this).val(picker.startDate.format('DD-MM-YYYY'));
         check_booking_request();
     });
     

@@ -488,7 +488,7 @@ class Partner extends CI_Controller {
         $post['capacity'] = $this->input->post('appliance_capacity');
         $post['model'] = $this->input->post('model_number');
         $post['serial_number'] = $this->input->post('serial_number');
-        $post['purchase_date'] = $this->input->post('purchase_date');
+        $post['purchase_date'] = date('Y-m-d', strtotime($this->input->post('purchase_date')));;
         $post['partner_source'] = $this->input->post('partner_source');
         $post['remarks'] = $this->input->post('query_remarks');
         $post['orderID'] = $this->input->post('order_id');
@@ -1743,7 +1743,7 @@ class Partner extends CI_Controller {
 
             $user['state'] = $distict_details['state'];
             $booking_details['parent_booking'] = $post['parent_booking'];
-            $booking_details['booking_date'] = $post['booking_date'];
+            $booking_details['booking_date'] = date("d-m-Y", strtotime($post['booking_date']));
             $booking_details['partner_id'] = $post['partner_id'];
             $booking_details['booking_primary_contact_no'] = $post['mobile'];
             $booking_details['booking_alternate_contact_no'] = $post['alternate_phone_number'];
@@ -1771,7 +1771,7 @@ class Partner extends CI_Controller {
             $unit_details['appliance_capacity'] = $appliance_details['capacity'] = $post['capacity'];
             $unit_details['model_number'] = $appliance_details['model_number'] = $post['model'];
             $unit_details['partner_serial_number'] = $appliance_details['serial_number'] = $post['serial_number'];
-            $unit_details['purchase_date'] = $appliance_details['purchase_date'] = $post['purchase_date'];
+            $unit_details['purchase_date'] = $appliance_details['purchase_date'] = date("Y-m-d", strtotime($post['purchase_date']));
             $unit_details['partner_id'] = $post['partner_id'];
             $unit_details['booking_id'] = $booking_details['booking_id'] = $booking_id;
             // Get Existing Price Tags
