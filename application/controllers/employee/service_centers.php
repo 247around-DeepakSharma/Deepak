@@ -2030,10 +2030,10 @@ class Service_centers extends CI_Controller {
                     $this->inventory_model->update_pending_inventory_stock_request($entity_type, $partner_id, $previous_inventory_id, -$data['quantity']);
                 }
             } else {
-                $data['requested_inventory_id'] = $previous_inventory_id;
+               $change_inventory_id = $data['requested_inventory_id'] = $previous_inventory_id;
             }
         } else {
-            $data['requested_inventory_id'] = $previous_inventory_id;
+           $change_inventory_id = $data['requested_inventory_id'] = $previous_inventory_id;
         }
 
 
