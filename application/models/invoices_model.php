@@ -1919,6 +1919,7 @@ class invoices_model extends CI_Model {
 
                 $meta['total_qty'] = $meta['total_rate'] = $commission_charge[0]['qty'] = $commission_charge[0]['rate'] = "";
                 $commission_charge[0]['hsn_code'] = COMMISION_CHARGE_HSN_CODE;
+                $commission_charge[0]['product_or_services'] = _247AROUND_SERVICE_STRING;
                 $meta['total_taxable_value'] = $commission_charge[0]['taxable_value'];
                 $meta['sub_total_amount'] = sprintf("%.2f",$commission_charge[0]['total_amount']);
 

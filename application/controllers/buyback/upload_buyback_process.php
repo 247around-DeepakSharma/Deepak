@@ -1180,7 +1180,7 @@ class Upload_buyback_process extends CI_Controller {
                     $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment, BUYBACK_REIMBURESE_PO_UPLOADED, "", "");
 
                     unlink(TMP_FOLDER.$output_pdf_file_name);
-
+                    unlink(TMP_FOLDER."copy_".$invoice_id.".pdf");
 
                     unlink(TMP_FOLDER.$invoice_id.".xlsx");
                     unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
