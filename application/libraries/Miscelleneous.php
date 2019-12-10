@@ -234,8 +234,6 @@ class Miscelleneous {
                     }
                 }
             }
-            log_message('info', __FUNCTION__ . " Partner Callback booking_id " . $booking_id );
-            $this->My_CI->partner_cb->partner_callback($booking_id);
             log_message('info', __FUNCTION__ . " Exit...... booking_id " . $booking_id . " service center id " . $service_center_id);
             return true;
         } else {

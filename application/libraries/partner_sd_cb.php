@@ -674,7 +674,7 @@ class partner_sd_cb {
         $booking_symptom = $this->My_CI->booking_model->getBookingSymptom($data['booking_id']);
         $this->requestUrl = __METHOD__;
         //Trigger only for Scheduled or Assigned Vendor
-        if (!empty($data) && $data['current_status'] == _247AROUND_PENDING && ($data['internal_status'] == "Assigned_vendor" || $data['internal_status'] == "Scheduled")) {
+        if (!empty($data) && $data['current_status'] == _247AROUND_PENDING && (strtolower($data['internal_status']) == "scheduled")) {
             log_message('info', __METHOD__. " Current status". $data['current_status']. " Booking ID ".$data['booking_id']);
             $get_akai_api_token = $this->get_akai_api_token(); 
             $token = json_decode($get_akai_api_token, true);
