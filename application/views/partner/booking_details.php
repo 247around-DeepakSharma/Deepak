@@ -432,7 +432,7 @@
                                                                             } ?>
                                                                         </td>
                                                                         <td><?php if (!is_null($sp['incoming_invoice_pdf'])) {
-                                                                                if ($sp['incoming_invoice_pdf'] !== '0') { ?> <a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $sp['incoming_invoice_pdf']; ?> " target="_blank">Click Here</a><?php }
+                                                                                if ($sp['incoming_invoice_pdf'] !== '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/invoices-excel/<?php echo $sp['incoming_invoice_pdf']; ?> " target="_blank">Click Here</a><?php }
                                                                             } ?>
                                                                         </td>
                                                                         <td><?php echo $sp['status']; ?></td>
