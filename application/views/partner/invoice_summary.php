@@ -74,8 +74,8 @@
                                 <td>
                                     <?php //echo $invoice["invoice_id"]; ?>
                                 </td>
-                                <td><?php //echo date("jS M, Y", strtotime($invoice['invoice_date'])); ?></td>
-                                <td><?php //echo date("jS M, Y", strtotime($invoice['from_date'])) . " to " . date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
+                                <td><?php //echo date("d/m/Y", strtotime($invoice['invoice_date'])); ?></td>
+                                <td><?php //echo date("d/m/Y", strtotime($invoice['from_date'])) . " to " . date("d/m/Y", strtotime($invoice['to_date'])); ?></td>
                                 <td><?php //echo $invoice['num_bookings'] . "/" . $invoice['parts_count']; ?></td>
                                 <td><?php //echo $invoice['total_amount_collected']; ?></td>
                                 <td>
@@ -119,7 +119,7 @@
                             <td><?php echo $value['booking_id']; ?></td>
                             <td><?php echo $value['partner_net_payable'] *(1 + SERVICE_TAX_RATE); ?></td>
                             <td><?php echo $value['booking_status'];?></td>
-                            <td><?php echo date("jS M, Y", strtotime($value['create_date']));?></td>
+                            <td><?php echo date("d/m/Y", strtotime($value['create_date']));?></td>
                         </tr>
                         <?php }?>
                         <?php if($misc) { foreach ($misc as $m) { ?>
@@ -128,7 +128,7 @@
                                  <td style="max-width:150px;"><?php echo $m['booking_id']." (".$m['description'].")"; ?></td>
                                 <td><?php echo round($m['partner_charge'] *(1 + SERVICE_TAX_RATE),0); ?></td>
                                 <td><?php echo $m['current_status'];?></td>
-                                <td><?php echo date("jS M, Y", strtotime($m['create_date'])); ?></td>
+                                <td><?php echo date("d/m/Y", strtotime($m['create_date'])); ?></td>
                              </tr>
 
                         <?php } }?>
