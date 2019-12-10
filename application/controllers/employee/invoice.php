@@ -4607,8 +4607,9 @@ class Invoice extends CI_Controller {
             $is_validate = $this->validate_spare_purchase_data($part_data);
             if($is_validate['status']){
                 $w['length'] = -1;
+                $w['spare_invoice_flag'] = true;
                 $w['where_in'] = array("spare_parts_details.id" => $is_validate['data']);
-                $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, booking_details.partner_id, "
+                $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, booking_details.partner_id, oow_spare_invoice_details.invoice_pdf as oow_invoice_pdf,"
                         . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state, parts_shipped, spare_parts_details.shipped_quantity, spare_parts_details.shipped_inventory_id";
                 $data = $this->inventory_model->get_spare_parts_query($w);
                 
@@ -4621,6 +4622,9 @@ class Invoice extends CI_Controller {
                     foreach ($data as $sp) {
                         if (!empty($sp->incoming_invoice_pdf)) {
                             $invoice_pdf = $sp->incoming_invoice_pdf;
+                            /* If incoming invoice PDF not exist in spare part details table then check oow_spare_invoice_details table */
+                        }else if(!empty($sp->oow_invoice_pdf)){
+                            $invoice_pdf = $sp->oow_invoice_pdf;
                         }
                     }
                     if (!empty($invoice_pdf)) {

@@ -2115,14 +2115,15 @@ class Partner extends CI_Controller {
             $data['challan_approx_value'] = $this->input->post('approx_value');
             //} 
             
-            $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
-            if (!empty($incoming_invoice_pdf)) {
-            $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
-            }   
         }
         
         if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
             $is_file = $this->validate_invoice_data();
+        }
+        
+        $incoming_invoice_pdf = $this->input->post("incoming_invoice_pdf");
+        if (!empty($incoming_invoice_pdf)) {
+            $data['incoming_invoice_pdf'] = $incoming_invoice_pdf;
         }
 
         $shipped_part_details = $this->input->post("part");
