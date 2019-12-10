@@ -1201,8 +1201,8 @@ class Accounting extends CI_Controller {
         $row[] = date("jS M, Y", strtotime($order_list->from_date)). " to ". date("jS M, Y", strtotime($order_list->to_date));
         $row[] = $order_list->type;
         $row[] = $order_list->sub_category;
-        $row[] = '<a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$order_list->invoice_file_main.'">'.$order_list->invoice_file_main.'</a>';
-        $row[] = '<a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/'.$order_list->invoice_detailed_excel.'">'.$order_list->invoice_detailed_excel.'</a>';
+        $row[] = '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$order_list->invoice_file_main.'">'.$order_list->invoice_file_main.'</a>';
+        $row[] = '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$order_list->invoice_detailed_excel.'">'.$order_list->invoice_detailed_excel.'</a>';
        
         $row[] = $order_list->num_bookings;
        

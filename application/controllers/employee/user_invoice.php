@@ -635,7 +635,7 @@ class User_invoice extends CI_Controller {
                 //$this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
 
                 unlink(TMP_FOLDER.$output_pdf_file_name);
-
+                unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
 
                 unlink(TMP_FOLDER.$invoice_id.".xlsx");
                 unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
@@ -951,7 +951,8 @@ class User_invoice extends CI_Controller {
                     }
                    
                    
-
+                    unlink(TMP_FOLDER.$output_pdf_file_name);
+                    unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
                     unlink(TMP_FOLDER . $vendor_invoice_id . ".xlsx");
                     unlink(TMP_FOLDER . "copy_" . $vendor_invoice_id . ".xlsx");
 
@@ -1739,7 +1740,7 @@ class User_invoice extends CI_Controller {
 //                $this->notify->sendEmail($email_from, $to, $cc, $email_template[5], $subject, $message, TMP_FOLDER.$output_pdf_file_name, $email_tag, "", $booking_id);
 
                 unlink(TMP_FOLDER.$output_pdf_file_name);
-
+                unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
 
                 unlink(TMP_FOLDER.$invoice_id.".xlsx");
                 unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");

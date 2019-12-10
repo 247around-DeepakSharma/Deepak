@@ -4051,9 +4051,10 @@ class Inventory extends CI_Controller {
             $response['meta']['copy_file'] = $convert['copy_file'];
 
             $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], false);
-
+            unlink(TMP_FOLDER . $output_pdf_file_name);
             unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
             unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
+            unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
 
             $invoice_details = array(
                 'invoice_id' => $response['meta']['invoice_id'],

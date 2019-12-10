@@ -148,7 +148,7 @@
                     <div class="col-md-4">
                         <div class="form-group col-md-12  <?php if( form_error('booking_date') ) { echo 'has-error';} ?>">
                             <label for="booking_date">Booking Date *</label>
-                            <input type="text" class="form-control" readonly="" id="booking_date" name="booking_date"  value = "<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>" style="background-color:#FFF;" >
+                            <input type="text" class="form-control" readonly="" id="booking_date" name="booking_date"  value = "<?php echo date('H') >= 12 ? date("d-m-Y", strtotime("+1 day")):date("d-m-Y", strtotime("+0 day")); ?>" style="background-color:#FFF;" >
                             <?php echo form_error('booking_date'); ?>
                         </div>
                     </div>
@@ -272,7 +272,7 @@
                         <div class="col-md-12">
                             <div class="form-group col-md-12  <?php if( form_error('purchase_date') ) { echo 'has-error';} ?>">
                                 <label for="purchase_date">Purchase Date * <span id="error_purchase_date" style="color: red;"></span></label>
-                                <input style="background-color:#FFF;"  readonly="" placeholder="Please Choose Purchase Date" type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "" max="<?=date('Y-m-d');?>" autocomplete='off' onkeydown="return false" >
+                                <input style="background-color:#FFF;"  readonly="" placeholder="Please Choose Purchase Date" type="text" class="form-control"  id="purchase_date" name="purchase_date"  value = "" max="<?=date('d-m-Y');?>" autocomplete='off' onkeydown="return false" >
                                 <?php echo form_error('purchase_date'); ?>
                             </div>
                         </div>
@@ -791,15 +791,15 @@
                 autoUpdateInput: false,
                 singleDatePicker: true,
                 showDropdowns: true,
-                minDate: '<?php echo date('H') >= 12 ? date("Y-m-d", strtotime("+1 day")):date("Y-m-d", strtotime("+0 day")); ?>',
-                maxDate: '<?php echo date("Y-m-d", strtotime("+15 day")); ?>',
+                minDate: '<?php echo date('H') >= 12 ? date("d-m-Y", strtotime("+1 day")):date("d-m-Y", strtotime("+0 day")); ?>',
+                maxDate: '<?php echo date("d-m-Y", strtotime("+15 day")); ?>',
                 locale:{
-                    format: 'YYYY-MM-DD'
+                    format: 'DD-MM-YYYY'
                 }
             });
             
     $('#booking_date').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+        $(this).val(picker.startDate.format('DD-MM-YYYY'));
     });
     
     $('#booking_date').on('cancel.daterangepicker', function(ev, picker) {
@@ -810,15 +810,15 @@
                 autoUpdateInput: false,
                 singleDatePicker: true,
                 showDropdowns: true,
-                minDate:"1998-01-01",
-                maxDate:'<?php echo date("Y-m-d"); ?>',
+                minDate:"01-01-1998",
+                maxDate:'<?php echo date("d-m-Y"); ?>',
                 locale:{
-                    format: 'YYYY-MM-DD'
+                    format: 'DD-MM-YYYY'
                 }
             });
             
     $('#purchase_date').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+        $(this).val(picker.startDate.format('DD-MM-YYYY'));
         check_booking_request();
     });
     
