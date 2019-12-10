@@ -728,24 +728,13 @@ function pending_count(){
 
      }
 
-    if ($value->count >= $value->stock) {
-       
 
-      $data=array(
-        'pending_request_count'=>$value->stock
-      );
-
-      $this->db->where('id',$value->id);
-      $this->db->update('inventory_stocks',$data);
-
-
-     }
 
     if (($value->pending_request_count>$value->count) && $value->count >= $value->stock) {
        
 
       $data=array(
-        'pending_request_count'=>$value->pending_request_count
+        'pending_request_count'=>$value->stock
       );
 
       $this->db->where('id',$value->id);
@@ -760,6 +749,19 @@ function pending_count(){
 
       $data=array(
         'pending_request_count'=>0
+      );
+
+      $this->db->where('id',$value->id);
+      $this->db->update('inventory_stocks',$data);
+
+
+     }
+
+         if ($value->count >= $value->stock) {
+       
+
+      $data=array(
+        'pending_request_count'=>$value->stock
       );
 
       $this->db->where('id',$value->id);
