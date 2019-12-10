@@ -2600,6 +2600,7 @@ function get_data_for_partner_callback($booking_id) {
         if(!empty($where)){
             $this->db->where($where);
         }
+        $this->db->group_by("booking_id");
         $query = $this->db->get('callback_api_booking_details');
         return $query->result_array();
     }
