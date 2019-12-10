@@ -400,7 +400,8 @@
                         
                     //    $("#same_awb").css({"color": "green", "font-weight": "900"});
                         //  $("#same_awb").css("font-wight",900);
-                   //     alert("This AWB already used same price will be added");
+
+                         alert("This AWB already used same price will be added");
                         $("#same_awb").css("display", "block");
                         $('body').loadingModal('destroy');
     
@@ -431,12 +432,10 @@
                         }
                         
                          $("#courier_boxes_weight_flag").val(data.message[0]['partcount'] );
-    
-    
+
                         if (data.message[0].defective_courier_receipt) {
-    
-                            $("#exist_courier_image").val(data.message[0].defective_courier_receipt);
-                            $("#aws_receipt").css("display", "none");
+         
+                            
                         }
                        
                         //    alert(data.message[0]['partcount'])
@@ -445,6 +444,10 @@
                             var wieght = data.message[0]['billable_weight'].split(".");
                             $("#defective_parts_shipped_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
                             $("#defective_parts_shipped_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
+                            <?php if ($spare_parts[0]['defective_part_rejected_by_partner']==1) { ?>
+                                $("#defective_parts_shipped_weight_in_kg").removeAttr("readonly");
+                                $("#defective_parts_shipped_weight_in_gram").removeAttr("readonly");
+                              <?php } ?>
                         }
                         
                     } else {

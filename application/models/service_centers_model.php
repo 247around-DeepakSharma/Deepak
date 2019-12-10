@@ -993,6 +993,17 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $this->db->insert_ignore('courier_company_invoice_details',$data);
         return $this->db->insert_id();
     }
+
+        /**
+     * @desc: this is used to insert awb details of spare parts
+     * @param: array
+     * @return: id
+     */
+    function update_awb_details($data,$awb){
+        $this->db->where('awb_number',$awb);
+        $this->db->update('courier_company_invoice_details',$data);
+        return $this->db->insert_id();
+    }
     /**
      * @desc This function is used to insert category and capacity updated by DF
      */
