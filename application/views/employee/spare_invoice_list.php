@@ -47,7 +47,7 @@
                     }
                     if (!empty($invoice_pdf)) {
                         ?>
-                        <a target="_blank" href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $invoice_pdf;  ?>">
+                        <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/invoices-excel/<?php echo $invoice_pdf;  ?>">
                             <img style="width:27px;" src="<?php echo base_url();?>images/invoice_icon.png"; /></a>
                     <?php } ?>
                     </td>
