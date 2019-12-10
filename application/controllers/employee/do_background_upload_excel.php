@@ -2257,5 +2257,129 @@ class Do_background_upload_excel extends CI_Controller {
             
         }
     }
+    
+    /** @Desc - This function is used to show view for upload engineer incentive file **/
+    function upload_engineer_incentive_file() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_engineer_incentive_file');
+    }
+    
+    function process_engineer_incentive_file() {
+        log_message("info", __METHOD__ . " File Upload: Engineer incentive processing...");
+        
+        //check file type
+        $response = array();
+        $excel_booking = array();
+        $valid_data = array();
+        $upload_file_type = ENGINEER_INCENTIVE_FILE_TYPE;
+        $this->revert_file_email = $this->input->post('revert_file_email');
+
+        //get file extension and file tmp name
+        $file_status = $this->get_upload_file_type();
+
+        //if file type is valid then validate header for processing
+        if ($file_status['status']) {
+            //get file header
+            $header_data = $this->read_upload_file_header($file_status);
+            //check all required header and file type 
+            if ($header_data['status']) {
+                //check if file contains duplicate header. terminate the process if file conatains duplicate 
+                //headers and send email to am
+                if (count(array_unique($header_data['header_data'])) === count($header_data['header_data'])) {
+                    log_message('info', 'duplicate header not found. Processing file process...');
+                    $header_data = array_merge($header_data, $file_status);
+                    $header_data['file_type'] = $upload_file_type;
+                    
+                    $is_all_header_present = array_diff(array('booking_id', 'incentive_amount'), $header_data['header_data']);
+                    if (empty($is_all_header_present)) {
+                        for ($row = 2, $i = 0; $row <= $header_data['highest_row']; $row++, $i++) {
+                            $rowData_array = $header_data['sheet']->rangeToArray('A' . $row . ':' . $header_data['highest_column'] . $row, NULL, TRUE, FALSE);
+                            $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                            if (!empty(array_filter($sanitizes_row_data))) { 
+                                $rowData = array_combine($header_data['header_data'], $rowData_array[0]);
+                                if (!empty($rowData['booking_id']) && !empty($rowData['incentive_amount'])){   
+                                    if(!in_array($rowData['booking_id'], $excel_booking)){
+                                        if($rowData['incentive_amount'] <= ENGINEER_INCENTIVE_MAX_AMOUNT){
+                                            $booking_existing_data = $this->engineer_model->get_booking_with_eng_incentive("booking_details.id as booking_details_id, booking_details.current_status, engineer_incentive_details.id as engineer_incentive_id", array("booking_id" => $rowData['booking_id']));
+                                            if((!empty($booking_existing_data)) && ($booking_existing_data[0]['engineer_incentive_id'] == NULL) && ($booking_existing_data[0]['current_status'] == _247AROUND_COMPLETED)){
+                                                $incentive_data = array();
+                                                $incentive_data["booking_details_id"] = $booking_existing_data[0]["booking_details_id"];
+                                                $incentive_data["partner_incentive"] = $rowData['incentive_amount'];
+                                                $incentive_data["is_active"] = 1;
+                                                $incentive_data["is_paid"] = 0;
+                                                array_push($valid_data, $incentive_data);
+                                                $response['status'] = TRUE;
+                                                $response['message'] = "File uploaded successfully";
+                                            }
+                                            else{
+                                                $response['status'] = FALSE;
+                                                $response['message'] = 'Error in booking id - '.$rowData['booking_id'].', Either it is not completed or already exist in the system. Please remove it and upload file again';
+                                                break;
+                                            }
+                                        }
+                                        else{
+                                            $response['status'] = FALSE;
+                                            $response['message'] = "Engineer incentive amount is greater then max limit";
+                                            break; 
+                                        }
+                                    }
+                                    else{
+                                        $response['status'] = FALSE;
+                                        $response['message'] = "Duplicate booking-id found in file";
+                                        break;
+                                    }
+                                }
+                                else {
+                                    log_message("info", __METHOD__ . "booking_id and incentive_amount can not be empty");
+                                    $response['status'] = FALSE;
+                                    $response['message'] = "booking_id and incentive_amount can not be empty";
+                                    break;
+                                }
+                            }
+                            else {
+                                log_message("info", __METHOD__ . "Something wrong in file");
+                                $response['status'] = FALSE;
+                                $response['message'] = "Something wrong in file";
+                                break;
+                            }
+                        }
+                        
+                        //Upload partner incentive file on server and make entry in file_upload table
+                        if($response['status']){ 
+                            log_message("info", "File Uploaded successfully");
+                            foreach ($valid_data as $key => $value) {
+                                $this->engineer_model->insert_eng_incentive_details($value);
+                            }
+                            $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER . $header_data['file_name'], $upload_file_type, FILE_UPLOAD_SUCCESS_STATUS, " ", " ", " ", 0);
+                            $this->session->set_flashdata('file_success', $response['message']);
+                            //redirect(base_url() . "employee/do_background_upload_excel/upload_engineer_incentive_file");
+                        }
+                        else{
+                            $this->session->set_flashdata('file_error', $response['message']);
+                            $this->miscelleneous->update_file_uploads($header_data['file_name'], TMP_FOLDER . $header_data['file_name'], $upload_file_type, FILE_UPLOAD_FAILED_STATUS, " ", " ", " ", 0);
+                            //redirect(base_url() . "employee/do_background_upload_excel/upload_engineer_incentive_file");
+                        }
+                    } else {
+                        log_message('info', __FUNCTION__ . "heaser not present");
+                        $this->session->set_flashdata('file_error', "<b>" . implode($is_all_header_present, ',') . " </b> column does not exist.Please correct these and upload again. <br><br><b> For reference,Please use previous successfully upload file from CRM</b>");
+                        //redirect(base_url() . "employee/do_background_upload_excel/upload_engineer_incentive_file");
+                    }
+                } else {
+                    log_message('info', 'duplicate header found.');
+                    $this->session->set_flashdata('file_error', 'File Contains Duplicate Header Column. Please Check and Try again');
+                    //redirect(base_url() . "employee/do_background_upload_excel/upload_engineer_incentive_file");
+                }
+            } else {
+                $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+                //redirect(base_url() . "employee/do_background_upload_excel/upload_engineer_incentive_file");
+            }
+        } else {
+            $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+            //redirect(base_url() . "employee/do_background_upload_excel/upload_engineer_incentive_file");
+        }
+        $res1 = 0;
+        system("chmod 777" . TMP_FOLDER . $header_data['file_name'], $res1);
+        unlink(TMP_FOLDER . $header_data['file_name']);
+    }
 
 }

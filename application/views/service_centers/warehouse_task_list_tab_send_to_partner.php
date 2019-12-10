@@ -236,10 +236,12 @@
                                         <select class="form-control" id="to_gst_number" required>
                                             <option selected disabled value="">Select To GST number</option>
                                             <?php
-                                            foreach ($to_gst_number as $gst_numbers => $gst_number) {
-                                            ?>
-                                            <option value="<?php echo $gst_number['id']  ?>"><?php echo $gst_number['state']." - ".$gst_number['gst_number'] ?></option>
-                                            <?php    
+                                            if(!empty($to_gst_number)) {
+                                                foreach ($to_gst_number as $gst_numbers => $gst_number) {
+                                                ?>
+                                                <option value="<?php echo $gst_number['id']  ?>"><?php echo $gst_number['state']." - ".$gst_number['gst_number'] ?></option>
+                                                <?php    
+                                                }
                                             }
                                             ?>
                                         </select>

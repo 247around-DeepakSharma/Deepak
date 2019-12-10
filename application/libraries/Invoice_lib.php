@@ -724,7 +724,7 @@ class Invoice_lib {
                     $tmp_arr['value'] = $value2[0]['challan_approx_value'];
                     
                 } else if(isset($value2[0]['inventory_id'])){
-                    $c_value = $this->get_challan_value($value2[0]['inventory_id']);
+                    $c_value = $this->get_challan_value($value2[0]['inventory_id'], $value2[0]['shipped_quantity']);
                     if($c_value){
                          $tmp_arr['value'] = $c_value;
                          $spare_id = 0;
@@ -809,13 +809,13 @@ class Invoice_lib {
      * @param int $inventory_id
      * @return boolean
      */
-    function get_challan_value($inventory_id){
+    function get_challan_value($inventory_id, $shipped_quantity){
         if(!empty($inventory_id)){
             $c_s = "inventory_master_list.oow_around_margin, inventory_master_list.gst_rate, inventory_master_list.price";
             $data = $this->ci->inventory_model->get_inventory_master_list_data($c_s, array('inventory_master_list.inventory_id' => $inventory_id));
             if(!empty($data)){
                 $estimate_cost = round($data[0]['price'] * ( 1 + $data[0]['gst_rate'] / 100), 0);
-                return round($estimate_cost * ( 1 + $data[0]['oow_around_margin'] / 100), 0);
+                return (round($estimate_cost * ( 1 + $data[0]['oow_around_margin'] / 100), 0) * $shipped_quantity);
             }
         }
         
@@ -1447,7 +1447,7 @@ class Invoice_lib {
                 "third_party_entity_id" => (isset($response['meta']['third_party_entity_id']))?$response['meta']['third_party_entity_id']:NULL,
                 'invoice_file_main' => $convert['main_pdf_file_name'],
                 'invoice_file_excel' => $response['meta']['invoice_id'] . ".xlsx",
-                'invoice_detailed_excel' => $response['meta']['invoice_id'] . '-detailed.xlsx',
+                'invoice_detailed_excel' => (isset($response['meta']['invoice_detailed_excel'])?$response['meta']['invoice_detailed_excel']:NULL),
                 'from_date' => date("Y-m-d", strtotime($response['meta']['sd'])), //??? Check this next time, format should be YYYY-MM-DD
                 'to_date' => date("Y-m-d", strtotime($response['meta']['sd'])),
                 'num_bookings' => $response['meta']['service_count'],

@@ -22,6 +22,11 @@
                                 </a>
                             </li>
                             <li role="presentation">
+                                <a href="#tabs-7" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/get_rejected_msl">
+                                    Rejected MSL
+                                </a>
+                            </li>
+                            <li role="presentation">
                                 <a href="#tabs-2" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/spare_parts/0/1">
                                 <!--  Pending Spares--> Send To SF
                                 </a>

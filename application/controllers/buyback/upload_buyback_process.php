@@ -1145,6 +1145,7 @@ class Upload_buyback_process extends CI_Controller {
                     $response['meta']['invoice_file_main'] = $output_pdf_file_name;
                     $response['meta']['copy_file'] = $convert['copy_file'];
                     $response['meta']['invoice_file_excel'] = $invoice_id.".xlsx";
+                    $response['meta']['invoice_detailed_excel'] = NULL;
 
                     $this->invoice_lib->upload_invoice_to_S3($invoice_id, false);
                 }
@@ -1179,7 +1180,7 @@ class Upload_buyback_process extends CI_Controller {
                     $this->notify->sendEmail($from, $to, $cc, "", $subject, $body, $attachment, BUYBACK_REIMBURESE_PO_UPLOADED, "", "");
 
                     unlink(TMP_FOLDER.$output_pdf_file_name);
-
+                    unlink(TMP_FOLDER."copy_".$invoice_id.".pdf");
 
                     unlink(TMP_FOLDER.$invoice_id.".xlsx");
                     unlink(TMP_FOLDER."copy_".$invoice_id.".xlsx");
