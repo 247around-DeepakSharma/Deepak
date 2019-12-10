@@ -673,7 +673,8 @@ class partner_sd_cb {
         log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
         $booking_symptom = $this->My_CI->booking_model->getBookingSymptom($data['booking_id']);
         $this->requestUrl = __METHOD__;
-        if (!empty($data) && $data['current_status'] == _247AROUND_PENDING ) {
+        //Trigger only for Scheduled or Assigned Vendor
+        if (!empty($data) && $data['current_status'] == _247AROUND_PENDING && ($data['internal_status'] == "Assigned_vendor" || $data['internal_status'] == "Scheduled")) {
             log_message('info', __METHOD__. " Current status". $data['current_status']. " Booking ID ".$data['booking_id']);
             $get_akai_api_token = $this->get_akai_api_token(); 
             $token = json_decode($get_akai_api_token, true);
@@ -774,8 +775,8 @@ class partner_sd_cb {
     function update_akai_closed_details($data){
         log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
         $this->requestUrl = __METHOD__;
-        
-        if (!empty($data) && $data['type'] == "Booking") {
+        //trigger only for closed call
+        if (!empty($data) && $data['type'] == "Booking" && ($data['current_status'] == _247AROUND_CANCELLED || $data['current_status'] == _247AROUND_COMPLETED) ) {
             $this->partner = $data['partner_id'];
             
             $get_akai_api_token = $this->get_akai_api_token(); 
@@ -894,11 +895,17 @@ class partner_sd_cb {
     }
     
     function insertCallbackFailure($booking_id){
-        $insertCallbackFailure = array();
-        $insertCallbackFailure['booking_id'] = $booking_id;
-        $insertCallbackFailure['api_status'] = 0;
-        $insertCallbackFailure['api_call_count'] = 1;
-        $this->My_CI->partner_model->insert_callback_api_booking_details($insertCallbackFailure);
+        $booking_exist = $this->My_CI->partner_model->get_callback_api_booking_details("booking_id, ", array("booking_id" => $booking_id));
+        if(empty($booking_exist)){
+            $insertCallbackFailure = array();
+            $insertCallbackFailure['booking_id'] = $booking_id;
+            $insertCallbackFailure['api_status'] = 0;
+            $insertCallbackFailure['api_call_count'] = 1;
+            $this->My_CI->partner_model->insert_callback_api_booking_details($insertCallbackFailure);
+        }
+        else{
+            $this->My_CI->partner_model->update_callback_api_count(array(), array("booking_id" => $booking_id));
+        }
     }
     
     function updateCallbackFailure($booking_id){
