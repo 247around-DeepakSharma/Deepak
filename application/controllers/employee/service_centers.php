@@ -2164,6 +2164,7 @@ class Service_centers extends CI_Controller {
             
             $response = array();
         }
+        $f_status = true;
         $booking_id = $this->input->post('booking_id');
         $is_booking_able_to_reschedule = $this->booking_creation_lib->is_booking_able_to_reschedule($this->input->post('booking_id'));
         if ($is_booking_able_to_reschedule === FALSE) {
