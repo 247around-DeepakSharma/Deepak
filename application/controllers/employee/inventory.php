@@ -6395,7 +6395,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
             } else {
                 $select = "spare_parts_details.booking_id,spare_parts_details.partner_challan_number,spare_parts_details.sf_challan_number,"
                         . "spare_parts_details.partner_challan_file,spare_parts_details.sf_challan_file,spare_parts_details.awb_by_partner,spare_parts_details.awb_by_sf,"
-                        . "spare_parts_details.courier_pic_by_partner ";
+                        . "spare_parts_details.courier_pic_by_partner,spare_parts_details.parts_shipped,im.part_number,spare_parts_details.shipped_parts_type,im.price,im.gst_rate";
                 $where = array();
 
                 if ($this->input->post('sf_id')) {
@@ -6440,8 +6440,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
                             $where["spare_parts_details.defective_part_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.defective_part_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
                         }
                     }
-
-                    $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE);
+                    $post['is_inventory'] = TRUE;
+                    $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE,FALSE,$post);
                 }
 
 
