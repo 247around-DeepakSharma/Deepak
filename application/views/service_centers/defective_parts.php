@@ -634,12 +634,14 @@ $("#spareids").val(yourArray);
                         }
                         
                          $("#courier_boxes_weight_flag").val(data.message[0]['partcount'] );
-                            $("#aws_receipt").removeAttr("required");
+                        //$("#aws_receipt").removeAttr("required");
     
                         if (data.message[0].defective_courier_receipt) {
     
-                            $("#exist_courier_image").val(data.message[0].defective_courier_receipt);
-                            $("#aws_receipt").css("display", "none");
+                             
+                                $("#exist_courier_image").val(data.message[0].defective_courier_receipt);
+                                $("#aws_receipt").css("display", "none");
+                             
                         }
                        
                         //    alert(data.message[0]['partcount'])
