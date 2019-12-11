@@ -2833,11 +2833,13 @@ class Miscelleneous {
     function get_reader_by_file_type($type, $url, $width) {
         $finalString = '';
         if ($type == 'video') {
+            /*
             if (filter_var($url, FILTER_VALIDATE_URL)) {
                 $url = $url;
             } else {
                 $url = S3_WEBSITE_URL."vendor-partner-docs/".$url;
             }
+            */
             $finalString = '<video width="' . $width . '" controls>
   <source src="' . $url . '" type="video/mp4">
   Your browser does not support HTML5 video.
