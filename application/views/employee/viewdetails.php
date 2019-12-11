@@ -816,7 +816,7 @@
                                         <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else { echo "Warehouse";} ?></td>
                                         <td><?php echo $sp['purchase_price']; ?></td>
                                         <td><?php if(!empty($sp['estimate_cost_given_date'])) { echo date("d-m-Y", strtotime($sp['estimate_cost_given_date'])); } ?></td>
-                                        <td><?php if(!is_null($sp['incoming_invoice_pdf'])) { if( $sp['incoming_invoice_pdf'] !== '0'){ ?> <a href="https://s3.amazonaws.com/bookings-collateral/invoices-excel/<?php echo $sp['incoming_invoice_pdf'];  ?> " target="_blank">Click Here</a><?php } } ?></td>
+                                        <td><?php if(!is_null($sp['incoming_invoice_pdf'])) { if( $sp['incoming_invoice_pdf'] !== '0'){ ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/invoices-excel/<?php echo $sp['incoming_invoice_pdf'];  ?> " target="_blank">Click Here</a><?php } } ?></td>
                                         <td><?php echo $sp['sell_invoice_id'];?></td>
                                         <td><?php echo $sp['status']; ?></td>
                                     </tr>
@@ -859,7 +859,7 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['parts_shipped'])){ ?>
                                     <tr>
-                                        <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo "Partner";} else { echo "Warehouse";} ?></td>
+                                        <td><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING) { echo _247AROUND_PARTNER_STRING;} else { echo "Warehouse";} ?></td>
                                         <td style="word-break: break-all;"><?php echo $sp['parts_shipped']; ?></td> 
                                         <td style="word-break: break-all;"><?php if(!empty($sp['shipped_part_number'])){echo $sp['shipped_part_number'];}else{echo 'Not Available';}  ?></td> 
                                         <td><?php echo $sp['shipped_quantity'];  ?></td>  
@@ -920,7 +920,7 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
-                                        <th>Send Defective To</th>
+                                        <th>SF Dispatch Defective Part To Warehouse/Partner</th>
                                         <th>Shipped Parts </th>
                                         <th>Shipped Parts Number</th>
                                         <th>Shipped Quantity</th>
@@ -941,7 +941,7 @@
                                 <tbody>
                                     <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
                                     <tr>
-                                        <td><?php if(!empty($sp['send_defective_to'])) { echo $sp['send_defective_to']; } ?></td>   
+                                        <td><?php if(!empty($sp['send_defective_to'])) { echo $sp['send_defective_to']; } else { echo ucfirst(_247AROUND_PARTNER_STRING); }?></td>   
                                         <td><?php echo $sp['defective_part_shipped']; ?></td>
                                         <td><?php if(!empty($sp['shipped_part_number'])){ echo $sp['shipped_part_number'];}else{echo 'Not Available';} ?></td>
                                         <td><?php echo $sp['shipped_quantity']; ?></td>
@@ -983,6 +983,78 @@
                                             <a class="btn btn-primary" href="<?php echo base_url();?>employee/service_centers/update_spare_courier_details/<?php echo $sp['id'];?>" target="_blank">Update</a>
                                         </td>
                                     </tr>
+                                    <?php
+                                        if (!is_null($sp['defective_parts_shippped_date_by_wh'])) {
+                                              $defective_parts_shippped_date_by_wh = TRUE; 
+                                        } 
+                                    ?>
+                                    <?php } } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <?php } if (!empty($defective_parts_shippped_date_by_wh)) { ?>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1 style='font-size:24px;'>Warehouse Dispatch Defective To Partner</h1>
+                        <div class="col-md-12" style="padding-left:1px;">
+                            <table class="table  table-striped table-bordered" >
+                                <thead>
+                                    <tr>
+                                        <th>Shipped Parts </th>
+                                        <th>Shipped Parts Number</th>
+                                        <th>Shipped Quantity</th>
+                                        <th>Courier Name </th>
+                                        <th>AWB </th>
+                                        <th> No. Of Boxes </th>
+                                        <th> Weight</th>
+                                        <th>Courier Charge </th>
+                                        <th> Courier Invoice</th>
+                                        <th>Shipped date </th>
+                                        <th>SF Challan Number</th>
+                                        <th>SF Challan File</th>
+                                     </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($booking_history['spare_parts'] as $sp) { if(!empty($sp['defective_part_shipped'])){ ?>
+                                    <tr>
+                                        <td><?php echo $sp['defective_part_shipped']; ?></td>
+                                        <td><?php if(!empty($sp['shipped_part_number'])){ echo $sp['shipped_part_number'];}else{echo 'Not Available';} ?></td>
+                                        <td><?php echo $sp['shipped_quantity']; ?></td>
+                                        <td><?php echo ucwords(str_replace(array('-','_'), ' ', $sp['courier_name_by_sf'])); ?></td>
+                                        <?php
+                                        $spareStatus = DELIVERED_SPARE_STATUS;
+                                        if(!$sp['defactive_part_received_date_by_courier_api']){
+                                            $spareStatus = $sp['status'];
+                                        }
+                                        ?>
+                                        <td><a href="javascript:void(0)" onclick="get_awb_details('<?php echo $sp['courier_name_by_wh']; ?>','<?php echo $sp['awb_by_wh']; ?>','<?php echo $spareStatus; ?>','<?php echo "awb_loader_".$sp['awb_by_wh']; ?>')"><?php echo $sp['awb_by_wh']; ?></a> 
+                                            <span id="<?php echo "awb_loader_".$sp['awb_by_wh'];?>" style="display:none;"><i class="fa fa-spinner fa-spin"></i></span></td>
+                                        <td><?php if(!empty($sp['awb_by_wh']) && !empty($wh_courier_boxes_weight_details['box_count'])){ echo $wh_courier_boxes_weight_details['box_count']; } ?></td>
+                                        <td><?php
+                                                    if (!empty($sp['awb_by_wh'])) {
+                                                        if (!empty($wh_courier_boxes_weight_details['billable_weight'])) {
+                                                            $expl_data = explode('.', $wh_courier_boxes_weight_details['billable_weight']);
+                                                            if (!empty($expl_data[0])) {
+                                                                echo $expl_data[0] . ' KG ';
+                                                            }
+                                                            if (!empty($expl_data[1])) {
+                                                                echo $expl_data[1] . ' Gram';
+                                                            }
+                                                        }
+                                                    }
+                                                                ?></td>
+                                       <td><?php echo $sp['courier_price_by_wh']; ?></td>
+                                        <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_shippped_courier_pic_by_wh']; ?> " target="_blank">Click Here to view</a></td>
+                                        <td><?php if(!empty($sp['defective_parts_shippped_date_by_wh'])){ echo date('d-m-Y', strtotime($sp['defective_parts_shippped_date_by_wh'])); } ?></td>
+                                        <td><?php echo $sp['wh_challan_number']; ?></td>
+                                        <td>
+                                            <?php if (!empty($sp['wh_challan_file'])) { ?> 
+                                                <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $sp['wh_challan_file']; ?>" target="_blank">Click Here to view</a>
+                                            <?php } ?>
+                                        </td>    
+                                    </tr>
                                     <?php } } ?>
                                 </tbody>
                             </table>
@@ -990,7 +1062,8 @@
                     </div>
                 </div>
                 <?php } ?>
-                <?php } else { ?> 
+                
+                <?php } else if(empty ($booking_history['spare_parts'])) { ?> 
                 <div class="text-danger">Spare Part Not Requested</div>
                 <?php } ?>
                 <div class="row">

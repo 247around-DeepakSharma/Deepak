@@ -212,8 +212,8 @@ class Invoice extends CI_Controller {
             else{
                 $email_template = $this->booking_model->get_booking_email_template("resend_invoice"); 
                 $email_template_name = "resend_invoice";
-                $subject = vsprintf($email_template[4], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
-                $message = vsprintf($email_template[0], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
+                $subject = vsprintf($email_template[4], array(date("d/m/Y", strtotime($start_date)), date("d/m/Y", strtotime($end_date))));
+                $message = vsprintf($email_template[0], array(date("d/m/Y", strtotime($start_date)), date("d/m/Y", strtotime($end_date))));
             }
             // download invoice pdf file to local machine
             if ($vendor_partner == "vendor") {
@@ -717,8 +717,20 @@ class Invoice extends CI_Controller {
                     $this->booking_model->update_misc_charges(array('id' => $value['id']), array('partner_invoice_id' => $meta['invoice_id']));
                 }
                 exec("rm -rf " . escapeshellarg(TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx"));
+                if (file_exists(TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx")) {
+                    unlink(TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx");
+                }
             }
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
+            if (file_exists(TMP_FOLDER . $meta['invoice_id'] . ".pdf")) {
+                unlink(TMP_FOLDER . $meta['invoice_id'] . ".pdf");
+            }
+            if (file_exists(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".pdf")) {
+                unlink(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".pdf");
+            }
+            if (file_exists(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx")) {
+                unlink(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx");
+            }
         } else {
            
             $this->download_invoice_files($meta['invoice_id'], $output_file_excel, $output_pdf_file_name);
@@ -727,6 +739,9 @@ class Invoice extends CI_Controller {
         //Delete XLS files now
         foreach ($files as $file_name) {
             exec("rm -rf " . escapeshellarg($file_name));
+            if (file_exists($file_name)) {
+                unlink($file_name);
+            }
         }
 
         return true;
@@ -763,6 +778,22 @@ class Invoice extends CI_Controller {
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $invoice_id . "-draft.pdf"));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.pdf'));
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . $invoice_id . '-draft.xlsx'));
+            
+            if (file_exists(TMP_FOLDER . $invoice_id . '.zip')) {
+                unlink(TMP_FOLDER . $invoice_id . '.zip');
+            }
+            if (file_exists(TMP_FOLDER . "copy_" . $invoice_id . "-draft.xlsx")) {
+                unlink(TMP_FOLDER . "copy_" . $invoice_id . "-draft.xlsx");
+            }
+            if (file_exists(TMP_FOLDER . "copy_" . $invoice_id . "-draft.pdf")) {
+                unlink(TMP_FOLDER . "copy_" . $invoice_id . "-draft.pdf");
+            }
+            if (file_exists(TMP_FOLDER . $invoice_id . '-draft.pdf')) {
+                unlink(TMP_FOLDER . $invoice_id . '-draft.pdf');
+            }
+            if (file_exists(TMP_FOLDER . $invoice_id . '-draft.xlsx')) {
+                unlink(TMP_FOLDER . $invoice_id . '-draft.xlsx');
+            }
         }                                              
     }
 
@@ -959,7 +990,15 @@ class Invoice extends CI_Controller {
                      $this->booking_model->update_booking(trim($value['booking_id']), array('upcountry_vendor_invoice_id' => $meta['invoice_id']));
                  }
              }
-             
+            if (file_exists(TMP_FOLDER . $output_file_main)) {
+                unlink(TMP_FOLDER . $output_file_main);
+            }
+            if (file_exists(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".pdf")) {
+                unlink(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".pdf");
+            }
+            if (file_exists(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx")) {
+                unlink(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx");
+            }
              
         } else {
             
@@ -969,6 +1008,9 @@ class Invoice extends CI_Controller {
         //Delete XLS files now
         foreach ($files as $file_name) {
             exec("rm -rf " . escapeshellarg($file_name));
+            if (file_exists($file_name)) {
+                unlink($file_name);
+            }
         }
         unset($meta);
         unset($invoice_details);
@@ -1361,6 +1403,15 @@ class Invoice extends CI_Controller {
             if(!empty($invoice_details)){
                 $this->update_invoice_id_in_unit_details($invoice_details, $invoice_data['meta']['invoice_id'], $invoice_type, "vendor_foc_invoice_id");
             }
+            if (file_exists(TMP_FOLDER . $invoice_data['meta']['invoice_id'] . ".pdf")) {
+                unlink(TMP_FOLDER . $invoice_data['meta']['invoice_id'] . ".pdf");
+            }
+            if (file_exists(TMP_FOLDER . "copy_" . $invoice_data['meta']['invoice_id'] . ".pdf")) {
+                unlink(TMP_FOLDER . "copy_" . $invoice_data['meta']['invoice_id'] . ".pdf");
+            }
+            if (file_exists(TMP_FOLDER . "copy_" . $invoice_data['meta']['invoice_id'] . ".xlsx")) {
+                unlink(TMP_FOLDER . "copy_" . $invoice_data['meta']['invoice_id'] . ".xlsx");
+            }
             
         } else {
 
@@ -1371,6 +1422,9 @@ class Invoice extends CI_Controller {
         //Delete XLS files now
         foreach ($files as $file_name) {
             exec("rm -rf " . escapeshellarg($file_name));
+            if (file_exists($file_name)) {
+                unlink($file_name);
+            }
         }
            
         return true;
@@ -1933,6 +1987,12 @@ class Invoice extends CI_Controller {
                     }
                     $cp_file = TMP_FOLDER."copy_".$invoice['meta']['invoice_id'].".xlsx";
                     array_push($files, $cp_file);
+                    if (file_exists(TMP_FOLDER . $output_pdf_file_name)) {
+                        unlink(TMP_FOLDER . $output_pdf_file_name);
+                    }
+                    if (file_exists(TMP_FOLDER . "copy_" . $invoice['meta']['invoice_id'] . ".pdf")) {
+                        unlink(TMP_FOLDER . "copy_" . $invoice['meta']['invoice_id'] . ".pdf");
+                    }
  
                 } else {
                     $output_file_excel = TMP_FOLDER . $invoice['meta']['invoice_id'] . "-draft.xlsx";
@@ -1944,6 +2004,9 @@ class Invoice extends CI_Controller {
                 //Delete XLS files now
                 foreach ($files as $file_name) {
                     exec("rm -rf " . escapeshellarg($file_name));
+                    if (file_exists($file_name)) {
+                        unlink($file_name);
+                    }
                 }
 
                 return true;
@@ -2186,9 +2249,9 @@ class Invoice extends CI_Controller {
                    
                 }
             } else {
-                log_message('info', __FUNCTION__ . "=> Data Not Found for Buyback Invoice" . print_r($details));
+                log_message('info', __FUNCTION__ . "=> Data Not Found for Buyback Invoice");// . print_r($details)
 
-                echo "Data Not Found for Buyback Invoice" . PHP_EOL;
+//                echo "Data Not Found for Buyback Invoice" . PHP_EOL;
 
                
             }
@@ -2218,46 +2281,70 @@ class Invoice extends CI_Controller {
                    $str = "";
                     foreach($response as $value){
                         
-                        $buyback_invoice_id .= $value['invoice_id']."-";
+                        if (file_exists($value['excel'])) {
+                            $buyback_invoice_id .= $value['invoice_id']."-";
                             if (explode('.', $value['pdf'])[1] === 'pdf') {
-                        $output_file_pdf = TMP_FOLDER . $value['invoice_id'] . '-draft.pdf';
+                                $output_file_pdf = TMP_FOLDER . $value['invoice_id'] . '-draft.pdf';
 
-                        $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $value['pdf'] . " -o " . $output_file_pdf;
-                        exec($cmd);
+                                $cmd = "curl https://s3.amazonaws.com/" . BITBUCKET_DIRECTORY . "/invoices-excel/" . $value['pdf'] . " -o " . $output_file_pdf;
+                                exec($cmd);
 
-                        $str .= ' ' . TMP_FOLDER . $value['invoice_id']  . '.zip ' . TMP_FOLDER . $value['invoice_id']  . '-draft.xlsx' . ' ' . TMP_FOLDER . $value['invoice_id']  . '-draft.pdf'
-                                . ' ' . $value['excel'];
-                    } else {
-                        $str .= " ".TMP_FOLDER . $value['invoice_id']  . '-draft.xlsx' . ' ' .  $value['excel'];
+                                $str .= ' ' . TMP_FOLDER . $value['invoice_id']  . '.zip ' . TMP_FOLDER . $value['invoice_id']  . '-draft.xlsx' . ' ' . TMP_FOLDER . $value['invoice_id']  . '-draft.pdf'
+                                        . ' ' . $value['excel'];
+                            } else {
+                                $str .= " ".TMP_FOLDER . $value['invoice_id']  . '-draft.xlsx' . ' ' .  $value['excel'];
+                            }
+                        }
                     }
-                }
-                    $res1 = 0;
-                   ob_start();
+                    ob_start();
                     system('zip '. TMP_FOLDER.$buyback_invoice_id.".zip ". $str);
-                    system(" chmod 777 " . TMP_FOLDER . $buyback_invoice_id . '.zip ', $res1);
 
                     header('Content-Description: File Transfer');
                     header('Content-Type: application/octet-stream');
                     header("Content-Disposition: attachment; filename=\"$buyback_invoice_id.zip\"");
-                    if(file_exists(TMP_FOLDER . $buyback_invoice_id. '.zip')) {
-                        readfile(TMP_FOLDER . $buyback_invoice_id. '.zip');
-                    }
-                    $res1 = 0;
                     if(ob_get_length()>0) {
                         ob_end_flush();
                     }
+                    $res1 = 0;
+                    system(" chmod 777 " . TMP_FOLDER . $buyback_invoice_id . '.zip ', $res1);
+                    if(file_exists(TMP_FOLDER . $buyback_invoice_id. '.zip')) {
+                        readfile(TMP_FOLDER . $buyback_invoice_id. '.zip');
+                    }
                     
                     exec("rm -rf " . escapeshellarg(TMP_FOLDER . $buyback_invoice_id . '.zip'));
+                    if (file_exists(TMP_FOLDER . $buyback_invoice_id . '.zip')) {
+                        unlink(TMP_FOLDER . $buyback_invoice_id . '.zip');
+                    }
                     foreach ($response as $value1) {
                         exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $value1['invoice_id'] . "-draft.xlsx"));
+                        exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $value1['invoice_id'] . "-draft.pdf"));
                         exec("rm -rf " . escapeshellarg(TMP_FOLDER . $value1['invoice_id'] . '-draft.pdf'));
                         exec("rm -rf " . escapeshellarg(TMP_FOLDER . $value1['invoice_id'] . '-detailed.xlsx'));
                         exec("rm -rf " . escapeshellarg(TMP_FOLDER . $value1['invoice_id'] . '-draft.xlsx'));
+                        
+                        if (file_exists(TMP_FOLDER . "copy_" . $value1['invoice_id'] . "-draft.xlsx")) {
+                            unlink(TMP_FOLDER . "copy_" . $value1['invoice_id'] . "-draft.xlsx");
+                        }
+                        if (file_exists(TMP_FOLDER . "copy_" . $value1['invoice_id'] . "-draft.pdf")) {
+                            unlink(TMP_FOLDER . "copy_" . $value1['invoice_id'] . "-draft.pdf");
+                        }
+                        if (file_exists(TMP_FOLDER . $value1['invoice_id'] . '-draft.pdf')) {
+                            unlink(TMP_FOLDER . $value1['invoice_id'] . '-draft.pdf');
+                        }
+                        if (file_exists(TMP_FOLDER . $value1['invoice_id'] . '-detailed.xlsx')) {
+                            unlink(TMP_FOLDER . $value1['invoice_id'] . '-detailed.xlsx');
+                        }
+                        if (file_exists(TMP_FOLDER . $value1['invoice_id'] . '-draft.xlsx')) {
+                            unlink(TMP_FOLDER . $value1['invoice_id'] . '-draft.xlsx');
+                        }
                     }
             }
             foreach ($response as $file) {
                 foreach($file['files'] as $files){
                     exec("rm -rf " . escapeshellarg($files));
+                    if (file_exists($files)) {
+                        unlink($files);
+                    }
                 }
             }
 
@@ -2340,6 +2427,9 @@ class Invoice extends CI_Controller {
 
             $this->invoices_model->action_partner_invoice($invoice_details);
             exec("rm -rf " . escapeshellarg(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx"));
+            if (file_exists(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx")) {
+                unlink(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".xlsx");
+            }
             log_message('info', __METHOD__ . ': Invoice ' . $meta['invoice_id'] . ' details  entered into invoices table');
 
             //Insert invoice Breakup
@@ -2347,6 +2437,12 @@ class Invoice extends CI_Controller {
 
 
             $this->update_invoice_id_in_buyback($data, $meta['invoice_id'], $invoice_type, "cp_invoice_id");
+            if (file_exists(TMP_FOLDER . $output_file_main)) {
+                unlink(TMP_FOLDER . $output_file_main);
+            }
+            if (file_exists(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".pdf")) {
+                unlink(TMP_FOLDER . "copy_" . $meta['invoice_id'] . ".pdf");
+            }
             
         } else {
             $out['invoice_id'] = $meta['invoice_id'];
@@ -2355,9 +2451,12 @@ class Invoice extends CI_Controller {
         }
         $out['files'] = $files;
         //Do not Delete XLS files now
-//        foreach ($files as $file_name) {
-//            exec("rm -rf " . escapeshellarg($file_name));
-//        }
+        foreach ($files as $file_name) {
+            exec("rm -rf " . escapeshellarg($file_name));
+            if (file_exists($file_name)) {
+                unlink($file_name);
+            }
+        }
         unset($meta);
         unset($invoice_details);
         return $out;
@@ -3057,6 +3156,16 @@ class Invoice extends CI_Controller {
         exec("rm -rf " . escapeshellarg(TMP_FOLDER."payment_upload_summary.csv"));
         exec("rm -rf " . escapeshellarg($output_file_excel));
         exec("rm -rf " . escapeshellarg(TMP_FOLDER . 'payment_upload_summary.zip'));
+        
+        if (file_exists(TMP_FOLDER."payment_upload_summary.csv")) {
+            unlink(TMP_FOLDER."payment_upload_summary.csv");
+        }
+        if (file_exists($output_file_excel)) {
+            unlink($output_file_excel);
+        }
+        if (file_exists(TMP_FOLDER . 'payment_upload_summary.zip')) {
+            unlink(TMP_FOLDER . 'payment_upload_summary.zip');
+        }
     }
     /**
      * @desc Used to get un-settle invoice id
@@ -3667,6 +3776,7 @@ class Invoice extends CI_Controller {
                 $this->send_email_with_invoice($email_from, $to, $cc, $message, $subject, TMP_FOLDER.$output_pdf_file_name, "",$email_tag);
                 
                 unlink(TMP_FOLDER.$output_pdf_file_name);
+                unlink(TMP_FOLDER."copy_".$output_pdf_file_name);
             }
 
             unlink(TMP_FOLDER.$invoice_id.".xlsx");
@@ -3816,6 +3926,9 @@ class Invoice extends CI_Controller {
         $send_mail = $this->notify->sendEmail($email_from, $to, $cc, '', $subject, $message, $output_file_pdf,BRACKETS_CREDIT_NOTE_INVOICE_EMAIL_TAG);
         if ($send_mail) {
             exec("rm -rf " . escapeshellarg($output_file_excel));
+            if (file_exists($output_file_excel)) {
+                unlink($output_file_excel);
+            }
             return TRUE;
         } else {
             return FALSE;
@@ -3923,6 +4036,7 @@ class Invoice extends CI_Controller {
 
                 unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
                 unlink(TMP_FOLDER . $output_pdf_file_name);
+                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
                 unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
 
                 $invoice_details = array(
@@ -4213,6 +4327,10 @@ class Invoice extends CI_Controller {
 
             $to = $email_template[3];
             $cc = "";
+            
+            unset($response['meta']['main_company_logo_cell']);
+            unset($response['meta']['main_company_seal_cell']);
+            unset($response['meta']['main_company_sign_cell']);
 
             $this->upload_invoice_to_S3($response['meta']['invoice_id'], false);
 
@@ -4222,6 +4340,7 @@ class Invoice extends CI_Controller {
 
             unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
             unlink(TMP_FOLDER . $output_pdf_file_name);
+            unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
             unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
 
             $invoice_details = array(
@@ -4410,6 +4529,7 @@ class Invoice extends CI_Controller {
 
                 unlink(TMP_FOLDER . $response['meta']['invoice_id'] . ".xlsx");
                 unlink(TMP_FOLDER . $output_pdf_file_name);
+                unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".pdf");
                 unlink(TMP_FOLDER . "copy_" . $response['meta']['invoice_id'] . ".xlsx");
 
                 $invoice_details = array(
@@ -4487,8 +4607,9 @@ class Invoice extends CI_Controller {
             $is_validate = $this->validate_spare_purchase_data($part_data);
             if($is_validate['status']){
                 $w['length'] = -1;
+                $w['spare_invoice_flag'] = true;
                 $w['where_in'] = array("spare_parts_details.id" => $is_validate['data']);
-                $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, booking_details.partner_id, "
+                $w['select'] = "spare_parts_details.id, spare_parts_details.booking_id, purchase_price, public_name, booking_details.partner_id, oow_spare_invoice_details.invoice_pdf as oow_invoice_pdf,"
                         . "purchase_invoice_id,sell_invoice_id, sell_price, incoming_invoice_pdf, partners.state, parts_shipped, spare_parts_details.shipped_quantity, spare_parts_details.shipped_inventory_id";
                 $data = $this->inventory_model->get_spare_parts_query($w);
                 
@@ -4501,6 +4622,9 @@ class Invoice extends CI_Controller {
                     foreach ($data as $sp) {
                         if (!empty($sp->incoming_invoice_pdf)) {
                             $invoice_pdf = $sp->incoming_invoice_pdf;
+                            /* If incoming invoice PDF not exist in spare part details table then check oow_spare_invoice_details table */
+                        }else if(!empty($sp->oow_invoice_pdf)){
+                            $invoice_pdf = $sp->oow_invoice_pdf;
                         }
                     }
                     if (!empty($invoice_pdf)) {
@@ -4856,6 +4980,8 @@ class Invoice extends CI_Controller {
                             echo "Error";
                         }
 
+                        unlink(TMP_FOLDER . $output_pdf_file_name);
+                        unlink(TMP_FOLDER . $convert['copy_file']);
                         unlink(TMP_FOLDER . $invoice_id . ".xlsx");
                         unlink(TMP_FOLDER . "copy_" . $invoice_id . ".xlsx");
                     } else {

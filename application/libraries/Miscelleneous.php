@@ -234,8 +234,6 @@ class Miscelleneous {
                     }
                 }
             }
-            log_message('info', __FUNCTION__ . " Partner Callback booking_id " . $booking_id );
-            $this->My_CI->partner_cb->partner_callback($booking_id);
             log_message('info', __FUNCTION__ . " Exit...... booking_id " . $booking_id . " service center id " . $service_center_id);
             return true;
         } else {
@@ -4790,6 +4788,18 @@ function generate_image($base64, $image_name,$directory){
                 return date_format(date_create($date), "d-M-Y g:i A");
             } else {
                 return date_format(date_create($date), "d-M-Y");
+            }
+        } else {
+            return '';
+        }
+    }
+    
+    public function get_formatted_date_dmy($date, $time = false) {
+        if(!empty($date) && $date != '0000-00-00') {
+            if($time) {
+                return date_format(date_create($date), "d-M-Y g:i A");
+            } else {
+                return date_format(date_create($date), "d-m-Y");
             }
         } else {
             return '';
