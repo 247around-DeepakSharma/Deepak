@@ -2577,7 +2577,7 @@ function get_data_for_partner_callback($booking_id) {
     
     /*Desc - This function is used to insert booking callback details genrally we make an entry into it, only if calback API fails*/
     function insert_callback_api_booking_details($details) {
-        $this->db->insert('callback_api_booking_details', $details);
+        $this->db->insert_ignore('callback_api_booking_details', $details);
         return $this->db->insert_id();
     }
     
