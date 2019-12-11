@@ -648,7 +648,7 @@
                 </div>
             </div>
             <?php } ?>
-            <?php } if (!empty($defective_parts_shippped_date_by_wh)) { ?>
+            <?php }if ($defective_parts_shippped_date_by_wh) { ?>
                 <div class="row">
                     <div class="col-md-12">
                         <h1 style='font-size:24px;'>Warehouse Dispatch Defective To Partner</h1>
