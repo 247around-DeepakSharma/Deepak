@@ -554,6 +554,11 @@ function get_inventory_id(id){
 
         }
        });
+
+    function purchase_date_calendar(){
+
+        $("#purchase_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true}).datepicker('show');
+    }
     
 </script>
 <style type="text/css">
