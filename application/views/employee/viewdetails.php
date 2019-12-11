@@ -1063,7 +1063,7 @@
                 </div>
                 <?php } ?>
                 
-                <?php } else { ?> 
+                <?php } else if(empty ($booking_history['spare_parts'])) { ?> 
                 <div class="text-danger">Spare Part Not Requested</div>
                 <?php } ?>
                 <div class="row">
