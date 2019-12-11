@@ -761,11 +761,9 @@ class partner_sd_cb {
             if(!empty($res)){
                 $s = json_decode($res, true);
                 if (strpos($s['Status'], 'Success:') === false) {
-                    $this->insertCallbackFailure($data['booking_id']);
                     $this->callbackAPIFailed();
                 }
             } else {
-                $this->insertCallbackFailure($data['booking_id']);
                 $this->callbackAPIFailed();
             }
             
@@ -834,9 +832,9 @@ class partner_sd_cb {
                 $warrantyVoid = 0;
             }
             
-            $spare_parts_details = $this->My_CI->partner_model->get_spare_parts_by_any('spare_parts_details.id, shipped_inventory_id, purchase_price, serial_number', 
-                    array('spare_parts_details.booking_id' => $data['booking_id'],
-                'status NOT IN ("'._247AROUND_CANCELLED.'")' => NULL));
+//            $spare_parts_details = $this->My_CI->partner_model->get_spare_parts_by_any('spare_parts_details.id, shipped_inventory_id, purchase_price, serial_number', 
+//                    array('spare_parts_details.booking_id' => $data['booking_id'],
+//                'status NOT IN ("'._247AROUND_CANCELLED.'")' => NULL));
             
             $array[] = array(
                 'Defect' => $data['partner_current_status'],
@@ -886,7 +884,7 @@ class partner_sd_cb {
                 }
             } else {
                 log_message('info', __METHOD__. " Not Updated " . $data['booking_id']);
-                $this->updateCallbackFailure($data['booking_id']);
+                $this->insertCallbackFailure($data['booking_id']);
                 $this->callbackAPIFailed();
             }
             
