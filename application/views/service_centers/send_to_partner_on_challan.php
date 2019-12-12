@@ -492,6 +492,34 @@
             return false;
         }
         
+        if(!postData['awb_by_wh']){
+            console.log(postData['awb_by_wh']);
+        }
+        
+        if(!postData['courier_name_by_wh']){
+            console.log(postData['courier_name_by_wh']);
+        }
+        
+        if(!postData['defective_parts_shippped_date_by_wh']){
+            console.log(postData['defective_parts_shippped_date_by_wh']);
+        }
+        
+        if(!postData['shipped_spare_parts_boxes_count']){
+            console.log(postData['shipped_spare_parts_boxes_count']);
+        }
+        
+        if(!postData['shipped_spare_parts_weight_in_kg']){
+            console.log(postData['shipped_spare_parts_weight_in_kg']);
+        }
+        
+        if(!postData['shipped_spare_parts_weight_in_gram']){
+            console.log(postData['shipped_spare_parts_weight_in_gram']);
+        }
+        
+        if(!is_exist_file){
+            console.log(is_exist_file);
+        }
+                   
         if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['shipped_spare_parts_boxes_count'] && postData['shipped_spare_parts_weight_in_kg']  && postData['shipped_spare_parts_weight_in_gram']){
             $.ajax({
                 method:'POST',
