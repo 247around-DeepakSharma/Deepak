@@ -5005,6 +5005,7 @@ class Partner extends CI_Controller {
                         }
                         else{
                                 $temp['brand'] = $brands;
+                                $temp['is_file'] = $file;
                                 $temp['collateral_id'] = $contract_type;
                                 $temp['category'] = $category;
                                 $temp['appliance_id'] = $appliance_id;
