@@ -434,7 +434,7 @@
     $('#submit_courier_form_id').on('click',function(){
         $(".check_single_row").prop('checked', false);
         $("#send_spare_to_partner").attr('disabled',true);
-        $('#submit_courier_form_id').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+       
         postData['awb_by_wh'] = $('#awb_by_wh_id').val();
         postData['courier_name_by_wh'] = $('#courier_name_by_wh_id').val();
         postData['courier_price_by_wh'] = $('#courier_price_id').val();
@@ -493,33 +493,43 @@
         }
         
         if(!postData['awb_by_wh']){
-            console.log(postData['awb_by_wh']);
+
+          alert('AWB Should Not Be Blank.'); 
+          return false;
         }
         
         if(!postData['courier_name_by_wh']){
-            console.log(postData['courier_name_by_wh']);
+          alert('Courier Name Should Not Be Blank.'); 
+          return false;
         }
         
         if(!postData['defective_parts_shippped_date_by_wh']){
-            console.log(postData['defective_parts_shippped_date_by_wh']);
+          alert('Defective Part Shippped Date Should Not Be Blank.'); 
+          return false;
         }
         
         if(!postData['shipped_spare_parts_boxes_count']){
-            console.log(postData['shipped_spare_parts_boxes_count']);
+          alert('Boxes Count Should Not Be Blank.'); 
+          return false;
         }
         
         if(!postData['shipped_spare_parts_weight_in_kg']){
-            console.log(postData['shipped_spare_parts_weight_in_kg']);
+          alert('Weight In KG Should Not Be Blank.'); 
+          return false;
         }
         
         if(!postData['shipped_spare_parts_weight_in_gram']){
-            console.log(postData['shipped_spare_parts_weight_in_gram']);
+          alert('Weight In Gram Should Not Be Blank.'); 
+          return false;
         }
         
         if(!is_exist_file){
-            console.log(is_exist_file);
+          alert('Please Choose Courier File.'); 
+          return false;
         }
-                   
+        
+        $('#submit_courier_form_id').html("<i class = 'fa fa-spinner fa-spin'></i> Processing...").attr('disabled',true);
+        
         if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['shipped_spare_parts_boxes_count'] && postData['shipped_spare_parts_weight_in_kg']  && postData['shipped_spare_parts_weight_in_gram']){
             $.ajax({
                 method:'POST',
