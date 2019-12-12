@@ -1834,7 +1834,7 @@ class invoices_model extends CI_Model {
                 $select
                 sc.gst_no as gst_number, sc.state, sc.company_name,sc.address as company_address,
                 sc.primary_contact_email, sc.owner_email, 
-                sc.owner_phone_1, sc.primary_contact_phone_1,round(tax_rate,0) as gst_rate
+                sc.owner_phone_1, sc.district, sc.pincode, sc.primary_contact_phone_1,round(tax_rate,0) as gst_rate
                 FROM  `booking_unit_details` AS ud, services, booking_details AS bd, service_centres as sc
                 WHERE ud.booking_status =  'Completed'
                 AND ud.booking_id = bd.booking_id
@@ -1929,6 +1929,9 @@ class invoices_model extends CI_Model {
                 $meta['invoice_date'] = date("d/m/Y");
                 $meta['reference_invoice_id'] = "";
                 $meta['state_code'] = $this->get_state_code(array('state' => $meta['state']))[0]['state_code'];
+                $meta['company_address'] = $data[0]['company_address'] . "," 
+                    . $data[0]['district'] . "," . $data[0]['state'] . ", Pincode: "
+                    . $data[0]['pincode'];
                 $r_data['booking'] = $commission_charge;
                 $r_data['meta'] = $meta;
                 $r_data['upcountry'] = $upcountry_data;
