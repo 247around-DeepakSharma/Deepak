@@ -68,3 +68,13 @@ define('TRANSACTION_SUCCESS_CC','nits@247around.com');
 define("DEFAULT_MERCHANT_CONTACT_NO", "8826423424");
 
 define("CASHBACK_REASON_DISCOUNT", "Discount");
+
+
+/* Engineer incentive constants*/
+
+// Paytm Sub Wallet GUID for engineer incentive
+define("INCENTIVE_SUBWALLET_GUID", "846bb113-bf84-40b0-907d-6f167049677c");
+//Paytm Merchant id for engineer incentive
+define("INCENTIVE_PAYTM_MERCHANT_MID", "Blackm96092355456850");
+//Paytm error codes
+define("INVALID_BENEFICIARY_MOBILE_OR_EMAILID", "DE_044");

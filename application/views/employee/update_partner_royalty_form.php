@@ -39,7 +39,7 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <input type="text" placeholder="Slect Booking Close Date" class="form-control" id="close_date" value="" name="close_date"/>
+                            <input type="text" placeholder="Select Booking Close Date" class="form-control" id="close_date" value="" name="close_date"/>
                         </div>
                         <div class="col-md-3">
                             <input type= "submit" onclick="return download_booking_file()" class="form-control btn btn-primary btn-sm" value ="Download" > 
@@ -122,13 +122,13 @@
         $('input[name="close_date"]').daterangepicker({
             autoUpdateInput: false,
             locale: {
-                format: 'YYYY-MM-DD',
+                format: 'DD/MM/YYYY',
                  cancelLabel: 'Clear'
             }
         });
         
         $('input[name="close_date"]').on('apply.daterangepicker', function (ev, picker) {
-            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));  
+            $(this).val(picker.startDate.format('DD/MM/YYYY') + ' - ' + picker.endDate.format('DD/MM/YYYY'));  
         });
         
         $('input[name="close_date"]').on('cancel.daterangepicker', function (ev, picker) {

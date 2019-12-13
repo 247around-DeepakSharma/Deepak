@@ -410,4 +410,22 @@ class Engineer_model extends CI_Model {
         $this->db->insert("engineer_incentive_details", $data);
         return $this->db->insert_id();
     }
+    
+    /*
+     *@Desc - This function is used to update engineer incentive details
+     *@param - $data, $where
+     *@return - 
+     */
+    function update_eng_incentive_details($data, $where=array(), $where_in=array()){
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        if(!empty($where_in)){ 
+            $this->db->where_in("booking_details_id", $where_in);
+        }
+        else{
+            
+        }
+        $this->db->update("engineer_incentive_details", $data);
+    }
 }

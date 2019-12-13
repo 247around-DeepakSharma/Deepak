@@ -107,7 +107,7 @@
 </div>
 
 <script>
-    $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+    $("#invoice_date").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true, changeYear: true});
 
  function open_create_invoice_form(){
         $('#btn_create_invoice').attr('disabled',true);
