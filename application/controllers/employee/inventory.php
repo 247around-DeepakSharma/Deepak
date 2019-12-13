@@ -7692,8 +7692,131 @@ class Inventory extends CI_Controller {
     function download_msl_invoice() {
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
-        $this->load->view("employee/download_inventory_ledger");
+        $data['invoice_details']=array();
+        $this->load->view("employee/download_inventory_ledger",$data);
     }
+
+    /**
+     *  @desc : This function is used to get the list of sale purchase invoices.
+     *  @param : partner_id
+     *  @return : json
+     */
+
+    function get_list_sale_purchage_invoice_data(){
+ 
+        $post = $this->post_sale_purchage_invoice();
+        $partner_id=trim($_POST['partner_id']);
+        $select = "invoice_details.invoice_id,invoice_details.inventory_id, date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'invoice_date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'invoice_type', part_number, "
+                . "invoice_details.description, invoice_details.hsn_code, invoice_details.qty,invoice_details.settle_qty, rate, invoice_details.taxable_value, (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS gst_rate,"
+                . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS gst_tax_amount, total_amount, vendor_partner_invoices.type, entt_gst_dtl.gst_number,entity_gst_details.gst_number as to_gst_number,"
+                . "vendor_partner_invoices.sub_category,courier_details.AWB_no,courier_details.courier_name,date_format(courier_details.shipment_date, \"%d-%m-%Y %H:%i:%s\") as shipment_date";
+        
+        $where = array("sub_category IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_NEW_PART_RETURN."')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+
+        $post['column_search'] = array('invoice_details.invoice_id','invoice_details.description', 'entity_gst_details.gst_number', 'AWB_no',
+            'courier_name', 'part_number');
+        $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where,$post);
+
+        // print_r($list);  exit;
+
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row =  $this->get_list_sale_purchage_invoice_data_table($spare_list, $no);
+            $data[] = $row;
+        }
+        $total  = $this->inventory_model->count_sale_purchase_msl_parts($select, $where);
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => count($total),
+            "recordsFiltered" =>  count($total),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+
+
+
+    }
+
+
+        /**
+     * @desc This function is used to get post data from datatable
+     * @return Array
+     */
+    function post_sale_purchage_invoice(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search']['value'] = $search['value'];
+        
+        $post['draw'] = $this->input->post('draw');
+        $post['type'] = $this->input->post('type');
+        $post['order'] = $this->input->post('order');
+
+        return $post;
+    }
+
+       /**
+     * @desc This is view the settled qty 
+     * @return Array
+     */
+
+    function view_invoice_data($invoice,$inventory){
+
+        $data['invoice_details'] = $this->inventory_model->inventory_invoice_mapping_data($invoice,$inventory);
+        $data['invoice'] = $invoice;
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/sale_purchase_settle_view',$data);
+
+    }
+
+      /**
+     * @desc this is to print datatable
+     * @return Array
+     */
+
+    function get_list_sale_purchage_invoice_data_table($spare_list, $no){
+
+        $row = array();
+        
+        $row[] = $no;
+        $row[] = $spare_list->invoice_id;
+ 
+        $row[] = $spare_list->invoice_date;
+        $row[] = $spare_list->invoice_type;
+        $row[] = $spare_list->part_number;
+        $row[] = $spare_list->description;
+        $row[] = $spare_list->hsn_code;
+        $row[] = $spare_list->qty;
+        if ($spare_list->settle_qty==0) {
+        $row[] = $spare_list->settle_qty;  
+        }else{
+        $row[] = '<a href="'. base_url().'employee/inventory/view_invoice_data/'.$spare_list->invoice_id.'/'.$spare_list->inventory_id.'" target= "_blank" >'.$spare_list->settle_qty.'</a>';  
+        }
+        
+        $row[] = $spare_list->rate;
+        $row[] = $spare_list->taxable_value;
+        $row[] = $spare_list->gst_rate;
+        $row[] = $spare_list->gst_tax_amount;
+        $row[] = $spare_list->total_amount;
+        $row[] = $spare_list->type;
+        $row[] = $spare_list->gst_number;
+        $row[] = $spare_list->to_gst_number;
+        $row[] = $spare_list->sub_category;
+        $row[] = $spare_list->AWB_no;
+        $row[] = $spare_list->courier_name;
+        $row[] = $spare_list->shipment_date;
+          
+        return $row;
+
+
+
+    }
+
+
+
      /**
      *  @desc : This function is used to Download the Inventory Ledger Details.
      *  @param : void
