@@ -1145,11 +1145,140 @@ class Spare_parts extends CI_Controller {
         }
         $row[] = $part_status_text;
         $row[] = (empty($spare_list->age_of_request)) ? '0 Days' : $spare_list->age_of_request . " Days";
-        return $row;
         
+        $row[] = '<a class="btn btn-success btn-sm approve-courier-lost-part" href="javascript:void(0);" onclick="approve_courier_lost_spare('.$spare_list->id.');"><span class="glyphicon glyphicon-ok"></span></a>';
+        $row[] = '<a class="btn btn-danger btn-sm reject-courier-lost-part" style="margin-top:2px;" href="javascript:void(0);" onclick="reject_courier_lost_spare('.$spare_list->id.');"><span class="glyphicon glyphicon-remove"></span></a>';
+        return $row;
     }
     
+    /**
+     * Function approves courier lost data from spare parts bookings.
+     * @author Ankit Rajvanshi  
+     */
+    function approve_courier_lost_spare() {
+        
+        $post_data = $this->input->post();
+        $spare_part_detail = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $post_data['courier_lost_spare_id']), true, false)[0];
+        // update spare part details.
+        $spare_data = [
+            'status' => _247AROUND_COMPLETED,
+            'defective_part_required' => 0,
+            'spare_lost' => 1
+        ];
+        $this->service_centers_model->update_spare_parts(array('id' => $post_data['courier_lost_spare_id']), $spare_data);
+        // update booking status
+        $this->booking_model->update_booking($booking_id, ['internal_status' => COURIER_LOST_APPROVED_STATUS]);
+        // state change entry.
+        $this->notify->insert_state_change($spare_part_detail['booking_id'], COURIER_LOST_APPROVED_STATUS, $spare_part_detail['status'], $post_data['remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', NULL, $spare_part_detail['partner_id']);
+        
+        // add courier lost spare entry with approve status.
+        $data = [
+            'spare_id' => $post_data['courier_lost_spare_id'],
+            'remarks' => $post_data['remarks'],
+            'status' => 1, // approve
+            'agent_id' => $this->session->userdata['id']
+        ];
+        $this->service_centers_model->insert_courier_lost_spare_status($data);
 
+        // check part pending to be shipped.
+        $check_spare_part_pending = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array("spare_parts_details.status IN ('".OK_PART_TO_BE_SHIPPED."','".DAMAGE_PART_TO_BE_SHIPPED."','".DEFECTIVE_PARTS_PENDING."','".OK_PARTS_SHIPPED."','".DAMAGE_PARTS_SHIPPED."','".DEFECTIVE_PARTS_SHIPPED."')" => NULL, 'spare_parts_details.booking_id' => $spare_part_detail['booking_id']), true, false);
+        if(empty($check_spare_part_pending)) {
+            // update service center booking action.
+            $this->vendor_model->update_service_center_action($spare_part_detail['booking_id'], ['current_status' => SF_BOOKING_INPROCESS_STATUS, 'internal_status' => _247AROUND_COMPLETED]);
+            // update booking.
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SF_BOOKING_COMPLETE_STATUS, $spare_part_detail['partner_id'], $spare_part_detail['booking_id']);
+            $booking_detail_data = [];
+            if (!empty($partner_status)) {
+                $booking_detail_data['partner_current_status'] = $partner_status[0];
+                $booking_detail_data['partner_internal_status'] = $partner_status[1];
+                $booking_detail_data['actor'] = $partner_status[2];
+                $booking_detail_data['next_action'] = $partner_status[3];
+            }
+            
+            $booking_detail_data['current_status'] = _247AROUND_PENDING;
+            $booking_detail_data['internal_status'] = SF_BOOKING_COMPLETE_STATUS;
+            $this->booking_model->update_booking($spare_part_detail['booking_id'], $booking_detail_data);
+        }
+        
+        return true;
+    }
+
+    /**
+     * Function approves courier lost data from spare parts bookings.
+     * @author Ankit Rajvanshi  
+     */
+    function reject_courier_lost_spare() {
+        $post_data = $this->input->post();
+        $data['spare_id'] = $post_data['spare_id'];
+
+        if(!empty($post_data['reject'])) {
+            $spare_part_detail = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('spare_parts_details.id' => $post_data['spare_id']), true, false)[0];
+            // update spare part details.
+            $spare_data = [
+                'status' => OK_PART_TO_BE_SHIPPED,
+                'consumed_part_status_id' => OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID,
+                'defective_part_required' => 1
+            ];
+            $this->service_centers_model->update_spare_parts(array('id' => $post_data['spare_id']), $spare_data) ;
+            // state change entry.
+            $this->notify->insert_state_change($spare_part_detail['booking_id'], OK_PART_TO_BE_SHIPPED, $spare_part_detail['status'], $post_data['reject_courier_lost_spare_part_remarks'], $this->session->userdata('id'), $this->session->userdata('employee_id'), '', '', NULL, $spare_part_detail['partner_id']);
+            
+            $courier_spare_lost_file_name = '';
+            if(!empty($_FILES['reject_courier_lost_spare_part_pod'])) {
+                $courier_spare_lost_file_name = $this->upload_courier_spare_lost_pod($spare_part_detail['booking_id'], $_FILES['reject_courier_lost_spare_part_pod']['tmp_name'], ' ', $_FILES['reject_courier_lost_spare_part_pod']['name']);
+            }
+            
+            // add courier lost spare entry with reject status.
+            $data = [
+                'spare_id' => $post_data['spare_id'],
+                'remarks' => $post_data['reject_courier_lost_spare_part_remarks'],
+                'status' => 2, // reject status
+                'agent_id' => $this->session->userdata['id'],
+                'pod' => (!empty($courier_spare_lost_file_name) ? $courier_spare_lost_file_name : NULL)
+            ];
+            
+            $this->service_centers_model->insert_courier_lost_spare_status($data);
+            
+            return true;
+        }
+        
+        $this->load->view('service_centers/reject_courier_lost_spare', $data);
+    }
+
+    /**
+     *  @desc : This function is used to upload the purchase invoice to s3 and save into database
+     *  @param : string $booking_primary_contact_no
+     *  @return : boolean/string
+     */
+    function upload_courier_spare_lost_pod($booking_id, $tmp_name, $error, $name) {
+
+        $support_file_name = false;
+
+        if (($error != 4) && !empty($tmp_name)) {
+
+            $tmpFile = $tmp_name;
+            $support_file_name = $booking_id . '_courier_spare_lost_pod_' . substr(md5(uniqid(rand(0, 9))), 0, 15) . "." . explode(".", $name)[1];
+            //move_uploaded_file($tmpFile, TMP_FOLDER . $support_file_name);
+            //Upload files to AWS
+            $bucket = BITBUCKET_DIRECTORY;
+            $directory_xls = "courier-pod/" . $support_file_name;
+            $upload_file_status = $this->s3->putObjectFile($tmpFile, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
+
+            if($upload_file_status){
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Courier spare lost pod has been uploaded sucessfully for booking_id: '.$booking_id);
+                return $support_file_name;
+            }else{
+                //Logging success for file uppload
+                log_message('info', __METHOD__ . 'Error In uploading courier spare lost pod file for booking_id: '.$booking_id);
+                return False;
+            }
+
+        }
+        
+    }        
+
+    
     /**
      * @desc this function is used to create table row data for the spare parts ron approval
      * @param Array $spare_list
@@ -1201,9 +1330,9 @@ class Spare_parts extends CI_Controller {
             $cl = "btn-danger";
         }
 
-        if ($request_type !=SPARE_PARTS_REQUESTED || $request_type != _247AROUND_CANCELLED) {
-            $row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
-        }
+//        if ($request_type !=SPARE_PARTS_REQUESTED || $request_type != _247AROUND_CANCELLED) {
+//            $row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+//        }
         
         
         if ($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer' ) {

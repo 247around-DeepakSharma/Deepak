@@ -8594,7 +8594,7 @@ class Service_centers extends CI_Controller {
         $option = '<option selected="" disabled="">Select Service Centres</option>';
         foreach ($vendor_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            if (count($partner_list) == 1) {
+            if (count($vendor_list) == 1) {
                 $option .= " selected> ";
             } else {
                 $option .= "> ";

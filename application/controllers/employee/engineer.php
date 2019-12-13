@@ -16,7 +16,6 @@ class Engineer extends CI_Controller {
     function __Construct() {
         parent::__Construct();
         $this->load->model('service_centers_model');
-
         $this->load->model('partner_model');
         $this->load->model('vendor_model');
         $this->load->library("pagination");
@@ -26,10 +25,8 @@ class Engineer extends CI_Controller {
         $this->load->library('s3');
         $this->load->helper(array('form', 'url'));
         $this->load->library('form_validation');
-
-
         $this->load->library("miscelleneous");
-        
+        $this->load->library('paytmlib/encdec_paytm');
     }
     
     function index(){
@@ -350,5 +347,185 @@ class Engineer extends CI_Controller {
             $this->session->set_userdata("error", "No data found");
         }
         redirect(base_url() . 'employee/engineer/download_engineer_bookings');
+    }
+    
+    /*
+    *@desc - This function is used to call curl for paytm api
+    *@param - $order_id, $url, $post_data, $engineer_id
+    *@return - $arr_response(array)
+    */
+    function paytm_curl_call($order_id, $url, $post_data, $engineer_id = ""){
+        $arr_response = array();
+        $x_mid = INCENTIVE_PAYTM_MERCHANT_MID;
+        $request_param_list = array("MID" => INCENTIVE_PAYTM_MERCHANT_MID, "ORDERID" => $order_id);
+        $x_checksum = $this->encdec_paytm->getChecksumFromArray($request_param_list, INCENTIVE_PAYTM_MERCHANT_MID);
+        $header = array("Content-Type: application/json", "x-mid: " . $x_mid, "x-checksum: " . $x_checksum);
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_data);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header); 
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true); 
+        $response = curl_exec($ch);
+        $err = curl_error($ch);
+        curl_close($ch);
+        
+        //Capture both response as well as error messages
+        $data['response'] = $response;
+        $data['error'] = $err;
+       
+        $responseData = array("data" => $data);
+        
+        $activity = array(
+            'activity' => __METHOD__,
+            'header' => json_encode($header),
+            'json_request_data' => json_encode($post_data),
+            'json_response_string' => json_encode($responseData, JSON_UNESCAPED_SLASHES));
+        
+        if($engineer_id){
+            $activity['entity_type'] = "engineer";
+            $activity['partner_id'] = $engineer_id;
+        }
+        
+        $this->partner_model->log_partner_activity($activity);
+
+        if ($err) {
+            log_message('info', "cURL Error #:" . $err);
+            $arr_response['status'] = false;
+            $arr_response['status_code'] = "0000";
+            $arr_response['status_message'] = "cURL Error #:" . $err;
+        } else {
+            $response = json_decode($response, true);
+            $arr_response['status'] = false;
+            $arr_response['status_code'] = $response['statusCode'];
+            $arr_response['status_message'] = $response['statusMessage'];
+            if(isset($response['result'])){
+                $arr_response['result'] = $response['result'];
+            }
+        }
+        return $arr_response;
+    }
+    
+    /* 
+     @Desc - This function is used to transfer earning incentive to eangineer paytm wallet
+    */
+    function transfer_incentive_to_paytm_wallet($order_id, $mobile_no, $amount, $engineer_id){
+        
+        $order_id = "kalyanitest1";
+        $mobile_no = "7428747247";
+        $amount = 1;
+        $engineer_id = 2;
+        
+        $paytmParams = array();
+        $paytmParams["subwalletGuid"] = INCENTIVE_SUBWALLET_GUID;
+        $paytmParams["orderId"] = $order_id;
+        $paytmParams["beneficiaryPhoneNo"] = $mobile_no;
+        $paytmParams["amount"] = $amount;
+        $post_data = json_encode($paytmParams, JSON_UNESCAPED_SLASHES);
+        /* for Staging */
+        //$url = "https://staging-dashboard.paytm.com/bpay/api/v1/disburse/order/wallet/gift";
+        /* for Production */
+        $url = "https://dashboard.paytm.com/bpay/api/v1/disburse/order/wallet/gift";
+        $curl_response = $this->paytm_curl_call($order_id, $url, $post_data, $engineer_id);
+        if($curl_response['status']){
+            return true;
+        }
+        else{
+            if($curl_response['status_code'] == INVALID_BENEFICIARY_MOBILE_OR_EMAILID){
+                //need to send email or sms to engineer
+            }
+            else{
+                //need to send email on 247 team
+            }
+            return false;
+        }
+    }
+    
+    /* 
+     @Desc - This function is used to get paytm wallet balance of merchant account
+    */
+    function get_paytm_wallet_balance(){
+        $data = array();
+        $post_data = json_encode(array("subwalletGuid"=>INCENTIVE_SUBWALLET_GUID), JSON_UNESCAPED_SLASHES);
+         /* for Staging */
+        //$url = "https://staging-dashboard.paytm.com/bpay/api/v1/account/list";
+        /* for Production */
+        $url = "https://dashboard.paytm.com/bpay/api/v1/account/list";
+        $curl_response = $this->paytm_curl_call(INCENTIVE_SUBWALLET_GUID, $url, $post_data);
+        if($curl_response['status']){
+            $data['status'] = true;
+            $data['wallet_balance'] = $curl_response['result']['walletBalance'];
+        }
+        else{
+            $data['status'] = false;
+            $data['wallet_balance'] = 0;
+        }
+        return $data;
+    }
+    
+    /* 
+     @Desc - This function is used to transfer earning incentive to engineers
+    */
+    function transfer_engineer_incentive_by_paytm(){
+        $arr_engineer = array();
+        $total_amount = $this->engineer_model->get_en_incentive_details("(sum(partner_incentive) + sum(247around_incentive)) as total_amount", array("is_paid" => 0, "is_active" => 1))[0]['total_amount'];
+        if($total_amount){
+            $wallet_check = $this->get_paytm_wallet_balance();
+            if($wallet_check['status']){
+                if($wallet_check['wallet_balance'] >= $total_amount){
+                    $select = "engineer_incentive_details.partner_incentive, engineer_incentive_details.247around_incentive, engineer_details.phone, engineer_details.id as engineer_id, booking_details.id as booking_details_id";
+                    $where = array("is_paid" => 0, "is_active" => 1);
+                    $join = array(
+                                "booking_details" => "booking_details.id = engineer_incentive_details.booking_details_id",
+                                "engineer_details" => "engineer_details.id = booking_details.assigned_engineer_id",
+                            );
+                    $incentive_details = $this->reusable_model->get_search_result_data("engineer_incentive_details", $select, $where, $join, NULL, NULL, NULL, NULL);
+                    foreach ($incentive_details as $key => $value) {
+                        if(array_key_exists($value['engineer_id'], $arr_engineer)){
+                            $unique_eng = array(
+                                    "incentive_amount" => ($arr_engineer[$value['engineer_id']]['incentive_amount'] + ($value['partner_incentive'] + $value['247around_incentive'])),
+                                    "booking_details_id" => $arr_engineer[$value['engineer_id']]['booking_details_id'].','.$value['booking_details_id'],
+                                    "mobile" => $value['phone'],
+                                );
+                            $arr_engineer[$value['engineer_id']] = $unique_eng;
+                        }
+                        else{
+                            $unique_eng = array(
+                                    "incentive_amount" => $value['partner_incentive'] + $value['247around_incentive'],
+                                    "booking_details_id" => $value['booking_details_id'],
+                                    "mobile" => $value['phone'],
+                                );
+                            $arr_engineer[$value['engineer_id']] = $unique_eng;
+                        }
+                    }
+                    if(!empty($arr_engineer)){
+                        foreach ($arr_engineer as $key => $value) {
+                            $order_id = $this->get_incentive_order_id($key);
+                            $incentive_transffered = $this->transfer_incentive_to_paytm_wallet($order_id, $value['mobile'], $value['incentive_amount'], $key);
+                            if($incentive_transffered){
+                                $this->engineer_model->update_eng_incentive_details(array("is_paid" => 1), array("is_active"=>1), explode(",", $value['booking_details_id']));
+                            }
+                        }
+                    }
+                }
+                else{
+                    $template = $this->booking_model->get_booking_email_template(INSUFFICIENT_BALANCE_PAYTM_WALLET);
+                    $body = $template[0];
+                    $this->notify->sendEmail($template[2], $template[1], $template[3], "", $template[4], $body, "", INSUFFICIENT_BALANCE_PAYTM_WALLET);
+                }
+            }
+            else{
+                //Send error for wallete balance checking api
+            }
+        }
+    }
+    
+    /*@desc - This function is used to create order id for transffering engineer incenive. here INC = Incentive
+    *@param - $engineer_id
+    *@return - $order_id
+    */
+    function get_incentive_order_id($engineer_id){
+        $order_id = $engineer_id."INC".date("YmdHis");
+        return $order_id;
     }
 }

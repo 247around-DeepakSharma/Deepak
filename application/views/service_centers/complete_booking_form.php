@@ -287,7 +287,7 @@
                                                             <input type="hidden" name="<?php echo "appliance_dop[" . $price['unit_id'] . "]" ?>" 
                                                             class="<?php echo "unit_dop_".$key1."_".$key;?>" value="<?php if(isset($booking_history['spare_parts'])){  echo $booking_history['spare_parts'][0]['date_of_purchase']; } ?>" />
                                                             <input type="hidden" name="<?php echo "appliance_purchase_invoice[" . $price['unit_id'] . "]" ?>" 
-                                                            class="<?php echo "unit_purchase_invoice_".$key1."_".$key;?>" value="<?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])){  echo $booking_history['spare_parts'][0]['invoice_pic']; } ?>" />
+                                                            class="<?php echo "unit_purchase_invoice_".$key1."_".$key;?>" value="<?php if($this->session->userdata('is_engineer_app') == 1 && isset($bookng_unit_details[0]['en_purchase_invoice']) && !is_null($bookng_unit_details[0]['en_purchase_invoice'])){ echo $bookng_unit_details[0]['en_purchase_invoice']; }else if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['invoice_pic'])){  echo $booking_history['spare_parts'][0]['invoice_pic']; } ?>" />
                                                         </td>
                                                                
                                                         <td>

@@ -173,8 +173,8 @@
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="false">Warranty Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <!-- <th class="text-center" data-orderable="false">Update</th>-->
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <!-- <th class="text-center" data-orderable="false">Update</th>
+                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>-->
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Booking</th>
                                     <th class="text-center" data-orderable="false">Approval</th>
@@ -577,6 +577,8 @@
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <!--<th class="text-center" data-orderable="false">Warranty Status</th>-->
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <th class="text-center" data-orderable="true">Approve</th>
+                                    <th class="text-center" data-orderable="true">Reject</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -651,6 +653,43 @@
         </div>
     </div>
 </div>
+<div id="ApproveCourierLostSparePartModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="approve_courier_lost_spare_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Approve Courier Spare Lost </h4>
+            </div>
+            <div class="modal-body" >
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea name="remarks" class="form-control" id="approve_courier_spare_part_remarks" rows="4" placeholder="Enter Remarks"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="submit" id="approve_courier_spare_part_btn" name="approve-part" value="Approve" class="btn btn-primary form-control" style="margin-top:2px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="RejectCourierLostSparePartModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="reject_courier_lost_spare_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Reject Courier Spare Lost </h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="loader hide"></div>
 <style>
     .loader {
@@ -905,7 +944,7 @@
                     "orderable": true //set not orderable
                 },
                 {
-                    "targets": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], //first column / numbering column
+                    "targets": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -1605,4 +1644,42 @@
     function disable_btn(id){
         $("#"+id).attr('disabled',true);
     }
+    var courier_lost_spare_id;
+    function approve_courier_lost_spare(spare_id) {
+        courier_lost_spare_id = spare_id;
+        $('#ApproveCourierLostSparePartModal').modal({backdrop: 'static', keyboard: false});
+    }
+    
+    function reject_courier_lost_spare(spare_id) {
+        
+        $.ajax({
+            method:'POST',
+            url: '<?php echo base_url(); ?>employee/spare_parts/reject_courier_lost_spare',
+            data: {spare_id}
+        }).done(function (data){
+            $("#reject_courier_lost_spare_model").children('.modal-content').children('.modal-body').html(data);   
+            $('#RejectCourierLostSparePartModal').modal({backdrop: 'static', keyboard: false});
+        });
+        
+        
+    }
+    
+    $('#approve_courier_spare_part_btn').on('click', function(data) {
+        var remarks = $('#approve_courier_spare_part_remarks').val();
+        if(remarks == '' || remarks == null) {
+            alert("Please enter remarks.");
+            return false;
+        }        
+        
+        $.ajax({
+            method:'POST',
+            url:'<?php echo base_url(); ?>employee/spare_parts/approve_courier_lost_spare',
+            data:{remarks:remarks, courier_lost_spare_id:courier_lost_spare_id}
+        }).done(function(data){
+            courier_lost_spare_parts_table.ajax.reload(null, false);  
+            $('#ApproveCourierLostSparePartModal').modal('hide');
+            $('#approve_courier_spare_part_remarks').val('');
+            alert('Spare part has been approved successfully.');
+        });
+    });
 </script>
