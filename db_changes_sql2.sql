@@ -1641,3 +1641,15 @@ UPDATE spare_consumption_status SET reason_text = 'Part not Received' where id =
 UPDATE spare_consumption_status SET reason_text = 'Ok/Damage Part Received' where id = 3;
 UPDATE spare_consumption_status SET reason_text = 'Ok/Wrong Part Received' where id = 4;
 UPDATE spare_consumption_status SET reason_text = 'Ok Part Received' where id = 5;
+
+-- Ankit 13-06-2019
+CREATE TABLE courier_lost_spare_status (
+	id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	spare_id int(11) NOT NULL,
+	pod text NULL DEFAULT NULL,
+	remarks text NULL DEFAULT NULL,
+	status varchar(100) NOT NULL,
+	agent_id int(11) NOT NULL,
+	create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	update_date datetime NULL DEFAULT NULL
+);
