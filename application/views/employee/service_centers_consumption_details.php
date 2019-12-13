@@ -53,7 +53,7 @@
         <div class="title">
             <div class="row">
                 <div class="col-md-6">
-                    <h3>Service Centers Consumption Details</h3>
+                    <h3>Micro Warehouse MSL Details</h3>
                 </div>
             </div>
         </div>
@@ -102,14 +102,12 @@
                         <th>Description</th>
                         <th>HSN Code</th>
                         <th>Quantity</th>
+                        <th>Settled Quantity</th>
                         <th>Rate</th>
                         <th>Taxable Value</th>
                         <th>GST Rate</th>
                         <th>GST Tax Amount</th>
                         <th>Total Amount</th>
-                        <th>Type</th>
-                        <th>From GST Number</th>
-                        <th>To GST Number</th>
                         <th>Sub Category</th>
                     </tr>
                 </thead>
