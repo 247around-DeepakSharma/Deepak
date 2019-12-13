@@ -173,8 +173,8 @@
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="false">Warranty Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <!-- <th class="text-center" data-orderable="false">Update</th>-->
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <!-- <th class="text-center" data-orderable="false">Update</th>
+                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>-->
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Booking</th>
                                     <th class="text-center" data-orderable="false">Approval</th>
