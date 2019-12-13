@@ -8000,7 +8000,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
      * @return: void
      */
     
-    function service_centers_consumption_details(){
+    function mwh_msl_details(){
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/service_centers_consumption_details");
@@ -8044,8 +8044,8 @@ function get_bom_list_by_inventory_id($inventory_id) {
         if (!empty($service_centers_id)) {
             $post['column_order'] = array();
             $post['column_search'] = array('v.invoice_id', 'v.create_date');
-            $post['where'] = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category = 'MSL' AND v.vendor_partner_id = " . $service_centers_id;
-            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, im.description, im.hsn_code, i.qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type, entt_gst_dtl.gst_number as from_gst, entity_gst_details.gst_number as to_gst, v.sub_category";
+            $post['where'] = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return') AND v.vendor_partner_id = " . $service_centers_id;
+            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, i.description, im.hsn_code, i.qty, i.settle_qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type, entt_gst_dtl.gst_number as from_gst, entity_gst_details.gst_number as to_gst, v.sub_category";
             $list = $this->inventory_model->get_service_centers_consumption_list($post, $select);
             $data = array();
             $no = $post['start'];
@@ -8069,21 +8069,23 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $row = array();
             
         $row[] = $no;
-        $row[] = "<a href='" .base_url(). "employee/inventory/invoice_details/" . $consumption_list->invoice_id."'>".$consumption_list->invoice_id."</a>";
+        //$row[] = "<a href='" .base_url(). "employee/inventory/invoice_details/" . $consumption_list->invoice_id."'>".$consumption_list->invoice_id."</a>";
+        $row[] = $consumption_list->invoice_id;
         $row[] = $consumption_list->create_date;
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->type_code . "</span>";
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->part_number . "</span>";
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->description . "</span>";
         $row[] = $consumption_list->hsn_code;
         $row[] = $consumption_list->qty;
+        $row[] = $consumption_list->settle_qty;
         $row[] = "<i class ='fa fa-inr'></i> " . $consumption_list->rate;
         $row[] = $consumption_list->taxable_value;
         $row[] = $consumption_list->gst_rate;
         $row[] = $consumption_list->gst_tax_amount;
         $row[] = $consumption_list->total_amount;
-        $row[] = $consumption_list->type;
-        $row[] = $consumption_list->from_gst;
-        $row[] = $consumption_list->to_gst;
+        //$row[] = $consumption_list->type;
+        //$row[] = $consumption_list->from_gst;
+        //$row[] = $consumption_list->to_gst;
         $row[] = $consumption_list->sub_category;
     
         return $row;
@@ -8100,14 +8102,14 @@ function get_bom_list_by_inventory_id($inventory_id) {
      
       if(!empty($entity_id) && !empty($service_center_id)){
           
-        $select = "v.invoice_id AS 'Invoice Id', v.create_date AS 'Invoice Date', case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', im.part_number AS 'Part Number', im.description AS 'Description', im.hsn_code AS 'HSN Code', i.qty AS 'Quantity', i.rate AS 'Rate', i.taxable_value AS 'Taxable Value', (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS 'GST Rate', (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS 'GST Tax Amount', i.total_amount AS 'Total Amount', v.type AS 'Type', entt_gst_dtl.gst_number AS 'From GST Number', entity_gst_details.gst_number AS 'To GST Number', v.sub_category AS 'Sub Category'";
-        $where = array("im.entity_id" => $entity_id, "im.entity_type"=> _247AROUND_PARTNER_STRING,  "v.sub_category" => 'MSL', "v.vendor_partner_id"=> $service_center_id);
+        $select = "v.invoice_id AS 'Invoice Id', v.create_date AS 'Invoice Date', case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', im.part_number AS 'Part Number', i.description AS 'Description', im.hsn_code AS 'HSN Code', i.qty AS 'Quantity', i.settle_qty as 'Settled Quantity', i.rate AS 'Rate', i.taxable_value AS 'Taxable Value', (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS 'GST Rate', (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS 'GST Tax Amount', i.total_amount AS 'Total Amount', v.type AS 'Type', entt_gst_dtl.gst_number AS 'From GST Number', entity_gst_details.gst_number AS 'To GST Number', v.sub_category AS 'Sub Category'";
+        $where = array("im.entity_id" => $entity_id, "im.entity_type"=> _247AROUND_PARTNER_STRING,   "v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return')" => null, "v.vendor_partner_id"=> $service_center_id);
         $spare_details = $this->inventory_model->get_service_centers_consumption_data($select, $where);
        
         $this->load->dbutil();
         $this->load->helper('file');
 
-        $file_name = 'service_centers_consumption_data_' . date('j-M-Y-H-i-s') . ".csv";
+        $file_name = 'mwh_msl_deatils_data_' . date('j-M-Y-H-i-s') . ".csv";
         $delimiter = ",";
         $newline = "\r\n";
         $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
