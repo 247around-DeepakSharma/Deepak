@@ -120,10 +120,10 @@ class Accounting extends CI_Controller {
                 'amount' => $this->input->post('amount'),
                 'bank_name' => trim($this->input->post('bank_name')),
                 'paid_by' => trim($this->input->post('paid_by')),
-                'challan_tender_date' => $this->input->post('tender_date'),
+                'challan_tender_date' => date('Y-m-d', strtotime(str_replace('/', '-', $this->input->post('tender_date')))),
                 'remarks' => trim($this->input->post('remarks')),
-                'from_date' => $from_date,
-                'to_date' => $to_date
+                'from_date' => date('Y-m-d', strtotime(str_replace('/', '-', $from_date))),
+                'to_date' => date('Y-m-d', strtotime(str_replace('/', '-', $to_date)))
             );
 
             //if challan file exist then get the file name
@@ -324,9 +324,9 @@ class Accounting extends CI_Controller {
      */
     function show_accounting_report() {
         $payment_type = $this->input->post('type');
-        $from_date = $this->input->post('from_date');
-        $to_date = $this->input->post('to_date');
-        $new_to_date = date('Y/m/d', strtotime($to_date . "+1 days"));
+        $from_date = date('Y-m-d', strtotime(str_replace('/', '-', $this->input->post('from_date'))));
+        $to_date = str_replace('/', '-', $this->input->post('to_date'));
+        $new_to_date = date('Y-m-d', strtotime($to_date . "+1 days"));
         $partner_vendor = $this->input->post('partner_vendor');
         $report_type = $this->input->post('report_type');
         $is_challan_data = $this->input->post('is_challan_data');
@@ -1118,16 +1118,16 @@ class Accounting extends CI_Controller {
         }
         
         if(!empty($transaction_date)){
-           $in = explode("/", $transaction_date);
-           $post['where']['bank_transactions.transaction_date >="'.$in[0].'"'] = NULL;
-           $post['where']['bank_transactions.transaction_date <= "'.$in[1].'"'] = NULL;
+           $in = explode("-", $transaction_date);
+           $post['where']['bank_transactions.transaction_date >="'.date('Y-m-d', strtotime(str_replace('/', '-', $in[0]))).'"'] = NULL;
+           $post['where']['bank_transactions.transaction_date <= "'.date('Y-m-d', strtotime(str_replace('/', '-', $in[1]))).'"'] = NULL;
            
         }
         
         if(!empty($transaction_period)){
-            $period = explode("/", $transaction_period);
-            $post['where']['bank_transactions.create_date >="'.$period[0].'"'] = NULL;
-            $post['where']['bank_transactions.create_date <= "'.$period[1].'"'] = NULL;
+            $period = explode("-", $transaction_period);
+            $post['where']['bank_transactions.create_date >="'.date('Y-m-d', strtotime(str_replace('/', '-', $period[0]))).'"'] = NULL;
+            $post['where']['bank_transactions.create_date <= "'.date('Y-m-d', strtotime(str_replace('/', '-', $period[1]))).'"'] = NULL;
         }
         
         return $post;
@@ -1812,8 +1812,8 @@ class Accounting extends CI_Controller {
     function download_buyback_summary_report(){
         ob_start();
         $daterange = explode("-", $this->input->post("buyback_daterange"));
-        $start_date = date("Y-m-d", strtotime($daterange[0]));
-        $end_date = date("Y-m-d", strtotime($daterange[1]));
+        $start_date = date('Y-m-d', strtotime(str_replace('/', '-', $daterange[0])));
+        $end_date = date('Y-m-d', strtotime(str_replace('/', '-', $daterange[1])));
         $where = array(
             "bb_unit_details.cp_invoice_id IS NOT NULL" => NULL,
             "vendor_partner_invoices.invoice_date  >=  '".$start_date."'" => NULL,    

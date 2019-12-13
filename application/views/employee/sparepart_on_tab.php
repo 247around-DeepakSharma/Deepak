@@ -678,7 +678,7 @@
     var defective_part_shipped_by_sf_table;
     var courier_lost_spare_parts_table;
     
-    $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+    $("#invoice_date").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true, changeYear: true});
     $(document).ready(function() {
         
         oow_part_shipped_table = $('#oow_part_shipped_table').DataTable({

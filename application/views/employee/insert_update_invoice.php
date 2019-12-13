@@ -5,11 +5,11 @@
     $(function() {
         $('input[name="from_date"]').daterangepicker({
             locale: {
-               format: 'YYYY/MM/DD'
+               format: 'DD/MM/YYYY'
             },
             <?php if (isset($invoice_details[0]['from_date'])) { ?>
-                startDate: '<?php if (isset($invoice_details[0]['from_date'])) { echo $invoice_details[0]['from_date'];}  ?>',
-                endDate: '<?php if (isset($invoice_details[0]['from_date'])) { echo $invoice_details[0]['to_date'];} ?>'
+                startDate: '<?php if (isset($invoice_details[0]['from_date'])) { echo date("d/m/Y", strtotime($invoice_details[0]['from_date']));}  ?>',
+                endDate: '<?php if (isset($invoice_details[0]['to_date'])) { echo date("d/m/Y", strtotime($invoice_details[0]['to_date']));} ?>'
             <?php } ?>
             
         });
@@ -241,8 +241,8 @@
                                 <div class="col-md-6">
                                     <div class="input-group input-append date">
                                         <input id="invoice_date" class="form-control" placeholder="Select Date" name="invoice_date" type="text" required readonly='true' style="background-color:#fff;cursor: pointer;" value="<?php if (isset($invoice_details[0]['invoice_date'])) {
-                                            echo $invoice_details[0]['invoice_date'];
-                                            } else { echo date('Y-m-d');} ?>">
+                                            echo date("d/m/Y", strtotime($invoice_details[0]['invoice_date']));
+                                            } else { echo date('d/m/Y');} ?>">
                                         <span class="input-group-addon add-on" onclick="from_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                 </div>
@@ -252,8 +252,8 @@
                                 <div class="col-md-6">
                                     <div class="input-group input-append date">
                                         <input id="due_date" class="form-control" placeholder="Select Date" name="due_date" type="text" required readonly='true' style="background-color:#fff;cursor: pointer;" value="<?php if (isset($invoice_details[0]['due_date'])) {
-                                            echo $invoice_details[0]['due_date'];
-                                            } else { echo date('Y-m-d');} ?>">
+                                            echo date("d/m/Y", strtotime($invoice_details[0]['due_date']));
+                                            } else { echo date('d/m/Y');} ?>">
                                         <span class="input-group-addon add-on" onclick="from_calendar()"><span class="glyphicon glyphicon-calendar"></span></span>
                                     </div>
                                 </div>
@@ -425,16 +425,16 @@
 </div>
 <script src="<?php echo base_url() ?>js/invoice_tag.js"></script>
 <script>
-    $("#to_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
-    $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
-    $("#due_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
-    $("#from_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+    $("#to_date").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true, changeYear: true});
+    $("#invoice_date").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true, changeYear: true});
+    $("#due_date").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true, changeYear: true});
+    $("#from_date").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true, changeYear: true});
     $("#vendor_partner_id").select2();
     
     control_type_code(0);
     
      function from_calendar() {
-           $("#dop").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true}).datepicker('show');
+           $("#dop").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true, changeYear: true}).datepicker('show');
        }
        
         $(document).ready(function(){

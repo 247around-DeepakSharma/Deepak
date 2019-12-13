@@ -215,18 +215,18 @@
 $(function() {
                 $('input[name="daterange"]').daterangepicker({
                     locale: {
-                                format: 'YYYY/MM/DD'
+                                format: 'DD/MM/YYYY'
                             },
-                            startDate: '<?php if(isset($challan_data[0]['from_date'])){echo $challan_data[0]['from_date'];}else{echo date("Y/m/01", strtotime("-1 month"));}?>',
-                            endDate: '<?php if(isset($challan_data[0]['to_date'])){echo $challan_data[0]['to_date'];}else{echo date('Y-m-d', strtotime('last day of previous month'));} ?>'
+                            startDate: '<?php if(isset($challan_data[0]['from_date'])){echo date("d/m/Y", strtotime($challan_data[0]['from_date']));}else{echo date("01/m/Y", strtotime("-1 month"));}?>',
+                            endDate: '<?php if(isset($challan_data[0]['to_date'])){echo date("d/m/Y", strtotime($challan_data[0]['to_date']));}else{echo date('d/m/Y', strtotime('last day of previous month'));} ?>'
                 });
                 $('input[name="tender_date"]').daterangepicker({
                         singleDatePicker: true,
                         showDropdowns: true,
                         locale: {
-                                format: 'YYYY/MM/DD'
+                                format: 'DD/MM/YYYY'
                             },
-                            startDate: '<?php if(isset($challan_data[0]['challan_tender_date'])){echo $challan_data[0]['challan_tender_date'];}else{echo date("Y/m/01", strtotime("-1 month"));} ?>'
+                            startDate: '<?php if(isset($challan_data[0]['challan_tender_date'])){echo date("d/m/Y", strtotime($challan_data[0]['challan_tender_date']));}else{echo date("01/m/Y", strtotime("-1 month"));} ?>'
                 });
 
             });
