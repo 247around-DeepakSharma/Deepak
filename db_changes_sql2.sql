@@ -1652,3 +1652,4 @@ CREATE TABLE courier_lost_spare_status (
 	agent_id int(11) NOT NULL,
 	create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	update_date datetime NULL DEFAULT NULL
+);
