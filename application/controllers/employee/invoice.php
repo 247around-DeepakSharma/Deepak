@@ -1648,6 +1648,7 @@ class Invoice extends CI_Controller {
            
             if ($invoice_details[0]['vendor_partner'] == 'vendor' && $invoice_details[0]['type'] != "Stand") {
                 $exist_invoice_type = "";
+                $where_unit = array();
                 if ($invoice_details[0]['type'] == "FOC") {
                     $exist_invoice_type = "foc";
                     $where_unit = array('vendor_foc_invoice_id' => $invoice_id);
@@ -1656,7 +1657,7 @@ class Invoice extends CI_Controller {
                     $exist_invoice_type = "cash";
                 }
 
-                $unit_details = $this->booking_model->get_unit_details($where_unit);
+                $unit_details = (!empty($where_unit) ? $this->booking_model->get_unit_details($where_unit) : array());
                 if (!empty($unit_details)) {
                     // Check is null vendor foc invoice id
                     if (!is_null($unit_details[0]['vendor_cash_invoice_id'])) {
