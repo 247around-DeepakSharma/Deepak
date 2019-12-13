@@ -7654,7 +7654,7 @@ class Partner extends CI_Controller {
      function get_state_waise_service_centers() { 
          $state = $this->input->post("state");
          if (!empty($state)) {
-             $where = array('state' => $state);
+             $where = array('state' => $state, 'service_centres.active' => 1, "service_centres.on_off" => 1 );
              $select = "service_centres.id,service_centres.name,service_centres.state";
              $service_centres_list = $this->vendor_model->getVendorDetails($select, $where, 'state', '');
              if (!empty($service_centres_list)) {
