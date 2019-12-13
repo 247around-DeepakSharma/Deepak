@@ -234,8 +234,6 @@ class Miscelleneous {
                     }
                 }
             }
-            log_message('info', __FUNCTION__ . " Partner Callback booking_id " . $booking_id );
-            $this->My_CI->partner_cb->partner_callback($booking_id);
             log_message('info', __FUNCTION__ . " Exit...... booking_id " . $booking_id . " service center id " . $service_center_id);
             return true;
         } else {
@@ -2833,11 +2831,13 @@ class Miscelleneous {
     function get_reader_by_file_type($type, $url, $width) {
         $finalString = '';
         if ($type == 'video') {
+            /*
             if (filter_var($url, FILTER_VALIDATE_URL)) {
                 $url = $url;
             } else {
                 $url = S3_WEBSITE_URL."vendor-partner-docs/".$url;
             }
+            */
             $finalString = '<video width="' . $width . '" controls>
   <source src="' . $url . '" type="video/mp4">
   Your browser does not support HTML5 video.

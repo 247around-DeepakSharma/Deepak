@@ -66,7 +66,7 @@
                             <td><?php echo $value['invoice_id']; ?></td>
                             <td><?php echo $value['company_name']; ?></td>
                             <td><?php echo $value['state']; ?></td>
-                            <td><?php echo date("jS M, Y", strtotime($value['invoice_date'])); ?></td>
+                            <td><?php echo date("d/m/Y", strtotime($value['invoice_date'])); ?></td>
                             <td><?php echo $value['parts_count'];  $t_parts_count += $value['parts_count'];?></td>
                             <td><?php echo $value['num_bookings']; $num_bookings += $value['num_bookings'];?></td>
                             <td><?php echo sprintf("%.2f", $value['parts_cost']); $total_pc += $value['parts_cost'];?></td>
@@ -194,7 +194,7 @@
                             <td><?php echo $value['invoice_id']; ?></td>
                             <td><?php echo $value['company_name']; ?></td>
                             <td><?php echo $value['state']; ?></td>
-                            <td><?php echo date("jS M, Y", strtotime($value['invoice_date'])); ?></td>
+                            <td><?php echo date("d/m/Y", strtotime($value['invoice_date'])); ?></td>
 <!--                            <td><?php //echo round($value['penalty_amount'],0); $debit_penalty += $value['penalty_amount'];?></td>
                             <td><?php //echo round($value['credit_penalty_amount'],0); $credit_penalty += $value['credit_penalty_amount'];?></td>-->
 <!--                            <td><?php //echo round($value['around_royalty'],0); $t_ar += $value['around_royalty'];?></td>-->
@@ -211,8 +211,8 @@
                             <td><?php echo sprintf("%.2f", $value['total_amount_collected']); $t_ac += $value['total_amount_collected']; ?></td>
                             <td><?php echo sprintf("%.2f", $value['amount_collected_paid']); $t_acp += $value['amount_collected_paid']; ?></td>
                             <td><?php echo $value['reference_invoice_id']; ?></td>
-                            <td><?php echo date("jS M, Y", strtotime($value['from_date'])); ?></td>
-                            <td><?php echo date("jS M, Y", strtotime($value['to_date'])); ?></td>
+                            <td><?php echo date("d/m/Y", strtotime($value['from_date'])); ?></td>
+                            <td><?php echo date("d/m/Y", strtotime($value['to_date'])); ?></td>
                             <td><?php echo $value['gst_number']; ?></td>
                             <td><?php echo $value['gst_reg_type']; ?></td>
                             <td><?php echo (isset($value['to_gst_number']) ? $value['to_gst_number'] : ''); ?></td>
@@ -320,7 +320,7 @@
                                 <td><?php echo $value['company_name']; ?></td>
                                 <td><?php echo $value['name']; ?></td>
                                 <td><?php echo $value['state']; ?></td>
-                                <td><?php echo date("jS M, Y", strtotime($value['invoice_date'])); ?></td>
+                                <td><?php echo date("d/m/Y", strtotime($value['invoice_date'])); ?></td>
                                 <td><?php echo $value['parts_count']; $t_parts_count += $value['parts_count'];?></td>
                                 <td><?php echo round($value['num_bookings'],0); $num_bookings += $value['num_bookings'];?></td>
                                 <td><?php echo sprintf("%.2f", $value['parts_cost']); $total_pc += $value['parts_cost']; ?></td>
@@ -485,7 +485,7 @@
                             <td><?php echo $value['invoice_id']; ?></td>
                             <td><?php echo $value['company_name']; ?></td>
                             <td><?php echo $value['state']; ?></td>
-                            <td><?php echo date("jS M, Y", strtotime($value['invoice_date'])); ?></td>
+                            <td><?php echo date("d/m/Y", strtotime($value['invoice_date'])); ?></td>
                             <td><?php echo $value['parts_count']; $t_parts_count += $value['parts_count'];?></td>
                             <td><?php echo round($value['num_bookings'],0); $num_bookings += $value['num_bookings'];?></td>
                             <td><?php echo sprintf("%.2f", $value['parts_cost']); $total_pc += $value['parts_cost'];?></td>
@@ -594,7 +594,7 @@
                             <td><?php echo $value['invoice_id']; ?></td>
                             <td><?php echo $value['company_name']; ?></td>
                             <td><?php echo $value['state']; ?></td>
-                            <td><?php echo date("jS M, Y", strtotime($value['invoice_date'])); ?></td>
+                            <td><?php echo date("d/m/Y", strtotime($value['invoice_date'])); ?></td>
                             <td><?php echo $value['parts_count']; $t_parts_count += $value['parts_count'];?></td>
                             <td><?php echo round($value['num_bookings'],0); $num_bookings += $value['num_bookings'];?></td>
                             <td><?php echo sprintf("%.2f", $value['total_service_charge']); $total_sc +=$value['total_service_charge']; ?></td>
@@ -699,7 +699,7 @@
                             <td><?php echo $value['partner_name']; ?></td>
                             <td><?php echo $value['state']; ?></td>
                             <td><?php echo $value['credit_debit']; ?></td>
-                            <td><?php echo date("jS M, Y", strtotime($value['invoice_date'])); ?></td>
+                            <td><?php echo date("d/m/Y", strtotime($value['invoice_date'])); ?></td>
                             <td><?php echo $value['parts_count']; $t_parts_count += $value['parts_count'];?></td>
                             <td><?php echo round($value['num_bookings'],0); $num_bookings += $value['num_bookings'];?></td>
                             <td><?php echo sprintf("%.2f", ($value['total_service_charge'] + $value['total_additional_service_charge'])); $total_sc += ($value['total_service_charge'] + $value['total_additional_service_charge']); ?></td>

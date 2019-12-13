@@ -44,6 +44,11 @@
                             <th>SF Challan Number</th>
                             <th>Partner AWB</th>
                             <th>SF AWB</th>
+                            <th>Part Name</th>
+                            <th>Part Code</th>
+                            <th>Part Type</th>
+                            <th>Price</th>
+                            <th>GST</th>
                         </thead>
                         <tbody id="docket_number_details_body"></tbody>
                     </table>
@@ -200,6 +205,39 @@
                 table_body += '<td></td>';
             }else{
                 table_body += '<td>' + val['awb_by_sf'] +'</td>';
+            }
+
+            if(val['parts_shipped'] === null){
+                table_body += '<td></td>';
+            }else{
+                table_body += '<td>' + val['parts_shipped'] +'</td>';
+            }
+
+
+            if(val['part_number'] === null){
+                table_body += '<td></td>';
+            }else{
+                table_body += '<td>' + val['part_number'] +'</td>';
+            }
+
+
+            if(val['shipped_parts_type'] === null){
+                table_body += '<td></td>';
+            }else{
+                table_body += '<td>' + val['shipped_parts_type'] +'</td>';
+            }
+
+
+            if(val['price'] === null){
+                table_body += '<td></td>';
+            }else{
+                table_body += '<td>' + val['price'] +'</td>';
+            }
+
+            if(val['gst_rate'] === null){
+                table_body += '<td></td>';
+            }else{
+                table_body += '<td>' + val['gst_rate'] +'</td>';
             }
             
             table_body += "</tr>";

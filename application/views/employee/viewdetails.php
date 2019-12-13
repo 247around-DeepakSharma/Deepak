@@ -658,7 +658,13 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
+                                            <?php
+                                            $spare_request_type = '';
+                                            foreach ($booking_history['spare_parts'] as $sp) {
+                                                    if ($sp['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                                                        $spare_request_type = REPAIR_OOW_TAG;
+                                                    }
+                                                ?>
                                     <tr>
                                         <td class="  <?php if($sp['entity_type']==_247AROUND_SF_STRING) echo 'warehouse_name';  ?> "  data-warehouse="<?php echo $sp['partner_id'];  ?>" ><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else {
                                               echo "Warehouse";
@@ -802,12 +808,12 @@
                             <table class="table  table-striped table-bordered" >
                                 <thead>
                                     <tr>
-                                        <th >Estimate Given By Partner/Warehouse</th>
-                                        <th >Estimate Cost</th>
-                                        <th >Estimate Given Date </th>
-                                        <th >Purchase Invoice</th>
-                                        <th >Sale Invoice ID</th>
-                                        <th >Status </th>
+                                        <th>Estimate Given By Partner/Warehouse</th>
+                                        <th>Estimate Cost</th>
+                                        <th>Estimate Given Date </th>
+                                        <th>Purchase Invoice</th>
+                                        <th>Sale Invoice ID</th>
+                                        <th>Status </th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -994,7 +1000,7 @@
                         </div>
                     </div>
                 </div>
-                <?php } if ($defective_parts_shippped_date_by_wh) { ?>
+                <?php } if (!empty($defective_parts_shippped_date_by_wh)) { ?>
                 <div class="row">
                     <div class="col-md-12">
                         <h1 style='font-size:24px;'>Warehouse Dispatch Defective To Partner</h1>
@@ -1063,7 +1069,7 @@
                 </div>
                 <?php } ?>
                 
-                <?php } else { ?> 
+                <?php } else if(empty ($booking_history['spare_parts'])) { ?> 
                 <div class="text-danger">Spare Part Not Requested</div>
                 <?php } ?>
                 <div class="row">
@@ -1111,11 +1117,53 @@
                         </div>
                     </div>
                 </div>
-                <div class="row">  
-                        <span id="spare_parts_template">
-                            <div id="spare_parts_commentbox"> </div>  
-                        </span>
+                <?php if( ($booking_history[0]['request_type'] == REPAIR_OOW_TAG) ||($spare_request_type == REPAIR_OOW_TAG) ){ ?>
+                <div class="row">
+                    <div class="col-md-12">
+                        <h1 style='font-size:24px;'> Out Of Warranty Invoice Details ( Uploaded By Partner )</h1>
+                        <div class="col-md-12" style="padding-left:1px;">
+                            <table class="table  table-striped table-bordered" >
+                                <thead>
+                                    <tr>
+                                        <th> Model Number </th>
+                                        <th> Requested Parts </th>
+                                        <th> Requested Parts Number</th>
+                                        <th> Parts Type </th>
+                                        <th> Incoming Invoice Id </th>
+                                        <th> Incoming Invoice Amount </th>
+                                        <th> Incoming Invoice PDF </th>
+                                        <th> Invoice Date </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                    if(!empty($booking_history['spare_parts'])){
+                                        foreach ($booking_history['spare_parts'] as $sp) {
+                                     ?>
+                                    <tr>
+                                        <td><?php echo $sp['model_number']; ?></td>
+                                        <td style="word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                        <td style="word-break: break-all;"><?php if(!empty($sp['part_number'])){ echo $sp['part_number'];}else{echo 'Not Available';} ?></td>
+                                        <td style="word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
+                                        <td><?php echo $sp['oow_invoice_id']; ?></td>
+                                        <td><?php echo $sp['oow_incoming_invoice_amount']; ?></td>
+                                        <td> <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/invoices-excel/<?php echo $sp['oow_incoming_invoice_pdf'];  ?>">
+                                             <img style="width:27px;" src="<?php echo base_url();?>images/invoice_icon.png" /></a>
+                                        </td> 
+                                        <td><?php echo $sp['oow_invoice_date']; ?></td>  
+                                    </tr>
+                                    <?php } }?>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
+                </div>
+                <?php } ?>
+                <div class="row">  
+                    <span id="spare_parts_template">
+                        <div id="spare_parts_commentbox"> </div>  
+                    </span>
+                </div>
             </div>
            <!-- Common uses of hidden field  --->
            <input type="hidden" id="comment_type" name="comment_type" value="">

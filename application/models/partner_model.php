@@ -1534,7 +1534,7 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array()
      * 
      */
-    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, $post= array(), $wh_details = false){
+    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, $post= array(), $wh_details = false, $oow_spare_flag = false){
         
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
@@ -1569,6 +1569,10 @@ function get_data_for_partner_callback($booking_id) {
         if(!empty($wh_details)){
             $this->db->join('service_centres AS sc','spare_parts_details.defective_return_to_entity_id = sc.id','left');
         }
+        if(!empty($oow_spare_flag)){
+          $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id','left');  
+        }
+        
         
         $this->db->order_by('spare_parts_details.entity_type', 'asc');
         if($group_by){
@@ -2597,7 +2601,7 @@ function get_data_for_partner_callback($booking_id) {
     
     /*Desc - This function is used to insert booking callback details genrally we make an entry into it, only if calback API fails*/
     function insert_callback_api_booking_details($details) {
-        $this->db->insert('callback_api_booking_details', $details);
+        $this->db->insert_ignore('callback_api_booking_details', $details);
         return $this->db->insert_id();
     }
     
