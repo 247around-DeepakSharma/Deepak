@@ -1648,3 +1648,14 @@ ALTER TABLE `spare_parts_details` ADD `defective_part_received_by_wh` TINYINT NU
 ALTER TABLE `spare_parts_details` ADD `remarks_defective_part_by_wh` VARCHAR(260) NULL DEFAULT NULL AFTER `defective_part_received_date_by_wh`;
 ALTER TABLE `spare_parts_details` ADD `defective_part_rejected_by_wh` TINYINT(4) NOT NULL DEFAULT '0' AFTER `remarks_defective_part_by_wh`;
 
+-- Ankit 13-06-2019
+CREATE TABLE courier_lost_spare_status (
+	id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
+	spare_id int(11) NOT NULL,
+	pod text NULL DEFAULT NULL,
+	remarks text NULL DEFAULT NULL,
+	status varchar(100) NOT NULL,
+	agent_id int(11) NOT NULL,
+	create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	update_date datetime NULL DEFAULT NULL
+);

@@ -603,6 +603,8 @@
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <!--<th class="text-center" data-orderable="false">Warranty Status</th>-->
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <th class="text-center" data-orderable="true">Approve</th>
+                                    <th class="text-center" data-orderable="true">Reject</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -677,6 +679,43 @@
         </div>
     </div>
 </div>
+<div id="ApproveCourierLostSparePartModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="approve_courier_lost_spare_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Approve Courier Spare Lost </h4>
+            </div>
+            <div class="modal-body" >
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea name="remarks" class="form-control" id="approve_courier_spare_part_remarks" rows="4" placeholder="Enter Remarks"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="submit" id="approve_courier_spare_part_btn" name="approve-part" value="Approve" class="btn btn-primary form-control" style="margin-top:2px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="RejectCourierLostSparePartModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="reject_courier_lost_spare_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Reject Courier Spare Lost </h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="loader hide"></div>
 <style>
     .loader {
@@ -931,7 +970,7 @@
                     "orderable": true //set not orderable
                 },
                 {
-                    "targets": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], //first column / numbering column
+                    "targets": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],

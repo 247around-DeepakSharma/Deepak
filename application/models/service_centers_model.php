@@ -1408,4 +1408,13 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             return false;
         } 
     }
+    
+    function insert_courier_lost_spare_status($data) {
+        if(!empty($data)){
+          $this->db->insert('courier_lost_spare_status', $data);  
+          return $this->db->insert_id();  
+        }       
+        
+        return false;
+    }
 }
