@@ -3063,7 +3063,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_service_centers_consumption_list($post) {
-        $this->_get_service_centers_consumption_list($post, 'count(distinct(v.id)) as numrows');
+        $this->_get_service_centers_consumption_list($post, 'count(v.id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -3075,7 +3075,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_service_centers_consumption_list($post){
-        $this->_get_service_centers_consumption_list($post, 'count(distinct(v.id)) as numrows');
+        $this->_get_service_centers_consumption_list($post, 'count(v.id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
