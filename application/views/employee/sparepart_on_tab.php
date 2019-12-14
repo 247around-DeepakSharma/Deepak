@@ -173,8 +173,8 @@
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="false">Warranty Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <!-- <th class="text-center" data-orderable="false">Update</th>-->
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <!-- <th class="text-center" data-orderable="false">Update</th>
+                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>-->
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Booking</th>
                                     <th class="text-center" data-orderable="false">Approval</th>
@@ -715,7 +715,7 @@
     var defective_part_shipped_by_sf_table;
     var courier_lost_spare_parts_table;
     
-    $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+    $("#invoice_date").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true, changeYear: true});
     $(document).ready(function() {
         
         oow_part_shipped_table = $('#oow_part_shipped_table').DataTable({

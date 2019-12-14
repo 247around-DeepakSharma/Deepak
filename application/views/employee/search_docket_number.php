@@ -253,7 +253,7 @@
                 {
                     extend: 'excelHtml5',
                     text: 'Export',
-                    title: 'docet_number' + time
+                    title: 'docket_number' + time
                 }
             ]
         });
