@@ -1546,6 +1546,10 @@ function get_data_for_partner_callback($booking_id) {
             $this->db->join('wrong_part_shipped_details','spare_parts_details.id = wrong_part_shipped_details.spare_id and wrong_part_shipped_details.active = 1', 'left');
         }
 
+        if(!empty($post['courier_pod'])) {
+            $this->db->join('courier_lost_spare_status','spare_parts_details.id = courier_lost_spare_status.spare_id', 'left');
+        }
+        
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
         }

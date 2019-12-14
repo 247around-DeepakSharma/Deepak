@@ -772,6 +772,55 @@
                         </div>
                     </div>
                 </div>
+                <?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['courier_status'])) { ?>
+                <div class="row">
+                    <div class="col-md-12" >
+                        <h1 style='font-size:24px;margin-top: 40px;'>Courier Lost Part Details</h1>
+                        <div class="col-md-12" style="padding-left:1px;">
+                            <table class="table  table-striped table-bordered" >
+                                <thead>
+                                    <tr>
+                                        <th>S. No.</th>
+                                        <th>Part Number</th>
+                                        <th>Part Name</th>
+                                        <th>Part Type</th>
+                                        <th>Courier POD</th>
+                                        <th>Remarks</th>
+                                        <th>Status</th>
+                                        <th>Agent</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                        foreach($booking_history['spare_parts'] as $courier_sno => $spare_part_data) { 
+                                        if(empty($spare_part_data['courier_status'])) { continue; }
+                                    ?>
+                                    <tr>
+                                        <td><?php echo ++$courier_sno; ?></td>
+                                        <td><?php echo $spare_part_data['shipped_part_number']; ?></td>
+                                        <td><?php echo $spare_part_data['parts_shipped']; ?></td>
+                                        <td><?php echo $spare_part_data['shipped_parts_type']; ?></td>
+                                        <td>
+                                            <?php 
+                                                if(!empty($spare_part_data['courier_pod'])) {
+                                                    $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/courier-pod/".$spare_part_data['courier_pod'];
+                                                    echo '<a href="'. $src .'" target="_blank"><small style="white-space:nowrap;"></small>View POD</a>'; 
+                                                } else {
+                                                    echo '-';
+                                                }
+                                            ?>
+                                        </td>
+                                        <td><?php echo $spare_part_data['courier_remarks']; ?></td>
+                                        <td><?php echo ($spare_part_data['courier_status'] == 1 ? 'Approved' : 'Rejected'); ?></td>
+                                        <td><?php echo $this->employee_model->getemployeefromid($spare_part_data['agent_id'])[0]['full_name']; ?></td>
+                                    </tr> 
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <?php } ?>
                 <?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['wrong_part_name'])) { ?>
                 <div class="row">
                     <div class="col-md-12" >
