@@ -1,3 +1,4 @@
+<script src="<?php echo base_url();?>js/base_url.js"></script>
 <script src="<?php echo base_url();?>js/validation_js.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <style type="text/css">
@@ -246,7 +247,7 @@
                             <div class="col-md-3 ">
                                 <div class="form-group col-md-12    <?php if( form_error('order_id') ) { echo 'has-error';} ?>">
                                     <label for="order id">Invoice No.  <span id="error_order_id" style="color:red"></span></label>
-                                    <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Order ID" id="order_id"  />
+                                    <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Invoice ID" id="order_id"  />
                                     
                                 </div>
                             </div>
@@ -331,7 +332,7 @@
         var purchase_date = $("#purchase_date").val();
         
          if(mobile_number === "" || mobile_number.match(/^[6-9]{1}[0-9]{9}$/) === null){
-            display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Mobile");
+            display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Valid Mobile Number");
              return false;
         } else {
             display_message("booking_primary_contact_no","error_mobile_number","green","");
@@ -738,6 +739,7 @@
 
     $(document).ready(function(){
          $("#booking_pincode").keyup(function(event) {
+            check_pincode();
             get_city();
         
         });
