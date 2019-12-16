@@ -652,7 +652,7 @@
                                     <div class="text-danger">Spare Part Not Requested</div>
                                 <?php } ?>
                                     
-                                    <?php if (($booking_history[0]['request_type'] == REPAIR_OOW_TAG) || ($spare_part_type == REPAIR_OOW_TAG)) { ?>
+                                    <?php if (($booking_history[0]['request_type'] == REPAIR_OOW_TAG) || ($spare_request_type == REPAIR_OOW_TAG)) { ?>
                                         <div class="row">
                                             <div class="col-md-12">
                                                 <h1 style='font-size:24px;'> Out Of Warranty Invoice Details ( Uploaded By Partner )</h1>
