@@ -1643,3 +1643,8 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 -- Kajal 16-12-2019
 ALTER TABLE `courier_details` ADD `sender_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `partner_invoice_id`, ADD `receiver_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_city`;
+--Gorakh 16-12-2019
+ALTER TABLE `spare_parts_details` ADD `defective_part_received_by_wh` TINYINT NULL DEFAULT '0' AFTER `wh_to_partner_defective_shipped_date`, ADD `defective_part_received_date_by_wh` DATETIME NULL DEFAULT NULL AFTER `defective_part_received_by_wh`;
+ALTER TABLE `spare_parts_details` ADD `remarks_defective_part_by_wh` VARCHAR(260) NULL DEFAULT NULL AFTER `defective_part_received_date_by_wh`;
+ALTER TABLE `spare_parts_details` ADD `defective_part_rejected_by_wh` TINYINT(4) NOT NULL DEFAULT '0' AFTER `remarks_defective_part_by_wh`;
+
