@@ -1067,6 +1067,13 @@ function set_upcountry() {
                  
             }); 
         }
+        else
+        {
+            $('#submitform').attr('disabled', true); 
+            document.getElementById("error_pincode").style.borderColor = "blue";
+            document.getElementById("error_pincode").style.color = "blue";
+            document.getElementById("error_pincode").innerHTML = "Enter 6 Digit Valid Pincode";
+        }
     }
     $(document).ready(function(){
         var is_spare_requested = $('#is_spare_requested').val();
