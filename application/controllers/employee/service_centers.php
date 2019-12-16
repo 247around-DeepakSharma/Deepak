@@ -6470,8 +6470,8 @@ class Service_centers extends CI_Controller {
         }
         
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
-            'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
-            'received_defective_part_date' => date("Y-m-d H:i:s")));
+            'defective_part_received_by_wh' => 1, 'remarks_defective_part_by_wh' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
+            'defective_part_received_date_by_wh' => date("Y-m-d H:i:s")));
         
         if ($response) {
 
@@ -6565,9 +6565,9 @@ class Service_centers extends CI_Controller {
         $decode_partner_id = base64_decode(urldecode($partner_id));
         
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_REJECTED,
-            'remarks_defective_part_by_partner' => $rejection_reason,
-            'defective_part_rejected_by_partner'=>1,
-            'approved_defective_parts_by_partner' => '0'));
+            'remarks_defective_part_by_wh' => $rejection_reason,
+            'defective_part_rejected_by_wh'=> 1,
+            'defective_part_received_by_wh' => '0'));
         
         if ($response) {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
