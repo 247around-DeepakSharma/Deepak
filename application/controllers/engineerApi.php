@@ -2918,6 +2918,9 @@ class engineerApi extends CI_Controller {
                 else{
                     $response['status'] = false;
                     $response['code'] = "0053";
+                    if($status['code'] == DUPLICATE_SERIAL_NO_CODE){
+                        $response['code'] = DUPLICATE_SERIAL_NO_CODE;
+                    }
                     $response['message'] = $status['message']; 
                 }
             } else {
