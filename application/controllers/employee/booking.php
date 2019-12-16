@@ -5393,7 +5393,7 @@ class Booking extends CI_Controller {
         }
         if($booking_status == 'Pending'){
             $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL); 
-            $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
+            $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
             services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
             booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
             booking_details.booking_remarks,service_centres.name as service_centre_name, engineer_details.name as engineer_name, booking_details.is_upcountry, service_centres.primary_contact_name,
