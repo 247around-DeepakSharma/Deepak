@@ -24,7 +24,7 @@
         position: inherit;
     }
     .select2{
-    width: 300px;
+    width: 572px !important;
     }
 </style>
 <?php if($this->uri->segment(4)){ $sn_no =  $this->uri->segment(4) +1; } else{ $sn_no = 1;} ?>

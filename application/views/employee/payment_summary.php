@@ -165,7 +165,7 @@
     $(function() {
         $('#transaction_date').daterangepicker({
             locale: {
-               format: 'YYYY/MM/DD'
+               format: 'DD/MM/YYYY'
             },
             autoUpdateInput: false
         });
@@ -174,18 +174,18 @@
      $(function() {
         $('#transaction_period_date').daterangepicker({
             locale: {
-               format: 'YYYY/MM/DD'
+               format: 'DD/MM/YYYY'
             },
             autoUpdateInput: false
         });
     });
     $('#transaction_period_date').on('apply.daterangepicker', function(ev, picker) {
 
-        $('#transaction_period_date').val(picker.startDate.format('YYYY-MM-DD') + '/' + picker.endDate.format('YYYY-MM-DD'));
+        $('#transaction_period_date').val(picker.startDate.format('DD/MM/YYYY') + '-' + picker.endDate.format('DD/MM/YYYY'));
     });
     
     $('#transaction_date').on('apply.daterangepicker', function(ev, picker) {
-        $('#transaction_date').val(picker.startDate.format('YYYY-MM-DD') + '/' + picker.endDate.format('YYYY-MM-DD'));
+        $('#transaction_date').val(picker.startDate.format('DD/MM/YYYY') + '-' + picker.endDate.format('DD/MM/YYYY'));
     });
    
 </script>

@@ -173,8 +173,8 @@
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="false">Warranty Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <!-- <th class="text-center" data-orderable="false">Update</th>-->
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <!-- <th class="text-center" data-orderable="false">Update</th>
+                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>-->
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Booking</th>
                                     <th class="text-center" data-orderable="false">Approval</th>
@@ -202,6 +202,30 @@
         <div class="row" >
             <div class="col-md-12">
                 <div class="panel panel-default">
+
+                        <div class="row">       
+                            <div class="col-md-1 pull-right">       
+                                <a class="btn btn-success" id="show_spare_list2">Show</a><span class="badge" title="show spare data"></span>     
+                            </div>      
+                            <div class="col-md-4 pull-right">       
+                                <select class="form-control" name="appliance_wise_parts_requested" id="appliance_wise_parts_requested2">     
+                                    <option value="" selected="selected" disabled="">Select Services</option>       
+                                    <?php foreach($services as $val){ ?>        
+                                    <option value="<?php echo $val->id?>"><?php echo $val->services?></option>      
+                                    <?php } ?>      
+                                </select>       
+                            </div>      
+                            <div class="col-md-4 pull-right">       
+                                <select class="form-control" name="partner_wise_parts_requested"  id="partner_wise_parts_requested2">        
+                                    <option value="" selected="selected" disabled="">Select Partners</option>       
+                                    <?php       
+                                        foreach($partners as $val){ ?>      
+                                            <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>       
+                                    <?php } ?>      
+                                </select>       
+                            </div>      
+                        </div> 
+
                     <div class="panel-body" >
                         <table id="spare_parts_requested_table_approved" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead >
@@ -715,7 +739,7 @@
     var defective_part_shipped_by_sf_table;
     var courier_lost_spare_parts_table;
     
-    $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+    $("#invoice_date").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true, changeYear: true});
     $(document).ready(function() {
         
         oow_part_shipped_table = $('#oow_part_shipped_table').DataTable({
@@ -986,7 +1010,13 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '0', status: '<?php echo SPARE_PARTS_REQUESTED; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data:function(d){
+                    d.type =  '0';     
+                    d.status =  '<?php echo SPARE_PARTS_REQUESTED; ?>';        
+                    d.partner_id =  '<?php echo $partner_id; ?>';       
+                    d.partner_wise_parts_requested =  $('#partner_wise_parts_requested2').val();     
+                    d.appliance_wise_parts_requested =  $('#appliance_wise_parts_requested2').val(); 
+                },
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -1635,10 +1665,25 @@
     $('#appliance_wise_parts_requested').select2({      
            placeholder:'Select Appliance',      
            allowClear: true     
+    }); 
+
+// For select2 in approved tab //
+    $('#partner_wise_parts_requested2').select2({        
+       placeholder:'Select Partner',        
+       allowClear: true     
     });     
+// For select2 in approved tab //
+    $('#appliance_wise_parts_requested2').select2({      
+           placeholder:'Select Appliance',      
+           allowClear: true     
+    });    
 
     $('#show_spare_list').click(function(){     
         spare_parts_requested_table.ajax.reload(null, false);       
+    }); 
+// For show filtered data in ajax reload  //
+    $('#show_spare_list2').click(function(){     
+        spare_parts_requested_table_approved.ajax.reload(null, false);       
     }); 
     
     function disable_btn(id){
@@ -1683,3 +1728,8 @@
         });
     });
 </script>
+<style>
+    #partner_wise_parts_requested2 .select2-container{
+        width: 572px !important;
+    }
+</style>
