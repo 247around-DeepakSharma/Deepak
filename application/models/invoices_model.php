@@ -976,7 +976,7 @@ class invoices_model extends CI_Model {
             $data['annexure'] = $anx_data['annexure'];
             $data['penalty_discount'] = $penalty_tat;
             $data['penalty_tat_count'] = $penalty_count;
-            $data['penalty_booking_data'] = $penalty_data['penalty_booking_data'];
+            $data['penalty_booking_data'] = (!empty($penalty_data['penalty_booking_data']) ? $penalty_data['penalty_booking_data'] : array());
             $data['pickup_courier'] = $result_data['pickup_courier'];
             $data['micro_warehouse_list'] = $result_data['micro_warehouse_list'];
             $data['packaging_data'] = $result_data['packaging_data'];

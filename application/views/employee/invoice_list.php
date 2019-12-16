@@ -95,7 +95,7 @@ ini_set('max_execution_time', 36000000);
                     <div class="col-md-4">
                         <label for="due_date" class="col-md-12 col-sm-12">Select Due Date</label>
                         <div class="form-group col-md-12 col-sm-12">
-                            <input placeholder="Select Due Date" type="text" class="form-control" value="<?php echo date('Y-m-d'); ?>" name="due_date" id="due_date" onchange="getVendor()" />
+                            <input placeholder="Select Due Date" type="text" class="form-control" value="<?php echo date('d/m/Y'); ?>" name="due_date" id="due_date" onchange="getVendor()" />
                         </div>
                     </div>
                 <?php } else{ ?>  <input placeholder="Select Due Date" type="hidden" class="form-control" name="due_date" id="due_date" /> <?php }?>
@@ -474,7 +474,7 @@ if(isset($_SESSION['file_error'])){
         }
        
     }
-    $("#from_date").datepicker({dateFormat: 'yy-mm-dd'});
+    $("#from_date").datepicker({dateFormat: 'dd/mm/yy'});
     
     
     function getVendor(){ 
@@ -506,7 +506,7 @@ if(isset($_SESSION['file_error'])){
                        $(".checkbox_amt").prop('checked', $(this).prop("checked"));
                               });
             $("#due_date").datepicker({
-                dateFormat: 'yy-mm-dd',
+                dateFormat: 'dd/mm/yy',
             });
            // $('#due_date').datepicker('setDate', new Date());
                               
@@ -521,10 +521,10 @@ if(isset($_SESSION['file_error'])){
     $(function() {
         $('input[name="daterange"]').daterangepicker({
             locale: {
-               format: 'YYYY/MM/DD'
+               format: 'DD/MM/YYYY'
             },
-            startDate: '<?php echo date("Y/m/01", strtotime("-1 month")) ?>',
-            endDate: '<?php echo date('Y-m-d', strtotime('last day of previous month')); ?>'
+            startDate: '<?php echo date("01/m/Y", strtotime("-1 month")) ?>',
+            endDate: '<?php echo date('d/m/Y', strtotime('last day of previous month')); ?>'
         });
 //        $('input[name="daterange"]').on('apply.daterangepicker', function(ev, picker) {
 //          $(this).val(picker.startDate.format('YYYY/MM/DD') + '-' + picker.endDate.format('YYYY/MM/DD'));
