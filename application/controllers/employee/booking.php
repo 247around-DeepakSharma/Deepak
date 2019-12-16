@@ -59,7 +59,7 @@ class Booking extends CI_Controller {
         $this->load->dbutil();
         
         // Mention those functions whom you want to skip from employee specific validations
-        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput', 'getCategoryCapacityForModel','get_posible_parent_id'];
+        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput', 'getCategoryCapacityForModel','get_posible_parent_id','getBrandForService'];
         $arr_url_segments = $this->uri->segments; 
         $allowedForSF = 0;
         if(!empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){        
@@ -78,7 +78,7 @@ class Booking extends CI_Controller {
                 return TRUE;
             }
             else{
-                if ((($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) || ($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+                if ((($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) || (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) || (($this->session->userdata('userType') == 'dealers') && !empty($this->session->userdata('dealer_id')))) {
                     return TRUE;
                 } 
                 else {
@@ -1875,7 +1875,7 @@ class Booking extends CI_Controller {
 //            $data['booking_history']['spare_parts'] = $spare_parts_list;
 //        }
 
-        $select = "courier_company_invoice_details.id, courier_company_invoice_details.awb_number, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.invoice_id, courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.update_date, courier_company_invoice_details.partner_id, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.partner_invoice_id, courier_company_invoice_details.booking_id, courier_company_invoice_details.box_count, courier_company_invoice_details.courier_invoice_file, courier_company_invoice_details.shippment_date, courier_company_invoice_details.created_by, courier_company_invoice_details.is_exist";
+        $select = "courier_company_invoice_details.id, courier_company_invoice_details.awb_number, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.update_date, courier_company_invoice_details.partner_id, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.partner_invoice_id, courier_company_invoice_details.booking_id, courier_company_invoice_details.box_count, courier_company_invoice_details.courier_invoice_file, courier_company_invoice_details.shippment_date, courier_company_invoice_details.created_by, courier_company_invoice_details.is_exist";
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
         if (!empty($spare_parts_details)) {
             $awb = $spare_parts_details[0]['awb_by_sf'];
