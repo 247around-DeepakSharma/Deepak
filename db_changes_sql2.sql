@@ -1656,3 +1656,6 @@ CREATE TABLE courier_lost_spare_status (
 
 --Kalyani 09-12-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'insufficient_balance_paytm_wallet', 'Paytm wallet has insufficient balance', 'Dear Sir,<br>Paytm wallet has insufficient balance for engineer incentive amount transfer.\r\n<br/>Thanks,<br/>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', CURRENT_TIMESTAMP);
+
+-- Kajal 16-12-2019
+ALTER TABLE `courier_details` ADD `sender_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `partner_invoice_id`, ADD `receiver_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_city`;

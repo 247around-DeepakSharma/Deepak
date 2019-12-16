@@ -2190,9 +2190,15 @@ class invoices_model extends CI_Model {
                 (concat(billable_weight, ' KG'))
                 ELSE '' END AS billable_weight,
                 CASE WHEN (defective_courier_receipt IS NOT NULL) THEN 
-                (concat('".S3_WEBSITE_URL."misc-images/',defective_courier_receipt)) ELSE '' END AS courier_receipt_link
+                (concat('".S3_WEBSITE_URL."misc-images/',defective_courier_receipt)) ELSE '' END AS courier_receipt_link, 
+                sp.entity_type, 
+                sc.district AS sender_city, 
+                CASE WHEN (sp.entity_type = 'vendor') THEN (sc.district) 
+                WHEN (sp.entity_type = 'partner') THEN (SELECT partners.district FROM partners WHERE partners.id = bd.partner_id)
+                END AS receiver_city
                 FROM  booking_details as bd
                 JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id 
+                LEFT JOIN service_centres as sc ON sc.id = sp.service_center_id 
                 LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_sf 
                 WHERE
                 bd.current_status =  '"._247AROUND_COMPLETED."'
@@ -2203,7 +2209,7 @@ class invoices_model extends CI_Model {
                 AND `approved_defective_parts_by_partner` = 1
                 AND partner_courier_invoice_id IS NULL
                 AND awb_by_sf IS NOT NULL
-                GROUP BY awb HAVING courier_charges_by_sf > 0 
+                GROUP BY awb,sp.entity_type HAVING courier_charges_by_sf > 0 
                 
                 ";
      
@@ -2223,7 +2229,9 @@ class invoices_model extends CI_Model {
                 SUM(sp.courier_price_by_partner) as courier_charges_by_sf, bd.city,
                 CASE WHEN (billable_weight > 0 ) THEN (concat(billable_weight, ' KG')) ELSE '' END AS billable_weight,
                 box_count, count(bd.booking_id) as count_of_booking,
-                '' AS courier_receipt_link
+                '' AS courier_receipt_link,
+                (SELECT partners.district FROM partners WHERE partners.id = bd.partner_id) AS sender_city, 
+                (SELECT service_centres.district FROM service_centres WHERE service_centres.id = sp.service_center_id) AS receiver_city
                 FROM  booking_details as bd
                 JOIN spare_parts_details as sp ON sp.booking_id = bd.booking_id 
                 LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_partner
@@ -2460,9 +2468,12 @@ class invoices_model extends CI_Model {
                 . ' CASE WHEN (billable_weight > 0 ) THEN (concat(billable_weight, " KG")) ELSE "" END AS billable_weight,'
                 . ' box_count, count(bd.booking_id) as count_of_booking,'
                 . ' bd.city, CASE WHEN (courier_pic_by_partner IS NOT NULL) '
-                . ' THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_pic_by_partner)) ELSE "" END AS courier_receipt_link '
+                . ' THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_pic_by_partner)) ELSE "" END AS courier_receipt_link,'
+                . ' sender_sc.district AS sender_city, receiver_sc.district AS receiver_city'
                 . ' FROM spare_parts_details as sp '
                 . ' JOIN  booking_details as bd ON bd.booking_id = sp.booking_id  '
+                . ' LEFT JOIN service_centres as sender_sc ON sender_sc.id = sp.partner_id  '
+                . ' LEFT JOIN service_centres as receiver_sc ON receiver_sc.id = sp.service_center_id  '
                 . ' LEFT JOIN courier_company_invoice_details ON awb_number = awb_by_partner '
                 . ' WHERE '
                 . ' entity_type = "'._247AROUND_SF_STRING.'" '
@@ -2504,7 +2515,8 @@ class invoices_model extends CI_Model {
                 . ' GROUP_CONCAT(DISTINCT booking_id) as booking_id, AWB_no as awb,  count(booking_id) as count_of_booking, '
                 . ' "" AS box_count, '
                 . ' COALESCE(SUM(courier_charge),0) as courier_charges_by_sf, "" AS city, CASE WHEN (courier_file IS NOT NULL) '
-                .'  THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_file)) ELSE "" END AS courier_receipt_link '
+                . ' THEN (concat("'.S3_WEBSITE_URL.'vendor-partner-docs/",courier_file)) ELSE "" END AS courier_receipt_link, '
+                . ' sender_city, receiver_city '
                 . ' FROM `courier_details` '
                 . ' WHERE `sender_entity_type` = "'._247AROUND_SF_STRING.'"  '
                 . ' AND receiver_entity_type = "'._247AROUND_PARTNER_STRING.'" '
