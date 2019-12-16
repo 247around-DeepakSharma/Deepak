@@ -2724,9 +2724,7 @@ class Partner extends CI_Controller {
             $this->checkUserSession();
         }
 
-        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH,
-            
-            'received_defective_part_date' => date("Y-m-d H:i:s")));
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => PARTNER_ACK_DEFECTIVE_PARTS_SEND_BY_WH,'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED, 'received_defective_part_date' => date("Y-m-d H:i:s")));
         
         if($response){
             
