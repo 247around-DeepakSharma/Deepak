@@ -603,7 +603,15 @@ class Partner extends CI_Controller {
                     $this->jsonResponseString['response'] = array(
                         "247aroundBookingID" => $lead_details['booking_id'],
                         "247aroundBookingStatus" => $lead_details['partner_internal_status'],
-                        "247aroundBookingRemarks" => $lead_details['booking_remarks']);
+                        "247aroundBookingBrand" => (!empty($lead_details['appliance_brand']) ? $lead_details['appliance_brand'] : NULL),
+			"247aroundBookingAppliance" => $lead_details['services'],
+			"247aroundBookingApplianceModel" => (!empty($lead_details['model']) ? $lead_details['model'] : NULL),                            
+                        "247aroundBookingCallType" => $lead_details['request_type'],                                
+                        "247aroundBookingAgeing" => $lead_details['ageing'],                                
+                        "247aroundBookingIssueResolved" => $lead_details['partner_internal_status'],                                   
+                        "247aroundBookingRemarks" => $lead_details['booking_remarks'],
+                    );
+                    
                     $this->sendJsonResponse(array(SUCCESS_CODE, SUCCESS_MSG));
                 } else {
                     log_message('info', __METHOD__ . ":: Request validation fails. " . print_r($is_valid, true));
@@ -896,6 +904,14 @@ class Partner extends CI_Controller {
         //Order ID / Booking ID validation
         if ($flag === TRUE) {
             $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
+            if(!empty($lead)) {
+                $booking_unit_details = $this->booking_model->getunit_details($lead['booking_id']);
+                if(!empty($booking_unit_details)) {
+                    $booking_unit_details = $booking_unit_details[0];
+                    $lead['appliance_brand'] = $booking_unit_details['brand'];
+                    $lead['model'] = $booking_unit_details['model_number'];
+                }
+            }
             if (!is_null($lead)) {
                 //order id found, check booking id
 //                if ($lead['booking_id'] != $request['247aroundBookingID']) {
