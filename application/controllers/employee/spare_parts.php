@@ -2776,6 +2776,10 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
             if (!empty($courier_name)) {
                 $data['courier_name'] = $courier_name;
                 $data['courier_code'] = $courier_code;
+                $where = array("courier_services.courier_name = '".$courier_name."' OR courier_services.courier_code = '".$courier_code."' " => null );
+                $courier_service = $this->inventory_model->get_courier_service_details('courier_services.id, courier_services.courier_name' ,$where);
+                
+                if(empty($courier_service)){
                 if (!empty($data)) {
                     $insert_id = $this->inventory_model->insert_courier_services_data($data);
                     if (!empty($insert_id)) {
@@ -2784,6 +2788,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                         $status["message"] = "Courier service not added.";
                     }
                 }
+            }else{
+             $status["message"] = "Courier service already exist our system.";   
+            }
             }
         }
         echo json_encode($status);

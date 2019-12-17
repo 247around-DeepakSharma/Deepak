@@ -3286,6 +3286,22 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         }
         echo $str_body;
     }
+    /**
+     * @desc this function is used to show spare out of tat report in dashboard
+     * @param int $limit
+     */
+    function get_partner_out_of_tat_data($limit){
+        $data = $this->dashboard_model->get_spare_tat_report("partner_spare_out_of_tat",array(), $limit);
+        echo json_encode($data, TRUE);
+    }
+    /**
+     * @desc this function is used to show rm wise spare tat report
+     * @param int $limit
+     */
+    function get_rm_wise_spare_oot($limit){
+        $data = $this->dashboard_model->get_spare_tat_report("rm_wise_spare_out_of_tat",array(), $limit);
+        echo json_encode($data, TRUE);
+    }
 }
 
 
