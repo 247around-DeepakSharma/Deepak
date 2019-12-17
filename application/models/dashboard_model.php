@@ -862,7 +862,24 @@ class dashboard_model extends CI_Model {
         $result = $this->db->query($query);
         return $result->result_array();
     }
-    
-
+    /**
+     * @desc this function is used to fetch view data from db
+     * @param string $table_name
+     * @param array $where
+     * @param int $limit
+     * @return Array
+     */
+    function get_spare_tat_report($table_name, $where = array(), $limit = 5){
+        $this->db->select('*');
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+        if($limit > 0){
+            $this->db->limit($limit, 0);
+        }
+        
+        $query = $this->db->get($table_name);
+        return $query->result_array();
+    }
 }
     
