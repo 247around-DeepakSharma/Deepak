@@ -2840,7 +2840,7 @@ class Inventory_model extends CI_Model {
     }
 
 
-    function count_sale_purchase_msl_parts($select,$where){
+    function count_sale_purchase_msl_parts($select,$where,$post){
 
         $this->db->distinct();
         $this->db->select($select, FALSE);
@@ -2851,6 +2851,30 @@ class Inventory_model extends CI_Model {
         $this->db->join('entity_gst_details', 'entity_gst_details.id = invoice_details.to_gst_number','left');
         $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = invoice_details.inventory_id');
         $this->db->join('courier_details', 'inventory_ledger.courier_id = courier_details.id','left');
+
+
+        if (!empty($post['search']['value'])) {
+             $like = "";
+            if(array_key_exists("column_search", $post)){
+                foreach ($post['column_search'] as $key => $item) { // loop column 
+                    // if datatable send POST for search
+                    if ($key === 0) { // first loop
+                        $like .= "( " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+
+                    } else {
+                        $like .= " OR " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+
+                    }
+                }
+                $like .= ") ";
+            }
+            else{
+                $like .= "(invoice_details.invoice_id LIKE '%" . $post['search']['value'] . "%')";
+            }
+            $this->db->where($like, null, false);
+        }
+
+
         if (!empty($where)) {
             $this->db->where($where);
         }
