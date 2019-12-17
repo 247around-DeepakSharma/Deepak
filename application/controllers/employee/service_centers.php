@@ -3913,7 +3913,7 @@ function do_multiple_spare_shipping(){
                 $data = array();
                 if (!empty($sf_details)) {
                     $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
-                    $sf_details[0]['address'] = $sf_details[0]['address'] . ", " . $sf_details[0]['district'] . ", Pincode -" . $sf_details[0]['pincode'] . ", " . $sf_details[0]['state'];
+                    $sf_details[0]['address'] = $sf_details[0]['address'] . ", " . $sf_details[0]['district'] . ", " . $sf_details[0]['state'] . ", Pincode -" . $sf_details[0]['pincode'] ;
                 }
 
                 if (!empty($spare_details)) {
