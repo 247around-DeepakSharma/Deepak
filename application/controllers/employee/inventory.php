@@ -7726,7 +7726,7 @@ class Inventory extends CI_Controller {
             $row =  $this->get_list_sale_purchage_invoice_data_table($spare_list, $no);
             $data[] = $row;
         }
-        $total  = $this->inventory_model->count_sale_purchase_msl_parts($select, $where);
+        $total  = $this->inventory_model->count_sale_purchase_msl_parts($select, $where,$post);
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => count($total),
