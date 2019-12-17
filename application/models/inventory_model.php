@@ -3367,5 +3367,23 @@ class Inventory_model extends CI_Model {
         
     }
     
+     /*
+     * @Desc: This function is used to get courier_services
+     * @select: $select
+     * @where: $where
+     * @return: Array
+     */
+
+     function get_courier_service_details($select, $where) {
+        
+        $this->db->distinct();
+        $this->db->select($select);
+        $this->db->from('courier_services');
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+        $query = $this->db->get();
+        return $query->result_array();
+    }
 
 }
