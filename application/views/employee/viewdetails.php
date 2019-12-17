@@ -1,4 +1,4 @@
-<?php if(!empty($booking_history)) { ?> 
+<?php if(!empty($booking_history)) {  $spare_request_type = ''; ?> 
 <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=false&libraries=places&key=<?php echo GOOGLE_MAPS_API_KEY;?>"></script>
 <script src="<?php echo base_url();?>js/googleScript.js"></script> 
 <style type="text/css">
@@ -659,7 +659,7 @@
                                 </thead>
                                 <tbody>
                                             <?php
-                                            $spare_request_type = '';
+                                           
                                             foreach ($booking_history['spare_parts'] as $sp) {
                                                     if ($sp['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
                                                         $spare_request_type = REPAIR_OOW_TAG;
