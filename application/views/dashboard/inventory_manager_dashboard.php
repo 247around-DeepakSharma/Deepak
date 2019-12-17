@@ -77,9 +77,43 @@
         <!-- End SF Spare Parts Details-->
     </div>
     
+    <div class="row" style="margin-top:10px;">
+        <!-- SF Spare Parts Details -->
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>Partner Out OF TAT Report<b>(OOT)</b> <span class="badge badge-info" data-toggle="popover" data-content="Below table shows Out of tat report for Partner (60 Days)"><i class="fa fa-info"></i></span> </h2>
+                    <div class="nav navbar-right panel_toolbox">
+                        <div class="pull-right">
+                            <a href="javascript:void(0)"  onclick="partner_out_of_tat(-1)" class="btn btn-sm btn-success" >Show All</a>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="loader_gif3" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                </div>
+                <div class="x_content">
+                    <div id="partner_out_of_tat" style="width:100%; display: none;" >
+                        <table id="partner_out_of_tat_table" class="table table-bordered table-responsive" width="100%">
+                            <thead>
+                                <th>S.No.</th>
+                                <th>Partner Name</th>
+                                <th>Out of TAT - Part Count</th>
+                                <th>Out of TAT Amount</th>
+                            </thead>
+                            <tbody id="partner_out_of_tat_table_data"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End SF Spare Parts Details-->
+    </div>
+    
     <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- SF Brackets snapshot Section -->
-    <div class="row">
+<!--    <div class="row">
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
@@ -122,7 +156,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>-->
     <!-- SF Brackets Snapshot Section -->
     <?php } ?>
     
@@ -297,6 +331,7 @@
     var url = '';
     var partner_name = [];
     var partner_id = [];
+    //var parter_oot;
     
     $(document).ready(function(){
         
@@ -307,7 +342,12 @@
         //sf spare status
         spare_details_by_sf();
         //get sf brackets details
-        sf_brackets_details();
+       // sf_brackets_details();
+       
+
+        
+        //Partner out of tat
+        partner_out_of_tat(5);
         
         $('[data-toggle="popover"]').popover({
             placement : 'top',
@@ -315,7 +355,6 @@
         });
         
     });
-    
     
     //this function is used to call ajax request
     function sendAjaxRequest(postData, url,type) {
@@ -355,6 +394,14 @@
         data = {is_show_all:0};
         sendAjaxRequest(data,url,post_request).done(function(response){
             create_spare_parts_by_sf_table(response);
+        });
+    }
+    
+    function partner_out_of_tat(limit){
+        url =  '<?php echo base_url(); ?>employee/dashboard/get_partner_out_of_tat_data/'+ limit;
+        data = {is_show_all:0};
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_partner_out_of_tat_data(response);
         });
     }
     
@@ -435,6 +482,33 @@
         $('#spare_details_by_sf_table_data').html(table_body_html);
     }
     
+    function create_partner_out_of_tat_data(response){
+        obj = JSON.parse(response);
+        console.log(response);
+        $('#loader_gif3').hide();
+        $('#partner_out_of_tat').fadeIn();
+        var table_body_html = '';
+        $.each(obj, function (index,val) {
+            table_body_html += '<tr>';
+            table_body_html += '<td>' + (Number(index)+1) +'</td>';
+            table_body_html += '<td><a href="">' +val['public_name'] +'</a></td>';
+            table_body_html += "<td>" +val['out_of_tat_part_count'] +"</td>";
+            table_body_html += "<td> Rs. " +val['out_of_tat_amount'] +"</td>";
+            table_body_html += '</tr>';
+        });
+        $('#partner_out_of_tat_table_data').html(table_body_html);
+        $('#partner_out_of_tat_table').DataTable({
+           "bPaginate": false,
+           "bLengthChange": false,
+           "bFilter": true,
+           "bInfo": false,
+           dom: 'Bfrtip',
+           buttons: [
+               'copy', 'csv', 'excel', 'pdf', 'print',
+           ]
+        });
+    }
+    
     function create_sf_brackets_table(response){
         $('#brackets_loader').hide();
         $('#sf_brackets_table').fadeIn();
@@ -491,4 +565,5 @@
       $('#'+form_id).attr('action', final_url);
       $('#'+form_id).submit();
     }
+    
 </script>
