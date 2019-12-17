@@ -26,7 +26,9 @@
                                         <th >Name: </th>
                                         <td><?php echo $booking_history[0]['name']; ?></td>
                                         <th>Mobile: </th>
-                                        <td><?php echo $booking_history[0]['booking_primary_contact_no'];
+                                        <td><?php
+                                            $spare_request_type = '';
+                                             echo $booking_history[0]['booking_primary_contact_no'];
                                             if (!empty($booking_history[0]['booking_alternate_contact_no'])) {
                                                 echo "/" . $booking_history[0]['booking_alternate_contact_no'];
                                             }
@@ -325,7 +327,13 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody> 
-                                                                <?php foreach ($booking_history['spare_parts'] as $sp) { ?>
+                                                            <?php
+                                                             $spare_request_type = '';
+                                                            foreach ($booking_history['spare_parts'] as $sp) {
+                                                                if ($sp['part_warranty_status'] == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {
+                                                                    $spare_request_type = REPAIR_OOW_TAG;
+                                                                }
+                                                                ?>
                                                             <tr>
                                                                 <td><span id="entity_type_id"><?php if($sp['entity_type'] == _247AROUND_PARTNER_STRING){ echo "Partner";} else if(in_array($sp['partner_id'],array(15,804))){
                                                                        echo "Warehouse (Central)";     
@@ -394,6 +402,62 @@
                                             </div>
                                        </div>
                                     </div>
+                            <?php if(!empty($booking_history['spare_parts']) && !empty($booking_history['spare_parts'][0]['courier_status'])) { ?>
+                                <div class="col-md-12 col-sm-12 col-xs-12">
+
+                                        <div class="col-md-12 col-sm-12 col-xs-12">
+                                            <div class="x_panel">
+                                                <div class="x_title">
+                                                    <h2>Courier Lost Part Details</h2>
+                                                    <div class="clearfix"></div>
+                                                </div>
+                                                <div class="">
+                                                    <table class="table  table-striped table-bordered" >
+                                                        <thead>
+                                                            <tr>
+                                                                <th>S. No.</th>
+                                                                <th>Part Number</th>
+                                                                <th>Part Name</th>
+                                                                <th>Part Type</th>
+                                                                <th>Courier POD</th>
+                                                                <th>Remarks</th>
+                                                                <th>Status</th>
+                                                                <th>Agent</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php 
+                                                                foreach($booking_history['spare_parts'] as $courier_sno => $spare_part_data) { 
+                                                                if(empty($spare_part_data['courier_status'])) { continue; }
+                                                            ?>
+                                                            <tr>
+                                                                <td><?php echo ++$courier_sno; ?></td>
+                                                                <td><?php echo $spare_part_data['shipped_part_number']; ?></td>
+                                                                <td><?php echo $spare_part_data['parts_shipped']; ?></td>
+                                                                <td><?php echo $spare_part_data['shipped_parts_type']; ?></td>
+                                                                <td>
+                                                                    <?php 
+                                                                        if(!empty($spare_part_data['courier_pod'])) {
+                                                                            $src = "https://s3.amazonaws.com/".BITBUCKET_DIRECTORY."/courier-pod/".$spare_part_data['courier_pod'];
+                                                                            echo '<a href="'. $src .'" target="_blank"><small style="white-space:nowrap;"></small>View POD</a>'; 
+                                                                        } else {
+                                                                            echo '-';
+                                                                        }
+                                                                    ?>
+                                                                </td>
+                                                                <td><?php echo $spare_part_data['courier_remarks']; ?></td>
+                                                                <td><?php echo ($spare_part_data['courier_status'] == 1 ? 'Approved' : 'Rejected'); ?></td>
+                                                                <td><?php echo $this->employee_model->getemployeefromid($spare_part_data['agent_id'])[0]['full_name']; ?></td>
+                                                            </tr> 
+                                                            <?php } ?>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>                                    
+                                </div>
+                            <?php } ?>
+                                
                                         <?php if ($estimate_given) { ?>
                                         <div class="col-md-12 col-sm-12 col-xs-12">
                                             <div class="x_panel">
@@ -575,7 +639,7 @@
                                             </div>
                                         </div>
                                     <?php } ?>
-                                <?php } if ($defective_parts_shippped_date_by_wh) { ?>
+                                <?php } if (!empty($defective_parts_shippped_date_by_wh)) { ?>
                                 <div class="row">
                                     <div class="col-md-12">
                                         <h1 style='font-size:24px;'>Warehouse Dispatch Defective To Partner</h1>
@@ -642,9 +706,58 @@
                                         </div>
                                     </div>
                                 </div>
-                               <?php } else { ?> 
+                               <?php } else if(empty ($booking_history['spare_parts'])) { ?> 
                                     <div class="text-danger">Spare Part Not Requested</div>
                                 <?php } ?>
+                                    
+                                    <?php if (($booking_history[0]['request_type'] == REPAIR_OOW_TAG) || ($spare_request_type == REPAIR_OOW_TAG)) { ?>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <h1 style='font-size:24px;'> Out Of Warranty Invoice Details ( Uploaded By Partner )</h1>
+                                                <div class="col-md-12" style="padding-left:1px;">
+                                                    <table class="table  table-striped table-bordered" >
+                                                        <thead>
+                                                            <tr>
+                                                                <th> Model Number </th>
+                                                                <th> Requested Parts </th>
+                                                                <th> Requested Parts Number</th>
+                                                                <th> Parts Type </th>
+                                                                <th> Incoming Invoice Id </th>
+                                                                <th> Incoming Invoice Amount </th>
+                                                                <th> Incoming Invoice PDF </th>
+                                                                <th> Invoice Date </th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <?php
+                                                            if (!empty($booking_history['spare_parts'])) {
+                                                                foreach ($booking_history['spare_parts'] as $sp) {
+                                                                    ?>
+                                                                    <tr>
+                                                                        <td><?php echo $sp['model_number']; ?></td>
+                                                                        <td style="word-break: break-all;"><?php echo $sp['parts_requested']; ?></td>
+                                                                        <td style="word-break: break-all;"><?php if (!empty($sp['part_number'])) {
+                                                            echo $sp['part_number'];
+                                                        } else {
+                                                            echo 'Not Available';
+                                                        } ?></td>
+                                                                        <td style="word-break: break-all;"><?php echo $sp['parts_requested_type']; ?></td> 
+                                                                        <td><?php echo $sp['oow_invoice_id']; ?></td>
+                                                                        <td><?php echo $sp['oow_incoming_invoice_amount']; ?></td>
+                                                                        <td> <a target="_blank" href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/invoices-excel/<?php echo $sp['oow_incoming_invoice_pdf']; ?>">
+                                                                                <img style="width:27px;" src="<?php echo base_url(); ?>images/invoice_icon.png" /></a>
+                                                                        </td> 
+                                                                        <td><?php echo $sp['oow_invoice_date']; ?></td>  
+                                                                    </tr>
+                                                                 <?php }
+                                                                        }
+                                                                        ?>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="tab_content4">
                                 <div id="historyDetailsPartner"></div>

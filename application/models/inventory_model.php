@@ -2787,16 +2787,107 @@ class Inventory_model extends CI_Model {
         return $query;
     }
     
+    /**
+     * @Desc: This function is used to get invoice details.
+     * @params: $invoice string
+     * @return: $result array
+     * 
+     */
+    function inventory_invoice_mapping_data($invoice,$inventory){
+
+        $select = "inventory_invoice_mapping.incoming_invoice_id,inventory_invoice_mapping.outgoing_invoice_id,inventory_invoice_mapping.settle_qty,inventory_master_list.part_number,inventory_master_list.part_name";
+        $this->db->select($select)
+                  ->where('inventory_master_list.inventory_id',$inventory)
+                  ->from('inventory_invoice_mapping')
+                  ->join('inventory_master_list', 'inventory_invoice_mapping.inventory_id = inventory_master_list.inventory_id','left');
+        $result = $this->db->get()->result();
+        return $result;
+
+    }
+
+    /**
+     * @Desc: This function is used to get inventory ledger details.
+     * @params: $select string
+     * @params: $where array
+      * @params: $post array for datatable filters
+     * @return: $query array
+     * 
+     */
+    function get_inventory_ledger_details_data_view($select, $where,$post=array()) {
+        $this->db->distinct();
+        $this->db->select($select, FALSE);
+        $this->db->from('inventory_ledger');
+        $this->db->join('vendor_partner_invoices', 'inventory_ledger.invoice_id = vendor_partner_invoices.invoice_id');
+        $this->db->join('invoice_details', 'invoice_details.invoice_id = vendor_partner_invoices.invoice_id');
+        $this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = invoice_details.from_gst_number','left');
+        $this->db->join('entity_gst_details', 'entity_gst_details.id = invoice_details.to_gst_number','left');
+        $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = invoice_details.inventory_id');
+        $this->db->join('courier_details', 'inventory_ledger.courier_id = courier_details.id','left');
+
+        if (!empty($post['search']['value'])) {
+             $like = "";
+            if(array_key_exists("column_search", $post)){
+                foreach ($post['column_search'] as $key => $item) { // loop column 
+                    // if datatable send POST for search
+                    if ($key === 0) { // first loop
+                        $like .= "( " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+
+                    } else {
+                        $like .= " OR " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+
+                    }
+                }
+                $like .= ") ";
+            }
+            else{
+                $like .= "(invoice_details.invoice_id LIKE '%" . $post['search']['value'] . "%')";
+            }
+            $this->db->where($like, null, false);
+        }
+
+
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+
+       if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        $query = $this->db->get();
+        return $query->result();
+    }
+
+
+    function count_sale_purchase_msl_parts($select,$where){
+
+        $this->db->distinct();
+        $this->db->select($select, FALSE);
+        $this->db->from('inventory_ledger');
+        $this->db->join('vendor_partner_invoices', 'inventory_ledger.invoice_id = vendor_partner_invoices.invoice_id');
+        $this->db->join('invoice_details', 'invoice_details.invoice_id = vendor_partner_invoices.invoice_id');
+        $this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = invoice_details.from_gst_number','left');
+        $this->db->join('entity_gst_details', 'entity_gst_details.id = invoice_details.to_gst_number','left');
+        $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = invoice_details.inventory_id');
+        $this->db->join('courier_details', 'inventory_ledger.courier_id = courier_details.id','left');
+        if (!empty($where)) {
+            $this->db->where($where);
+        }
+ 
+        $query = $this->db->get();
+        return $query->result();
+
+    }
     
         
     /**
      * @Desc: This function is used to get inventory ledger details.
      * @params: $select string
      * @params: $where array
+      * @params: $post array for datatable filters
      * @return: $query array
      * 
      */
-    function get_inventory_ledger_details_data($select, $where) {
+    function get_inventory_ledger_details_data($select, $where,$post=array()) {
         $this->db->distinct();
         $this->db->select($select, FALSE);
         $this->db->from('inventory_ledger');
@@ -3063,7 +3154,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     public function count_all_service_centers_consumption_list($post) {
-        $this->_get_service_centers_consumption_list($post, 'count(distinct(v.id)) as numrows');
+        $this->_get_service_centers_consumption_list($post, 'count(v.id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -3075,7 +3166,7 @@ class Inventory_model extends CI_Model {
      *  @return: Array()
      */
     function count_filtered_service_centers_consumption_list($post){
-        $this->_get_service_centers_consumption_list($post, 'count(distinct(v.id)) as numrows');
+        $this->_get_service_centers_consumption_list($post, 'count(v.id) as numrows');
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }

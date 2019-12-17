@@ -59,7 +59,7 @@ class Booking extends CI_Controller {
         $this->load->dbutil();
         
         // Mention those functions whom you want to skip from employee specific validations
-        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput', 'getCategoryCapacityForModel','get_posible_parent_id'];
+        $arr_functions_skip_from_validation = ['get_appliances', 'update_booking_by_sf','getPricesForCategoryCapacity','get_booking_upcountry_details', 'Api_getAllBookingInput', 'getCategoryCapacityForModel','get_posible_parent_id','getBrandForService'];
         $arr_url_segments = $this->uri->segments; 
         $allowedForSF = 0;
         if(!empty(array_intersect($arr_functions_skip_from_validation, $arr_url_segments))){        
@@ -78,7 +78,7 @@ class Booking extends CI_Controller {
                 return TRUE;
             }
             else{
-                if ((($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) || ($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+                if ((($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) || (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) || (($this->session->userdata('userType') == 'dealers') && !empty($this->session->userdata('dealer_id')))) {
                     return TRUE;
                 } 
                 else {
@@ -1702,7 +1702,7 @@ class Booking extends CI_Controller {
         if (!empty($data['booking_history'])) {
             if (empty($data['booking_history'][0]['assigned_vendor_id']) && ($data['booking_history'][0]['type'] == 'Booking') && ($data['booking_history'][0]['is_upcountry'] == '1')) {
                 $arr = array('is_inventory' => 1, 'is_original_inventory' => 1, 'spare_cancel_reason' => 1);
-                $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,  IF(sc.name !="" ,sc.name, "Partner") AS send_defective_to', array('booking_id' => $booking_id), false, false, false, $arr, TRUE);
+                $query1 = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*,inventory_master_list.part_number,inventory_master_list.part_name as final_spare_parts,im.part_number as shipped_part_number,original_im.part_name as original_parts,original_im.part_number as original_parts_number, booking_cancellation_reasons.reason as part_cancel_reason,  IF(sc.name !="" ,sc.name, "Partner") AS send_defective_to, oow_spare_invoice_details.invoice_id as oow_invoice_id, oow_spare_invoice_details.invoice_date as oow_invoice_date, oow_spare_invoice_details.hsn_code as oow_hsn_code, oow_spare_invoice_details.gst_rate as oow_gst_rate, oow_spare_invoice_details.invoice_amount as oow_incoming_invoice_amount, oow_spare_invoice_details.invoice_pdf as oow_incoming_invoice_pdf ', array('booking_id' => $booking_id), false, false, false, $arr, TRUE, true);
                 if (!empty($query1)) {
                     $data['booking_history']['spare_parts'] = $query1;
                 }
@@ -1875,7 +1875,7 @@ class Booking extends CI_Controller {
 //            $data['booking_history']['spare_parts'] = $spare_parts_list;
 //        }
 
-        $select = "courier_company_invoice_details.id, courier_company_invoice_details.awb_number, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.invoice_id, courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.update_date, courier_company_invoice_details.partner_id, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.partner_invoice_id, courier_company_invoice_details.booking_id, courier_company_invoice_details.box_count, courier_company_invoice_details.courier_invoice_file, courier_company_invoice_details.shippment_date, courier_company_invoice_details.created_by, courier_company_invoice_details.is_exist";
+        $select = "courier_company_invoice_details.id, courier_company_invoice_details.awb_number, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.update_date, courier_company_invoice_details.partner_id, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.partner_invoice_id, courier_company_invoice_details.booking_id, courier_company_invoice_details.box_count, courier_company_invoice_details.courier_invoice_file, courier_company_invoice_details.shippment_date, courier_company_invoice_details.created_by, courier_company_invoice_details.is_exist";
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
         if (!empty($spare_parts_details)) {
             $awb = $spare_parts_details[0]['awb_by_sf'];
@@ -5393,7 +5393,7 @@ class Booking extends CI_Controller {
         }
         if($booking_status == 'Pending'){
             $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL); 
-            $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
+            $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
             services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
             booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
             booking_details.booking_remarks,service_centres.name as service_centre_name, engineer_details.name as engineer_name, booking_details.is_upcountry, service_centres.primary_contact_name,

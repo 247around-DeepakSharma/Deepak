@@ -173,8 +173,8 @@
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <th class="text-center" data-orderable="false">Warranty Status</th>
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
-                                    <!-- <th class="text-center" data-orderable="false">Update</th>-->
-                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
+                                    <!-- <th class="text-center" data-orderable="false">Update</th>
+                                    <th class="text-center" data-orderable="false">Is Defective Parts Required</th>-->
                                     <?php if($this->session->userdata('user_group') == 'admin'  || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer'){ ?>
                                     <th class="text-center" data-orderable="false">Edit Booking</th>
                                     <th class="text-center" data-orderable="false">Approval</th>
@@ -202,6 +202,30 @@
         <div class="row" >
             <div class="col-md-12">
                 <div class="panel panel-default">
+
+                        <div class="row">       
+                            <div class="col-md-1 pull-right">       
+                                <a class="btn btn-success" id="show_spare_list2">Show</a><span class="badge" title="show spare data"></span>     
+                            </div>      
+                            <div class="col-md-4 pull-right">       
+                                <select class="form-control" name="appliance_wise_parts_requested" id="appliance_wise_parts_requested2">     
+                                    <option value="" selected="selected" disabled="">Select Services</option>       
+                                    <?php foreach($services as $val){ ?>        
+                                    <option value="<?php echo $val->id?>"><?php echo $val->services?></option>      
+                                    <?php } ?>      
+                                </select>       
+                            </div>      
+                            <div class="col-md-4 pull-right">       
+                                <select class="form-control" name="partner_wise_parts_requested"  id="partner_wise_parts_requested2">        
+                                    <option value="" selected="selected" disabled="">Select Partners</option>       
+                                    <?php       
+                                        foreach($partners as $val){ ?>      
+                                            <option value="<?php echo $val['id']?>"><?php echo $val['public_name']?></option>       
+                                    <?php } ?>      
+                                </select>       
+                            </div>      
+                        </div> 
+
                     <div class="panel-body" >
                         <table id="spare_parts_requested_table_approved" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
                             <thead >
@@ -577,6 +601,8 @@
                                     <th class="text-center" data-orderable="false">Part Status</th>
                                     <!--<th class="text-center" data-orderable="false">Warranty Status</th>-->
                                     <th class="text-center" data-orderable="true">Age Of Requested</th>
+                                    <th class="text-center" data-orderable="true">Approve</th>
+                                    <th class="text-center" data-orderable="true">Reject</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -651,6 +677,43 @@
         </div>
     </div>
 </div>
+<div id="ApproveCourierLostSparePartModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="approve_courier_lost_spare_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Approve Courier Spare Lost </h4>
+            </div>
+            <div class="modal-body" >
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea name="remarks" class="form-control" id="approve_courier_spare_part_remarks" rows="4" placeholder="Enter Remarks"></textarea>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-3">
+                        <input type="submit" id="approve_courier_spare_part_btn" name="approve-part" value="Approve" class="btn btn-primary form-control" style="margin-top:2px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="RejectCourierLostSparePartModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" id="reject_courier_lost_spare_model">
+        <!-- Modal content-->
+        <div class="modal-content" >
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Reject Courier Spare Lost </h4>
+            </div>
+            <div class="modal-body" >
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="loader hide"></div>
 <style>
     .loader {
@@ -676,7 +739,7 @@
     var defective_part_shipped_by_sf_table;
     var courier_lost_spare_parts_table;
     
-    $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
+    $("#invoice_date").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true, changeYear: true});
     $(document).ready(function() {
         
         oow_part_shipped_table = $('#oow_part_shipped_table').DataTable({
@@ -905,7 +968,7 @@
                     "orderable": true //set not orderable
                 },
                 {
-                    "targets": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16], //first column / numbering column
+                    "targets": [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,18,19], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],
@@ -947,7 +1010,13 @@
             ajax: {
                 url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
                 type: "POST",
-                data: {type: '0', status: '<?php echo SPARE_PARTS_REQUESTED; ?>', partner_id: '<?php echo $partner_id; ?>'}
+                data:function(d){
+                    d.type =  '0';     
+                    d.status =  '<?php echo SPARE_PARTS_REQUESTED; ?>';        
+                    d.partner_id =  '<?php echo $partner_id; ?>';       
+                    d.partner_wise_parts_requested =  $('#partner_wise_parts_requested2').val();     
+                    d.appliance_wise_parts_requested =  $('#appliance_wise_parts_requested2').val(); 
+                },
             },
             //Set column definition initialisation properties.
             columnDefs: [
@@ -1596,13 +1665,71 @@
     $('#appliance_wise_parts_requested').select2({      
            placeholder:'Select Appliance',      
            allowClear: true     
+    }); 
+
+// For select2 in approved tab //
+    $('#partner_wise_parts_requested2').select2({        
+       placeholder:'Select Partner',        
+       allowClear: true     
     });     
+// For select2 in approved tab //
+    $('#appliance_wise_parts_requested2').select2({      
+           placeholder:'Select Appliance',      
+           allowClear: true     
+    });    
 
     $('#show_spare_list').click(function(){     
         spare_parts_requested_table.ajax.reload(null, false);       
+    }); 
+// For show filtered data in ajax reload  //
+    $('#show_spare_list2').click(function(){     
+        spare_parts_requested_table_approved.ajax.reload(null, false);       
     }); 
     
     function disable_btn(id){
         $("#"+id).attr('disabled',true);
     }
+    var courier_lost_spare_id;
+    function approve_courier_lost_spare(spare_id) {
+        courier_lost_spare_id = spare_id;
+        $('#ApproveCourierLostSparePartModal').modal({backdrop: 'static', keyboard: false});
+    }
+    
+    function reject_courier_lost_spare(spare_id) {
+        
+        $.ajax({
+            method:'POST',
+            url: '<?php echo base_url(); ?>employee/spare_parts/reject_courier_lost_spare',
+            data: {spare_id}
+        }).done(function (data){
+            $("#reject_courier_lost_spare_model").children('.modal-content').children('.modal-body').html(data);   
+            $('#RejectCourierLostSparePartModal').modal({backdrop: 'static', keyboard: false});
+        });
+        
+        
+    }
+    
+    $('#approve_courier_spare_part_btn').on('click', function(data) {
+        var remarks = $('#approve_courier_spare_part_remarks').val();
+        if(remarks == '' || remarks == null) {
+            alert("Please enter remarks.");
+            return false;
+        }        
+        
+        $.ajax({
+            method:'POST',
+            url:'<?php echo base_url(); ?>employee/spare_parts/approve_courier_lost_spare',
+            data:{remarks:remarks, courier_lost_spare_id:courier_lost_spare_id}
+        }).done(function(data){
+            courier_lost_spare_parts_table.ajax.reload(null, false);  
+            $('#ApproveCourierLostSparePartModal').modal('hide');
+            $('#approve_courier_spare_part_remarks').val('');
+            alert('Spare part has been approved successfully.');
+        });
+    });
 </script>
+<style>
+    #partner_wise_parts_requested2 .select2-container{
+        width: 572px !important;
+    }
+</style>

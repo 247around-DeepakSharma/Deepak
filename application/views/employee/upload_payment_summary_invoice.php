@@ -85,7 +85,7 @@
     var table;
 
     show_upload_file_history();
-    $("#transaction_date").datepicker({dateFormat: 'yy-mm-dd'});
+    $("#transaction_date").datepicker({dateFormat: 'dd/mm/yy'});
     
     function submitForm() {
 

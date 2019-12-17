@@ -1,3 +1,4 @@
+<script src="<?php echo base_url();?>js/base_url.js"></script>
 <script src="<?php echo base_url();?>js/validation_js.js"></script>
 <script src="<?php echo base_url();?>js/custom_js.js?v=<?=mt_rand()?>"></script>
 <style type="text/css">
@@ -89,7 +90,7 @@
                             <div class="col-md-4">
                                 <div class="form-group col-md-12 <?php if( form_error('service_id') ) { echo 'has-error';} ?>">
                                     <label for="Appliance">Appliance * <span id="error_appliance" style="color: red;"></span></label>
-                                    <select type="text" class="form-control"  id="service_name" name="service_id"   required onchange="return get_city(), get_brands(), get_category(), get_capacity()">
+                                    <select type="text" class="form-control"  id="service_id" name="service_id"   required onchange="return get_city(), get_brands(), get_category(), get_capacity()">
                                         <option selected disabled>Select Appliance</option>
                                         
                                     </select>
@@ -246,7 +247,7 @@
                             <div class="col-md-3 ">
                                 <div class="form-group col-md-12    <?php if( form_error('order_id') ) { echo 'has-error';} ?>">
                                     <label for="order id">Invoice No.  <span id="error_order_id" style="color:red"></span></label>
-                                    <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Order ID" id="order_id"  />
+                                    <input class="form-control" name= "order_id" value="<?php echo set_value('order_id'); ?>" placeholder ="Please Enter Invoice ID" id="order_id"  />
                                     
                                 </div>
                             </div>
@@ -325,13 +326,13 @@
         var remarks = $('#remarks').val();
         var user_name = $("#name").val();
         
-        var appliance = $("#service_name").val();
+        var appliance = $("#service_id").val();
         var brand = $("#appliance_brand_1").val();
         var not_visible = $("#not_visible").val();
         var purchase_date = $("#purchase_date").val();
         
          if(mobile_number === "" || mobile_number.match(/^[6-9]{1}[0-9]{9}$/) === null){
-            display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Mobile");
+            display_message("booking_primary_contact_no","error_mobile_number","red","Please Enter Valid Mobile Number");
              return false;
         } else {
             display_message("booking_primary_contact_no","error_mobile_number","green","");
@@ -347,10 +348,10 @@
         }
        
         if(appliance === null){
-            display_message("service_name","error_appliance","red","Please Select Appliance");
+            display_message("service_id","error_appliance","red","Please Select Appliance");
              return false;
         } else {
-            display_message("service_name","error_appliance","green","");
+            display_message("service_id","error_appliance","green","");
         }
         if(pincode === ""){
               display_message("booking_pincode","error_pincode","red","Please Enter Pincode");
@@ -472,7 +473,7 @@
     $("#booking_request_symptom").select2();
     $("#model_number_1").select2();
     $("#price_tag").select2();
-    $("#service_name").select2();
+    $("#service_id").select2();
     $("#appliance_brand_1").select2();
     $("#appliance_capacity_1").select2();
     $("#appliance_category_1").select2();
@@ -484,7 +485,7 @@
     
     //This funciton is used to get Distinct Brands for selected service for Logged Partner
     function get_brands(){
-        service_id =  $("#service_name").val();
+        service_id =  $("#service_id").val();
       
         if(service_id !== null){
             $.ajax({
@@ -513,7 +514,7 @@
     //This function is used to get Category for partner id , service , brands specified
     
     function get_category(){
-        service_id =  $("#service_name").val();
+        service_id =  $("#service_id").val();
         brand =  $("#appliance_brand_1").val();
         partner_id =  $("#appliance_brand_1").find(':selected').attr('data-id');
         $("#partner_id").val(partner_id);
@@ -553,7 +554,7 @@
     
     //This function is used to get Capacity and Model
     function get_capacity(){
-        service_id =  $("#service_name").val();
+        service_id =  $("#service_id").val();
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
         partner_id =  $("#appliance_brand_1").find(':selected').attr('data-id');
@@ -594,7 +595,7 @@
     
     //This function is used to get Model for corresponding previous data's
     function get_models(){
-        service_id =  $("#service_name").val();
+        service_id =  $("#service_id").val();
         brand = $("#appliance_brand_1").find(':selected').val();
         category = $("#appliance_category_1").find(':selected').val();
         capacity = $("#appliance_capacity_1").val();
@@ -636,14 +637,14 @@
     function getPrice() {
         
         var postData = {};
-        appliance_name = $("#service_name").find(':selected').attr('data-id');
+        appliance_name = $("#service_id").find(':selected').attr('data-id');
         $("#appliance_name").val(appliance_name);
-        appliance_name = $("#service_name").find(':selected').attr('data-id');
+        appliance_name = $("#service_id").find(':selected').attr('data-id');
         $("#appliance_name").val(appliance_name);
         $("#priceList").html('<div class="text-center"><img src= "<?php echo base_url(); ?>images/loadring.gif" /></div>').delay(1200).queue(function () {
         partner_id =  $("#appliance_brand_1").find(':selected').attr('data-id');
         $("#partner_id").val(partner_id);
-        postData['service_id'] = $("#service_name").val();
+        postData['service_id'] = $("#service_id").val();
         postData['brand'] = $('#appliance_brand_1').val();
         postData['category'] = $("#appliance_category_1").val();
         postData['partner_id'] = partner_id;
@@ -700,7 +701,7 @@
     
     function get_city(){
         var pincode = $("#booking_pincode").val();
-        var service_id =  $("#service_name").val();
+        var service_id =  $("#service_id").val();
         var city =  $("#city").val();
         if(pincode.length === 6 && service_id !== null){
          
@@ -738,6 +739,7 @@
 
     $(document).ready(function(){
          $("#booking_pincode").keyup(function(event) {
+            check_pincode();
             get_city();
         
         });
@@ -775,8 +777,8 @@
                             $("#booking_pincode").val(data.user_data['0']['pincode']);
 
                         } 
-                        $("#service_name option[value !='option1']").remove();
-                        $("#service_name").append(data.appliance_data).change();
+                        $("#service_id option[value !='option1']").remove();
+                        $("#service_id").append(data.appliance_data).change();
 
 
                         $('body').loadingModal('destroy');
@@ -990,7 +992,7 @@
         if(array.length > 0){
             postData['partner_id'] = $("#appliance_brand_1 option:selected").attr('data-id');
             postData['request_type'] = array;
-            postData['service_id'] = $("#service_name").val();
+            postData['service_id'] = $("#service_id").val();
             postData['booking_request_symptom'] = symptom_id;
             var url = '<?php echo base_url();?>employee/booking_request/get_booking_request_dropdown';
             sendAjaxRequest(postData, url).done(function (data) {

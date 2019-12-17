@@ -1623,7 +1623,7 @@ class Inventory extends CI_Controller {
                 'repeat' => false,
                 'data' => $data,
                 'format' => array(
-                    'date' => array('datetime' => 'd/M/Y')
+                    'date' => array('datetime' => 'd/m/Y')
                 )
             ),
             array(
@@ -7692,8 +7692,131 @@ class Inventory extends CI_Controller {
     function download_msl_invoice() {
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
-        $this->load->view("employee/download_inventory_ledger");
+        $data['invoice_details']=array();
+        $this->load->view("employee/download_inventory_ledger",$data);
     }
+
+    /**
+     *  @desc : This function is used to get the list of sale purchase invoices.
+     *  @param : partner_id
+     *  @return : json
+     */
+
+    function get_list_sale_purchage_invoice_data(){
+ 
+        $post = $this->post_sale_purchage_invoice();
+        $partner_id=trim($_POST['partner_id']);
+        $select = "invoice_details.invoice_id,invoice_details.inventory_id, date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'invoice_date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'invoice_type', part_number, "
+                . "invoice_details.description, invoice_details.hsn_code, invoice_details.qty,invoice_details.settle_qty, rate, invoice_details.taxable_value, (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS gst_rate,"
+                . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS gst_tax_amount, total_amount, vendor_partner_invoices.type, entt_gst_dtl.gst_number,entity_gst_details.gst_number as to_gst_number,"
+                . "vendor_partner_invoices.sub_category,courier_details.AWB_no,courier_details.courier_name,date_format(courier_details.shipment_date, \"%d-%m-%Y %H:%i:%s\") as shipment_date";
+        
+        $where = array("sub_category IN ('".MSL_DEFECTIVE_RETURN."', '".IN_WARRANTY."', '".MSL."', '".MSL_NEW_PART_RETURN."')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+
+        $post['column_search'] = array('invoice_details.invoice_id','invoice_details.description', 'entity_gst_details.gst_number', 'AWB_no',
+            'courier_name', 'part_number');
+        $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where,$post);
+
+        // print_r($list);  exit;
+
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row =  $this->get_list_sale_purchage_invoice_data_table($spare_list, $no);
+            $data[] = $row;
+        }
+        $total  = $this->inventory_model->count_sale_purchase_msl_parts($select, $where);
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => count($total),
+            "recordsFiltered" =>  count($total),
+            "data" => $data,
+        );
+        
+        echo json_encode($output);
+
+
+
+    }
+
+
+        /**
+     * @desc This function is used to get post data from datatable
+     * @return Array
+     */
+    function post_sale_purchage_invoice(){
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search']['value'] = $search['value'];
+        
+        $post['draw'] = $this->input->post('draw');
+        $post['type'] = $this->input->post('type');
+        $post['order'] = $this->input->post('order');
+
+        return $post;
+    }
+
+       /**
+     * @desc This is view the settled qty 
+     * @return Array
+     */
+
+    function view_invoice_data($invoice,$inventory){
+
+        $data['invoice_details'] = $this->inventory_model->inventory_invoice_mapping_data($invoice,$inventory);
+        $data['invoice'] = $invoice;
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/sale_purchase_settle_view',$data);
+
+    }
+
+      /**
+     * @desc this is to print datatable
+     * @return Array
+     */
+
+    function get_list_sale_purchage_invoice_data_table($spare_list, $no){
+
+        $row = array();
+        
+        $row[] = $no;
+        $row[] = $spare_list->invoice_id;
+ 
+        $row[] = $spare_list->invoice_date;
+        $row[] = $spare_list->invoice_type;
+        $row[] = $spare_list->part_number;
+        $row[] = $spare_list->description;
+        $row[] = $spare_list->hsn_code;
+        $row[] = $spare_list->qty;
+        if ($spare_list->settle_qty==0) {
+        $row[] = $spare_list->settle_qty;  
+        }else{
+        $row[] = '<a href="'. base_url().'employee/inventory/view_invoice_data/'.$spare_list->invoice_id.'/'.$spare_list->inventory_id.'" target= "_blank" >'.$spare_list->settle_qty.'</a>';  
+        }
+        
+        $row[] = $spare_list->rate;
+        $row[] = $spare_list->taxable_value;
+        $row[] = $spare_list->gst_rate;
+        $row[] = $spare_list->gst_tax_amount;
+        $row[] = $spare_list->total_amount;
+        $row[] = $spare_list->type;
+        $row[] = $spare_list->gst_number;
+        $row[] = $spare_list->to_gst_number;
+        $row[] = $spare_list->sub_category;
+        $row[] = $spare_list->AWB_no;
+        $row[] = $spare_list->courier_name;
+        $row[] = $spare_list->shipment_date;
+          
+        return $row;
+
+
+
+    }
+
+
+
      /**
      *  @desc : This function is used to Download the Inventory Ledger Details.
      *  @param : void
@@ -7705,7 +7828,7 @@ class Inventory extends CI_Controller {
         $partner_id = $this->input->post('partner_id');
         
         $select = "invoice_details.invoice_id AS 'Invoice Id', date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'Invoice Date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', part_number AS 'Part Number', "
-                . "invoice_details.description AS 'Description', invoice_details.hsn_code AS 'HSN Code', invoice_details.qty AS 'Quantity', rate AS 'Rate', invoice_details.taxable_value AS 'Taxable Value', (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS 'GST Rate',"
+                . "invoice_details.description AS 'Description', invoice_details.hsn_code AS 'HSN Code', invoice_details.qty AS 'Quantity',invoice_details.settle_qty AS 'Settled Quantity', rate AS 'Rate', invoice_details.taxable_value AS 'Taxable Value', (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS 'GST Rate',"
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS 'GST Tax Amount', total_amount AS 'Total Amount', vendor_partner_invoices.type AS Type, entt_gst_dtl.gst_number AS 'From GST Number',entity_gst_details.gst_number AS 'To GST Number',"
                 . "vendor_partner_invoices.sub_category AS 'Sub Category',courier_details.AWB_no AS 'Awb_Number',courier_details.courier_name AS 'Courier Name',date_format(courier_details.shipment_date, \"%d-%m-%Y %H:%i:%s\") AS 'Shipment Date'";
         
@@ -7918,6 +8041,7 @@ class Inventory extends CI_Controller {
      */
     function get_spare_invoice_details(){
         $spare_id_array = $this->input->post("spare_id_array");
+        $invoice_details = array();
         if(!empty($spare_id_array)){
           $spare_ids = implode(',',$spare_id_array);
           $select = 'spare_parts_details.booking_id,oow_spare_invoice_details.id,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.spare_id,oow_spare_invoice_details.invoice_date,oow_spare_invoice_details.hsn_code,oow_spare_invoice_details.invoice_amount,oow_spare_invoice_details.gst_rate,oow_spare_invoice_details.invoice_pdf';
@@ -8002,7 +8126,7 @@ class Inventory extends CI_Controller {
      * @return: void
      */
     
-    function service_centers_consumption_details(){
+    function mwh_msl_details(){
         $this->checkUserSession();
         $this->miscelleneous->load_nav_header();
         $this->load->view("employee/service_centers_consumption_details");
@@ -8046,8 +8170,8 @@ class Inventory extends CI_Controller {
         if (!empty($service_centers_id)) {
             $post['column_order'] = array();
             $post['column_search'] = array('v.invoice_id', 'v.create_date');
-            $post['where'] = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category = 'MSL' AND v.vendor_partner_id = " . $service_centers_id;
-            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, im.description, im.hsn_code, i.qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type, entt_gst_dtl.gst_number as from_gst, entity_gst_details.gst_number as to_gst, v.sub_category";
+            $post['where'] = "im.entity_id = $entity_id AND im.entity_type ='" . $entity_type . "' AND  v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return') AND v.vendor_partner_id = " . $service_centers_id;
+            $select = "v.invoice_id, v.create_date, case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS type_code, im.part_number, i.description, im.hsn_code, i.qty, i.settle_qty, i.rate, i.taxable_value, (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS gst_rate, (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS gst_tax_amount, i.total_amount, v.type, entt_gst_dtl.gst_number as from_gst, entity_gst_details.gst_number as to_gst, v.sub_category";
             $list = $this->inventory_model->get_service_centers_consumption_list($post, $select);
             $data = array();
             $no = $post['start'];
@@ -8071,21 +8195,23 @@ class Inventory extends CI_Controller {
         $row = array();
             
         $row[] = $no;
-        $row[] = "<a href='" .base_url(). "employee/inventory/invoice_details/" . $consumption_list->invoice_id."'>".$consumption_list->invoice_id."</a>";
+        //$row[] = "<a href='" .base_url(). "employee/inventory/invoice_details/" . $consumption_list->invoice_id."'>".$consumption_list->invoice_id."</a>";
+        $row[] = $consumption_list->invoice_id;
         $row[] = $consumption_list->create_date;
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->type_code . "</span>";
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->part_number . "</span>";
         $row[] = "<span style='word-break: break-all;'>" . $consumption_list->description . "</span>";
         $row[] = $consumption_list->hsn_code;
         $row[] = $consumption_list->qty;
+        $row[] = $consumption_list->settle_qty;
         $row[] = "<i class ='fa fa-inr'></i> " . $consumption_list->rate;
         $row[] = $consumption_list->taxable_value;
         $row[] = $consumption_list->gst_rate;
         $row[] = $consumption_list->gst_tax_amount;
         $row[] = $consumption_list->total_amount;
-        $row[] = $consumption_list->type;
-        $row[] = $consumption_list->from_gst;
-        $row[] = $consumption_list->to_gst;
+        //$row[] = $consumption_list->type;
+        //$row[] = $consumption_list->from_gst;
+        //$row[] = $consumption_list->to_gst;
         $row[] = $consumption_list->sub_category;
     
         return $row;
@@ -8102,14 +8228,14 @@ class Inventory extends CI_Controller {
      
       if(!empty($entity_id) && !empty($service_center_id)){
           
-        $select = "v.invoice_id AS 'Invoice Id', v.create_date AS 'Invoice Date', case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', im.part_number AS 'Part Number', im.description AS 'Description', im.hsn_code AS 'HSN Code', i.qty AS 'Quantity', i.rate AS 'Rate', i.taxable_value AS 'Taxable Value', (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS 'GST Rate', (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS 'GST Tax Amount', i.total_amount AS 'Total Amount', v.type AS 'Type', entt_gst_dtl.gst_number AS 'From GST Number', entity_gst_details.gst_number AS 'To GST Number', v.sub_category AS 'Sub Category'";
-        $where = array("im.entity_id" => $entity_id, "im.entity_type"=> _247AROUND_PARTNER_STRING,  "v.sub_category" => 'MSL', "v.vendor_partner_id"=> $service_center_id);
+        $select = "v.invoice_id AS 'Invoice Id', v.create_date AS 'Invoice Date', case when (v.type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', im.part_number AS 'Part Number', i.description AS 'Description', im.hsn_code AS 'HSN Code', i.qty AS 'Quantity', i.settle_qty as 'Settled Quantity', i.rate AS 'Rate', i.taxable_value AS 'Taxable Value', (i.cgst_tax_rate + i.igst_tax_rate + i.sgst_tax_rate) AS 'GST Rate', (i.cgst_tax_amount + i.igst_tax_amount + i.sgst_tax_amount) AS 'GST Tax Amount', i.total_amount AS 'Total Amount', v.type AS 'Type', entt_gst_dtl.gst_number AS 'From GST Number', entity_gst_details.gst_number AS 'To GST Number', v.sub_category AS 'Sub Category'";
+        $where = array("im.entity_id" => $entity_id, "im.entity_type"=> _247AROUND_PARTNER_STRING,   "v.sub_category IN('MSL','MSL New Part Return','MSL Defective Return')" => null, "v.vendor_partner_id"=> $service_center_id);
         $spare_details = $this->inventory_model->get_service_centers_consumption_data($select, $where);
        
         $this->load->dbutil();
         $this->load->helper('file');
 
-        $file_name = 'service_centers_consumption_data_' . date('j-M-Y-H-i-s') . ".csv";
+        $file_name = 'mwh_msl_deatils_data_' . date('j-M-Y-H-i-s') . ".csv";
         $delimiter = ",";
         $newline = "\r\n";
         $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);

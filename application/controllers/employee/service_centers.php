@@ -348,7 +348,7 @@ class Service_centers extends CI_Controller {
             $data['booking_history']['spare_parts'] = $spare_parts_list;
         }
 
-        $select = "courier_company_invoice_details.id, courier_company_invoice_details.awb_number, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.invoice_id, courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.update_date, courier_company_invoice_details.partner_id, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.partner_invoice_id, courier_company_invoice_details.booking_id, courier_company_invoice_details.box_count, courier_company_invoice_details.courier_invoice_file, courier_company_invoice_details.shippment_date, courier_company_invoice_details.created_by, courier_company_invoice_details.is_exist";
+        $select = "courier_company_invoice_details.id, courier_company_invoice_details.awb_number, courier_company_invoice_details.company_name, courier_company_invoice_details.courier_charge, courier_company_invoice_details.billable_weight, courier_company_invoice_details.actual_weight, courier_company_invoice_details.create_date, courier_company_invoice_details.update_date, courier_company_invoice_details.partner_id, courier_company_invoice_details.basic_billed_charge_to_partner, courier_company_invoice_details.partner_invoice_id, courier_company_invoice_details.booking_id, courier_company_invoice_details.box_count, courier_company_invoice_details.courier_invoice_file, courier_company_invoice_details.shippment_date, courier_company_invoice_details.created_by, courier_company_invoice_details.is_exist";
 
         $spare_parts_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.awb_by_sf', array('spare_parts_details.booking_id' => $booking_id, 'spare_parts_details.awb_by_sf !=' => ''));
         if (!empty($spare_parts_details)) {
@@ -6470,8 +6470,8 @@ class Service_centers extends CI_Controller {
         }
         
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
-            'approved_defective_parts_by_partner' => '1', 'remarks_defective_part_by_partner' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
-            'received_defective_part_date' => date("Y-m-d H:i:s")));
+            'defective_part_received_by_wh' => 1, 'remarks_defective_part_by_wh' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
+            'defective_part_received_date_by_wh' => date("Y-m-d H:i:s")));
         
         if ($response) {
 
@@ -6565,9 +6565,9 @@ class Service_centers extends CI_Controller {
         $decode_partner_id = base64_decode(urldecode($partner_id));
         
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_REJECTED,
-            'remarks_defective_part_by_partner' => $rejection_reason,
-            'defective_part_rejected_by_partner'=>1,
-            'approved_defective_parts_by_partner' => '0'));
+            'remarks_defective_part_by_wh' => $rejection_reason,
+            'defective_part_rejected_by_wh'=> 1,
+            'defective_part_received_by_wh' => '0'));
         
         if ($response) {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
@@ -8594,7 +8594,7 @@ class Service_centers extends CI_Controller {
         $option = '<option selected="" disabled="">Select Service Centres</option>';
         foreach ($vendor_list as $value) {
             $option .= "<option value='" . $value['id'] . "'";
-            if (count($partner_list) == 1) {
+            if (count($vendor_list) == 1) {
                 $option .= " selected> ";
             } else {
                 $option .= "> ";

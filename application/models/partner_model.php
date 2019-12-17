@@ -43,10 +43,13 @@ class Partner_model extends CI_Model {
 
     //Find order id for a partner
     function get_order_id_for_partner($partner_id, $order_id, $booking_id = "",$all_row = NULL) {
-      $this->db->where(array("partner_id" => $partner_id, "order_id" => $order_id));
+      $this->db->select("booking_details.*, services.services, DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) AS ageing", FALSE);  
+      $this->db->where(array("booking_details.partner_id" => $partner_id, "booking_details.order_id" => $order_id));
       if($booking_id != ""){
-           $this->db->not_like('booking_id', preg_replace("/[^0-9]/","",$booking_id));
+           $this->db->not_like('booking_details.booking_id', preg_replace("/[^0-9]/","",$booking_id));
       }
+      $this->db->join('services', 'booking_details.service_id = services.id', 'left');
+
       $query = $this->db->get("booking_details");
       $results = $query->result_array();
       if (count($results) > 0) {
@@ -1534,7 +1537,7 @@ function get_data_for_partner_callback($booking_id) {
      * @return: array()
      * 
      */
-    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, $post= array(), $wh_details = false){
+    function get_spare_parts_by_any($select,$where,$is_join=false, $sf_details = FALSE, $group_by = false, $post= array(), $wh_details = false, $oow_spare_flag = false){
         
         $this->db->select($select,FALSE);
         $this->db->where($where,false);
@@ -1546,6 +1549,10 @@ function get_data_for_partner_callback($booking_id) {
             $this->db->join('wrong_part_shipped_details','spare_parts_details.id = wrong_part_shipped_details.spare_id and wrong_part_shipped_details.active = 1', 'left');
         }
 
+        if(!empty($post['courier_pod'])) {
+            $this->db->join('courier_lost_spare_status','spare_parts_details.id = courier_lost_spare_status.spare_id', 'left');
+        }
+        
         if($is_join){
             $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
         }
@@ -1569,6 +1576,10 @@ function get_data_for_partner_callback($booking_id) {
         if(!empty($wh_details)){
             $this->db->join('service_centres AS sc','spare_parts_details.defective_return_to_entity_id = sc.id','left');
         }
+        if(!empty($oow_spare_flag)){
+          $this->db->join('oow_spare_invoice_details', 'spare_parts_details.id = oow_spare_invoice_details.spare_id','left');  
+        }
+        
         
         $this->db->order_by('spare_parts_details.entity_type', 'asc');
         if($group_by){
