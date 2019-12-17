@@ -2253,6 +2253,11 @@ class engineerApi extends CI_Controller {
             /** Check serial number validation **/
             $booking_history = $this->booking_model->getbooking_history($requestData['booking_id']);
             $check_serial = $this->checkVaidationOnSerialNumber($booking_history[0]['partner_id'], $requestData['serial_number'], $requestData['price_tags'], $booking_history[0]['user_id'], $requestData['booking_id'], $booking_history[0]['service_id'], $requestData['model_number']);
+            if(!$check_serial['status']){
+                if($check_serial['code'] != DUPLICATE_SERIAL_NO_CODE){
+                    $check_serial['status'] = TRUE;
+                }
+            }
             if($check_serial['status']){
                 /*Check part warranty status*/
                 $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
