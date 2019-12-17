@@ -2904,7 +2904,7 @@ class engineerApi extends CI_Controller {
         if (!ctype_alnum($serial_number)) {
             log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             $response['status'] = false;
-            $response['code'] = "0052";
+            $response['code'] = DUPLICATE_SERIAL_NO_CODE;
             $response['message'] = "Serial Number Entered With Special Character, This is not allowed."; 
         }
         else {
