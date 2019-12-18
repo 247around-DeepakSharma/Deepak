@@ -38,7 +38,7 @@
                         } ?>">
                         <label for="excel" class="col-md-1">Upload File</label>
                         <div class="col-md-4">
-                            <input type="file" class="form-control"  name="file" >
+                            <input type="file" class="form-control"  name="file" accept=".xls,.xlsx">
                             <?php if (form_error('excel')) {
                                 echo 'File size or file type is not supported. Allowed extentions are "xls" or "xlsx". Maximum file size is 2 MB.';
                                 } ?>
