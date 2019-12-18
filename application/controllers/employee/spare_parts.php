@@ -201,9 +201,9 @@ class Spare_parts extends CI_Controller {
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,"
                 . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.is_micro_wh,"
                 . "spare_parts_details.acknowledge_date, challan_approx_value, status, defective_part_shipped,"
-                . "remarks_defective_part_by_sf, remarks_defective_part_by_partner, defective_courier_receipt, inventory_master_list.part_number,im.part_number as shipped_part_number ";
+                . "remarks_defective_part_by_sf, remarks_defective_part_by_partner, defective_courier_receipt, inventory_master_list.part_number,im.part_number as shipped_part_number, spare_parts_details.challan_approx_value ";
 
-        $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL,'age_defective_part_shipped_date',NULL, NULL, NULL, NULL, NULL);
+        $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL, NULL,'age_defective_part_shipped_date',NULL, NULL, NULL, NULL, NULL);
         
         
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
@@ -765,6 +765,7 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
         $row[] = $spare_list->quantity;
         $row[] = $spare_list->shipped_quantity;
+        $row[] = $spare_list->challan_approx_value;
         $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->defective_part_shipped . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
@@ -2781,6 +2782,10 @@ class Spare_parts extends CI_Controller {
             if (!empty($courier_name)) {
                 $data['courier_name'] = $courier_name;
                 $data['courier_code'] = $courier_code;
+                $where = array("courier_services.courier_name = '".$courier_name."' OR courier_services.courier_code = '".$courier_code."' " => null );
+                $courier_service = $this->inventory_model->get_courier_service_details('courier_services.id, courier_services.courier_name' ,$where);
+                
+                if(empty($courier_service)){
                 if (!empty($data)) {
                     $insert_id = $this->inventory_model->insert_courier_services_data($data);
                     if (!empty($insert_id)) {
@@ -2789,6 +2794,9 @@ class Spare_parts extends CI_Controller {
                         $status["message"] = "Courier service not added.";
                     }
                 }
+            }else{
+             $status["message"] = "Courier service already exist our system.";   
+            }
             }
         }
         echo json_encode($status);

@@ -5,7 +5,7 @@
 <script>
     $(function() {
        partner_vendor1(<?php echo $id; ?>);
-       $( "#datepicker" ).datepicker({  maxDate: new Date });
+       $( "#datepicker" ).datepicker({dateFormat: 'dd/mm/yy' , maxDate: new Date });
     
     });
     
@@ -208,7 +208,7 @@
                                         <td class="text-center" style="vertical-align: middle;"> 
                                             <input style="margin-bottom:25px;" type="text" name='bankname'  class="form-control" value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['bankname'];}?>" placeholder="Please Enter Bank Name">
                                             <div class="input-group input-append date" >
-                                                <input style="background-color: #fff;" type="text" id="datepicker" class="form-control" name="tdate" readonly='true' value="<?php if(isset($bank_txn_details)){ echo $bank_txn_details[0]['transaction_date'];} else { echo date('Y-m-d');}?>">
+                                                <input style="background-color: #fff;" type="text" id="datepicker" class="form-control" name="tdate" readonly='true' value="<?php if(isset($bank_txn_details)){ echo date('d/m/Y',strtotime($bank_txn_details[0]['transaction_date']));} else { echo date('d/m/Y');}?>">
                                                 <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                             </div>
                                         </td>

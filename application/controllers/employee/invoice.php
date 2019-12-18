@@ -361,7 +361,7 @@ class Invoice extends CI_Controller {
         $invoice_id_array['bankname'] = $this->input->post('bankname');
         $invoice_id_array['transaction_mode'] = $this->input->post('transaction_mode');
         $invoice_id_array['agent_id'] = $this->input->post('agent_id');
-        $invoice_id_array['tdate'] = $this->input->post('tdate');
+        $invoice_id_array['tdate'] = date('Y-m-d', strtotime(str_replace('/', '-', $this->input->post('tdate'))));
         $invoice_id_array['description'] = $this->input->post('description');
         $invoice_id_array['transaction_id'] = $this->input->post('transaction_id');
         $invoice_id_array['bank_txn_id'] = $this->input->post('bank_txn_id');
@@ -3511,7 +3511,7 @@ class Invoice extends CI_Controller {
         $data['partner_vendor_id'] = $this->input->post('partner_vendor_id');
         $data['credit_debit'] = $this->input->post("credit_debit");
         $data['bankname'] = $this->input->post("bankname");
-        $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
+        $data['transaction_date'] = date('Y-m-d', strtotime(str_replace('/', '-', $this->input->post("tdate"))));
         $data['tds_amount'] = $this->input->post('tds_amount');
         $amount = $this->input->post("amount");
         if ($data['credit_debit'] == "Credit") {
@@ -5684,6 +5684,23 @@ class Invoice extends CI_Controller {
             $this->session->set_flashdata('file_error','CRM Setup Proforma invoices Not Generated');
             log_message('info', __METHOD__ . ": Validation Failed");
             $this->invoice_partner_view();
+        }
+    }
+    
+    function test_insert_courier_details_data()
+    {
+        $sql = "SELECT courier_id , vendor_partner_invoices.invoice_id , sub_category , from_gst_number , to_gst_number , from_gst.city as sender_city, to_gst.city as receiver_city FROM `inventory_ledger` JOIN courier_details on inventory_ledger.courier_id=courier_details.id JOIN vendor_partner_invoices ON inventory_ledger.invoice_id=vendor_partner_invoices.invoice_id JOIN invoice_details ON vendor_partner_invoices.invoice_id=invoice_details.invoice_id and ( from_gst_number IS NOT NULL OR to_gst_number IS NOT NULL) JOIN entity_gst_details as from_gst ON invoice_details.from_gst_number=from_gst.id JOIN entity_gst_details as to_gst ON invoice_details.to_gst_number=to_gst.id group by courier_id , vendor_partner_invoices.invoice_id , from_gst_number , to_gst_number ";
+        $query = $this->db->query($sql);
+        $data = $query->result_array();
+        
+        if(!empty($data)) {
+            foreach($data as $value) {
+                $update_status = $this->inventory_model->update_courier_detail(array('courier_details.id' => $value['courier_id']), array('courier_details.sender_city' => $value['sender_city'] , 'courier_details.receiver_city' => $value['receiver_city']));
+                
+                if (!$update_status) {
+                    log_message('info', __METHOD__ . " : Updation Failed For Courier ID - " . $value['courier_id']);
+                }
+            }
         }
     }
 }
