@@ -68,7 +68,7 @@ function getBrandForService() {
             var data1 = jQuery.parseJSON(data);
             $("#partner_type").val(data1.partner_type);
 
-            $(".appliance_brand").html(data1.brand);
+            $(".appliance_brand").html(data1.brand).change();
 
 
         });

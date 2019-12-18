@@ -2374,7 +2374,7 @@ class Do_background_upload_excel extends CI_Controller {
                 //redirect(base_url() . "employee/do_background_upload_excel/upload_engineer_incentive_file");
             }
         } else {
-            $this->session->set_flashdata('file_error', 'Empty file has been uploaded');
+            $this->session->set_flashdata('file_error', 'Please Select File');
             //redirect(base_url() . "employee/do_background_upload_excel/upload_engineer_incentive_file");
         }
         $res1 = 0;

@@ -94,6 +94,7 @@
     });
 
     $(document).on('click', '#edit_courier_service', function(){
+        window.scroll(0,0);
         var data = $(this).data("id");
         $("#header_line").html("Edit Courier Service");
         $("#courier_services_id").val(data['id']);
@@ -105,17 +106,19 @@
     
     $(document).on('click', '#manage_courier_status', function(){
         var data = $(this).data("id");
-        if(data['id'] !=''){
-           $.ajax({
-                url: "<?php echo base_url(); ?>employee/spare_parts/manage_courier_service_satus",
-                type: "post",
-                data: {data},
-                success: function(result) {
-                    courier_service_table.ajax.reload();
-                    $("#messages").html(result['message']).css('color','green');
-                }
-            }); 
-        }
+            if(confirm("Are you sure?")){
+               if(data['id'] !=''){
+                  $.ajax({
+                       url: "<?php echo base_url(); ?>employee/spare_parts/manage_courier_service_satus",
+                       type: "post",
+                       data: {data},
+                       success: function(result) {
+                           courier_service_table.ajax.reload();
+                           $("#messages").html(result['message']).css('color','green');
+                       }
+                   }); 
+               }
+            }
     });
     
     
@@ -139,13 +142,21 @@
                     dataType: "json",
                     data: $('#courier_service_form').serialize(),
                     success: function(result) {
-                          if(result['message'] != ''){
+                        
+                          if(result['message'] == 'Courier service successfuly added.'){
                               courier_service_table.ajax.reload();
                               $("#header_line").html("Add Courier Service");
                               $('#courier_service_form').trigger("reset");
                               $("#messages").html(result['message']).css('color','green');
                           }else{
-                             $("#messages").html(result['message']).css('color','red'); 
+                              if(result['message'] == 'Courier service successfuly Updated.'){
+                                courier_service_table.ajax.reload();
+                                $("#header_line").html("Add Courier Service");
+                                $('#courier_service_form').trigger("reset");  
+                                $("#messages").html(result['message']).css('color','green');
+                              }else{
+                             $("#messages").html(result['message']).css('color','red');
+                             }
                           }
                     }
                 });

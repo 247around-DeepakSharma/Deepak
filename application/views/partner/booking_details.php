@@ -26,7 +26,9 @@
                                         <th >Name: </th>
                                         <td><?php echo $booking_history[0]['name']; ?></td>
                                         <th>Mobile: </th>
-                                        <td><?php echo $booking_history[0]['booking_primary_contact_no'];
+                                        <td><?php
+                                            $spare_request_type = '';
+                                             echo $booking_history[0]['booking_primary_contact_no'];
                                             if (!empty($booking_history[0]['booking_alternate_contact_no'])) {
                                                 echo "/" . $booking_history[0]['booking_alternate_contact_no'];
                                             }
