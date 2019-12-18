@@ -887,18 +887,18 @@ class Partner extends CI_Controller {
         $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
         $flag = TRUE;
 
-        //Validate Partner Name
-        if ($request['partnerName'] != $this->partner['public_name']) {
-            $resultArr['code'] = ERR_INVALID_PARTNER_NAME_CODE;
-            $resultArr['msg'] = ERR_INVALID_PARTNER_NAME_MSG;
+        //Mandatory Parameter Missing
+        if ((($request['orderID'] == "") || ($request['partnerName'] == ""))) {
+            $resultArr['code'] = ERR_MANDATORY_PARAMETER_MISSING_CODE;
+            $resultArr['msg'] = ERR_MANDATORY_PARAMETER_MISSING_MSG;
 
             $flag = FALSE;
         }
-
-        //Mandatory Parameter Missing
-        if (($flag === TRUE) && (($request['orderID'] == ""))) {
-            $resultArr['code'] = ERR_MANDATORY_PARAMETER_MISSING_CODE;
-            $resultArr['msg'] = ERR_MANDATORY_PARAMETER_MISSING_MSG;
+        
+        //Validate Partner Name
+        if (($flag === TRUE) && ($request['partnerName'] != $this->partner['public_name'])) {
+            $resultArr['code'] = ERR_INVALID_PARTNER_NAME_CODE;
+            $resultArr['msg'] = ERR_INVALID_PARTNER_NAME_MSG;
 
             $flag = FALSE;
         }
