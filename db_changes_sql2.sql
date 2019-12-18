@@ -1659,3 +1659,22 @@ CREATE TABLE courier_lost_spare_status (
 	create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	update_date datetime NULL DEFAULT NULL
 );
+ 
+
+--Kalyani 09-12-2019
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'insufficient_balance_paytm_wallet', 'Paytm wallet has insufficient balance', 'Dear Sir,<br>Paytm wallet has insufficient balance for engineer incentive amount transfer.\r\n<br/>Thanks,<br/>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', CURRENT_TIMESTAMP);
+--Gorakh 16-12-2019
+ALTER TABLE `spare_parts_details` ADD `defective_part_received_by_wh` TINYINT NULL DEFAULT '0' AFTER `wh_to_partner_defective_shipped_date`, ADD `defective_part_received_date_by_wh` DATETIME NULL DEFAULT NULL AFTER `defective_part_received_by_wh`;
+ALTER TABLE `spare_parts_details` ADD `remarks_defective_part_by_wh` VARCHAR(260) NULL DEFAULT NULL AFTER `defective_part_received_date_by_wh`;
+ALTER TABLE `spare_parts_details` ADD `defective_part_rejected_by_wh` TINYINT(4) NOT NULL DEFAULT '0' AFTER `remarks_defective_part_by_wh`;
+
+-- Kajal 16-12-2019
+ALTER TABLE `courier_details` ADD `sender_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `partner_invoice_id`, ADD `receiver_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_city`;
+
+/*   VIEW     */
+
+
+
+CREATE OR REPLACE VIEW `sf_brand_wise_tat_report` AS select `service_centres`.`name` AS `sf_name`,`service_centres`.`state` AS `state`,`service_centres`.`district` AS `district`,`service_centres`.`id` AS `id`,`partners`.`id` AS `partner_id`,`partners`.`public_name` AS `partner_name`,sum(`spare_parts_details`.`shipped_quantity`) AS `parts_count_to_shipped`,sum(`spare_parts_details`.`challan_approx_value`) AS `parts_charge` from (((`spare_parts_details` join `booking_details` on((`booking_details`.`booking_id` = `spare_parts_details`.`booking_id`))) join `partners` on((`partners`.`id` = `booking_details`.`partner_id`))) join `service_centres` on((`service_centres`.`id` = `booking_details`.`assigned_vendor_id`))) where ((`spare_parts_details`.`status` not in ('Cancelled','Completed','Defective parts send by warehouse to partner','Partner acknowledge defective parts send by warehouse','Defective Part Shipped By SF','Defective Part Received By Partner','Damage Part Shipped By SF','Ok Part Shipped By SF')) and ((to_days(now()) - to_days(str_to_date(`spare_parts_details`.`shipped_date`,'%Y-%m-%d'))) >= 45)) group by `booking_details`.`partner_id`,`booking_details`.`assigned_vendor_id` order by service_centres.district,service_centres.state,service_centres.name ASC
+
+ 
