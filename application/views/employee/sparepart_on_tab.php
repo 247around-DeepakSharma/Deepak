@@ -471,6 +471,7 @@
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                        <th class="text-center" data-orderable="false">Part Charges </th>
                                         <th class="text-center" data-orderable="false">Requested Parts Number</th>
                                         <th class="text-center" data-orderable="false">Defective Parts</th>
                                         <th class="text-center" data-orderable="false">Shipped Parts Number</th>
@@ -1203,7 +1204,7 @@
         defective_part_rejected_by_partner_table = $('#defective_part_rejected_by_partner_table').DataTable({
             processing: true, //Feature control the processing indicator.
             serverSide: true, //Feature control DataTables' server-side processing mode.
-            order: [[14, "desc"]], //Initial no order.
+            order: [[15, "desc"]], //Initial no order.
             pageLength: 50,
             dom: 'Blfrtip',
             lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
@@ -1212,7 +1213,7 @@
                     extend: 'excelHtml5',
                     text: 'Export',
                     exportOptions: {
-                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14 ]
+                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 ]
                     },
                     title: 'defective_part_rejected'
                 }
