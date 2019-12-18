@@ -602,7 +602,7 @@ class Partner extends CI_Controller {
                     $lead_details = $is_valid['lead'];
                     $this->jsonResponseString['response'] = array(
                         "247aroundBookingID" => $lead_details['booking_id'],
-                        "247aroundBookingStatus" => $lead_details['partner_internal_status'],
+                        "247aroundBookingStatus" => $lead_details['partner_current_status'],
                         "247aroundBookingBrand" => (!empty($lead_details['appliance_brand']) ? $lead_details['appliance_brand'] : NULL),
 			"247aroundBookingAppliance" => $lead_details['services'],
 			"247aroundBookingApplianceModel" => (!empty($lead_details['model']) ? $lead_details['model'] : NULL),                            
