@@ -94,6 +94,7 @@
     });
 
     $(document).on('click', '#edit_courier_service', function(){
+        window.scroll(0,0);
         var data = $(this).data("id");
         $("#header_line").html("Edit Courier Service");
         $("#courier_services_id").val(data['id']);

@@ -45,7 +45,7 @@
                        <tbody>
                            <tbody>
                                 <?php foreach($spare_parts as $key =>$row){ ?>
-                               <tr style="text-align: center;<?php if(!is_null($row['remarks_defective_part_by_partner'])){ echo "color:red"; }?>">
+                               <tr style="text-align: center;<?php if(!is_null($row['remarks_defective_part_by_wh'])){ echo "color:red"; }?>">
                                     <td>
                                         <?php echo $sn_no; ?>
                                     </td>
@@ -72,7 +72,7 @@
                                     </td>
 
                                     <td>
-                                        <?php if(!is_null($row['remarks_defective_part_by_partner'])){  echo $row['remarks_defective_part_by_partner']; } else { echo $row['remarks_by_partner'];} ?>
+                                        <?php if(!is_null($row['remarks_defective_part_by_wh'])){  echo $row['remarks_defective_part_by_wh']; } else { echo $row['remarks_by_partner'];} ?>
                                     </td>
                                     <td><?php if($row['is_consumed'] == 1) { echo 'Yes'; } else { echo 'No'; } ?></td>
                                     <td><?php echo $row['consumed_status']; ?></td>
