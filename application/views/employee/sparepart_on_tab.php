@@ -203,7 +203,7 @@
             <div class="col-md-12">
                 <div class="panel panel-default">
 
-                        <div class="row">       
+                        <div class="row" style="margin-top: 10px !important;">       
                             <div class="col-md-1 pull-right">       
                                 <a class="btn btn-success" id="show_spare_list2">Show</a><span class="badge" title="show spare data"></span>     
                             </div>      
