@@ -283,7 +283,7 @@ function addBookingDialog(chanel = '') {
      }
     count_number++;
     var exp1 = /^[6-9]{1}[0-9]{9}$/;
-
+    var email_exp =  /^\b[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b$/i;
     var user_name = $('#name').val();
     var p_contact_no = $('#booking_primary_contact_no').val();
     var alternate_contact_no = $('#booking_alternate_contact_no').val();
@@ -305,6 +305,7 @@ function addBookingDialog(chanel = '') {
     var div_count = $('.purchase_date').length;
     var partner_id = $("#source_code").find(':selected').attr('data-id');
     var is_sf_panel = $("#is_sf_panel").val();
+    var user_email = $("#booking_user_email").val();
    if(chanel == "sf_update"){
          var partner_id = $("#source_code").val();
     }
@@ -442,6 +443,11 @@ function addBookingDialog(chanel = '') {
     
     if (!is_sf_panel && alternate_contact_no !== "" && !alternate_contact_no.match(exp1)) {
         alert("Enter Valid Alternate Phone Number Only");
+        return false;
+    }
+    
+    if (!is_sf_panel && user_email !== "" && !user_email.match(email_exp)) {
+        alert("Enter Valid Email Only");
         return false;
     }
 
