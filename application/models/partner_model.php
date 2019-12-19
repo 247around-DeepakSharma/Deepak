@@ -49,7 +49,7 @@ class Partner_model extends CI_Model {
            $this->db->not_like('booking_details.booking_id', preg_replace("/[^0-9]/","",$booking_id));
       }
       $this->db->join('services', 'booking_details.service_id = services.id', 'left');
-
+      $this->db->order_by("booking_details.create_date", "desc");
       $query = $this->db->get("booking_details");
       $results = $query->result_array();
       if (count($results) > 0) {
