@@ -244,7 +244,7 @@
                                                 <button type="submit" class="btn btn-success" id="submit_btn" name="submit_btn">Preview</button>
                                                 <input type="hidden" class="form-control" id="partner_name"  name="partner_name" value=""/>
                                                 <input type="hidden" class="form-control" id="wh_name"  name="wh_name" value=""/>
-                                                <input type="hidden" class="form-control"  name="dated" id="dated" value="<?php echo date('Y-m-d');?>"/>
+                                                <input type="hidden" class="form-control"  name="dated" id="dated" value="<?php echo date('d/m/Y');?>"/>
                                                 <input type="hidden" name="sender_entity_type" value="<?php echo _247AROUND_SF_STRING; ?>">
                                                 <input type="hidden" name="sender_entity_id" value="<?php echo $this->session->userdata('service_center_id'); ?>">
                                                 <input type="hidden" name="invoice_tag" value="<?php echo MSL; ?>">
@@ -414,12 +414,12 @@ $("#on_invoice_file").change(function(){
         
         $('[data-toggle="popover"]').popover(); 
         $("#dated").datepicker({
-            dateFormat: 'yy-mm-dd',
+            dateFormat: 'dd/mm/yy',
             minDate: date_before_15_days,
             maxDate:'today',
         });
         $("#courier_shipment_date").datepicker({
-            dateFormat: 'yy-mm-dd',
+            dateFormat: 'dd/mm/yy',
             minDate: date_before_15_days,
             maxDate:'today',
         });
@@ -1416,6 +1416,8 @@ $("#on_invoice_file").change(function(){
             data:{partner_id:$("#partner_id").val()},
             success: function (response) {
                 $("#from_gst_number").html(response);
+                $('#from_gst_number option:eq(1)').prop('selected',true);
+                $('#select2-from_gst_number-container').text($("#from_gst_number").find(':selected').text());
             }
         });
     }
