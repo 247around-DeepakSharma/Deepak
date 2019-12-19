@@ -4943,7 +4943,9 @@ class Inventory extends CI_Controller {
 
                             $this->inventory_model->update_courier_detail(array('id' => $insert_courier_details), array(
                                 'quantity' => count($invoice['booking_id_array']),
-                                'booking_id' => implode(",", $invoice['booking_id_array'])
+                                'booking_id' => implode(",", $invoice['booking_id_array']),
+                                'sender_city' => $invoice['from_city'],
+                                'receiver_city' => $invoice['to_city']
                             ));
                             foreach ($invoice['booking_id_array'] as $booking_id) {
 
@@ -5396,6 +5398,8 @@ class Inventory extends CI_Controller {
                     }
 
                     $invoiceData['invoice'][] = $response['meta']['invoice_id'];
+                    $invoiceData['from_city'] = $invoiceValue['data'][0]['from_city'];
+                    $invoiceData['to_city'] = $invoiceValue['data'][0]['to_city'];
                     $main_file = S3_WEBSITE_URL . "invoices-excel/" . $convert['main_pdf_file_name'];
 
                     if (!empty($output_file)) {
