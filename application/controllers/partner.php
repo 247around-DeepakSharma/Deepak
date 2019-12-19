@@ -620,12 +620,7 @@ class Partner extends CI_Controller {
                     $this->sendJsonResponse(array($is_valid['code'], $is_valid['msg']));
                 }
             }
-        } else {
-            log_message('info', __METHOD__ . ":: Invalid token: " . $this->token);
-
-            //invalid token
-            $this->sendJsonResponse(array(ERR_INVALID_AUTH_TOKEN_CODE, ERR_INVALID_AUTH_TOKEN_MSG));
-        }
+        } 
     }
 
     /**
@@ -886,7 +881,7 @@ class Partner extends CI_Controller {
         $flag = TRUE;
 
         //Mandatory Parameter Missing
-        if ((($request['orderID'] == "") || ($request['partnerName'] == ""))) {
+        if ((empty($request['orderID']) || empty($request['partnerName']) || ($request['orderID'] == "") || ($request['partnerName'] == ""))) {
             $resultArr['code'] = ERR_MANDATORY_PARAMETER_MISSING_CODE;
             $resultArr['msg'] = ERR_MANDATORY_PARAMETER_MISSING_MSG;
 
