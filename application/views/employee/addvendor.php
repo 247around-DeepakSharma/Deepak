@@ -1272,7 +1272,7 @@
                                         ?>">
                                         <label for="bank_account" class="col-md-4 vertical-align">Bank Account*</label>
                                         <div class="col-md-6">
-                                            <input type="text" class="form-control allowNumericWithDecimal" <?php if (isset($query[0]['bank_account']) && (strtolower($this->session->userdata('user_group')) !== 'admin')) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
+                                            <input type="text" class="form-control allowNumericWithDecimal" <?php if (isset($query[0]['bank_account']) && (!in_array($this->session->userdata('user_group'), [_247AROUND_ACCOUNTANT, _247AROUND_ADMIN]))) {echo "disabled";}?>  id = "bank_account" name="bank_account"  value = "<?php
                                                 if (isset($query[0]['bank_account'])) {
                                                     echo $query[0]['bank_account'];
                                                 }
@@ -1693,7 +1693,7 @@ function manageAccountNameField(value){
     }
 </script>
 <script type="text/javascript">
-    <?php if((isset($query[0]['is_verified']) && !empty($query[0]['is_verified'])) && $this->session->userdata('user_group') !='admin'){?>
+    <?php if((isset($query[0]['is_verified']) && !empty($query[0]['is_verified'])) && (!in_array($this->session->userdata('user_group'), [_247AROUND_ACCOUNTANT, _247AROUND_ADMIN]))){?>
         $('#bank_details').find('input').attr('readonly', true);
     <?php } ?>
     $(".allowNumericWithDecimal").keydown(function (e) {
