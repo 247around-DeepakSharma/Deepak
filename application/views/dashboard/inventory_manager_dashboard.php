@@ -85,7 +85,7 @@
                     <h2>Partner Out OF TAT Report<b>(OOT)</b> <span class="badge badge-info" data-toggle="popover" data-content="Below table shows Out of tat report for Partner (60 Days)"><i class="fa fa-info"></i></span> </h2>
                     <div class="nav navbar-right panel_toolbox">
                         <div class="pull-right">
-                            <a href="javascript:void(0)"  onclick="partner_out_of_tat(-1)" class="btn btn-sm btn-success" >Show All</a>
+                            <a href="javascript:void(0)"  id="partner_out_of_tat_click"  class="btn btn-sm btn-success" >Show All</a>
                         </div>
                     </div>
                     <div class="clearfix"></div>
@@ -110,6 +110,114 @@
         </div>
         <!-- End SF Spare Parts Details-->
     </div>
+    
+    <div class="row" style="margin-top:10px;">
+        <!-- SF Spare Parts Details -->
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>In Defective Transit Tat Report<b>(OOT)</b> <span class="badge badge-info" data-toggle="popover" data-content="Below table shows In Def Transit Tat Report (45 Days)"><i class="fa fa-info"></i></span> </h2>
+                    <div class="nav navbar-right panel_toolbox">
+                        <div class="pull-right">
+                            <a href="javascript:void(0)"  id="in_def_transit_tat_table_click"  class="btn btn-sm btn-success" >Show All</a>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="loader_gif4" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                </div>
+                <div class="x_content">
+                    <div id="in_def_transit_tat_report" style="width:100%; display: none;" >
+                        <table id="in_def_transit_tat_table" class="table table-bordered table-responsive" width="100%">
+                            <thead>
+                                <th>S.No.</th>
+                                <th>Partner Name</th>
+                                <th>In Transit - Part Count</th>
+                                <th>In Transit Amount</th>
+                            </thead>
+                            <tbody id="in_def_transit_tat_report_table_data"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End SF Spare Parts Details-->
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+        <!-- SF Spare Parts Details -->
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>RM Wise TAT Report (OOT) <span class="badge badge-info" data-toggle="popover" data-content="Below table shows RM Wise TAT Report (OOT) (45 Days)"><i class="fa fa-info"></i></span> </h2>
+                    <div class="nav navbar-right panel_toolbox">
+                        <div class="pull-right">
+                            <a href="javascript:void(0)" id="rm_wise_tat_report_table_click" class="btn btn-sm btn-success" >Show All</a>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="loader_gif5" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                </div>
+                <div class="x_content">
+                    <div id="rm_wise_tat_report" style="width:100%; display: none;" >
+                        <table id="rm_wise_tat_report_table" class="table table-bordered table-responsive" width="100%">
+                            <thead>
+                                <th>S.No.</th>
+                                <th>Manager Name</th>
+                                <th>Agent Name</th>
+                                <th>SF Name</th>
+                                <th>Part Count (OOT)</th>
+                                <th>Amount (OOT)</th>
+                            </thead>
+                            <tbody id="rm_wise_tat_report_table_data"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End SF Spare Parts Details-->
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+        <!-- SF Spare Parts Details -->
+        <div class="col-md-12 col-sm-12 col-xs-12">
+            <div class="x_panel">
+                <div class="x_title">
+                    <h2>SF Brand Wise TAT Report <span class="badge badge-info" data-toggle="popover" data-content="Below table shows SF Brand Wise TAT Report (45 Days)"><i class="fa fa-info"></i></span> </h2>
+                    <div class="nav navbar-right panel_toolbox">
+                        <div class="pull-right">
+                            <a href="javascript:void(0)" id="sf_brand_wise_tat_report_table_click"  class="btn btn-sm btn-success" >Show All</a>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <div class="col-md-12">
+                    <center><img id="loader_gif6" src="<?php echo base_url(); ?>images/loadring.gif"></center>
+                </div>
+                <div class="x_content">
+                    <div id="sf_brand_wise_tat_report" style="width:100%; display: none;" >
+                        <table id="sf_brand_wise_tat_report_table" class="table table-bordered table-responsive" width="100%">
+                            <thead>
+                                <th>S.No.</th>
+                                <th>State</th>
+                                <th>City</th>
+                                <th>SF Name</th>
+                                <th>Partner Name</th>
+                                <th>Part Count (OOT)</th>
+                                <th>Amount (OOT)</th>
+                            </thead>
+                            <tbody id="sf_brand_wise_tat_report_table_data"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- End SF Spare Parts Details-->
+    </div>
+
     
     <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- SF Brackets snapshot Section -->
@@ -348,6 +456,9 @@
         
         //Partner out of tat
         partner_out_of_tat(5);
+        in_def_transit_tat_report(5);
+        rm_wise_tat_report(5);
+        sf_brand_wise_tat_report(5);
         
         $('[data-toggle="popover"]').popover({
             placement : 'top',
@@ -404,6 +515,58 @@
             create_partner_out_of_tat_data(response);
         });
     }
+
+
+    function in_def_transit_tat_report(limit){
+        url =  '<?php echo base_url(); ?>employee/dashboard/in_def_transit_tat_report/'+ limit;
+        data = {is_show_all:0};
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_in_def_transit_tat_report_data(response);
+        });
+    }
+
+    function rm_wise_tat_report(limit){
+        url =  '<?php echo base_url(); ?>employee/dashboard/rm_wise_tat_report/'+ limit;
+        data = {is_show_all:0};
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_rm_wise_tat_report_data(response);
+        });
+    }
+
+
+    function sf_brand_wise_tat_report(limit){
+
+        url =  '<?php echo base_url(); ?>employee/dashboard/sf_brand_wise_tat_report/'+ limit;
+        data = {is_show_all:0};
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_sf_brand_wise_tat_report_data(response);
+        });
+
+    }
+
+   $("#partner_out_of_tat_click").click(function(){
+            partner_out_of_tat_table.destroy();
+            partner_out_of_tat(-1);
+   });
+
+   $("#in_def_transit_tat_table_click").click(function(){
+    in_def_transit_tat_table.destroy();
+    in_def_transit_tat_report(-1);
+   });
+
+
+   $("#rm_wise_tat_report_table_click").click(function(){
+
+     rm_wise_tat_report_tat_table.destroy();
+     rm_wise_tat_report(-1);
+   });
+
+
+   $("#sf_brand_wise_tat_report_table").click(function(){
+
+    sf_brand_wise_tat_report_table.destroy();
+    sf_brand_wise_tat_report(-1);
+   });
     
     //this function is used to get the brackets data of sf
     function sf_brackets_details(){
@@ -497,7 +660,8 @@
             table_body_html += '</tr>';
         });
         $('#partner_out_of_tat_table_data').html(table_body_html);
-        $('#partner_out_of_tat_table').DataTable({
+
+        partner_out_of_tat_table =  $('#partner_out_of_tat_table').DataTable({
            "bPaginate": false,
            "bLengthChange": false,
            "bFilter": true,
@@ -508,6 +672,104 @@
            ]
         });
     }
+
+
+
+    function create_in_def_transit_tat_report_data(response){
+
+        obj = JSON.parse(response);
+        console.log(response);
+        $('#loader_gif4').hide();
+        $('#in_def_transit_tat_report').fadeIn();
+        var table_body_html = '';
+        $.each(obj, function (index,val) {
+            table_body_html += '<tr>';
+            table_body_html += '<td>' + (Number(index)+1) +'</td>';
+            table_body_html += '<td><a href="">' +val['public_name'] +'</a></td>';
+            table_body_html += "<td>" +val['in_transit_part_count'] +"</td>";
+            table_body_html += "<td> Rs. " +val['in_transit_amount'] +"</td>";
+            table_body_html += '</tr>';
+        });
+        $('#in_def_transit_tat_report_table_data').html(table_body_html);
+        in_def_transit_tat_table  = $('#in_def_transit_tat_table').DataTable({
+           "bPaginate": false,
+           "bLengthChange": false,
+           "bFilter": true,
+           "bInfo": false,
+           dom: 'Bfrtip',
+           buttons: [
+               'copy', 'csv', 'excel', 'pdf', 'print',
+           ]
+        });
+
+    }
+
+
+
+    function create_rm_wise_tat_report_data(response){
+
+        obj = JSON.parse(response);
+        console.log(response);
+        $('#loader_gif5').hide();
+        $('#rm_wise_tat_report').fadeIn();
+        var table_body_html = '';
+        $.each(obj, function (index,val) {
+            table_body_html += '<tr>';
+            table_body_html += '<td>' + (Number(index)+1) +'</td>';
+            table_body_html += '<td><a href="">' +val['public_name'] +'</a></td>';
+            table_body_html += "<td>" +val['in_transit_part_count'] +"</td>";
+            table_body_html += "<td> Rs. " +val['in_transit_amount'] +"</td>";
+            table_body_html += '</tr>';
+        });
+        $('#rm_wise_tat_report_table_data').html(table_body_html);
+        rm_wise_tat_report_tat_table = $('#rm_wise_tat_report_tat_table').DataTable({
+           "bPaginate": false,
+           "bLengthChange": false,
+           "bFilter": true,
+           "bInfo": false,
+           dom: 'Bfrtip',
+           buttons: [
+               'copy', 'csv', 'excel', 'pdf', 'print',
+           ]
+        });
+
+    }
+
+
+
+    function create_sf_brand_wise_tat_report_data(response){
+
+        obj = JSON.parse(response);
+        console.log(response);
+        $('#loader_gif6').hide();
+        $('#sf_brand_wise_tat_report').fadeIn();
+        var table_body_html = '';
+        $.each(obj, function (index,val) {
+            table_body_html += '<tr>';
+            table_body_html += '<td>' + (Number(index)+1) +'</td>';
+            table_body_html += "<td>" +val['state'] +"</td>";
+            table_body_html += "<td>" +val['district'] +"</td>";
+            table_body_html += '<td><a href="">' +val['sf_name'] +'</a></td>';
+            table_body_html += "<td>" +val['partner_name'] +"</td>";
+            table_body_html += "<td> Rs. " +val['parts_count_to_shipped'] +"</td>";
+            table_body_html += "<td> Rs. " +val['parts_charge'] +"</td>";
+            table_body_html += '</tr>';
+        });
+        $('#sf_brand_wise_tat_report_table_data').html(table_body_html);
+         sf_brand_wise_tat_report_table = $('#sf_brand_wise_tat_report_table').DataTable({
+           "bPaginate": false,
+           "bLengthChange": false,
+           "bFilter": true,
+           "bInfo": false,
+           dom: 'Bfrtip',
+           buttons: [
+               'copy', 'csv', 'excel', 'pdf', 'print',
+           ]
+        });
+
+
+    }
+
     
     function create_sf_brackets_table(response){
         $('#brackets_loader').hide();
