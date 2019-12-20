@@ -4,7 +4,7 @@
 <script>
     $(function() {
        partner_vendor1(<?php echo $id; ?>);
-       $( "#datepicker" ).datepicker({  maxDate: new Date });
+       $( "#datepicker" ).datepicker({dateFormat: 'dd/mm/yy' , maxDate: new Date });
     
     });
     
@@ -274,7 +274,7 @@
                 <label for="name" class="col-md-2">Transaction Date <span class="red">*</span></label>
                 <div class="col-md-2">
                     <div class="input-group input-append date" >
-                        <input type="text" id="datepicker" class="form-control" style = "background-color:#fff;" name="tdate" readonly='true' value="<?php echo date('Y-m-d');?>">
+                        <input type="text" id="datepicker" class="form-control" style = "background-color:#fff;" name="tdate" readonly='true' value="<?php echo date('d/m/Y');?>">
                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                     </div>
                 </div>

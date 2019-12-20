@@ -277,10 +277,11 @@
          </div>
 </div>
 <script>
-    $("#shipped_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
+    $("#shipped_date").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true,changeYear: true});
     var inventory_stock_table;
     var is_admin_crm = false;
     var time = moment().format('D-MMM-YYYY');
+    var Around_GST_ID = 7;
     $(document).ready(function () {
         $('#wh_id,#to_wh_id').select2({
             placeholder:"Select Warehouse"
@@ -297,6 +298,8 @@
     $('#get_inventory_data').on('click',function(){
         var wh_id = $('#wh_id').val();
         var partner_id = $('#partner_id').val();
+        Around_GST_ID = ((($("#wh_id").find(':selected').attr('data-warehose') == 1) && ($("#wh_id").find(':selected').val() == 804)) ? 6 : 7 );
+        $('#from_gst_number option[value="'+Around_GST_ID+'"]').prop('selected',true);
         if(wh_id && partner_id){
             is_admin_crm = true;
             returnItemArray = [];

@@ -688,7 +688,7 @@
                                 </td>
                             </tr>
                             <?php
-                                if (!is_null($sp['defective_parts_shippped_date_by_wh'])) {
+                                if (!is_null($sp['wh_to_partner_defective_shipped_date'])) {
                                     $defective_parts_shippped_date_by_wh = TRUE;
                                 }
                             ?>

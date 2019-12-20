@@ -3301,5 +3301,31 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $data = $this->dashboard_model->get_spare_tat_report("rm_wise_spare_out_of_tat",array(), $limit);
         echo json_encode($data, TRUE);
     }
+
+
+
+    function in_def_transit_tat_report($limit){
+        $data = $this->dashboard_model->get_spare_tat_report("in_def_transit_tat_report",array(), $limit);
+        echo json_encode($data, TRUE);
+    }
+
+    function rm_wise_tat_report($limit){
+
+        $data = $this->dashboard_model->get_spare_tat_report("rm_wise_tat_report",array(), $limit);
+        echo json_encode($data, TRUE); 
+
+    }
+
+
+    function sf_brand_wise_tat_report($limit){
+
+        $data = $this->dashboard_model->get_spare_tat_report("sf_brand_wise_tat_report",array(), $limit);
+        echo json_encode($data, TRUE); 
+
+    }
+
+
+
+
 }
 

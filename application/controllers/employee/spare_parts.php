@@ -201,9 +201,9 @@ class Spare_parts extends CI_Controller {
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,"
                 . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.is_micro_wh,"
                 . "spare_parts_details.acknowledge_date, challan_approx_value, status, defective_part_shipped,"
-                . "remarks_defective_part_by_sf, remarks_defective_part_by_partner, defective_courier_receipt, inventory_master_list.part_number,im.part_number as shipped_part_number ";
+                . "remarks_defective_part_by_sf, remarks_defective_part_by_partner, defective_courier_receipt, inventory_master_list.part_number,im.part_number as shipped_part_number, spare_parts_details.challan_approx_value ";
 
-        $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL,'age_defective_part_shipped_date',NULL, NULL, NULL, NULL, NULL);
+        $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL,NULL,NULL, NULL, NULL, NULL, NULL, NULL,NULL, NULL, NULL,'age_defective_part_shipped_date',NULL, NULL, NULL, NULL, NULL);
         
         
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
@@ -304,8 +304,8 @@ class Spare_parts extends CI_Controller {
     function oow_parts_shipped_pending_approval($post){
          $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.id,spare_parts_details.quantity, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, parts_shipped, booking_details.request_type, spare_parts_details.is_micro_wh, spare_parts_details.id, spare_parts_details.parts_requested_type,"
-                . "defective_part_required, partner_challan_file, parts_requested, incoming_invoice_pdf, sell_invoice_id, booking_details.partner_id as booking_partner_id, purchase_price, inventory_master_list.part_number,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.invoice_pdf, spare_parts_details.courier_price_by_partner";
-        $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,'age_of_shipped_date',NULL, NULL, NULL, NULL, NULL, NULL);
+                . "defective_part_required, partner_challan_file, parts_requested, incoming_invoice_pdf, sell_invoice_id, booking_details.partner_id as booking_partner_id, purchase_price, inventory_master_list.part_number,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.invoice_pdf, spare_parts_details.courier_price_by_partner, spare_parts_details.defective_parts_pic, spare_parts_details.defective_back_parts_pic ";
+        $post['column_order'] = array( NULL, NULL,NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,'age_of_shipped_date',NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
             'users.name', 'users.phone_number', 'parts_requested', 'booking_details.request_type');
         $post['spare_invoice_flag'] = true;
@@ -765,6 +765,7 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
         $row[] = $spare_list->quantity;
         $row[] = $spare_list->shipped_quantity;
+        $row[] = $spare_list->challan_approx_value;
         $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->defective_part_shipped . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
@@ -1023,7 +1024,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->request_type;
         $row[] = $spare_list->purchase_price;
         $row[] = (empty($spare_list->age_of_shipped_date))?'0 Days':$spare_list->age_of_shipped_date." Days";
-        $row[] = $spare_list->courier_price_by_partner;
+        $row[] = $spare_list->courier_price_by_partner;        
         if(!empty($spare_list->partner_challan_file)){
             $row[] = '<a href="'.S3_WEBSITE_URL.'vendor-partner-docs/'.$spare_list->partner_challan_file.' " target="_blank">Click Here to view</a>';
         } else {
@@ -1058,6 +1059,8 @@ class Spare_parts extends CI_Controller {
         } else {
             $row[] = "";
         }
+        $row[] = '<a href="'.S3_WEBSITE_URL.'misc-images/'.$spare_list->defective_parts_pic.'" target="_blank">Click Here</a>';
+        $row[] = '<a href="'.S3_WEBSITE_URL.'misc-images/'.$spare_list->defective_back_parts_pic.'" target="_blank">Click Here</a>';
         $row[] = '<input id="'.$spare_list->id.'" type="checkbox" class="form-control spare_id" name="spare_id[]" data-booking_id="'.$spare_list->booking_id.'" data-partner_id = "'.$spare_list->booking_partner_id.'" value="'.$spare_list->id.'" />';
         return $row;
         
