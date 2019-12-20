@@ -602,7 +602,7 @@ class Partner extends CI_Controller {
                     $lead_details = $is_valid['lead'];
                     $this->jsonResponseString['response'] = array(
                         "247aroundBookingID" => $lead_details['booking_id'],
-                        "247aroundBookingStatus" => $lead_details['partner_internal_status'],
+                        "247aroundBookingStatus" => $lead_details['partner_current_status'],
                         "247aroundBookingBrand" => (!empty($lead_details['appliance_brand']) ? $lead_details['appliance_brand'] : NULL),
 			"247aroundBookingAppliance" => $lead_details['services'],
 			"247aroundBookingApplianceModel" => (!empty($lead_details['model']) ? $lead_details['model'] : NULL),                            
@@ -620,12 +620,7 @@ class Partner extends CI_Controller {
                     $this->sendJsonResponse(array($is_valid['code'], $is_valid['msg']));
                 }
             }
-        } else {
-            log_message('info', __METHOD__ . ":: Invalid token: " . $this->token);
-
-            //invalid token
-            $this->sendJsonResponse(array(ERR_INVALID_AUTH_TOKEN_CODE, ERR_INVALID_AUTH_TOKEN_MSG));
-        }
+        } 
     }
 
     /**
@@ -885,18 +880,18 @@ class Partner extends CI_Controller {
         $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
         $flag = TRUE;
 
-        //Validate Partner Name
-        if ($request['partnerName'] != $this->partner['public_name']) {
-            $resultArr['code'] = ERR_INVALID_PARTNER_NAME_CODE;
-            $resultArr['msg'] = ERR_INVALID_PARTNER_NAME_MSG;
+        //Mandatory Parameter Missing
+        if ((empty($request['orderID']) || empty($request['partnerName']) || ($request['orderID'] == "") || ($request['partnerName'] == ""))) {
+            $resultArr['code'] = ERR_MANDATORY_PARAMETER_MISSING_CODE;
+            $resultArr['msg'] = ERR_MANDATORY_PARAMETER_MISSING_MSG;
 
             $flag = FALSE;
         }
-
-        //Mandatory Parameter Missing
-        if (($flag === TRUE) && (($request['orderID'] == ""))) {
-            $resultArr['code'] = ERR_MANDATORY_PARAMETER_MISSING_CODE;
-            $resultArr['msg'] = ERR_MANDATORY_PARAMETER_MISSING_MSG;
+        
+        //Validate Partner Name
+        if (($flag === TRUE) && ($request['partnerName'] != $this->partner['public_name'])) {
+            $resultArr['code'] = ERR_INVALID_PARTNER_NAME_CODE;
+            $resultArr['msg'] = ERR_INVALID_PARTNER_NAME_MSG;
 
             $flag = FALSE;
         }

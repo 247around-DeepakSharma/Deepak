@@ -3151,7 +3151,7 @@ class Service_centers extends CI_Controller {
                 . " sf_challan_file as challan_file, "
                 . " remarks_defective_part_by_partner, "
                 . " remarks_by_partner, spare_parts_details.partner_id,spare_parts_details.service_center_id,spare_parts_details.defective_return_to_entity_id,spare_parts_details.entity_type,"
-                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
+                . " spare_parts_details.id,spare_parts_details.shipped_quantity,spare_parts_details.challan_approx_value,spare_parts_details.remarks_defective_part_by_wh ,i.part_number, spare_consumption_status.consumed_status,  spare_consumption_status.is_consumed";
         
         $group_by = "spare_parts_details.id";
         $order_by = "status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.booking_id ASC";
@@ -3964,7 +3964,7 @@ class Service_centers extends CI_Controller {
                 $data = array();
                 if (!empty($sf_details)) {
                     $data['partner_challan_number'] = $this->miscelleneous->create_sf_challan_id($sf_details[0]['sc_code'], true);
-                    $sf_details[0]['address'] = $sf_details[0]['address'] . ", " . $sf_details[0]['district'] . ", Pincode -" . $sf_details[0]['pincode'] . ", " . $sf_details[0]['state'];
+                    $sf_details[0]['address'] = $sf_details[0]['address'] . ", " . $sf_details[0]['district'] . ", " . $sf_details[0]['state'] . ", Pincode -" . $sf_details[0]['pincode'] ;
                 }
 
                 if (!empty($spare_details)) {
@@ -4741,7 +4741,7 @@ class Service_centers extends CI_Controller {
     }
 
     function upload_signature() {
-        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "bmp", "BMP", "GIF", "PNG");
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "bmp", "BMP", "gif", "GIF", "PNG");
         $temp = explode(".", $_FILES["signature_file"]["name"]);
         $extension = end($temp);
         if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
@@ -7236,7 +7236,7 @@ class Service_centers extends CI_Controller {
         if (!empty($_FILES['courier_image']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
             if ($_FILES['courier_image']['size'] <= 2 * $MB) {
-                $allowed = array('pdf','jpg','png','jpeg');
+                $allowed = array('pdf','jpg','png','jpeg','JPG','JPEG','PNG','PDF');
                 $ext = pathinfo($_FILES['courier_image']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
                 if (in_array($ext, $allowed)) {
