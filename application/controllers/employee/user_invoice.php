@@ -1147,6 +1147,8 @@ class User_invoice extends CI_Controller {
                                 }
 
                                 $invoices = array_values($invoice);
+                                $invoices[0]['from_city'] = $invoiceValue['data'][0]['from_city'];
+                                $invoices[0]['to_city'] = $invoiceValue['data'][0]['to_city'];
                                 unset($invoice);
 
                                 $p = $this->table->generate();
@@ -1193,6 +1195,10 @@ class User_invoice extends CI_Controller {
                             $courier_id = $this->invoice_lib->insert_couier_data($wh_id, _247AROUND_SF_STRING, $receiver_entity_id, $receiver_entity_type, $return_data['awb'], $return_data['courier_name'], $toatl_qty, $partner_id, array(), $return_data['courier_image_file'], str_replace('/', '-', $return_data['shipped_date']), $return_data['courier_price']);
 
                             if ($courier_id) {
+                                $this->inventory_model->update_courier_detail(array('id' => $courier_id), array(
+                                    'sender_city' => $invoices[0]['from_city'],
+                                    'receiver_city' => $invoices[0]['to_city']
+                                ));
                                 foreach ($invoices as $value) {
                                     $ledger_data = array();
 
@@ -1446,6 +1452,9 @@ class User_invoice extends CI_Controller {
             } else {
                 $invoices[0]['c_s_gst'] = FALSE; 
             }
+            
+            $invoices[0]['from_city'] = $entity_details[0]['district'];
+            $invoices[0]['to_city'] = (($receiver_entity_type == _247AROUND_PARTNER_STRING) ? $invoiceValue['data'][0]['to_city'] : $receiver_details[0]['district']);
 
             log_message('info', __METHOD__ . " Inventory Invoice Data " . print_r($invoices, TRUE) . " Entity id " . $wh_id);
             $sd = $ed;

@@ -3395,7 +3395,7 @@ class Inventory extends CI_Controller {
 
    function process_spare_invoice_tagging() {
         log_message("info", __METHOD__ . json_encode($this->input->post(), true));
-//        $str = '{"is_wh_micro":"2","247around_gst_number":"09AAFCB1281J1ZM","partner_id":"247130","wh_id":"870","awb_number":"12587455","courier_name":"gati-kwe","courier_shipment_date":"2019-07-04","from_gst_number":"7","part":[{"shippingStatus":"1","service_id":"37","part_name":"TRAY,BOTTOM,ER180I,INSTA","part_number":"1100023151","booking_id":"","quantity":"1","part_total_price":"158.25","hsn_code":"39239090","gst_rate":"18","inventory_id":"6011"},{"shippingStatus":"1","service_id":"37","part_name":"LEG,ADJUSTABLE,27MM L,ER180I,INSTA","part_number":"1100028374","booking_id":"","quantity":"2","part_total_price":"15","hsn_code":"84189900","gst_rate":"18","inventory_id":"7463"}],"partner_name":" Videocon","wh_name":" Amritsar Baldev Electronics - (Micro Warehouse) ","dated":"2019-07-04","sender_entity_type":"vendor","sender_entity_id":"15","invoice_tag":"MSL","transfered_by":"2"}';
+//        $str = '{"is_wh_micro":"2","247around_gst_number":"09AAFCB1281J1ZM","partner_id":"247130","wh_id":"870","awb_number":"12587455","courier_name":"gati-kwe","courier_shipment_date":"04/07/2019","from_gst_number":"7","part":[{"shippingStatus":"1","service_id":"37","part_name":"TRAY,BOTTOM,ER180I,INSTA","part_number":"1100023151","booking_id":"","quantity":"1","part_total_price":"158.25","hsn_code":"39239090","gst_rate":"18","inventory_id":"6011"},{"shippingStatus":"1","service_id":"37","part_name":"LEG,ADJUSTABLE,27MM L,ER180I,INSTA","part_number":"1100028374","booking_id":"","quantity":"2","part_total_price":"15","hsn_code":"84189900","gst_rate":"18","inventory_id":"7463"}],"partner_name":" Videocon","wh_name":" Amritsar Baldev Electronics - (Micro Warehouse) ","dated":"04/07/2019","sender_entity_type":"vendor","sender_entity_id":"15","invoice_tag":"MSL","transfered_by":"2"}';
  //        $_POST = json_decode($str, true);  
 //  
         $invoice_file_required =  $this->input->post('invoice_file');
@@ -3534,7 +3534,7 @@ class Inventory extends CI_Controller {
                                     }
 
                                     if (!empty($courier_shipment_date)) {
-                                        $courier_data['shipment_date'] = $courier_shipment_date;
+                                        $courier_data['shipment_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date)));
                                     }
 
                                     $insert_courier_details = $this->inventory_model->insert_courier_details($courier_data);
@@ -3622,7 +3622,7 @@ class Inventory extends CI_Controller {
                                         }
                                         
                                         if ($transfered_by == MSL_TRANSFERED_BY_PARTNER){
-                                            $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, $invoice_dated, $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount, $invoice_file['message'], $wh_id);
+                                            $this->insert_inventory_main_invoice($invoice_id, $partner_id, $booking_id_array, $tqty, str_replace('/', '-', $invoice_dated), $total_basic_amount, $total_cgst_tax_amount, $total_sgst_tax_amount, $total_igst_tax_amount, $invoice_file['message'], $wh_id);
 
                                             $this->invoices_model->insert_invoice_breakup($invoice);
                                         } else {
@@ -3632,7 +3632,7 @@ class Inventory extends CI_Controller {
                                         
                                         // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
                                         If ($is_wh_micro == 2) {
-                                            $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, $invoice_dated, $tqty, $partner_id, $to_gst_number,
+                                            $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, str_replace('/', '-', $invoice_dated), $tqty, $partner_id, $to_gst_number,
                                                     $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $insert_courier_details, $action_agent_id);
                                         }
                                         
@@ -4944,7 +4944,9 @@ class Inventory extends CI_Controller {
 
                             $this->inventory_model->update_courier_detail(array('id' => $insert_courier_details), array(
                                 'quantity' => count($invoice['booking_id_array']),
-                                'booking_id' => implode(",", $invoice['booking_id_array'])
+                                'booking_id' => implode(",", $invoice['booking_id_array']),
+                                'sender_city' => $invoice['from_city'],
+                                'receiver_city' => $invoice['to_city']
                             ));
                             foreach ($invoice['booking_id_array'] as $booking_id) {
 
@@ -4968,7 +4970,7 @@ class Inventory extends CI_Controller {
                             }
                         } else {
                             $res['status'] = false;
-                            $res['message'] = "There is an issue in the invoice generation";
+                            $res['message'] = "There is no inventory invoice to tag with your selected inventory.";
                         }
                     } else {
                         log_message('info', 'Error in inserting courier details.');
@@ -5397,6 +5399,8 @@ class Inventory extends CI_Controller {
                     }
 
                     $invoiceData['invoice'][] = $response['meta']['invoice_id'];
+                    $invoiceData['from_city'] = $invoiceValue['data'][0]['from_city'];
+                    $invoiceData['to_city'] = $invoiceValue['data'][0]['to_city'];
                     $main_file = S3_WEBSITE_URL . "invoices-excel/" . $convert['main_pdf_file_name'];
 
                     if (!empty($output_file)) {
@@ -5643,7 +5647,7 @@ class Inventory extends CI_Controller {
         if (!empty($file_details['invoice_file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
             if ($file_details['invoice_file']['size'] <= 5 * $MB) {
-                $allowed = array('pdf');
+                $allowed = array('pdf', 'PDF');
                 $ext = pathinfo($file_details['invoice_file']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
                 if (in_array($ext, $allowed)) {
@@ -5728,7 +5732,7 @@ class Inventory extends CI_Controller {
         if (!empty($file_details['file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
             if ($file_details['file']['size'] <= 5 * $MB) {
-                $allowed = array('pdf', 'jpg', 'png', 'jpeg');
+                $allowed = array('pdf', 'jpg', 'png', 'jpeg', 'JPG', 'JPEG', 'PNG', 'PDF');
                 $ext = pathinfo($file_details['file']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
                 if (in_array($ext, $allowed)) {
@@ -5764,7 +5768,7 @@ class Inventory extends CI_Controller {
         if (!empty($file_details['eway_file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
             if ($file_details['eway_file']['size'] <= 5 * $MB) {
-                $allowed = array('pdf', 'jpg', 'png', 'jpeg');
+                $allowed = array('pdf', 'jpg', 'png', 'jpeg', 'JPG', 'JPEG', 'PNG', 'PDF');
                 $ext = pathinfo($file_details['eway_file']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
                 if (in_array($ext, $allowed)) {

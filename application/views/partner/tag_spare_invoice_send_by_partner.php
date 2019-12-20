@@ -85,31 +85,45 @@
                             <form id="spareForm" method="post" class="form-horizontal" novalidate="novalidate">
                                 <div class="static-form-box">
                                     <div class="form-group">
+                                        <label class="col-xs-4 col-sm-2 control-label">247around Warehouse *</label>
+                                        <div class="col-xs-8 col-sm-4">
+                                            <select class="form-control" name="wh_id" id="wh_id" required="">
+                                                <option value="" disabled="">Select Warehouse</option>
+                                            </select>
+                                            <span id="error_wh_id" class="error" style="color: red;"></span>
+                                        </div>
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice Date*</label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input placeholder="Select Invoice Date" type="text" readonly=""   onkeydown="return false;"  class="form-control" name="dated" id="dated" required="" autocomplete="off"/>
                                             <span id="error_dated" class="error" style="color: red;"></span>
                                         </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input placeholder="Enter Invoice Number" type="text" class="form-control" name="invoice_id" id="invoice_id" required="" onblur="check_invoice_id(this.id, false)"/>
                                             <span id="error_invoice_id" class="error" style="color: red;"></span>
                                         </div>
-                                    </div>
-                                    <div class="form-group">
                                         <label class="col-xs-2 control-label">Invoice Amount * </label>
                                         <div class="col-xs-4">
                                             <input placeholder="Enter Invoice Amount" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="invoice_amount" required=""/>
                                             <span id="error_invoice_amount" class="error" style="color: red;"></span>
                                         </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice File*  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 5 MB."><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input type="file" class="form-control" name="file" id="invoice_file" required=""/>
                                             <span id="error_invoice_file" class="error" style="color: red;"></span>
                                         </div>
+                                        <label class="col-xs-2 control-label">AWB Number *</label>
+                                        <div class="col-xs-4">
+                                            <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
+                                            <span id="error_despatch_doc_no" class="error" style="color: red;"></span>
+                                        </div>
                                     </div>
                                     <div class="form-group">
-                                      <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
+                                        <?php  if (form_error('courier_name')) {echo 'has-error';} ?>
                                         <label class="col-xs-2 control-label">Courier Name *</label>
                                         <div class="col-xs-4">
 <!--                                            <input placeholder="Enter Courier Name" type="text" class="form-control" name="courier_name" id="courier_name" required=""/>-->
@@ -122,23 +136,16 @@
                                             <span id="error_courier_name" class="error" style="color: red;"></span>
                                             <?php echo form_error('courier_name'); ?>
                                         </div>
-                                        <label class="col-xs-2 control-label">AWB Number *</label>
-                                        <div class="col-xs-4">
-                                            <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
-                                            <span id="error_despatch_doc_no" class="error" style="color: red;"></span>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
                                         <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                         <div class="col-xs-4">
                                             <input placeholder="Select Courier Shipment Date" readonly=""   onkeydown="return false;" type="text" class="form-control" name="courier_shipment_date" id="courier_shipment_date" autocomplete="off"/>
                                         </div>
+                                    </div>
+                                     <div class="form-group">
                                         <label class="col-xs-2 control-label">Courier File</label>
                                         <div class="col-xs-4">
                                             <input type="file" class="form-control" name="courier_file" id="courier_file"/>
                                         </div>
-                                    </div>
-                                     <div class="form-group">
                                         <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-4">
                                             <select class="form-control" name="from_gst_number" id="from_gst_number" required="">
@@ -146,21 +153,14 @@
                                             </select>
                                             <span id="error_from_gst_number" class="error" style="color: red;"></span>
                                         </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="col-xs-2 control-label">To GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="247around GST Number print on invoice"><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <select class="form-control" name="to_gst_number" id="to_gst_number" required="">
                                                 <option value="" disabled="">Select To GST Number</option>
                                             </select>
                                             <span id="error_to_gst_number" class="error" style="color: red;"></span>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-xs-4 col-sm-2 control-label">247around Warehouse *</label>
-                                        <div class="col-xs-8 col-sm-4">
-                                            <select class="form-control" name="wh_id" id="wh_id" required="">
-                                                <option value="" disabled="">Select Warehouse</option>
-                                            </select>
-                                            <span id="error_wh_id" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -310,27 +310,41 @@
                             <div class="form-box">
                                 <div class="static-form-box">
                                     <div class="form-group">
+                                        <label class="col-xs-4 col-sm-2 control-label">247around Warehouse *</label>
+                                        <div class="col-xs-8 col-sm-4">
+                                            <select class="form-control" name="wh_id" id="on_wh_id" required="">
+                                                <option value="" disabled="">Select Warehouse</option>
+                                            </select>
+                                            <span id="error_on_wh_id" class="error" style="color: red;"></span>
+                                        </div>
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice Date*</label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input placeholder="Select Invoice Date" readonly=""   onkeydown="return false;"  type="text" class="form-control" name="dated" id="on_invoice_date" required="" autocomplete="off"/>
                                             <span id="error_on_invoice_date" class="error" style="color: red;"></span>
                                         </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="col-xs-2 control-label">Invoice Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Please make sure invoice number does not contain '/'. You can replace '/' with '-' "><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input placeholder="Enter Invoice Number" type="text" class="form-control" name="invoice_id" id="on_invoice_number" required="" onblur="check_invoice_id(this.id, true)"/>
                                             <span id="error_on_invoice_number" class="error" style="color: red;"></span>
                                         </div>
-                                    </div>
-                                    <div class="form-group">
                                         <label class="col-xs-2 control-label">Invoice Amount * </label>
                                         <div class="col-xs-4">
                                             <input placeholder="Enter Invoice Amount" type="text" class="form-control allowNumericWithDecimal" name="invoice_amount" id="on_invoice_amount" required=""/>
                                             <span id="error_on_invoice_amount" class="error" style="color: red;"></span>
                                         </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="col-xs-4 col-sm-2 control-label">Invoice File*  <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Only pdf files are allowed and file size should not be greater than 5 MB."><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <input type="file" class="form-control" name="file" id="on_invoice_file" required=""/>
                                             <span id="error_on_invoice_file" class="error" style="color: red;"></span>
+                                        </div>
+                                        <label class="col-xs-2 control-label">AWB Number *</label>
+                                        <div class="col-xs-4">
+                                            <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="on_despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
+                                            <span id="error_on_despatch_doc_no" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -347,23 +361,16 @@
                                             <span id="error_on_courier_name" class="error" style="color: red;"></span>
                                             <?php echo form_error('courier_name'); ?>
                                         </div>
-                                        <label class="col-xs-2 control-label">AWB Number *</label>
-                                        <div class="col-xs-4">
-                                            <input placeholder="Enter AWB Number" type="text" class="form-control" name="awb_number" id="on_despatch_doc_no" required="" onkeypress="return (event.charCode > 64 && event.charCode < 91) || (event.charCode > 96 && event.charCode < 123) || (event.charCode > 47 && event.charCode < 58) || event.charCode == 45 || event.charCode == 13" />
-                                            <span id="error_on_despatch_doc_no" class="error" style="color: red;"></span>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
                                         <label class="col-xs-2 control-label">Courier Shipment Date</label>
                                         <div class="col-xs-4">
                                             <input placeholder="Select Courier Shipment Date"   readonly=""   onkeydown="return false;"   type="text" class="form-control" name="courier_shipment_date" id="on_courier_shipment_date" autocomplete="off"/>
                                         </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="col-xs-2 control-label">Courier File</label>
                                         <div class="col-xs-4">
                                             <input type="file" class="form-control" name="courier_file" id="on_courier_file"/>
                                         </div>
-                                    </div>
-                                    <div class="form-group">
                                         <label class="col-xs-2 control-label">From GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="Your GST Number print on invoice"><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-4">
                                             <select class="form-control" name="from_gst_number" id="on_from_gst_number" required="">
@@ -371,21 +378,14 @@
                                             </select>
                                             <span id="error_on_from_gst_number" class="error" style="color: red;"></span>
                                         </div>
+                                    </div>
+                                    <div class="form-group">
                                         <label class="col-xs-4 col-sm-2 control-label">To GST Number * <span class="badge badge-info" data-toggle="popover" data-trigger="hover" data-content="247around GST Number print on invoice"><i class="fa fa-info"></i></span></label>
                                         <div class="col-xs-8 col-sm-4">
                                             <select class="form-control" name="to_gst_number" id="on_to_gst_number" required="">
                                                 <option value="" disabled="">Select To GST Number</option>
                                             </select>
                                             <span id="error_on_to_gst_number" class="error" style="color: red;"></span>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="col-xs-4 col-sm-2 control-label">247around Warehouse *</label>
-                                        <div class="col-xs-8 col-sm-4">
-                                            <select class="form-control" name="wh_id" id="on_wh_id" required="">
-                                                <option value="" disabled="">Select Warehouse</option>
-                                            </select>
-                                            <span id="error_on_wh_id" class="error" style="color: red;"></span>
                                         </div>
                                     </div>
                                 </div>
@@ -545,9 +545,19 @@ $("#on_invoice_file").change(function(){
 
 });
     
+    var Around_GST_ID = 7;
     $("#wh_id").on('change',function(){
         var wh_name = $("#wh_id option:selected").text();
         $("#modal_title_action").html(wh_name);
+        Around_GST_ID = ((($("#wh_id").find(':selected').attr('data-warehose') == 1) && ($("#wh_id").find(':selected').val() == 804)) ? 6 : 7 );
+        $('#to_gst_number option[value="'+Around_GST_ID+'"]').prop('selected',true);
+        $('#select2-to_gst_number-container').text($("#to_gst_number").find(':selected').text());
+    });
+    
+    $("#on_wh_id").on('change',function(){
+        Around_GST_ID = ((($("#on_wh_id").find(':selected').attr('data-warehose') == 1) && ($("#on_wh_id").find(':selected').val() == 804)) ? 6 : 7 );
+        $("#on_to_gst_number option[value='"+Around_GST_ID+"']").prop("selected",true);
+        $('#select2-on_to_gst_number-container').text($("#on_to_gst_number").find(':selected').text());
     });
 
     $("#sumit_msl").click(function(){
@@ -627,7 +637,7 @@ $("#on_invoice_file").change(function(){
             minDate: date_before_15_days,
             maxDate:'today',
             locale:{
-                format: 'YYYY-MM-DD'
+                format: 'DD/MM/YYYY'
             }
         });
         
@@ -638,12 +648,12 @@ $("#on_invoice_file").change(function(){
             minDate: date_before_15_days,
             maxDate:'today',
             locale:{
-                format: 'YYYY-MM-DD'
+                format: 'DD/MM/YYYY'
             }
         });
     
         $('#dated').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('YYYY-MM-DD'));
+            $(this).val(picker.startDate.format('DD/MM/YYYY'));
         });
     
         $('#dated').on('cancel.daterangepicker', function(ev, picker) {
@@ -651,7 +661,7 @@ $("#on_invoice_file").change(function(){
         });
         
         $('#on_invoice_date').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('YYYY-MM-DD'));
+            $(this).val(picker.startDate.format('DD/MM/YYYY'));
         });
     
         $('#on_invoice_date').on('cancel.daterangepicker', function(ev, picker) {
@@ -665,12 +675,12 @@ $("#on_invoice_file").change(function(){
             minDate: date_before_15_days,
             maxDate:'today',
             locale:{
-                format: 'YYYY-MM-DD'
+                format: 'DD/MM/YYYY'
             }
         });
     
         $('#courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('YYYY-MM-DD'));
+            $(this).val(picker.startDate.format('DD/MM/YYYY'));
         });
     
         $('#courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {
@@ -684,12 +694,12 @@ $("#on_invoice_file").change(function(){
             minDate: date_before_15_days,
             maxDate:'today',
             locale:{
-                format: 'YYYY-MM-DD'
+                format: 'DD/MM/YYYY'
             }
         });
     
         $('#on_courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('YYYY-MM-DD'));
+            $(this).val(picker.startDate.format('DD/MM/YYYY'));
         });
     
         $('#on_courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {

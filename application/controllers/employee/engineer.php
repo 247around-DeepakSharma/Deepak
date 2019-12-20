@@ -358,7 +358,8 @@ class Engineer extends CI_Controller {
         $arr_response = array();
         $x_mid = INCENTIVE_PAYTM_MERCHANT_MID;
         $request_param_list = array("MID" => INCENTIVE_PAYTM_MERCHANT_MID, "ORDERID" => $order_id);
-        $x_checksum = $this->encdec_paytm->getChecksumFromArray($request_param_list, INCENTIVE_PAYTM_MERCHANT_MID);
+        //$x_checksum = $this->encdec_paytm->getChecksumFromArray($request_param_list, INCENTIVE_PAYTM_MERCHANT_MID);
+        $x_checksum = $this->encdec_paytm->getChecksumFromString(json_encode($request_param_list), INCENTIVE_PAYTM_MERCHANT_KEY);
         $header = array("Content-Type: application/json", "x-mid: " . $x_mid, "x-checksum: " . $x_checksum);
 
         $ch = curl_init($url);
@@ -423,9 +424,9 @@ class Engineer extends CI_Controller {
         $paytmParams["amount"] = $amount;
         $post_data = json_encode($paytmParams, JSON_UNESCAPED_SLASHES);
         /* for Staging */
-        //$url = "https://staging-dashboard.paytm.com/bpay/api/v1/disburse/order/wallet/gift";
+        //$url = "https://staging-dashboard.paytm.com/bpay/api/v1/disburse/order/wallet/gratification";
         /* for Production */
-        $url = "https://dashboard.paytm.com/bpay/api/v1/disburse/order/wallet/gift";
+        $url = "https://dashboard.paytm.com/bpay/api/v1/disburse/order/wallet/gratification";
         $curl_response = $this->paytm_curl_call($order_id, $url, $post_data, $engineer_id);
         if($curl_response['status']){
             return true;
