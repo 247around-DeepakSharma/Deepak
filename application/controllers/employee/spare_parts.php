@@ -2936,7 +2936,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         if (!empty($file_details['file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
             if ($file_details['file']['size'] <= 2 * $MB) {
-                $allowed = array('pdf','jpg','png','jpeg');
+                $allowed = array('pdf','jpg','png','jpeg','JPG','JPEG','PNG','PDF');
                 $ext = pathinfo($file_details['file']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
                 if (in_array($ext, $allowed)) {
