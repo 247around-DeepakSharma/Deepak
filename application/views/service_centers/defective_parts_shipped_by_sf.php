@@ -232,7 +232,32 @@ if(flag) {
         }
     });
     
+    /*
+     * @js: It's use to received multiple defective send by SF.
+     */
+    
     $(document).on('click',".change-consumption-multiple", function(e) {
+        //Declaring new Form Data Instance  
+        var formData = new FormData();
+        //Getting Files Collection
+        var files = $("#received_defective_part_pic_by_wh")[0].files;
+        //Looping through uploaded files collection in case there is a Multi File Upload. This also works for single i.e simply remove MULTIPLE attribute from file control in HTML.  
+        for (var i = 0; i < files.length; i++) {
+           formData.append('received_defective_part_pic_by_wh', files[i]);
+        }
+        
+        formData.append('received_defective_part_pic_by_wh_exist', $("#received_defective_part_pic_by_wh_exist").val());
+        
+        $('#multiple_received_part_consumption_data').val(JSON.stringify({consumed_status_id:$('#spare_consumption_status').val(), remarks:$('#multiple-consumption-remarks').val()}));
+        
+        formData.append('consumption_data', $('#multiple_received_part_consumption_data').val());
+        
+        if($("#received_defective_part_pic_by_wh").val() == '' || $("#received_defective_part_pic_by_wh").val() == null) {
+            e.stopImmediatePropagation(); 
+            alert('Please choose defective image.');
+            return false;
+        }
+        
         if($('#multiple-consumption-remarks').val() == '' || $('#multiple-consumption-remarks').val() == null) {
             e.stopImmediatePropagation(); // to prevent multiple alerts
             e.preventDefault();
@@ -243,21 +268,20 @@ if(flag) {
         $('#multiple_received_part_consumption_data').val(JSON.stringify({consumed_status_id:$('#spare_consumption_status').val(), remarks:$('#multiple-consumption-remarks').val()}))
         $('#SpareConsumptionModal').modal('hide');
     
-    for (var index in url)
-    {
-        console.log("Receiving..");
-        $.ajax({
-            type: "POST",
-            url: url[index],
-            data:{consumption_data:$('#multiple_received_part_consumption_data').val()},
-            async: false,
-            success: function(data)
-            {
-                console.log("Receiving");
-            }
-        });
-    }
- swal("Received!", "Your all selected spares are received !.", "success");
+        for (var index in url){
+            $.ajax({
+                type: "POST",
+                url: url[index],
+                data:formData,
+                contentType: false,
+                processData: false,
+                success: function(data){
+                    console.log("Receiving");
+                }
+            });
+        }
+    
+     swal("Received!", "Your all selected spares are received !.", "success");
      $(".loader").css("display","none");
      location.reload();
     });    
