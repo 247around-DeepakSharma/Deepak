@@ -5903,7 +5903,7 @@ class Service_centers extends CI_Controller {
             $data[] = $row;
         }
         
-  
+            
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => count($data),
@@ -6430,12 +6430,14 @@ class Service_centers extends CI_Controller {
      */
     function acknowledge_received_defective_parts($spare_id, $booking_id, $partner_id, $is_cron = "") {
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Booking Id " . $booking_id);
-
+        
         if (empty($is_cron)) {
             $this->check_WH_UserSession();
         }
-        
+                
         $post_data = $this->input->post();
+        $this->validate_received_defective_part_pic_file();
+        $receive_defective_pic_by_wh = $this->input->post("receive_defective_pic_by_wh");
         if(!empty($post_data['consumption_data'])) { // if you receive multiple part.
             $consumption_data = json_decode($post_data['consumption_data'], true);
             $post_data['remarks'] = $consumption_data['remarks'];
@@ -6471,7 +6473,7 @@ class Service_centers extends CI_Controller {
         
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
             'defective_part_received_by_wh' => 1, 'remarks_defective_part_by_wh' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
-            'defective_part_received_date_by_wh' => date("Y-m-d H:i:s")));
+            'defective_part_received_date_by_wh' => date("Y-m-d H:i:s"), 'received_defective_part_pic_by_wh'=> $receive_defective_pic_by_wh));
         
         if ($response) {
 
@@ -6549,6 +6551,33 @@ class Service_centers extends CI_Controller {
         }
     }
     
+    /*
+     * @desc: This function is used to validate Received defective part on WH.
+     * @params: void
+     * @return: boolean
+     */
+    function validate_received_defective_part_pic_file() {
+        $received_defective_pic_exist = $this->input->post('received_defective_part_pic_by_wh_exist');
+        if (!empty($_FILES['received_defective_part_pic_by_wh']['tmp_name'])) {
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+            $random_number = rand(0, 9);
+            $part_image_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["received_defective_part_pic_by_wh"], "receive_defective_pic_by_wh", $allowedExts, $random_number, "misc-images", "receive_defective_pic_by_wh");
+            if ($part_image_receipt) {
+                return true;
+            } else {
+                $this->form_validation->set_message('validate_received_defective_part_pic_file', 'Received defective pic by WH, File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
+        } else if (!empty($received_defective_pic_exist)) {
+            $_POST['receive_defective_pic_by_wh'] = $received_defective_pic_exist;
+            return true;
+        } else {
+            $this->form_validation->set_message('validate_received_defective_part_pic_file', 'Please Upload Received defective Image');
+            return FALSE;
+        }
+    }
+
     /**
      * @desc: this function is used to reject the defective parts shipped by SF to 247around warehouse
      * @param String $booking_id
