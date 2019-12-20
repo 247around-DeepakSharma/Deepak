@@ -4741,7 +4741,7 @@ class Service_centers extends CI_Controller {
     }
 
     function upload_signature() {
-        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "bmp", "BMP", "GIF", "PNG");
+        $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "bmp", "BMP", "gif", "GIF", "PNG");
         $temp = explode(".", $_FILES["signature_file"]["name"]);
         $extension = end($temp);
         if (($_FILES['signature_file']['error'] != 4) && !empty($_FILES['signature_file']['tmp_name'])) {
@@ -7236,7 +7236,7 @@ class Service_centers extends CI_Controller {
         if (!empty($_FILES['courier_image']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
             if ($_FILES['courier_image']['size'] <= 2 * $MB) {
-                $allowed = array('pdf','jpg','png','jpeg');
+                $allowed = array('pdf','jpg','png','jpeg','JPG','JPEG','PNG','PDF');
                 $ext = pathinfo($_FILES['courier_image']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
                 if (in_array($ext, $allowed)) {
