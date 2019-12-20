@@ -4969,7 +4969,7 @@ class Inventory extends CI_Controller {
                             }
                         } else {
                             $res['status'] = false;
-                            $res['message'] = "There is an issue in the invoice generation";
+                            $res['message'] = "There is no inventory invoice to tag with your selected inventory.";
                         }
                     } else {
                         log_message('info', 'Error in inserting courier details.');
