@@ -272,15 +272,21 @@ function check_prepaid_balance(type) {
 
 function addBookingDialog(chanel = '') {
     var delivered_price_tags = [];
+    var partner_id = $("#source_code").find(':selected').attr('data-id');
+    var is_sf_panel = $("#is_sf_panel").val();
+    if(chanel == "sf_update"){
+         var partner_id = $("#source_code").val();
+    }
     $(".price_checkbox:checked").each(function (i) {
              var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
              delivered_price_tags.push(price_tags);
      });
-     var pr = checkPriceTagValidation(delivered_price_tags);
+     var pr = checkPriceTagValidation(delivered_price_tags, partner_id);
       if(pr === false){
          alert('Not Allow to select multiple different type of service category');
          return false;
      }
+     return false;
     count_number++;
     var exp1 = /^[6-9]{1}[0-9]{9}$/;
 
@@ -303,11 +309,7 @@ function addBookingDialog(chanel = '') {
     var booking_type = $("#booking_type").val();
     var is_active = $("#is_active").val();
     var div_count = $('.purchase_date').length;
-    var partner_id = $("#source_code").find(':selected').attr('data-id');
-    var is_sf_panel = $("#is_sf_panel").val();
-   if(chanel == "sf_update"){
-         var partner_id = $("#source_code").val();
-    }
+    
     var parant_id = $('#parent_id').val();
     var repeat_reason = $('#repeat_reason').val();
     var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
@@ -637,7 +639,7 @@ function setAppliances(i) {
     }
 
 }
-function checkPriceTagValidation(delivered_price_tags){
+function checkPriceTagValidation(delivered_price_tags, partner_id){
         var repair_flag = false;
         var repair_out_flag = false;
         var installation_flag = false;
@@ -647,6 +649,8 @@ function checkPriceTagValidation(delivered_price_tags){
         var pre_sales = false;
         var others_flag = false;
         var array =[];
+        var videocon_id = "247130";
+        
 
         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
                 || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
@@ -725,21 +729,37 @@ function checkPriceTagValidation(delivered_price_tags){
          
          if(findInArray(delivered_price_tags, 'Gas Recharge - In Warranty') > -1 && findInArray(delivered_price_tags, 'Gas Recharge - Out of Warranty') > -1){
                     others_flag = true;
-                    array.push(others_flag, others_flag);
+                    array.push(others_flag);
          }
          
          if(findInArray(delivered_price_tags, 'Gas Recharge (R410) - In Warranty') > -1 && findInArray(delivered_price_tags, 'Gas Recharge (R410) - Out of warranty') > -1){
                     others_flag = true;
-                    array.push(others_flag, others_flag);
+                    array.push(others_flag);
          }
          
          if(findInArray(delivered_price_tags, 'Wet Service - In Warranty') > -1 && findInArray(delivered_price_tags, 'Wet Service - Out of Warranty') > -1){
                     others_flag = true;
-                    array.push(others_flag, others_flag);
+                    array.push(others_flag);
+         }
+         if(partner_id === videocon_id){
+             alert(partner_id);
+              if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - In Warranty (Customer Location)') > -1
+                || findInArray(delivered_price_tags, 'Presale Repair') > -1 
+                || findInArray(delivered_price_tags, 'AMC (Annual Maintenance Contract)') > -1
+                )
+                &&(
+                  findInArray(delivered_price_tags, 'Gas Recharge - In Warranty') > -1
+                ||findInArray(delivered_price_tags, 'Gas Recharge - Out of Warranty') > -1
+                ||findInArray(delivered_price_tags, 'Gas Recharge (R410) - Out of warranty') > -1
+                )){
+                    others_flag = true;
+                    array.push(others_flag);
+                }
          }
          
          // ---------------------------------------------------------------------------------------------------------
-         
                 
          if(array.length > 1){
              return false;
