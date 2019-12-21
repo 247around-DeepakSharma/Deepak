@@ -76,5 +76,6 @@ define("CASHBACK_REASON_DISCOUNT", "Discount");
 define("INCENTIVE_SUBWALLET_GUID", "846bb113-bf84-40b0-907d-6f167049677c");
 //Paytm Merchant id for engineer incentive
 define("INCENTIVE_PAYTM_MERCHANT_MID", "Blackm96092355456850");
+define("INCENTIVE_PAYTM_MERCHANT_KEY", "8Pednwyv0&gBCnQ3");
 //Paytm error codes
 define("INVALID_BENEFICIARY_MOBILE_OR_EMAILID", "DE_044");

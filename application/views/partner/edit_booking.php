@@ -1149,6 +1149,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     }
     
      function checkPriceTagValidation(delivered_price_tags){
+        var partner_id = '<?php echo $this->session->userdata('partner_id')?>';
         var repair_flag = false;
         var repair_out_flag = false;
         var installation_flag = false;
@@ -1158,6 +1159,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
         var pre_sales = false;
         var others_flag = false;
         var array =[];
+        var videocon_id = "247130";
 
         if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
                 || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
@@ -1249,6 +1251,27 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                     array.push(others_flag, others_flag);
          }
          
+         if(partner_id === videocon_id){
+              if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
+                || findInArray(delivered_price_tags, 'Repair - In Warranty (Customer Location)') > -1
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Customer Location)') > -1
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Service Center Visit)') > -1
+                || findInArray(delivered_price_tags, 'Repair - Out Of Warranty (Home Visit)') > -1
+                || findInArray(delivered_price_tags, 'Extended Warranty') > -1
+                || findInArray(delivered_price_tags, 'Presale Repair') > -1 
+                || findInArray(delivered_price_tags, 'AMC (Annual Maintenance Contract)') > -1
+                )
+                &&(
+                  findInArray(delivered_price_tags, 'Gas Recharge - In Warranty') > -1
+                ||findInArray(delivered_price_tags, 'Gas Recharge - Out of Warranty') > -1
+                ||findInArray(delivered_price_tags, 'Gas Recharge (R410) - Out of warranty') > -1
+                )){
+                    others_flag = true;
+                    array.push(others_flag);
+                }
+         }
          // ---------------------------------------------------------------------------------------------------------
          
                 

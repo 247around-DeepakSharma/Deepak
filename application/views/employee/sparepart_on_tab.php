@@ -75,7 +75,9 @@
                                 <th class="text-center" data-orderable="false">Challan File</th>
                                 <th class="text-center" data-orderable="false">Is Defective Parts Required</th>
                                 <th class="text-center" data-orderable="false">Sale Invoice ID</th>
-                                <th class="text-center" data-orderable="false">Purchase Invoice PDF</th>
+                                <th class="text-center" data-orderable="false">Purchase Invoice PDF </th>
+                                <th class="text-center" data-orderable="false">Defective Front Part Image</th>
+                                <th class="text-center" data-orderable="false">Defective Back Part Image</th>
                                 <th class="text-center" data-orderable="false">Create Purchase Invoice</th>
                             </thead>
                             <tbody>
