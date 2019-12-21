@@ -851,6 +851,12 @@ class Partner extends CI_Controller {
         $partner_code = $this->input->post('partner_code');
         //$return_data['account_manager_id'] = $this->input->post('account_manager_id');
         $return_data['spare_notification_email'] = $this->input->post('spare_notification_email');
+        $return_data['spare_approval_by_partner'] = $this->input->post('spare_approval_by_partner');
+        if (isset($return_data['spare_approval_by_partner']) && !empty($return_data['spare_approval_by_partner'])) {
+          $return_data['spare_approval_by_partner'] = 1;   
+        }else{
+          $return_data['spare_approval_by_partner'] = 0;
+        }
         $return_data['prepaid_amount_limit'] = $this->input->post('prepaid_amount_limit');
         $return_data['prepaid_notification_amount'] = $this->input->post('prepaid_notification_amount');
         $return_data['grace_period_date'] = $this->input->post('grace_period_date');
@@ -3328,6 +3334,7 @@ class Partner extends CI_Controller {
                 . " AND booking_details.current_status IN ('"._247AROUND_PENDING."', '"._247AROUND_RESCHEDULED."') ";
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false,$state);
         $data['spare_parts'] = $total_rows[0]['total_rows'];
+        $data['partner_data'] = $this->partner_model->getpartner($partner_id);
         $this->miscelleneous->load_partner_nav_header();
         //$this->load->view('partner/header');
         if($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP){
@@ -6677,6 +6684,120 @@ class Partner extends CI_Controller {
         );
         echo json_encode($output);
     }
+
+
+
+        /**
+     * @desc: Pending  Parts list view table for approval 
+     */
+    function get_spare_parts_booking_on_approval() {
+        log_message('info', __FUNCTION__ . " Pratner ID: " . $this->session->userdata('partner_id'));
+        $this->checkUserSession();
+        $agent_id = $this->session->userdata('agent_id');
+        if($this->session->userdata('is_filter_applicable') == 1){
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",array("agent_filters.agent_id"=>$agent_id),array("agent_filters"=>"agent_filters.state=state_code.state"),NULL,array('state'=>'ASC'),NULL,array("agent_filters"=>"left"),array());
+        }
+        else{
+            $data['states'] = $this->reusable_model->get_search_result_data("state_code","DISTINCT UPPER( state_code.state) as state",NULL,NULL,NULL,array('state'=>'ASC'),NULL,NULL,array());
+        }
+        $data['is_ajax'] = $this->input->post('is_ajax');
+        if(empty($this->input->post('is_ajax'))){
+            $this->miscelleneous->load_partner_nav_header();
+            $this->load->view('partner/spare_parts_booking_approval', $data);
+            $this->load->view('partner/partner_footer');
+        }else{
+            $this->load->view('partner/spare_parts_booking_approval', $data);
+        }
+    }
+
+
+
+/*    Pending Bookings on Partner for spare parts approval */
+    function get_spare_parts_booking_on_approval_table(){
+      $agent_id = $this->session->userdata('agent_id');
+      $finalArray = array();
+      $postData = $this->input->post();
+      $state = 0;
+      $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d'))",
+          "column_4"=>"GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested)","column_7"=>"booking_details.state");    
+      $order['column'] =$columnMappingArray["column_3"];
+      $order['sorting'] = "desc";
+      if(array_key_exists("order", $postData)){
+            $order['column'] =$columnMappingArray["column_".$postData['order'][0]['column']];
+            $order['sorting'] = $postData['order'][0]['dir'];
+        }
+       $partner_id = $this->session->userdata('partner_id');
+       $where = "spare_parts_details.partner_id = '" . $partner_id . "' AND status = '" . SPARE_PART_ON_APPROVAL . "' ";
+       if($this->input->post('state')){
+           $state = $this->input->post('state');
+           $where = $where." AND booking_details.state = '$state'";
+       }
+       if($this->input->post('booking_id')){
+           $booking_id = $this->input->post('booking_id');
+           $where = $where." AND booking_details.booking_id = '$booking_id'";
+       }
+       if($this->session->userdata('is_filter_applicable') == 1){
+            $state = 1;
+            $where .= " AND booking_details.state IN (SELECT state FROM agent_filters WHERE agent_id = ".$agent_id." AND agent_filters.is_active=1)";
+        }
+        $select = "spare_parts_details.booking_id,services.services, i.part_number,spare_parts_details.parts_requested as parts_requested, users.name, "
+                . "booking_details.booking_primary_contact_no, booking_details.partner_id as booking_partner_id, booking_details.state, "
+                . "booking_details.booking_address,booking_details.initial_booking_date, booking_details.is_upcountry, i.part_number, "
+                . "booking_details.upcountry_paid_by_customer,booking_details.amount_due, booking_details.flat_upcountry,booking_details.state, service_centres.name as vendor_name, "
+                . "service_centres.address, service_centres.state, service_centres.gst_no, service_centres.pincode, "
+                . "service_centres.district,service_centres.id as sf_id,service_centres.is_gst_doc,service_centres.signature_file, "
+                . "DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request,"
+                . " spare_parts_details.quantity as quantity, "
+                . " spare_parts_details.model_number as model_number, "
+                . " spare_parts_details.part_warranty_status as part_warranty_status, "
+                . " spare_parts_details.serial_number as serial_number,"
+                . " spare_parts_details.remarks_by_sc as remarks_by_sc, spare_parts_details.partner_id, "
+                . " spare_parts_details.id as spare_id, serial_number_pic ";
+         $bookingData = $this->service_centers_model->get_spare_parts_on_approval_partner($where, $select,FALSE, false, $postData['length'], $postData['start'],0,$order);
+         $bookingCount = $this->service_centers_model->get_spare_parts_on_approval_partner($where, "count( Distinct spare_parts_details.booking_id) AS total_rows",FALSE, FALSE,-1,-1,1)[0]['total_rows'];
+         $sn = $postData['start'];
+         foreach ($bookingData as $key => $row) {
+                    $tempArray = array();
+                    $sn++;
+                    $tempString = $tempString2 = $tempString3 = $tempString4 = $tempString5 ="";
+                    if($row['is_upcountry'] == 1 && $row['upcountry_paid_by_customer'] == 0) {
+                       $tempString = '<i style="color:red; font-size:20px;" onclick="open_upcountry_model('.$row['booking_id'].'", "'.$row['amount_due'].'", "'.$row['flat_upcountry'].')" class="fa fa-road" aria-hidden="true"></i>';
+                    }
+                    $tempArray[] =  $sn. $tempString;
+                    $tempArray[] =  '<a target="_blank"  style="color:blue;" href='.base_url().'partner/booking_details/'.$row['booking_id'].'  title="View">'.$row['booking_id'].'</a>';
+                    $tempArray[] =  $row['services'];
+                    $tempArray[] =  $row['name'];
+                    $tempArray[] =  $row['age_of_request'];
+                    $tempArray[] =  "<span style='word-break: break-all;'>". $row['parts_requested'] ."</span>";
+                    $tempArray[] =  "<span style='word-break: break-all;'>". $row['part_number'] ."</span>";
+                    $tempArray[] =  $row['quantity'];
+                    $tempArray[] =  $row['model_number'];
+                    $tempArray[] =  $row['serial_number'];
+                    $tempArray[] =  $row['state'];
+                    $tempArray[] =  $row['remarks_by_sc'];
+                    $bookingIdTemp = "'".$row['booking_id']."'";                    
+                    $tempString3 =  '<a href="#" data-toggle="modal" id="spare_parts'.$row['spare_id'].'" data-url='.base_url().'employee/inventory/update_action_on_spare_parts/'.$row['spare_id'] . '/' . $row['booking_id'].'/CANCEL_PARTS data-booking_id="'.$row['booking_id'].'" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Cancel" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Reject</a>';
+                     
+                     $tempArray[] =  $tempString3;                       
+                      $tempArray[] =  "<a href='#' class='btn btn-info approve_part' data-warranty='".$row['part_warranty_status']."' data-url=".base_url()."employee/spare_parts/spare_part_on_approval/".$row['spare_id'] . "/" . $row['booking_id']."  data-toggle='modal'  data-target='#myModal77' data-spare_id='".$row['booking_id']."'  data-booking_id='".$row['booking_id']."' >Approve</a>";
+
+
+                      http://testaroundcrm.247around.com/employee/spare_parts/spare_part_on_approval/96347/LP-5213151908281
+
+                      $finalArray[] = $tempArray;
+           }
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $bookingCount,
+            "recordsFiltered" =>  $bookingCount,
+            "data" => $finalArray,
+        );
+        echo json_encode($output);
+    }
+
+
+
+
     function get_spare_bookings(){
       $agent_id = $this->session->userdata('agent_id');
       $finalArray = array();

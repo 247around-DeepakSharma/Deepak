@@ -575,6 +575,22 @@
                                         </div>
                                     </div>
                                 </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group <?php if (form_error('spare_approval_by_partner')) {
+                                        echo 'has-error';
+                                        } ?>">
+                                        <label for="spare_approval_by_partner" class="col-md-4">Spare Approval By Partner</label>
+                                        <div class="col-md-8">
+                                            <input type="checkbox" class="form-control"  name="spare_approval_by_partner"   <?php if (isset($query[0]['spare_approval_by_partner'])) {
+                                                if($query[0]['spare_approval_by_partner'] == '1'){ echo "checked"; }
+                                                } ?> >
+                                            <?php echo form_error('spare_approval_by_partner'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+
+
                                 </div>
                             </div>
                         </div>
