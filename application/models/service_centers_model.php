@@ -928,6 +928,40 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         return $insert_id;
     }
     
+/*     Spare Details  for part approval on Partner   */
+
+    function get_spare_parts_on_approval_partner($where, $select, $group_by=FALSE, $sf_id = false, $start = -1, $end = -1,$count = 0,$orderBY=array(),$nrn=FALSE){
+        $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
+        $this->db->_protect_identifiers = FALSE;
+        $this->db->select($select, false);
+        $this->db->from("spare_parts_details");
+        $this->db->join('booking_details', " booking_details.booking_id = spare_parts_details.booking_id");
+        $this->db->join('inventory_master_list as i', " i.inventory_id = spare_parts_details.requested_inventory_id", "left");
+        $this->db->join('services', " services.id = booking_details.service_id");
+        if($sf_id){
+            $this->db->join("inventory_stocks", "inventory_stocks.inventory_id = requested_inventory_id AND inventory_stocks.entity_id = '".$sf_id."' and inventory_stocks.entity_type = '"._247AROUND_SF_STRING."'", "left");
+        }
+        $this->db->join("users", "users.user_id = booking_details.user_id");
+        $this->db->join("service_centres", "service_centres.id = booking_details.assigned_vendor_id");
+        if ($nrn) {
+        $this->db->join("spare_nrn_approval", "spare_parts_details.booking_id = spare_nrn_approval.booking_id","left");
+        }
+        $this->db->where($where);
+        if($start > -1){
+            $this->db->limit($start, $end);
+        }
+        // if(0){
+        // //$this->db->group_by($group_by);
+        // }
+        if(!empty($orderBY)){
+            $this->db->order_by($orderBY['column'], $orderBY['sorting']);
+        }
+        $query = $this->db->get();
+       // print_r($this->db->last_query());  exit;
+        return $query->result_array();
+    }
+
+
     function get_spare_parts_on_group($where, $select, $group_by, $sf_id = false, $start = -1, $end = -1,$count = 0,$orderBY=array(),$nrn=FALSE){
         $this->db->_reserved_identifiers = array('*','CASE',')','FIND_IN_SET','STR_TO_DATE','%d-%m-%Y,"")');
         $this->db->_protect_identifiers = FALSE;
