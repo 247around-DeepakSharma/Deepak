@@ -441,7 +441,7 @@ class ApiDataRequest extends CI_Controller {
              $row[] = "<a href='".  base_url()."employee/booking/viewdetails/".$invoice->booking_id."' target='_blank' >".$invoice->booking_id."</a>";
         }
        
-        $row[] = date("d/m/Y", strtotime($invoice->invoice_date));//jS M, Y
+        $row[] = date("jS M, Y", strtotime($invoice->invoice_date));
         
         $row[] = '<i class ="fa fa-inr"></i> '.$invoice->total_basic_amount;
         $row[] = '<i class ="fa fa-inr"></i> '.($invoice->total_cgst_tax_amount + $invoice->total_sgst_tax_amount + $invoice->total_igst_tax_amount);
