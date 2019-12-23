@@ -54,7 +54,7 @@ class InvoiceDashboard extends CI_Controller {
     function get_count_unit_details(){
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
-        $data = $this->invoice_dashboard_model->get_count_unit_details(str_replace('/', '-', $explode_date_range[0]),str_replace('/', '-', $explode_date_range[1]));
+        $data = $this->invoice_dashboard_model->get_count_unit_details($explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     } 
     /**
@@ -65,7 +65,7 @@ class InvoiceDashboard extends CI_Controller {
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
 
-        $data = $this->invoice_dashboard_model->get_count_services($partner_id,str_replace('/', '-', $explode_date_range[0]),str_replace('/', '-', $explode_date_range[1]));
+        $data = $this->invoice_dashboard_model->get_count_services($partner_id,$explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     }
     /**
@@ -75,7 +75,7 @@ class InvoiceDashboard extends CI_Controller {
     function get_main_invoice($partner_id){
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
-        $main_invoice = $this->invoices_model->generate_partner_invoice($partner_id, date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[0]))),date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[1]))));
+        $main_invoice = $this->invoices_model->generate_partner_invoice($partner_id, $explode_date_range[0],$explode_date_range[1]);
         $data = $main_invoice['booking'];
         print_r(json_encode($data, TRUE));
     }
@@ -87,7 +87,7 @@ class InvoiceDashboard extends CI_Controller {
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
        
-        $data = $this->invoice_dashboard_model->check_duplicate_completed_booking($partner_id,str_replace('/', '-', $explode_date_range[0]),str_replace('/', '-', $explode_date_range[1]));
+        $data = $this->invoice_dashboard_model->check_duplicate_completed_booking($partner_id,$explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
         
     }
@@ -98,7 +98,7 @@ class InvoiceDashboard extends CI_Controller {
     function installation_not_added($partner_id){
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
-        $data = $this->invoice_dashboard_model->installation_not_added($partner_id, str_replace('/', '-', $explode_date_range[0]),str_replace('/', '-', $explode_date_range[1]));
+        $data = $this->invoice_dashboard_model->installation_not_added($partner_id, $explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     }
     /**
@@ -116,7 +116,7 @@ class InvoiceDashboard extends CI_Controller {
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
        
-        $data = $this->invoice_dashboard_model->get_completd_booking_for_sf(date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[0]))),date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[1]))));
+        $data = $this->invoice_dashboard_model->get_completd_booking_for_sf($explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     }
     /**
@@ -125,7 +125,7 @@ class InvoiceDashboard extends CI_Controller {
     function get_mis_match_vendor_basic(){
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
-        $data = $this->invoice_dashboard_model->get_mis_match_vendor_basic( date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[0]))),date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[1]))));
+        $data = $this->invoice_dashboard_model->get_mis_match_vendor_basic( $explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     }
     /**
@@ -134,7 +134,7 @@ class InvoiceDashboard extends CI_Controller {
     function get_customer_paid_less_than_due(){
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
-        $data = $this->invoice_dashboard_model->get_customer_paid_less_than_due(date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[0]))),date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[1]))));
+        $data = $this->invoice_dashboard_model->get_customer_paid_less_than_due($explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     }
     /**
@@ -143,40 +143,40 @@ class InvoiceDashboard extends CI_Controller {
     function charges_total_should_not_zero(){
          $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
-        $data = $this->invoice_dashboard_model->charges_total_should_not_zero( date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[0]))),date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[1]))));
+        $data = $this->invoice_dashboard_model->charges_total_should_not_zero( $explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     }
     
     function get_customer_paid_basic_charge_less_than_cnp(){
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
-        $data = $this->invoice_dashboard_model->get_customer_paid_basic_charge_less_than_customer_net_payable(date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[0]))),date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[1]))));
+        $data = $this->invoice_dashboard_model->get_customer_paid_basic_charge_less_than_customer_net_payable($explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     }
     
     function around_to_vendor_to_around(){
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
-        $data = $this->invoice_dashboard_model->around_to_vendor_to_around(date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[0]))),date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[1]))));
+        $data = $this->invoice_dashboard_model->around_to_vendor_to_around($explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     }
     
     function upcountry_booking_check(){
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
-        $data = $this->invoice_dashboard_model->get_upcountry_paid_less_than_expected(date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[0]))),date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[1]))));
+        $data = $this->invoice_dashboard_model->get_upcountry_paid_less_than_expected($explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     }
     function stand_not_added(){
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
-        $data = $this->invoice_dashboard_model->get_stand_not_added(date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[0]))),date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[1]))));
+        $data = $this->invoice_dashboard_model->get_stand_not_added($explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     }
     function installation_not_added_sf(){
         $date_range = $this->input->post("date_range");
         $explode_date_range = explode("-", $date_range);
-        $data = $this->invoice_dashboard_model->get_installation_not_added(date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[0]))),date('Y-m-d', strtotime(str_replace('/', '-', $explode_date_range[1]))));
+        $data = $this->invoice_dashboard_model->get_installation_not_added($explode_date_range[0],$explode_date_range[1]);
         print_r(json_encode($data, TRUE));
     }
     
@@ -201,11 +201,11 @@ class InvoiceDashboard extends CI_Controller {
         foreach ($vendor_details as $value) {
             
             $cash = $this->invoices_model->get_vendor_cash_invoice($value['id'], 
-                    date('Y-m-d', strtotime(str_replace('/', '-', trim($explode_date_range[0])))), date('Y-m-d', strtotime(str_replace('/', '-', trim($explode_date_range[1])))), FALSE);
+                    $explode_date_range[0], $explode_date_range[1], FALSE);
             
             
            
-            $foc = $this->invoices_model->get_vendor_foc_invoice($value['id'], date('Y-m-d', strtotime(str_replace('/', '-', trim($explode_date_range[0])))), date('Y-m-d', strtotime(str_replace('/', '-', trim($explode_date_range[1])))), FALSE);
+            $foc = $this->invoices_model->get_vendor_foc_invoice($value['id'], $explode_date_range[0], $explode_date_range[1], FALSE);
   
             $style="<span>";
             if($value['active'] == 0){
@@ -252,7 +252,7 @@ class InvoiceDashboard extends CI_Controller {
         $email_from = $email_template[2];
         $to = $email_template[1]. ",". $this->session->userdata("official_email");
         $cc = $email_template[3];
-        $subject = vsprintf($email_template[4], array(str_replace('/', '-', $explode_date_range[0]),str_replace('/', '-', $explode_date_range[1])));
+        $subject = vsprintf($email_template[4], array(date('d-m-Y', strtotime($explode_date_range[0])),date('d-m-Y', strtotime($explode_date_range[1]))));
         $message = vsprintf($email_template[0], array($t_data['table_data']));
         $this->notify->sendEmail($email_from, $to, $cc, "", $subject, $message, "", SF_INVOICE_SUMMARY);
 //        $this->load->view('employee/sf_invoice_summary', $t_data);
@@ -285,7 +285,7 @@ class InvoiceDashboard extends CI_Controller {
         $partner = $this->partner_model->get_all_partner_source();
         $total_basic = 0;$total_gst = 0; $sub_total=0;
         foreach ($partner as $value) {
-            $invoices = $this->invoices_model->generate_partner_invoice($value['partner_id'], date('Y-m-d', strtotime(str_replace('/', '-', trim($explode_date_range[0])))),date('Y-m-d', strtotime(str_replace('/', '-', trim($explode_date_range[1])))));
+            $invoices = $this->invoices_model->generate_partner_invoice($value['partner_id'], trim($explode_date_range[0]), trim($explode_date_range[1]));
             if(isset($invoices['meta']) && !empty($invoices['meta'])){
                 $this->table->add_row($value['source'], $invoices['meta']['total_taxable_value'], 
                     ($invoices['meta']['igst_total_tax_amount'] + $invoices['meta']['sgst_total_tax_amount'] + $invoices['meta']['cgst_total_tax_amount']),
@@ -306,7 +306,7 @@ class InvoiceDashboard extends CI_Controller {
         $email_from = $email_template[2];
         $to = $email_template[1]. ",". $this->session->userdata("official_email");
         $cc = $email_template[3];
-        $subject = vsprintf($email_template[4], array(str_replace('/', '-', $explode_date_range[0]),str_replace('/', '-', $explode_date_range[1])));
+        $subject = vsprintf($email_template[4], array(date('d-m-Y', strtotime($explode_date_range[0])),date('d-m-Y', strtotime($explode_date_range[1]))));
         $message = vsprintf($email_template[0], array($t_data['table_data']));
         $this->notify->sendEmail($email_from, $to, $cc, "", $subject, $message, "", PARTNER_INVOICE_SUMMARY);
     }
