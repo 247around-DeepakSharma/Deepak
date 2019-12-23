@@ -873,7 +873,7 @@ class Accounting extends CI_Controller {
         $row[] = $invoice_list->invoice_id.$invoice_links;
         $row[] = $invoice_list->type;
         $row[] = $invoice_list->num_bookings."/".$invoice_list->parts_count;
-        $row[] = date("d/m/Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("d/m/Y", strtotime($invoice_list->from_date)). " to ". date("d/m/Y", strtotime($invoice_list->to_date));
+        $row[] = date("jS M, Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("jS M, Y", strtotime($invoice_list->from_date)). " to ". date("jS M, Y", strtotime($invoice_list->to_date));
         $row[] = $invoice_list->total_amount_collected;
         $row[] = sprintf("%.2f",($invoice_list->total_service_charge + $invoice_list->service_tax));
         $row[] = sprintf("%.2f", $invoice_list->total_additional_service_charge );
@@ -1148,7 +1148,7 @@ class Accounting extends CI_Controller {
         else{
             $row[] = $no;
         }
-        $row[] = date("d/m/Y", strtotime($transaction_list->transaction_date));
+        $row[] = $transaction_list->transaction_date;
         $row[] = '<span class="text">'.$transaction_list->description.'</span><span class="edit" onclick="bd_update(this, '.$transaction_list->id.')"><i class="fa fa-pencil fa-lg" style="margin-left:5px;"></i></span>';
         $row[] = sprintf("%.2f",$transaction_list->credit_amount); 
         $row[] = sprintf("%.2f",$transaction_list->debit_amount); 
@@ -1169,7 +1169,7 @@ class Accounting extends CI_Controller {
         $row = array();
         $row[] = $no;
         $row[] = $transaction_list->name;
-        $row[] = date("d/m/Y", strtotime($transaction_list->transaction_date));
+        $row[] = $transaction_list->transaction_date;
         $row[] = $transaction_list->description;
         $row[] = sprintf("%.2f",$transaction_list->credit_amount); 
         $row[] = sprintf("%.2f",$transaction_list->debit_amount); 
@@ -1198,7 +1198,7 @@ class Accounting extends CI_Controller {
             $row[] = $no;
         }
         $row[] = $order_list->invoice_id;
-        $row[] = date("d/m/Y", strtotime($order_list->from_date)). " to ". date("d/m/Y", strtotime($order_list->to_date));
+        $row[] = date("jS M, Y", strtotime($order_list->from_date)). " to ". date("jS M, Y", strtotime($order_list->to_date));
         $row[] = $order_list->type;
         $row[] = $order_list->sub_category;
         $row[] = '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$order_list->invoice_file_main.'">'.$order_list->invoice_file_main.'</a>';
@@ -1245,8 +1245,8 @@ class Accounting extends CI_Controller {
         else{
             $row[] = "Partner";
         }
-        $row[] = date("d/m/Y", strtotime($order_list->invoice_date));
-        $row[] = date("d/m/Y", strtotime($order_list->from_date)) . " to " . date("d/m/Y", strtotime($order_list->to_date));
+        $row[] = date("jS M, Y", strtotime($order_list->invoice_date));
+        $row[] = date("jS M, Y", strtotime($order_list->from_date)) . " to " . date("jS M, Y", strtotime($order_list->to_date));
         $row[] = $order_list->sub_category;
         $row[] = $order_list->num_bookings . "/" . $order_list->parts_count;
         $row[] = $order_list->tds_amount;
@@ -1279,7 +1279,7 @@ class Accounting extends CI_Controller {
         else{
             $row[] = $no;
         }
-        $row[] = date("d/m/Y", strtotime($transaction_list->transaction_date));
+        $row[] = $transaction_list->transaction_date;
         $row[] = $transaction_list->description;
         $row[] = round($transaction_list->credit_amount,0);
         $row[] = round($transaction_list->debit_amount,0);
@@ -1299,7 +1299,7 @@ class Accounting extends CI_Controller {
         $row = array();
        
         $row[] = $no;
-        $row[] = date("d/m/Y", strtotime($transaction_list->transaction_date));
+        $row[] = date("jS M, Y", strtotime($transaction_list->transaction_date));
         $row[] = round($transaction_list->credit_amount,0);
         $row[] = $transaction_list->invoice_id;
         $row[] = $transaction_list->description;
@@ -1659,7 +1659,7 @@ class Accounting extends CI_Controller {
             $row[] = "<a class='".$partner_inv_not_found."' href='".$inv_href."' target='_blank'>".$data_list['name']."</a>";
         }
         $row[] = $data_list['gst_no'];
-        $row[] = date("d/m/Y", strtotime($data_list['invoice_date']));
+        $row[] = $this->miscelleneous->get_formatted_date($data_list['invoice_date']);
         $row[] = $data_list['igst_amount'];
         $row[] = $data_list['cgst_amount'];
         $row[] = $data_list['sgst_amount'];

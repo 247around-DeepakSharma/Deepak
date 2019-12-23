@@ -77,7 +77,7 @@
         <div class="clear"></div>
         <div class="panel panel-info">
             <div class="panel-heading" style="padding: 6px 7px 0px 10px;">
-                <h3>GSTR2A Report<small style="float:right">Last Updated On : <?php echo date("d/m/Y H:i:s", strtotime($last_updated_data)); ?></small></h3>
+                <h3>GSTR2A Report<small style="float:right">Last Updated On : <?php echo $last_updated_data; ?></small></h3>
                 <div class="clear"></div>
             </div>
             <div id="tabs" style="border:0px solid #fff;float:left;">

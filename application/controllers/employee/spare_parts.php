@@ -705,7 +705,7 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>". $spare_list->part_number ."</span>";
         $row[] = $spare_list->quantity;
         $row[] = $spare_list->shipped_quantity;
-        $row[] = date("d/m/Y", strtotime($spare_list->defective_part_shipped_date));
+        $row[] = date("jS M, Y", strtotime($spare_list->defective_part_shipped_date));
         $row[] = $spare_list->courier_name_by_sf;
         $row[] = $spare_list->awb_by_sf;
         $row[] = "<i class='fa fa-inr'></i>".$spare_list->courier_charges_by_sf;

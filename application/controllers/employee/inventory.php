@@ -1555,7 +1555,7 @@ class Inventory extends CI_Controller {
         $data['capacity'] = $unit_details[0]['appliance_capacity'];
         $data['remarks'] = $this->input->post("estimate_remarks");
         $data['order_id'] = $booking_details[0]->order_id;
-        $data['date'] = date("d/m/Y");
+        $data['date'] = date("jS M, Y");
         $data['company_name'] = $partner_data[0]['company_name'];
         $data['company_address'] = $partner_data[0]['address'] . ", " . $partner_data[0]['district'] . ", Pincode " . $partner_data[0]['state'];
 
