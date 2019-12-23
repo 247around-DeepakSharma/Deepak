@@ -1644,7 +1644,7 @@ class Inventory extends CI_Controller {
                 'repeat' => false,
                 'data' => $data,
                 'format' => array(
-                    'date' => array('datetime' => 'd/m/Y')
+                    'date' => array('datetime' => 'd/M/Y')
                 )
             ),
             array(
