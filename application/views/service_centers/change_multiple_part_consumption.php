@@ -1,36 +1,48 @@
-    <div class="row form-group"> 
-        <div class="col-md-3"> 
-            <label>Consumption  Reason</label>
-        </div>        
-        <div class="col-md-9"> 
-            <select style="width:100%;" name="spare_consumption_status" class="spare_consumption_status" id="spare_consumption_status">
-                <option value="" selected disabled>Select Reason</option>
-                <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) { ?>
-                    <option value="<?php echo $status['id']; ?>" data-tag="<?php echo $status['tag']; ?>" 
-                    <?php
-                        if(!empty($consumption_status_selected)){
-                            if($consumption_status_selected == $status['consumed_status']){
-                               echo "selected"; 
-                            }
-                        } 
-                    ?>
-                    ><?php echo $status['reason_text']; ?></option>
-                <?php $description_no++; } ?>
-            </select>
-        </div>        
-    </div>    
+<div class="row form-group" style="padding: 10px;"> 
+    <div class="col-md-2"> 
+        <label>Consumption  Reason &nbsp;<span style="color:red;">*</span></label>
+    </div>        
+    <div class="col-md-4"> 
+        <select style="width:100%;" name="spare_consumption_status" class="spare_consumption_status" id="spare_consumption_status">
+            <option value="" selected disabled>Select Reason</option>
+            <?php $description_no = 1;
+            foreach ($spare_consumed_status as $k => $status) { ?>
+                <option value="<?php echo $status['id']; ?>" data-tag="<?php echo $status['tag']; ?>" 
+                <?php
+                if (!empty($consumption_status_selected)) {
+                    if ($consumption_status_selected == $status['consumed_status']) {
+                        echo "selected";
+                    }
+                }
+                ?>
+                        ><?php echo $status['reason_text']; ?></option>
+    <?php $description_no++;
+} ?>
+        </select>
+    </div>
 
-    <div class="row form-group"> 
-        <div class="col-md-3"> 
-            <label>Remarks&nbsp;<span style="color:red;">*</span></label>
-        </div>        
-        <div class="col-md-9"> 
-            <textarea class="form-control" rows="4" name="remarks" id="multiple-consumption-remarks"></textarea>
-        </div>        
-    </div>    
-    
-    <input type="submit" name="change-consumption" class="btn btn-primary change-consumption-multiple" value="Save" class="btn btn-primary">
+    <div class="col-md-2"> 
+        <label>Received Pic &nbsp;<span style="color:red;">*</span></label>
+    </div>        
+    <div class="col-md-4"> 
+        <input type="file" name="received_defective_part_pic_by_wh" id="received_defective_part_pic_by_wh">
+        <input type="hidden" name="received_defective_part_pic_by_wh_exist" id="received_defective_part_pic_by_wh_exist">
+    </div>          
+</div>    
 
+<div class="row form-group" style="padding: 10px;"> 
+    <div class="col-md-3"> 
+        <label>Remarks&nbsp;<span style="color:red;">*</span></label>
+    </div>        
+    <div class="col-md-9"> 
+        <textarea class="form-control" rows="4" name="remarks" id="multiple-consumption-remarks"></textarea>
+    </div>        
+</div>    
+<div class="row form-group"> 
+    <div class="col-md-12" style="text-align: center; padding: 5px;"> 
+        <input type="submit" name="change-consumption" class="btn btn-primary change-consumption-multiple" value="Submit" class="btn btn-primary">
+    </div>
+</div>
 
 <!-- Wrong spare parts modal -->
 <div id="WrongSparePartsModal" class="modal fade" role="dialog">

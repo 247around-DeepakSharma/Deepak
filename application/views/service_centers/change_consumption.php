@@ -1,11 +1,10 @@
-<form id="change-consumption-form" method="post" action="<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $spare_part_detail['id']; ?>/<?php echo $spare_part_detail['booking_id']; ?>/<?php echo $spare_part_detail['partner_id']; ?>/0">
+<form id="change-consumption-form" method="post" action="#" enctype="multipart/form-data">
     <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" id="wrong_part_<?php echo $spare_part_detail['id']; ?>" value=''>
-
-    <div class="row form-group"> 
-        <div class="col-md-3"> 
-            <label>Consumption  Reason</label>
+    <div class="row form-group" style="padding: 10px;"> 
+        <div class="col-md-2"> 
+            <label>Consumption  Reason &nbsp;<span style="color:red;">*</span></label>
         </div>        
-        <div class="col-md-9"> 
+        <div class="col-md-4"> 
             <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
                 <option value="" selected disabled>Select Reason</option>
                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) { ?>
@@ -18,19 +17,29 @@
                     ><?php echo $status['reason_text']; ?></option>
                 <?php $description_no++; } ?>
             </select>
+        </div>    
+        <div class="col-md-2"> 
+            <label>Received Pic &nbsp;<span style="color:red;">*</span></label>
         </div>        
+        <div class="col-md-4"> 
+            <input type="file" name="received_defective_part_pic_by_wh" id="received_defective_part_pic_by_wh">
+            <input type="hidden" name="received_defective_part_pic_by_wh_exist" id="received_defective_part_pic_by_wh_exist">
+        </div>    
     </div>    
 
-    <div class="row form-group"> 
-        <div class="col-md-3"> 
+    <div class="row form-group" style="padding: 10px;"> 
+        <div class="col-md-2"> 
             <label>Remarks&nbsp;<span style="color:red;">*</span></label>
         </div>        
         <div class="col-md-9"> 
             <textarea class="form-control" rows="4" name="remarks" id="consumption-remarks"></textarea>
         </div>        
     </div>    
-    
-    <input type="submit" name="change-consumption" class="btn btn-primary change-consumption" value="Save" class="btn btn-primary">
+    <div class="row form-group"> 
+        <div class="col-md-12" style="text-align: center; padding: 5px;"> 
+        <input type="submit" name="change-consumption" class="btn btn-primary change-consumption" value="Submit" class="btn btn-primary">
+        </div>
+    </div>
 </form>
 
 <!-- Wrong spare parts modal -->
@@ -73,7 +82,62 @@
     $(document).on('change',"#wrong_part", function() {
         $('#part_number').val($('#wrong_part').children("option:selected").data('part_number'));
     });
+    
+    /*
+     * @Js: It's use post Form data when we received defective send by SF
+     */   
+    
+    $(document).ready(function () {
+        $('#change-consumption-form').on('submit',(function(e) {
+           /*
+            if($(".spare_consumption_status").val() == '' || $(".spare_consumption_status").val() == null) {
+                e.stopImmediatePropagation(); 
+                alert('Please consumption reason.');
+                return false;
+            }
+           */
 
+            if($("#received_defective_part_pic_by_wh").val() == '' || $("#received_defective_part_pic_by_wh").val() == null) {
+                e.stopImmediatePropagation(); 
+                alert('Please choose defective image.');
+                return false;
+            }
+
+            if($('#consumption-remarks').val() == '' || $('#consumption-remarks').val() == null) {
+                e.stopImmediatePropagation(); // to prevent multiple alerts
+                alert('Please enter remarks.');
+                return false;
+            }
+            e.preventDefault();
+            var formData = new FormData(this);
+
+            $.ajax({
+                type:'POST',
+                url: "<?php echo base_url(); ?>service_center/acknowledge_received_defective_parts/<?php echo $spare_part_detail['id']; ?>/<?php echo $spare_part_detail['booking_id']; ?>/<?php echo $spare_part_detail['partner_id']; ?>/0",
+                data:formData,
+                cache:false,
+                contentType: false,
+                processData: false,
+                success:function(data){
+                    alert(data);
+                    $('#SpareConsumptionModal').modal('hide');
+                    inventory_spare_table.ajax.reload();
+                },
+                error: function(data){
+                    console.log("error");
+                    console.log(data);
+                }
+            });
+        }));
+
+    $("#ImageBrowse").on("change", function() {
+        $("#imageUploadForm").submit();
+    });
+});
+
+
+    
+/*
     $(document).on('click',".change-consumption", function(e) {
         if($('#consumption-remarks').val() == '' || $('#consumption-remarks').val() == null) {
             e.stopImmediatePropagation(); // to prevent multiple alerts
@@ -94,5 +158,7 @@
         
         return false;
     });
+    
+    */
 
 </script>
