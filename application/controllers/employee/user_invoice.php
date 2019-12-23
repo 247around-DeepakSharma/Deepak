@@ -1584,7 +1584,7 @@ class User_invoice extends CI_Controller {
                 . "CASE WHEN royalty_paid = 1 THEN 'Yes' ELSE 'No' END as royalty_paid, royalty_amount, royalty_invoice, null as 'partner_royalty_charge'";
         $where = array(
             'booking_details.partner_id'=> $partner_id,
-            'booking_details.closed_date >= "'.date('Y-m-d', strtotime(str_replace('/', '-', $closed_date[0]))).'" AND booking_details.closed_date <= "'.date('Y-m-d', strtotime(str_replace('/', '-', $closed_date[1]))).'"'=>NULL, 
+            'booking_details.closed_date >= "'.$closed_date[0].'" AND booking_details.closed_date <= "'.$closed_date[1].'"'=>NULL, 
             'booking_details.current_status = "Completed" OR booking_details.current_status = "Cancelled"'=> NULL,
             'booking_details.type' => 'Booking'
             );

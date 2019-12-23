@@ -8066,7 +8066,6 @@ class Inventory extends CI_Controller {
      */
     function get_spare_invoice_details(){
         $spare_id_array = $this->input->post("spare_id_array");
-        $invoice_details = array();
         if(!empty($spare_id_array)){
           $spare_ids = implode(',',$spare_id_array);
           $select = 'spare_parts_details.booking_id,oow_spare_invoice_details.id,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.spare_id,oow_spare_invoice_details.invoice_date,oow_spare_invoice_details.hsn_code,oow_spare_invoice_details.invoice_amount,oow_spare_invoice_details.gst_rate,oow_spare_invoice_details.invoice_pdf';
