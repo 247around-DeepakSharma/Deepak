@@ -277,7 +277,7 @@
          </div>
 </div>
 <script>
-    $("#shipped_date").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true,changeYear: true});
+    $("#shipped_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
     var inventory_stock_table;
     var is_admin_crm = false;
     var time = moment().format('D-MMM-YYYY');
