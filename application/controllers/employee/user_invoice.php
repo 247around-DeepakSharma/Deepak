@@ -383,7 +383,7 @@ class User_invoice extends CI_Controller {
             'invoice_file_main' => $convert['main_pdf_file_name'],
             'invoice_file_excel' => $invoice['meta']['invoice_id'] . '.xlsx',
             'invoice_detailed_excel' => '',
-            'invoice_date' => date("Y-m-d", strtotime($invoice_date)),
+            'invoice_date' => $invoice_date,
             'from_date' => date("Y-m-d", strtotime($invoice_date)),
             'to_date' => date("Y-m-d", strtotime($invoice_date)),
             'due_date' => date("Y-m-d", strtotime($invoice_date . "+1 month")),
@@ -652,9 +652,6 @@ class User_invoice extends CI_Controller {
                 $response['meta']['sub_category'] = $invoice_tag_details[0]['sub_category'];
             }
             $response['meta']['accounting'] = 1;
-            $response['meta']['invoice_date'] = str_replace('/', '-', $response['meta']['invoice_date']);
-            $response['meta']['sd'] = str_replace('/', '-', $response['meta']['sd']);
-            $response['meta']['ed'] = str_replace('/', '-', $response['meta']['ed']);
             $response['meta']['due_date'] = $response['meta']['invoice_date'];
             
             $this->invoice_lib->insert_invoice_breackup($response);
@@ -972,9 +969,6 @@ class User_invoice extends CI_Controller {
                     $response['meta']['sub_category'] = DEBIT_NOTE;
                     $response['meta']['accounting'] = 1;
                     $response['meta']['remarks'] = $remarks . " - " . $booking_id;
-                    $response['meta']['invoice_date'] = str_replace('/', '-', $response['meta']['invoice_date']);
-                    $response['meta']['sd'] = str_replace('/', '-', $response['meta']['sd']);
-                    $response['meta']['ed'] = str_replace('/', '-', $response['meta']['ed']);
                     $response['meta']['due_date'] = $response['meta']['invoice_date'];
 
 
@@ -1014,7 +1008,7 @@ class User_invoice extends CI_Controller {
      */
     function generate_invoice_for_return_new_inventory() {
         log_message('info', __METHOD__ . json_encode($this->input->post(), true));
-//        $str = '{"awb":"401111","agent_type":"247Around","agent_id":"12","courier_name":"dtdc","courier_price":"120","shipped_date":"10/01/2019","exist_courier_image":"12345","receiver_type":0,"inventory_data":"[{\"inventory_id\":691,\"quantity\":2,\"shipping_quantity\":2,\"booking_partner_id\":\"247073\",\"services\":\"Air Cooler\",\"service_id\":\"\",\"type\":\"MAIN MOTOR\",\"part_name\":\"MAIN MOTOR DESEART (TST-850\/ 707)\",\"part_number\":\"MAIN MOTOR DESEART (TST-850\/ 707)\",\"basic_price\":\"904\",\"gst_rate\":\"18\",\"total_amount\":\"927.48\",\"sub_total_amount\":1854.96,\"warehouse_id\":\"10\"},{\"inventory_id\":873,\"quantity\":2,\"shipping_quantity\":2,\"booking_partner_id\":\"247073\",\"services\":\"Washing Machine\",\"service_id\":\"\",\"type\":\"DRAIN VALVE\",\"part_name\":\"Drain Valve Cock Spring (6200,8000,8510)\",\"part_number\":\"Drain Valve Cock Spring (6200,8000,8510)\",\"basic_price\":\"22\",\"gst_rate\":\"28\",\"total_amount\":\"24.32\",\"sub_total_amount\":48.64,\"warehouse_id\":\"10\"},{\"inventory_id\":225,\"quantity\":1,\"shipping_quantity\":1,\"booking_partner_id\":\"247073\",\"services\":\"Television\",\"service_id\":\"\",\"type\":\"SPEAKER\",\"part_name\":\"Speaker Led  45x128,589,(8079\/8080) 32 Smart\",\"part_number\":\"Speaker Led  45x128,589,(8079\/8080) 32 Smart\",\"basic_price\":\"82\",\"gst_rate\":\"18\",\"total_amount\":\"83.78\",\"sub_total_amount\":83.78,\"warehouse_id\":\"10\"}]","label":"WEBUPLOAD","partner_id":"247073","wh_type":"2","warehouse_id":"10","receiver_id":""}'; // 2019-01-10
+//        $str = '{"awb":"401111","agent_type":"247Around","agent_id":"12","courier_name":"dtdc","courier_price":"120","shipped_date":"2019-01-10","exist_courier_image":"12345","receiver_type":0,"inventory_data":"[{\"inventory_id\":691,\"quantity\":2,\"shipping_quantity\":2,\"booking_partner_id\":\"247073\",\"services\":\"Air Cooler\",\"service_id\":\"\",\"type\":\"MAIN MOTOR\",\"part_name\":\"MAIN MOTOR DESEART (TST-850\/ 707)\",\"part_number\":\"MAIN MOTOR DESEART (TST-850\/ 707)\",\"basic_price\":\"904\",\"gst_rate\":\"18\",\"total_amount\":\"927.48\",\"sub_total_amount\":1854.96,\"warehouse_id\":\"10\"},{\"inventory_id\":873,\"quantity\":2,\"shipping_quantity\":2,\"booking_partner_id\":\"247073\",\"services\":\"Washing Machine\",\"service_id\":\"\",\"type\":\"DRAIN VALVE\",\"part_name\":\"Drain Valve Cock Spring (6200,8000,8510)\",\"part_number\":\"Drain Valve Cock Spring (6200,8000,8510)\",\"basic_price\":\"22\",\"gst_rate\":\"28\",\"total_amount\":\"24.32\",\"sub_total_amount\":48.64,\"warehouse_id\":\"10\"},{\"inventory_id\":225,\"quantity\":1,\"shipping_quantity\":1,\"booking_partner_id\":\"247073\",\"services\":\"Television\",\"service_id\":\"\",\"type\":\"SPEAKER\",\"part_name\":\"Speaker Led  45x128,589,(8079\/8080) 32 Smart\",\"part_number\":\"Speaker Led  45x128,589,(8079\/8080) 32 Smart\",\"basic_price\":\"82\",\"gst_rate\":\"18\",\"total_amount\":\"83.78\",\"sub_total_amount\":83.78,\"warehouse_id\":\"10\"}]","label":"WEBUPLOAD","partner_id":"247073","wh_type":"2","warehouse_id":"10","receiver_id":""}';
 //        $_POST = json_decode($str, true);
         
         $partner_id = $this->input->post('partner_id');
@@ -1062,7 +1056,7 @@ class User_invoice extends CI_Controller {
                         }
                     }
                     
-                    $sd = $ed = date("Y-m-d", strtotime(str_replace('/', '-', $shipped_date)));
+                    $sd = $ed = date("Y-m-d", strtotime($shipped_date));
                     $invoice_date = date('Y-m-d');
                     
                     if($receiver_entity_type == _247AROUND_PARTNER_STRING) {
@@ -1192,7 +1186,7 @@ class User_invoice extends CI_Controller {
                         
                         if(!empty($invoices)) {
                             $toatl_qty = (array_sum(array_column($invoices, 'qty')));
-                            $courier_id = $this->invoice_lib->insert_couier_data($wh_id, _247AROUND_SF_STRING, $receiver_entity_id, $receiver_entity_type, $return_data['awb'], $return_data['courier_name'], $toatl_qty, $partner_id, array(), $return_data['courier_image_file'], str_replace('/', '-', $return_data['shipped_date']), $return_data['courier_price']);
+                            $courier_id = $this->invoice_lib->insert_couier_data($wh_id, _247AROUND_SF_STRING, $receiver_entity_id, $receiver_entity_type, $return_data['awb'], $return_data['courier_name'], $toatl_qty, $partner_id, array(), $return_data['courier_image_file'], $return_data['shipped_date'], $return_data['courier_price']);
 
                             if ($courier_id) {
                                 $this->inventory_model->update_courier_detail(array('id' => $courier_id), array(
@@ -1291,6 +1285,7 @@ class User_invoice extends CI_Controller {
         if(!empty($around_gst[0]['state_stamp_picture'])){
             $response['meta']['main_company_seal'] = $around_gst[0]['state_stamp_picture'];
         }
+        $response['meta']['due_date'] = $response['meta']['invoice_date'];
         $response['meta']['invoice_detailed_excel'] = $invoice_id . '-detailed.xlsx';
         $status = $this->invoice_lib->send_request_to_create_main_excel($response, "final");
         
@@ -1309,10 +1304,6 @@ class User_invoice extends CI_Controller {
 
             $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
 
-            $response['meta']['due_date'] = $response['meta']['invoice_date'] = str_replace('/', '-', $response['meta']['invoice_date']);
-            $response['meta']['sd'] = str_replace('/', '-', $response['meta']['sd']);
-            $response['meta']['ed'] = str_replace('/', '-', $response['meta']['ed']);
-            
             $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", "partner", $partner_id, $convert, $this->session->userdata('id'));
 
             $this->invoices_model->insert_new_invoice($invoice_details);
@@ -1480,6 +1471,7 @@ class User_invoice extends CI_Controller {
             $response['meta']["sub_category"] = MSL_NEW_PART_RETURN;
 
             $response['meta']['owner_phone_1'] = $entity_details[0]['owner_phone_1'];
+            $response['meta']['due_date'] = $response['meta']['invoice_date'];
             $response['meta']['invoice_detailed_excel'] = $invoice_id . '-detailed.xlsx';
 
             if($receiver_entity_type == _247AROUND_PARTNER_STRING) { 
@@ -1520,10 +1512,6 @@ class User_invoice extends CI_Controller {
 
                 $this->invoice_lib->upload_invoice_to_S3($response['meta']['invoice_id'], true, false);
 
-                $response['meta']['due_date'] = $response['meta']['invoice_date'] = str_replace('/', '-', $response['meta']['invoice_date']);
-                $response['meta']['sd'] = str_replace('/', '-', $response['meta']['sd']);
-                $response['meta']['ed'] = str_replace('/', '-', $response['meta']['ed']);
-                
                 $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "B", "Parts", "vendor", $wh_id, $convert, $this->session->userdata('id'));
 
                 $this->invoices_model->insert_new_invoice($invoice_details);
@@ -1777,9 +1765,6 @@ class User_invoice extends CI_Controller {
                 $response['meta']['sub_category'] = $invoice_tag_details[0]['sub_category'];
             }
             $response['meta']['accounting'] = 1;
-            $response['meta']['invoice_date'] = str_replace('/', '-', $response['meta']['invoice_date']);
-            $response['meta']['sd'] = str_replace('/', '-', $response['meta']['sd']);
-            $response['meta']['ed'] = str_replace('/', '-', $response['meta']['ed']);
             $response['meta']['due_date'] = $response['meta']['invoice_date'];
 
             $this->invoice_lib->insert_invoice_breackup($response);
