@@ -292,6 +292,7 @@ class Engineer extends CI_Controller {
         $row[] = $engineer_list->identity_proof;
         $row[] = date('Y-m-d', strtotime($engineer_list->create_date));
         if(!$this->input->post("service_center_id")){
+            $row[] = $engineer_list->active;
             if($this->session->userdata('user_group') == 'regionalmanager'){ 
                 if($engineer_list->varified == 0){
                    $row[] = "<button type='button' class='btn btn-danger btn-sm' onclick='verify_engineer(".$engineer_list->id.", 1)'>Not Verified</button>";
