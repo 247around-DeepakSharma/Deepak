@@ -547,6 +547,10 @@ function addBookingDialog(chanel = '') {
         }
         //If Repeat Booking is Selected than Repeat Reason Should not be blank
         if(!is_sf_panel && !repeat_reason){
+            if($('#repeat_reason_holder').length)
+            {
+                $('#repeat_reason_holder').show();
+            }            
             alert("Please Write the Repeat Reason");
             return false;
         }
