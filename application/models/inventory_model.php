@@ -423,6 +423,7 @@ class Inventory_model extends CI_Model {
         $this->db->from('spare_parts_details');
         $this->db->join('booking_details','spare_parts_details.booking_id = booking_details.booking_id');
         $this->db->join('users','users.user_id = booking_details.user_id');
+        $this->db->join('partners','partners.id = booking_details.partner_id','left');
         if(isset($post['where'])){
              $this->db->where($post['where']);
         }
