@@ -976,7 +976,7 @@ class invoices_model extends CI_Model {
             $data['annexure'] = $anx_data['annexure'];
             $data['penalty_discount'] = $penalty_tat;
             $data['penalty_tat_count'] = $penalty_count;
-            $data['penalty_booking_data'] = (!empty($penalty_data['penalty_booking_data']) ? $penalty_data['penalty_booking_data'] : array());
+            $data['penalty_booking_data'] = $penalty_data['penalty_booking_data'];
             $data['pickup_courier'] = $result_data['pickup_courier'];
             $data['micro_warehouse_list'] = $result_data['micro_warehouse_list'];
             $data['packaging_data'] = $result_data['packaging_data'];
@@ -1110,14 +1110,14 @@ class invoices_model extends CI_Model {
                 $meta['sd'] =  "";
                 $meta['ed'] = "";
             } else {
-                $meta['sd'] = date("d/m/Y", strtotime($sd));
-                $meta['ed'] = date("d/m/Y", strtotime($ed));
+                $meta['sd'] = date("jS M, Y", strtotime($sd));
+                $meta['ed'] = date("jS M, Y", strtotime($ed));
             }
             
             if($invoice_date){
-                 $meta['invoice_date'] = date("d/m/Y", strtotime($invoice_date));
+                 $meta['invoice_date'] = date("jS M, Y", strtotime($invoice_date));
             } else {
-                 $meta['invoice_date'] = date("d/m/Y");
+                 $meta['invoice_date'] = date("jS M, Y");
             }
            
             $meta['company_name'] = $result[0]['company_name'];
@@ -1252,9 +1252,9 @@ class invoices_model extends CI_Model {
             $meta['cgst_total_tax_amount'] = sprintf("%.2f",$meta['cgst_total_tax_amount']);
             $meta['igst_total_tax_amount'] = sprintf("%.2f",$meta['igst_total_tax_amount']);
             $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
-            $meta['sd'] = date("d/m/Y", strtotime($from_date));
-            $meta['ed'] = date("d/m/Y", strtotime($to_date_temp));
-            $meta['invoice_date'] = date("d/m/Y");
+            $meta['sd'] = date("jS M, Y", strtotime($from_date));
+            $meta['ed'] = date("jS M, Y", strtotime($to_date_temp));
+            $meta['invoice_date'] = date("jS M, Y");
             $meta['reference_invoice_id'] = "";
             $meta['invoice_type'] = "Tax Invoice";
 
@@ -1719,9 +1719,9 @@ class invoices_model extends CI_Model {
             $meta['sgst_total_tax_amount'] = sprintf("%1\$.2f",$meta['sgst_total_tax_amount']);
             $meta['igst_total_tax_amount'] = sprintf("%1\$.2f",$meta['igst_total_tax_amount']);
             $meta['sub_total_amount'] = sprintf("%.2f",$meta['sub_total_amount']);
-            $meta['sd'] = date("d/m/Y", strtotime($from_date));
-            $meta['ed'] = date("d/m/Y", strtotime($to_date_tmp));
-            $meta['invoice_date'] = date("d/m/Y");
+            $meta['sd'] = date("jS M, Y", strtotime($from_date));
+            $meta['ed'] = date("jS M, Y", strtotime($to_date_tmp));
+            $meta['invoice_date'] = date("jS M, Y");
             $meta['company_name'] = $meta['vendor_name'] = $data['booking'][0]['company_name'];
             $meta['company_address'] = $meta['vendor_address'] = $data['booking'][0]['company_address'] . "," 
                     . $data['booking'][0]['district'] . "," . $data['booking'][0]['state'] . ", Pincode: "
@@ -1924,9 +1924,9 @@ class invoices_model extends CI_Model {
                 $meta['sub_total_amount'] = sprintf("%.2f",$commission_charge[0]['total_amount']);
 
                 $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
-                $meta['sd'] = date("d/m/Y", strtotime($from_date));
-                $meta['ed'] = date('d/m/Y', strtotime($to_date_tmp));
-                $meta['invoice_date'] = date("d/m/Y");
+                $meta['sd'] = date("jS M, Y", strtotime($from_date));
+                $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
+                $meta['invoice_date'] = date("jS M, Y");
                 $meta['reference_invoice_id'] = "";
                 $meta['state_code'] = $this->get_state_code(array('state' => $meta['state']))[0]['state_code'];
                 $meta['company_address'] = $data[0]['company_address'] . "," 
@@ -2024,9 +2024,9 @@ class invoices_model extends CI_Model {
             $meta['igst_total_tax_amount'] = sprintf("%1\$.2f",$meta['igst_total_tax_amount']);
             
             
-            $meta['sd'] = date("d/m/Y", strtotime($from_date));
-            $meta['ed'] = date('d/m/Y', strtotime($to_date_tmp));
-            $meta['invoice_date'] = date("d/m/Y");
+            $meta['sd'] = date("jS M, Y", strtotime($from_date));
+            $meta['ed'] = date('jS M, Y', strtotime($to_date_tmp));
+            $meta['invoice_date'] = date("jS M, Y");
             $meta['reference_invoice_id'] = "";
             $meta['price_inword'] = convert_number_to_words(round($meta['sub_total_amount'],0));
             $meta['company_name'] = $commission_charge[0]['company_name'];

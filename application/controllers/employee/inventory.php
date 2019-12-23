@@ -1556,7 +1556,7 @@ class Inventory extends CI_Controller {
         $data['capacity'] = $unit_details[0]['appliance_capacity'];
         $data['remarks'] = $this->input->post("estimate_remarks");
         $data['order_id'] = $booking_details[0]->order_id;
-        $data['date'] = date("d/m/Y");
+        $data['date'] = date("jS M, Y");
         $data['company_name'] = $partner_data[0]['company_name'];
         $data['company_address'] = $partner_data[0]['address'] . ", " . $partner_data[0]['district'] . ", Pincode " . $partner_data[0]['state'];
 
@@ -1645,7 +1645,7 @@ class Inventory extends CI_Controller {
                 'repeat' => false,
                 'data' => $data,
                 'format' => array(
-                    'date' => array('datetime' => 'd/m/Y')
+                    'date' => array('datetime' => 'd/M/Y')
                 )
             ),
             array(
@@ -8067,7 +8067,6 @@ class Inventory extends CI_Controller {
      */
     function get_spare_invoice_details(){
         $spare_id_array = $this->input->post("spare_id_array");
-        $invoice_details = array();
         if(!empty($spare_id_array)){
           $spare_ids = implode(',',$spare_id_array);
           $select = 'spare_parts_details.booking_id,oow_spare_invoice_details.id,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.spare_id,oow_spare_invoice_details.invoice_date,oow_spare_invoice_details.hsn_code,oow_spare_invoice_details.invoice_amount,oow_spare_invoice_details.gst_rate,oow_spare_invoice_details.invoice_pdf';
