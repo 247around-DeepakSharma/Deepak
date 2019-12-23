@@ -503,9 +503,19 @@
  <!--Modal end-->
 <script src="https://ajax.aspnetcdn.com/ajax/jquery.validate/1.11.1/jquery.validate.min.js"></script>
 <script>
+    var Around_GST_ID = 7;
     $("#wh_id").on('change',function(){
         var wh_name = $("#wh_id option:selected").text();
         $("#modal_title_action").html(wh_name);
+        Around_GST_ID = ((($("#wh_id").find(':selected').attr('data-warehose') == 1) && ($("#wh_id").find(':selected').val() == 804)) ? 6 : 7 );
+        $('#to_gst_number option[value="'+Around_GST_ID+'"]').prop('selected',true);
+        $('#select2-to_gst_number-container').text($("#to_gst_number").find(':selected').text());
+    });
+    
+    $("#on_wh_id").on('change',function(){
+        Around_GST_ID = ((($("#on_wh_id").find(':selected').attr('data-warehose') == 1) && ($("#on_wh_id").find(':selected').val() == 804)) ? 6 : 7 );
+        $("#on_to_gst_number option[value='"+Around_GST_ID+"']").prop("selected",true);
+        $('#select2-on_to_gst_number-container').text($("#on_to_gst_number").find(':selected').text());
     });
     
     $("#sumit_msl").click(function(){
@@ -596,12 +606,12 @@
         
         $('[data-toggle="popover"]').popover(); 
         $("#dated").datepicker({
-            dateFormat: 'yy-mm-dd',
+            dateFormat: 'dd/mm/yy',
             minDate: date_before_15_days,
             maxDate:'today',
         });
         $("#courier_shipment_date").datepicker({
-            dateFormat: 'yy-mm-dd',
+            dateFormat: 'dd/mm/yy',
             minDate: date_before_15_days,
             maxDate:'today',
         });
@@ -1141,12 +1151,12 @@
             minDate: date_before_15_days,
             maxDate:'today',
             locale:{
-                format: 'YYYY-MM-DD'
+                format: 'DD/MM/YYYY'
             }
         });
         
     $('#on_invoice_date').on('apply.daterangepicker', function(ev, picker) {
-            $(this).val(picker.startDate.format('YYYY-MM-DD'));
+            $(this).val(picker.startDate.format('DD/MM/YYYY'));
      });
     
     $('#on_invoice_date').on('cancel.daterangepicker', function(ev, picker) {
@@ -1160,12 +1170,12 @@
             minDate: date_before_15_days,
             maxDate:'today',
             locale:{
-                format: 'YYYY-MM-DD'
+                format: 'DD/MM/YYYY'
             }
         });
     
     $('#on_courier_shipment_date').on('apply.daterangepicker', function(ev, picker) {
-        $(this).val(picker.startDate.format('YYYY-MM-DD'));
+        $(this).val(picker.startDate.format('DD/MM/YYYY'));
     });
 
     $('#on_courier_shipment_date').on('cancel.daterangepicker', function(ev, picker) {

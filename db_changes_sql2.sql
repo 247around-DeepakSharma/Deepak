@@ -1664,9 +1664,18 @@ ALTER TABLE `spare_parts_details` ADD `defective_part_rejected_by_wh` TINYINT(4)
 -- Kajal 16-12-2019
 ALTER TABLE `courier_details` ADD `sender_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `partner_invoice_id`, ADD `receiver_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_city`;
 
+
+--Kalyani 19-12-2019
+ALTER TABLE `engineer_incentive_details` ADD UNIQUE(`booking_details_id`);
+
 /*   VIEW     */
 
-
-
 CREATE OR REPLACE VIEW `sf_brand_wise_tat_report` AS select `service_centres`.`name` AS `sf_name`,`service_centres`.`state` AS `state`,`service_centres`.`district` AS `district`,`service_centres`.`id` AS `id`,`partners`.`id` AS `partner_id`,`partners`.`public_name` AS `partner_name`,sum(`spare_parts_details`.`shipped_quantity`) AS `parts_count_to_shipped`,sum(`spare_parts_details`.`challan_approx_value`) AS `parts_charge` from (((`spare_parts_details` join `booking_details` on((`booking_details`.`booking_id` = `spare_parts_details`.`booking_id`))) join `partners` on((`partners`.`id` = `booking_details`.`partner_id`))) join `service_centres` on((`service_centres`.`id` = `booking_details`.`assigned_vendor_id`))) where ((`spare_parts_details`.`status` not in ('Cancelled','Completed','Defective parts send by warehouse to partner','Partner acknowledge defective parts send by warehouse','Defective Part Shipped By SF','Defective Part Received By Partner','Damage Part Shipped By SF','Ok Part Shipped By SF')) and ((to_days(now()) - to_days(str_to_date(`spare_parts_details`.`shipped_date`,'%Y-%m-%d'))) >= 45)) group by `booking_details`.`partner_id`,`booking_details`.`assigned_vendor_id` order by service_centres.district,service_centres.state,service_centres.name ASC
-
+ 
+/*****  Abhishek   ***/
+ALTER TABLE `partners` ADD `spare_approval_by_partner` BOOLEAN NOT NULL DEFAULT FALSE AFTER `oot_spare_to_be_shipped`;
+ALTER TABLE `spare_parts_details` ADD `spare_approval_date` DATE NOT NULL AFTER `wh_to_partner_defective_shipped_date`, ADD `approval_agent_id` INT(11) NOT NULL DEFAULT '247001' AFTER `spare_approval_date`, ADD `approval_entity_type` VARCHAR(15) NOT NULL DEFAULT 'vendor' AFTER `approval_agent_id`;
+ 
+--Gorakh 20-12-2019
+ALTER TABLE `spare_parts_details`  ADD `received_defective_part_pic_by_wh` VARCHAR(200) NULL DEFAULT NULL  AFTER `defective_part_rejected_by_wh`,  ADD `rejected_defective_part_pic_by_wh` VARCHAR(200) NULL DEFAULT NULL  AFTER `received_defective_part_pic_by_wh`;
+ 

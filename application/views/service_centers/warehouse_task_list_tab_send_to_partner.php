@@ -102,7 +102,7 @@
                                     </td>
 
                                     <td>
-                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d-m-Y",strtotime($row['defective_part_shipped_date'])); }  ?>
+                                        <?php if(!is_null($row['defective_part_shipped_date'])){  echo date("d/m/Y",strtotime($row['defective_part_shipped_date'])); }  ?>
                                     </td>
                                     <td>
                                         <?php echo $row['vendor_name']; ?>
@@ -371,13 +371,17 @@
         allowClear:true
     });
     
-    $('document').ready(function(){
+    var Around_GST_ID = 7;
+    $(document).ready(function(){
+        var sf_id = '<?php echo $this->session->userdata('service_center_id')?>';
+        Around_GST_ID = ((sf_id == 804) ? 6 : 7 );
+        $('#from_gst_number option[value="'+Around_GST_ID+'"]').prop('selected',true);
         get_partner_ack();
     });
     
     var postData = {};
-    $("#defective_parts_shippped_date_by_wh").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
-//    $("#defective_parts_ewaybill_date_by_wh").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true,changeYear: true});
+    $("#defective_parts_shippped_date_by_wh").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true,changeYear: true});
+//    $("#defective_parts_ewaybill_date_by_wh").datepicker({dateFormat: 'dd/mm/yy', changeMonth: true,changeYear: true});
     $('#send_all').on('click', function () {
         if ($(this).is(':checked', true))
         {
@@ -435,7 +439,7 @@
         postData['awb_by_wh'] = $('#awb_by_wh').val();
         postData['courier_name_by_wh'] = $('#courier_name_by_wh').val();
         postData['courier_price_by_wh'] = $('#courier_price_by_wh').val();
-        postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_by_wh').val();
+        postData['defective_parts_shippped_date_by_wh'] = $('#defective_parts_shippped_date_by_wh').val().split("/").reverse().join("-");
         postData['exist_courier_image'] = $('#exist_courier_image').val();
         postData['from_gst_number'] = $('#from_gst_number').val();
         postData['to_gst_number'] = $('#to_gst_number').val();
