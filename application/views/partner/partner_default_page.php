@@ -36,11 +36,22 @@
                                     Pending Spares
                                 </a>
                             </li>
+
+                            <?php if ($partner_data[0]['spare_approval_by_partner']==1) { ?>
+
+                                <li role="presentation">
+                                <a href="#tabs-7" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>employee/partner/get_spare_parts_booking_on_approval">
+                                    Spare Parts On Approval
+                                </a>
+                            </li>
+                            <?php }  ?>
+
+
                             <li role="presentation">
                                 <a href="#tabs-3" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_waiting_defective_parts/0/1">
                                     Shipped Spares by SF
                                 </a>
-                            </li>
+                            </li>s
                             <li role="presentation">
                                 <a href="#tabs-4" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_waiting_for_approval_upcountry_charges/0/1">
                                     Waiting Approval Upcountry Charges
@@ -310,7 +321,7 @@
         $(tab).html("<center>  <img style='width: 46px;' src='<?php echo base_url(); ?>images/loader.gif'/> </center>");
         $.ajax({
             type: "POST",
-            url: "<?php echo base_url() ?>" + url,
+            url:  url, ///// for double duplicare url error 
             data: {is_ajax:true},
             success: function (data) {
                 $(tab).html(data);

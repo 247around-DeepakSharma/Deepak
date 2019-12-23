@@ -4970,7 +4970,7 @@ class Inventory extends CI_Controller {
                             }
                         } else {
                             $res['status'] = false;
-                            $res['message'] = "There is an issue in the invoice generation";
+                            $res['message'] = "There is no inventory invoice to tag with your selected inventory.";
                         }
                     } else {
                         log_message('info', 'Error in inserting courier details.');
@@ -5647,7 +5647,7 @@ class Inventory extends CI_Controller {
         if (!empty($file_details['invoice_file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
             if ($file_details['invoice_file']['size'] <= 5 * $MB) {
-                $allowed = array('pdf');
+                $allowed = array('pdf', 'PDF');
                 $ext = pathinfo($file_details['invoice_file']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
                 if (in_array($ext, $allowed)) {
@@ -5732,7 +5732,7 @@ class Inventory extends CI_Controller {
         if (!empty($file_details['file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
             if ($file_details['file']['size'] <= 5 * $MB) {
-                $allowed = array('pdf', 'jpg', 'png', 'jpeg');
+                $allowed = array('pdf', 'jpg', 'png', 'jpeg', 'JPG', 'JPEG', 'PNG', 'PDF');
                 $ext = pathinfo($file_details['file']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
                 if (in_array($ext, $allowed)) {
@@ -5768,7 +5768,7 @@ class Inventory extends CI_Controller {
         if (!empty($file_details['eway_file']['name'])) {
             //check upload file size. it should not be greater than 2mb in size
             if ($file_details['eway_file']['size'] <= 5 * $MB) {
-                $allowed = array('pdf', 'jpg', 'png', 'jpeg');
+                $allowed = array('pdf', 'jpg', 'png', 'jpeg', 'JPG', 'JPEG', 'PNG', 'PDF');
                 $ext = pathinfo($file_details['eway_file']['name'], PATHINFO_EXTENSION);
                 //check upload file type. it should be pdf.
                 if (in_array($ext, $allowed)) {
