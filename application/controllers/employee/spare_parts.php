@@ -2292,7 +2292,7 @@ class Spare_parts extends CI_Controller {
         $sms_template_tag = '';
         $reason_text = '';
         
-        $spare_approval_date = date('d-m-Y');
+        $spare_approval_date = date('Y-m-d');
         $approval_agent_id = _247AROUND_DEFAULT_AGENT;
         $approval_entity_type = _247AROUND_SF_STRING;
         if($this->session->userdata('emp_name') && $this->session->userdata('userType')!='partner'){

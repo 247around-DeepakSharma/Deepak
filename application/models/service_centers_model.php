@@ -957,7 +957,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
             $this->db->order_by($orderBY['column'], $orderBY['sorting']);
         }
         $query = $this->db->get();
-       // print_r($this->db->last_query());  exit;
+        //print_r($this->db->last_query());  exit;
         return $query->result_array();
     }
 
