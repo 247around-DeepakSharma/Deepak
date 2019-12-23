@@ -87,8 +87,8 @@
          <td style="max-width: 56px; word-wrap:break-word;"><?php echo $invoice['type']; ?></td>
          <td style="max-width: 56px; word-wrap:break-word;"><?php echo $invoice['sub_category']; ?></td>
          <td ><?php echo $invoice['num_bookings']."/".$invoice['parts_count']; ?></td>
-         <td><?php echo date("d/m/Y", strtotime($invoice['invoice_date'])). " <br/><br/> ".date("d/m/Y", strtotime($invoice['from_date'])). " to ". date("d/m/Y", strtotime($invoice['to_date'])); ?></td>
-          <td><?php echo date("d/m/Y", strtotime($invoice['due_date']));?></td>
+         <td><?php echo date("jS M, Y", strtotime($invoice['invoice_date'])). " <br/><br/> ".date("jS M, Y", strtotime($invoice['from_date'])). " to ". date("jS M, Y", strtotime($invoice['to_date'])); ?></td>
+          <td><?php echo date("jS M, Y", strtotime($invoice['due_date']));?></td>
          <td><?php echo $invoice['total_amount_collected'];?></td>
          <td><?php echo (sprintf("%.2f",($invoice['total_service_charge'] + $invoice['service_tax']))); $sum_of_total_service_charges +=  $invoice['total_service_charge'] + $invoice['service_tax']; ?></td>
          
