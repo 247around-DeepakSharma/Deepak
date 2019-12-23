@@ -286,7 +286,6 @@ function addBookingDialog(chanel = '') {
          alert('Not Allow to select multiple different type of service category');
          return false;
      }
-     return false;
     count_number++;
     var exp1 = /^[6-9]{1}[0-9]{9}$/;
     var email_exp =  /^\b[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b$/i;
