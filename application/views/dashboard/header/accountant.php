@@ -171,6 +171,7 @@
                                     <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process/price_sheet_upload">Upload Price Sheet</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/buyback_process/bb_order_search">Advanced Search</a></li>
                                     <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process/highest_quote_price_sheet_upload">Upload Highest Price Quote</a></li>
+                                    <li><a href="<?php echo base_url(); ?>buyback/upload_buyback_process/upload_reimbursement_file">Upload PO File</a></li>
                                 </ul>
                             </li>
                         </ul>
