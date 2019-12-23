@@ -55,8 +55,8 @@
                             <tr>
                                 <td class="text-center"><a target="_blank" href="<?php echo base_url();?>employee/invoice/invoice_summary/partner/<?php echo $row->vendor_partner_id;?>"><?php echo $row->public_name;?></td>
                                 <td class="text-center"><a target="_blank" href="<?php echo S3_WEBSITE_URL;?>invoices-excel/<?php echo $row->invoice_file_main;?>"><?php echo $row->invoice_id;?></a></td>
-                                <td class="text-center"><?php echo date('d/m/Y', strtotime($row->from_date));?></td>
-                                <td class="text-center"><?php echo date('d/m/Y', strtotime($row->to_date));?></td>
+                                <td class="text-center"><?php echo date('jS M, Y', strtotime($row->from_date));?></td>
+                                <td class="text-center"><?php echo date('jS M, Y', strtotime($row->to_date));?></td>
                                 <td class="text-center"><?php echo "<i class='fa fa-inr'></i> ".$row->amount_collected_paid;?></td>
                             </tr>
                             <?php }  
