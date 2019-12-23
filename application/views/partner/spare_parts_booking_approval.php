@@ -82,26 +82,31 @@
                                 </div>
                             <br>
                     </div>
-                    <br><br>
+                    <br><br><br>
                     <div class="col-md-12">
                                  <div class="form-group ">
                                     
                                     <label for="" class="col-md-4">Enter Remarks *</label>
                                     <div class="col-md-6">
-                                        <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
+                                        <textarea rows="1" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
                                     </div>
                                 </div>
                             <br>
                     </div>
                     <br>
+
                 </div>
                 <input type="hidden" id="url">
 
                 <input type="hidden" name="" value="<?php echo $this->session->userdata('partner_id'); ?>" id="modal_partner_id">
+                
                 <div class="modal-footer">
+                    <center>
                     <button type="button" class="btn btn-danger" onclick="reject_parts()">Cancel</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+                    </center>
                 </div>
+                
             </div>
         </div>
     </div>
@@ -142,10 +147,14 @@
                             </div>
                             <input type="hidden" id="appurl" value="">
                         </div>
+                
                  <div class="modal-footer">
+                <center>
                 <button type="submit" id="uploadButton" onclick="approve_parts();" class="btn btn-success">Approve</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+                </center>
                 </div>
+            
         </div>
         
 
