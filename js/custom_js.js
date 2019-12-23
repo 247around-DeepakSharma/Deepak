@@ -751,7 +751,6 @@ function checkPriceTagValidation(delivered_price_tags, partner_id){
                     array.push(others_flag);
          }
          if(partner_id === videocon_id){
-             alert(partner_id);
               if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
                 || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
                 || findInArray(delivered_price_tags, 'Repair - In Warranty (Customer Location)') > -1
