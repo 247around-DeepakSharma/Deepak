@@ -1101,17 +1101,18 @@ class Inventory extends CI_Controller {
                     $agent_name = $this->session->userdata('emp_name');
                     $agent_id   = $this->session->userdata('id');
                     $approval_agent_id = $agent_id;
-                    $approval_entity_type = _247AROUND_SF_STRING;
+                    $approval_entity_type = _247AROUND_SF_STRING;  
                     } else if($this->session->userdata('userType')=='partner'){ //// Partner Session ////
                     $agent_name = $this->session->userdata('partner_name');
-                    $agent_id   = $this->session->userdata('agent_id');
-                    $approval_agent_id = $agent_id;
-                    $approval_entity_type = _247AROUND_PARTNER_STRING;
+                    $agent_id   = $this->session->userdata('partner_id');
+                    $approval_agent_id = $this->session->userdata('partner_id');
+                    $approval_entity_type = _247AROUND_PARTNER_STRING; 
                     
                     }else{
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $agent_name = _247AROUND_DEFAULT_AGENT;  
                     }
+                    
                     $spare_data['approval_agent_id'] = $approval_agent_id;
                     $spare_data['approval_entity_type'] = $approval_entity_type;
 

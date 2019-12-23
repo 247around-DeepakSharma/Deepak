@@ -2644,8 +2644,8 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                 $in['agent_id'] = $this->session->userdata('id');
                 $in['agent_type'] = _247AROUND_SF_STRING;
                 }else{
-                $in['agent_id'] = $this->session->userdata('agent_id');
-                $in['agent_type'] = _247AROUND_PARTNER_STRING;
+                $in['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                $in['agent_type'] = _247AROUND_SF_STRING;
                 }
 
                 $in['is_wh'] = TRUE;
@@ -2688,9 +2688,9 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     $sc_entity_id = $this->session->userdata('service_center_id');
                     $p_entity_id = NULL;
                 } else if($this->session->userdata('partner_id')) { //// Partner Session Handle ////
-                    $agent_id = $this->session->userdata('agent_id');
+                    $agent_id = _247AROUND_DEFAULT_AGENT);
                     $sc_entity_id = NULL;
-                    $p_entity_id = $this->session->userdata('partner_id');
+                    $p_entity_id = _247AROUND;
                 }else{
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $p_entity_id = _247AROUND;
