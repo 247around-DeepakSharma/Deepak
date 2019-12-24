@@ -2262,7 +2262,7 @@ class Booking_model extends CI_Model {
             $this->db->where($like, null, false);
         }
 
-        if (!empty($post['column_order'][$post['order'][0]['column']]) && isset($post['order_performed_on_count'])) {
+        if (!empty($post['order']) && !empty($post['column_order'][$post['order'][0]['column']]) && isset($post['order_performed_on_count'])) {
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
         } else {
             $this->db->order_by('closed_date','DESC');
