@@ -6727,14 +6727,15 @@ class Partner extends CI_Controller {
     function get_spare_parts_booking_on_approval_table(){
       $agent_id = $this->session->userdata('agent_id');
       $finalArray = array();
-      $postData = $this->input->post();
+      $postData = $this->input->post(); 
       $state = 0;
       $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d'))",
-          "column_4"=>"spare_parts_details.parts_requested","column_7"=>"booking_details.state");    
+          "column_4"=>"DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(date_of_request, '%Y-%m-%d'))","column_7"=>"booking_details.state");     /// sorting by ageing 
       $order['column'] =$columnMappingArray["column_3"];
       $order['sorting'] = "desc";
       if(array_key_exists("order", $postData)){
             $order['column'] =$columnMappingArray["column_".$postData['order'][0]['column']];
+            //$order['sorting'] = $postData['order'][0]['dir'];
             $order['sorting'] = $postData['order'][0]['dir'];
         }
        $partner_id = $this->session->userdata('partner_id');

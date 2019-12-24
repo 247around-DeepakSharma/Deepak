@@ -205,7 +205,7 @@
                     exportOptions: {
                         columns: [0,1,2,3,4,5,6,7,8,9,11]
                     },
-                    title: 'partner_shipped_oow_part'
+                    title: 'Spare_Part_On_Approval'
                 }
             ],
             "ajax": {
@@ -218,7 +218,7 @@
             },
             "columnDefs": [
                 {
-                    "targets": [0,1,2,5,6,7,8,9,10,11,12], //first column / numbering column
+                    "targets": [0,1,2,3,5,6,7,8,9,10,11,12], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  
@@ -268,7 +268,7 @@
         var remarks =  $('#textarea').val();
         var reason = $.trim($('#spare_cancel_reason option:selected').text());
         var cancel_id = $('#spare_cancel_reason option:selected').val();
-        if(remarks !== "" && cancel_id !==""){
+        if(remarks !== "" && cancel_id !="Select Cancellation Reason"){
             var url =  $('#url').val();
             var partner_id =  $('#modal_partner_id').val();
              $(".loader").removeClass('hide');
@@ -293,7 +293,7 @@
                 }
             });
         } else {
-            alert("Please Enter Remarks");
+            alert("Please Enter Remarks and Cancellation Reason Both");
         }
     }
  
