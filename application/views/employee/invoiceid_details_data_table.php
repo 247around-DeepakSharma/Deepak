@@ -37,7 +37,7 @@
                 <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/invoices-excel/<?php echo $value['invoice_detailed_excel']; ?>" target="_blank"><?php echo $value['invoice_detailed_excel']; ?></a></td>
                 <td><?php echo $value['type']; ?></td>
                 <td><?php echo $value['num_bookings']; ?></td>
-                <td><?php echo date("d/m/Y", strtotime($value['from_date'])). " <b>to</b> ". date("d/m/Y", strtotime($value['to_date'])); ?></td>
+                <td><?php echo date("jS M, Y", strtotime($value['from_date'])). " <b>to</b> ". date("jS M, Y", strtotime($value['to_date'])); ?></td>
                 <td><?php echo ($value['total_service_charge'] + $value['service_tax']); ?></td>
                 <td><?php echo $value['total_additional_service_charge']; ?></td>
                 <td><?php echo ($value['parts_cost'] + $value['vat']); ?></td>

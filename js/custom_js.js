@@ -286,7 +286,6 @@ function addBookingDialog(chanel = '') {
          alert('Not Allow to select multiple different type of service category');
          return false;
      }
-     return false;
     count_number++;
     var exp1 = /^[6-9]{1}[0-9]{9}$/;
     var email_exp =  /^\b[A-Z0-9._%-]+@[A-Z0-9.-]+\.[A-Z]{2,4}\b$/i;
@@ -548,6 +547,10 @@ function addBookingDialog(chanel = '') {
         }
         //If Repeat Booking is Selected than Repeat Reason Should not be blank
         if(!is_sf_panel && !repeat_reason){
+            if($('#repeat_reason_holder').length)
+            {
+                $('#repeat_reason_holder').show();
+            }            
             alert("Please Write the Repeat Reason");
             return false;
         }
@@ -750,7 +753,6 @@ function checkPriceTagValidation(delivered_price_tags, partner_id){
                     array.push(others_flag);
          }
          if(partner_id === videocon_id){
-             alert(partner_id);
               if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
                 || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
                 || findInArray(delivered_price_tags, 'Repair - In Warranty (Customer Location)') > -1

@@ -3475,7 +3475,7 @@ class engineerApi extends CI_Controller {
             $booking_id = $requestData['booking_id'];
             $select = 'spare_parts_details.id, spare_parts_details.shipped_inventory_id, spare_parts_details.parts_requested, spare_parts_details.parts_requested_type, spare_parts_details.status, spare_parts_details.quantity, inventory_master_list.part_number';
             $response['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any($select, ['booking_id' => $booking_id, 'spare_parts_details.status != "'._247AROUND_CANCELLED.'"' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);        
-            $response['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',NULL, NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+            $response['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag',['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
             $this->jsonResponseString['response'] = $response;
             $this->sendJsonResponse(array('0000', "Consumption data found successfully"));
         }

@@ -472,6 +472,7 @@ class Spare_parts extends CI_Controller {
         $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,NULL,NULL, 'age_of_request', NULL, NULL,NULL,NULL,NULL);
         $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name',
             'parts_requested', 'users.name', 'users.phone_number', 'booking_details.request_type');
+        $post['where']['partners.spare_approval_by_partner'] = 0;
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
         $data = array();
@@ -704,7 +705,7 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>". $spare_list->part_number ."</span>";
         $row[] = $spare_list->quantity;
         $row[] = $spare_list->shipped_quantity;
-        $row[] = date("d/m/Y", strtotime($spare_list->defective_part_shipped_date));
+        $row[] = date("jS M, Y", strtotime($spare_list->defective_part_shipped_date));
         $row[] = $spare_list->courier_name_by_sf;
         $row[] = $spare_list->awb_by_sf;
         $row[] = "<i class='fa fa-inr'></i>".$spare_list->courier_charges_by_sf;
@@ -2291,17 +2292,28 @@ class Spare_parts extends CI_Controller {
         $sms_template_tag = '';
         $reason_text = '';
         
-        
-        if($this->session->userdata('emp_name')){
+        $spare_approval_date = date('Y-m-d');
+        $approval_agent_id = _247AROUND_DEFAULT_AGENT;
+        $approval_entity_type = _247AROUND_SF_STRING;
+        if($this->session->userdata('emp_name') && $this->session->userdata('userType')!='partner'){
             $agent_name = $this->session->userdata('emp_name');
             $agent_id   = $this->session->userdata('id');
-        } else {
-            $agent_id = _247AROUND_DEFAULT_AGENT;
-            $agent_name = _247AROUND_DEFAULT_AGENT;
+            $approval_agent_id = $agent_id;
+            $approval_entity_type = _247AROUND_SF_STRING;
+        } else if($this->session->userdata('userType')=='partner'){ //// Partner Session ////
+            $agent_name = $this->session->userdata('partner_name');
+            $agent_id   = $this->session->userdata('agent_id');
+            $approval_agent_id = $agent_id;
+            $approval_entity_type = _247AROUND_PARTNER_STRING;
                     
+        }else{
+            $agent_id = _247AROUND_DEFAULT_AGENT;
+            $agent_name = _247AROUND_DEFAULT_AGENT; 
+            $approval_agent_id = _247AROUND_DEFAULT_AGENT;
+            $approval_entity_type = _247AROUND_SF_STRING;  
         }
         
-        
+ 
         if (!empty($spare_id)) {
             
             $select = 'spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.shipped_quantity,spare_parts_details.entity_type,spare_parts_details.booking_id,spare_parts_details.parts_requested,spare_parts_details.parts_requested_type,spare_parts_details.status,'
@@ -2441,6 +2453,11 @@ class Spare_parts extends CI_Controller {
                     }
                 }
 
+                ///  setting approval date ,agent,entity type ////
+                $spare_data['spare_approval_date'] = $spare_approval_date;
+                $spare_data['approval_agent_id'] = $approval_agent_id;
+                $spare_data['approval_entity_type'] = $approval_entity_type;
+                
                 $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $spare_data);
 
                 if ($spare_data['status'] == SPARE_OOW_EST_REQUESTED ) {
@@ -2478,6 +2495,7 @@ class Spare_parts extends CI_Controller {
 
                         $pcb['estimate_cost'] = round((($inventory_master_details[0]['price'] + ( $inventory_master_details[0]['price'] * $inventory_master_details[0]['gst_rate']) / 100)*$data['quantity']),2);
                         $pcb['agent_id'] = $agent_id;
+
                         $this->asynchronous_lib->do_background_process($cb_url, $pcb);
                     }
                 } else {
@@ -2522,7 +2540,14 @@ class Spare_parts extends CI_Controller {
                         $next_action = $booking['next_action'] = $partner_status[3];
                     }
 
-                    $this->notify->insert_state_change($booking_id, PART_APPROVED_BY_ADMIN, $reason_text, $reason, $agent_id, $agent_name, $actor, $next_action, _247AROUND, NULL);
+                     $new_state=PART_APPROVED_BY_ADMIN;
+                     $state_change_partner_id = _247AROUND;
+                     if ($this->session->userdata('userType')=='partner') { //// Stare A/C to Session
+                     $new_state=PART_APPROVED_BY_ADMIN." from Partner Panel";
+                     $state_change_partner_id = $partner_id;                     
+                     }
+
+                    $this->notify->insert_state_change($booking_id, $new_state, $reason_text, $reason, $agent_id, $agent_name, $actor, $next_action, $state_change_partner_id, NULL);
                     if (!empty($booking_id)) {
                         $affctd_id = $this->booking_model->update_booking($booking_id, $booking);
                         if (!empty($spare_parts_details[0]['invoice_pic'])) {
@@ -2619,8 +2644,15 @@ class Spare_parts extends CI_Controller {
                 $in['sender_entity_type'] = _247AROUND_SF_STRING;
                 $in['stock'] = -$value['quantity'];
                 $in['booking_id'] = $value['booking_id'];
+
+                if ($this->session->userdata('userType')!='partner') {  //// Partner Session Handle ///
                 $in['agent_id'] = $this->session->userdata('id');
                 $in['agent_type'] = _247AROUND_SF_STRING;
+                }else{
+                $in['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                $in['agent_type'] = _247AROUND_SF_STRING;
+                }
+
                 $in['is_wh'] = TRUE;
                 $in['inventory_id'] = $data['shipped_inventory_id'];
                 $this->miscelleneous->process_inventory_stocks($in);
@@ -2655,15 +2687,19 @@ class Spare_parts extends CI_Controller {
             $ss = $this->service_centers_model->update_spare_parts($where, $sp_data);
             if ($ss) { //if($ss){
                 $is_requested = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, spare_parts_details.status, spare_parts_details.booking_id", array('booking_id' => $booking_id, 'status IN ("' . SPARE_SHIPPED_BY_PARTNER . '", "'
-                    . SPARE_PARTS_REQUESTED . '", "' . ESTIMATE_APPROVED_BY_CUSTOMER . '", "' . SPARE_OOW_EST_GIVEN . '", "' . SPARE_OOW_EST_REQUESTED . '") ' => NULL));
+                    . SPARE_PARTS_REQUESTED . '", "' . ESTIMATE_APPROVED_BY_CUSTOMER . '", "' . SPARE_PART_ON_APPROVAL . '", "' . SPARE_OOW_EST_GIVEN . '", "' . SPARE_OOW_EST_REQUESTED . '") ' => NULL));
                 if ($this->session->userdata('service_center_id')) {
                     $agent_id = $this->session->userdata('service_center_agent_id');
                     $sc_entity_id = $this->session->userdata('service_center_id');
                     $p_entity_id = NULL;
-                } else {
+                } else if($this->session->userdata('partner_id')) { //// Partner Session Handle ////
+                    $agent_id = _247AROUND_DEFAULT_AGENT);
+                    $sc_entity_id = NULL;
+                    $p_entity_id = _247AROUND;
+                }else{
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $p_entity_id = _247AROUND;
-                    $sc_entity_id = NULL;
+                    $sc_entity_id = NULL;   
                 }
                 if (empty($is_requested)) {
                     $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));

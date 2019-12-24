@@ -2769,11 +2769,15 @@ class Service_centers extends CI_Controller {
             $in['stock'] = -$value['quantity']; //-1;
             $in['booking_id'] = $value['booking_id'];
             if($this->session->userdata('userType') == 'service_center'){
-             $in['agent_id'] = $this->session->userdata('service_center_id');            
+             $in['agent_id'] = $this->session->userdata('service_center_id');
+             $in['agent_type'] = _247AROUND_SF_STRING;            
+            }else if($this->session->userdata('userType') == 'partner'){ ///// handle partner session /// abhishek///
+              $in['agent_id'] = _247AROUND_DEFAULT_AGENT;
+              $in['agent_type'] = _247AROUND_SF_STRING;   
             }else{
-              $in['agent_id'] = $this->session->userdata('agent_id');   
+              $in['agent_id'] = $this->session->userdata('agent_id');
+              $in['agent_type'] = _247AROUND_SF_STRING;   
             }
-            $in['agent_type'] = _247AROUND_SF_STRING;
             $in['is_wh'] = TRUE;
             $in['inventory_id'] = $data['shipped_inventory_id'];
 
@@ -2880,10 +2884,14 @@ class Service_centers extends CI_Controller {
                     $agent_id = $this->session->userdata('service_center_agent_id');
                     $sc_entity_id = $this->session->userdata('service_center_id');
                     $p_entity_id = NULL;
-                } else {
+                } else if($this->session->userdata('partner_id')){
+                    $agent_id = _247AROUND_DEFAULT_AGENT;
+                    $sc_entity_id = NULL;
+                    $p_entity_id = _247AROUND;
+                }else{
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $p_entity_id = _247AROUND;
-                    $sc_entity_id = NULL;
+                    $sc_entity_id = NULL;                  
                 }
                 if (empty($is_requested)) {
                     $booking['booking_date'] = date('d-m-Y', strtotime('+1 days'));
@@ -5484,10 +5492,16 @@ class Service_centers extends CI_Controller {
                 $service_center_id = $this->input->post("service_center_id");
                 $l_partner = NULL;
             }
-            else {
+            else if($this->session->userdata('partner_id')){  ////  handle partner session // abhishek
+                $agent_id = $this->input->post("agent_id");
+                $agent_name = $this->session->userdata('partner_name');
+                $service_center_id = NULL;
+                $l_partner = $this->session->userdata('partner_id');
+            }else{
                 $agent_id = _247AROUND_DEFAULT_AGENT;
                 $agent_name = _247AROUND_DEFAULT_AGENT_NAME;
                 $l_partner = _247AROUND;
+
             }
             $partner_id = $this->input->post("partner_id");
  

@@ -1918,7 +1918,7 @@ function remap_in_bom_map($remap_bom_array){
                     }
 
                     $main_data[$value['vendor_id']]['bankname'] = "";
-                    $main_data[$value['vendor_id']]['tdate'] = date('Y-m-d', strtotime(str_replace('/', '-', $this->input->post('transaction_date'))));
+                    $main_data[$value['vendor_id']]['tdate'] = $this->input->post('transaction_date');
                     $main_data[$value['vendor_id']]['transaction_id'] = $value['bank_transaction_id'];
                     $main_data[$value['vendor_id']]['transaction_mode'] = "Transfer";
                     $main_data[$value['vendor_id']]['agent_id'] = $this->session->userdata('id');
