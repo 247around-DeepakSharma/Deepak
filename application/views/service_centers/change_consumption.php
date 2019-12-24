@@ -28,7 +28,7 @@
     </div>    
 
     <div class="row form-group" style="padding: 10px;"> 
-        <div class="col-md-2"> 
+        <div class="col-md-3"> 
             <label>Remarks&nbsp;<span style="color:red;">*</span></label>
         </div>        
         <div class="col-md-9"> 
