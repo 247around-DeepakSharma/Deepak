@@ -2467,7 +2467,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
         $data['shipped_spare_by_wh_to_sf'] = $this->inventory_model->count_spare_parts($post);
         
         $post['where'] =  "spare_parts_details.partner_id = '" . 10 . "' AND spare_parts_details.entity_type = '"._247AROUND_SF_STRING."'"
-                . " AND approved_defective_parts_by_partner = '1' AND status = '"._247AROUND_COMPLETED."'";
+                . " AND (approved_defective_parts_by_partner = '1' OR defective_part_received_by_wh = 1 ) AND status = '"._247AROUND_COMPLETED."'";
         
         $data['shipped_spare_by_wh_to_partner'] = $this->inventory_model->count_spare_parts($post);
         
