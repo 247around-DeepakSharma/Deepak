@@ -20,10 +20,10 @@
                     $(function() {
                         $('input[name="daterange"]').daterangepicker({
                             locale: {
-                               format: 'DD/MM/YYYY'
+                               format: 'YYYY/MM/DD'
                             },
-                            startDate: '<?php echo date("01/m/Y", strtotime("-1 month")) ?>',
-                            endDate: '<?php echo date('d/m/Y', strtotime('last day of previous month')); ?>'
+                            startDate: '<?php echo date("Y/m/01", strtotime("-1 month")) ?>',
+                            endDate: '<?php echo date('Y-m-d', strtotime('last day of previous month')); ?>'
                         });
                     
                         });

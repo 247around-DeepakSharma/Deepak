@@ -947,17 +947,38 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         $this->db->join("spare_nrn_approval", "spare_parts_details.booking_id = spare_nrn_approval.booking_id","left");
         }
         $this->db->where($where);
+        /////  Search Functionality in new created tab7
+        if (!empty($_POST['search']['value'])) {
+             $like = "";
+             $post = $_POST;
+            if(array_key_exists("column_search", $post)){  // array_key_exists("column_search", $post)
+                foreach ($post['column_search'] as $key => $item) { // loop column 
+                    // if datatable send POST for search
+                    if ($key === 0) { // first loop
+                        $like .= "( " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+
+                    } else {
+                        $like .= " OR " . $item . " LIKE '%" . $post['search']['value'] . "%' ";
+
+                    }
+                }
+                $like .= ") ";
+            }
+            else{
+                $like .= "(booking_details.booking_id LIKE '%" . $post['search']['value'] . "%')";
+            }
+            $this->db->where($like, null, false);
+        }
+
+
         if($start > -1){
             $this->db->limit($start, $end);
         }
-        // if(0){
-        // //$this->db->group_by($group_by);
-        // }
+
         if(!empty($orderBY)){
             $this->db->order_by($orderBY['column'], $orderBY['sorting']);
         }
         $query = $this->db->get();
-       // print_r($this->db->last_query());  exit;
         return $query->result_array();
     }
 

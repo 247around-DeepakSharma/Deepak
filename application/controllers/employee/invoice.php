@@ -83,7 +83,7 @@ class Invoice extends CI_Controller {
         $vendor_partner = $this->input->post('vendor_partner');
         $partner_source_type = $this->input->post('partner_source_type');
         $sf_cp = json_decode($this->input->post('sf_cp'), true);
-        $due_date = date('Y-m-d', strtotime(str_replace('/', '-', $this->input->post('due_date'))));
+        $due_date = $this->input->post('due_date');
         if($vendor_type != ""){
             $sf_cp['active'] = $vendor_type;
         }
@@ -212,8 +212,8 @@ class Invoice extends CI_Controller {
             else{
                 $email_template = $this->booking_model->get_booking_email_template("resend_invoice"); 
                 $email_template_name = "resend_invoice";
-                $subject = vsprintf($email_template[4], array(date("d/m/Y", strtotime($start_date)), date("d/m/Y", strtotime($end_date))));
-                $message = vsprintf($email_template[0], array(date("d/m/Y", strtotime($start_date)), date("d/m/Y", strtotime($end_date))));
+                $subject = vsprintf($email_template[4], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
+                $message = vsprintf($email_template[0], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
             }
             // download invoice pdf file to local machine
             if ($vendor_partner == "vendor") {
@@ -361,7 +361,7 @@ class Invoice extends CI_Controller {
         $invoice_id_array['bankname'] = $this->input->post('bankname');
         $invoice_id_array['transaction_mode'] = $this->input->post('transaction_mode');
         $invoice_id_array['agent_id'] = $this->input->post('agent_id');
-        $invoice_id_array['tdate'] = date('Y-m-d', strtotime(str_replace('/', '-', $this->input->post('tdate'))));
+        $invoice_id_array['tdate'] = $this->input->post('tdate');
         $invoice_id_array['description'] = $this->input->post('description');
         $invoice_id_array['transaction_id'] = $this->input->post('transaction_id');
         $invoice_id_array['bank_txn_id'] = $this->input->post('bank_txn_id');
@@ -1708,8 +1708,8 @@ class Invoice extends CI_Controller {
     function generate_partner_invoices($partner_id, $date_range, $invoice_type,$agent_id) {
         log_message('info', __FUNCTION__ . '=> Entering... Partner Id' . $partner_id . " date range " . $date_range . " invoice type " . $invoice_type.' agent_id:'.$agent_id);
         $custom_date = explode("-", $date_range);
-        $from_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[0])));
-        $to_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[1])));
+        $from_date = $custom_date[0];
+        $to_date = $custom_date[1];
 
         if ($partner_id == "All") {
 //            $partner = $this->partner_model->get_all_partner_source();
@@ -1883,8 +1883,8 @@ class Invoice extends CI_Controller {
         $invoice_type = $details['invoice_type'];
 
         $custom_date = explode("-", $date_range);
-        $from_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[0])));
-        $to_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[1])));
+        $from_date = $custom_date[0];
+        $to_date = $custom_date[1];
        
         //Making invoice array
         $invoice = $this->invoices_model->get_vendor_bracket_invoices($vendor_id, $from_date, $to_date);
@@ -2117,8 +2117,8 @@ class Invoice extends CI_Controller {
 
         $vendor_id = $details['vendor_partner_id'];
         $custom_date = explode("-", $details['date_range']);
-        $from_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[0])));
-        $to_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[1])));
+        $from_date = $custom_date[0];
+        $to_date = $custom_date[1];
         $invoice_type = $details['invoice_type'];
         $invoices = $this->invoices_model->get_vendor_cash_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
 
@@ -2190,8 +2190,8 @@ class Invoice extends CI_Controller {
         log_message('info', __FUNCTION__ . " Entering...." . print_r($details, true) . ' is_regenerate: ' . $is_regenerate);
         $vendor_id = $details['vendor_partner_id'];
         $custom_date = explode("-", $details['date_range']);
-        $from_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[0])));
-        $to_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[1])));
+        $from_date = $custom_date[0];
+        $to_date = $custom_date[1];
         $invoice_type = $details['invoice_type'];
         $owner_email = "";
         $primary_contact_email = "";
@@ -2472,8 +2472,8 @@ class Invoice extends CI_Controller {
         log_message('info', __FUNCTION__ . "Entering..." . print_r($details, true) . ' is_regenerate: ' . $is_regenerate);
         $vendor_id = $details['vendor_partner_id'];
         $custom_date = explode("-", $details['date_range']);
-        $from_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[0])));
-        $to_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[1])));
+        $from_date = $custom_date[0];
+        $to_date = $custom_date[1];
         $invoice_type = $details['invoice_type'];
         $invoices = $this->invoices_model->get_vendor_foc_invoice($vendor_id, $from_date, $to_date, $is_regenerate);
 
@@ -2855,8 +2855,8 @@ class Invoice extends CI_Controller {
         $data['vendor_partner_id'] = $this->input->post('vendor_partner_id');
         $date_range = $this->input->post('from_date');
         $date_explode = explode("-", $date_range);
-        $data['from_date'] = date('Y-m-d', strtotime(str_replace('/', '-', trim($date_explode[0]))));
-        $data['to_date'] = date('Y-m-d', strtotime(str_replace('/', '-', trim($date_explode[1]))));
+        $data['from_date'] = trim($date_explode[0]);
+        $data['to_date'] = trim($date_explode[1]);
         $data['num_bookings'] = $this->input->post('num_bookings');
         $data['parts_count'] = $this->input->post('parts_count');
         $data['hsn_code'] = $this->input->post('hsn_code');
@@ -2873,8 +2873,8 @@ class Invoice extends CI_Controller {
         $data['courier_charges'] = $this->input->post("courier_charges");
         $data['upcountry_price'] = $this->input->post("upcountry_price");
         $data['remarks'] = $this->input->post("remarks");
-        $data['due_date'] = date('Y-m-d', strtotime(str_replace('/', '-', $this->input->post('due_date'))));
-        $data['invoice_date'] = date('Y-m-d', strtotime(str_replace('/', '-', $this->input->post('invoice_date'))));
+        $data['due_date'] = date('Y-m-d', strtotime($this->input->post('due_date')));
+        $data['invoice_date'] = date('Y-m-d', strtotime($this->input->post('invoice_date')));
         $data['packaging_quantity'] = $this->input->post('packaging_quantity');
         $data['packaging_rate'] = $this->input->post('packaging_rate');
         $data['miscellaneous_charges'] = $this->input->post('miscellaneous_charges');
@@ -3341,8 +3341,8 @@ class Invoice extends CI_Controller {
           
             $date_range = $this->input->post('daterange');
             $custom_date = explode("-", $date_range);
-            $from_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[0])));
-            $to_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[1])));
+            $from_date = $custom_date[0];
+            $to_date = $custom_date[1];
             $partner_id = $this->input->post('partner_id');
             $amount = $this->input->post('service_charge');
             $description = $this->input->post('invoice_type');
@@ -3511,7 +3511,7 @@ class Invoice extends CI_Controller {
         $data['partner_vendor_id'] = $this->input->post('partner_vendor_id');
         $data['credit_debit'] = $this->input->post("credit_debit");
         $data['bankname'] = $this->input->post("bankname");
-        $data['transaction_date'] = date('Y-m-d', strtotime(str_replace('/', '-', $this->input->post("tdate"))));
+        $data['transaction_date'] = date("Y-m-d", strtotime($this->input->post("tdate")));
         $data['tds_amount'] = $this->input->post('tds_amount');
         $amount = $this->input->post("amount");
         if ($data['credit_debit'] == "Credit") {
@@ -4109,7 +4109,7 @@ class Invoice extends CI_Controller {
                         'estimate_cost_given_date IS NOT NULL' => NULL,
                         'spare_parts_details.part_warranty_status' => 2,
                         'defective_part_required' => 1,
-                        'approved_defective_parts_by_partner' => 1,
+                        '(approved_defective_parts_by_partner = 1 OR defective_part_received_by_wh = 1) ' => NULL,
                         'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'") ' => NULL,
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
                     true);
@@ -4696,8 +4696,8 @@ class Invoice extends CI_Controller {
                         $invoice['total_amount_collected'] = $total_amount_collected;
 
                         $invoice['type'] = "Parts";
-                        $invoice['invoice_date'] = $invoice['due_date'] = date('Y-m-d', strtotime(str_replace('/', '-', $invoice_date)));
-                        $invoice['from_date'] = $invoice['to_date'] = date('Y-m-d', strtotime(str_replace('/', '-', $invoice_date)));
+                        $invoice['invoice_date'] = $invoice['due_date'] = date("Y-m-d", strtotime($invoice_date));
+                        $invoice['from_date'] = $invoice['to_date'] = date("Y-m-d", strtotime($invoice_date));
                         $invoice['type_code'] = "B";
                         $invoice['agent_id'] = $this->session->userdata('id');
                         $invoice['vendor_partner_id'] =$partner_id;
@@ -4844,8 +4844,8 @@ class Invoice extends CI_Controller {
             $reference_number = $this->input->post('reference_numner');
 
             $custom_date = explode("-", $this->input->post('invoice_date'));
-            $sd = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[0])));
-            $ed = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[1])));
+            $sd = $custom_date[0];
+            $ed = $custom_date[1];
 
             $invoice_date = date('Y-m-d');
             $hsn_code = "";
@@ -5265,13 +5265,13 @@ class Invoice extends CI_Controller {
             if ($this->form_validation->run()) {
                 $invoice = $this->input->post('invoice');
                 $main['type_code'] = $this->input->post('around_type');
-                $main['invoice_date'] = date('Y-m-d', strtotime(str_replace('/', '-', $this->input->post('invoice_date'))));
-                $main['due_date'] = date('Y-m-d', strtotime(str_replace('/', '-', $this->input->post('due_date'))));
+                $main['invoice_date'] = date('Y-m-d', strtotime($this->input->post('invoice_date')));
+                $main['due_date'] = date('Y-m-d', strtotime($this->input->post('due_date')));
                 $main['type'] = $this->input->post('type');
                 $date_range = $this->input->post('from_date');
                 $date_explode = explode("-", $date_range);
-                $main['from_date'] = date('Y-m-d', strtotime(str_replace('/', '-', trim($date_explode[0]))));
-                $main['to_date'] = date('Y-m-d', strtotime(str_replace('/', '-', trim($date_explode[1]))));
+                $main['from_date'] = trim($date_explode[0]);
+                $main['to_date'] = trim($date_explode[1]);
                 $main['remarks'] = $this->input->post("remarks");
                 $main['vertical'] = $this->input->post("vertical");
                 $main['category'] = $this->input->post("category");
@@ -5619,8 +5619,8 @@ class Invoice extends CI_Controller {
           
             $date_range = $this->input->post('daterange');
             $custom_date = explode("-", $date_range);
-            $from_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[0])));
-            $to_date = date('Y-m-d', strtotime(str_replace('/', '-', $custom_date[1])));
+            $from_date = $custom_date[0];
+            $to_date = $custom_date[1];
             $partner_id = $this->input->post('partner_id');
             $amount = $this->input->post('service_charge');
             $description = $this->input->post('invoice_type');

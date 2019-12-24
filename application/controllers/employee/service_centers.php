@@ -2772,8 +2772,8 @@ class Service_centers extends CI_Controller {
              $in['agent_id'] = $this->session->userdata('service_center_id');
              $in['agent_type'] = _247AROUND_SF_STRING;            
             }else if($this->session->userdata('userType') == 'partner'){ ///// handle partner session /// abhishek///
-              $in['agent_id'] = $this->session->userdata('agent_id');
-              $in['agent_type'] = _247AROUND_PARTNER_STRING;   
+              $in['agent_id'] = _247AROUND_DEFAULT_AGENT;
+              $in['agent_type'] = _247AROUND_SF_STRING;   
             }else{
               $in['agent_id'] = $this->session->userdata('agent_id');
               $in['agent_type'] = _247AROUND_SF_STRING;   
@@ -2885,9 +2885,9 @@ class Service_centers extends CI_Controller {
                     $sc_entity_id = $this->session->userdata('service_center_id');
                     $p_entity_id = NULL;
                 } else if($this->session->userdata('partner_id')){
-                    $agent_id = $this->session->userdata('agent_id');
+                    $agent_id = _247AROUND_DEFAULT_AGENT;
                     $sc_entity_id = NULL;
-                    $p_entity_id = $this->session->userdata('partner_id');
+                    $p_entity_id = _247AROUND;
                 }else{
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $p_entity_id = _247AROUND;
@@ -3192,7 +3192,7 @@ class Service_centers extends CI_Controller {
         log_message('info', __FUNCTION__.' Used by :'.$this->session->userdata('service_center_name'));
         $service_center_id = $this->session->userdata('service_center_id');
         $where = "spare_parts_details.service_center_id = '".$service_center_id."' "
-                . " AND approved_defective_parts_by_partner = '1' ";
+                . " AND (approved_defective_parts_by_partner = '1' or defective_part_received_by_wh = 1 ) ";
           
         $config['base_url'] = base_url() . 'service_center/get_approved_defective_parts_booking';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
@@ -6535,7 +6535,7 @@ class Service_centers extends CI_Controller {
                         'estimate_cost_given_date IS NOT NULL' => NULL,
                         'spare_parts_details.part_warranty_status' => 2,
                         'defective_part_required' => 1,
-                        'approved_defective_parts_by_partner' => 1,
+                        '(approved_defective_parts_by_partner = 1 or defective_part_received_by_wh = 1)' => NULL,
                         'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'")' => NULL,
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
                     true);
@@ -6607,11 +6607,17 @@ class Service_centers extends CI_Controller {
         $rejection_reason = base64_decode(urldecode($status));
         $decode_partner_id = base64_decode(urldecode($partner_id));
         
-        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_REJECTED,
-            'remarks_defective_part_by_wh' => $rejection_reason,
-            'defective_part_rejected_by_wh'=> 1,
-            'defective_part_received_by_wh' => '0'));
+        $this->validate_reject_defective_part_pic_file();
         
+        $data = array(
+            'status' => DEFECTIVE_PARTS_REJECTED,
+            'remarks_defective_part_by_wh' => $rejection_reason,
+            'defective_part_rejected_by_wh' => 1,
+            'defective_part_received_by_wh' => '0',
+            'rejected_defective_part_pic_by_wh' => $this->input->post('rejected_defective_part_pic_by_wh')
+        );
+        
+        $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), $data);        
         if ($response) {
             log_message('info', __FUNCTION__ . " Sucessfully updated Table " . $booking_id
                     . " SF Id" . $this->session->userdata('service_center_id'));
@@ -6648,6 +6654,34 @@ class Service_centers extends CI_Controller {
         }
     }
     
+    
+    /*
+     * @desc: This function is used to validate Received defective part on WH.
+     * @params: void
+     * @return: boolean
+     */
+    function validate_reject_defective_part_pic_file() {
+        $rejected_defective_pic_exist = $this->input->post('rejected_defective_part_pic_by_wh_exist');
+        if (!empty($_FILES['rejected_defective_part_pic_by_wh']['tmp_name'])) {
+            $allowedExts = array("png", "jpg", "jpeg", "JPG", "JPEG", "PNG", "PDF", "pdf");
+            $random_number = rand(0, 9);
+            $part_image_receipt = $this->miscelleneous->upload_file_to_s3($_FILES["rejected_defective_part_pic_by_wh"], "rejected_defective_part_pic_by_wh", $allowedExts, $random_number, "misc-images", "rejected_defective_part_pic_by_wh");
+            if ($part_image_receipt) {
+                return true;
+            } else {
+                $this->form_validation->set_message('validate_reject_defective_part_pic_file', 'Received defective pic by WH, File size or file type is not supported. Allowed extentions are "png", "jpg", "jpeg" and "pdf". '
+                        . 'Maximum file size is 5 MB.');
+                return false;
+            }
+        } else if (!empty($rejected_defective_pic_exist)) {
+            $_POST['receive_defective_pic_by_wh'] = $received_defective_pic_exist;
+            return true;
+        } else {
+            $this->form_validation->set_message('validate_reject_defective_part_pic_file', 'Please Upload Received defective Image');
+            return FALSE;
+        }
+    }
+
     
     /**
      * @desc: This function is used to download courier manifest/address for selected bookings 

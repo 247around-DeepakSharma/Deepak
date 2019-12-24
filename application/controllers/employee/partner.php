@@ -6727,14 +6727,15 @@ class Partner extends CI_Controller {
     function get_spare_parts_booking_on_approval_table(){
       $agent_id = $this->session->userdata('agent_id');
       $finalArray = array();
-      $postData = $this->input->post();
+      $postData = $this->input->post(); 
       $state = 0;
       $columnMappingArray = array("column_1"=>"spare_parts_details.booking_id","column_3"=>"DATEDIFF(CURRENT_TIMESTAMP,  STR_TO_DATE(date_of_request, '%Y-%m-%d'))",
-          "column_4"=>"GROUP_CONCAT(DISTINCT spare_parts_details.parts_requested)","column_7"=>"booking_details.state");    
+          "column_4"=>"DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(date_of_request, '%Y-%m-%d'))","column_7"=>"booking_details.state");     /// sorting by ageing 
       $order['column'] =$columnMappingArray["column_3"];
       $order['sorting'] = "desc";
       if(array_key_exists("order", $postData)){
             $order['column'] =$columnMappingArray["column_".$postData['order'][0]['column']];
+            //$order['sorting'] = $postData['order'][0]['dir'];
             $order['sorting'] = $postData['order'][0]['dir'];
         }
        $partner_id = $this->session->userdata('partner_id');
@@ -6787,13 +6788,11 @@ class Partner extends CI_Controller {
                     $tempArray[] =  $row['state'];
                     $tempArray[] =  $row['remarks_by_sc'];
                     $bookingIdTemp = "'".$row['booking_id']."'";                    
-                    $tempString3 =  '<a href="#" data-toggle="modal" id="spare_parts'.$row['spare_id'].'" data-url='.base_url().'employee/inventory/update_action_on_spare_parts/'.$row['spare_id'] . '/' . $row['booking_id'].'/CANCEL_PARTS data-booking_id="'.$row['booking_id'].'" data-target="#myModal2" class="btn btn-sm btn-danger open-adminremarks" title="Cancel" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Reject</a>';
+                    $tempString3 =  '<a href="#" data-toggle="modal" id="spare_parts'.$row['spare_id'].'" data-url='.base_url().'employee/inventory/update_action_on_spare_parts/'.$row['spare_id'] . '/' . $row['booking_id'].'/CANCEL_PARTS data-booking_id="'.$row['booking_id'].'" data-target="#myModal2707" class="btn btn-sm btn-danger open-adminremarks1" title="Cancel" style="color:#fff;margin: 0px;padding: 5px 14.4px;" >Cancel</a>';
                      
                      $tempArray[] =  $tempString3;                       
-                      $tempArray[] =  "<a href='#' class='btn btn-info approve_part' data-warranty='".$row['part_warranty_status']."' data-url=".base_url()."employee/spare_parts/spare_part_on_approval/".$row['spare_id'] . "/" . $row['booking_id']."  data-toggle='modal'  data-target='#myModal77' data-spare_id='".$row['booking_id']."'  data-booking_id='".$row['booking_id']."' >Approve</a>";
+                      $tempArray[] =  "<a href='#' class='btn btn-info approve_part' data-warranty='".$row['part_warranty_status']."' data-url=".base_url()."employee/spare_parts/spare_part_on_approval/".$row['spare_id'] . "/" . $row['booking_id']."  data-toggle='modal'  data-target='#myModal777' data-spare_id='".$row['booking_id']."'  data-booking_id='".$row['booking_id']."' >Approve</a>";
 
-
-                      http://testaroundcrm.247around.com/employee/spare_parts/spare_part_on_approval/96347/LP-5213151908281
 
                       $finalArray[] = $tempArray;
            }
