@@ -581,7 +581,7 @@
                                         echo 'has-error';
                                         } ?>">
                                         <label for="spare_approval_by_partner" class="col-md-4">Spare Approval By Partner</label>
-                                        <div class="col-md-8">
+                                        <div class="col-md-1">
                                             <input type="checkbox" class="form-control"  name="spare_approval_by_partner"   <?php if (isset($query[0]['spare_approval_by_partner'])) {
                                                 if($query[0]['spare_approval_by_partner'] == '1'){ echo "checked"; }
                                                 } ?> >

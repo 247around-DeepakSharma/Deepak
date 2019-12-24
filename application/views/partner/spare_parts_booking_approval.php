@@ -205,7 +205,7 @@
                     exportOptions: {
                         columns: [0,1,2,3,4,5,6,7,8,9,11]
                     },
-                    title: 'partner_shipped_oow_part'
+                    title: 'Spare_Part_On_Approval'
                 }
             ],
             "ajax": {
@@ -218,7 +218,7 @@
             },
             "columnDefs": [
                 {
-                    "targets": [0,1,2,5,6,7,8,9,10,11,12], //first column / numbering column
+                    "targets": [0,1,2,3,5,6,7,8,9,10,11,12], //first column / numbering column
                     "orderable": false //set not orderable
                 }
             ],  

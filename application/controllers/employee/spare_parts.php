@@ -2311,7 +2311,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     
         }else{
             $agent_id = _247AROUND_DEFAULT_AGENT;
-            $agent_name = _247AROUND_DEFAULT_AGENT; 
+            $agent_name = _247AROUND_DEFAULT_AGENT_NAME; 
             $approval_agent_id = _247AROUND_DEFAULT_AGENT;
             $approval_entity_type = _247AROUND_SF_STRING;  
         }
@@ -2694,7 +2694,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
                     $sc_entity_id = $this->session->userdata('service_center_id');
                     $p_entity_id = NULL;
                 } else if($this->session->userdata('partner_id')) { //// Partner Session Handle ////
-                    $agent_id = _247AROUND_DEFAULT_AGENT);
+                    $agent_id = _247AROUND_DEFAULT_AGENT;
                     $sc_entity_id = NULL;
                     $p_entity_id = _247AROUND;
                 }else{
