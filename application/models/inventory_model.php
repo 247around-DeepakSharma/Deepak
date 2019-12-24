@@ -1564,6 +1564,7 @@ class Inventory_model extends CI_Model {
         $this->db->from('inventory_ledger');
         $this->db->join('courier_details','inventory_ledger.courier_id = courier_details.id');
         $this->db->join('spare_parts_details','inventory_ledger.booking_id = spare_parts_details.booking_id');
+        $this->db->join('inventory_master_list as im','im.inventory_id = spare_parts_details.shipped_inventory_id','left');
         $query = $this->db->get();
         return $query->result_array();
     }
