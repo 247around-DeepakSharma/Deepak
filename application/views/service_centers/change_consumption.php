@@ -28,7 +28,7 @@
     </div>    
 
     <div class="row form-group" style="padding: 10px;"> 
-        <div class="col-md-2"> 
+        <div class="col-md-3"> 
             <label>Remarks&nbsp;<span style="color:red;">*</span></label>
         </div>        
         <div class="col-md-9"> 
@@ -95,13 +95,14 @@
                 alert('Please consumption reason.');
                 return false;
             }
-           */
+           
 
             if($("#received_defective_part_pic_by_wh").val() == '' || $("#received_defective_part_pic_by_wh").val() == null) {
                 e.stopImmediatePropagation(); 
                 alert('Please choose defective image.');
                 return false;
             }
+        */
 
             if($('#consumption-remarks').val() == '' || $('#consumption-remarks').val() == null) {
                 e.stopImmediatePropagation(); // to prevent multiple alerts

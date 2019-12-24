@@ -431,6 +431,7 @@
                                         <th class="text-center" data-orderable="false">Shipped Part Type</th>
                                         <th class="text-center" data-orderable="false">Shipped Part</th>
                                         <th class="text-center" data-orderable="false">Shipped Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Consumption Reason</th>
                                         <th class="text-center" data-orderable="false">Booking Type</th>
                                         <th class="text-center" data-orderable="false">Partner Shipped Date</th>
                                         <th class="text-center" data-orderable="false">SF Received Date</th>

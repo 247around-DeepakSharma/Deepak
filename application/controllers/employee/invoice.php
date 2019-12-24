@@ -4130,7 +4130,7 @@ class Invoice extends CI_Controller {
                         'estimate_cost_given_date IS NOT NULL' => NULL,
                         'spare_parts_details.part_warranty_status' => 2,
                         'defective_part_required' => 1,
-                        'approved_defective_parts_by_partner' => 1,
+                        '(approved_defective_parts_by_partner = 1 OR defective_part_received_by_wh = 1) ' => NULL,
                         'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'") ' => NULL,
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
                     true);
