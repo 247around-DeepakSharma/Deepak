@@ -3156,9 +3156,9 @@ class Service_centers extends CI_Controller {
         $this->checkUserSession();
         log_message('info', __FUNCTION__ . ' Used by :' . $this->session->userdata('service_center_name'));
         $service_center_id = $this->session->userdata('service_center_id');
-        $where = "spare_parts_details.service_center_id = '" . $service_center_id . "' "
-                . " AND approved_defective_parts_by_partner = '1' ";
-
+        $where = "spare_parts_details.service_center_id = '".$service_center_id."' "
+                . " AND (approved_defective_parts_by_partner = '1' or defective_part_received_by_wh = 1 ) ";
+          
         $config['base_url'] = base_url() . 'service_center/get_approved_defective_parts_booking';
         $total_rows = $this->partner_model->get_spare_parts_booking_list($where, false, false, false);
         $config['total_rows'] = $total_rows[0]['total_rows'];
@@ -6444,7 +6444,7 @@ function do_multiple_spare_shipping(){
                         'estimate_cost_given_date IS NOT NULL' => NULL,
                         'spare_parts_details.part_warranty_status' => 2,
                         'defective_part_required' => 1,
-                        'approved_defective_parts_by_partner' => 1,
+                        '(approved_defective_parts_by_partner = 1 or defective_part_received_by_wh = 1)' => NULL,
                         'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'")' => NULL,
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
                     true);

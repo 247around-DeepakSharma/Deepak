@@ -2163,7 +2163,7 @@ class invoices_model extends CI_Model {
                 AND sp.booking_id = bd.booking_id
                 AND bd.closed_date >=  '$from_date'
                 AND bd.closed_date <  '$to_date'
-                AND `approved_defective_parts_by_partner` = 1
+                AND (`approved_defective_parts_by_partner` = 1 OR defective_part_received_by_wh = 1)
                 AND around_pickup_from_service_center = 0
                 $invoice_check
                 AND courier_charges_by_sf > 0 
@@ -2205,7 +2205,7 @@ class invoices_model extends CI_Model {
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."', '".DEFECTIVE_PARTS_RECEIVED."', '".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."')
                 AND bd.closed_date >=  '$from_date'
                 AND bd.closed_date <  '$to_date'
-                AND `approved_defective_parts_by_partner` = 1
+                AND (`approved_defective_parts_by_partner` = 1 OR defective_part_received_by_wh = 1 )
                 AND partner_courier_invoice_id IS NULL
                 AND awb_by_sf IS NOT NULL
                 GROUP BY awb,sp.entity_type HAVING courier_charges_by_sf > 0 
