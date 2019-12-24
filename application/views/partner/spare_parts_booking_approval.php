@@ -268,7 +268,7 @@
         var remarks =  $('#textarea').val();
         var reason = $.trim($('#spare_cancel_reason option:selected').text());
         var cancel_id = $('#spare_cancel_reason option:selected').val();
-        if(remarks !== "" && cancel_id !==""){
+        if(remarks !== "" && cancel_id !="Select Cancellation Reason"){
             var url =  $('#url').val();
             var partner_id =  $('#modal_partner_id').val();
              $(".loader").removeClass('hide');
@@ -293,7 +293,7 @@
                 }
             });
         } else {
-            alert("Please Enter Remarks");
+            alert("Please Enter Remarks and Cancellation Reason Both");
         }
     }
  
