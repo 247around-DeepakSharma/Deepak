@@ -95,13 +95,14 @@
                 alert('Please consumption reason.');
                 return false;
             }
-           */
+           
 
             if($("#received_defective_part_pic_by_wh").val() == '' || $("#received_defective_part_pic_by_wh").val() == null) {
                 e.stopImmediatePropagation(); 
                 alert('Please choose defective image.');
                 return false;
             }
+        */
 
             if($('#consumption-remarks').val() == '' || $('#consumption-remarks').val() == null) {
                 e.stopImmediatePropagation(); // to prevent multiple alerts

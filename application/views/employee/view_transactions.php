@@ -25,7 +25,7 @@
                <tr id="<?php echo "row".$count;?>">
                <td><?php echo $count;$count++;?></td>
                <td><?php echo $value['name']; ?></td>
-               <td><?php echo date("d/m/Y", strtotime($value['transaction_date'])); ?></td>
+               <td><?php echo $value['transaction_date']; ?></td>
                <td><?php echo $value['description']; ?></td>
                <td><?php echo round($value['credit_amount'],0); $credit_amount += intval($value['credit_amount']); ?></td>       
                <td><?php echo round($value['debit_amount'],0);  $debit_amount += intval($value['debit_amount']); ?></td>

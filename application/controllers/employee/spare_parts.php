@@ -710,7 +710,7 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>". $spare_list->part_number ."</span>";
         $row[] = $spare_list->quantity;
         $row[] = $spare_list->shipped_quantity;
-        $row[] = date("d/m/Y", strtotime($spare_list->defective_part_shipped_date));
+        $row[] = date("jS M, Y", strtotime($spare_list->defective_part_shipped_date));
         $row[] = $spare_list->courier_name_by_sf;
         $row[] = $spare_list->awb_by_sf;
         $row[] = "<i class='fa fa-inr'></i>".$spare_list->courier_charges_by_sf;
@@ -2655,8 +2655,8 @@ class Spare_parts extends CI_Controller {
                 $in['agent_id'] = $this->session->userdata('id');
                 $in['agent_type'] = _247AROUND_SF_STRING;
                 }else{
-                $in['agent_id'] = $this->session->userdata('agent_id');
-                $in['agent_type'] = _247AROUND_PARTNER_STRING;
+                $in['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                $in['agent_type'] = _247AROUND_SF_STRING;
                 }
 
                 $in['is_wh'] = TRUE;
@@ -2699,9 +2699,9 @@ class Spare_parts extends CI_Controller {
                     $sc_entity_id = $this->session->userdata('service_center_id');
                     $p_entity_id = NULL;
                 } else if($this->session->userdata('partner_id')) { //// Partner Session Handle ////
-                    $agent_id = $this->session->userdata('agent_id');
+                    $agent_id = _247AROUND_DEFAULT_AGENT);
                     $sc_entity_id = NULL;
-                    $p_entity_id = $this->session->userdata('partner_id');
+                    $p_entity_id = _247AROUND;
                 }else{
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $p_entity_id = _247AROUND;

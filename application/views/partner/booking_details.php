@@ -297,7 +297,7 @@
                                 $parts_shipped = false;
                                 $defective_parts_shipped = FALSE; ?>
                                     <div class="col-md-12 col-sm-12 col-xs-12">
-                                        <div class="x_panel">
+                                        <div class="x_panel" style="overflow: auto;">
                                             <div class="x_title">
                                                 <h2>Spare Parts Requested By SF</h2>
                                                 <div class="clearfix"></div>

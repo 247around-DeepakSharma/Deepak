@@ -1101,17 +1101,18 @@ class Inventory extends CI_Controller {
                     $agent_name = $this->session->userdata('emp_name');
                     $agent_id   = $this->session->userdata('id');
                     $approval_agent_id = $agent_id;
-                    $approval_entity_type = _247AROUND_SF_STRING;
+                    $approval_entity_type = _247AROUND_SF_STRING;  
                     } else if($this->session->userdata('userType')=='partner'){ //// Partner Session ////
                     $agent_name = $this->session->userdata('partner_name');
-                    $agent_id   = $this->session->userdata('agent_id');
-                    $approval_agent_id = $agent_id;
-                    $approval_entity_type = _247AROUND_PARTNER_STRING;
+                    $agent_id   = $this->session->userdata('partner_id');
+                    $approval_agent_id = $this->session->userdata('partner_id');
+                    $approval_entity_type = _247AROUND_PARTNER_STRING; 
                     
                     }else{
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $agent_name = _247AROUND_DEFAULT_AGENT;  
                     }
+                    
                     $spare_data['approval_agent_id'] = $approval_agent_id;
                     $spare_data['approval_entity_type'] = $approval_entity_type;
 
@@ -1555,7 +1556,7 @@ class Inventory extends CI_Controller {
         $data['capacity'] = $unit_details[0]['appliance_capacity'];
         $data['remarks'] = $this->input->post("estimate_remarks");
         $data['order_id'] = $booking_details[0]->order_id;
-        $data['date'] = date("d/m/Y");
+        $data['date'] = date("jS M, Y");
         $data['company_name'] = $partner_data[0]['company_name'];
         $data['company_address'] = $partner_data[0]['address'] . ", " . $partner_data[0]['district'] . ", Pincode " . $partner_data[0]['state'];
 
@@ -1644,7 +1645,7 @@ class Inventory extends CI_Controller {
                 'repeat' => false,
                 'data' => $data,
                 'format' => array(
-                    'date' => array('datetime' => 'd/m/Y')
+                    'date' => array('datetime' => 'd/M/Y')
                 )
             ),
             array(
@@ -8066,7 +8067,6 @@ class Inventory extends CI_Controller {
      */
     function get_spare_invoice_details(){
         $spare_id_array = $this->input->post("spare_id_array");
-        $invoice_details = array();
         if(!empty($spare_id_array)){
           $spare_ids = implode(',',$spare_id_array);
           $select = 'spare_parts_details.booking_id,oow_spare_invoice_details.id,oow_spare_invoice_details.invoice_id,oow_spare_invoice_details.spare_id,oow_spare_invoice_details.invoice_date,oow_spare_invoice_details.hsn_code,oow_spare_invoice_details.invoice_amount,oow_spare_invoice_details.gst_rate,oow_spare_invoice_details.invoice_pdf';

@@ -23,14 +23,14 @@
                                 <td style="width: 290px;"><?php echo $invoice_details[0]['vendor_partner_name']; ?></td>
                                 
                                 <td style="width: 185px;"><b>Invoice Date</b></td>
-                                <td style="width: 290px;"><?php echo date("d/m/Y", strtotime($invoice_details[0]['invoice_date'])); ?></td>
+                                <td style="width: 290px;"><?php echo date("jS M, Y", strtotime($invoice_details[0]['invoice_date'])); ?></td>
                             </tr>
                             <tr>
                                 <td style="width: 185px;"><b>Period</b></td>
-                                <td style="width: 290px;"><?php echo date("d/m/Y", strtotime($invoice_details[0]['from_date']))." to ".date("d/m/Y", strtotime($invoice_details[0]['to_date'])); ?></td>
+                                <td style="width: 290px;"><?php echo date("jS M, Y", strtotime($invoice_details[0]['from_date']))." to ".date("jS M, Y", strtotime($invoice_details[0]['to_date'])); ?></td>
                                 
                                 <td style="width: 185px;"><b>Due Date</b></td>
-                                <td style="width: 290px;"><?php echo date("d/m/Y", strtotime($invoice_details[0]['due_date'])); ?></td>
+                                <td style="width: 290px;"><?php echo date("jS M, Y", strtotime($invoice_details[0]['due_date'])); ?></td>
                             </tr>
                             <tr>
                                 <td style="width: 185px;"><b>Vertical</b></td>
