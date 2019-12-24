@@ -256,12 +256,13 @@ if(flag) {
         $('#multiple_received_part_consumption_data').val(JSON.stringify({consumed_status_id:$('#spare_consumption_status').val(), remarks:$('#multiple-consumption-remarks').val()}));
         
         formData.append('consumption_data', $('#multiple_received_part_consumption_data').val());
-        
+        /*
         if($("#received_defective_part_pic_by_wh").val() == '' || $("#received_defective_part_pic_by_wh").val() == null) {
             e.stopImmediatePropagation(); 
             alert('Please choose defective image.');
             return false;
         }
+        */
         
         if($('#multiple-consumption-remarks').val() == '' || $('#multiple-consumption-remarks').val() == null) {
             e.stopImmediatePropagation(); // to prevent multiple alerts
