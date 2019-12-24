@@ -30,10 +30,10 @@
                     <div class="clearfix"></div>
                     
                 </div>
-                <input type="text" id="booking_id_search_spare" onchange="booking_search_spare()" style="float: right;margin-bottom: -32px;border: 1px solid #ccc;padding: 5px;z-index: 100;position: inherit;" placeholder="Search">
+                 
                 <div class="x_content">
                     <form target="_blank"  action="<?php echo base_url(); ?>partner/print_all" name="fileinfo1"  method="POST" enctype="multipart/form-data">
-                        <table class="table table-bordered table-hover table-striped" id="spare_table" style=" z-index: -1;position: static;">
+                        <table class="table table-bordered table-hover table-striped" id="spare_approval_table" style=" z-index: -1;position: static;">
                             <thead>
                                 <tr>
                                     <th class="text-center">S.No</th>
@@ -48,7 +48,7 @@
                                     <th class="text-center">Serial Number</th>
                                     <th class="text-center">State</th>
                                     <th class="text-center">Problem Description</th>
-                                    <th class="text-center">Action</th>
+                                    <th class="text-center">Cancel</th>
                                     
                                    
                                     <th data-sortable="false" class="text-center">Approve</th>
@@ -60,10 +60,10 @@
                 </div>
             </div>
         </div>
-<?php if(empty($is_ajax)) { ?> 
+ 
     </div>
     
-    <div id="myModal2" class="modal fade" role="dialog">
+    <div id="myModal2707" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
@@ -72,23 +72,49 @@
                     <h4 class="modal-title" id="modal-title">Reject Parts</h4>
                 </div>
                 <div class="modal-body">
-                    <textarea rows="3" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
+                    <div class="col-md-12">
+                                 <div class="form-group ">
+                                    
+                                    <label for="" class="col-md-4">Spare Cancel Reason *</label>
+                                    <div class="col-md-6">
+                                        <select class="form-control" id="spare_cancel_reason" name="spare_cancel_reason"></select>
+                                    </div>
+                                </div>
+                            <br>
+                    </div>
+                    <br><br><br>
+                    <div class="col-md-12">
+                                 <div class="form-group ">
+                                    
+                                    <label for="" class="col-md-4">Enter Remarks *</label>
+                                    <div class="col-md-6">
+                                        <textarea rows="1" class="form-control" id="textarea" placeholder="Enter Remarks"></textarea>
+                                    </div>
+                                </div>
+                            <br>
+                    </div>
+                    <br>
+
                 </div>
                 <input type="hidden" id="url">
 
                 <input type="hidden" name="" value="<?php echo $this->session->userdata('partner_id'); ?>" id="modal_partner_id">
+                
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-success" onclick="reject_parts()">Send</button>
+                    <center>
+                    <button type="button" class="btn btn-danger" onclick="reject_parts()">Cancel</button>
                     <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+                    </center>
                 </div>
+                
             </div>
         </div>
     </div>
 </div>
-<?php } ?>
+
 <div class="clearfix"></div>
 
-<div id="myModal77" class="modal fade" role="dialog">
+<div id="myModal777" class="modal fade" role="dialog">
   <div class="modal-dialog" style="width: 55%;">
     <!-- Modal content-->
     <div class="modal-content" >
@@ -121,10 +147,14 @@
                             </div>
                             <input type="hidden" id="appurl" value="">
                         </div>
+                
                  <div class="modal-footer">
-                <button type="submit" id="uploadButton" onclick="approve_parts();" class="btn btn-success">Submit</button>
+                <center>
+                <button type="submit" id="uploadButton" onclick="approve_parts();" class="btn btn-success">Approve</button>
                 <button type="button" class="btn btn-default" data-dismiss="modal" >Close</button>
+                </center>
                 </div>
+            
         </div>
         
 
@@ -158,7 +188,7 @@
                 hide: 100
             }
         });
-        spare_table = $('#spare_table').DataTable({
+        spare_approval_table = $('#spare_approval_table').DataTable({
             "processing": true,
             "language":{ 
                 "processing": "<center><img id='loader_gif_title' src='<?php echo base_url(); ?>images/loadring.gif'></center>",
@@ -166,6 +196,18 @@
             "serverSide": true, 
             "order": [], 
             "pageLength": 50,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                        columns: [0,1,2,3,4,5,6,7,8,9,11]
+                    },
+                    title: 'partner_shipped_oow_part'
+                }
+            ],
             "ajax": {
                 "url": "<?php echo base_url(); ?>employee/partner/get_spare_parts_booking_on_approval_table/",
                 "type": "POST",
@@ -184,7 +226,7 @@
         });
     });
     function booking_search_spare(){
-             spare_table.ajax.reload();
+             spare_approval_table.ajax.reload();
         }
   
     $(document).on("click", ".approve_part", function () {
@@ -202,39 +244,47 @@
     });
 
 
-      $(document).on("click", ".open-adminremarks", function () {
-        
+      $(document).on("click", ".open-adminremarks1", function () {
+ 
+        $("#myModal2707").modal('show');
+        $.ajax({
+            type: 'POST',
+            url: '<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_cancellation_reasons',
+            success: function (data) {
+                    
+                    $("#spare_cancel_reason").html(data); 
+            }
+        });
         var booking_id = $(this).data('booking_id');
         var url = $(this).data('url');
        
-        $('#modal-title').text("Approve Part For Booking -" + booking_id);
+        $('#modal-title').text("Cancel Part For Booking -" + booking_id);
         $('#textarea').val("");
         $("#url").val(url);
-        //$('#part_warranty_status option[value='+warranty+']').attr('selected','selected');
-       // alert();
         
     });
     
     function reject_parts(){
-         $(".loader").removeClass('hide');
         var remarks =  $('#textarea').val();
-        if(remarks !== ""){
+        var reason = $.trim($('#spare_cancel_reason option:selected').text());
+        var cancel_id = $('#spare_cancel_reason option:selected').val();
+        if(remarks !== "" && cancel_id !==""){
             var url =  $('#url').val();
             var partner_id =  $('#modal_partner_id').val();
-       
+             $(".loader").removeClass('hide');
             $.ajax({
                 type:'POST',
                 url:url,
-                data:{remarks:remarks,courier_charge:0,partner_id:partner_id},
+                data:{remarks:remarks,courier_charge:0,partner_id:partner_id,spare_cancel_reason:reason, spare_cancel_id:cancel_id},
                 success: function(data){
                      $(".loader").addClass('hide');
                     if(data === "Success"){
-                        //  $("#"+booking_id+"_1").hide()
-                        $('#myModal2').modal('hide');
+                        spare_approval_table.ajax.reload(null, false);
+                        $('#myModal2707').modal('hide');
                         $(".close").click();
-                                 swal({title: "Cancelled !", text: "Your Spare  is  Cancelled .", type: "success"},
+                                 swal({title: "Cancelled !", text: "Spare  is  Cancelled Successfully.", type: "success"},
                                     function(){ 
-                                    spare_table.ajax.reload(null, false);
+                                    
                                     });
                        // location.reload();
                     } else {
@@ -249,13 +299,12 @@
  
  
     function approve_parts(){
-        $(".loader").removeClass('hide');
         var remarks =  $('#apptextarea').val();
         if(remarks !== ""){
             var url =  $('#appurl').val();
             var partner_id =  $('#modal_partner_id').val();
             var part_warranty_status =  $('#part_warranty_status').val();
-       
+             $(".loader").removeClass('hide');
             $.ajax({
                 type:'POST',
                 url:url,
@@ -263,14 +312,14 @@
                 success: function(data){
                  var obj = JSON.parse(data);
                     if(obj['status']){
-                        //  $("#"+booking_id+"_1").hide()
-                        $('#myModal77').modal('hide');
+                        spare_approval_table.ajax.reload(null, false);
+                        $('#myModal777').modal('hide');
                         $(".loader").addClass('hide');
 
                         $(".close").click();
-                                 swal({title: "Approved !", text: "Your Spare  is  approved .", type: "success"},
+                                 swal({title: "Approved !", text: "Spare  is  Approved Successfully .", type: "success"},
                                     function(){ 
-                                    spare_table.ajax.reload(null, false);
+                                    
                                     });
                          
 
@@ -312,6 +361,9 @@
 #spare_table_processing{
     border:none !important;
     background-color: transparent !important;
+}
+.dt-buttons{
+    margin-left:-30% !important;
 }
         </style>
         

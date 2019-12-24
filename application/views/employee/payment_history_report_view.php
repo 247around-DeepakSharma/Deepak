@@ -144,12 +144,12 @@
     $(function () {
         $('input[name="daterange"], #buyback_daterange').daterangepicker({
             locale: {
-                format: 'DD/MM/YYYY'
+                format: 'YYYY/MM/DD'
             },
-            startDate: '<?php echo date("01/m/Y", strtotime("-1 month")) ?>',
-            endDate: '<?php echo date('d/m/Y', strtotime('last day of previous month')) ?>',
-            minDate: '01/01/2015',
-            maxDate: '31/12/2030',
+            startDate: '<?php echo date("Y/m/01", strtotime("-1 month")) ?>',
+            endDate: '<?php echo date('Y-m-d', strtotime('last day of previous month')) ?>',
+            minDate: '2015/01/01',
+            maxDate: '2030/12/31',
             showDropdowns: true,
             dateLimit: 60
         });

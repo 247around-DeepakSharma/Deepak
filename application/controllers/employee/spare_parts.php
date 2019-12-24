@@ -275,7 +275,7 @@ class Spare_parts extends CI_Controller {
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.shipped_quantity, users.name, booking_primary_contact_no, service_centres.name as sc_name, service_centres.on_off, service_centres.active,"
                 . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id, spare_parts_details.shipped_parts_type,"
                 . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.around_pickup_from_service_center,"
-                . "spare_parts_details.acknowledge_date, spare_parts_details.around_pickup_courier, spare_parts_details.is_micro_wh, spare_parts_details.service_center_id, challan_approx_value, status, inventory_master_list.part_number,im.part_number as shipped_part_number";
+                . "spare_parts_details.acknowledge_date, spare_parts_details.around_pickup_courier, spare_parts_details.is_micro_wh, spare_parts_details.service_center_id, challan_approx_value, status, inventory_master_list.part_number,im.part_number as shipped_part_number, spare_consumption_status.consumed_status";
         if($this->input->post("status") == SPARE_DELIVERED_TO_SF){
             $post['column_order'] = array( NULL, 'spare_parts_details.booking_id', NULL, 'service_centres.name', NULL, NULL,NULL, NULL, NULL, 'spare_parts_details.shipped_parts_type', NULL, NULL, NULL, NULL, NULL, NULL, 'age_of_delivered_to_sf', NULL, NULL, NULL, NULL);
         } else {
@@ -283,6 +283,11 @@ class Spare_parts extends CI_Controller {
         }
         $post['column_search'] = array('spare_parts_details.booking_id','partners.public_name', 'service_centres.name', 'parts_shipped', 
             'parts_requested', 'booking_details.request_type', 'spare_parts_details.shipped_date');
+        
+        if(!empty($post['where']) && $post['where']['status'] == DEFECTIVE_PARTS_PENDING) {
+            unset($post['where']['status']);
+            $post['where']['status in ("'.DEFECTIVE_PARTS_PENDING.'","'.OK_PART_TO_BE_SHIPPED.'","'.DAMAGE_PART_TO_BE_SHIPPED.'")'] = NULL;
+        }
         $list = $this->inventory_model->get_spare_parts_query($post);
         $no = $post['start'];
         $data = array();
@@ -705,7 +710,7 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>". $spare_list->part_number ."</span>";
         $row[] = $spare_list->quantity;
         $row[] = $spare_list->shipped_quantity;
-        $row[] = date("d/m/Y", strtotime($spare_list->defective_part_shipped_date));
+        $row[] = date("jS M, Y", strtotime($spare_list->defective_part_shipped_date));
         $row[] = $spare_list->courier_name_by_sf;
         $row[] = $spare_list->awb_by_sf;
         $row[] = "<i class='fa fa-inr'></i>".$spare_list->courier_charges_by_sf;
@@ -898,6 +903,7 @@ class Spare_parts extends CI_Controller {
         $row[] = "<span class='line_break'>" . $spare_list->shipped_parts_type . "</span>";
         $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</spare>";
         $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</spare>";
+        $row[] = "<span style='white-space:nowrap;'>" . $spare_list->consumed_status . "</spare>";
         $row[] = "<span class='line_break'>" . $spare_list->request_type . "</spare>";
         $row[] = $this->miscelleneous->get_formatted_date($spare_list->shipped_date);
         $row[] = $this->miscelleneous->get_formatted_date($spare_list->acknowledge_date);
@@ -2292,7 +2298,7 @@ class Spare_parts extends CI_Controller {
         $sms_template_tag = '';
         $reason_text = '';
         
-        $spare_approval_date = date('d-m-Y');
+        $spare_approval_date = date('Y-m-d');
         $approval_agent_id = _247AROUND_DEFAULT_AGENT;
         $approval_entity_type = _247AROUND_SF_STRING;
         if($this->session->userdata('emp_name') && $this->session->userdata('userType')!='partner'){
@@ -2649,8 +2655,8 @@ class Spare_parts extends CI_Controller {
                 $in['agent_id'] = $this->session->userdata('id');
                 $in['agent_type'] = _247AROUND_SF_STRING;
                 }else{
-                $in['agent_id'] = $this->session->userdata('agent_id');
-                $in['agent_type'] = _247AROUND_PARTNER_STRING;
+                $in['agent_id'] = _247AROUND_DEFAULT_AGENT;
+                $in['agent_type'] = _247AROUND_SF_STRING;
                 }
 
                 $in['is_wh'] = TRUE;
@@ -2693,9 +2699,9 @@ class Spare_parts extends CI_Controller {
                     $sc_entity_id = $this->session->userdata('service_center_id');
                     $p_entity_id = NULL;
                 } else if($this->session->userdata('partner_id')) { //// Partner Session Handle ////
-                    $agent_id = $this->session->userdata('agent_id');
+                    $agent_id = _247AROUND_DEFAULT_AGENT);
                     $sc_entity_id = NULL;
-                    $p_entity_id = $this->session->userdata('partner_id');
+                    $p_entity_id = _247AROUND;
                 }else{
                     $agent_id = _247AROUND_DEFAULT_AGENT;
                     $p_entity_id = _247AROUND;

@@ -1155,9 +1155,6 @@ class Upload_buyback_process extends CI_Controller {
                 $response['meta']['category'] = EXCHANGE;
                 $response['meta']['sub_category'] = REIMBURSEMENT;
                 $response['meta']['accounting'] = 1;
-                $response['meta']['invoice_date'] = str_replace('/', '-', $response['meta']['invoice_date']);
-                $response['meta']['sd'] = str_replace('/', '-', $response['meta']['sd']);
-                $response['meta']['ed'] = str_replace('/', '-', $response['meta']['ed']);
 
                 $this->invoice_lib->insert_invoice_breackup($response);
                 $invoice_details = $this->invoice_lib->insert_vendor_partner_main_invoice($response, "A", "Parts", _247AROUND_PARTNER_STRING, AMAZON_SELLER_ID, $convert, $this->session->userdata('id'), HSN_CODE);
