@@ -244,6 +244,10 @@
                 $(this).val('');
                 return false;
             }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
         },
         "keypress": function () {
             var weight_kg = $(this).val();
@@ -251,10 +255,18 @@
                 $(this).val('');
                 return false;
             }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
             if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
                 $(this).val('');
                 return false;
             }
@@ -269,6 +281,10 @@
                 $(this).val('');
                 return false;
             }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
         },
         "keypress": function () {
             var weight_kg = $(this).val();
@@ -276,10 +292,18 @@
                 $(this).val('');
                 return false;
             }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+               $(this).val('');
+               return false;
+            }
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
             if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
                 $(this).val('');
                 return false;
             }
@@ -297,7 +321,7 @@
             case 40: // Down
                 break;
             default:
-                var regex = new RegExp("^[a-zA-Z0-9,]+$");
+                var regex = new RegExp("^[a-df-zA-DF-Z0-9,]+$");
                 var key = event.key;
                 if (!regex.test(key)) {
                     event.preventDefault();
