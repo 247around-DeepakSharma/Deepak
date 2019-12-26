@@ -146,7 +146,7 @@
                 url: '<?php echo base_url(); ?>employee/inventory/download_service_centers_consumption_data',
                 data: { partner_id : partner_id, service_center_id : service_center_id },
                 success: function (data) {
-                    $('#download_spare_list').html("Download").attr('disabled',false);
+                    $('#download_sf_consumption_list').html("Download").attr('disabled',false);
                     var obj = JSON.parse(data); 
                     if(obj['status']){
                         window.location.href = obj['msg'];
