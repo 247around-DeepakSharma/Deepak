@@ -240,7 +240,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                     
                                         </div>
                                         <div class="col-md-2">
-                                            <?php
+                       .                     <?php
                                                 $src = base_url() . 'images/no_image.png';
                                                 $image_src = $src;
                                                 if (isset($booking_history[0]['support_file']) && !empty($booking_history[0]['support_file'])) {
@@ -1025,18 +1025,20 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
 
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
-    var cloneIndex= $(".clonedInput").length +1;
+    var cloneIndex = $(".clonedInput").length +1;
+
     function clone(){
+        $('.select-model').select2("destroy");
        $(this).parents(".clonedInput").clone()
     .appendTo(".cloned")
-           .attr("id","cat" +  cloneIndex)
+           .attr("id", "cat" +  cloneIndex)
         .find("*")
            .each(function() {
-               var id= this.id || "";
+               var id = this.id || "";
                var match = id.match(regex) || [];
                //console.log(match.length);
                if (match.length === 3) {
-                   this.id = match[1]+ (cloneIndex);
+                   this.id = match[1] + (cloneIndex);
             }
     })
            .on('click', 'button.clone', clone)
@@ -1044,6 +1046,21 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     
            $('#priceList_'+cloneIndex).html("");
            $('#order_item_id_'+cloneIndex).val("");
+           $('#purchase_date_'+cloneIndex).val("");
+           
+           $('.purchase_date').each(function () {
+                if ($(this).hasClass('hasDatepicker')) {
+                    $(this).removeClass('hasDatepicker');
+                } 
+                 $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
+            });
+           
+            $('.select-model').each(function () {
+                $(this).select2({
+                    width:"239px"
+                });
+            });
+           
        cloneIndex++;
        return false;
     }
