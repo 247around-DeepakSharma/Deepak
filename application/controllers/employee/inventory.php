@@ -8258,7 +8258,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
         $this->load->dbutil();
         $this->load->helper('file');
 
-        $file_name = 'mwh_msl_deatils_data_' . date('j-M-Y-H-i-s') . ".csv";
+        $file_name = 'mwh_msl_details_data_' . date('j-M-Y-H-i-s') . ".csv";
         $delimiter = ",";
         $newline = "\r\n";
         $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);
