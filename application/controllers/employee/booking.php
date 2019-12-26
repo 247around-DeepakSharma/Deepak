@@ -679,7 +679,7 @@ class Booking extends CI_Controller {
             }
             return $booking;
         } else {
-            $this->session->set_userdata(['error_msg' => 'Order Id is not Valid']);
+            $this->session->set_userdata(['error_msg' => 'Order Id is not Valid / Filled against this Booking.']);
             return false;
         }
     }
