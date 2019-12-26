@@ -703,6 +703,7 @@
         var pincode = $("#booking_pincode").val();
         var service_id =  $("#service_id").val();
         var city =  $("#city").val();
+        $('#submitform').prop('disabled', true);
         if(pincode.length === 6 && service_id !== null){
          
             $.ajax({
@@ -739,9 +740,9 @@
 
     $(document).ready(function(){
          $("#booking_pincode").keyup(function(event) {
+            $('#service_id').select2().change();
             check_pincode();
             get_city();
-        
         });
         $("#booking_primary_contact_no").keyup(function(event) {
             var phone_number = $("#booking_primary_contact_no").val();
