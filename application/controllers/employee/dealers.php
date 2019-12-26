@@ -197,7 +197,7 @@ class Dealers extends CI_Controller {
         $select = "capacity"; $order_by = "capacity";
         $capacity_data = $this->service_centre_charges_model->get_service_charge_details($where, $select, $order_by);
         if(!empty($capacity_data)){
-            $option = "<option selected disabled>Select Category</option>";
+            $option = "<option selected disabled>Select Capacity</option>";
             foreach($capacity_data as $value){
                 $option .= "<option  ";
                 if(count($capacity_data) == 1){
