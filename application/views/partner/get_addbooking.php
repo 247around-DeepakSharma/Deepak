@@ -1154,6 +1154,7 @@
             service_id =  $("#service_name").val();
             btn_submit = 'submitform';
         }
+        $('#'+btn_submit).prop('disabled', true);
         if(pincode.length === 6 && service_id != null){
             $.ajax({
                 type: 'POST',
@@ -1167,11 +1168,13 @@
                 success: function (data) {
                     if(data.includes("ERROR")){
                         alert("Service Temporarily Un-available In This Pincode, Please Contact backoffice Team.");
+                        $('#booking_city').select2().html("").change();
                         $('#'+btn_submit).prop('disabled', true);
                         $("#not_visible").val('0');
                     }
                     else if(data.includes("Not_Serve")){
                         alert("This PINCODE is not in your Serviceable Area associated with us!");
+                         $('#booking_city').select2().html("").change();
                          $('#'+btn_submit).prop('disabled', true);
                          $("#not_visible").val('0');
                     }
