@@ -13,7 +13,7 @@
         <?php
         if ($this->session->userdata('error') || $this->session->userdata('error_msg')) {
             $error_msg = ($this->session->userdata('error_msg')) ? $this->session->userdata('error_msg') : $this->session->userdata('error');
-            echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top:10px;">
+            echo '<div class="alert alert-warning alert-dismissible" role="alert" style="margin-top:10px;">
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
