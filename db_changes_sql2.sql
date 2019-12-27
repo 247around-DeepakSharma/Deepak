@@ -1694,3 +1694,11 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 ('247Around', 'Micro Warehouse MSL Details', NULL, 'employee/inventory/mwh_msl_details', 2, '190', 'accountant,accountmanager,admin,developer,inventory_manager', 'main_nav', 1, '2018-12-13 05:13:48'),
 ('247Around', 'Add Courier Service', NULL, 'employee/courier/add_courier_service', 2, '190', 'accountant,accountmanager,admin,developer,inventory_manager', 'main_nav', 1, '2018-12-13 05:13:48');
 
+-- Kajal 27-12-2019
+CREATE TABLE `pincode_district_mapping` ( 
+    `id` INT(11) NOT NULL AUTO_INCREMENT , 
+    `pincode` VARCHAR(6) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL , 
+    `district` VARCHAR(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL , 
+    `state` VARCHAR(30) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL , 
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
