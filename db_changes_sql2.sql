@@ -1689,3 +1689,10 @@ ALTER TABLE `engineer_incentive_details` ADD UNIQUE(`booking_details_id`);
 ALTER TABLE `partners` ADD `spare_approval_by_partner` BOOLEAN NOT NULL DEFAULT FALSE AFTER `oot_spare_to_be_shipped`;
 ALTER TABLE `spare_parts_details` ADD `spare_approval_date` DATE NOT NULL AFTER `wh_to_partner_defective_shipped_date`, ADD `approval_agent_id` INT(11) NOT NULL DEFAULT '247001' AFTER `spare_approval_date`, ADD `approval_entity_type` VARCHAR(15) NOT NULL DEFAULT 'vendor' AFTER `approval_agent_id`;
  
+--Gorakh 20-12-2019
+ALTER TABLE `spare_parts_details`  ADD `received_defective_part_pic_by_wh` VARCHAR(200) NULL DEFAULT NULL  AFTER `defective_part_rejected_by_wh`,  ADD `rejected_defective_part_pic_by_wh` VARCHAR(200) NULL DEFAULT NULL  AFTER `received_defective_part_pic_by_wh`;
+ --Gorakh 27-12-2019
+INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
+('247Around', 'Micro Warehouse MSL Details', NULL, 'employee/inventory/mwh_msl_details', 2, '190', 'accountant,accountmanager,admin,developer,inventory_manager', 'main_nav', 1, '2018-12-13 05:13:48'),
+('247Around', 'Add Courier Service', NULL, 'employee/courier/add_courier_service', 2, '190', 'accountant,accountmanager,admin,developer,inventory_manager', 'main_nav', 1, '2018-12-13 05:13:48');
+
