@@ -530,6 +530,12 @@ class Invoice extends CI_Controller {
             log_message('info', __METHOD__ . "=> File created " . $c_files_name);
         }
         
+        if (!empty($misc_data['packaging_data'])) { // This is used to generate partner packaging detailed annexure file
+            $p_files_name = $this->generate_partner_packaging_excel($misc_data['packaging_data'], $meta);
+            array_push($files, $p_files_name);
+            log_message('info', __METHOD__ . "=> File created " . $p_files_name);
+        }
+        
         if(!empty($misc_data['penalty_discount'])){
             $total_penalty_discount = (array_sum(array_column($misc_data['penalty_discount'], 'penalty_amount')));
             $penalty_booking_count = (array_sum(array_column($misc_data['penalty_discount'], 'booking_failed')));
@@ -706,9 +712,11 @@ class Invoice extends CI_Controller {
             }
             
             if(!empty($misc_data['packaging_data'])){
-                foreach ($misc_data['packaging_data'] as $p) {
-                   
-                    $this->service_centers_model->update_spare_parts(array('id' => $p['sp_id']), array('partner_warehouse_packaging_invoice_id' => $meta['invoice_id']));
+                foreach ($misc_data['packaging_data'] as $p) { // Now, data is grouped by BookingID & shipped part name, SpareId's are separated with ','
+                    $s_id = explode(",", $p['sp_id']);
+                    foreach($s_id as $spare_id){
+                        $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('partner_warehouse_packaging_invoice_id' => $meta['invoice_id']));
+                    }
                 }
             }
 
@@ -825,6 +833,19 @@ class Invoice extends CI_Controller {
     function generate_partner_misc_excel($data, $meta){
         $template = 'Partner_invoice_detail_template-v2-misc.xlsx';
         $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-miscellaneous-detailed.xlsx";
+        $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
+        return $output_file_excel;
+    }
+    /**
+     * @desc This function is used to generate partner packaging detailed annexure file
+     * @param Array $data
+     * @param Array $meta
+     * @return Excel File Path (of TMP folder)
+     */
+    function generate_partner_packaging_excel($data, $meta){
+        
+        $template = 'Partner_invoice_detail_template-v2-packaging.xlsx';
+        $output_file_excel = TMP_FOLDER . $meta['invoice_id'] . "-packaging-detailed.xlsx";
         $this->invoice_lib->generate_invoice_excel($template, $meta, $data, $output_file_excel);
         return $output_file_excel;
     }
@@ -4109,7 +4130,7 @@ class Invoice extends CI_Controller {
                         'estimate_cost_given_date IS NOT NULL' => NULL,
                         'spare_parts_details.part_warranty_status' => 2,
                         'defective_part_required' => 1,
-                        'approved_defective_parts_by_partner' => 1,
+                        '(approved_defective_parts_by_partner = 1 OR defective_part_received_by_wh = 1) ' => NULL,
                         'status IN ("'.DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE.'", "'.DEFECTIVE_PARTS_RECEIVED.'") ' => NULL,
                         '(reverse_sale_invoice_id IS NULL OR reverse_purchase_invoice_id IS NULL)' => NULL),
                     true);

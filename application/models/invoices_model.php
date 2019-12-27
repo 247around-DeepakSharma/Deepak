@@ -2164,7 +2164,7 @@ class invoices_model extends CI_Model {
                 AND sp.booking_id = bd.booking_id
                 AND bd.closed_date >=  '$from_date'
                 AND bd.closed_date <  '$to_date'
-                AND `approved_defective_parts_by_partner` = 1
+                AND (`approved_defective_parts_by_partner` = 1 OR defective_part_received_by_wh = 1)
                 AND around_pickup_from_service_center = 0
                 $invoice_check
                 AND courier_charges_by_sf > 0 
@@ -2206,7 +2206,7 @@ class invoices_model extends CI_Model {
                 AND status IN( '"._247AROUND_COMPLETED."', '".DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH."', '".DEFECTIVE_PARTS_RECEIVED."', '".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."')
                 AND bd.closed_date >=  '$from_date'
                 AND bd.closed_date <  '$to_date'
-                AND `approved_defective_parts_by_partner` = 1
+                AND (`approved_defective_parts_by_partner` = 1 OR defective_part_received_by_wh = 1 )
                 AND partner_courier_invoice_id IS NULL
                 AND awb_by_sf IS NOT NULL
                 GROUP BY awb,sp.entity_type HAVING courier_charges_by_sf > 0 
@@ -2491,7 +2491,8 @@ class invoices_model extends CI_Model {
     }
     function get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date){
         log_message('info', __METHOD__. " Enterring..");
-        $sql = 'SELECT sp.id as sp_id '
+        $sql = 'SELECT GROUP_CONCAT(sp.id) as sp_id, bd.booking_id, sp.parts_shipped as part_name, DATE_FORMAT(sp.shipped_date, "%D %b %Y") as shipped_date, '
+                . ' sp.awb_by_partner as awb, sp.courier_name_by_partner as courier_name '
                 . ' FROM spare_parts_details as sp '
                 . ' JOIN  booking_details as bd ON bd.booking_id = sp.booking_id  '
                 . ' WHERE '
@@ -2502,7 +2503,7 @@ class invoices_model extends CI_Model {
                 . ' AND sp.shipped_date < "'.$to_date.'" '
                 . ' AND  parts_shipped IS NOT NULL '
                 . ' AND partner_warehouse_packaging_invoice_id IS NULL'
-                . ' GROUP BY sp.id  ';
+                . ' GROUP BY bd.booking_id,sp.parts_shipped  ';
                 
        
         $query = $this->db->query($sql);

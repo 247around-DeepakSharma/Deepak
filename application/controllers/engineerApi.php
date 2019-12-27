@@ -2247,6 +2247,7 @@ class engineerApi extends CI_Controller {
         log_message("info", __METHOD__. " Entering..");
         $postData = json_decode($this->jsonRequestData['qsh'], true);
         $requestData = json_decode($postData['submitSparePartsOrder'], true);
+        $requestData['sc_agent_id'] = $postData['sc_agent_id'];
         $requestData["call_from_api"] = TRUE;
         $validation = $this->validateSparePartsOrderRequest($requestData);
         if($validation['status']){
