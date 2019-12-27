@@ -991,6 +991,16 @@ class vendor_model extends CI_Model {
      *  @return : void
      */
     function insert_service_center_action($data) {
+        // If data already exists in Table, do not insert data.
+        if(!empty($data['booking_id']) && !empty($data['unit_details_id']) && !empty($data['service_center_id']))
+        {
+            $message = "function vendor_model::insert_service_center_action(). Data already exists, REFERRER : '".(!empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "")."', PATH : ".(!empty($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : "");
+            $res = $this->get_service_center_booking_action_details('*', ['booking_id' => $data['booking_id'], 'unit_details_id' => $data['unit_details_id'], 'service_center_id' => $data['service_center_id']]);
+            if(!empty($res[0]['id'])){
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, 'pritys@247around.com', NULL, NULL, 'ERROR', $message, "","INSERT_SERVICE_CENTER_BOOKING_ACTION");                        
+                return $res[0]['id'];
+            }
+        }
         $this->db->insert('service_center_booking_action', $data);
         
         log_message('info', __METHOD__ . "=> Insert Service center Action table SQL: " . $this->db->last_query() );
