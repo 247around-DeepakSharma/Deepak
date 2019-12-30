@@ -264,11 +264,14 @@
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
                                                 <?php echo form_error('model_number'); ?>
-                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" disabled=""  onfocusout="check_booking_request()" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
-                                                <select class="form-control select-model"   id="model_number_1" name="model_number[]" style="display:none;" onchange="check_booking_request()">
-                                                    <option selected disabled>Select Appliance Model</option>
-                                                </select>
-
+                                                <div class="input-model-div">
+                                                    <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "" placeholder="Enter Model" disabled=""  onfocusout="check_booking_request()" onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
+                                                </div>
+                                                <div class="select-model-div" style="display:none;">
+                                                    <select class="form-control select-model"   id="model_number_1" name="model_number[]" style="display:none;" onchange="check_booking_request()">
+                                                        <option selected disabled>Select Appliance Model</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
 <!--                                          <div class="form-group ">
