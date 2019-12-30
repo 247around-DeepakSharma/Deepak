@@ -2635,5 +2635,41 @@ function get_data_for_partner_callback($booking_id) {
         $query = $this->db->get('callback_api_booking_details');
         return $query->result_array();
     }
+    
+    /**
+     * This method is used for request status api of partner.
+     * @param type $partner_id
+     * @param type $order_id
+     * @param type $booking_id
+     * @param type $all_row
+     * @return type
+     */
+    function get_booking_details_for_partner($partner_id, $order_id, $booking_id = "",$all_row = NULL ) {
+
+      $this->db->select("booking_details.*, services.services, DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) AS ageing", FALSE);  
+      $where = array();
+      $where['booking_details.partner_id'] = $partner_id;
+      if(!empty($order_id)) {
+        $where['TRIM(CHAR(9) FROM TRIM(booking_details.order_id)) = "'.$order_id.'"'] = NULL;
+      }
+      if(!empty($booking_id)) {
+          $where['booking_details.booking_id'] = $booking_id;
+      }
+      
+      $this->db->where($where);
+      $this->db->join('services', 'booking_details.service_id = services.id', 'left');
+      $this->db->order_by("booking_details.create_date", "desc");
+      $query = $this->db->get("booking_details");
+      $results = $query->result_array();
+      if (count($results) > 0) {
+       if($all_row){
+          return $results;
+       }
+        return $results[0];
+      } else {
+        return NULL;
+      }
+    }
+
 }
 

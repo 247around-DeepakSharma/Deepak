@@ -1212,14 +1212,18 @@ function getModelForServiceCategoryCapacity(div_id) {
             var obj = JSON.parse(data);
             if(obj.status === false){
                 $('.select-model').hide();
+                $('.select-model-div').hide();
                 $('.select-model').next(".select2-container").hide();
                 $('.input-model').show();
+                $('.input-model-div').show();
                 $('.input-model').removeAttr('disabled');
             }else{
                 $('.select-model').show();
+                $('.select-model-div').show();
                 $('.select-model').next(".select2-container").show();
                 $('.input-model').attr('disabled', 'disabled');
                 $('.input-model').hide();
+                $('.input-model-div').hide();
                 if($.trim(postData['capacity']) !== '' || !$("#is_repeat").val()) {
                     $('#model_number_1').val('');
                     $('#select2-model_number_1-container').empty();
