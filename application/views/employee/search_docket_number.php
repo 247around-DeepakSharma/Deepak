@@ -14,7 +14,8 @@
                         <div class="form-group col-md-6">
                             <label class="radio-inline"><input type="radio" name="search_docket_number_by" value="awb_by_partner"> Sent By Partner</label>
                             <label class="radio-inline"><input type="radio" name="search_docket_number_by" value="awb_by_sf"> Sent By Service Center</label>
-                            <label class="radio-inline"><input type="radio" name="search_docket_number_by" value="wh"> Sent By Warehouse</label>
+                            <label class="radio-inline"><input type="radio" name="search_docket_number_by" value="wh"> MSL By Warehouse</label>
+                            <label class="radio-inline"><input type="radio" name="search_docket_number_by" value="awb_by_wh"> Sent By Warehouse To partner</label>
                         </div>
                     </div>
                 </div>
