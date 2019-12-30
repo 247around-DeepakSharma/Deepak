@@ -24,17 +24,17 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     #dealer_list li:hover{background:#e9ebee;cursor: pointer;}
     
     <?php if(!empty($model[0])) { ?> 
-    .select-model{
+    .select-model, .select-model-div{
         display:block;
     }
-    .input-model{
+    .input-model, .input-model-div{
         display:none;
     }    
     <?php }else{ ?>
-    .select-model{
+    .select-model, .select-model-div{
         display:none;
     }
-    .input-model{
+    .input-model, .input-model-div{
         display:block;
     }  
     <?php } ?>
@@ -240,7 +240,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                     
                                         </div>
                                         <div class="col-md-2">
-                                            <?php
+                       .                     <?php
                                                 $src = base_url() . 'images/no_image.png';
                                                 $image_src = $src;
                                                 if (isset($booking_history[0]['support_file']) && !empty($booking_history[0]['support_file'])) {
@@ -459,14 +459,18 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(!empty($booking_model_number)) { echo $booking_model_number; } elseif(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> onfocusout="check_booking_request()"  onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
-                                                <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
-                                                    <option selected disabled>Select Appliance Model</option>
-                                                    <?php foreach ($model[0] as $value) { ?>
-                                                    <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
-                                                        ><?php echo $value['model']; ?></option>
-                                                    <?php } ?>
-                                                </select>
+                                                <div class="input-model-div">
+                                                    <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(!empty($booking_model_number)) { echo $booking_model_number; } elseif(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> onfocusout="check_booking_request()"  onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
+                                                </div>
+                                                <div class="select-model-div">
+                                                    <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
+                                                        <option selected disabled>Select Appliance Model</option>
+                                                        <?php foreach ($model[0] as $value) { ?>
+                                                        <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
+                                                            ><?php echo $value['model']; ?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
 <!--                                        <div class="form-group ">
@@ -1025,18 +1029,20 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
 
 <script type="text/javascript">
     var regex = /^(.+?)(\d+)$/i;
-    var cloneIndex= $(".clonedInput").length +1;
+    var cloneIndex = $(".clonedInput").length +1;
+
     function clone(){
+        $('.select-model').select2("destroy");
        $(this).parents(".clonedInput").clone()
     .appendTo(".cloned")
-           .attr("id","cat" +  cloneIndex)
+           .attr("id", "cat" +  cloneIndex)
         .find("*")
            .each(function() {
-               var id= this.id || "";
+               var id = this.id || "";
                var match = id.match(regex) || [];
                //console.log(match.length);
                if (match.length === 3) {
-                   this.id = match[1]+ (cloneIndex);
+                   this.id = match[1] + (cloneIndex);
             }
     })
            .on('click', 'button.clone', clone)
@@ -1044,6 +1050,22 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     
            $('#priceList_'+cloneIndex).html("");
            $('#order_item_id_'+cloneIndex).val("");
+           $('#purchase_date_'+cloneIndex).val("");
+           
+           $('.purchase_date').each(function () {
+                if ($(this).hasClass('hasDatepicker')) {
+                    $(this).removeClass('hasDatepicker');
+                } 
+                 $(this).datepicker({dateFormat: 'dd-mm-yy', maxDate: 0, changeYear: true, changeMonth: true});
+            });
+           
+            $('.select-model').each(function () {
+                $(this).select2({
+                    width:"239px"
+                });
+            });
+
+       getPricesForCategoryCapacity('appliance_capacity_'+cloneIndex);
        cloneIndex++;
        return false;
     }

@@ -4966,9 +4966,7 @@ class Inventory extends CI_Controller {
 
                             $this->inventory_model->update_courier_detail(array('id' => $insert_courier_details), array(
                                 'quantity' => count($invoice['booking_id_array']),
-                                'booking_id' => implode(",", $invoice['booking_id_array']),
-                                'sender_city' => $invoice['from_city'],
-                                'receiver_city' => $invoice['to_city']
+                                'booking_id' => implode(",", $invoice['booking_id_array'])
                             ));
                             foreach ($invoice['booking_id_array'] as $booking_id) {
 
@@ -5421,8 +5419,6 @@ class Inventory extends CI_Controller {
                     }
 
                     $invoiceData['invoice'][] = $response['meta']['invoice_id'];
-                    $invoiceData['from_city'] = $invoiceValue['data'][0]['from_city'];
-                    $invoiceData['to_city'] = $invoiceValue['data'][0]['to_city'];
                     $main_file = S3_WEBSITE_URL . "invoices-excel/" . $convert['main_pdf_file_name'];
 
                     if (!empty($output_file)) {
@@ -6465,7 +6461,10 @@ class Inventory extends CI_Controller {
                             $where["spare_parts_details.shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.shipped_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
                         } else if ($search_by == 'awb_by_sf') {
                             $where["spare_parts_details.defective_part_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.defective_part_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
+                        }else if ($search_by == 'awb_by_wh') {
+                            $where["spare_parts_details.wh_to_partner_defective_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.wh_to_partner_defective_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
                         }
+                        
                     }
                     $post['is_inventory'] = TRUE;
                     $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE,FALSE,$post);
@@ -8260,7 +8259,7 @@ class Inventory extends CI_Controller {
         $this->load->dbutil();
         $this->load->helper('file');
 
-        $file_name = 'mwh_msl_deatils_data_' . date('j-M-Y-H-i-s') . ".csv";
+        $file_name = 'mwh_msl_details_data_' . date('j-M-Y-H-i-s') . ".csv";
         $delimiter = ",";
         $newline = "\r\n";
         $new_report = $this->dbutil->csv_from_result($spare_details, $delimiter, $newline);

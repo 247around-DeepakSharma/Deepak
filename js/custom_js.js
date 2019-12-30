@@ -740,18 +740,25 @@ function checkPriceTagValidation(delivered_price_tags, partner_id){
          
          if(findInArray(delivered_price_tags, 'Gas Recharge - In Warranty') > -1 && findInArray(delivered_price_tags, 'Gas Recharge - Out of Warranty') > -1){
                     others_flag = true;
-                    array.push(others_flag);
+                    // Both In-out Recharge types can not be selected together, that's why adding 2 values in others_flag 
+                    array.push(others_flag, others_flag);
          }
          
          if(findInArray(delivered_price_tags, 'Gas Recharge (R410) - In Warranty') > -1 && findInArray(delivered_price_tags, 'Gas Recharge (R410) - Out of warranty') > -1){
                     others_flag = true;
-                    array.push(others_flag);
+                    array.push(others_flag, others_flag);
          }
          
          if(findInArray(delivered_price_tags, 'Wet Service - In Warranty') > -1 && findInArray(delivered_price_tags, 'Wet Service - Out of Warranty') > -1){
                     others_flag = true;
-                    array.push(others_flag);
+                    array.push(others_flag, others_flag);
          }
+         
+         if(findInArray(delivered_price_tags, 'Gas Recharge with Dryer (In Warranty)') > -1 && findInArray(delivered_price_tags, 'Gas Recharge with Dryer (Out Warranty)') > -1){
+                    others_flag = true;
+                    array.push(others_flag, others_flag);
+         }
+         
          if(partner_id === videocon_id){
               if((findInArray(delivered_price_tags, 'Repair - In Warranty (Home Visit)') > -1 
                 || findInArray(delivered_price_tags, 'Repair - In Warranty (Service Center Visit)') > -1 
@@ -762,7 +769,8 @@ function checkPriceTagValidation(delivered_price_tags, partner_id){
                 &&(
                   findInArray(delivered_price_tags, 'Gas Recharge - In Warranty') > -1
                 ||findInArray(delivered_price_tags, 'Gas Recharge - Out of Warranty') > -1
-                ||findInArray(delivered_price_tags, 'Gas Recharge (R410) - Out of warranty') > -1
+                ||findInArray(delivered_price_tags, 'Gas Recharge (R410) - In Warranty') > -1
+                ||findInArray(delivered_price_tags, 'Gas Recharge with Dryer (In Warranty)') > -1
                 )){
                     others_flag = true;
                     array.push(others_flag);
@@ -1204,14 +1212,18 @@ function getModelForServiceCategoryCapacity(div_id) {
             var obj = JSON.parse(data);
             if(obj.status === false){
                 $('.select-model').hide();
+                $('.select-model-div').hide();
                 $('.select-model').next(".select2-container").hide();
                 $('.input-model').show();
+                $('.input-model-div').show();
                 $('.input-model').removeAttr('disabled');
             }else{
                 $('.select-model').show();
+                $('.select-model-div').show();
                 $('.select-model').next(".select2-container").show();
                 $('.input-model').attr('disabled', 'disabled');
                 $('.input-model').hide();
+                $('.input-model-div').hide();
                 if($.trim(postData['capacity']) !== '' || !$("#is_repeat").val()) {
                     $('#model_number_1').val('');
                     $('#select2-model_number_1-container').empty();
