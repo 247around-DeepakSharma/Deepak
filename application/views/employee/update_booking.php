@@ -24,17 +24,17 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     #dealer_list li:hover{background:#e9ebee;cursor: pointer;}
     
     <?php if(!empty($model[0])) { ?> 
-    .select-model{
+    .select-model, .select-model-div{
         display:block;
     }
-    .input-model{
+    .input-model, .input-model-div{
         display:none;
     }    
     <?php }else{ ?>
-    .select-model{
+    .select-model, .select-model-div{
         display:none;
     }
-    .input-model{
+    .input-model, .input-model-div{
         display:block;
     }  
     <?php } ?>
@@ -459,14 +459,18 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                         <div class="form-group ">
                                             <label for="type" class="col-md-4">Appliance Model </label>
                                             <div class="col-md-6">
-                                                <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(!empty($booking_model_number)) { echo $booking_model_number; } elseif(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> onfocusout="check_booking_request()"  onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
-                                                <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
-                                                    <option selected disabled>Select Appliance Model</option>
-                                                    <?php foreach ($model[0] as $value) { ?>
-                                                    <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
-                                                        ><?php echo $value['model']; ?></option>
-                                                    <?php } ?>
-                                                </select>
+                                                <div class="input-model-div">
+                                                    <input  type="text" class="form-control input-model"  name="model_number[]" id="model_number_1" value = "<?php if(!empty($booking_model_number)) { echo $booking_model_number; } elseif(isset($unit_details[0]['model_number'])) { echo $unit_details[0]['model_number']; } ?>" placeholder="Enter Model"  <?php if(!empty($appliance_id)) { echo "readonly"; } ?> disabled="" <?php if($is_repeat){ echo 'readonly="readonly"'; } ?> onfocusout="check_booking_request()"  onkeypress="return checkQuote(event);" oninput="return checkInputQuote(this);">
+                                                </div>
+                                                <div class="select-model-div">
+                                                    <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
+                                                        <option selected disabled>Select Appliance Model</option>
+                                                        <?php foreach ($model[0] as $value) { ?>
+                                                        <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
+                                                            ><?php echo $value['model']; ?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
                                             </div>
                                         </div>
 <!--                                        <div class="form-group ">
@@ -1060,7 +1064,8 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                     width:"239px"
                 });
             });
-           
+
+       getPricesForCategoryCapacity('appliance_capacity_'+cloneIndex);
        cloneIndex++;
        return false;
     }
