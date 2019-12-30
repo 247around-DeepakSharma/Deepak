@@ -1890,7 +1890,7 @@ class Inventory_model extends CI_Model {
             }
         }
         if($updateCharge === TRUE){
-            $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, awb_by_partner, awb_by_sf, booking_details.partner_id', array('awb_by_sf = "'.$data['awb_number'].'" OR awb_by_partner = "'.$data['awb_number'].'" AND status != "'._247AROUND_CANCELLED.'"'=>null), true);
+            $data_spare_part_detail = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id, awb_by_partner, awb_by_sf, booking_details.partner_id', array('awb_by_sf = "'.$data['awb_number'].'" OR awb_by_partner = "'.$data['awb_number'].'" OR awb_by_wh = "'.$data['awb_number'].'" AND status != "'._247AROUND_CANCELLED.'"'=>null), true);
             if(!empty($data_spare_part_detail)){
                 $check =TRUE;
                 $courier_company_update_data['partner_id'] = $data_spare_part_detail[0]['partner_id'];
@@ -1904,8 +1904,10 @@ class Inventory_model extends CI_Model {
                     else if($value['awb_by_partner'] == $data['awb_number']){
                        $courier_company_update_data['pickup_from'] = _247AROUND_PARTNER_STRING;
                        $this->update_spare_courier_details($value['id'], array('courier_price_by_partner'=>$courier_amount,'around_pickup_from_partner'=>1)); 
+                    }else if($value['awb_by_wh'] == $data['awb_number']){
+                       $this->update_spare_courier_details($value['id'], array('courier_price_by_wh'=>$courier_amount)); 
                     }
-                    
+                                       
                 }
             } else {
                 $data_courier_detail = $this->get_courier_details("id, booking_id, sender_entity_type", array('AWB_no' => $data['awb_number']));
