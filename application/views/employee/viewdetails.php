@@ -1114,7 +1114,7 @@
                                                                 ?></td>
                                        <td><?php echo $sp['courier_price_by_wh']; ?></td>
                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_parts_shippped_courier_pic_by_wh']; ?> " target="_blank">Click Here to view</a></td>
-                                        <td><?php if(!empty($sp['defective_parts_shippped_date_by_wh'])){ echo date('d-m-Y', strtotime($sp['defective_parts_shippped_date_by_wh'])); } ?></td>
+                                        <td><?php if(!empty($sp['wh_to_partner_defective_shipped_date'])){ echo date('d-m-Y', strtotime($sp['wh_to_partner_defective_shipped_date'])); } ?></td>
                                         <td><?php echo $sp['wh_challan_number']; ?></td>
                                         <td>
                                             <?php if (!empty($sp['wh_challan_file'])) { ?> 
