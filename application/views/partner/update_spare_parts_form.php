@@ -520,6 +520,19 @@
                                     <?php echo form_error('approx_value'); ?>
                                 </div>
                             </div>
+                            <div class="form-group <?php
+                                if (form_error('awb')) { echo 'has-error'; } ?>">
+                                <label for="defective_parts_shipped_boxes_count" class="col-md-4">No Of Boxes *</label>
+                                <div class="col-md-6">
+                                    <select class="form-control" id="defective_parts_shipped_boxes_count" name="defective_parts_shipped_boxes_count"  required>
+                                        <option selected="" disabled="" value="">Select Boxes</option>
+                                        <?php for ($i = 1; $i < 11; $i++) { ?>
+                                        <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                                <?php echo form_error('awb'); ?>
+                            </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group <?php
@@ -551,6 +564,15 @@
                                     <input type="file" class="form-control" id="challan_file" name="challan_file">
                                     <?php echo form_error('challan_file'); ?>
                                 </div>
+                            </div>
+                            <div class="form-group <?php
+                                if (form_error('courier_name')) {echo 'has-error';} ?>">
+                                <label for="courier" class="col-md-4">Weight *</label>
+                                <div class="col-md-6">
+                                    <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="defective_parts_shipped_weight_in_gram"   value=""   name="defective_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
+                                </div>
+                                <?php echo form_error('courier_name'); ?>
                             </div>
                         </div>
                         <input type="hidden" id="courier_status" name="courier_status" value="1">
@@ -943,6 +965,79 @@
     <?php } ?>
     
     $('#courier_name').select2();
+    
+    $('#defective_parts_shipped_boxes_count').select2();
+
+    $("#defective_parts_shipped_weight_in_kg").on({
+        "click": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 1) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+    
+    $("#defective_parts_shipped_weight_in_gram").on({
+        "click": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+    $('#defective_parts_shipped_weight_in_gram,#defective_parts_shipped_weight_in_kg').bind('keydown', function (event) {
+        switch (event.keyCode) {
+            case 8:  // Backspace
+            case 9:  // Tab
+            case 13: // Enter
+            case 37: // Left
+            case 38: // Up
+            case 39: // Right
+            case 40: // Down
+                break;
+            default:
+                var regex = new RegExp("^[a-zA-Z0-9,]+$");
+                var key = event.key;
+                if (!regex.test(key)) {
+                    event.preventDefault();
+                    return false;
+                }
+                break;
+        }
+    });
+
     var partIndex = Number('<?php echo (count($spare_parts) - 1);?>');
      $('#update_form').on('click', '.addButton', function () {
         
