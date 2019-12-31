@@ -881,9 +881,10 @@ class Partner extends CI_Controller {
         //Lead will store the booking entry if it exists
         $resultArr = array("result" => FALSE, "lead" => NULL, "code" => NULL, "msg" => NULL);
         $flag = TRUE;
-
+        $orderID = '';
+        $bookingID = '';
         //Mandatory Parameter Missing
-        if ((empty($request['orderID']) || empty($request['partnerName']) || ($request['orderID'] == "") || ($request['partnerName'] == ""))) {
+        if ((empty($request['orderID']) && empty($request['bookingID'])) || empty($request['partnerName'])) {
             $resultArr['code'] = ERR_MANDATORY_PARAMETER_MISSING_CODE;
             $resultArr['msg'] = ERR_MANDATORY_PARAMETER_MISSING_MSG;
 
@@ -897,10 +898,18 @@ class Partner extends CI_Controller {
 
             $flag = FALSE;
         }
-
+        
+        if(!empty($request['orderID'])) {
+            $orderID = $request['orderID'];
+        }
+        
+        if(!empty($request['bookingID'])) {
+            $bookingID = $request['bookingID'];
+        }
+        
         //Order ID / Booking ID validation
         if ($flag === TRUE) {
-            $lead = $this->partner_model->get_order_id_for_partner($this->partner['id'], $request['orderID']);
+            $lead = $this->partner_model->get_booking_details_for_partner($this->partner['id'], $orderID, $bookingID);
             if(!empty($lead)) {
                 $booking_unit_details = $this->booking_model->getunit_details($lead['booking_id']);
                 if(!empty($booking_unit_details)) {
@@ -926,8 +935,15 @@ class Partner extends CI_Controller {
             } else {
                 //Order id not found
                 $resultArr['code'] = ERR_ORDER_ID_NOT_FOUND_CODE;
-                $resultArr['msg'] = ERR_ORDER_ID_NOT_FOUND_MSG;
-
+                if(!empty($orderID)) {
+                    $resultArr['msg'] = ERR_ORDER_ID_NOT_FOUND_MSG;
+                }
+                if(!empty($bookingID)) {
+                    $resultArr['msg'] = ERR_BOOKING_ID_NOT_FOUND_MSG;
+                }
+                if(!empty($bookingID) && !empty($orderID)) {
+                    $resultArr['msg'] = ERR_ORDER_ID_BOOKING_ID_INCORRECT_COMBINATION_MSG;
+                }
                 $flag = FALSE;
             }
         }
