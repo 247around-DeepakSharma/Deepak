@@ -1079,8 +1079,8 @@
                                         <th>Courier Charge </th>
                                         <th> Courier Invoice</th>
                                         <th>Shipped date </th>
-                                        <th>SF Challan Number</th>
-                                        <th>SF Challan File</th>
+                                        <th>WH Challan Number</th>
+                                        <th>WH Challan File</th>
                                      </tr>
                                 </thead>
                                 <tbody>
