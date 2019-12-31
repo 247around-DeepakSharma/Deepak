@@ -3241,6 +3241,7 @@ function do_multiple_spare_shipping(){
         if (!empty($spare_part)) {
             
         $_POST['sf_id'] = $spare_part[0]['service_center_id'];
+        $_POST['booking_partner_id'] = $spare_part[0]['booking_partner_id'];
         $_POST['bulk_courier'] = TRUE;
         $_POST['booking_id'] = $spare_part[0]['booking_id'];
         $_POST['user_name'] = $spare_part[0]['name'];
@@ -3368,6 +3369,7 @@ function do_multiple_spare_shipping(){
                             $awb_data = array(
                                 'awb_number' => trim($awb),
                                 'company_name' => trim($this->input->post('courier_name_by_sf')),
+                                'partner_id' => $partner_id,
                                 'courier_charge' => trim($this->input->post('courier_charges_by_sf')), //
                                 'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_gram
                                 'billable_weight' => trim($billable_weight),
@@ -3382,11 +3384,48 @@ function do_multiple_spare_shipping(){
 
                             $this->service_centers_model->insert_into_awb_details($awb_data);
                         }
-                    }else{
+                        else {
+                            $awb_data = array(
+                                'company_name' => trim($this->input->post('courier_name_by_sf')),
+                                'partner_id' => $partner_id,
+                                'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_gram
+                                'billable_weight' => trim($billable_weight),
+                                'actual_weight' => trim($billable_weight),
+                                'basic_billed_charge_to_partner' => trim($this->input->post('courier_charges_by_sf')),
+                                'courier_invoice_file' => trim($defective_courier_receipt),
+                                'shippment_date' => trim($this->input->post('defective_part_shipped_date')), //defective_part_shipped_date
+                                'created_by' => 2,
+                                'is_exist' => 0
+                            );
 
+                            $this->service_centers_model->update_awb_details($awb_data,trim($awb));
+                        }
+                    }else{
+                        $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $awb), array());
+                        if (empty($exist_courier_details)) {
+                            $awb_data = array(
+                                'awb_number' => trim($awb),
+                                'company_name' => trim($this->input->post('courier_name_by_sf')),
+                                'partner_id' => $partner_id,
+                                'courier_charge' => trim($this->input->post('courier_charges_by_sf')), //
+                                'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_gram
+                                'billable_weight' => trim($billable_weight),
+                                'actual_weight' => trim($billable_weight),
+                                'basic_billed_charge_to_partner' => trim($this->input->post('courier_charges_by_sf')),
+                                'booking_id' => trim($this->input->post('booking_id')),
+                                'courier_invoice_file' => trim($defective_courier_receipt),
+                                'shippment_date' => trim($this->input->post('defective_part_shipped_date')), //defective_part_shipped_date
+                                'created_by' => 2,
+                                'is_exist' => 0
+                            );
+                            
+                            $this->service_centers_model->insert_into_awb_details($awb_data);
+                        }
+                        else {
                                 $awb_data = array(
                                 'company_name' => trim($this->input->post('courier_name_by_sf')),
                               //  'courier_charge' => trim($this->input->post('courier_charges_by_sf')), //
+                                'partner_id' => $partner_id,
                                 'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_gram
                                 'billable_weight' => trim($billable_weight),
                                 'actual_weight' => trim($billable_weight),
@@ -3399,8 +3438,7 @@ function do_multiple_spare_shipping(){
                             );
 
                             $this->service_centers_model->update_awb_details($awb_data,trim($awb));
-
-
+                        }
                     }                    
                     $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '", "'.OK_PART_TO_BE_SHIPPED.'", "'.DAMAGE_PART_TO_BE_SHIPPED.'") ' => NULL));
 
@@ -6213,6 +6251,7 @@ function do_multiple_spare_shipping(){
                             $awb_data = array(
                                 'awb_number' => trim($awb),
                                 'company_name' => trim($this->input->post('courier_name')),
+                                'partner_id' => trim($partner_id),
                                 'courier_charge' => trim($this->input->post('courier_price_by_partner')), 
                                 'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')), 
                                 'billable_weight' => trim($billable_weight),

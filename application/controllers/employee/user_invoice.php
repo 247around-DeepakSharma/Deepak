@@ -1019,6 +1019,9 @@ class User_invoice extends CI_Controller {
         $to_gst_id = $this->input->post('to_gst_number');
         $receiver_type = $this->input->post('receiver_type');
         $receiver_id = $this->input->post('receiver_id');
+        $kilo_gram = (!empty($this->input->post('shipped_spare_parts_weight_in_kg')) ? $this->input->post('shipped_spare_parts_weight_in_kg') : '0');
+        $gram = (!empty($this->input->post('shipped_spare_parts_weight_in_gram')) ? $this->input->post('shipped_spare_parts_weight_in_gram') : '00');
+        $billable_weight = $kilo_gram . "." . $gram;
         $return_data = $this->input->post();
         $file_exist = true;
         if (!empty($return_data['awb']) && !empty($return_data['shipped_date']) && !empty($return_data['warehouse_id'])) {
@@ -1183,9 +1186,31 @@ class User_invoice extends CI_Controller {
                         }
                         
                         if(!empty($invoices)) {
-                            $toatl_qty = (array_sum(array_column($invoices, 'qty')));
-                            $courier_id = $this->invoice_lib->insert_couier_data($wh_id, _247AROUND_SF_STRING, $receiver_entity_id, $receiver_entity_type, $return_data['awb'], $return_data['courier_name'], $toatl_qty, $partner_id, array(), $return_data['courier_image_file'], $return_data['shipped_date'], $return_data['courier_price']);
+//                            $toatl_qty = (array_sum(array_column($invoices, 'qty')));
+//                            $courier_id = $this->invoice_lib->insert_couier_data($wh_id, _247AROUND_SF_STRING, $receiver_entity_id, $receiver_entity_type, $return_data['awb'], $return_data['courier_name'], $toatl_qty, $partner_id, array(), $return_data['courier_image_file'], $return_data['shipped_date'], $return_data['courier_price']);
+                            $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $return_data['awb']), array());
+                            if (empty($exist_courier_details)) {
+                                $awb_data = array(
+                                    'awb_number' => trim($return_data['awb']),
+                                    'company_name' => trim($return_data['courier_name']),
+                                    'partner_id' => trim($partner_id),
+                                    'courier_charge' => trim($return_data['courier_price']),
+                                    'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')), //1,
+                                    'billable_weight' => trim($billable_weight), //'0.00',
+                                    'actual_weight' => trim($billable_weight), //'0.00',
+                                    'basic_billed_charge_to_partner' => '0.00',
+                                    'booking_id' => '',
+                                    'courier_invoice_file' => trim($return_data['courier_image_file']),
+                                    'shippment_date' => trim($return_data['shipped_date']),
+                                    'created_by' => 1,
+                                    'is_exist' => 1
+                                );
 
+                                $courier_id = $this->service_centers_model->insert_into_awb_details($awb_data);
+                            }
+                            else {
+                                $courier_id = $exist_courier_details[0]['id'];
+                            }
                             if ($courier_id) {
                                 foreach ($invoices as $value) {
                                     $ledger_data = array();
