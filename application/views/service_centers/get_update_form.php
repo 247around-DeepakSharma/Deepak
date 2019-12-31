@@ -494,7 +494,8 @@ function alpha(e) {
     
     <?php if(isset($inventory_details) && !empty($inventory_details)) { ?> 
         <?php if(!$is_disable) { ?>
-            $('#model_number_id').select2();
+
+        $('#model_number_id').select2();
         <?php } else { ?>
             $("#model_number_id").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
         <?php } ?>
@@ -656,7 +657,7 @@ function alpha(e) {
                         html += "<input type='hidden' id='model_number' name='model_number'>";
                         $("#appliance_model_div").html(html);
                         <?php if(!$is_disable) { ?>
-                            $('#model_number_id').select2();
+                        $('#model_number_id').select2();
                         <?php } else { ?>
                             $("#model_number_id").css({"cursor" : "not-allowed", "pointer-events" : "none", "background" : "#eee" });
                         <?php } ?>
@@ -1143,6 +1144,10 @@ function alpha(e) {
     
     $(document).ready(function(){
         var model_number = $("#model_number_id option:selected").val();    
+        if (!$('input[type=radio][name=reason]').length) {
+            $("#seperator").hide();
+            $("#submitform").hide();
+        }
         if (!$('input[type=radio][name=reason]').length) {
             $("#seperator").hide();
             $("#submitform").hide();

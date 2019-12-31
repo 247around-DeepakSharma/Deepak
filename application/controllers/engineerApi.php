@@ -417,6 +417,7 @@ class engineerApi extends CI_Controller {
             
             case 'todaysSlotBookings':
                 $this->getTodaysSlotBookings();
+                break;
             
             default:
                 break;
@@ -2254,11 +2255,14 @@ class engineerApi extends CI_Controller {
             /** Check serial number validation **/
             $booking_history = $this->booking_model->getbooking_history($requestData['booking_id']);
             $check_serial = $this->checkVaidationOnSerialNumber($booking_history[0]['partner_id'], $requestData['serial_number'], $requestData['price_tags'], $booking_history[0]['user_id'], $requestData['booking_id'], $booking_history[0]['service_id'], $requestData['model_number']);
+<<<<<<< HEAD
             if(!$check_serial['status']){
                 if($check_serial['code'] != DUPLICATE_SERIAL_NO_CODE){
                     $check_serial['status'] = TRUE;
                 }
             }
+=======
+>>>>>>> CRM_Release_1.68.0.0
             if($check_serial['status']){
                 /*Check part warranty status*/
                 $bookingDetails = $this->reusable_model->get_search_query("booking_details", "request_type", array("booking_id" => $requestData['booking_id']), false, false, false, false, false)->result_array();
@@ -2910,7 +2914,11 @@ class engineerApi extends CI_Controller {
         if (!ctype_alnum($serial_number)) {
             log_message('info', "Serial Number Entered With Special Character " . $serial_number . " . This is not allowed.");
             $response['status'] = false;
+<<<<<<< HEAD
             $response['code'] = DUPLICATE_SERIAL_NO_CODE;
+=======
+            $response['code'] = "0052";
+>>>>>>> CRM_Release_1.68.0.0
             $response['message'] = "Serial Number Entered With Special Character, This is not allowed."; 
         }
         else {
@@ -2924,9 +2932,12 @@ class engineerApi extends CI_Controller {
                 else{
                     $response['status'] = false;
                     $response['code'] = "0053";
+<<<<<<< HEAD
                     if($status['code'] == DUPLICATE_SERIAL_NO_CODE){
                         $response['code'] = DUPLICATE_SERIAL_NO_CODE;
                     }
+=======
+>>>>>>> CRM_Release_1.68.0.0
                     $response['message'] = $status['message']; 
                 }
             } else {
@@ -3611,12 +3622,15 @@ class engineerApi extends CI_Controller {
                         $data['Bookings'][$key]['appliance_brand'] = $unit_data[0]['appliance_brand'];
                         $data['Bookings'][$key]['appliance_category'] = $unit_data[0]['appliance_category'];
                         $data['Bookings'][$key]['appliance_capacity'] = $unit_data[0]['appliance_capacity'];
+<<<<<<< HEAD
                         
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if(!empty($query_scba)){
                             $data['Bookings'][$key]['service_center_booking_action_status'] = "InProcess";
                         }
+=======
+>>>>>>> CRM_Release_1.68.0.0
                     }
                 }
                 $this->jsonResponseString['response'] = $data;
@@ -3673,7 +3687,11 @@ class engineerApi extends CI_Controller {
         if($validation['status']){
             $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
+<<<<<<< HEAD
                     . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
+=======
+                    . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks';
+>>>>>>> CRM_Release_1.68.0.0
             $response = $this->getTodaysSlotBookingList($slot_select, $requestData["booking_slot"], $requestData["service_center_id"], $requestData["engineer_id"], $requestData["engineer_pincode"]);
             if(!empty($response)){
                 log_message("info", __METHOD__ . "Bookings Found Successfully");

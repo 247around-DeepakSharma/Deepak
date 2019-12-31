@@ -654,7 +654,6 @@ class DatabaseTesting extends CI_Controller {
         }
     }
     
-    
     /*
      *@upload file from local temp folder to live s3  
      */
@@ -752,7 +751,5 @@ function pending_count2(){
    }
 
 }
-
-
 
 }

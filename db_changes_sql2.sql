@@ -1563,7 +1563,6 @@ ALTER TABLE `spare_parts_details` ADD `wh_to_partner_defective_shipped_date` TIM
 
 --Kalyani 01-11-2019
 INSERT INTO `sms_template` (`id`, `tag`, `template`, `comments`, `active`, `is_exception_for_length`, `create_date`) VALUES (NULL, 'appliance_installation_video_link', 'Hi %s,\r\nClick on the link to watch Installation demo video of %s link - %s\r\n247around', NULL, '1', '0', CURRENT_TIMESTAMP);
-
 ALTER TABLE `booking_details` ADD `nrn_approved` INT(2) NOT NULL DEFAULT '0' AFTER `technical_solution`;
 
 
@@ -1583,6 +1582,12 @@ ON en_vendor_brand_mapping (service_center_id, partner_id);
 ALTER TABLE `service_centres` DROP `is_booking_close_by_app_only`;
 ALTER TABLE `partners` DROP `is_booking_close_by_app_only`;
 ALTER TABLE query_report add column ownership varchar(100) NULL DEFAULT NULL ;
+
+--  Prity 12-11-2019
+UPDATE `header_navigation` SET `level` = '3', parent_ids = 256 WHERE `header_navigation`.`id` = 251;
+UPDATE `header_navigation` SET `level` = '3', parent_ids = 256 WHERE `header_navigation`.`id` = 248;
+UPDATE `header_navigation` SET `title` = 'Add Models to Plan' WHERE `header_navigation`.`id` = 257;
+>>>>>>> CRM_Release_1.68.0.0
 
 ALTER TABLE `booking_details` ADD `nrn_approved` INT(2) NOT NULL DEFAULT '0' AFTER `technical_solution`;
  
@@ -1609,6 +1614,7 @@ COMMIT;
 ALTER TABLE spare_consumption_status ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1 AFTER update_date;
 
 --Kalyani 27-11-2019
+
 INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Software', 'software');
 
 -- Kalyani 02-12-2019
@@ -1702,3 +1708,4 @@ CREATE TABLE `pincode_district_mapping` (
     `state` VARCHAR(30) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL , 
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
+INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Software', 'software');

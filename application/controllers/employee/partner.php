@@ -943,10 +943,12 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('state', 'State', 'trim|required');
         $this->form_validation->set_rules('district', 'District', 'trim|required');
         $this->form_validation->set_rules('partner_type', 'Partner Type', 'trim|required');
-        if (isset($arr_post['original_public_name']) && isset($arr_post['public_name']) && (trim($arr_post['original_public_name']) != trim($arr_post['public_name']))) {
-
+ 
+       if(isset($arr_post['original_public_name']) && isset($arr_post['public_name']) && (trim($arr_post['original_public_name']) != trim($arr_post['public_name'])))
+        {
             $this->form_validation->set_rules('public_name', 'Public Name', 'trim|required|is_unique[partners.public_name]');
         }
+
         return $this->form_validation->run();
     }
 
@@ -8651,173 +8653,173 @@ class Partner extends CI_Controller {
         );
         echo json_encode($output);
     }
-    function do_partner_nrn_approval(){
+ 
+
+//  function do the NRN approval ///
+
+   function do_partner_nrn_approval() {
 
         $booking_id = trim($this->input->post('booking_id'));
         $partner_id = $this->session->userdata('partner_id');
-        if(empty($partner_id)){
-         $partner_id = $this->input->post('partner_id');   
+        if (empty($partner_id)) {
+            $partner_id = $this->input->post('partner_id');
         }
-        $email="Not Given";
+        $email = "Not Given";
         $remarks = $this->input->post('remarks');
         if (isset($_POST['email']) && !empty($_POST['email'])) {
-           $email = $this->input->post('email');
+            $email = $this->input->post('email');
         }
-      //  $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG',);
-        $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG','docx','DOCX','doc','DOC','JPG','JPEG');
+        //  $allowedExts = array("PDF", "pdf",'jpg','jpeg','png','PNG',);
+        $allowedExts = array("PDF", "pdf", 'jpg', 'jpeg', 'png', 'PNG', 'docx', 'DOCX', 'doc', 'DOC', 'JPG', 'JPEG');
         $approval_file_name = "Not Uploaded";
-        if(isset($_FILES["approval_file"]) && !empty($_FILES["approval_file"])){
-           $approval_file_name = $this->miscelleneous->upload_file_to_s3($_FILES["approval_file"], "nrn_approval", $allowedExts, $booking_id, "nrn_approvals_files", "incoming_approve_nrn");
+        if (isset($_FILES["approval_file"]) && !empty($_FILES["approval_file"])) {
+            $approval_file_name = $this->miscelleneous->upload_file_to_s3($_FILES["approval_file"], "nrn_approval", $allowedExts, $booking_id, "nrn_approvals_files", "incoming_approve_nrn");
         }
 
         $data_nrn = array(
-            'booking_id'=>$booking_id,
-            'email_to'=>trim($email),
-            'approval_file'=>$approval_file_name,
-            'remark'=>trim($remarks)
+            'booking_id' => $booking_id,
+            'email_to' => trim($email),
+            'approval_file' => $approval_file_name,
+            'remark' => trim($remarks)
         );
- 
+
         $response = $this->partner_model->insert_nrn_approval($data_nrn);
         if ($response) {
 
             $select_invemtory = "spare_parts_details.id,spare_parts_details.partner_id,spare_parts_details.requested_inventory_id,spare_parts_details.quantity,booking_id,spare_parts_details.status,spare_parts_details.entity_type,spare_parts_details.shipped_inventory_id,spare_parts_details.shipped_date,spare_parts_details.serial_number,spare_parts_details.model_number,spare_parts_details.serial_number_pic";
             $where_inventory = array('booking_id' => trim($booking_id));
-            $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory,$where_inventory);
+            $spare_inventory_update = $this->partner_model->get_spare_parts_by_any($select_invemtory, $where_inventory);
 
-            $review_counter=0;
-            $sc_action=array();
-            foreach ($spare_inventory_update as  $update_pending) {
+            $review_counter = 0;
+            $sc_action = array();
+            foreach ($spare_inventory_update as $update_pending) {
 
 
                 if (!empty($update_pending['shipped_date'])) {
-                   
-                $where = array('id' => trim($update_pending['id']));
-                $data = array(
-                    'nrn_approv_by_partner'=>1
-                );
-                $response = $this->service_centers_model->update_spare_parts($where, $data);
-    
-                $unit_array=array(
-                        'serial_number'=>$update_pending['serial_number'],
-                        'sf_model_number'=>$update_pending['model_number'],
-                        'serial_number_pic'=>$update_pending['serial_number_pic']
-                );
-                //$this->booking_model->update_booking_unit_details($booking_id,$unit_array);
 
-                if (!empty($update_pending['serial_number'])) {
-                    $sc_action['serial_number']=$update_pending['serial_number'];
-                }
-                if (!empty($update_pending['model_number'])) {
-                    $sc_action['model_number']=$update_pending['model_number'];
-                }
-                if (!empty($update_pending['serial_number_pic'])) {
-                    $sc_action['serial_number_pic']=$update_pending['serial_number_pic'];
-                }
+                    $where = array('id' => trim($update_pending['id']));
+                    $data = array(
+                        'nrn_approv_by_partner' => 1
+                    );
+                    $response = $this->service_centers_model->update_spare_parts($where, $data);
 
-                $review_counter++;
+                    $unit_array = array(
+                        'serial_number' => $update_pending['serial_number'],
+                        'sf_model_number' => $update_pending['model_number'],
+                        'serial_number_pic' => $update_pending['serial_number_pic']
+                    );
+                    //$this->booking_model->update_booking_unit_details($booking_id,$unit_array);
 
-                }else{
+                    if (!empty($update_pending['serial_number'])) {
+                        $sc_action['serial_number'] = $update_pending['serial_number'];
+                    }
+                    if (!empty($update_pending['model_number'])) {
+                        $sc_action['model_number'] = $update_pending['model_number'];
+                    }
+                    if (!empty($update_pending['serial_number_pic'])) {
+                        $sc_action['serial_number_pic'] = $update_pending['serial_number_pic'];
+                    }
 
-                $where = array('id' => trim($update_pending['id']));
-                $data = array(
-                    'status'=>_247AROUND_CANCELLED,
-                    'nrn_approv_by_partner'=>1
-                );
-                $response = $this->service_centers_model->update_spare_parts($where, $data);
-                if (!empty($update_pending['serial_number'])) {
-                    $sc_action['serial_number']=$update_pending['serial_number'];
-                }
-                if (!empty($update_pending['model_number'])) {
-                    $sc_action['model_number']=$update_pending['model_number'];
-                }
-                if (!empty($update_pending['serial_number_pic'])) {
-                    $sc_action['serial_number_pic']=$update_pending['serial_number_pic'];
-                }
+                    $review_counter++;
+                } else {
+
+                    $where = array('id' => trim($update_pending['id']));
+                    $data = array(
+                        'status' => _247AROUND_CANCELLED,
+                        'nrn_approv_by_partner' => 1
+                    );
+                    $response = $this->service_centers_model->update_spare_parts($where, $data);
+                    if (!empty($update_pending['serial_number'])) {
+                        $sc_action['serial_number'] = $update_pending['serial_number'];
+                    }
+                    if (!empty($update_pending['model_number'])) {
+                        $sc_action['model_number'] = $update_pending['model_number'];
+                    }
+                    if (!empty($update_pending['serial_number_pic'])) {
+                        $sc_action['serial_number_pic'] = $update_pending['serial_number_pic'];
+                    }
 
 
-                if ($update_pending['entity_type']==_247AROUND_SF_STRING) {
-                    
-                    $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
+                    if ($update_pending['entity_type'] == _247AROUND_SF_STRING) {
+
+                        $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $update_pending['partner_id'], $update_pending['requested_inventory_id'], -$update_pending['quantity']);
+                    }
                 }
-                    
-                }
-   
             }
 
-        
-                    $booking['internal_status'] =NRN_APPROVED_BY_PARTNER;
-                    $booking['current_status'] = _247AROUND_PENDING;
-                    $actor="";
-                    $next_action="";
-                    $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING,NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);
-                
-                if (!empty($partner_status)) {
-                    $booking['partner_current_status'] = $partner_status[0];
-                    $booking['partner_internal_status'] = $partner_status[1];
-                    $actor = $booking['actor'] = $partner_status[2];
-                    $next_action = $booking['next_action'] = $partner_status[3];
-                    $booking['nrn_approved'] = 1;
-                }
-                $this->booking_model->update_booking($booking_id, $booking);
 
-               $data_service_center=array(
-                        'current_status'=>"InProcess",
-                        'internal_status'=>NRN_APPROVED_BY_PARTNER,
+            $booking['internal_status'] = NRN_APPROVED_BY_PARTNER;
+            $booking['current_status'] = _247AROUND_PENDING;
+            $actor = "";
+            $next_action = "";
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, NRN_APPROVED_BY_PARTNER, $partner_id, $booking_id);
+
+            if (!empty($partner_status)) {
+                $booking['partner_current_status'] = $partner_status[0];
+                $booking['partner_internal_status'] = $partner_status[1];
+                $actor = $booking['actor'] = $partner_status[2];
+                $next_action = $booking['next_action'] = $partner_status[3];
+                $booking['nrn_approved'] = 1;
+            }
+            $this->booking_model->update_booking($booking_id, $booking);
+
+            $data_service_center = array(
+                'current_status' => "InProcess",
+                'internal_status' => NRN_APPROVED_BY_PARTNER,
+            );
+
+
+            $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
+            /// Move To Review Booking ///
+            if ($review_counter == 0) {
+                $review_update_array = array(
+                    'current_status' => 'Pending',
+                    'internal_status' => SF_BOOKING_COMPLETE_STATUS,
+                    'actor' => '247Around'
                 );
-
-
-               $this->vendor_model->update_service_center_action($booking_id, $data_service_center);
-               /// Move To Review Booking ///
-               if($review_counter==0){
-                $review_update_array=array(
-                    'current_status'=>'Pending',
-                    'internal_status'=>SF_BOOKING_COMPLETE_STATUS,
-                    'actor'=>'247Around'
-                );
-               // $this->booking_model->update_booking($booking_id, $review_update_array);
+                // $this->booking_model->update_booking($booking_id, $review_update_array);
 
                 if (!empty($sc_action['serial_number'])) {
                     $serial_number = $sc_action['serial_number'];
-                }else{
+                } else {
                     $serial_number = NULL;
                 }
                 if (!empty($sc_action['serial_number_pic'])) {
                     $serial_number_pic = $sc_action['serial_number_pic'];
-                }else{
+                } else {
                     $serial_number_pic = NULL;
                 }
                 if (!empty($sc_action['model_number'])) {
                     $model_number = $sc_action['model_number'];
-                }else{
+                } else {
                     $model_number = NULL;
                 }
-               $data_service_center_review=array(
-                        'current_status'=>'InProcess',
-                        'internal_status'=>'Completed',
-                        'serial_number'=>$serial_number,
-                        'model_number'=>$model_number,
-                        'serial_number_pic'=>$serial_number_pic
+                $data_service_center_review = array(
+                    'current_status' => 'InProcess',
+                    'internal_status' => 'Completed',
+                    'serial_number' => $serial_number,
+                    'model_number' => $model_number,
+                    'serial_number_pic' => $serial_number_pic
                 );
 
                 //$this->vendor_model->update_service_center_action($booking_id, $data_service_center_review);
+            } else {
 
-                }else{
-
-                $review_update_array=array(
-                    'actor'=>'Vendor'
+                $review_update_array = array(
+                    'actor' => 'Vendor'
                 );
-                $this->booking_model->update_booking($booking_id, $review_update_array);  
-                }
+                $this->booking_model->update_booking($booking_id, $review_update_array);
+            }
 
-                $new_state=NRN_APPROVED_BY_PARTNER;
-                    $this->notify->insert_state_change($booking_id, $new_state,SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER." - ".$remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor,$next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
+            $new_state = NRN_APPROVED_BY_PARTNER;
+            $this->notify->insert_state_change($booking_id, $new_state, SPARE_PART_ON_APPROVAL, NRN_TO_BE_SHIPPED_BY_PARTNER . " - " . $remarks, $this->session->userdata('agent_id'), $this->session->userdata('partner_name'), $actor, $next_action, NRN_TO_BE_APPROVED_BY_PARTNER);
 
-                echo "1";   
-        }else{
-           echo "0";
+            echo "1";
+        } else {
+            echo "0";
         }
-       
     }
+
     
     /**
      * 
@@ -8834,6 +8836,7 @@ class Partner extends CI_Controller {
             $this->partner_model->update_en_vendor_brand_mapping($partner_id, $post_data['service_center_id'], $post_data);
         }
     }
+
 
     /*This function is used to download all brand booking collateral*/
     function download_all_brand_collateral(){

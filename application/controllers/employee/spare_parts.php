@@ -844,7 +844,7 @@ class Spare_parts extends CI_Controller {
                 $cl = "btn-primary";
             } else {
                 $text = '<i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i>';
-                $required_parts = 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING';
+                $required_parts = 'NOT_REQUIRED_PARTS';
                 $cl = "btn-danger";
             }
             $row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';

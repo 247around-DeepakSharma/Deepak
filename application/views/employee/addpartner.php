@@ -1739,9 +1739,9 @@
                     </tbody>
                 </table>
             </div>
-                <?php 
-                       }
-                        ?>
+             <?php 
+                 }
+             ?>
             </div>     
              <div class="clear"></div>
               <div id="container_8" style="display:none;margin: 30px 10px;" class="form_container">
@@ -2756,8 +2756,8 @@
                                         <thead>
                                             <tr>
                                                 <th>S.No.</th>
-                                                <th>Service</th>
                                                 <th>Model Number</th>
+                                                <th>Service</th>
                                                 <th>Brand</th>
                                                 <th>Category</th>
                                                 <th>Capacity</th>
@@ -5229,6 +5229,8 @@
         }
       
     }
+    
+    
     $('#parts_type_0').select2({
         placeholder: "Select part type",
         allowClear: true,
@@ -5667,6 +5669,7 @@
             });
         }
     }
+    
     function update_mapping_status(status, id){
         $.ajax({
             type:'POST',
@@ -5745,21 +5748,6 @@
         }
     }
     
-    var specialKeys = new Array();
-    specialKeys.push(8);  //Backspace
-    specialKeys.push(9);  //Tab
-    specialKeys.push(46); //Delete
-    specialKeys.push(36); //Home
-    specialKeys.push(35); //End
-    specialKeys.push(37); //Left
-    specialKeys.push(39); //Right
-    
-    function IsModelValid(e) {
-        var keyCode = e.keyCode == 0 ? e.charCode : e.keyCode;
-        var ret = ((keyCode >= 48 && keyCode <= 57) || (keyCode >= 65 && keyCode <= 90) || keyCode == 32 || keyCode == 44 || (keyCode >= 97 && keyCode <= 122) || (specialKeys.indexOf(e.keyCode) != -1 && e.charCode != e.keyCode));
-        document.getElementById("model_error").style.display = ret ? "none" : "inline";
-        return ret;
-    }
     $('#service_center').on('change', function(data) {
         if($(this).val() == 'all') {
             $("#service_center > option").prop("selected","selected");
@@ -5798,9 +5786,23 @@
                 alert('Data has been updated successfully.');
                 location.reload();
             });
-            
         }
-
+    }
+    
+    var specialKeys = new Array();
+    specialKeys.push(8);  //Backspace
+    specialKeys.push(9);  //Tab
+    specialKeys.push(46); //Delete
+    specialKeys.push(36); //Home
+    specialKeys.push(35); //End
+    specialKeys.push(37); //Left
+    specialKeys.push(39); //Right
+    
+    function IsModelValid(e) {
+        var keyCode = e.keyCode == 0 ? e.charCode : e.keyCode;
+        var ret = ((keyCode >= 48 && keyCode <= 57) || (keyCode >= 65 && keyCode <= 90) || keyCode == 32 || keyCode == 44 || (keyCode >= 97 && keyCode <= 122) || (specialKeys.indexOf(e.keyCode) != -1 && e.charCode != e.keyCode));
+        document.getElementById("model_error").style.display = ret ? "none" : "inline";
+        return ret;
     }
     
     function disable_inputs(input){

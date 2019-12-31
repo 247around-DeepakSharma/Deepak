@@ -1005,6 +1005,7 @@ class Booking extends CI_Controller {
                     'partner_appliance_details.brand' => $value['brand'],
                     'partner_appliance_details.active' => 1,
                     'appliance_model_details.active'=> 1, 
+                    'partner_appliance_details.active' => 1,
                     "NULLIF(model, '') IS NOT NULL" => NULL
                 );
                 $data['booking_unit_details'][$keys]['model_dropdown'] = $this->partner_model->get_model_number("appliance_model_details.id, appliance_model_details.model_number", $where);
@@ -1689,12 +1690,11 @@ class Booking extends CI_Controller {
      *  @return : booking details and load view
      */
     function viewdetails($booking_id = null) {
-        if (empty($booking_id)) {
-            $message = "function Booking::viewdetails() Booking Id Not Found, REFERRER : " . $_SERVER['HTTP_REFERER'];
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, 'pritys@247around.com', NULL, NULL, 'ERROR', $message, "", "BOOKING_VIEW_DETAILS");
+        if(empty($booking_id)){
+            $message = "function Booking::viewdetails() Booking Id Not Found, REFERRER : ".$_SERVER['HTTP_REFERER'];
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, 'pritys@247around.com', NULL, NULL, 'ERROR', $message, "","BOOKING_VIEW_DETAILS");
             return;
         }
-
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);
         $data['booking_symptom'] = $this->booking_model->getBookingSymptom($booking_id);
         $data['file_type'] = $this->booking_model->get_file_type();
@@ -1851,8 +1851,8 @@ class Booking extends CI_Controller {
             }
         } else {
             $data['symptom'][0] = array("symptom" => "Default");
-
-            if (!empty($data['booking_history'][0]['internal_status']) && in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS, _247AROUND_COMPLETED))) {
+            
+            if(!empty($data['booking_history'][0]['internal_status']) && in_array($data['booking_history'][0]['internal_status'], array(SF_BOOKING_COMPLETE_STATUS,_247AROUND_COMPLETED))) {
                 $data['completion_symptom'][0] = array("symptom" => "Default");
                 $data['technical_defect'][0] = array("defect" => "Default");
                 $data['technical_solution'][0] = array("technical_solution" => "Default");
@@ -3979,7 +3979,6 @@ class Booking extends CI_Controller {
         }
         
         
-        
         return $row;
     }
     /*
@@ -4430,7 +4429,6 @@ class Booking extends CI_Controller {
 
             $row[] = "<a style='background-color: #fa0202;' class = 'btn btn-sm btn-color' href = '#' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
         }
-        
         $row[] = $penalty_row;
         $row[] = "<a class = 'btn btn-sm btn-color' title = 'Helper Document' data-toggle='modal' data-target='#showBrandCollateral' onclick=get_brand_collateral('".$order_list->booking_id."')><i class='fa fa-file-text-o' aria-hidden='true'></i></a>";
         
@@ -5675,7 +5673,6 @@ class Booking extends CI_Controller {
         //echo"<pre>";print_r($data);exit;
         $this->miscelleneous->downloadCSV($data, ['Booking Id', 'Amount Due',  'Admin Remarks', 'Cancellation Reason', 'Vendor Remarks', 'Request Type', 'City', 'State', 'booking_date', 'Age', 'Amount Paid'], 'data_'.date('Ymd-His'));
     }
-            
     function sms_test($number,$text){
           $this->notify->sendTransactionalSmsMsg91($number,$text,SMS_WITHOUT_TAG);
     }

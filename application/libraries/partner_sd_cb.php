@@ -673,7 +673,8 @@ class partner_sd_cb {
         log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
         $booking_symptom = $this->My_CI->booking_model->getBookingSymptom($data['booking_id']);
         $this->requestUrl = __METHOD__;
-        if (!empty($data) && $data['current_status'] == _247AROUND_PENDING ) {
+        //Trigger only for Scheduled or Assigned Vendor
+        if (!empty($data) && $data['current_status'] == _247AROUND_PENDING && (strtolower($data['internal_status']) == "scheduled")) {
             log_message('info', __METHOD__. " Current status". $data['current_status']. " Booking ID ".$data['booking_id']);
             $get_akai_api_token = $this->get_akai_api_token(); 
             $token = json_decode($get_akai_api_token, true);
@@ -774,8 +775,8 @@ class partner_sd_cb {
     function update_akai_closed_details($data){
         log_message('info', __METHOD__ . "=> Booking ID: " . $data['booking_id']);
         $this->requestUrl = __METHOD__;
-        
-        if (!empty($data) && $data['type'] == "Booking") {
+        //trigger only for closed call
+        if (!empty($data) && $data['type'] == "Booking" && ($data['current_status'] == _247AROUND_CANCELLED || $data['current_status'] == _247AROUND_COMPLETED) ) {
             $this->partner = $data['partner_id'];
             
             $get_akai_api_token = $this->get_akai_api_token(); 
@@ -833,9 +834,9 @@ class partner_sd_cb {
                 $warrantyVoid = 0;
             }
             
-            $spare_parts_details = $this->My_CI->partner_model->get_spare_parts_by_any('spare_parts_details.id, shipped_inventory_id, purchase_price, serial_number', 
-                    array('spare_parts_details.booking_id' => $data['booking_id'],
-                'status NOT IN ("'._247AROUND_CANCELLED.'")' => NULL));
+//            $spare_parts_details = $this->My_CI->partner_model->get_spare_parts_by_any('spare_parts_details.id, shipped_inventory_id, purchase_price, serial_number', 
+//                    array('spare_parts_details.booking_id' => $data['booking_id'],
+//                'status NOT IN ("'._247AROUND_CANCELLED.'")' => NULL));
             
             $array[] = array(
                 'Defect' => $data['partner_current_status'],
@@ -885,7 +886,7 @@ class partner_sd_cb {
                 }
             } else {
                 log_message('info', __METHOD__. " Not Updated " . $data['booking_id']);
-                $this->updateCallbackFailure($data['booking_id']);
+                $this->insertCallbackFailure($data['booking_id']);
                 $this->callbackAPIFailed();
             }
             

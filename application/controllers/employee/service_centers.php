@@ -2244,9 +2244,8 @@ class Service_centers extends CI_Controller {
 
         log_message('info', __FUNCTION__ . " Exit Service_center ID: " . $this->session->userdata('service_center_id'));
     }
-    
-    function update_booking_internal_status($booking_id, $internal_status, $partner_id, $booking_action = null){
 
+    function update_booking_internal_status($booking_id, $internal_status, $partner_id, $booking_action = null){
         $booking['internal_status'] = $internal_status;
         $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking['internal_status'], $partner_id, $booking_id);
         if (!empty($partner_status)) {
@@ -3970,6 +3969,18 @@ function do_multiple_spare_shipping(){
             }
         }
     }
+    
+    /*
+     * @desc: This is used to forcefully generate
+     * @param Array $booking_address
+     * @return void 
+     */
+    
+     function forcefully_generate_sf_challan($booking_id, $sf_id){
+         $generate_challan = array("$sf_id" => $booking_id);
+         
+         $this->generate_sf_challan($generate_challan);
+     }
 
     /**
      * @desc: Call by Ajax to load group upcountry details
@@ -8148,7 +8159,6 @@ function do_multiple_spare_shipping(){
         $from = trim($this->input->post('frombooking'));
         $to = trim($this->input->post('tobooking'));
         if (isset($from) && isset($to) && !empty($from) && !empty($to)) {
- 
             $from_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $from, 'wh_ack_received_part' => 1, 'status' =>SPARE_DELIVERED_TO_SF));
             $frominventory_req_id = $from_details[0]['requested_inventory_id'];
             $to_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array('booking_id' => $to, 'wh_ack_received_part' => 1, 'status' => SPARE_PARTS_REQUESTED));
