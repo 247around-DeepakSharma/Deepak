@@ -6888,10 +6888,7 @@ function get_bom_list_by_inventory_id($inventory_id) {
                             $where["spare_parts_details.shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.shipped_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
                         } else if ($search_by == 'awb_by_sf') {
                             $where["spare_parts_details.defective_part_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.defective_part_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
-                        }else if ($search_by == 'awb_by_wh') {
-                            $where["spare_parts_details.wh_to_partner_defective_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.wh_to_partner_defective_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
                         }
-                        
                     }
                     $post['is_inventory'] = TRUE;
                     $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE,FALSE,$post);
