@@ -1968,7 +1968,7 @@ class Service_centers extends CI_Controller {
        
         if (!empty($_FILES['serial_number_pic']['name'])) {
             $this->validate_serial_number_pic_upload_file();
-            $data['serial_number_pic'] = $this->input->post('serial_number_pic');
+            $ud_data['serial_number_pic'] = $data['serial_number_pic'] = $this->input->post('serial_number_pic');
         }
 
         if (!empty($_FILES['invoice_image']['name'])) {
@@ -1978,9 +1978,9 @@ class Service_centers extends CI_Controller {
 
         if (!empty($this->input->post('spare_id'))) {
             $parts_requested = $this->input->post('part');
-            $data['model_number'] = $this->input->post('model_number');
-            $data['serial_number'] = $this->input->post('serial_number');
-            $data['date_of_purchase'] = $this->input->post('dop');
+            $ud_data['sf_model_number'] = $data['model_number'] = $this->input->post('model_number');
+            $ud_data['serial_number'] = $data['serial_number'] = $this->input->post('serial_number');
+            $ud_data['sf_purchase_date'] = $data['date_of_purchase'] = date("Y-m-d", strtotime($this->input->post('dop')));
 
             $data['part_warranty_status'] = $this->input->post('part_warranty_status');
             $data['remarks_by_sc'] = $this->input->post('reason_text');
@@ -2115,7 +2115,9 @@ class Service_centers extends CI_Controller {
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
 
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
-            
+            if(!empty($ud_data)){
+                $this->booking_model->update_booking_unit_details($booking_id, $ud_data);
+            }
              $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
 
 
@@ -2132,7 +2134,9 @@ class Service_centers extends CI_Controller {
         } else {
             $this->checkUserSession();
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
-
+            if(!empty($ud_data)){
+                $this->booking_model->update_booking_unit_details($booking_id, $ud_data);
+            }
               $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
 
             if ($affected_row == TRUE) {
