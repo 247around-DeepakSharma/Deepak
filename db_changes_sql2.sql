@@ -1689,6 +1689,8 @@ CREATE TABLE `pincode_district_mapping` (
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
+INSERT into `pincode_district_mapping` (pincode, district, state) SELECT distinct pincode, district, state FROM `india_pincode` where length(pincode)=6 group by pincode;
+
 -- Prity 31-12-2019
 Alter table service_centres add column rm_id int(11) NULL DEFAULT NULL;
 Alter table service_centres add column asm_id int(11) NULL DEFAULT NULL;
