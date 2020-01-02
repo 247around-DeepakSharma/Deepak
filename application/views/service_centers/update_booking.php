@@ -115,7 +115,7 @@ else
                                         if(!empty($booking_history['spare_parts'][0]['model_number']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED){
                                             $booking_model_number = $booking_history['spare_parts'][0]['model_number'];
                                         }
-                                        if(!empty($booking_history['spare_parts'][0]['date_of_purchase'])){
+                                        if(!empty($booking_history['spare_parts'][0]['date_of_purchase']) && $booking_history['spare_parts'][0]['status'] != _247AROUND_CANCELLED){
                                             $booking_model_purchase_date = date("d-m-Y",strtotime($booking_history['spare_parts'][0]['date_of_purchase']));
                                         }
                                         if(!empty($booking_model_number) && !empty($model[0]) && $booking_history['is_spare_requested']){
