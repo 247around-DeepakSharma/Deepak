@@ -55,6 +55,12 @@
                                 </a>
                             </li>
 
+                            <li role="presentation">
+                                <a href="#tabs-9" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/rejected_by_partner_on_challan">
+                                    Delivery On Challan Rejected By Partner
+                                </a>
+                            </li>
+
                         </ul>
                         <div id="myTabContent" class="tab-content">
                             <div class="tab-pane" id="tabs-2"></div>
@@ -62,6 +68,7 @@
                             <div class="tab-pane" id="tabs-3"></div>     
                             <div class="tab-pane" id="tabs-7"></div>
                             <div class="tab-pane" id="tabs-8"></div>
+                            <div class="tab-pane" id="tabs-9"></div>
                             <div class="tab-pane active" id="tabs-6">
                                 <div class="right_col" role="main">
                                     <div class="row">
