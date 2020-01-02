@@ -154,7 +154,7 @@
                                         <th>Current&nbsp;Status</th>
                                         <th>Internal&nbsp;Status</th>
                                         <th>ASM&nbsp;Name</th>
-                                        <th>AM&nbsp;Name</th>
+                                        <th>RM&nbsp;Name</th>
                                         <th>Part&nbsp;Name&nbsp;Requested</th>
                                         <th>Part&nbsp;Type&nbsp;Requested</th>
                                         <th>Part&nbsp;Name&nbsp;Shipped</th>
