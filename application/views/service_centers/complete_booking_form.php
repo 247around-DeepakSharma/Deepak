@@ -668,9 +668,14 @@
                          <center style="margin-top:60px; font-weight: bold;">
                             <?php echo UNABLE_COMPLETE_BOOKING_SPARE_MSG;?>
                          </center>
-                        <?php } else { ?>
+                        <?php } else { 
+                            $is_upcountry = 0;
+                            if(($booking_history[0]['upcountry_paid_by_customer'] == 1) && ($booking_history[0]['is_upcountry'] == 1)){
+                                $is_upcountry = 1;
+                            }
+                            ?>
                             <center style="margin-top:60px;">
-                                <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $booking_history[0]['upcountry_paid_by_customer']; ?>', '<?php echo $k_count; ?>', '<?php echo count($bookng_unit_details)?>')" class="btn btn-lg" style="background-color: #2C9D9A;
+                                <input type="submit" id="submitform"  onclick="return onsubmit_form('<?php echo $is_upcountry; ?>', '<?php echo $k_count; ?>', '<?php echo count($bookng_unit_details)?>')" class="btn btn-lg" style="background-color: #2C9D9A;
                                 border-color: #2C9D9A; color:#fff;" value="Complete Booking">
                             </center>
                         <?php }?>

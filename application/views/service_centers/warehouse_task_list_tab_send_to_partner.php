@@ -203,6 +203,30 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class='form-group'>
+                                    <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">No Of Boxes *</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
+                                            <option selected="" disabled="" value="">Select Boxes</option>
+                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                                <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Weight *</label>
+                                    <div class="col-md-8">
+                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="spare_parts_shipped_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="spare_parts_shipped_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class='form-group'>
                                     <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">Courier Pic *</label>
                                     <div class="col-md-8">
                                         <input type="hidden" class="form-control"  id="exist_courier_image" name="exist_courier_image" >
@@ -445,6 +469,9 @@
         postData['to_gst_number'] = $('#to_gst_number').val();
         postData['eway_bill_by_wh'] = $('#eway_bill_by_wh').val();
         postData['eway_vehicle_number'] = $('#eway_vehicle_number').val();
+        postData['shipped_spare_parts_boxes_count'] = $('#shipped_spare_parts_boxes_count').val();
+        postData['shipped_spare_parts_weight_in_kg'] = $('#shipped_spare_parts_weight_in_kg').val();
+        postData['shipped_spare_parts_weight_in_gram'] = $('#shipped_spare_parts_weight_in_gram').val();
         var exist_courier_image = $("#exist_courier_image").val();       
         
         //Declaring new Form Data Instance  
@@ -488,7 +515,7 @@
             alert('Courier price should be in between 0 and 2000.');
             return false;
         }
-        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['from_gst_number'] && postData['to_gst_number']){
+        if(postData['awb_by_wh'] && postData['courier_name_by_wh'] && postData['courier_price_by_wh'] && postData['defective_parts_shippped_date_by_wh'] && is_exist_file && postData['from_gst_number'] && postData['to_gst_number'] && postData['shipped_spare_parts_boxes_count'] && postData['shipped_spare_parts_weight_in_kg']  && postData['shipped_spare_parts_weight_in_gram']){
             $.ajax({
                 method:'POST',
                 url:'<?php echo base_url(); ?>employee/inventory/send_defective_parts_to_partner_from_wh',
@@ -580,6 +607,20 @@
                                 $("#exist_courier_image").val(data.message[0].courier_file);
                                 $("#defective_parts_shippped_courier_pic_by_wh").css("display","none");
                             }
+                            $('#shipped_spare_parts_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
+                            if (data.message[0]['box_count'] === 0) {
+                                $('#shipped_spare_parts_boxes_count').val("");
+
+                            } else {
+                                $('#shipped_spare_parts_boxes_count').val(data.message[0]['box_count']).trigger('change');
+
+                            }                            
+                            var wt = Number(data.message[0]['billable_weight']);
+                            if(wt > 0){
+                            var wieght = data.message[0]['billable_weight'].split(".");
+                                $("#shipped_spare_parts_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
+                                $("#shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
+                            }
 
                         } else {
 
@@ -588,6 +629,8 @@
                             $("#courier_price_by_wh").css("display","block");
                             $("#same_awb").css("display","none");
                             $("#exist_courier_image").val("");
+                            $("#shipped_spare_parts_weight_in_kg").removeAttr("readonly");
+                            $("#shipped_spare_parts_weight_in_gram").removeAttr("readonly");
                         }
 
                     }
@@ -595,5 +638,74 @@
             }
             
         }
+    
+    $("#shipped_spare_parts_weight_in_kg").on({
+        "click": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 1) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+    $("#shipped_spare_parts_weight_in_gram").on({
+        "click": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+    $('#shipped_spare_parts_weight_in_gram,#shipped_spare_parts_weight_in_kg').bind('keydown', function (event) {
+        switch (event.keyCode) {
+            case 8:  // Backspace
+            case 9:  // Tab
+            case 13: // Enter
+            case 37: // Left
+            case 38: // Up
+            case 39: // Right
+            case 40: // Down
+                break;
+            default:
+                var regex = new RegExp("^[a-zA-Z0-9,]+$");
+                var key = event.key;
+                if (!regex.test(key)) {
+                    event.preventDefault();
+                    return false;
+                }
+                break;
+        }
+    });
 </script>
 

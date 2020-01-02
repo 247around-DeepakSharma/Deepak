@@ -212,6 +212,20 @@ function check_awb_exist(){
                         $("#exist_courier_image").val(data.message[0].courier_file);
                         $("#shippped_courier").css("display","none");
                     }
+                    $('#shipped_spare_parts_boxes_count option[value="' + data.message[0]['box_count'] + '"]').attr("selected", "selected");
+                    if (data.message[0]['box_count'] === 0) {
+                        $('#shipped_spare_parts_boxes_count').val("");
+
+                    } else {
+                        $('#shipped_spare_parts_boxes_count').val(data.message[0]['box_count']).trigger('change');
+
+                    }                            
+                    var wt = Number(data.message[0]['billable_weight']);
+                    if(wt > 0){
+                    var wieght = data.message[0]['billable_weight'].split(".");
+                        $("#shipped_spare_parts_weight_in_kg").val(wieght[0]).attr('readonly', "readonly");
+                        $("#shipped_spare_parts_weight_in_gram").val(wieght[1]).attr('readonly', "readonly");
+                    }
 
                 } else {
 
@@ -220,6 +234,8 @@ function check_awb_exist(){
                     $("#courier_price").css("display","block");
                     $("#same_awb").css("display","none");
                     $("#exist_courier_image").val("");
+                    $("#shipped_spare_parts_weight_in_kg").removeAttr("readonly");
+                    $("#shipped_spare_parts_weight_in_gram").removeAttr("readonly");
                 }
 
             }

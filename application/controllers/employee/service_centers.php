@@ -1968,7 +1968,7 @@ class Service_centers extends CI_Controller {
        
         if (!empty($_FILES['serial_number_pic']['name'])) {
             $this->validate_serial_number_pic_upload_file();
-            $data['serial_number_pic'] = $this->input->post('serial_number_pic');
+            $ud_data['serial_number_pic'] = $data['serial_number_pic'] = $this->input->post('serial_number_pic');
         }
 
         if (!empty($_FILES['invoice_image']['name'])) {
@@ -1978,9 +1978,9 @@ class Service_centers extends CI_Controller {
 
         if (!empty($this->input->post('spare_id'))) {
             $parts_requested = $this->input->post('part');
-            $data['model_number'] = $this->input->post('model_number');
-            $data['serial_number'] = $this->input->post('serial_number');
-            $data['date_of_purchase'] = $this->input->post('dop');
+            $ud_data['sf_model_number'] = $data['model_number'] = $this->input->post('model_number');
+            $ud_data['serial_number'] = $data['serial_number'] = $this->input->post('serial_number');
+            $ud_data['sf_purchase_date'] = $data['date_of_purchase'] = date("Y-m-d", strtotime($this->input->post('dop')));
 
             $data['part_warranty_status'] = $this->input->post('part_warranty_status');
             $data['remarks_by_sc'] = $this->input->post('reason_text');
@@ -2115,7 +2115,9 @@ class Service_centers extends CI_Controller {
         if ($this->session->userdata('user_group') == 'admin' || $this->session->userdata('user_group') == 'inventory_manager' || $this->session->userdata('user_group') == 'developer') {
 
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
-            
+            if(!empty($ud_data)){
+                $this->booking_model->update_booking_unit_details($booking_id, $ud_data);
+            }
              $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
 
 
@@ -2132,7 +2134,9 @@ class Service_centers extends CI_Controller {
         } else {
             $this->checkUserSession();
             $affected_row = $this->service_centers_model->update_spare_parts($where, $data);
-
+            if(!empty($ud_data)){
+                $this->booking_model->update_booking_unit_details($booking_id, $ud_data);
+            }
               $this->auto_delivered_for_micro_wh($delivered_sp, $partner_id);
 
             if ($affected_row == TRUE) {
@@ -3276,6 +3280,7 @@ class Service_centers extends CI_Controller {
         if (!empty($spare_part)) {
             
         $_POST['sf_id'] = $spare_part[0]['service_center_id'];
+        $_POST['booking_partner_id'] = $spare_part[0]['booking_partner_id'];
         $_POST['bulk_courier'] = TRUE;
         $_POST['booking_id'] = $spare_part[0]['booking_id'];
         $_POST['user_name'] = $spare_part[0]['name'];
@@ -3405,6 +3410,7 @@ class Service_centers extends CI_Controller {
                             $awb_data = array(
                                 'awb_number' => trim($awb),
                                 'company_name' => trim($this->input->post('courier_name_by_sf')),
+                                'partner_id' => $partner_id,
                                 'courier_charge' => trim($this->input->post('courier_charges_by_sf')), //
                                 'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_gram
                                 'billable_weight' => trim($billable_weight),
@@ -3419,11 +3425,48 @@ class Service_centers extends CI_Controller {
 
                             $this->service_centers_model->insert_into_awb_details($awb_data);
                         }
-                    }else{
+                        else {
+                            $awb_data = array(
+                                'company_name' => trim($this->input->post('courier_name_by_sf')),
+                                'partner_id' => $partner_id,
+                                'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_gram
+                                'billable_weight' => trim($billable_weight),
+                                'actual_weight' => trim($billable_weight),
+                                'basic_billed_charge_to_partner' => trim($this->input->post('courier_charges_by_sf')),
+                                'courier_invoice_file' => trim($defective_courier_receipt),
+                                'shippment_date' => trim($this->input->post('defective_part_shipped_date')), //defective_part_shipped_date
+                                'created_by' => 2,
+                                'is_exist' => 0
+                            );
 
+                            $this->service_centers_model->update_awb_details($awb_data,trim($awb));
+                        }
+                    }else{
+                        $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $awb), array());
+                        if (empty($exist_courier_details)) {
+                            $awb_data = array(
+                                'awb_number' => trim($awb),
+                                'company_name' => trim($this->input->post('courier_name_by_sf')),
+                                'partner_id' => $partner_id,
+                                'courier_charge' => trim($this->input->post('courier_charges_by_sf')), //
+                                'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_gram
+                                'billable_weight' => trim($billable_weight),
+                                'actual_weight' => trim($billable_weight),
+                                'basic_billed_charge_to_partner' => trim($this->input->post('courier_charges_by_sf')),
+                                'booking_id' => trim($this->input->post('booking_id')),
+                                'courier_invoice_file' => trim($defective_courier_receipt),
+                                'shippment_date' => trim($this->input->post('defective_part_shipped_date')), //defective_part_shipped_date
+                                'created_by' => 2,
+                                'is_exist' => 0
+                            );
+                            
+                            $this->service_centers_model->insert_into_awb_details($awb_data);
+                        }
+                        else {
                                 $awb_data = array(
                                 'company_name' => trim($this->input->post('courier_name_by_sf')),
                               //  'courier_charge' => trim($this->input->post('courier_charges_by_sf')), //
+                                'partner_id' => $partner_id,
                                 'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_gram
                                 'billable_weight' => trim($billable_weight),
                                 'actual_weight' => trim($billable_weight),
@@ -3436,8 +3479,7 @@ class Service_centers extends CI_Controller {
                             );
 
                             $this->service_centers_model->update_awb_details($awb_data,trim($awb));
-
-
+                        }
                     }                    
                     $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '", "'.OK_PART_TO_BE_SHIPPED.'", "'.DAMAGE_PART_TO_BE_SHIPPED.'") ' => NULL));
 
@@ -6286,6 +6328,7 @@ class Service_centers extends CI_Controller {
                             $awb_data = array(
                                 'awb_number' => trim($awb),
                                 'company_name' => trim($this->input->post('courier_name')),
+                                'partner_id' => trim($partner_id),
                                 'courier_charge' => trim($this->input->post('courier_price_by_partner')), 
                                 'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')), 
                                 'billable_weight' => trim($billable_weight),
