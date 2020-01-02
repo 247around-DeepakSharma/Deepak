@@ -241,6 +241,9 @@ define('PENALTY_FAKE_CANCEL',13);
 define('ERR_ORDER_ID_NOT_FOUND_CODE', -1007);
 //Define error code for order id not found for partner_sd_sb.php file
 define('ERR_ORDER_ID_NOT_FOUND_MSG', 'Order ID Does Not Exist');
+//Define error code for booking id not found for partner_sd_sb.php file
+define('ERR_BOOKING_ID_NOT_FOUND_MSG', 'Booking ID Does Not Exist');
+define('ERR_ORDER_ID_BOOKING_ID_INCORRECT_COMBINATION_MSG', 'Incorrect combination of order id & booking id.');
 //Define snapdeal new missed call number
 define('PARTNERS_MISSED_CALLED_NUMBER','01143092150');
 //Define snapdeal new missed call number
@@ -687,5 +690,7 @@ define('SHARP_WATER_PURIFIER_INSTALLATION_VIDEO', 'http://tinyurl.com/y4s42ml4')
 define('SPARE_PENDING_FOR_ACKNOWLEDGE_MSG', 'Spare part is pending for acknowledge on warehouse, so booking cannot be completed.');
 define('ENGINEER_INCENTIVE_FILE_TYPE', 'Engineer-Incentive-File');
 define('ENGINEER_INCENTIVE_MAX_AMOUNT', 100);
+
+define('DEV_BOOKINGS_MAIL', 'dev-bookings@247around.com');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

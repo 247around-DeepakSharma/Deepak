@@ -1102,19 +1102,19 @@ class Inventory extends CI_Controller {
                     $agent_id   = $this->session->userdata('id');
                     $approval_agent_id = $agent_id;
                     $approval_entity_type = _247AROUND_SF_STRING;  
-                    } else if($this->session->userdata('userType')=='partner'){ //// Partner Session ////
+                    } else if($this->session->userdata('userType')=='partner'){ //// Partner Session //// abhishek
                     $agent_name = $this->session->userdata('partner_name');
-                    $agent_id   = $this->session->userdata('partner_id');
-                    $approval_agent_id = $this->session->userdata('partner_id');
+                    $agent_id   = $this->session->userdata('agent_id');  // the agent id must go not patner id // abhishek
+                    $approval_agent_id = $this->session->userdata('agent_id');
                     $approval_entity_type = _247AROUND_PARTNER_STRING; 
                     
                     }else{
                     $agent_id = _247AROUND_DEFAULT_AGENT;
-                    $agent_name = _247AROUND_DEFAULT_AGENT;  
+                    $agent_name = _247AROUND_DEFAULT_AGENT_NAME;   /// name must to instead of id // abhishek
                     }
                     
-                    $spare_data['approval_agent_id'] = $approval_agent_id;
-                    $spare_data['approval_entity_type'] = $approval_entity_type;
+                    $data['approval_agent_id'] = $approval_agent_id;     /// the data is to be set by only one case and in this case array name is data // abhishek
+                    $data['approval_entity_type'] = $approval_entity_type;
 
                     $select = 'spare_parts_details.id,spare_parts_details.entity_type,booking_details.partner_id as booking_partner_id';
 
@@ -3535,34 +3535,62 @@ class Inventory extends CI_Controller {
                                     $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
                                     $invoice = array();
 
-                                    //update courier details
-                                    $courier_data = array();
-                                    $courier_data['sender_entity_id'] = $sender_enity_id;
-                                    $courier_data['sender_entity_type'] = $sender_entity_type;
-                                    $courier_data['receiver_entity_id'] = $wh_id;
-                                    $courier_data['receiver_entity_type'] = _247AROUND_SF_STRING;
-                                    $courier_data['AWB_no'] = $awb_number;
-                                    $courier_data['courier_name'] = $courier_name;
-                                    $courier_data['create_date'] = date('Y-m-d H:i:s');
-                                    $courier_data['quantity'] = count($booking_id_array);
-                                    $courier_data['bill_to_partner'] = $partner_id;
-                                    $courier_data['status'] = COURIER_DETAILS_STATUS;
-                                    if (!empty($booking_id_array)) {
-                                        $courier_data['booking_id'] = implode(",", $booking_id_array);
+//                                    //update courier details
+//                                    $courier_data = array();
+//                                    $courier_data['sender_entity_id'] = $sender_enity_id;
+//                                    $courier_data['sender_entity_type'] = $sender_entity_type;
+//                                    $courier_data['receiver_entity_id'] = $wh_id;
+//                                    $courier_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+//                                    $courier_data['AWB_no'] = $awb_number;
+//                                    $courier_data['courier_name'] = $courier_name;
+//                                    $courier_data['create_date'] = date('Y-m-d H:i:s');
+//                                    $courier_data['quantity'] = count($booking_id_array);
+//                                    $courier_data['bill_to_partner'] = $partner_id;
+//                                    $courier_data['status'] = COURIER_DETAILS_STATUS;
+//                                    if (!empty($booking_id_array)) {
+//                                        $courier_data['booking_id'] = implode(",", $booking_id_array);
+//                                    }
+//
+//                                    if (!empty($courier_file['message'])) {
+//                                        $courier_data['courier_file'] = $courier_file['message'];
+//                                    }
+//
+//                                    if (!empty($courier_shipment_date)) {
+//                                        $courier_data['shipment_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date)));
+//                                    }
+                                    
+                                    $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb_number), array());
+
+                                    if (!empty($exist_courier_details)) {
+                                        $courier_company_details_id = trim($exist_courier_details[0]['id']);
+
+                                        $awb_by_wh = trim($exist_courier_details[0]['awb_number']);
+                                        $courier_name_by_wh = trim($exist_courier_details[0]['company_name']);
+                                        $courier_price_by_wh = $exist_courier_details[0]['courier_charge'];
+                                    } else {
+                                        $awb_data = array(
+                                            'awb_number' => trim($awb_number),
+                                            'company_name' => trim($courier_name),
+                                            'partner_id' => $partner_id,
+                                            'booking_id' => (!empty($booking_id_array) ? implode(",", $booking_id_array) : ''),
+                                            'courier_charge' => '0.00',
+                                            'box_count' => '1',//trim($this->input->post('shipped_spare_parts_boxes_count')),
+                                            'billable_weight' => '0.00',//trim($billable_weight),
+                                            'actual_weight' => '0.00',//trim($billable_weight),
+                                            'basic_billed_charge_to_partner' => '0.00',
+                                            'courier_invoice_file' => $courier_file['message'],
+                                            'shippment_date' => date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date))), //defective_part_shipped_date
+                                            'created_by' => 1,
+                                            'is_exist' => 1
+                                        );
+
+                                        $courier_company_details_id = $this->service_centers_model->insert_into_awb_details($awb_data);
                                     }
 
-                                    if (!empty($courier_file['message'])) {
-                                        $courier_data['courier_file'] = $courier_file['message'];
-                                    }
+//                                    $insert_courier_details = $this->inventory_model->insert_courier_details($courier_data);
 
-                                    if (!empty($courier_shipment_date)) {
-                                        $courier_data['shipment_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date)));
-                                    }
-
-                                    $insert_courier_details = $this->inventory_model->insert_courier_details($courier_data);
-
-                                    if (!empty($insert_courier_details)) {
-                                        log_message('info', 'Courier Details added successfully.');
+                                    if (!empty($courier_company_details_id)) {
+                                        log_message('info', 'Courier Invoice Details added successfully.');
                                         
                                         foreach ($parts_details as $value) {
 			                               $request_type='';
@@ -3611,7 +3639,7 @@ class Inventory extends CI_Controller {
                                                     $ledger_data['booking_id'] = trim($value['booking_id']);
                                                     $ledger_data['invoice_id'] = $invoice_id;
                                                     $ledger_data['is_wh_ack'] = 0;
-                                                    $ledger_data['courier_id'] = $insert_courier_details;
+                                                    $ledger_data['courier_id'] = $courier_company_details_id;
                                                     $ledger_data['is_wh_micro'] = $is_wh_micro;
                                                     $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
                                                     if(isset($value['request_type']) && !empty($value['request_type'])){
@@ -3655,7 +3683,7 @@ class Inventory extends CI_Controller {
                                         // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
                                         If ($is_wh_micro == 2) {
                                             $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, str_replace('/', '-', $invoice_dated), $tqty, $partner_id, $to_gst_number,
-                                                    $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $insert_courier_details, $action_agent_id);
+                                                    $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_company_details_id, $action_agent_id);
                                         }
                                         
                                         //send email to 247around warehouse incharge
@@ -4919,6 +4947,9 @@ class Inventory extends CI_Controller {
             $courier_name_by_wh = $this->input->post('courier_name_by_wh');
             $courier_price_by_wh = $this->input->post('courier_price_by_wh');
             $defective_parts_shippped_date_by_wh = $this->input->post('defective_parts_shippped_date_by_wh');
+            $kilo_gram = (!empty($this->input->post('shipped_spare_parts_weight_in_kg')) ? $this->input->post('shipped_spare_parts_weight_in_kg') : '0');
+            $gram = (!empty($this->input->post('shipped_spare_parts_weight_in_gram')) ? $this->input->post('shipped_spare_parts_weight_in_gram') : '00');
+            $billable_weight = $kilo_gram . "." . $gram;
             $postData = json_decode($this->input->post('data'));
             //$wh_name = $this->input->post('wh_name');
             if (!empty($sender_entity_id) && !empty($sender_entity_type) && !empty($postData) && !empty($awb_by_wh) && !empty($courier_name_by_wh) && !empty($defective_parts_shippped_date_by_wh)) {
@@ -4931,43 +4962,63 @@ class Inventory extends CI_Controller {
                 }
 
                 if ($courier_file['status']) {
-                    $courier_details['sender_entity_id'] = $sender_entity_id;
-                    $courier_details['sender_entity_type'] = $sender_entity_type;
-                    $courier_details['receiver_entity_id'] = $this->input->post('receiver_partner_id');
-                    $courier_details['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
-                    $courier_details['bill_to_partner'] = $this->input->post('receiver_partner_id');
-                    $courier_details['AWB_no'] = $awb_by_wh;
-                    $courier_details['courier_name'] = $courier_name_by_wh;
-                    $courier_details['courier_file'] = $courier_file['message'];
-                    $courier_details['shipment_date'] = $defective_parts_shippped_date_by_wh;
-                    $courier_details['courier_charge'] = $courier_price_by_wh;
-                    $courier_details['create_date'] = date('Y-m-d H:i:s');
-                    $courier_details['status'] = COURIER_DETAILS_STATUS;
-                    $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
+                    $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb_by_wh), array());
 
-                    if (!empty($insert_courier_details)) {
-                        log_message('info', 'Courier Details added successfully.');
+                    if (!empty($exist_courier_details)) {
+                        $courier_company_details_id = trim($exist_courier_details[0]['id']);
+                        
+                        $awb_by_wh = trim($exist_courier_details[0]['awb_number']);
+                        $courier_name_by_wh = trim($exist_courier_details[0]['company_name']);
+                        $courier_price_by_wh = $exist_courier_details[0]['courier_charge'];
+                    } else {
+                        $awb_data = array(
+                            'awb_number' => trim($awb_by_wh),
+                            'company_name' => trim($courier_name_by_wh),
+                            'partner_id' => $this->input->post('receiver_partner_id'),
+                            'courier_charge' => trim($courier_price_by_wh),
+                            'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')),
+                            'billable_weight' => trim($billable_weight),
+                            'actual_weight' => trim($billable_weight),
+                            'basic_billed_charge_to_partner' => trim($courier_price_by_wh),
+                            'courier_invoice_file' => $courier_file['message'],
+                            'shippment_date' => trim($defective_parts_shippped_date_by_wh), //defective_part_shipped_date
+                            'created_by' => 3,
+                            'is_exist' => 1
+                        );
+
+                        $courier_company_details_id = $this->service_centers_model->insert_into_awb_details($awb_data);
+                    }
+
+//                    if (!empty($courier_details)) {
+//                        $insert_courier_details = $this->inventory_model->insert_courier_details($courier_details);
+//                    }
+
+                    if (!empty($courier_company_details_id)) {
+                        log_message('info', 'Courier Invoice Details added successfully.');
 
                         $eway_details = array();
                         $eway_file = $this->upload_defective_parts_shipped_eway_file($_FILES);
                         if ($eway_file['status']) {
                             $eway_details['ewaybill_file'] = $eway_file['message'];
                         }
-                        $eway_details['courier_details_id'] = $insert_courier_details;
+                        $eway_details['courier_details_id'] = $courier_company_details_id;
                         $eway_details['ewaybill_no'] = $this->input->post("eway_bill_by_wh");
                         $eway_details['vehicle_number'] = $this->input->post("eway_vehicle_number");
 
-                        $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $insert_courier_details);
+                        $invoice = $this->inventory_invoice_settlement($sender_entity_id, $sender_entity_type, $courier_company_details_id);
                         if (!empty($invoice['invoice'][0])) {
                             $eway_details['invoice_id'] = $invoice['invoice'][0];
                         }
                         $this->inventory_model->insert_ewaybill_details($eway_details);
                         if (!empty($invoice['processData'])) {
 
-                            $this->inventory_model->update_courier_detail(array('id' => $insert_courier_details), array(
-                                'quantity' => count($invoice['booking_id_array']),
-                                'booking_id' => implode(",", $invoice['booking_id_array'])
-                            ));
+//                            $this->inventory_model->update_courier_detail(array('id' => $insert_courier_details), array(
+//                                'quantity' => count($invoice['booking_id_array']),
+//                                'booking_id' => implode(",", $invoice['booking_id_array'])
+//                            ));
+                            
+                            $this->inventory_model->update_courier_company_invoice_details(array('id' => $courier_company_details_id), array('booking_id' => implode(",", $invoice['booking_id_array']) ));
+                            
                             foreach ($invoice['booking_id_array'] as $booking_id) {
 
                                 $agent_id = $this->session->userdata('service_center_agent_id');
@@ -4980,6 +5031,12 @@ class Inventory extends CI_Controller {
                                 log_message("info", "Booking State change inserted");
                             }
 
+                            foreach ($invoice['spare_id_array'] as $spare_id) {            
+                                $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, 'wh_to_partner_defective_shipped_date' => date('Y-m-d H:i:s'), 
+                                    'defective_parts_shippped_date_by_wh' => $defective_parts_shippped_date_by_wh, 'courier_name_by_wh' => $courier_name_by_wh, 'courier_price_by_wh' => $courier_price_by_wh, 
+                                    'awb_by_wh' => $awb_by_wh, 'defective_parts_shippped_courier_pic_by_wh' => $courier_file['message'], 'reverse_purchase_invoice_id' => $invoice['invoice'][0]));
+                            }
+                            
                             if (empty($invoice['not_update_booking_id'])) {
                                 $res['status'] = TRUE;
                                 $res['message'] = 'Details Updated Successfully';
@@ -5080,6 +5137,7 @@ class Inventory extends CI_Controller {
                     $awb_data = array(
                         'awb_number' => trim($awb_by_wh),
                         'company_name' => trim($courier_name_by_wh),
+                        'partner_id' => $this->input->post('receiver_partner_id'),
                         'courier_charge' => trim($courier_price_by_wh),
                         'box_count' => trim($this->input->post('shipped_spare_parts_boxes_count')), //defective_parts_shipped_gram
                         'billable_weight' => trim($billable_weight),
@@ -5412,11 +5470,11 @@ class Inventory extends CI_Controller {
                     $this->inventory_model->insert_inventory_ledger_batch($ledger_data);
                     unset($ledger_data);
 
-                    if (!empty($sp_id)) {
-                        foreach ($sp_id as $id) {
-                            $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, 'wh_to_partner_defective_shipped_date' => date('Y-m-d H:i:s'),'reverse_purchase_invoice_id' => $invoice_id));
-                        }
-                    }
+//                    if (!empty($sp_id)) {
+//                        foreach ($sp_id as $id) {
+//                            $this->service_centers_model->update_spare_parts(array('id' => $id), array('status' => DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH, 'wh_to_partner_defective_shipped_date' => date('Y-m-d H:i:s'),'reverse_purchase_invoice_id' => $invoice_id));
+//                        }
+//                    }
 
                     $invoiceData['invoice'][] = $response['meta']['invoice_id'];
                     $main_file = S3_WEBSITE_URL . "invoices-excel/" . $convert['main_pdf_file_name'];
@@ -5436,7 +5494,7 @@ class Inventory extends CI_Controller {
             }
             
             $invoiceData['booking_id_array'] = $booking_id_array;
-            
+            $invoiceData['spare_id_array'] = $sp_id;
 
             return $invoiceData;
         } else {
@@ -6461,7 +6519,10 @@ class Inventory extends CI_Controller {
                             $where["spare_parts_details.shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.shipped_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
                         } else if ($search_by == 'awb_by_sf') {
                             $where["spare_parts_details.defective_part_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.defective_part_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
+                        }else if ($search_by == 'awb_by_wh') {
+                            $where["spare_parts_details.wh_to_partner_defective_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.wh_to_partner_defective_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
                         }
+                        
                     }
                     $post['is_inventory'] = TRUE;
                     $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE,FALSE,$post);

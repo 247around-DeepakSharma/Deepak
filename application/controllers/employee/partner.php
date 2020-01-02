@@ -2122,6 +2122,48 @@ class Partner extends CI_Controller {
             $data['challan_approx_value'] = $this->input->post('approx_value');
             //} 
             
+            $kilo_gram = $this->input->post('defective_parts_shipped_kg') ? : '0';
+            $gram = $this->input->post('defective_parts_shipped_gram') ? : '00';
+
+            $billable_weight = $kilo_gram . "." . $gram;
+                    
+            $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', 'courier_company_invoice_details.id,courier_company_invoice_details.awb_number', array('awb_number' => $this->input->post('awb')), array());
+            if (empty($exist_courier_details)) {
+                $awb_data = array(
+                    'awb_number' => trim($this->input->post('awb')),
+                    'company_name' => trim($this->input->post('courier_name')),
+                    'partner_id' => $partner_id,
+                    'courier_charge' => trim($this->input->post('approx_value')),
+                    'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_boxes_count
+                    'billable_weight' => trim($billable_weight),
+                    'actual_weight' => trim($billable_weight),
+                    'basic_billed_charge_to_partner' => trim($this->input->post('approx_value')),
+                    'booking_id' => $booking_id,
+                    'courier_invoice_file' => trim($challan_file),
+                    'shippment_date' => trim($this->input->post('shipment_date')), //defective_part_shipped_date
+                    'created_by' => 2,
+                    'is_exist' => 1
+                );
+
+                $this->service_centers_model->insert_into_awb_details($awb_data);
+            }
+            else {
+                $awb_data = array(
+                    'company_name' => trim($this->input->post('courier_name')),
+                    'partner_id' => $partner_id,
+                    'box_count' => trim($this->input->post('defective_parts_shipped_boxes_count')), //defective_parts_shipped_boxes_count
+                    'billable_weight' => trim($billable_weight),
+                    'actual_weight' => trim($billable_weight),
+                    'basic_billed_charge_to_partner' => trim($this->input->post('approx_value')),
+                    'courier_invoice_file' => trim($challan_file),
+                    'shippment_date' => trim($this->input->post('shipment_date')), //defective_part_shipped_date
+                    'created_by' => 2,
+                    'is_exist' => 1
+                );
+
+                $this->service_centers_model->update_awb_details($awb_data,trim($this->input->post('awb')));
+            }
+            
         }
         
         if ($part_warranty_status == SPARE_PART_IN_OUT_OF_WARRANTY_STATUS) {

@@ -166,6 +166,30 @@
                                 </div>
                             </div>
                         </div>
+                        <div class='row'>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="shipped_spare_parts_boxes_count" class="col-md-4">No Of Boxes *</label>
+                                    <div class="col-md-8">
+                                        <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required>
+                                            <option selected="" disabled="" value="">Select Boxes</option>
+                                            <?php for ($i = 1; $i < 11; $i++) { ?>
+                                            <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class='form-group'>
+                                    <label for="shipped_spare_parts_weight" class="col-md-4">Weight *</label>
+                                    <div class="col-md-8">
+                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_kg" name="shipped_spare_parts_weight_in_kg" value="" placeholder="Weight" required=""> <strong> in KG</strong> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <input type="number" class="form-control" style="width: 25%; display: inline-block;" id="shipped_spare_parts_weight_in_gram"   value=""   name="shipped_spare_parts_weight_in_gram" placeholder="Weight" required="">&nbsp;<strong>in Gram </strong>                                       
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class='form-group'>
@@ -526,6 +550,75 @@
           });
     }
         
+    });
+    
+    $("#shipped_spare_parts_weight_in_kg").on({
+        "click": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 1) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+    $("#shipped_spare_parts_weight_in_gram").on({
+        "click": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+    
+    $('#shipped_spare_parts_weight_in_gram,#shipped_spare_parts_weight_in_kg').bind('keydown', function (event) {
+        switch (event.keyCode) {
+            case 8:  // Backspace
+            case 9:  // Tab
+            case 13: // Enter
+            case 37: // Left
+            case 38: // Up
+            case 39: // Right
+            case 40: // Down
+                break;
+            default:
+                var regex = new RegExp("^[a-zA-Z0-9,]+$");
+                var key = event.key;
+                if (!regex.test(key)) {
+                    event.preventDefault();
+                    return false;
+                }
+                break;
+        }
     });
 
 </script>

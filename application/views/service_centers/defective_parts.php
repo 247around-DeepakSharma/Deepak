@@ -143,7 +143,9 @@
                                     <label for="courier_charges_by_sf" class="col-md-4">Courier Charges</label>
                                     <div class="col-md-6">
                                         
-                                        <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value="" placeholder="Please Enter Courier Charges" required="">
+                                        <input type="text" class="form-control" id="courier_charges_by_sf" name="courier_charges_by_sf" value="<?php if ((set_value("courier_charges_by_sf"))) {
+                                            echo set_value("courier_charges_by_sf");
+                                            } ?>" placeholder="Please Enter Courier Charges" required="">
                                     </div>
                                                                     </div>
                                 <div class="form-group ">
@@ -209,7 +211,7 @@
                         </div>
 
                         <input type="hidden" name="courier_boxes_weight_flag" id="courier_boxes_weight_flag" value="0">
-                        <input type="hidden" name="courier_charges_by_sf" id="courier_charges_by_sf" value="0">
+                        <input type="hidden" name="courier_charges_by_sf_hidden" id="courier_charges_by_sf_hidden" value="0">
                         <input type="hidden" name="sp_ids" id="spareids" value="">
             </div>
             <div class="modal-footer">
