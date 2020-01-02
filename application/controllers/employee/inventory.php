@@ -1991,6 +1991,376 @@ class Inventory extends CI_Controller {
         $this->load->view('employee/show_inventory_stock_list');
     }
 
+
+    /**
+     *  @desc : This function is used to show partner OOT  report
+     *  @param : void
+     *  @return : void
+     */
+    function show_partner_oot_report() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_partner_oot_report');
+    }
+
+
+
+    /**
+     *  @desc : This function is used to show partner OOT repoprt
+     *  @param : void
+     *  @return : $output JSON
+     */
+    function get_partner_OOT_report() {
+        $data = $this->get_partner_oot_list();
+
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => count($this->dashboard_model->get_spare_tat_report_count_total("partner_spare_out_of_tat",array(), 0,$post)),
+            "recordsFiltered" => count($this->dashboard_model->get_spare_tat_report_count_filter("partner_spare_out_of_tat",array(), 0,$post)),
+            "data" => $data['data'],
+        );
+
+        echo json_encode($output);
+    }
+
+
+    /**
+     *  @desc : This function is used to get inventory stocks data
+     *  @param : void
+     *  @return : Array()
+     */
+    function get_partner_oot_list() {
+        $post = $this->get_post_data();
+        $post['column_search'] = array('public_name');
+        $post['order'] = array(array('column' => 0, 'dir' => 'ASC'));
+        $post['column_order'] = array('public_name');
+        if (!$this->input->post('is_show_all')) {
+           // $post['having'] = 'total_stocks > 0';
+        }
+        // $select = "partner_spare_out_of_tat.public_name,partner_spare_out_of_tat.out_of_tat_part_count,partner_spare_out_of_tat.out_of_tat_amount "
+        //         . "FROM partner_spare_out_of_tat";
+
+        $list = $this->dashboard_model->get_spare_tat_report("partner_spare_out_of_tat",array(), 0,$post);
+        $data = array();
+        $no = $post['start'];
+        //unset($post['having']);
+        foreach ($list as $stock_list) {
+            $no++;
+            $row = $this->get_spare_tat_report_table($stock_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+
+
+
+    /**
+     *  @desc : This function is used to generate table for partner OOT 
+     *  @param : $stock_list array
+     *  @param : $no string
+     *  @return : $row Array()
+     */
+    function get_spare_tat_report_table($stock_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $sf = "<a target='_blank' href='".base_url()."employee/inventory/show_rm_wise_tat_report' ";
+        $sf .= ">" . $stock_list['public_name'] . "</a>";
+        $row[] = $sf;
+
+
+        $row[] = $stock_list['out_of_tat_part_count'];
+        $row[] = $stock_list['out_of_tat_amount'];
+
+        return $row;
+    }
+
+/*    RM WISE TAT REPOR /*
+
+
+
+   /**
+     *  @desc : This function is used to show partner OOT  report
+     *  @param : void
+     *  @return : void
+     */
+    function show_rm_wise_tat_report() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_rm_wise_tat_report');
+    }
+
+
+
+    /**
+     *  @desc : This function is used to show partner OOT repoprt
+     *  @param : void
+     *  @return : $output JSON
+     */
+    function get_show_rm_wise_tat_report() {
+        $data = $this->get_show_rm_wise_tat_report_list();
+
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => count($this->dashboard_model->get_spare_tat_report_count_total("rm_wise_tat_report",array(), 0,$post)),
+            "recordsFiltered" => count($this->dashboard_model->get_spare_tat_report_count_filter("rm_wise_tat_report",array(), 0,$post)),
+            "data" => $data['data'],
+        );
+
+        echo json_encode($output);
+    }
+
+
+    /**
+     *  @desc : This function is used to get inventory stocks data
+     *  @param : void
+     *  @return : Array()
+     */
+    function get_show_rm_wise_tat_report_list() {
+        $post = $this->get_post_data();
+        $post['column_search'] = array('sf_name');
+        $post['order'] = array(array('column' => 0, 'dir' => 'ASC'));
+        $post['column_order'] = array('sf_name');
+        if (!$this->input->post('is_show_all')) {
+           // $post['having'] = 'total_stocks > 0';
+        }
+        // $select = "partner_spare_out_of_tat.public_name,partner_spare_out_of_tat.out_of_tat_part_count,partner_spare_out_of_tat.out_of_tat_amount "
+        //         . "FROM partner_spare_out_of_tat";
+
+        $list = $this->dashboard_model->get_spare_tat_report("rm_wise_tat_report",array(), 0,$post);
+        $data = array();
+        $no = $post['start'];
+        //unset($post['having']);
+        foreach ($list as $stock_list) {
+            $no++;
+            $row = $this->get_show_rm_wise_tat_report_list_table($stock_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+
+
+
+    /**
+     *  @desc : This function is used to generate table for partner OOT 
+     *  @param : $stock_list array
+     *  @param : $no string
+     *  @return : $row Array()
+     */
+    function get_show_rm_wise_tat_report_list_table($stock_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = $stock_list['manager_name'];
+        $sf = "<a target='_blank' href='".base_url()."employee/inventory/show_sf_brand_wise_tat_report' ";
+        $sf .= ">" . $stock_list['agent_name'] . "</a>";
+        $row[] = $sf;
+        $row[] = $stock_list['sf_name'];
+        $row[] = $stock_list['out_tat_part_count'];
+        $row[] = $stock_list['out_tat_amount'];
+
+        return $row;
+    }
+
+
+
+
+
+/*    SF WISE /*
+
+   /**
+     *  @desc : This function is used to show SF wise TAT report 
+     *  @param : void
+     *  @return : void
+     */
+    function show_sf_brand_wise_tat_report() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_sf_brand_wise_tat_report');
+    }
+
+
+
+    /**
+     *  @desc : This function is used to show show SF wise TAT report 
+     *  @param : void
+     *  @return : $output JSON
+     */
+    function get_show_rm_wise_tat_report_data() {
+        $data = $this->get_show_sf_brand_wise_tat_report();
+
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => count($this->dashboard_model->get_spare_tat_report_count_total("sf_brand_wise_tat_report",array(), 0,$post)),
+            "recordsFiltered" => count($this->dashboard_model->get_spare_tat_report_count_filter("sf_brand_wise_tat_report",array(), 0,$post)),  
+            "data" => $data['data'],
+        );
+
+        echo json_encode($output);
+    }
+
+
+    /**
+     *  @desc : This function is used to get show SF wise TAT report 
+     *  @param : void
+     *  @return : Array()
+     */
+    function get_show_sf_brand_wise_tat_report() {
+        $post = $this->get_post_data();
+        $post['column_search'] = array('sf_name');
+        $post['order'] = array(array('column' => 0, 'dir' => 'ASC'));
+        $post['column_order'] = array('sf_name');
+        if (!$this->input->post('is_show_all')) {
+           // $post['having'] = 'total_stocks > 0';
+        }
+        // $select = "partner_spare_out_of_tat.public_name,partner_spare_out_of_tat.out_of_tat_part_count,partner_spare_out_of_tat.out_of_tat_amount "
+        //         . "FROM partner_spare_out_of_tat";
+
+        $list = $this->dashboard_model->get_spare_tat_report("sf_brand_wise_tat_report",array(), 0,$post);
+        $data = array();
+        $no = $post['start'];
+        //unset($post['having']);
+        foreach ($list as $stock_list) {
+            $no++;
+            $row = $this->get_sf_brand_wise_tat_report_table($stock_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+
+
+
+    /**
+     *  @desc : This function is used to generate table for partner OOT 
+     *  @param : $stock_list array
+     *  @param : $no string
+     *  @return : $row Array()
+     */
+    function get_sf_brand_wise_tat_report_table($stock_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = $stock_list['sf_name'];
+        // $sf = "<a target='_blank' href='".base_url()."employee/inventory/show_sf_brand_wise_tat_report' ";
+        // $sf .= ">" . $stock_list['agent_name'] . "</a>";
+        // $row[] = $sf;
+        $row[] = $stock_list['state'];
+        $row[] = $stock_list['district'];
+        $row[] = $stock_list['partner_name'];
+        $row[] = $stock_list['parts_count_to_shipped'];
+        $row[] = $stock_list['parts_charge'];
+
+        return $row;
+    }
+
+
+/*******************************/
+
+
+
+
+/*    SF WISE /*
+
+   /**
+     *  @desc : This function is used to show SF wise TAT report 
+     *  @param : void
+     *  @return : void
+     */
+    function show_in_def_transit_tat_report() {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/show_in_def_transit_tat_report');
+    }
+
+
+
+    /**
+     *  @desc : This function is used to show show SF wise TAT report 
+     *  @param : void
+     *  @return : $output JSON
+     */
+    function get_show_in_def_transit_tat_report_data() {
+        $data = $this->get_show_in_def_transit_tat_report();
+
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => count($this->dashboard_model->get_spare_tat_report_count_total("in_def_transit_tat_report",array(), 0,$post)),
+            "recordsFiltered" => count($this->dashboard_model->get_spare_tat_report_count_filter("in_def_transit_tat_report",array(), 0,$post)),  
+            "data" => $data['data'],
+        );
+
+        echo json_encode($output);
+    }
+
+
+    /**
+     *  @desc : This function is used to get show SF wise TAT report 
+     *  @param : void
+     *  @return : Array()
+     */
+    function get_show_in_def_transit_tat_report() {
+        $post = $this->get_post_data();
+        $post['column_search'] = array('public_name');
+        $post['order'] = array(array('column' => 0, 'dir' => 'ASC'));
+        $post['column_order'] = array('public_name');
+        if (!$this->input->post('is_show_all')) {
+           // $post['having'] = 'total_stocks > 0';
+        }
+        // $select = "partner_spare_out_of_tat.public_name,partner_spare_out_of_tat.out_of_tat_part_count,partner_spare_out_of_tat.out_of_tat_amount "
+        //         . "FROM partner_spare_out_of_tat";
+
+        $list = $this->dashboard_model->get_spare_tat_report("in_def_transit_tat_report",array(), 0,$post);
+        $data = array();
+        $no = $post['start'];
+        //unset($post['having']);
+        foreach ($list as $stock_list) {
+            $no++;
+            $row = $this->get_show_in_def_transit_tat_report_table($stock_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+
+
+
+    /**
+     *  @desc : This function is used to generate table for partner OOT 
+     *  @param : $stock_list array
+     *  @param : $no string
+     *  @return : $row Array()
+     */
+    function get_show_in_def_transit_tat_report_table($stock_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = $stock_list['public_name'];
+        $row[] = $stock_list['in_transit_part_count'];
+        $row[] = $stock_list['in_transit_amount'];
+
+        return $row;
+    }
+
+
+
+
+/*******************************/
+
+
+/*  ---------------------- /*
+
+/*     --------------------      /*
     /**
      *  @desc : This function is used to show inventory stocks data
      *  @param : void
