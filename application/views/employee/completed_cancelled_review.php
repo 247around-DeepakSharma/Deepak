@@ -248,7 +248,7 @@ if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no
                                     . "href=" . base_url() . "employee/booking/viewdetails/$value[booking_id] target='_blank' title='view'><i class='fa fa-eye' aria-hidden='true'></i></a>";
                                     ?>
                               <a style="margin-top:5px;" target='_blank'  href="<?php echo base_url(); ?>employee/booking/get_complete_booking_form/<?php echo $value['booking_id']; ?>" class="btn btn-info btn-sm"><i class="fa fa-pencil" aria-hidden="true" title="Edit"></i></a>
-                              <button style="margin-top:5px;" type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="fa fa-times" aria-hidden="true" title="Reject"></i></button>
+                              <button style="margin-top:5px;" type="button" id="<?php echo "remarks_".$count;?>" class="btn btn-primary btn-sm open-adminremarks" data-toggle="modal" onclick="open_admin_remarks_modal('<?php echo $value['booking_id']; ?>')"><i class="fa fa-times" aria-hidden="true" title="Reject"></i></button>
                               <a style="margin-top:5px;" class="btn btn-success" id='<?php echo 'comment_'.$count; ?>' href="javascript:void(0);" name="save-remarks" onclick="save_remarks('<?php echo $value['booking_id']; ?>')"><i class="fa fa-comment"></i></a>
                               </td>
                            
@@ -292,22 +292,26 @@ if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no
              ?>
                  </div>
 
-   <div id="myModal2" class="modal fade" role="dialog">
+   <div id="model_remarks_<?=$review_status?>_<?=$is_partner?>" class="modal fade" role="dialog">
       <div class="modal-dialog">
          <!-- Modal content-->
          <div class="modal-content">
             <div class="modal-header">
                <button type="button" class="close" data-dismiss="modal">&times;</button>
-               <h4 class="modal-title" id="modal-title">Modal Header</h4>
+               <h4 class="modal-title" id="modal-title-<?=$review_status?>_<?=$is_partner?>">Modal Header</h4>
             </div>
             <div class="modal-body">
-               <textarea rows="8" class="form-control" id="textarea"></textarea>
+                <div class="col-md-12">
+                    <center><img id="loader_gif_<?=$review_status?>_<?=$is_partner?>" src="<?php echo base_url(); ?>images/loadring.gif" style="display: none;"></center>
+                </div>
+                <input type="hidden" name="modal_booking_id" id="modal_booking_id_<?=$review_status?>_<?=$is_partner?>" value="">
+                <textarea rows="8" class="form-control textarea" id="textarea_<?=$review_status?>_<?=$is_partner?>"></textarea>
             </div>
             <input type="hidden" id="id_no">
-            <input type="hidden" value='<?php echo _247AROUND; ?>' id="admin_id">
-            <input type="hidden" value="<?php echo $status; ?>" id="internal_boking_status">
+            <input type="hidden" value='<?php echo _247AROUND; ?>' id="admin_id_<?=$review_status?>_<?=$is_partner?>">
+            <input type="hidden" value="<?php echo $status; ?>" id="internal_boking_status_<?=$review_status?>_<?=$is_partner?>" class="internal_boking_status_<?=$review_status?>_<?=$is_partner?>">
             <div class="modal-footer">
-               <button type="button" class="btn btn-success" onclick="send_remarks()">Send</button>
+               <button type="button" class="btn btn-success" onclick="send_remarks_multitab('<?=$review_status?>','<?=$is_partner?>')" id="btn_send_remarks_<?=$review_status?>_<?=$is_partner?>">Send</button>
                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_model()">Close</button>
             </div>
          </div>
@@ -432,6 +436,14 @@ if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no
         getcommentbox(1, booking_id);
         $('#commentModal_<?=$review_status?>_<?=$is_partner?>').modal(); 
            
+    }
+    
+    function open_admin_remarks_modal(booking_id) {
+        $('.modal-title').text("");
+        $('.textarea').text("");
+        $('#model_remarks_<?=$review_status?>_<?=$is_partner?>').modal();     
+        $('#modal_booking_id_<?=$review_status?>_<?=$is_partner?>').val(booking_id);
+        $('#modal-title-<?=$review_status?>_<?=$is_partner?>').html(booking_id);
     }
     
     function getcommentbox(type_val, booking_id){

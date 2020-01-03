@@ -2510,7 +2510,7 @@ class Miscelleneous {
      * 2nd) booking will be escalated
      */
     function fake_reschedule_handling($userPhone,$id,$employeeID,$remarks,$bookingID=NULL){
-        $isEscalationDone = FALSE;
+        $isEscalationDone = TRUE;
         log_message('info', __METHOD__.' Function Start');
         $already_rescheduled =0;
         $whereArray["service_center_booking_action.internal_status"] = "Reschedule"; 
