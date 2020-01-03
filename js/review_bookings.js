@@ -95,7 +95,7 @@ function sendAjaxRequest(postData, url) {
 
 
 $(document).on("click", ".open-adminremarks", function () {
-    $('#modal-title').text("");
+//    $('#modal-title').text("");
     var id = this.id;
     var split_id = id.split('_');
 
@@ -120,6 +120,27 @@ function send_remarks() {
     });
 
 }
+
+function send_remarks_multitab(review_status, is_partner) {
+    var str = review_status+"_"+is_partner;
+    var bookingID = $('#modal_booking_id_'+str).val();
+    var postData = {};
+    postData['booking_id'] = bookingID;
+    postData['admin_remarks'] = $('#textarea_'+str).val();
+    postData['rejected_by'] = $('#admin_id_'+str).val();
+    postData['internal_booking_status'] = $("#internal_boking_status_"+str).val();
+    console.log(postData);
+    $('#loader_gif_'+str).show();
+    $('#btn_send_remarks_'+str).prop("disabled", true);
+    sendAjaxRequest(postData, admin_remarksUrl).done(function (data) {
+        alert(data);
+        $('#loader_gif_'+str).hide();
+        $('#btn_send_remarks_'+str).prop("disabled", false);
+        document.getElementById("row_"+bookingID).style.background = "#89d4a7";
+    });
+
+}
+
 function review_search(status,is_partner){
     var bookingID = $('#search_'+status+'_'+is_partner).val();
 
