@@ -6905,8 +6905,9 @@ function do_multiple_spare_shipping(){
             "spare_parts_details.entity_type" => _247AROUND_PARTNER_STRING,
             "spare_parts_details.defective_part_required" => 1, 
             "spare_parts_details.is_micro_wh IN (0)" => NULL,
-            "status IN ('"._247AROUND_COMPLETED."','".DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE."') " => NULL
-            );
+            "status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "','" . DEFECTIVE_PARTS_REJECTED . "') " => NULL
+        );
+//  For rejected also partner should come //
 
         $partner_id = $this->partner_model->get_spare_parts_by_any(' Distinct booking_details.partner_id', $where, true);
         if(!empty($partner_id)){
