@@ -280,12 +280,13 @@ $("#submitbutton").click(function(e) {
            data: form.serialize(), // serializes the form's elements.
            success: function(data)
            {
+               data = $.trim(data);
                if(data=='success'){
                    $(".loader").addClass('hide');
                    swal("Transferred!", "Your spare is transferred from one booking to another!", "success")
                }else{
                     $(".loader").addClass('hide');
-                  swal("Error! ", "Your spare is not transferred from one booking to another!", "error")
+                  swal("Error! ", "Your spare is not transferred from one booking to another due to some network error . please contact support!", "error")
                }
            }
           });
