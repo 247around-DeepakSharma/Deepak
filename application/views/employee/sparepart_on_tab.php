@@ -1645,7 +1645,7 @@
                 }else{
                   $(".loader").fadeOut("slow");
                   $(".loader").addClass('hide');
-                  swal("Error Occured!", "Error in opening the spare request", "error");
+                  swal("Error Occured!", "Error in opening the spare request. Either booking is already closed by service center or some network issue.", "error");
                 }
                 
                 spare_parts_requested_table_reject.ajax.reload(null, false);  
