@@ -988,6 +988,8 @@
                                         <th>Shipped date </th>
                                         <th>Remarks By SF </th>
                                         <th>Remarks By Partner </th>
+                                        <th> Received Defective Part Image </th>
+                                        <th> Rejected Defective Part Image </th>
                                         <th>SF Challan Number</th>
                                         <th>SF Challan File</th>
                                         <th>Update Courier Details</th>
@@ -1028,6 +1030,16 @@
                                         <td><?php echo date('d-m-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                         <td style="word-break: break-all;"><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
+                                        <td>
+                                            <?php if (!empty($sp['received_defective_part_pic_by_wh'])) { ?>
+                                                <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['received_defective_part_pic_by_wh']; ?> " target="_blank">Click Here to view</a>
+                                            <?php } ?>
+                                        </td>
+                                        <td>
+                                            <?php if(!empty($sp['rejected_defective_part_pic_by_wh'])){ ?>
+                                                <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['rejected_defective_part_pic_by_wh']; ?> " target="_blank">Click Here to view</a>
+                                            <?php } ?>
+                                        </td>
                                         <td><?php echo $sp['sf_challan_number']; ?></td>
                                         <td>
                                             <?php if(!empty($sp['sf_challan_file'])){ ?> 

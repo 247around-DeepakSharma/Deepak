@@ -629,16 +629,18 @@
                         <thead>
                             <tr>
                                 <th>SF Dispatch Defective Part To Warehouse/Partner</th>
-                                <th >Shipped Parts </th>
-                                <th >Shipped Parts Number </th>
-                                <th >Courier Name </th>
+                                <th>Shipped Parts </th>
+                                <th>Shipped Parts Number </th>
+                                <th>Courier Name </th>
                                 <th>AWB </th>
                                 <th> No. Of Boxes </th>
                                 <th> Weight</th>
-                                <th >Courier Charge </th>
-                                <th >Shipped date </th>
-                                <th >Remarks By SF </th>
-                                <th >Remarks By Partner </th>
+                                <th>Courier Charge </th>
+                                <th>Shipped date </th>
+                                <th>Remarks By SF </th>
+                                <th>Remarks By Partner </th>
+                                <th> Received Defective Part Image </th>
+                                <th> Rejected Defective Part Image </th>
                                 <th>Courier Invoice</th>
                                 <th>Challan file</th>
                             </tr>
@@ -679,6 +681,16 @@
                                 <td><?php echo date('d-m-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                 <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                 <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
+                                <td>
+                                    <?php if (!empty($sp['received_defective_part_pic_by_wh'])) { ?>
+                                        <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['received_defective_part_pic_by_wh']; ?> " target="_blank">Click Here to view</a>
+                                    <?php } ?>
+                                </td>
+                                <td>
+                                    <?php if(!empty($sp['rejected_defective_part_pic_by_wh'])){ ?>
+                                        <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['rejected_defective_part_pic_by_wh']; ?> " target="_blank">Click Here to view</a>
+                                    <?php } ?>
+                                </td>
                                 <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
                                 <td>
                                     <?php if(!empty($sp['sf_challan_file'])) { ?>
