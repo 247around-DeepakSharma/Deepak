@@ -3865,29 +3865,29 @@ class Inventory extends CI_Controller {
                             $total_cgst_tax_amount = $total_sgst_tax_amount = $total_igst_tax_amount = 0;
                             $invoice = array();
 
-//                                    //update courier details
-//                                    $courier_data = array();
-//                                    $courier_data['sender_entity_id'] = $sender_enity_id;
-//                                    $courier_data['sender_entity_type'] = $sender_entity_type;
-//                                    $courier_data['receiver_entity_id'] = $wh_id;
-//                                    $courier_data['receiver_entity_type'] = _247AROUND_SF_STRING;
-//                                    $courier_data['AWB_no'] = $awb_number;
-//                                    $courier_data['courier_name'] = $courier_name;
-//                                    $courier_data['create_date'] = date('Y-m-d H:i:s');
-//                                    $courier_data['quantity'] = count($booking_id_array);
-//                                    $courier_data['bill_to_partner'] = $partner_id;
-//                                    $courier_data['status'] = COURIER_DETAILS_STATUS;
-//                                    if (!empty($booking_id_array)) {
-//                                        $courier_data['booking_id'] = implode(",", $booking_id_array);
-//                                    }
-//
-//                                    if (!empty($courier_file['message'])) {
-//                                        $courier_data['courier_file'] = $courier_file['message'];
-//                                    }
-//
-//                                    if (!empty($courier_shipment_date)) {
-//                                        $courier_data['shipment_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date)));
-//                                    }
+                            //update courier details
+                            $courier_data = array();
+                            $courier_data['sender_entity_id'] = $sender_enity_id;
+                            $courier_data['sender_entity_type'] = $sender_entity_type;
+                            $courier_data['receiver_entity_id'] = $wh_id;
+                            $courier_data['receiver_entity_type'] = _247AROUND_SF_STRING;
+                            $courier_data['AWB_no'] = $awb_number;
+                            $courier_data['courier_name'] = $courier_name;
+                            $courier_data['create_date'] = date('Y-m-d H:i:s');
+                            $courier_data['quantity'] = count($booking_id_array);
+                            $courier_data['bill_to_partner'] = $partner_id;
+                            $courier_data['status'] = COURIER_DETAILS_STATUS;
+                            if (!empty($booking_id_array)) {
+                                $courier_data['booking_id'] = implode(",", $booking_id_array);
+                            }
+
+                            if (!empty($courier_file['message'])) {
+                                $courier_data['courier_file'] = $courier_file['message'];
+                            }
+
+                            if (!empty($courier_shipment_date)) {
+                                $courier_data['shipment_date'] = date("Y-m-d", strtotime(str_replace('/', '-', $courier_shipment_date)));
+                            }
 
                             $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb_number), array());
 
@@ -3917,10 +3917,10 @@ class Inventory extends CI_Controller {
                                 $courier_company_details_id = $this->service_centers_model->insert_into_awb_details($awb_data);
                             }
 
-//                                    $insert_courier_details = $this->inventory_model->insert_courier_details($courier_data);
+                            $insert_courier_details = $this->inventory_model->insert_courier_details($courier_data);
 
-                            if (!empty($courier_company_details_id)) {
-                                log_message('info', 'Courier Invoice Details added successfully.');
+                            if (!empty($insert_courier_details)) {
+                                log_message('info', 'Courier Details added successfully.');
 
                                 foreach ($parts_details as $value) {
                                     $request_type = '';
@@ -3969,7 +3969,7 @@ class Inventory extends CI_Controller {
                                             $ledger_data['booking_id'] = trim($value['booking_id']);
                                             $ledger_data['invoice_id'] = $invoice_id;
                                             $ledger_data['is_wh_ack'] = 0;
-                                            $ledger_data['courier_id'] = $courier_company_details_id;
+                                            $ledger_data['courier_id'] = $insert_courier_details;
                                             $ledger_data['is_wh_micro'] = $is_wh_micro;
                                             $insert_id = $this->inventory_model->insert_inventory_ledger($ledger_data);
                                             if (isset($value['request_type']) && !empty($value['request_type'])) {
@@ -4010,7 +4010,7 @@ class Inventory extends CI_Controller {
 
                                 // 2 Means - this part send to Micro Warehouse And 1 means sent to warehouse
                                 If ($is_wh_micro == 2) {
-                                    $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, str_replace('/', '-', $invoice_dated), $tqty, $partner_id, $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $courier_company_details_id, $action_agent_id);
+                                    $not_updated_data = $this->generate_micro_warehouse_invoice($invoice, $wh_id, str_replace('/', '-', $invoice_dated), $tqty, $partner_id, $to_gst_number, $sender_enity_id, $sender_entity_type, $agent_id, $agent_type, $insert_courier_details, $action_agent_id);
                                 }
 
                                 //send email to 247around warehouse incharge
@@ -5419,23 +5419,23 @@ class Inventory extends CI_Controller {
             $data['awb_by_wh'] = $awb_by_wh;
             $data['defective_parts_shippped_courier_pic_by_wh'] = $exist_courier_image;
             $data['status'] = DEFECTIVE_PARTS_SEND_TO_PARTNER_BY_WH;
-            $courier_details = array();
+            //$courier_details = array();
             $exist_courier_details = $this->inventory_model->get_generic_table_details('courier_company_invoice_details', '*', array('awb_number' => $awb_by_wh), array());
 
             if (!empty($exist_courier_image)) {
                 $data['defective_parts_shippped_courier_pic_by_wh'] = $exist_courier_image;
-                $courier_details['sender_entity_id'] = $this->input->post("sender_entity_id");
-                $courier_details['sender_entity_type'] = $this->input->post("sender_entity_type");
-                $courier_details['receiver_entity_id'] = $this->input->post("receiver_partner_id");
-                $courier_details['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
-                $courier_details['bill_to_partner'] = $this->input->post('receiver_partner_id');
-                $courier_details['AWB_no'] = trim($exist_courier_details[0]['awb_number']);
-                $courier_details['courier_name'] = trim($exist_courier_details[0]['company_name']);
-                $courier_details['courier_file'] = trim($exist_courier_details[0]['courier_invoice_file']);
-                $courier_details['shipment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
-                $courier_details['courier_charge'] = $exist_courier_details[0]['courier_charge'];
-                $courier_details['create_date'] = date('Y-m-d H:i:s');
-                $courier_details['status'] = COURIER_DETAILS_STATUS;
+//                $courier_details['sender_entity_id'] = $this->input->post("sender_entity_id");
+//                $courier_details['sender_entity_type'] = $this->input->post("sender_entity_type");
+//                $courier_details['receiver_entity_id'] = $this->input->post("receiver_partner_id");
+//                $courier_details['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
+//                $courier_details['bill_to_partner'] = $this->input->post('receiver_partner_id');
+//                $courier_details['AWB_no'] = trim($exist_courier_details[0]['awb_number']);
+//                $courier_details['courier_name'] = trim($exist_courier_details[0]['company_name']);
+//                $courier_details['courier_file'] = trim($exist_courier_details[0]['courier_invoice_file']);
+//                $courier_details['shipment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
+//                $courier_details['courier_charge'] = $exist_courier_details[0]['courier_charge'];
+//                $courier_details['create_date'] = date('Y-m-d H:i:s');
+//                $courier_details['status'] = COURIER_DETAILS_STATUS;
             } else {
                 $data['defective_parts_shippped_courier_pic_by_wh'] = trim($this->input->post("sp_parts"));
                 if (empty($exist_courier_details)) {
@@ -5457,24 +5457,24 @@ class Inventory extends CI_Controller {
 
                     $this->service_centers_model->insert_into_awb_details($awb_data);
 
-                    $courier_details['sender_entity_id'] = $this->input->post("sender_entity_id");
-                    $courier_details['sender_entity_type'] = $this->input->post("sender_entity_type");
-                    $courier_details['receiver_entity_id'] = $this->input->post('receiver_partner_id');
-                    $courier_details['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
-                    $courier_details['bill_to_partner'] = $this->input->post('receiver_partner_id');
-                    $courier_details['AWB_no'] = $awb_by_wh;
-                    $courier_details['courier_name'] = $courier_name_by_wh;
-                    $courier_details['courier_file'] = trim($this->input->post("sp_parts"));
-                    $courier_details['shipment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
-                    $courier_details['courier_charge'] = $courier_price_by_wh;
-                    $courier_details['create_date'] = date('Y-m-d H:i:s');
-                    $courier_details['status'] = COURIER_DETAILS_STATUS;
+//                    $courier_details['sender_entity_id'] = $this->input->post("sender_entity_id");
+//                    $courier_details['sender_entity_type'] = $this->input->post("sender_entity_type");
+//                    $courier_details['receiver_entity_id'] = $this->input->post('receiver_partner_id');
+//                    $courier_details['receiver_entity_type'] = _247AROUND_PARTNER_STRING;
+//                    $courier_details['bill_to_partner'] = $this->input->post('receiver_partner_id');
+//                    $courier_details['AWB_no'] = $awb_by_wh;
+//                    $courier_details['courier_name'] = $courier_name_by_wh;
+//                    $courier_details['courier_file'] = trim($this->input->post("sp_parts"));
+//                    $courier_details['shipment_date'] = $this->input->post('defective_parts_shippped_date_by_wh');
+//                    $courier_details['courier_charge'] = $courier_price_by_wh;
+//                    $courier_details['create_date'] = date('Y-m-d H:i:s');
+//                    $courier_details['status'] = COURIER_DETAILS_STATUS;
                 }
             }
 
-            if (!empty($courier_details)) {
-                $this->inventory_model->insert_courier_details($courier_details);
-            }
+//            if (!empty($courier_details)) {
+//                $this->inventory_model->insert_courier_details($courier_details);
+//            }
 
             foreach ($postData as $key => $val) {
                 if (!empty($val['spare_id'])) {
