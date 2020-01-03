@@ -5940,12 +5940,12 @@ function do_multiple_spare_shipping(){
 
         if (!empty($spare_list['defective_part_shipped'])) {  
 
-        $a = "<a href='javascript:void(0);' id='defective_parts_' class='btn btn-sm btn-primary recieve_defective' onclick='";
-        $a .= "open_spare_consumption_model(this.id," . '"' . $spare_list['booking_id'] . '"';
-        $a .= ', "' . $spare_list['id'] . '"';
-        $a .= ")'>Recieve</a>";
-        $a .= "<input type='checkbox' class='checkbox_revieve_class' name='revieve_checkbox'";
-        $a .=" data-consumption_status='".$spare_list['consumed_status']."' data-url='".base_url()."service_center/acknowledge_received_defective_parts/".$spare_list['id']."/".$spare_list['booking_id']."/".$spare_list['partner_id']."/1'   />";
+            $a = "<a href='javascript:void(0);' id='defective_parts_' class='btn btn-sm btn-primary recieve_defective' onclick='";
+            $a .= "open_spare_consumption_model(this.id," . '"' . $spare_list['booking_id'] . '"';
+            $a .= ', "' . $spare_list['id'] . '"';
+            $a .= ")'>Receive</a>";
+            $a .= "<input type='checkbox' class='checkbox_revieve_class' name='revieve_checkbox'";
+            $a .=" data-consumption_status='" . $spare_list['consumed_status'] . "' data-url='" . base_url() . "service_center/acknowledge_received_defective_parts/" . $spare_list['id'] . "/" . $spare_list['booking_id'] . "/" . $spare_list['partner_id'] . "/1'   />";
 
 
         $row[] = $a;

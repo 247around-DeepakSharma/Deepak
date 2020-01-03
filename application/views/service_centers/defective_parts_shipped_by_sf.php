@@ -38,7 +38,7 @@
 <div class="col-md-12 col-sm-12 col-xs-12">
     <div class="x_panel">
         <div class="x_title">
-            <button class="btn btn-success pull-right" id="revieve_multiple_parts_btn">Recieve Multiple Parts</button>
+            <button class="btn btn-success pull-right" id="revieve_multiple_parts_btn">Receive Multiple Parts</button>
             <h2>Defective Parts Shipped By SF</h2>
             <div class="clearfix"></div>
 
