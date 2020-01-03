@@ -862,7 +862,57 @@ class dashboard_model extends CI_Model {
         $result = $this->db->query($query);
         return $result->result_array();
     }
- 
+
+        /**
+     * @desc this function is used to count report rows
+     * @param string $table_name
+     * @param array $where
+     * @return Array
+     */
+    function get_spare_tat_report_count_total($table_name, $where = array(), $limit = 5,$post=array()){
+        $this->db->select('*');
+        if(!empty($where)){
+            $this->db->where($where);
+        }        
+        $query = $this->db->get($table_name);
+        return $query->result_array();
+    }
+
+
+
+        /**
+     * @desc this function is used to count filtered rows count 
+     * @param string $table_name
+     * @param array $where
+     * @return Array
+     */
+    function get_spare_tat_report_count_filter($table_name, $where = array(), $limit = 5,$post=array()){
+        $this->db->select('*');
+        if(!empty($where)){
+            $this->db->where($where);
+        }
+
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+    
+        $query = $this->db->get($table_name);
+        return $query->result_array();
+    }
+
     /**
      * @desc this function is used to fetch view data from db
      * @param string $table_name
@@ -870,16 +920,38 @@ class dashboard_model extends CI_Model {
      * @param int $limit
      * @return Array
      */
-    function get_spare_tat_report($table_name, $where = array(), $limit = 5){
+    function get_spare_tat_report($table_name, $where = array(), $limit = 5,$post=array()){
         $this->db->select('*');
         if(!empty($where)){
             $this->db->where($where);
         }
-        if($limit > 0){
-            $this->db->limit($limit, 0);
+
+
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (isset($post['length']) && $post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }else if(isset($post['length']) && $post['length'] == -1){
+            
+        }else{
+            $this->db->limit($limit, 0); 
         }
         
         $query = $this->db->get($table_name);
+       // print_r($this->db->last_query());  exit;
         return $query->result_array();
     }
  

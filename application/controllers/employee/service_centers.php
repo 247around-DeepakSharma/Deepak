@@ -6968,6 +6968,42 @@ function do_multiple_spare_shipping(){
        
         
     }
+
+
+
+
+         /**
+     * @desc: This method is used to display list of Received Defective Parts by Partner id
+     * @param Integer $offset
+     */
+    function warehouse_rejected_by_partner_on_challan($offset = 0) {        
+        $this->check_WH_UserSession();
+        log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id'));
+               
+        if($this->input->post('partner_id')){
+            $partner_id = $this->input->post('partner_id');
+            $data['filtered_partner'] = $this->input->post('partner_id');
+            $sf_id = $this->session->userdata('service_center_id');
+            $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
+                    . "AND spare_parts_details.wh_to_partner_defective_shipped_date IS NULL AND defective_part_required = '1' AND status IN ('" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "','"._247AROUND_COMPLETED."') ";
+            $where .= "  AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
+            $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
+
+        } else {
+            $data['spare_parts'] = array();
+        }
+        $data['courier_details'] = $this->inventory_model->get_courier_services('*');
+        $gst_where = array(
+            "entity_type" => _247AROUND_PARTNER_STRING,
+            "entity_id" => _247AROUND,
+            );
+        $data['from_gst_number'] = $this->inventory_model->get_entity_gst_data("entity_gst_details.id as id, gst_number, state_code.state as state", $gst_where);
+                  
+        $this->load->view('service_centers/reject_partner_on_challan', $data);
+       
+        
+    }
+
     
     /**
      * @desc: This function is used to download SF declaration who don't have GST number hen Partner update spare parts
