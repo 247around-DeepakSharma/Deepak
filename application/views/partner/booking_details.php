@@ -579,6 +579,8 @@
                                                                 <th >Shipped date </th>
                                                                 <th >Remarks By SF </th>
                                                                 <th >Remarks By Partner </th>
+                                                                <th> Received Defective Part Image </th>
+                                                                <th> Rejected Defective Part Image </th>
                                                                 <th>Challan File</th>
                                                             </tr>
                                                         </thead>
@@ -621,6 +623,16 @@
                                                                     <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                                                     <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                                                     <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
+                                                                    <td>
+                                                                        <?php if (!empty($sp['received_defective_part_pic_by_wh'])) { ?>
+                                                                            <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['received_defective_part_pic_by_wh']; ?> " target="_blank">Click Here to view</a>
+                                                                        <?php } ?>
+                                                                    </td>
+                                                                    <td>
+                                                                        <?php if(!empty($sp['rejected_defective_part_pic_by_wh'])){ ?>
+                                                                            <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['rejected_defective_part_pic_by_wh']; ?> " target="_blank">Click Here to view</a>
+                                                                        <?php } ?>
+                                                                    </td>
                                                                     <td> 
                                                                         <?php  if(!empty($sp['sf_challan_file'])) { ?> 
                                                                             <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY ?>/vendor-partner-docs/<?php echo $sp['sf_challan_file']; ?>" target="_blank">Click Here to view</a>
