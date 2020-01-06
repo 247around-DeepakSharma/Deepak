@@ -7025,7 +7025,7 @@ class Service_centers extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required" => 1,
             "spare_parts_details.service_center_id" => $service_center_id,
-            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED . "', '" . OK_PART_TO_BE_SHIPPED . "','" . DAMAGE_PART_TO_BE_SHIPPED . "', '" . COURIER_LOST . "')  " => NULL
+            "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . DEFECTIVE_PARTS_REJECTED . "', '" . OK_PART_TO_BE_SHIPPED . "','" . DAMAGE_PART_TO_BE_SHIPPED . "')  " => NULL
         );
         $group_by = "spare_parts_details.service_center_id";
         $total_rows = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by);

@@ -40,6 +40,9 @@
                 return false;
             }
 
+            $('#reject_courier_lost_spare_part_btn').attr("disabled", true);
+            $('#reject_courier_lost_spare_part_btn').val("Please wait...");
+
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/spare_parts/reject_courier_lost_spare',
