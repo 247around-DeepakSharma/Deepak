@@ -1645,7 +1645,7 @@
                 }else{
                   $(".loader").fadeOut("slow");
                   $(".loader").addClass('hide');
-                  swal("Error Occured!", "Error in opening the spare request", "error");
+                  swal("Error Occured!", "Error in opening the spare request. Either booking is already closed by service center or some network issue.", "error");
                 }
                 
                 spare_parts_requested_table_reject.ajax.reload(null, false);  
@@ -1719,6 +1719,9 @@
             alert("Please enter remarks.");
             return false;
         }        
+       
+        $('#approve_courier_spare_part_btn').attr("disabled", true);
+        $('#approve_courier_spare_part_btn').val("Please wait...");
         
         $.ajax({
             method:'POST',

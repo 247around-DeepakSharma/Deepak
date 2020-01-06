@@ -614,7 +614,7 @@ define('BROADCAST_SMS_TO_VENDOR', 'broadcast_sms_to_vendor');
 define("_247AROUND_WEBSITE", "247around-Website");
 
 //Repeat Booking
-define("_247AROUND_REPEAT_BOOKING_ALLOWED_DAYS", 90);
+define("_247AROUND_REPEAT_BOOKING_ALLOWED_DAYS", 30);
 define("_PARTNER_REPEAT_BOOKING_ALLOWED_DAYS", 30);
 define("_NO_REPEAT_BOOKING_FLAG", 2);
 define("_ONE_REPEAT_BOOKING_FLAG", 1);
@@ -692,5 +692,9 @@ define('ENGINEER_INCENTIVE_FILE_TYPE', 'Engineer-Incentive-File');
 define('ENGINEER_INCENTIVE_MAX_AMOUNT', 100);
 
 define('DEV_BOOKINGS_MAIL', 'dev-bookings@247around.com');
+define('INPROCESS_COMPLETED_BY_ENGINEER_STATUS', 'InProcess Completed By Engineer');
+define('INPROCESS_CANCELLED_BY_ENGINEER_STATUS', 'InProcess Cancelled By Engineer');
+define('BOOKING_COMPLETED_BY_ENGINEER_STATUS', 'Booking Completed By Engineer');
+define('BOOKING_CANCELLED_BY_ENGINEER_STATUS', 'Booking Cancelled By Engineer');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
