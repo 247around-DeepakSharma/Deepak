@@ -704,5 +704,9 @@ define('ENGINEER_INCENTIVE_FILE_TYPE', 'Engineer-Incentive-File');
 define('ENGINEER_INCENTIVE_MAX_AMOUNT', 100);
 
 define('DEV_BOOKINGS_MAIL', 'dev-bookings@247around.com');
+define('INPROCESS_COMPLETED_BY_ENGINEER_STATUS', 'InProcess Completed By Engineer');
+define('INPROCESS_CANCELLED_BY_ENGINEER_STATUS', 'InProcess Cancelled By Engineer');
+define('BOOKING_COMPLETED_BY_ENGINEER_STATUS', 'Booking Completed By Engineer');
+define('BOOKING_CANCELLED_BY_ENGINEER_STATUS', 'Booking Cancelled By Engineer');
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
