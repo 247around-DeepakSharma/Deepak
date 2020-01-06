@@ -459,8 +459,7 @@
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script type="text/javascript">
     
-    var blDisableAcCategoryOptions = "<?= ($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP ? '1' : '0'); ?>";
-    
+    var blDisableAcCategoryOptions = 1;
     function check_validation(){ 
         var exp1 = /^[6-9]{1}[0-9]{9}$/;
         var user_name  = $("#name").val();
