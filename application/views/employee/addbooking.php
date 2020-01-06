@@ -59,6 +59,7 @@
                                           <input type="hidden" name="assigned_vendor_id" value="" id="assigned_vendor_id" />
                                           <input type="hidden" value="<?php echo (!empty($this->session->userdata('service_center_id')) ? $this->session->userdata('service_center_id') : '') ?>" name="is_sf_panel" id="is_sf_panel">                                       
                                           <input type="text" class="form-control" placeholder="Enter User Name" id="name" name="user_name" value = "<?php if(!empty($user)){ echo $user[0]['name'];} ?>" <?php if(!empty($user)){ ?>readonly="readonly" <?php } ?>>
+                                          <input type="hidden" name="flag_add_booking" value="1" id="flag_add_booking" />
                                     </div>
                                 </div>
                                 <div class="form-group ">
