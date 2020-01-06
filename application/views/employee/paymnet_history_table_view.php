@@ -157,6 +157,8 @@
                     <th>Booking Qty</th>
                     <th>Parts Amt</th>
                     <th>Service Charges</th>
+                    <th>Additional Charges</th>
+                    <th>Upcountry Charges</th>
                     <th>CGST</th>
                     <th>SGST</th>
                     <th>IGST</th>
@@ -186,7 +188,7 @@
             <tbody>
                 <?php if (isset($invoice_data)) { ?> 
                     <?php
-                    $sn = 1; $t_service_charges = $t_parts_cost = $t_parts_count = $t_ac = $t_acp = $num_bookings = $cgst = $sgst = $igst = $tds_amount = 0;
+                    $sn = 1; $t_service_charges = $t_parts_cost = $t_parts_count = $t_ac = $t_acp = $num_bookings = $cgst = $sgst = $igst = $tds_amount = 0; $t_a_charges = $_upcountry =0;
                     foreach ($invoice_data as $key => $value) {
                         ?>
                         <tr>
@@ -202,6 +204,10 @@
                             <td><?php echo round($value['num_bookings'],0); $num_bookings += $value['num_bookings'];?></td>
                             <td><?php echo sprintf("%.2f", $value['parts_cost']); $t_parts_cost += $value['parts_cost'];?></td>
                             <td><?php echo sprintf("%.2f", $value['total_service_charge']); $t_service_charges += $value['total_service_charge'];?></td>
+                            
+                            <td><?php echo sprintf("%.2f", $value['total_additional_service_charge']); $t_a_charges += $value['total_additional_service_charge'];?></td>
+                            <td><?php echo sprintf("%.2f", $value['upcountry_price']); $_upcountry += $value['upcountry_price'];?></td>
+                            
                             <td><?php echo round($value['cgst_tax_amount'],0); $cgst += $value['cgst_tax_amount']; ?></td>
                             <td><?php echo round($value['sgst_tax_amount'],0); $sgst += $value['sgst_tax_amount']; ?></td>
                             <td><?php echo round($value['igst_tax_amount'],0); $igst += $value['igst_tax_amount']; ?></td>
@@ -240,6 +246,8 @@
                             <td><b><?php echo $num_bookings; ?></b></td>
                             <td><b><?php echo sprintf("%.2f", $t_parts_cost); ?></b></td>
                             <td><b><?php echo sprintf("%.2f", $t_service_charges); ?></b></td>
+                            <td><b><?php echo sprintf("%.2f", $t_a_charges); ?></b></td>
+                            <td><b><?php echo sprintf("%.2f", $_upcountry); ?></b></td>
                             <td><b><?php echo round($cgst,0); ?></b></td> 
                             <td><b><?php echo round($sgst,0); ?></b></td> 
                             <td><b><?php echo round($igst,0); ?></b></td> 
@@ -765,6 +773,7 @@
                     <th>S.No.</th>
                     <th>Invoice Id</th>
                     <th>Service/Product</th>
+                    <th>Description</th>
                     <th>Rate</th>
                     <th>Qty</th>
                     <th>Taxable Value</th>
@@ -786,6 +795,7 @@
                             <td><?php echo $sn; ?></td>
                             <td><?php echo $invoice['invoice_id']; ?></td>
                             <td><?php echo $invoice['product_or_services']; ?></td>
+                            <td><?php echo $invoice['description']; ?></td>
                             <td><?php echo round($invoice['rate']); ?></td>
                             <td><?php echo $invoice['qty'];$total_qty += $invoice['qty']; ?></td>
                             <td><?php echo sprintf("%.2f", $invoice['taxable_value']);$total_taxable += $invoice['taxable_value']; ?></td>
