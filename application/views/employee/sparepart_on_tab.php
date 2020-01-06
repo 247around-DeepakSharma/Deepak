@@ -1719,6 +1719,9 @@
             alert("Please enter remarks.");
             return false;
         }        
+       
+        $('#approve_courier_spare_part_btn').attr("disabled", true);
+        $('#approve_courier_spare_part_btn').val("Please wait...");
         
         $.ajax({
             method:'POST',

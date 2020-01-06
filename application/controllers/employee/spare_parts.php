@@ -1232,7 +1232,7 @@ class Spare_parts extends CI_Controller {
         $this->service_centers_model->insert_courier_lost_spare_status($data);
 
         // check part pending to be shipped.
-        $check_spare_part_pending = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array("spare_parts_details.status IN ('" . OK_PART_TO_BE_SHIPPED . "','" . DAMAGE_PART_TO_BE_SHIPPED . "','" . DEFECTIVE_PARTS_PENDING . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "','" . DEFECTIVE_PARTS_SHIPPED . "')" => NULL, 'spare_parts_details.booking_id' => $spare_part_detail['booking_id']), true, false);
+        $check_spare_part_pending = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array("spare_parts_details.status IN ('" . OK_PART_TO_BE_SHIPPED . "','" . DAMAGE_PART_TO_BE_SHIPPED . "','" . DEFECTIVE_PARTS_PENDING . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "','" . DEFECTIVE_PARTS_SHIPPED . "','".COURIER_LOST."')" => NULL, 'spare_parts_details.booking_id' => $spare_part_detail['booking_id']), true, false);
         if (empty($check_spare_part_pending)) {
             // update service center booking action.
             $this->vendor_model->update_service_center_action($spare_part_detail['booking_id'], ['current_status' => SF_BOOKING_INPROCESS_STATUS, 'internal_status' => _247AROUND_COMPLETED]);
