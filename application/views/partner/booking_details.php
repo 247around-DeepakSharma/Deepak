@@ -381,6 +381,11 @@
                                                             ?>
                                                                 </td>
                                                                 <td><?php echo $sp['serial_number']; ?></td>
+                                                                <?php if (!empty($sp['acknowledge_date'])) { ?>
+                                                                    <td><?php echo $sp['acknowledge_date']; ?></td>
+                                                                <?php }else{ ?>
+                                                                    <td> - </td>
+                                                                <?php } ?>
                                                                 <td><?php echo $sp['acknowledge_date']; ?></td>
                                                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                                                 <td><?php echo $sp['status']; ?></td>
