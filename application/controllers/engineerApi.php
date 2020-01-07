@@ -1432,14 +1432,14 @@ class engineerApi extends CI_Controller {
                 $service_center_data = [];
                 $service_center_data['closed_date'] = $data["closed_date"];
                 $service_center_data['cancellation_reason'] = $data["cancellation_reason"];
-                $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
+                $this->vendor_model->update_service_center_action($requestData["bookingID"], $service_center_data);
                 // update booking.
                 $booking = [];
                 $booking['service_center_closed_date'] = $data["closed_date"];
                 $booking['cancellation_reason'] = $data['cancellation_reason'];
                 
                 $actor = $next_action = 'not_define';
-                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, INPROCESS_CANCELLED_BY_ENGINEER_STATUS, $requestData['partner_id'], $booking_id);
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, INPROCESS_CANCELLED_BY_ENGINEER_STATUS, $bookinghistory[0]['partner_id'], $requestData["bookingID"]);
                 if (!empty($partner_status)) {
                     $booking['partner_current_status'] = $partner_status[0];
                     $booking['partner_internal_status'] = $partner_status[1];
@@ -1447,7 +1447,7 @@ class engineerApi extends CI_Controller {
                     $next_action = $booking['next_action'] = $partner_status[3];
                 }
                 
-                $this->booking_model->update_booking($booking_id, $booking);                
+                $this->booking_model->update_booking($requestData["bookingID"], $booking);                
                 
                 $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING, 
                         "Booking Cancelled By Engineer From App", 
