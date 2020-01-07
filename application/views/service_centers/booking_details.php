@@ -444,7 +444,13 @@
                                     } ?>
                                 </td>
                                 <td><?php echo $sp['serial_number']; ?></td>
-                                <td><?php echo date('d-m-Y', strtotime($sp['acknowledge_date'])); ?></td>
+
+                                <?php if (!empty($sp['acknowledge_date'])) { ?>
+                                    <td><?php echo date('d-m-Y', strtotime($sp['acknowledge_date'])); ?></td>
+                                <?php }else{ ?>
+                                    <td> - </td>
+                                <?php } ?>
+                                
                                 <td><?php echo $sp['remarks_by_sc']; ?></td>
                                 <td><?php echo $sp['status'];?></td>
                                 <td><?php echo $sp['part_cancel_reason'];?></td>
