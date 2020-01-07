@@ -22,7 +22,7 @@
                                 </a>
                             </li>
                             <li role="presentation">
-                                <a href="#tabs-7" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/get_rejected_msl">
+                                <a href="#tabs-10" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>service_center/get_rejected_msl">
                                     Rejected MSL
                                 </a>
                             </li>
@@ -69,6 +69,7 @@
                             <div class="tab-pane" id="tabs-7"></div>
                             <div class="tab-pane" id="tabs-8"></div>
                             <div class="tab-pane" id="tabs-9"></div>
+                            <div class="tab-pane" id="tabs-10"></div>
                             <div class="tab-pane active" id="tabs-6">
                                 <div class="right_col" role="main">
                                     <div class="row">
@@ -295,6 +296,7 @@
     $('#myTabs a').click(function (e) {
         e.preventDefault();
         var url = $(this).attr("data-url");
+       // alert(url);
         var href = this.hash;   
         if(href === '#tabs-5'){
             load_view_send_to_partner(url,href);
