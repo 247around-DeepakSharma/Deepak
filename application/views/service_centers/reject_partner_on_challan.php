@@ -33,12 +33,12 @@
                                     <form class="form-inline" action="#" method="POST">
 
                                         <label for="partner_id">Select Partner</label>
-                                        <select class="form-control" id="partner_id" name="partner_id" required="">
+                                        <select class="form-control" id="partner_id2" name="partner_id" required="">
                                             <option value="" disabled="">Select Partner</option>
                                         </select>
                                         <div id="partner_err"></div>
                                 </div>                              
-                                <button type="submit" class="btn btn-success btn-sm col-md-2" id="partner_search_id" style="margin-top: 22px;">Submit</button>                          
+                                <button type="submit" class="btn btn-success btn-sm col-md-2" id="partner_search_id2" style="margin-top: 22px;">Submit</button>                          
                                 
                                    </form>                                
                             </div>
@@ -125,7 +125,7 @@
                                      <input type="hidden" readonly="readonly" min="1" value="<?php echo $row['shipped_quantity']?>" data-shipping_quantity="<?php echo $row['shipped_quantity']?>" id="spare<?php echo $row['id']?>" name="shipping_quantity">
 
                                      </td>
-                                     <td><span>Rejected</span></td>
+                                     <td><span style="color:#f90808;font-weight: 900;">Rejected</span></td>
 <!--                                      <td>
                                              <input type="checkbox" class="form-control checkbox_challan" onclick="remove_select_all_challan()" name="download_challan[<?php //echo $row['defective_return_to_entity_id'];  ?>][]"  value="<?php //echo $row['id']?>" />
                                     </td>
@@ -170,7 +170,7 @@
       </div>
       
     </div>
-  </div> -->
+  </div> 
 
 
 
@@ -313,15 +313,15 @@
         ]
     });
     
-     $("#partner_search_id").click(function(){         
-         var partner_id = $("#partner_id").val();
+     $("#partner_search_id2").click(function(){         
+         var partner_id = $("#partner_id2").val();
        
          if(partner_id==null){
             $("#partner_err").html('Please Select Partner.').css({'color':'red'});
             return false;
          }else{
              $("#partner_err").html('');
-             load_view_send_to_partner('service_center/send_to_partner_on_challan', '#tabs-9',partner_id);
+             load_view_send_to_partner('service_center/rejected_by_partner_on_challan', '#tabs-9',partner_id);
          }
          
      });
@@ -367,7 +367,7 @@
 </script>
 <script>
     
-    $('#partner_id').select2({
+    $('#partner_id2').select2({
         placeholder:'Select Partner',
         allowClear:true
     });
@@ -571,14 +571,14 @@
                 if(response === 'Error'){
                     
                 } else {
-                    $('#partner_id').html(response);
-                    var option_length = $('#partner_id').children('option').length;
+                    $('#partner_id2').html(response);
+                    var option_length = $('#partner_id2').children('option').length;
                     if(option_length == 2){
-                        $("#partner_id").change();   
+                        $("#partner_id2").change();   
                     }
                      <?php if(isset($filtered_partner)) { ?> 
-                    $('#partner_id').val('<?php echo $filtered_partner?>'); 
-                    $('#partner_id').trigger('change');
+                    $('#partner_id2').val('<?php echo $filtered_partner?>'); 
+                    $('#partner_id2').trigger('change');
                     <?php } ?>
                 }
                 
