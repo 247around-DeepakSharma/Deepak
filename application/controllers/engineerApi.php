@@ -1181,6 +1181,7 @@ class engineerApi extends CI_Controller {
         $serial_number_text = "";
         $sc_agent_id = "";
         $purchase_inv_url = "";
+        $booking_internal_status = INPROCESS_CANCELLED_BY_ENGINEER_STATUS;
         if($validation){
             foreach($unitDetails as $value){
                 $data = array();
@@ -1193,6 +1194,7 @@ class engineerApi extends CI_Controller {
                         $data["internal_status"] = _247AROUND_CANCELLED;
                     } else {
                         $data["internal_status"] = _247AROUND_COMPLETED;
+                        $booking_internal_status = INPROCESS_COMPLETED_BY_ENGINEER_STATUS;
                     }
                     
                     if($requestData["appliance_broken"] == false){
@@ -1323,13 +1325,19 @@ class engineerApi extends CI_Controller {
                 $this->engineer_model->insert_engineer_action_sign($en);
             }
             $actor = $next_action = 'not_define';
-            $partner_status = $this->booking_utilities->get_partner_status_mapping_data($data["current_status"] , $data['internal_status'], $requestData['partner_id'], $booking_id);
+            $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, $booking_internal_status, $requestData['partner_id'], $booking_id);
             if (!empty($partner_status)) {
                 $booking['partner_current_status'] = $partner_status[0];
                 $booking['partner_internal_status'] = $partner_status[1];
                 $actor = $booking['actor'] = $partner_status[2];
                 $next_action = $booking['next_action'] = $partner_status[3];
             }
+            // update service center action data.
+            $service_center_data = [];
+            $service_center_data['closed_date'] = $data["closed_date"];
+            $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
+            // update booking.
+            $booking['service_center_closed_date'] = $data["closed_date"];
             $this->booking_model->update_booking($booking_id, $booking);
             
             if(isset($requestData['sc_agent_id'])){
@@ -1420,6 +1428,27 @@ class engineerApi extends CI_Controller {
                     $this->engineer_model->insert_engineer_action_sign($en);
                 }
 
+                // update service center action data.
+                $service_center_data = [];
+                $service_center_data['closed_date'] = $data["closed_date"];
+                $service_center_data['cancellation_reason'] = $data["cancellation_reason"];
+                $this->vendor_model->update_service_center_action($booking_id, $service_center_data);
+                // update booking.
+                $booking = [];
+                $booking['service_center_closed_date'] = $data["closed_date"];
+                $booking['cancellation_reason'] = $data['cancellation_reason'];
+                
+                $actor = $next_action = 'not_define';
+                $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, INPROCESS_CANCELLED_BY_ENGINEER_STATUS, $requestData['partner_id'], $booking_id);
+                if (!empty($partner_status)) {
+                    $booking['partner_current_status'] = $partner_status[0];
+                    $booking['partner_internal_status'] = $partner_status[1];
+                    $actor = $booking['actor'] = $partner_status[2];
+                    $next_action = $booking['next_action'] = $partner_status[3];
+                }
+                
+                $this->booking_model->update_booking($booking_id, $booking);                
+                
                 $this->notify->insert_state_change($requestData["bookingID"], $requestData["cancellationReason"], _247AROUND_PENDING, 
                         "Booking Cancelled By Engineer From App", 
                         $requestData['sc_agent_id'], "",ACTOR_BOOKING_CANCELLED,NEXT_ACTION_CANCELLED_BOOKING, NULL, $requestData['service_center_id']);
