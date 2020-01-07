@@ -341,7 +341,7 @@ class Partner extends CI_Controller {
         $this->form_validation->set_rules('phone_number', 'Phone Number', 'trim|required|regex_match[/^[6-9]{1}[0-9]{9}$/]');
 
         if ($this->form_validation->run() == FALSE) {
-            $output = "Please Enter Valid Mobile Number";
+            $output = validation_errors();
             $userSession = array('error' => $output);
             $this->session->set_userdata($userSession);
             redirect(base_url() . "partner/home");
@@ -469,8 +469,10 @@ class Partner extends CI_Controller {
             }
         } else {
             log_message('info', 'Partner add booking' . $this->session->userdata('partner_name') . " Validation failed ");
+            $userSession = array('error' => validation_errors());
+            $this->session->set_userdata($userSession);
             $phone_number = $this->input->post('booking_primary_contact_no');
-            $_POST['phone_number'] = $phone_number;
+            $_POST['phone_number'] = $phone_number;            
             $this->get_addbooking_form();
         }
     }

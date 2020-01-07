@@ -304,12 +304,12 @@ class Validate_serial_no {
                         
                             if($price_tags == $value['price_tags']){
                           
-                                $msg = " You already used in Booking ID - ".$value['booking_id'];
+                                $msg = " Already used in Booking ID - ".$value['booking_id']." with same request type";
                                 $isDuplicate = TRUE;
                                 break;
                             }
                         } else {
-                            $msg = " You already used in Booking ID - ".$value['booking_id'];
+                            $msg = "Different User already used in Booking ID - ".$value['booking_id'];
                             $isDuplicate = TRUE;
                             break;
                         }
@@ -318,7 +318,7 @@ class Validate_serial_no {
                    if($booking_details[0]['user_id'] == $user_id){                        
                         if($price_tags == $value['price_tags']){
 
-                            $msg = " You already used in Booking ID - ".$value['booking_id'];
+                            $msg = " Already used in Open Booking ID - ".$value['booking_id'];
                             $isDuplicate = TRUE;
                             break;
                         }

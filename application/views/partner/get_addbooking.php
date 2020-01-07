@@ -459,8 +459,7 @@
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
 <script type="text/javascript">
     
-    var blDisableAcCategoryOptions = "<?= ($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP ? '1' : '0'); ?>";
-    
+    var blDisableAcCategoryOptions = 1;
     function check_validation(){ 
         var exp1 = /^[6-9]{1}[0-9]{9}$/;
         var user_name  = $("#name").val();
@@ -1675,19 +1674,20 @@
                     array.push(pdi);
          }
          
+         // Pushing others_flag 2 times to avoid these type of combinations.
          if(findInArray(delivered_price_tags, 'Gas Recharge - In Warranty') > -1 && findInArray(delivered_price_tags, 'Gas Recharge - Out of Warranty') > -1){
                     others_flag = true;
-                    array.push(others_flag);
+                    array.push(others_flag, others_flag);
          }
          
          if(findInArray(delivered_price_tags, 'Gas Recharge (R410) - In Warranty') > -1 && findInArray(delivered_price_tags, 'Gas Recharge (R410) - Out of warranty') > -1){
                     others_flag = true;
-                    array.push(others_flag);
+                    array.push(others_flag, others_flag);
          }
          
          if(findInArray(delivered_price_tags, 'Wet Service - In Warranty') > -1 && findInArray(delivered_price_tags, 'Wet Service - Out of Warranty') > -1){
                     others_flag = true;
-                    array.push(others_flag);
+                    array.push(others_flag, others_flag);
          }
          
          if(partner_id === videocon_id){

@@ -75,7 +75,7 @@
                             <input type="hidden" name="user_id" id="user_id" value="" />
                             <input type="hidden" name="partner_id" id="partner_id" value="" />
                             <input type="hidden" name="booking_type" id="booking_type" value="" />
-                           
+                            <input type="hidden" name="flag_add_booking" value="1" id="flag_add_booking" />
                             <input type="hidden" name="appliance_name" id="appliance_name" value=""/>
                             <div class="col-md-4" >
                                 <div class="form-group col-md-12 <?php if( form_error('user_name') ) { echo 'has-error';} ?>">
