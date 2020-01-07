@@ -21,6 +21,16 @@
     ?>
 
     <div class="row">
+        <?php
+        if ($this->session->userdata('error')) {
+            echo '<div class="alert alert-danger alert-dismissible" role="alert" style="margin-top: 55px;">
+                                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <strong>' . $this->session->userdata('error') . '</strong>
+                                    </div>';
+        }
+        ?>
         <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_content">
