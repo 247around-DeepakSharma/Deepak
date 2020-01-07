@@ -72,8 +72,8 @@ class vendor extends CI_Controller {
         //Getting rm id from post data
         $rm = $this->input->post('rm');
         
-        //Now unset value of rm from POST data
-        unset($_POST['rm']);
+        //Now unset value of rm from POST data ??
+//        unset($_POST['rm']);
         $data = $this->input->post();
         $checkValidation = $this->checkValidation();
                                              
@@ -245,6 +245,8 @@ class vendor extends CI_Controller {
         $vendor_data['is_buyback_gst_invoice'] = $this->input->post('is_buyback_gst_invoice');
         $vendor_data['min_upcountry_distance'] = $this->input->post('min_upcountry_distance');
         $vendor_data['minimum_guarantee_charge'] = $this->input->post('minimum_guarantee_charge');
+        $vendor_data['rm_id'] = $this->input->post('rm');
+        $vendor_data['asm_id'] = $this->input->post('asm');
         return $vendor_data;
     }
 
@@ -5968,6 +5970,17 @@ class vendor extends CI_Controller {
         $option = '<option value="" disabled '.(empty($rm_id) && count($data) > 1 ? 'selected' : '').'>Select Regional Manager</option>';
         foreach ($data as $employee) {
             $option .= "<option value='{$employee['id']}' ".(!empty($rm_id) && $rm_id == $employee['id'] ? 'selected' : '').">{$employee['full_name']}</option>";
+        }
+        
+        echo $option;
+    }
+    
+    function getASMs() {
+        $data = $this->employee_model->get_state_wise_rm($this->input->post('state'));
+        $asm_id = $this->input->post('asm_id');
+        $option = '<option value="" disabled '.(empty($asm_id) && count($data) > 1 ? 'selected' : '').'>Select Area Sales Manager</option>';
+        foreach ($data as $employee) {
+            $option .= "<option value='{$employee['id']}' ".(!empty($asm_id) && $asm_id == $employee['id'] ? 'selected' : '').">{$employee['full_name']}</option>";
         }
         
         echo $option;

@@ -243,7 +243,7 @@
                                         ?>">
                                         <label for="state" class="col-md-3 vertical-align">State*</label>
                                         <div class="col-md-8">
-                                            <select class=" form-control" name ="state" id="state" onChange="getDistrict(); getRMs();" placeholder="Select State">
+                                            <select class=" form-control" name ="state" id="state" onChange="getDistrict(); getRMs(); getASMs();" placeholder="Select State">
                                                 <option disabled="disabled" selected="selected"> Select State</option>
                                                 <?php
                                                     foreach ($results['select_state'] as $state) {
@@ -309,25 +309,42 @@
                                             </select>
                                         </div>
                                     </div>
-                                </div>
-                                
+                                </div>                                
                                 <div class="col-md-6">
                                     <div class="form-group <?php
-                                        if (form_error('rm')) {
+                                        if (form_error('company_type')) {
                                             echo 'has-error';
                                         }
                                         ?>">
-                                        <label for="rm" class="col-md-3 vertical-align">RM*</label>
+                                        <label for="company_type" class="col-md-3">Company Type*</label>
                                         <div class="col-md-8">
-                                            <select id="rm" class="form-control" name ="rm">
-                                                <option selected disabled>Select Regional Manager</option>
-                                                
+                                            <select name="company_type" class="form-control">
+                                                <option disabled selected >Select Company Type</option>
+                                                <option value="Individual" <?php if(isset($query[0]['company_type'])){
+                                                    if ($query[0]['company_type'] == "Individual") {
+                                                         echo "Selected";
+                                                    } }
+                                                    ?>>Individual</option>
+                                                <option value="Proprietorship Firm" <?php if(isset($query[0]['company_type'])){
+                                                    if ($query[0]['company_type'] == "Proprietorship Firm") {
+                                                         echo "Selected";
+                                                    } }
+                                                    ?>>Proprietorship Firm</option>
+                                                <option value="Partnership Firm" <?php if(isset($query[0]['company_type'])){
+                                                    if ($query[0]['company_type'] == "Partnership Firm") {
+                                                         echo "Selected";
+                                                    } }
+                                                    ?>>Partnership Firm</option>
+                                                <option value="Private Ltd Company" <?php if(isset($query[0]['company_type'])){
+                                                    if ($query[0]['company_type'] == "Private Ltd Company") {
+                                                         echo "Selected";
+                                                    } }
+                                                    ?>>Private Ltd Company</option>
                                             </select>
-                                            <?php echo form_error('rm'); ?>
+                                            <?php echo form_error('company_type'); ?>
                                         </div>
                                     </div>
-                                </div>
-                                
+                                </div>                                                               
                             </div>
                             <div class="col-md-12">
                                 <div class="col-md-6">
@@ -368,6 +385,38 @@
                             <div class="col-md-12">
                                 <div class="col-md-6">
                                     <div class="form-group <?php
+                                        if (form_error('asm')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="asm" class="col-md-3 vertical-align">ASM*</label>
+                                        <div class="col-md-8">
+                                            <select id="asm" class="form-control" name="asm">
+                                                <option selected disabled>Select Area Sales Manager</option>                                                
+                                            </select>
+                                            <?php echo form_error('asm'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
+                                        if (form_error('rm')) {
+                                            echo 'has-error';
+                                        }
+                                        ?>">
+                                        <label for="rm" class="col-md-3 vertical-align">RM*</label>
+                                        <div class="col-md-8">
+                                            <select id="rm" class="form-control" name="rm">
+                                                <option selected disabled>Select Regional Manager</option>                                                
+                                            </select>
+                                            <?php echo form_error('rm'); ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class ="col-md-12">
+                                <div class="col-md-6">
+                                    <div class="form-group <?php
                                         if (form_error('email')) {
                                             echo 'has-error';
                                         }
@@ -380,41 +429,6 @@
                                                 }
                                                 ?>">
                                             <?php echo form_error('email'); ?>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-group <?php
-                                        if (form_error('company_type')) {
-                                            echo 'has-error';
-                                        }
-                                        ?>">
-                                        <label for="company_type" class="col-md-3">Company Type*</label>
-                                        <div class="col-md-8">
-                                            <select name="company_type" class="form-control">
-                                                <option disabled selected >Select Company Type</option>
-                                                <option value="Individual" <?php if(isset($query[0]['company_type'])){
-                                                    if ($query[0]['company_type'] == "Individual") {
-                                                         echo "Selected";
-                                                    } }
-                                                    ?>>Individual</option>
-                                                <option value="Proprietorship Firm" <?php if(isset($query[0]['company_type'])){
-                                                    if ($query[0]['company_type'] == "Proprietorship Firm") {
-                                                         echo "Selected";
-                                                    } }
-                                                    ?>>Proprietorship Firm</option>
-                                                <option value="Partnership Firm" <?php if(isset($query[0]['company_type'])){
-                                                    if ($query[0]['company_type'] == "Partnership Firm") {
-                                                         echo "Selected";
-                                                    } }
-                                                    ?>>Partnership Firm</option>
-                                                <option value="Private Ltd Company" <?php if(isset($query[0]['company_type'])){
-                                                    if ($query[0]['company_type'] == "Private Ltd Company") {
-                                                         echo "Selected";
-                                                    } }
-                                                    ?>>Private Ltd Company</option>
-                                            </select>
-                                            <?php echo form_error('company_type'); ?>
                                         </div>
                                     </div>
                                 </div>
@@ -1362,8 +1376,12 @@
 
     $(document).ready(function(){
         
-        var rm_id = '<?php if(!empty($rm) && !empty($rm[0]['agent_id'])) { echo $rm[0]['agent_id']; } else { echo ''; }; ?>'
-        getRMs(rm_id);
+        var rm_id = '<?php if(!empty($rm) && !empty($rm[0]['agent_id'])) { echo $rm[0]['agent_id']; } else { echo ''; }; ?>';
+        var vendor_rm_id = '<?php if(!empty($query) && !empty($query[0]['rm_id'])) { echo $query[0]['rm_id']; } else { echo ''; }; ?>';
+        var vendor_asm_id = '<?php if(!empty($query) && !empty($query[0]['asm_id'])) { echo $query[0]['asm_id']; } else { echo ''; }; ?>';
+
+        getRMs(vendor_rm_id);
+        getASMs(vendor_asm_id);
         get_brands();
     });
 
@@ -1405,6 +1423,21 @@ function manageAccountNameField(value){
         });
         }
     }
+    
+    function getASMs(asm_id = '') {
+        var state = $("#state").val();
+        if(state != ''){
+        $.ajax({
+          type: 'POST',
+          url: '<?php echo base_url(); ?>employee/vendor/getASMs',
+          data: {state: state, asm_id:asm_id},
+          success: function (data) {
+            $("#asm").html(data);
+          }
+        });
+        }
+    }
+    
                 function getPincode() {
       var district = $(".district").val();
       var pincode = $(".pincode").val();
