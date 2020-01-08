@@ -909,7 +909,7 @@ function get_data_for_partner_callback($booking_id) {
             $select = "SELECT count(spare_parts_details.id) as total_rows ";
         }
         if(!$orderBy){
-            $orderBy = " ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."'";
+            $orderBy = " ORDER BY status = '". DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE."'";
         }
         
         if (!empty($is_stock_needed)) {
@@ -940,7 +940,7 @@ function get_data_for_partner_callback($booking_id) {
                 . ' LEFT JOIN services ON booking_details.service_id=services.id '
                 . ' LEFT JOIN spare_consumption_status ON spare_parts_details.consumed_part_status_id = spare_consumption_status.id '
                 . "  WHERE users.user_id = booking_details.user_id "
-                . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED."', spare_parts_details.create_date ASC $limit";
+                . " AND ".$where . $group_by."  ORDER BY status = '". DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE."', spare_parts_details.create_date ASC $limit";
             }
             else{
                 

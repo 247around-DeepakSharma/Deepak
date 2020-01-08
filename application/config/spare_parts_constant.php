@@ -23,8 +23,10 @@ define('DEFECTIVE_PARTS_SHIPPED','Defective Part Shipped By SF');
 define('DEFECTIVE_PARTS_RECEIVED','Defective Part Received By Partner');
 // Defective Parts Received by Warehouse
 define('DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE','Defective Part Received By Warehouse');
-// Defective Parts Received by SF
+// Defective Parts Rejected by Partner
 define('DEFECTIVE_PARTS_REJECTED','Defective Part Rejected By Partner');
+// Defective Parts Received by Warehouse
+define('DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE','Defective Part Rejected By Warehouse');
 //Zopper booking- Part Arrange By Same Vendor
 define("PART_ARRANGE_BY_SAME_VENDOR", 2);
 //Zopper booking- Part Arrange By Different Vendor
