@@ -5825,6 +5825,7 @@ class Service_centers extends CI_Controller {
         $list = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $limit, 0, NULL, $post);
 
         $no = $post['start'];
+        $data=array();
         //$no =0;
         foreach ($list as $spare_list) {
             $no++;
