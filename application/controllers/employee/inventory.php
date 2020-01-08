@@ -2176,7 +2176,7 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return : $output JSON
      */
-    function get_show_rm_wise_tat_report_data() {
+    function get_show_sf_brand_wise_tat_report_data() {
         $data = $this->get_show_sf_brand_wise_tat_report();
 
         $post = $data['post'];
