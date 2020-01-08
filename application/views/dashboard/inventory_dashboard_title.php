@@ -51,7 +51,7 @@
                 <div class="count text-center"><?php echo round($value['spare_amount']); ?></div>
             </div>
         </div>
-    <?php }else if($value['status'] === DEFECTIVE_PARTS_REJECTED){ ?>
+    <?php }else if($value['status'] === DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE){ ?>
         <div class="col-md-3 col-sm-6 col-xs-12 tile_stats_count" onclick="window.open('<?php echo base_url();?>employee/inventory/get_spare_parts','_blank')" style="cursor: pointer;">
             <div class="count_top text-center"><strong><?php echo ucwords(str_replace("_", " ", $value['status'])); ?></strong></div>
             <hr>
