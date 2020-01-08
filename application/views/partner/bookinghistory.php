@@ -45,7 +45,7 @@
                                     </td>
                                     <td>
                                         <?php
-                                            switch ($row['partner_internal_status']) {
+                                            switch ($row['current_status']) {
                                                 case 'Pending':
                                                 case 'Rescheduled':
                                                     $view = 'partner/pending_booking/' . $row['booking_id'];

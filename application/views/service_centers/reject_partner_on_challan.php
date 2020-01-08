@@ -657,7 +657,7 @@
 
            var wh =  $("#warehouse_select").val();
             if (wh=="") {
-                alert("Please select address");
+                alert("Please select Partner");
             }else{
 
             $('#myModal22').modal('show');

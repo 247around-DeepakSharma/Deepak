@@ -137,7 +137,7 @@
                             <div class="col-md-1 pull-right">       
                                 <a class="btn btn-success" id="show_spare_list">Show</a><span class="badge" title="show spare data"></span>     
                             </div>      
-                            <div class="col-md-4 pull-right">       
+                            <div class="col-md-5 pull-right">       
                                 <select class="form-control" name="appliance_wise_parts_requested" id="appliance_wise_parts_requested">     
                                     <option value="" selected="selected" disabled="">Select Services</option>       
                                     <?php foreach($services as $val){ ?>        
@@ -145,7 +145,7 @@
                                     <?php } ?>      
                                 </select>       
                             </div>      
-                            <div class="col-md-4 pull-right">       
+                            <div class="col-md-5 pull-right">       
                                 <select class="form-control" name="partner_wise_parts_requested"  id="partner_wise_parts_requested">        
                                     <option value="" selected="selected" disabled="">Select Partners</option>       
                                     <?php       
@@ -209,7 +209,7 @@
                             <div class="col-md-1 pull-right">       
                                 <a class="btn btn-success" id="show_spare_list2">Show</a><span class="badge" title="show spare data"></span>     
                             </div>      
-                            <div class="col-md-4 pull-right">       
+                            <div class="col-md-5 pull-right">       
                                 <select class="form-control" name="appliance_wise_parts_requested" id="appliance_wise_parts_requested2">     
                                     <option value="" selected="selected" disabled="">Select Services</option>       
                                     <?php foreach($services as $val){ ?>        
@@ -217,7 +217,7 @@
                                     <?php } ?>      
                                 </select>       
                             </div>      
-                            <div class="col-md-4 pull-right">       
+                            <div class="col-md-5 pull-right">       
                                 <select class="form-control" name="partner_wise_parts_requested"  id="partner_wise_parts_requested2">        
                                     <option value="" selected="selected" disabled="">Select Partners</option>       
                                     <?php       
@@ -442,6 +442,49 @@
                                         <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
                                         <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                         <th class="text-center" data-orderable="false">Generate Invoice</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div role="tabpanel" class="tab-pane" id="defective_part_rejected_by_wh">
+    <div class="container-fluid">
+        <div class="row" >
+            <div class="col-md-12">
+                <div class="panel panel-default">
+                    <div class="panel-body" >
+                        <form   id="form1" onsubmit="return submitForm('form1');" name="fileinfo"  method="POST" enctype="multipart/form-data">
+                            <table id="defective_part_rejected_by_wh_table" class="table table-striped table-bordered table-hover" cellspacing="0" width="100%" style="margin-top:10px;">
+                                <thead >
+                                    <tr>
+                                        <th class="text-center" >No</th>
+                                        <th class="text-center" data-orderable="false">Booking Id</th>
+                                        <th class="text-center" data-orderable="false">Spare Pending On</th>
+                                        <th class="text-center" data-orderable="false">User</th>
+                                        <th class="text-center" data-orderable="false">Mobile</th>
+                                        <th class="text-center" data-orderable="false">Service Center</th>
+                                        <th class="text-center" data-orderable="false">Partner</th>
+                                        <th class="text-center" data-orderable="false">Shipped Part</th>
+                                        <th class="text-center" data-orderable="false">Requested Quantity</th>
+                                        <th class="text-center" data-orderable="false">Shipped Quantity</th>
+                                        <th class="text-center" data-orderable="false">Part Charges </th>
+                                        <th class="text-center" data-orderable="false">Requested Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Defective Parts</th>
+                                        <th class="text-center" data-orderable="false">Shipped Parts Number</th>
+                                        <th class="text-center" data-orderable="false">Booking Type</th>
+                                        <th class="text-center" data-orderable="true">Age Of shipped</th>
+                                        <th class="text-center" data-orderable="false">SF Remarks</th>
+                                        <th class="text-center" data-orderable="false">Defective Parts Rejection Reason</th>
+                                        <th class="text-center" data-orderable="false">Courier Invoice</th>
+                                        <th class="text-center" data-orderable="false">Rejected Image</th>
+                                        <!--                                        <th class="text-center" data-orderable="false">Cancel Part</th>-->
+                                        <th class="text-center" data-orderable="false">Parts Shipped</th>
+                                        <th class="text-center" data-orderable="false">IS Defective Parts Required</th>
                                     </tr>
                                 </thead>
                             </table>
@@ -742,6 +785,8 @@
     var oow_part_shipped_table;
     var defective_part_shipped_by_sf_table;
     var courier_lost_spare_parts_table;
+    
+    var defective_part_rejected_by_wh_table;
     
     $("#invoice_date").datepicker({dateFormat: 'yy-mm-dd', changeMonth: true, changeYear: true});
     $(document).ready(function() {
@@ -1237,6 +1282,45 @@
                 $(".dataTables_filter").addClass("pull-right");
             }
         });
+        
+        
+        
+        defective_part_rejected_by_wh_table = $('#defective_part_rejected_by_wh_table').DataTable({
+            processing: true, //Feature control the processing indicator.
+            serverSide: true, //Feature control DataTables' server-side processing mode.
+            order: [[15, "desc"]], //Initial no order.
+            pageLength: 50,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 50, 100, 500, -1 ],[ '50 rows', '100 rows', '500 rows', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                       columns: [ 1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 ]
+                    },
+                    title: 'defective_part_rejected_wh'
+                }
+            ],
+            // Load data for the table's content from an Ajax source
+            ajax: {
+                url: "<?php echo base_url(); ?>employee/spare_parts/get_spare_parts_tab_details",
+                type: "POST",
+                data: {type: '13', status: '<?php echo DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE; ?>', partner_id: '<?php echo $partner_id; ?>'}
+            },
+            //Set column definition initialisation properties.
+            columnDefs: [
+                {
+                    "targets": [0,1,3,4,5], //first column / numbering column
+                    "orderable": false //set not orderable
+                }
+            ],
+            "fnInitComplete": function (oSettings, response) {
+            
+                $(".dataTables_filter").addClass("pull-right");
+            }
+        });
+        
         
         defective_part_shipped_by_sf_table = $('#defective_part_shipped_by_sf_table').DataTable({
             processing: true, //Feature control the processing indicator.

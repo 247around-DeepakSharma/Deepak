@@ -59,7 +59,7 @@
                     pageSize: 'LEGAL',
                     title: 'sf_brand_wise_tat_report',
                     exportOptions: {
-                       columns: [0,1, 2,3,4,5,6],
+                       columns: [0,1,2,3,4,5,6],
                         modifier : {
                              // DataTables core
                              order : 'index',  // 'current', 'applied', 'index',  'original'
@@ -72,7 +72,7 @@
             ],
             "ordering": false,
             "ajax": {
-                "url": "<?php echo base_url(); ?>employee/inventory/get_show_rm_wise_tat_report_data/",
+                "url": "<?php echo base_url(); ?>employee/inventory/get_show_sf_brand_wise_tat_report_data/",
                 "type": "POST",
                 "data": function(d){
                     d.is_show_all =  $('#is_show_all').val();
@@ -82,8 +82,6 @@
         });
         
     });
-    
- 
 
 </script> 
     
