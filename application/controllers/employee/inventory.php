@@ -1166,7 +1166,7 @@ class Inventory extends CI_Controller {
 
                 case 'REJECT_COURIER_INVOICE':
                     $where = array('id' => $id);
-                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => DEFECTIVE_PARTS_REJECTED, 'remarks_defective_part_by_sf' => $remarks);
+                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, 'remarks_defective_part_by_sf' => $remarks);
                     $new_state = "Courier Invoice Rejected By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
 
@@ -1184,7 +1184,7 @@ class Inventory extends CI_Controller {
                         $data['courier_charges_by_sf'] = 0;
                     }
 
-                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '", "' . OK_PART_TO_BE_SHIPPED . '", "' . DAMAGE_PART_TO_BE_SHIPPED . '") ' => NULL));
+                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '", "' . OK_PART_TO_BE_SHIPPED . '", "' . DAMAGE_PART_TO_BE_SHIPPED . '") ' => NULL));
                     if (empty($defective_part_pending_details)) {
                         $spare_data['status'] = DEFECTIVE_PARTS_SHIPPED;
                         $where = array("id" => $booking_id);
@@ -1210,7 +1210,7 @@ class Inventory extends CI_Controller {
 
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-                    $old_state = DEFECTIVE_PARTS_REJECTED;
+                    $old_state = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
                     $new_state = DEFECTIVE_PARTS_SHIPPED;
 
                     $b['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
