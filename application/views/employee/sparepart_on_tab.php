@@ -137,7 +137,7 @@
                             <div class="col-md-1 pull-right">       
                                 <a class="btn btn-success" id="show_spare_list">Show</a><span class="badge" title="show spare data"></span>     
                             </div>      
-                            <div class="col-md-4 pull-right">       
+                            <div class="col-md-5 pull-right">       
                                 <select class="form-control" name="appliance_wise_parts_requested" id="appliance_wise_parts_requested">     
                                     <option value="" selected="selected" disabled="">Select Services</option>       
                                     <?php foreach($services as $val){ ?>        
@@ -145,7 +145,7 @@
                                     <?php } ?>      
                                 </select>       
                             </div>      
-                            <div class="col-md-4 pull-right">       
+                            <div class="col-md-5 pull-right">       
                                 <select class="form-control" name="partner_wise_parts_requested"  id="partner_wise_parts_requested">        
                                     <option value="" selected="selected" disabled="">Select Partners</option>       
                                     <?php       
@@ -209,7 +209,7 @@
                             <div class="col-md-1 pull-right">       
                                 <a class="btn btn-success" id="show_spare_list2">Show</a><span class="badge" title="show spare data"></span>     
                             </div>      
-                            <div class="col-md-4 pull-right">       
+                            <div class="col-md-5 pull-right">       
                                 <select class="form-control" name="appliance_wise_parts_requested" id="appliance_wise_parts_requested2">     
                                     <option value="" selected="selected" disabled="">Select Services</option>       
                                     <?php foreach($services as $val){ ?>        
@@ -217,7 +217,7 @@
                                     <?php } ?>      
                                 </select>       
                             </div>      
-                            <div class="col-md-4 pull-right">       
+                            <div class="col-md-5 pull-right">       
                                 <select class="form-control" name="partner_wise_parts_requested"  id="partner_wise_parts_requested2">        
                                     <option value="" selected="selected" disabled="">Select Partners</option>       
                                     <?php       
