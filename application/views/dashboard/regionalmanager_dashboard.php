@@ -19,6 +19,17 @@
     .text_warning{
         color:red;
     }
+    tr[id^='arm_table_'],
+    tr[id^='arm_open_call_table_']{
+        background-color:#5997aa !important;
+    }
+    .sub-table{
+        width:98%;
+        margin:auto;
+    }
+    table.sub-table thead{
+        background:#8cc6ab;
+    }
     [ng\:cloak], [ng-cloak], .ng-cloak {
         display: none !important;
     }
@@ -31,7 +42,7 @@
     
     <div id ='admin_dashboard_app_rm'>
     <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
                 <div class="x_panel">
                     <div class="x_title" style="padding-left:0px;">
                     <h2>RM TAT Reporting</h2>
@@ -127,7 +138,7 @@
                 <table class="table table-striped table-bordered jambo_table bulk_action">
                     <thead>
                         <tr>
-                            <th>S.N</th>
+                            <th>S.no</th>
                             <th>RM</th>
                             <th>D0</th>
                             <th>D1</th>
@@ -179,11 +190,17 @@
                                {{completedBookingByRM.leg_2[$index].TAT_16}} ({{completedBookingByRM.leg_2[$index].TAT_16_per}}%)<br>
                                {{completedBookingByRM.TAT[$index].TAT_16}} ({{completedBookingByRM.TAT[$index].TAT_16_per}}%) </td>
                         </tr>
-                        <tr ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 == undefined'>
+                        <tr class="tat-report" data-rm-row-id="{{x.id}}" ng-repeat="x in completedBookingByRM.TAT | orderBy:'TAT_16'" ng-if='completedBookingByRM.leg_1 == undefined'>
                            <td>{{$index+1}}</td>
-<!--                           <td><a type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" href="<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/{{x.id}}/0/1">{{x.entity}}</a></td>-->
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">{{x.entity}}</button></td>
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')">{{x.entity}}</button>
+                           <span ng-if="x.id == '00'"></span>
+                                <span ng-if="x.id != '00'">
+                                    <span class="tat-report collape_icon toggle-arm-details" data-rm-id="{{x.id}}" onclick="get_arm_details_for_rm($(this).data('rm-id'))">
+                                        <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                           </td>
                            <td> {{x.TAT_0}}  ({{x.TAT_0_per}}%) </td>
                            <td>{{x.TAT_1}}  ({{x.TAT_1_per}}%) </td>
                            <td>{{x.TAT_2}}  ({{x.TAT_2_per}}%)</td>
@@ -192,6 +209,7 @@
                            <td>{{x.TAT_5}}  ({{x.TAT_5_per}}%) </td>
                            <td>{{x.TAT_8}}  ({{x.TAT_8_per}}%)</td>
                            <td>{{x.TAT_16}}  ({{x.TAT_16_per}}%)</td>
+
                         </tr>
                     </tbody>
                 </table>
@@ -204,6 +222,8 @@
         </div>
     
             <div id="admin_dashboard_app_pending_rm">
+            <div class="row">
+            <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
             <div class="x_panel">
                 <div class="x_title" style="padding-left: 0px;">
                     <h2>RM Open Call Reports</h2>
@@ -311,14 +331,22 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity !== 'Total'">
+                        <tr class="open-call-report" data-rm-row-id="{{x.id}}" ng-repeat="x in pendingBookingByRM | orderBy:'TAT_16'" ng-if="x.entity !== 'Total'">
                            <td>{{$index+1}}</td>
                            <td><button type="button" id="vendor_{{x.id}}" class="btn btn-info" target="_blank" 
-                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')">{{x.entity}}</button></td>
+                                       onclick="open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')">{{x.entity}}</button>
+                                <span ng-if="x.id == '00'"></span>
+                                 <span ng-if="x.id != '00'">
+                                    <span class="open-call-report collape_icon toggle-arm-details" data-rm-id="{{x.id}}" onclick="get_arm_open_call_details_for_rm($(this).data('rm-id'))">
+                                        <i class="fa fa-plus-square" aria-hidden="true"></i>
+                                    </span>
+                                </span>
+                           </td>
                                        <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
                                             <input type="hidden" name="booking_id_status" value=" {{x.TAT_0_bookings}}">
                                             <input type="submit" value="{{x.TAT_0}} ({{x.TAT_0_per}}%)"  class="btn btn-success">
-                                             </form></td>
+                                             </form>
+                                             </td>
                                               <td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">
                                             <input type="hidden" name="booking_id_status" value=" {{x.TAT_1_bookings}}">
                                             <input type="submit" value="{{x.TAT_1}} ({{x.TAT_1_per}}%)" class="btn btn-success">
@@ -375,6 +403,8 @@
             </div>
             </div> 
             </div>
+            </div>
+            </div>
         </div>
     <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
     <!-- get rm missing pincode ajax request-->
@@ -397,6 +427,8 @@
         </div>
     </div>
     <div id="admin_dashboard_app">
+        <div class="row">
+        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
         <div class="x_panel">
             <div class="x_title" style="padding-left:0px;">
                     <h2>AM TAT Reporting</h2>
@@ -560,10 +592,12 @@
                 </table>
                 <center><img id="loader_gif_completed_am" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
             </div>
-        </div>
+        </div></div></div>
         </div> 
     
           <div id="admin_dashboard_app_pending_am">
+                <div class="row">
+                <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
 <!--                AM reporting-->
                 <div class="x_panel">
                     <div class="x_title" style="pending-left:0px;">
@@ -735,7 +769,7 @@
                 <center><img id="loader_gif_pending_AM" src="<?php echo base_url(); ?>images/loadring.gif" ></center>
             </div>
             </div>
-            </div>
+            </div></div></div>
     </div> 
     <?php } ?>
     
@@ -801,7 +835,7 @@ if($this->session->userdata("wrong_pincode_msg")){
     </div>
  <?php if(isset($saas_flag) && (!$saas_flag)) { ?>
  <div class="row">
-        <div class="col-md-12 col-sm-12 col-xs-12" style="padding: 0px !important;">
+        <div class="col-md-12 col-sm-12 col-xs-12">
             <div class="x_panel">
                 <div class="x_title">
                     <h2>Upcountry Over Limit Exceed</h2>
@@ -1040,9 +1074,10 @@ if($this->session->userdata("wrong_pincode_msg")){
 </style>
 <script>
     $('#request_type').select2();
+    $('#request_type_am').select2();
     $('#request_type_rm_pending').select2();
     $('#request_type_am_pending').select2();
-    $('#request_type_am').select2();
+
     $('#pending_dependency').select2();
     $('#pending_dependency_am').select2();
     $('#upcountry_rm_pending').select2();
@@ -1415,5 +1450,226 @@ if($this->session->userdata("wrong_pincode_msg")){
         sendAjaxRequest(data,url,post_request).done(function(response){
            $("#rm_pincode_data").html(response);
         });
+    }
+    
+    function get_arm_details_for_rm(rm_id){
+        if($("tr.tat-report[data-rm-row-id='"+ rm_id+ "']").data("has_data")){
+            if($("#arm_table_"+ rm_id).length>0){
+                if($("#arm_table_"+ rm_id).is(":hidden")){
+                    $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
+                }else{
+                    $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                }
+                $("#arm_table_"+ rm_id).slideToggle();
+                return false;
+            }
+        }else{
+            if($("#arm_table_"+ rm_id).length>0){
+                if(!$("#arm_table_"+ rm_id).is(":hidden")){
+                    $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                    $("#arm_table_"+ rm_id).remove();
+                    return false;
+                }
+            }
+        }
+        $("span.tat-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
+        var html = "<tr id='arm_table_"+ rm_id +"' class='arm-tat-table'><td class='text-center' colspan=10><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
+        $("tr.tat-report[data-rm-row-id='"+ rm_id+ "']").after(html);
+        dateRange = $("#completed_daterange_id").val();
+        dateArray = dateRange.split(" - ");
+        startDate = dateArray[0];
+        endDate = dateArray[1];
+        status = $("#completed_status").val();
+        service_id = $("#service_id").val();
+        partner_id = $("#partner_id").val();
+        request_type = getMultipleSelectedValues("request_type");
+        free_paid = $("#free_paid").val();
+        upcountry = $("#upcountry").val();
+        if(!status){
+            status = "not_set";
+        }
+        if(!service_id){
+            service_id = "not_set";
+        }
+        if(!request_type){
+            request_type = "not_set";
+        }
+        if(!free_paid){
+            free_paid = "not_set";
+        }
+         if(!upcountry){
+            upcountry = "not_set";
+        }
+        if(!partner_id){
+            partner_id = "not_set";
+        }
+        
+        url =  baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/ARM/0/"+partner_id;
+        var data = {rm:rm_id};
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_arm_tat_report_table(rm_id, JSON.parse(response));
+        });
+    }
+    
+    function create_arm_tat_report_table(tableRow,data){
+        html='<table class="table table-striped table-bordered sub-table">'
+                +'<thead><tr><th>S.no</th><th>ARM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th></tr></thead>';
+        if(!!data.TAT && data.TAT.length>0){
+            html += "<tbody>";
+            for(var i in data.TAT){
+                html += '<tr>';
+                html += "<td>"+ (parseInt(i)+1)+ "</td>";
+                if(data.TAT[i].id === "00"){
+                    html += "<td><button class='btn btn-info'>"+ data.TAT[i].entity+ "</button></td>";
+                }else{
+                    html += "<td><button type='button' id='vendor_"+ data.TAT[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','0','rm_completed_booking_form')\">"+ data.TAT[i].entity+ "</button></td>";
+                }
+                html += "<td>"+ data.TAT[i].TAT_0+ "("+ data.TAT[i].TAT_0_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_1+ "("+ data.TAT[i].TAT_1_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_2+ "("+ data.TAT[i].TAT_2_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_3+ "("+ data.TAT[i].TAT_3_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_4+ "("+ data.TAT[i].TAT_4_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_5+ "("+ data.TAT[i].TAT_5_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_8+ "("+ data.TAT[i].TAT_8_per+ "%)</td>";
+                html += "<td>"+ data.TAT[i].TAT_16+ "("+ data.TAT[i].TAT_16_per+ "%)</td>";
+                html += '</tr>';
+            }
+            html += "</tbody></table>";
+            html = "<td colspan=10>"+ html+ "</td>"
+            $("#arm_table_"+ tableRow).empty().html(html);
+            $("tr.tat-report[data-rm-row-id='"+ tableRow+ "']").data("has_data", true);
+        }else{
+            html += "<tbody><tr><td colspan=10 class='text-center'>No Data.</td></tr></tbody></table>";
+            html = "<td colspan=10>"+ html+ "</td>"
+            $("#arm_table_"+ tableRow).empty().html(html);
+            $("tr.tat-report[data-rm-row-id='"+ tableRow+ "']").data("has_data", false);
+        }
+    }
+    
+    function get_arm_open_call_details_for_rm(rm_id){
+        if($("tr.tat-report[data-rm-row-id='"+ rm_id+ "']").data("has_data")){
+            if($("#arm_open_call_table_"+ rm_id).length>0){
+                if($("#arm_open_call_table_"+ rm_id).is(":hidden")){
+                    $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
+                }else{
+                    $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                }
+                $("#arm_open_call_table_"+ rm_id).slideToggle();
+                return false;
+            }
+        }else{
+            if($("#arm_open_call_table_"+ rm_id).length>0){
+                if(!$("#arm_open_call_table_"+ rm_id).is(":hidden")){
+                    $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-minus-square").addClass("fa-plus-square");
+                    $("#arm_open_call_table_"+ rm_id).remove();
+                    return false;
+                }
+            }
+        }
+        $("span.open-call-report[data-rm-id='"+ rm_id+ "']").find("i").removeClass("fa-plus-square").addClass("fa-minus-square");
+        var html = "<tr id='arm_open_call_table_"+ rm_id +"' class='arm-open-call-table'><td class='text-center' colspan=11><img src='<?php echo base_url(); ?>images/loadring.gif' ></td><tr>";
+        $("tr.open-call-report[data-rm-row-id='"+ rm_id+ "']").after(html);
+        dateRange = $("#pending_daterange_id_rm").val();
+        dateArray = dateRange.split(" - ");
+        startDate = dateArray[0];
+        endDate = dateArray[1];
+        service_id = $("#service_id_rm_pending").val();
+        partner_id = $("#partner_id_rm_pending").val();
+        request_type = getMultipleSelectedValues("request_type_rm_pending");
+        free_paid = $("#free_paid_rm_pending").val();
+        upcountry = getMultipleSelectedValues("upcountry_rm_pending");
+        status = getMultipleSelectedValues("pending_dependency");
+        if(!status){
+            status = "not_set";
+        }
+        if(!service_id){
+            service_id = "not_set";
+        }
+        if(!request_type){
+            request_type = "not_set";
+        }
+        if(!free_paid){
+            free_paid = "not_set";
+        }
+         if(!upcountry){
+            upcountry = "not_set";
+        }
+        if(!partner_id){
+            partner_id = "not_set";
+        }
+
+        url =  baseUrl + "/employee/dashboard/get_booking_tat_report/"+startDate+"/"+endDate+"/"+status+"/"+service_id+"/"+request_type+"/"+free_paid+"/"+upcountry+"/ARM/Pending/"+partner_id;
+        var data = {rm:rm_id};
+        sendAjaxRequest(data,url,post_request).done(function(response){
+            create_arm_open_call_tat_report_table(rm_id, JSON.parse(response));
+        });
+    }
+    function create_arm_open_call_tat_report_table(tableRow,data){
+        html='<table class="table table-striped table-bordered sub-table">'
+                +'<thead><tr><th>S.no</th><th>ARM</th><th>D0</th><th>D1</th><th>D2</th><th>D3</th><th>D4</th><th>D5 - D7</th><th>D8 - D15</th><th>> D15</th><th>Total</th></tr></thead>';
+        if(!!data && data.length>0){
+            html += "<tbody>";
+            for(var i in data){
+                var total = 0;
+                html += '<tr>';
+                html += "<td>"+ (parseInt(i)+1)+ "</td>";
+                if(data[i].id === "00"){
+                    html += "<td><button class='btn btn-info'>"+ data[i].entity+ "</button></td>";
+                }else{
+                    html += "<td><button type='button' id='vendor_"+ data[i].id+ "' class='btn btn-info' target='_blank' onclick=\"open_full_view(this.id,'<?php echo base_url(); ?>employee/dashboard/tat_calculation_full_view/','0','Pending','rm_pending_booking_form')\">"+ data[i].entity+ "</button></td>";
+                }
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_0_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_0+ ' ('+ data[i].TAT_0_per+ '%)"  class="btn btn-success">'
+                             +'</form></td>';
+                total += data[i].TAT_0;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_1_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_1+ ' ('+ data[i].TAT_1_per+ '%)"  class="btn btn-success">'
+                             +'</form></td>';
+                total += data[i].TAT_1;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_2_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_2+ ' ('+ data[i].TAT_2_per+ '%)"  class="btn btn-'+ ((data[i].TAT_2<1)?'success':'danger')+ '">'
+                             +'</form></td>';
+                total += data[i].TAT_2;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_3_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_3+ ' ('+ data[i].TAT_3_per+ '%)"  class="btn btn-'+ ((data[i].TAT_3<1)?'success':'danger')+ '">'
+                             +'</form></td>';
+                total += data[i].TAT_3;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_4_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_4+ ' ('+ data[i].TAT_4_per+ '%)"  class="btn btn-'+ ((data[i].TAT_4<1)?'success':'danger')+ '">'
+                             +'</form></td>';
+                total += data[i].TAT_4;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_5_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_5+ ' ('+ data[i].TAT_5_per+ '%)"  class="btn btn-'+ ((data[i].TAT_5<1)?'success':'danger')+ '">'
+                             +'</form></td>';
+                total += data[i].TAT_5;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_8_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_8+ ' ('+ data[i].TAT_8_per+ '%)"  class="btn btn-'+ ((data[i].TAT_8<1)?'success':'danger')+ '">'
+                             +'</form></td>';
+                total += data[i].TAT_8;
+                html += '<td><form action="<?php echo base_url()."employee/booking/open_pending_bookings"?>" method="post" target="_blank" style="width: 8%;">'
+                            +'<input type="hidden" name="booking_id_status" value="'+ data[i].TAT_16_bookings+ '">'
+                            +'<input type="submit" value="'+ data[i].TAT_16+ ' ('+ data[i].TAT_16_per+ '%)"  class="btn btn-'+ ((data[i].TAT_16<1)?'success':'danger')+ '">'
+                             +'</form></td>';
+                total += data[i].TAT_16;
+                html += '<td>'+ data[i].Total_Pending + " ("+ data[i].TAT_total_per+ "%) </td>";
+                html += '</tr>';
+            }
+            html += "</tbody></table>";
+            html = "<td colspan=11>"+ html+ "</td>"
+            $("#arm_open_call_table_"+ tableRow).empty().html(html);
+            $("tr.open-call-report[data-rm-row-id='"+ tableRow+ "']").data("has_data", true);
+        }else{
+            html += "<tbody><tr><td colspan=11 class='text-center'>No Data.</td></tr></tbody></table>";
+            html = "<td colspan=11>"+ html+ "</td>"
+            $("#arm_open_call_table_"+ tableRow).empty().html(html);
+            $("tr.open-call-report[data-rm-row-id='"+ tableRow+ "']").data("has_data", false);
+        }
     }
 </script>

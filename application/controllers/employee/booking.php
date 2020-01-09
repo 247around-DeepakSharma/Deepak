@@ -3752,7 +3752,7 @@ class Booking extends CI_Controller {
                     }
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
                 if(($this->session->userdata('is_am') == '1') || $this->session->userdata('user_group') == 'regionalmanager'){
-                    $post['where']  = array("(current_status = '"._247AROUND_RESCHEDULED."' OR (booking_details.current_status = '"._247AROUND_PENDING."' ))"=>NULL,
+                    $post['where']  = array("(booking_details.current_status = '"._247AROUND_RESCHEDULED."' OR (booking_details.current_status = '"._247AROUND_PENDING."' ))"=>NULL,
                         "service_center_closed_date IS NULL"=>NULL);
                     $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
                 }
