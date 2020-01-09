@@ -1383,6 +1383,7 @@ class engineerApi extends CI_Controller {
                         case SPARE_SHIPPED_BY_PARTNER:
                         case SPARE_DELIVERED_TO_SF:
                         case DEFECTIVE_PARTS_REJECTED:
+                        case DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE:
                         case DEFECTIVE_PARTS_RECEIVED:
                         case DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE:
                         case DEFECTIVE_PARTS_SHIPPED:
@@ -2758,6 +2759,7 @@ class engineerApi extends CI_Controller {
                             case DEFECTIVE_PARTS_RECEIVED:
                             case DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE:
                             case DEFECTIVE_PARTS_REJECTED:
+                            case DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE:
                             case DEFECTIVE_PARTS_SHIPPED:
                             case SPARE_DELIVERED_TO_SF: 
                                $spareShipped = TRUE;

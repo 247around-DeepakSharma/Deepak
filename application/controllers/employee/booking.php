@@ -552,7 +552,7 @@ class Booking extends CI_Controller {
         
         $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
       
-        if ($validate_order_id) {
+        if ($validate_order_id || !empty($this->session->userdata('service_center_id'))) {
             $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id'], $booking['state']);
            
             if(!empty($is_dealer)){
@@ -679,7 +679,7 @@ class Booking extends CI_Controller {
             }
             return $booking;
         } else {
-            $this->session->set_userdata(['error_msg' => 'Order Id is not Valid / Filled against this Booking.']);
+//            $this->session->set_userdata(['error_msg' => 'Order Id is not Valid / Filled against this Booking.']);
             return false;
         }
     }
@@ -2128,7 +2128,7 @@ class Booking extends CI_Controller {
         $postArray = $this->input->post();
         $where['is_in_process'] = 0;
         $whereIN['booking_id'] = $postArray['booking_id'];
-        $whereIN['current_status'] = array(_247AROUND_PENDING, _247AROUND_RESCHEDULED);
+        $whereIN['booking_details.current_status'] = array(_247AROUND_PENDING, _247AROUND_RESCHEDULED);
         $tempArray = $this->reusable_model->get_search_result_data("booking_details","booking_id, current_status",$where,NULL,NULL,NULL,$whereIN,NULL,array());
         if(!empty($tempArray)){
             if($this->input->post("internal_booking_status") == _247AROUND_COMPLETED){
@@ -3640,7 +3640,8 @@ class Booking extends CI_Controller {
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
-            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state";
+            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state,
+            service_center_booking_action.current_status as service_center_current_status";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare');
          }
          else{
@@ -3649,7 +3650,8 @@ class Booking extends CI_Controller {
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
             STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,
-            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state";
+            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state,
+            service_center_booking_action.current_status as service_center_current_status";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray);
          }
         unset($new_post['order_performed_on_count']);
@@ -3720,10 +3722,10 @@ class Booking extends CI_Controller {
                         switch ($completed_booking){
                                 case 'a':
                                     if($booking_status == _247AROUND_COMPLETED){
-                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'" AND current_status != "'._247AROUND_CANCELLED.'") OR (current_status="'.$booking_status.'"))'] = NULL;
+                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'" AND booking_details.current_status != "'._247AROUND_CANCELLED.'") OR (booking_details.current_status="'.$booking_status.'"))'] = NULL;
                                     }
                                     else{
-                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'" AND current_status != "'._247AROUND_COMPLETED.'") OR (current_status="'.$booking_status.'"))'] = NULL;
+                                        $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'" AND booking_details.current_status != "'._247AROUND_COMPLETED.'") OR (booking_details.current_status="'.$booking_status.'"))'] = NULL;
                                     }
                                     break;
                                 case 'b':
@@ -3736,33 +3738,33 @@ class Booking extends CI_Controller {
                                     $post['where_in']['booking_details.current_status'] =  array(_247AROUND_RESCHEDULED,_247AROUND_PENDING);
                                     break;
                                 case 'c':
-                                   $post['where']['current_status'] = $booking_status;
+                                   $post['where']['booking_details.current_status'] = $booking_status;
                                     break;
                             }
                    }
                    else{
                        if($booking_status == _247AROUND_COMPLETED){
-                          $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'") OR (current_status="'.$booking_status.'"))'] = NULL;
+                          $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status != "'.SF_BOOKING_CANCELLED_STATUS.'") OR (booking_details.current_status="'.$booking_status.'"))'] = NULL;
                        }
                        else{
-                          $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'") OR (current_status="'.$booking_status.'"))'] = NULL;
+                          $post['where']['((service_center_closed_date IS NOT NULL AND booking_details.internal_status = "'.SF_BOOKING_CANCELLED_STATUS.'") OR (booking_details.current_status="'.$booking_status.'"))'] = NULL;
                         }
                     }
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
                 if(($this->session->userdata('is_am') == '1') || $this->session->userdata('user_group') == 'regionalmanager'){
-                    $post['where']  = array("(current_status = '"._247AROUND_RESCHEDULED."' OR (current_status = '"._247AROUND_PENDING."' ))"=>NULL,
+                    $post['where']  = array("(current_status = '"._247AROUND_RESCHEDULED."' OR (booking_details.current_status = '"._247AROUND_PENDING."' ))"=>NULL,
                         "service_center_closed_date IS NULL"=>NULL);
                     $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
                 }
                 else{
-                    $post['where']  = array("current_status IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."')" => NULL,"service_center_closed_date IS NULL"=>NULL);
+                    $post['where']  = array("booking_details.current_status IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."')" => NULL,"service_center_closed_date IS NULL"=>NULL);
                     $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
                 }
                 $post['order_performed_on_count'] = TRUE;
             }
         }else if($type == 'query'){
             $post['order'] = array(array('column' => 0,'dir' => 'desc'));
-            $post['where']['current_status'] = $booking_status;
+            $post['where']['booking_details.current_status'] = $booking_status;
             $post['order_by'] = "CASE WHEN booking_details.internal_status = 'Missed_call_confirmed' THEN 'a' WHEN  booking_details.booking_date = '' THEN 'b' WHEN  booking_details.booking_date = '' THEN 'b' ELSE 'c' END , booking_day";
         }
         if(!empty($internal_status)){
@@ -4411,13 +4413,18 @@ class Booking extends CI_Controller {
                     . ' <span class="glyphicon glyphicon-user"></span></button>';
         }
         $row[] = "<a id ='view' class ='btn btn-sm btn-color' href='".base_url()."employee/booking/viewdetails/".$order_list->booking_id."' title = 'view' target = '_blank'><i class = 'fa fa-eye' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color ".(!empty($order_list->service_center_closed_date) ? 'disabled' : '')."' "
+        $row[] = "<a target = '_blank' id = 'edit' class = 'btn btn-sm btn-color ".((!empty($order_list->service_center_closed_date) || (!empty($order_list->service_center_current_status) && $order_list->service_center_current_status == SF_BOOKING_INPROCESS_STATUS)) ? 'disabled' : '')."' "
             . "href=" . base_url() . "employee/booking/get_reschedule_booking_form/$order_list->booking_id title='Reschedule'><i class = 'fa fa-calendar' aria-hidden='true' ></i></a>";
         $row[] = "<a target = '_blank' id = 'cancel' class = 'btn btn-sm btn-color' href = '".base_url()."employee/booking/get_cancel_form/".$order_list->booking_id."' title = 'Cancel'><i class = 'fa fa-times' aria-hidden = 'true'></i></a>";
         $row[] = $complete;
         $row[] ="<a target = '_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/bookingjobcard/prepare_job_card_using_booking_id/$order_list->booking_id' title = 'Job Card'> <i class = 'fa fa-file-pdf-o' aria-hidden = 'true' ></i></a>";
         $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/booking/get_edit_booking_form/$order_list->booking_id' title = 'Edit Booking'> <i class = 'fa fa-pencil-square-o' aria-hidden = 'true'></i></a>";
-        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
+        $str_reassign_disabled = "";
+        if(!empty($order_list->service_center_current_status) && $order_list->service_center_current_status == SF_BOOKING_INPROCESS_STATUS)
+        {
+            $str_reassign_disabled = "disabled";
+        }
+        $row[] = "<a target ='_blank' class = 'btn btn-sm btn-color $str_reassign_disabled' href = '" . base_url() . "employee/vendor/get_reassign_vendor_form/$order_list->booking_id ' title = 'Re-assign' $d_btn> <i class = 'fa fa-repeat' aria-hidden = 'true'></i></a>";
 
         if ($order_list->nrn_approved==0) {
              $row[] = "<a target = '_blank' class = 'btn btn-sm btn-color' href = '".base_url()."employee/vendor/get_vendor_escalation_form/$order_list->booking_id' title = 'Escalate' $esc><i class='fa fa-circle' aria-hidden='true'></i></a>";
@@ -5387,7 +5394,7 @@ class Booking extends CI_Controller {
             $post['where_in']['booking_details.booking_id'] =  explode(",",$bulk_booking_id);
         }
         if($booking_status == 'Pending'){
-            $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL); 
+            $post['where']  = array('service_center_closed_date IS NULL' => NULL, 'booking_details.internal_status NOT IN ("Spare Parts Shipped by Partner", "InProcess_Cancelled", "InProcess_Completed")' => NULL); 
             $select = "booking_details.booking_id,DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) as Ageing,users.name as  Customer_Name,
             services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
             booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
@@ -5398,7 +5405,7 @@ class Booking extends CI_Controller {
             $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1); 
         }
         else if($booking_status == 'Completed' || $booking_status == 'Cancelled'){
-            $post['where']  = array('current_status' => $booking_status,'type' => 'Booking'); 
+            $post['where']  = array('booking_details.current_status' => $booking_status,'type' => 'Booking'); 
             
             $select = "booking_details.booking_id, users.name as customername, users.phone_number, "
                     . "services.services, service_centres.name as service_centre_name, "
@@ -5936,7 +5943,7 @@ class Booking extends CI_Controller {
                         }                        
                     } else {
                         //Redirect to edit booking page if validation err occurs
-                        $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact BackOffice Team');
+                        $userSession = array('error' => 'Order Id/Dealer Mobile Number is not Filled against this Booking. '.$booking_id);
                         $this->session->set_userdata($userSession);
                         if(!empty($arr_post['redirect_url']))
                         {
@@ -5949,7 +5956,7 @@ class Booking extends CI_Controller {
                     }
                 } else {
                     //Redirect to edit booking page if validation err occurs
-                    $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact Backoffice Team.');
+                    $userSession = array('error' => 'Booking => '.$booking_id.' is not Valid.');
                     $this->session->set_userdata($userSession);
                     if(!empty($arr_post['redirect_url']))
                     {

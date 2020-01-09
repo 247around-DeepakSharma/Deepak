@@ -2551,7 +2551,7 @@ function get_escalation_chart_data_by_two_matrix($data,$baseKey,$otherKey){
                                'drilldown' => true
                 );
                 array_push($json_data, $tmp_arr);
-            }else if($value['status'] === DEFECTIVE_PARTS_REJECTED){
+            }else if($value['status'] === DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE){
                 $tmp_arr = array('name' => $value['status'],
                                'y' => intval($value['count']),
                                'drilldown' => true

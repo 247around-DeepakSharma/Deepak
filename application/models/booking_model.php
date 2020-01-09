@@ -2220,6 +2220,7 @@ class Booking_model extends CI_Model {
         $this->db->select($select,FALSE);
         $this->db->from('users');
         $this->db->join('booking_details', 'booking_details.user_id  = users.user_id', 'left');
+        $this->db->join('service_center_booking_action', 'booking_details.booking_id  = service_center_booking_action.booking_id', 'left');
         $this->db->join('services', 'services.id = booking_details.service_id', 'left');
         $this->db->join('service_centres', 'booking_details.assigned_vendor_id = service_centres.id','left');
         $this->db->join('penalty_on_booking', "booking_details.booking_id = penalty_on_booking.booking_id and penalty_on_booking.active = '1'",'left');
@@ -2266,7 +2267,7 @@ class Booking_model extends CI_Model {
         if (!empty($post['order']) && !empty($post['column_order'][$post['order'][0]['column']]) && isset($post['order_performed_on_count'])) {
             $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
         } else {
-            $this->db->order_by('closed_date','DESC');
+            $this->db->order_by('booking_details.closed_date','DESC');
         }
     }
     
@@ -2710,10 +2711,10 @@ class Booking_model extends CI_Model {
         return $result;
     }
     function get_data_for_duplicate_serial_number_check($serialNumber,$booking_id){
-          $sql = "SELECT * FROM booking_unit_details WHERE `serial_number` = '".$serialNumber."' AND booking_status != 'Cancelled' AND price_tags NOT IN ('Repeat Booking','Presale Repair') AND booking_id != '".$booking_id."'"
+          $sql = "SELECT * FROM booking_unit_details WHERE `serial_number` = '".$serialNumber."' AND booking_unit_details.booking_status != 'Cancelled' AND price_tags NOT IN ('Repeat Booking','Presale Repair') AND booking_id != '".$booking_id."'"
                 . " UNION "
                 . "SELECT booking_unit_details.* FROM service_center_booking_action JOIN booking_unit_details ON booking_unit_details.id = service_center_booking_action.unit_details_id WHERE "
-                . "service_center_booking_action.serial_number = '".$serialNumber."' AND service_center_booking_action.current_status != 'Cancelled' AND `price_tags` NOT IN ( 'Repeat Booking','Presale Repair') "
+                . "service_center_booking_action.serial_number = '".$serialNumber."' AND booking_unit_details.booking_status != 'Cancelled' AND service_center_booking_action.current_status != 'Cancelled' AND `price_tags` NOT IN ( 'Repeat Booking','Presale Repair') "
                 . "AND service_center_booking_action.booking_id != '".$booking_id."'";
         
          $query = $this->db->query($sql);

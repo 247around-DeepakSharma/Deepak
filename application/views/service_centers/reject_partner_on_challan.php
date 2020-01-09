@@ -142,33 +142,6 @@
                           <input type= "button" id="button_send" class="btn btn-danger" onclick='return check_checkbox()' style="text-align: center; background-color:#2C9D9C; border-color: #2C9D9C;"  data-toggle="modal" value ="Select Address" >
                         </center>
 
-
-                          <!-- Modal -->
-<!--   <div class="modal fade" id="myModal22" role="dialog">
-    <div class="modal-dialog">
-    
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Select Warehouse</h4>
-        </div>
-        <div class="modal-body">
-           <div id="warehouse_address">
-               <select id="warehouse_select" class="form-control" required="" name="warehouse_city">
-                   
-               </select>
-           </div>
-        </div>
-        <div class="modal-footer">
- 
-         <input type= "submit" id="button_send" class="btn btn-danger" onclick='return check_checkbox()'  style="text-align: center; background-color:#2C9D9C; border-color: #2C9D9C;"  data-toggle="modal" value ="Download Challan File" >
-         
-
-          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-      
     </div>
   </div> 
 
@@ -684,7 +657,7 @@
 
            var wh =  $("#warehouse_select").val();
             if (wh=="") {
-                alert("Please select address");
+                alert("Please select Partner");
             }else{
 
             $('#myModal22').modal('show');

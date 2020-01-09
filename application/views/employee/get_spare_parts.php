@@ -101,6 +101,7 @@
                             <li role="presentation"><a href="#defective_part_pending" aria-controls="defective_part_pending" id="pending_defective_part" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective/Damage/Ok Part Pending</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF" aria-controls="defective_part_shipped_by_SF" role="tab" class="spare_parts_tabs" data-toggle="tab">Defective Part Shipped By SF ( Courier Audit )</a></li>
                             <li role="presentation"><a href="#defective_part_shipped_by_SF_approved" aria-controls="defective_part_shipped_by_SF" class="spare_parts_tabs" role="tab" data-toggle="tab">Approved Defective Part By Admin</a></li>
+                            <li role="presentation"><a href="#defective_part_rejected_by_wh" aria-controls="defective_part_rejected_by_wh" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Part Rejected By Warehouse</a></li>
                             <li role="presentation"><a href="#defective_part_rejected_by_partner" aria-controls="defective_part_rejected_by_partner" class="spare_parts_tabs" role="tab" data-toggle="tab">Defective Part Rejected By Partner</a></li>
                         </ul>
                     </div>
@@ -330,6 +331,8 @@
           defective_part_pending_table.ajax.reload(null, false);  
         }else if(table_type=='defective_part_rejected_by_partner_table'){
           defective_part_rejected_by_partner_table.ajax.reload(null, false);  
+        }else if(table_type=='defective_part_rejected_by_wh_table'){
+          defective_part_rejected_by_wh_table.ajax.reload(null, false);  
         }else if(table_type=='defective_part_shipped_by_SF_table'){
           defective_part_shipped_by_sf_table.ajax.reload(null, false);  
         }else if(table_type=='defective_part_shipped_by_SF_approved_table'){
