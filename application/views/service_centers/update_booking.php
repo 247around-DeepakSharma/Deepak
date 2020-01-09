@@ -182,7 +182,7 @@ else
                                                 <table class="table priceList table-striped table-bordered" name="priceList" id="priceList_1">
                                                     <tr>
                                                         <th>Service Category</th>
-                                                        <th>Customer Charges</th>
+                                                        <th>Customer Net Payable</th>
                                                         <th>Selected Services</th>
                                                     </tr>
                                                     <tbody>
@@ -863,11 +863,12 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     color: red;
     }
     
+    // Do not allow User to Change Request type if spare is Already Requested.
     <?php if(!empty($str_disabled)) { ?> 
-    .price_checkbox {
+/*    .price_checkbox {
         pointer-events : none !important;
         background : #eee !important;
-    }    
+    }    */
     <?php } ?>
 </style>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>
