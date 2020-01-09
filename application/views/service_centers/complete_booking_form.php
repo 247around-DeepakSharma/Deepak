@@ -525,7 +525,7 @@
                                         <td>
                                             <input type="hidden" name="spare_qty[<?php echo $spare_part_detail['id']; ?>]" value="<?php echo $spare_part_detail['quantity']; ?>">
                                             <input type="hidden" name="wrong_part[<?php echo $spare_part_detail['id']; ?>]" id="wrong_part_<?php echo $spare_part_detail['id']; ?>" value='<?php
-                                            if(isset($en_consumpton_details)){
+                                            if(!empty($en_consumpton_details) && !empty($en_consumpton_details[$spare_part_detail['id']]['wrong_part_data'])) {
                                                 echo $en_consumpton_details[$spare_part_detail['id']]['wrong_part_data']; 
                                             } 
                                             ?>'>
