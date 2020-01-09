@@ -312,8 +312,13 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->remarks_defective_part_by_sf;
         $row[] = $spare_list->remarks_defective_part_by_partner;
         $row[] = '<a href="' . S3_WEBSITE_URL . 'misc-images/' . $spare_list->defective_courier_receipt . '" target="_blank">Click Here</a>';
-        $row[] = '<a href="' . S3_WEBSITE_URL . 'misc-images/' . $spare_list->rejected_defective_part_pic_by_wh . '" target="_blank">Click Here</a>';
-
+        
+        if(!empty($spare_list->rejected_defective_part_pic_by_wh)){
+         $row[] = '<a href="' . S3_WEBSITE_URL . 'misc-images/' . $spare_list->rejected_defective_part_pic_by_wh . '" target="_blank">Click Here</a>';   
+        }else{
+         $row[] = '';   
+        }
+        
         if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager") {
             $row[] = '<button type="button" data-button="Mark Shipped"  data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/DEFECTIVE_PARTS_SHIPPED_BY_SF" class="btn btn-warning btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="glyphicon glyphicon-send" style="font-size:16px;"></i></button>';
             if ($spare_list->defective_part_required == '0') {
