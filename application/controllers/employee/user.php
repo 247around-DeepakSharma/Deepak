@@ -73,7 +73,7 @@ class User extends CI_Controller {
         $select = "services.services, service_centres.name as service_centre_name,
             service_centres.primary_contact_phone_1, service_centres.primary_contact_name,
             users.phone_number, users.name as customername,booking_details.type,
-            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id";
+            users.phone_number, booking_details.*,penalty_on_booking.active as penalty_active, users.user_id,service_center_booking_action.current_status as service_center_current_status";
         if(!empty($booking_id)){
             
             $post['search_value'] = $booking_id;
