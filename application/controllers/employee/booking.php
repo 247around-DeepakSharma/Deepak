@@ -5933,7 +5933,7 @@ class Booking extends CI_Controller {
                         }                        
                     } else {
                         //Redirect to edit booking page if validation err occurs
-                        $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact BackOffice Team');
+                        $userSession = array('error' => 'Order Id/Dealer Mobile Number is not Filled against this Booking. '.$booking_id);
                         $this->session->set_userdata($userSession);
                         if(!empty($arr_post['redirect_url']))
                         {
@@ -5946,7 +5946,7 @@ class Booking extends CI_Controller {
                     }
                 } else {
                     //Redirect to edit booking page if validation err occurs
-                    $userSession = array('error' => 'Something Went Wrong with '.$booking_id.' Request type Updation, Please Contact Backoffice Team.');
+                    $userSession = array('error' => 'Booking => '.$booking_id.' is not Valid.');
                     $this->session->set_userdata($userSession);
                     if(!empty($arr_post['redirect_url']))
                     {
