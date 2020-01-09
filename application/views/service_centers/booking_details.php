@@ -301,9 +301,9 @@
                         <td><?php print_r($unit_detail['price_tags']); ?></td>
 
                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
-                        
+                        <?php $up_charges = 0; ?>
                         <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
-                        <td><?php $up_charges = 0; if($key == 0) { if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
+                        <td><?php if($key == 0) { if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                             echo "0";
                             } else if($booking_history[0]['flat_upcountry'] == 1){
                                   $up_charges =  $booking_history[0]['upcountry_to_be_paid_by_customer'];
