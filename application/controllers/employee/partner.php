@@ -8933,7 +8933,8 @@ class Partner extends CI_Controller {
     /**
      * @desc : this method send mail to AM after updating partner details
      */
-    function send_email_to_am_on_partner_update($data) {
+    function send_email_to_am_on_partner_update() {
+        $data = $this->input->post();
         $to = $data['to'];
         $cc = $data['cc'];
         $subject = $data['subject'];
