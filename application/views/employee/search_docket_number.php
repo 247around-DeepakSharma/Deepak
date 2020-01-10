@@ -41,10 +41,13 @@
                             <th>Sr No</th>
                             <th>Booking Id</th>
                             <th>SF Name</th>
+                            <th>WH Name</th>
                             <th>Partner Challan Number</th>
                             <th>SF Challan Number</th>
+                            <th>WH Challan Number</th>
                             <th>Partner AWB</th>
                             <th>SF AWB</th>
+                            <th>WH AWB</th>
                             <th>Part Name</th>
                             <th>Part Code</th>
                             <th>Part Type</th>
@@ -162,8 +165,15 @@
             table_body += "<tr>";
             table_body += '<td>' + (Number(index)+1) +'</td>';
             table_body += "<td><a href='<?php echo base_url();?>employee/booking/viewdetails/"+ val['booking_id'] +"' target='_blank'>"+val['booking_id']+" </a></td>";
+            
             if(val['sf_name']){
                 table_body += '<td>' + val['sf_name'] +'</td>';
+            }else{
+                 table_body += '<td></td>';
+            }
+            
+             if(val['wh_name']){
+                table_body += '<td>' + val['wh_name'] +'</td>';
             }else{
                  table_body += '<td></td>';
             }
@@ -190,6 +200,17 @@
                 table_body += '<td></td>';
             }
             
+            
+            //make sf challan file link
+            if(val['wh_challan_number']){
+                table_body += "<td><a href='<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/"+ val['wh_challan_file'] +"' target='_blank'>"+val['wh_challan_number']+" </a></td>";
+            }else if(val['wh_challan_number']){
+                table_body += "<td>"+val['wh_challan_number']+"</td>";
+            }else if(val['wh_challan_number'] === null){
+                table_body += '<td></td>';
+            }else{
+                table_body += '<td></td>';
+            }
 
             if(val['courier_pic_by_partner']){
                 table_body += "<td><a href='<?php echo S3_WEBSITE_URL;?>vendor-partner-docs/"+ val['courier_pic_by_partner'] +"' target='_blank'>"+val['awb_by_partner']+" </a></td>";
@@ -206,6 +227,12 @@
                 table_body += '<td></td>';
             }else{
                 table_body += '<td>' + val['awb_by_sf'] +'</td>';
+            }
+            
+            if(val['awb_by_wh'] === null){
+                table_body += '<td></td>';
+            }else{
+                table_body += '<td>' + val['awb_by_wh'] +'</td>';
             }
 
             if(val['parts_shipped'] === null){
