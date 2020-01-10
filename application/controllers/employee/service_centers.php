@@ -5820,7 +5820,7 @@ class Service_centers extends CI_Controller {
         $group_by = "spare_parts_details.id";
         $limit = $post['length'];
         $offset = $post['start'];
-        $post['column_search'] = array('spare_parts_details.booking_id', 'spare_parts_details.awb_by_sf');
+        $post['column_search'] = array('spare_parts_details.booking_id', 'spare_parts_details.awb_by_sf','service_centres.name');
         $order_by = "spare_parts_details.defective_part_shipped_date DESC, spare_parts_details.booking_id";
         $list = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $limit, 0, NULL, $post);
   
