@@ -40,7 +40,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     <?php } ?>
     
     <?php if(!empty($str_disabled)) { ?> 
-    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, .price_checkbox, #source_code, #partner_source, #service_id {
+    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, #source_code, #partner_source, #service_id {
         pointer-events : none !important;
         background : #eee !important;
     }    
