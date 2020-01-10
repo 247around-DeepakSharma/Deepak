@@ -419,7 +419,6 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     </div>
 </div>
 <script type="text/javascript">
-    
     var blDisableAcCategoryOptions = "<?= ($this->session->userdata('user_group') == PARTNER_CALL_CENTER_USER_GROUP ? '1' : '0'); ?>";
     
     function check_validation(){
@@ -453,6 +452,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                 return false;
             }
             if(!repeat_reason){
+                $('#repeat_reason_holder').show();
                 alert("Please Enter Repeat Reason");
                 return false;
             }
@@ -833,17 +833,13 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
            
             $.ajax({
                 type: 'POST',
-                beforeSend: function(){
-                  
-                  $('#submitform').attr('disabled',true);
-                  
-                },
                 url: '<?php echo base_url(); ?>employee/partner/get_price_for_partner',
                 data: postData,
                 success: function (data) {
                    //console.log(data);
                      if(data === "ERROR"){
-                         // $("#total_price").text("Price is not defined" );
+                         // $("#total_price").text("Price is not defined" );'
+                          $('#submitform').attr('disabled',true);
                           alert("Outstation Bookings Are Not Allowed, Please Contact backoffice Team.");
     
                      } else {                         
