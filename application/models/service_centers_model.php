@@ -539,6 +539,28 @@ class Service_centers_model extends CI_Model {
 
     }
     
+     /**
+     *  @desc : This function is used to get total defective parts shipped  by SF
+     *  @param : $where 
+     *  @return: Array()
+     */
+    public function count_all_defective_parts_shipped_by_sf_list($where) {
+        $this->_spare_parts_booking_query($where, 'count(distinct(spare_parts_details.id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    /**
+     *  @desc : This function is used to get total filtered defective parts shipped  by SF
+     *  @param : $where 
+     *  @return: Array()
+     */
+    function count_defective_parts_shipped_by_sf_list($where){
+        $this->_spare_parts_booking_query($where, 'count(distinct(spare_parts_details.id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
     /**
      * @desc: This method is used to get Array whose booking is updated by SF.
      * Need to update to display in SF panel next Day
