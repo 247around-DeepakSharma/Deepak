@@ -134,6 +134,13 @@
         }
 
     }
+    
+    div.dt-buttons {
+        float: left;
+        margin-top: 35px;
+        margin-bottom: 5px;
+        margin-left: 5px;
+    }
 
 </style>
 
@@ -163,6 +170,18 @@
             },
             "order": [],
             "pageLength": 25,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 25, 50, 100, -1 ],[ '25', '50', '100', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                       ccolumns: [ 1,2,3,4,5,6,7,8,9,10,11]
+                    },
+                    title: 'rejected_spares_send_by_partner'
+                }
+            ],
             "ordering": false,
             "ajax": {
                 url: "<?php echo base_url(); ?>employee/service_centers/get_defective_parts_shipped_by_sf_list",
