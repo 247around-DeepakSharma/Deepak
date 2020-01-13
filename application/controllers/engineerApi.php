@@ -1158,7 +1158,7 @@ class engineerApi extends CI_Controller {
                     $device['deviceInfo'] = $requestData["deviceInfo"];
                     $device["device_id"] = $this->deviceId;
                     $device['app_version'] = $requestData["app_version"];
-                    $['device_firebase_token']=$requestData['device_firebase_token'];
+                    $device['device_firebase_token']=$requestData['device_firebase_token'];   /// Server Error problem
                     $this->partner_model->update_login_details($device, array("agent_id" => $data[0]['agent_id'])); ///  Firebase device token ///
                     $this->jsonResponseString['response'] = $data[0];
                     $this->sendJsonResponse(array('0000', 'success'));
