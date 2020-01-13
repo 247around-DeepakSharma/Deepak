@@ -552,7 +552,7 @@ class Booking extends CI_Controller {
         
         $validate_order_id = $this->validate_order_id($booking['partner_id'], $booking['booking_id'], $booking['order_id'], $booking['amount_due']);
       
-        if ($validate_order_id) {
+        if ($validate_order_id || !empty($this->session->userdata('service_center_id'))) {
             $is_dealer = $this->dealer_process($booking['city'], $booking['partner_id'], $booking['service_id'], $booking['state']);
            
             if(!empty($is_dealer)){
@@ -679,7 +679,7 @@ class Booking extends CI_Controller {
             }
             return $booking;
         } else {
-            $this->session->set_userdata(['error_msg' => 'Order Id is not Valid / Filled against this Booking.']);
+//            $this->session->set_userdata(['error_msg' => 'Order Id is not Valid / Filled against this Booking.']);
             return false;
         }
     }

@@ -1170,7 +1170,7 @@ class Inventory extends CI_Controller {
 
                 case 'REJECT_COURIER_INVOICE':
                     $where = array('id' => $id);
-                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => DEFECTIVE_PARTS_REJECTED, 'remarks_defective_part_by_sf' => $remarks);
+                    $data = array("approved_defective_parts_by_admin" => 0, 'status' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, 'remarks_defective_part_by_sf' => $remarks);
                     $new_state = "Courier Invoice Rejected By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
 
@@ -1188,7 +1188,7 @@ class Inventory extends CI_Controller {
                         $data['courier_charges_by_sf'] = 0;
                     }
 
-                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED . '", "'.OK_PART_TO_BE_SHIPPED.'", "'.DAMAGE_PART_TO_BE_SHIPPED.'") ' => NULL));
+                    $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '", "' . OK_PART_TO_BE_SHIPPED . '", "' . DAMAGE_PART_TO_BE_SHIPPED . '") ' => NULL));
                     if (empty($defective_part_pending_details)) {
                         $spare_data['status'] = DEFECTIVE_PARTS_SHIPPED;
                         $where = array("id" => $booking_id);
@@ -1214,7 +1214,7 @@ class Inventory extends CI_Controller {
 
                     $this->vendor_model->update_service_center_action($booking_id, $sc_data);
 
-                    $old_state = DEFECTIVE_PARTS_REJECTED;
+                    $old_state = DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE;
                     $new_state = DEFECTIVE_PARTS_SHIPPED;
 
                     $b['internal_status'] = DEFECTIVE_PARTS_SHIPPED;
@@ -2191,7 +2191,7 @@ class Inventory extends CI_Controller {
      *  @param : void
      *  @return : $output JSON
      */
-    function get_show_rm_wise_tat_report_data() {
+    function get_show_sf_brand_wise_tat_report_data() {
         $data = $this->get_show_sf_brand_wise_tat_report();
 
         $post = $data['post'];
@@ -6888,7 +6888,10 @@ function get_bom_list_by_inventory_id($inventory_id) {
                             $where["spare_parts_details.shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.shipped_date < '" . date('Y-m-d', strtotime($to_date . "+1 days")) . "' "] = NULL;
                         } else if ($search_by == 'awb_by_sf') {
                             $where["spare_parts_details.defective_part_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.defective_part_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
+                        }else if ($search_by == 'awb_by_wh') {
+                            $where["spare_parts_details.wh_to_partner_defective_shipped_date >= '" . date('Y-m-d', strtotime($from_date)) . "'  AND spare_parts_details.wh_to_partner_defective_shipped_date < '" . date('Y-m-d', strtotime($to_date)) . "' "] = NULL;
                         }
+                        
                     }
                     $post['is_inventory'] = TRUE;
                     $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE,FALSE,$post);

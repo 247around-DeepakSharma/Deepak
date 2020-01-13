@@ -835,7 +835,7 @@ class Invoice_lib {
         foreach ($spare_ids as $spare_id) {
             $select = 'spare_parts_details.*';
             $where = array('spare_parts_details.id' => $spare_id,
-                "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DAMAGE_PART_TO_BE_SHIPPED . "', '" . COURIER_LOST . "','" . DEFECTIVE_PARTS_REJECTED . "')  " => NULL,
+                "status IN ('" . DEFECTIVE_PARTS_PENDING . "', '" . OK_PART_TO_BE_SHIPPED . "', '" . DAMAGE_PART_TO_BE_SHIPPED . "', '" . COURIER_LOST . "','" . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . "')  " => NULL,
                 'defective_part_required' => 1);
             $a = $this->ci->partner_model->get_spare_parts_by_any($select, $where);
             if(!empty($a)){

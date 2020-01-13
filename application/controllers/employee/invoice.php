@@ -940,6 +940,7 @@ class Invoice extends CI_Controller {
             $t_s_charge =  ($meta['r_sc'] - $meta['upcountry_charge']) - $this->booking_model->get_calculated_tax_charge( ($meta['r_sc'] - $meta['upcountry_charge']), 18);
             $t_ad_charge = $meta['r_asc'] - $this->booking_model->get_calculated_tax_charge( $meta['r_asc'], 18);
             $t_part_charge = $meta['r_pc'] - $this->booking_model->get_calculated_tax_charge($meta['r_pc'], 18);
+            $t_upcountry = $meta['upcountry_charge'] - $this->booking_model->get_calculated_tax_charge($meta['upcountry_charge'], 18);
             //Save this invoice info in table
             $invoice_details = array(
                 'invoice_id' => $meta['invoice_id'],
@@ -962,7 +963,7 @@ class Invoice extends CI_Controller {
                 'total_amount_collected' => $meta['sub_total_amount'],
                 'rating' => $meta['t_rating'],
                 'around_royalty' => $meta['sub_total_amount'],
-                'upcountry_price' => $meta['upcountry_charge'],
+                'upcountry_price' => $t_upcountry,
                 'upcountry_distance' => $meta['upcountry_distance'],
                 'upcountry_booking' => $meta['upcountry_booking'],
                 //Service tax which needs to be paid
@@ -2174,6 +2175,9 @@ class Invoice extends CI_Controller {
                     $invoices['meta']['r_sc'] += $value['service_charges'];
                     $invoices['meta']['r_asc'] += $value['additional_charges'];
                     $invoices['meta']['r_pc'] += $value['parts_cost'];
+                    if($value['parts_cost'] >0){
+                        $parts_count++;
+                    }
                     $total_amount_paid += $value['amount_paid'];
 
                     if (!is_null($value['rating_stars']) && $value['rating_stars'] != '') {
@@ -5152,7 +5156,7 @@ class Invoice extends CI_Controller {
         $where = array(
             "spare_parts_details.defective_part_required"=>1,
             "spare_parts_details.service_center_id" => $vendor_id,
-            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."')  " => NULL,
+            "status IN ('".DEFECTIVE_PARTS_PENDING."', '".DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE."', '".OK_PART_TO_BE_SHIPPED."', '".DAMAGE_PART_TO_BE_SHIPPED."')  " => NULL,
             "DATEDIFF(CURRENT_TIMESTAMP, service_center_closed_date) > '".DEFECTIVE_PART_PENDING_OOT_DAYS."' " => NULL
             
         );

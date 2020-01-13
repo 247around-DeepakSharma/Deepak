@@ -84,8 +84,8 @@ class Spare_parts extends CI_Controller {
         //log_message('info', __METHOD__ . print_r($_POST, true));
         
         $post = $this->get_spare_tab_datatable_data();
-
-        switch ($post['type']){
+        
+        switch ($post['type']) {
             case 0:
                 $this->get_spare_requested_tab($post);
                 break;
@@ -124,6 +124,9 @@ class Spare_parts extends CI_Controller {
                 break;
             case 12:
                 $this->get_courier_lost_spare_parts($post);
+                break;
+            case 13:
+                $this->get_part_rejected_by_warehouse($post);
                 break;
         }
     }
@@ -225,7 +228,108 @@ class Spare_parts extends CI_Controller {
         );
         
         echo json_encode($output);
+    }       
+    /**
+     * @desc Used to create tab in which we are showing
+     * Defective parts shipped by sf but Warehouse rejected 
+     * @param Array $post
+     */
+    function get_part_rejected_by_warehouse($post) {
+        log_message('info', __METHOD__);
+
+        $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id,spare_parts_details.quantity,spare_parts_details.shipped_quantity, users.name, booking_primary_contact_no, service_centres.name as sc_name,"
+                . "partners.public_name as source, parts_requested, booking_details.request_type, spare_parts_details.id,"
+                . "defective_part_required, spare_parts_details.shipped_date, parts_shipped, spare_parts_details.is_micro_wh,"
+                . "spare_parts_details.acknowledge_date, challan_approx_value, status, defective_part_shipped, rejected_defective_part_pic_by_wh,"
+                . "remarks_defective_part_by_sf, remarks_defective_part_by_partner, defective_courier_receipt, inventory_master_list.part_number,im.part_number as shipped_part_number, spare_parts_details.challan_approx_value ";
+
+        $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_defective_part_shipped_date', NULL, NULL, NULL, NULL, NULL);
+
+
+        $post['column_search'] = array('spare_parts_details.booking_id', 'partners.public_name', 'service_centres.name', 'parts_shipped',
+            'users.name', 'users.phone_number', 'defective_part_shipped', 'booking_details.request_type', 'remarks_defective_part_by_sf', 'remarks_defective_part_by_partner');
+        
+        $list = $this->inventory_model->get_spare_parts_query($post);
+        $no = $post['start'];
+        $data = array();
+        foreach ($list as $spare_list) {
+            $no++;
+            $row = $this->parts_rejected_by_wh_table_data($spare_list, $no);
+            $data[] = $row;
+        }
+        $output = array(
+            "draw" => $post['draw'],
+            "recordsTotal" => $this->inventory_model->count_spare_parts($post),
+            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "data" => $data,
+        );
+
+        echo json_encode($output);
     }
+
+      
+     /**
+     * @desc this function is used to create table row data for the spare parts rejected by partner tab
+     * @param Array $spare_list
+     * @param int $no
+     * @return Array
+     */
+    
+    function parts_rejected_by_wh_table_data($spare_list, $no) {
+        $row = array();
+        $row[] = $no;
+        $row[] = '<a href="' . base_url() . 'employee/booking/viewdetails/' . $spare_list->booking_id . '" target= "_blank" >' . $spare_list->booking_id . '</a>';
+        if ($spare_list->is_micro_wh == 1) {
+            $spare_pending_on = 'Micro-warehouse';
+        } elseif ($spare_list->is_micro_wh == 2) {
+            $wh_details = $this->vendor_model->getVendorContact($spare_list->partner_id);
+            if (!empty($wh_details)) {
+                $spare_pending_on = $wh_details[0]['district'] . ' Warehouse';
+            } else {
+                $spare_pending_on = 'Warehouse';
+            }
+        } else {
+            $spare_pending_on = 'Partner';
+        }
+        $row[] = $spare_pending_on;
+        $row[] = $spare_list->name;
+        $row[] = $spare_list->booking_primary_contact_no;
+        $row[] = $spare_list->sc_name;
+        $row[] = $spare_list->source;
+        $row[] = "<span class='line_break'>" . $spare_list->parts_shipped . "</span>";
+        $row[] = $spare_list->quantity;
+        $row[] = $spare_list->shipped_quantity;
+        $row[] = $spare_list->challan_approx_value;
+        $row[] = "<span class='line_break'>" . $spare_list->part_number . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->defective_part_shipped . "</span>";
+        $row[] = "<span class='line_break'>" . $spare_list->shipped_part_number . "</span>";
+        $row[] = $spare_list->request_type;
+        $row[] = (empty($spare_list->age_defective_part_shipped_date)) ? '0 Days' : $spare_list->age_defective_part_shipped_date . " Days";
+        $row[] = $spare_list->remarks_defective_part_by_sf;
+        $row[] = $spare_list->remarks_defective_part_by_partner;
+        $row[] = '<a href="' . S3_WEBSITE_URL . 'misc-images/' . $spare_list->defective_courier_receipt . '" target="_blank">Click Here</a>';
+        $row[] = '<a href="' . S3_WEBSITE_URL . 'misc-images/' . $spare_list->rejected_defective_part_pic_by_wh . '" target="_blank">Click Here</a>';
+
+        if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager") {
+            $row[] = '<button type="button" data-button="Mark Shipped"  data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/DEFECTIVE_PARTS_SHIPPED_BY_SF" class="btn btn-warning btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="glyphicon glyphicon-send" style="font-size:16px;"></i></button>';
+            if ($spare_list->defective_part_required == '0') {
+                $required_parts = 'REQUIRED_PARTS';
+                $text = '<i class="glyphicon glyphicon-ok-circle" style="font-size: 16px;"></i>';
+                $cl = "btn-primary";
+            } else {
+                $text = '<i class="glyphicon glyphicon-ban-circle" style="font-size: 16px;"></i>';
+                $required_parts = 'NOT_REQUIRED_PARTS_FOR_COMPLETED_BOOKING';
+                $cl = "btn-danger";
+            }
+            $row[] = '<button type="button" data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/' . $required_parts . '" class="btn btn-sm ' . $cl . ' open-adminremarks" data-toggle="modal" data-target="#myModal2">' . $text . '</button>';
+        } else {
+            $row[] = "";
+            $row[] = "";
+        }
+
+        return $row;
+    }
+
     /**
      * @desc Used to create tab in which we are showing
      * Part delivered to sf 
@@ -1191,8 +1295,8 @@ class Spare_parts extends CI_Controller {
         $this->service_centers_model->insert_courier_lost_spare_status($data);
 
         // check part pending to be shipped.
-        $check_spare_part_pending = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array("spare_parts_details.status IN ('".OK_PART_TO_BE_SHIPPED."','".DAMAGE_PART_TO_BE_SHIPPED."','".DEFECTIVE_PARTS_PENDING."','".OK_PARTS_SHIPPED."','".DAMAGE_PARTS_SHIPPED."','".DEFECTIVE_PARTS_SHIPPED."')" => NULL, 'spare_parts_details.booking_id' => $spare_part_detail['booking_id']), true, false);
-        if(empty($check_spare_part_pending)) {
+        $check_spare_part_pending = $this->partner_model->get_spare_parts_by_any("spare_parts_details.*", array("spare_parts_details.status IN ('" . OK_PART_TO_BE_SHIPPED . "','" . DAMAGE_PART_TO_BE_SHIPPED . "','" . DEFECTIVE_PARTS_PENDING . "','" . OK_PARTS_SHIPPED . "','" . DAMAGE_PARTS_SHIPPED . "','" . DEFECTIVE_PARTS_SHIPPED . "','".COURIER_LOST."')" => NULL, 'spare_parts_details.booking_id' => $spare_part_detail['booking_id']), true, false);
+        if (empty($check_spare_part_pending)) {
             // update service center booking action.
             $this->vendor_model->update_service_center_action($spare_part_detail['booking_id'], ['current_status' => SF_BOOKING_INPROCESS_STATUS, 'internal_status' => _247AROUND_COMPLETED]);
             // update booking.
