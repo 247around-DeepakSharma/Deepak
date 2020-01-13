@@ -6776,7 +6776,8 @@ class Inventory extends CI_Controller {
             } else {
                 $select = "spare_parts_details.booking_id,spare_parts_details.partner_challan_number,spare_parts_details.sf_challan_number,"
                         . "spare_parts_details.partner_challan_file,spare_parts_details.sf_challan_file,spare_parts_details.awb_by_partner,spare_parts_details.awb_by_sf,"
-                        . "spare_parts_details.courier_pic_by_partner,spare_parts_details.parts_shipped,im.part_number,spare_parts_details.shipped_parts_type,im.price,im.gst_rate";
+                        . "spare_parts_details.courier_pic_by_partner,spare_parts_details.parts_shipped,im.part_number,spare_parts_details.shipped_parts_type,im.price,im.gst_rate,"
+                        . "spare_parts_details.awb_by_wh, spare_parts_details.wh_challan_number, spare_parts_details.wh_challan_file";
                 $where = array();
 
                 if ($this->input->post('sf_id')) {
@@ -6804,7 +6805,7 @@ class Inventory extends CI_Controller {
 
                     $docket_details = $this->inventory_model->get_spare_courier_details($select, $where);
                 } else {
-                    $select .= ",service_centres.name as 'sf_name'";
+                    $select .= ",service_centres.name as 'sf_name', sc.name as wh_name";
                     if (!empty($docket_number)) {
                         $docket_number_arr = explode(',', $docket_number);
                         $docket_number_arr_str = implode(',', array_map(function($val) {
@@ -6824,7 +6825,7 @@ class Inventory extends CI_Controller {
                         }
                     }
                     $post['is_inventory'] = TRUE;
-                    $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE, FALSE, $post);
+                    $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE, FALSE, $post,TRUE);
                 }
 
 
