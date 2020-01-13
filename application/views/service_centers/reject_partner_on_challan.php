@@ -272,18 +272,17 @@
 
 <script>
     $('#defective_parts_reject_by_artner_on_challan').DataTable({
-        pageLength:500,
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'excel',
-                text: 'Export',
-                exportOptions: {
-                    columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11]
-                },
-                title: 'defective_parts_send_to_partner'
-            }
-        ]
+        "pageLength": 100,
+            dom: 'Bfrtip',
+            // Configure the drop down options.
+            lengthMenu: [
+                [ 25, 50,100, -1 ],
+                [ '25', '50', '100', 'All' ]
+            ],
+            // Add to buttons the pageLength option.
+            buttons: [
+                'pageLength','excel',
+            ],
     });
     
      $("#partner_search_id2").click(function(){         
