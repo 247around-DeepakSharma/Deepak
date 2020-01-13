@@ -2,6 +2,16 @@
     .select2.select2-container.select2-container--default{
         width: 100%!important;
     }
+    div.dt-buttons {
+    float: left;
+    margin-top: 35px;
+    margin-bottom: 5px;
+    margin-left: 5px;
+    }
+    
+    #datatable1_wrapper{
+        margin-top: 20px;
+    }
 </style>
 <div class="right_col" role="main">
     <div class="row">
@@ -125,6 +135,18 @@
             },
             "order": [],
             "pageLength": 25,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 25, 50, 100, -1 ],[ '25', '50', '100', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                       ccolumns: [ 1,2,3,4,5,6,7,8,9,10,11]
+                    },
+                    title: 'rejected_spares_send_by_partner'
+                }
+            ],
             "ordering": false,
             "ajax": {
                 url: "<?php echo base_url(); ?>employee/inventory/get_spare_send_by_partner_to_wh_rejected",
