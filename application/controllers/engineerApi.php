@@ -73,6 +73,7 @@ class engineerApi extends CI_Controller {
 
             $jsonRequestData = $_POST['request'];
 
+
             $requestData = json_decode($jsonRequestData, true);
             
             $this->token = $requestData['token'];
@@ -1140,6 +1141,8 @@ class engineerApi extends CI_Controller {
 
     function processEngineerLogin(){ 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+         log_message('info', "Request Login: " .print_r($requestData,true));
+         log_message("info",$requestData);   /// logging data 
         $data = $this->dealer_model->entity_login(array("entity" => "engineer", 
             "active" =>1, "user_id" => $requestData["mobile"]));
         if(!empty($data)){ 
@@ -1155,7 +1158,8 @@ class engineerApi extends CI_Controller {
                     $device['deviceInfo'] = $requestData["deviceInfo"];
                     $device["device_id"] = $this->deviceId;
                     $device['app_version'] = $requestData["app_version"];
-                    $this->partner_model->update_login_details($device, array("agent_id" => $data[0]['agent_id'],'device_firebase_token'=>$requestData['device_firebase_token'])); ///  Firebase device token ///
+                    $device['device_firebase_token']=$requestData['device_firebase_token'];   /// Server Error problem
+                    $this->partner_model->update_login_details($device, array("agent_id" => $data[0]['agent_id'])); ///  Firebase device token ///
                     $this->jsonResponseString['response'] = $data[0];
                     $this->sendJsonResponse(array('0000', 'success'));
                 } else {

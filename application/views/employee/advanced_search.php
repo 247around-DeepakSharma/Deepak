@@ -159,6 +159,7 @@
                                         <th>Part&nbsp;Type&nbsp;Requested</th>
                                         <th>Part&nbsp;Name&nbsp;Shipped</th>
                                         <th>Part&nbsp;Type&nbsp;Shipped</th>
+                                        <th>Part&nbsp;Shipped&nbsp;Date</th>
                                         <th>Dependency</th>
                                     </tr>
                                 </thead>
