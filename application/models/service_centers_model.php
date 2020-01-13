@@ -493,7 +493,7 @@ class Service_centers_model extends CI_Model {
         if($order_by){
             $this->db->order_by($order_by, FALSE);
         }
-        if($limit){
+        if($limit > 0){
             $this->db->limit($limit, $offset);
         }
         $query = $this->db->get();
@@ -560,17 +560,7 @@ class Service_centers_model extends CI_Model {
             $this->db->where($like, null, false);
         }
 
-        if($group_by){
-            $this->db->group_by($group_by);
-        }
-        
-        if($order_by){
-            $this->db->order_by($order_by, FALSE);
-        }
-        if($post['length']){
-            $this->db->limit($post['length'], $post['start']);
-        }
-        
+               
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
@@ -599,17 +589,7 @@ class Service_centers_model extends CI_Model {
             $this->db->where($like, null, false);
         }
 
-        if($group_by){
-            $this->db->group_by($group_by);
-        }
-        
-        if($order_by){
-            $this->db->order_by($order_by, FALSE);
-        }
-        if($post['length']){
-           $this->db->limit($post['length'], $post['start']);
-        }
-        
+                
         $query = $this->db->get();
         return $query->result_array()[0]['numrows'];
     }
