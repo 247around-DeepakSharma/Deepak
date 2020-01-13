@@ -235,9 +235,18 @@ if ($this->uri->segment(3)) {
     })  ;
 
 $("#on_partner").DataTable({
-    "pageLength": 500,
-    "lengthMenu": [[500, 1000,2000,5000,-1], [500, 1000,2000,5000, "All"]],
-    
+    "pageLength": 100,
+    dom: 'Bfrtip',
+    // Configure the drop down options.
+    lengthMenu: [
+        [ 25, 50,100, -1 ],
+        [ '25', '50', '100', 'All' ]
+    ],
+    // Add to buttons the pageLength option.
+    buttons: [
+        'pageLength','excel',
+    ],
+
 });
 
     function downloadList(){
