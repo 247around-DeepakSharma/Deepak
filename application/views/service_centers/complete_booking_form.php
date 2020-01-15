@@ -534,11 +534,11 @@
                                                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
                                                     if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
                                                     <option value="<?php echo $status['id']; ?>" data-shipped_inventory_id="<?php echo $spare_part_detail['shipped_inventory_id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"
-                                                    <?php if(isset($en_consumpton_details)){
+                                                    <?php if(!empty($en_consumpton_details) && !empty($en_consumpton_details[$spare_part_detail['id']]['consumption_status_id'])){
                                                         if($en_consumpton_details[$spare_part_detail['id']]['consumption_status_id'] == $status['id']){
                                                            echo "selected"; 
                                                         }
-                                                    } ?>
+                                                    } if(!empty($spare_part_detail['consumed_part_status_id']) && $spare_part_detail['consumed_part_status_id'] == $status['id']) { echo "selected"; } ?>
                                                     ><?php echo $status['consumed_status']; ?></option>
                                                 <?php $description_no++; } ?>
                                             </select>
