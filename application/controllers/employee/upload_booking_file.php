@@ -1244,16 +1244,23 @@ class Upload_booking_file extends CI_Controller {
     public function get_upload_file_history()
     {
 
-
-
-
-
-        $post_data = array('length' =>$this->input->post('length'),
+////// this done if booking histoty not coming according to partner 
+        $post_data=array();
+        if ($this->input->post('file_type')==_247AROUND_ENGINEER_NOTIFICATIONS) {
+                  $post_data = array('length' =>$this->input->post('length'),
+                           'start' =>$this->input->post('start'),
+                           'file_type' =>trim($this->input->post('file_type')),
+                           'search_value' => trim($this->input->post('search')['value'])
+                        );
+        }else{
+                 $post_data = array('length' =>$this->input->post('length'),
                            'start' =>$this->input->post('start'),
                            'file_type' =>trim($this->input->post('file_type')),
                            'search_value' => trim($this->input->post('search')['value']),
                            'partner_id'=>$this->input->post('partner_id')
-                        );
+                        );   
+        }
+
         
         $filtered_post_data = array(
                 'length' =>NULL,

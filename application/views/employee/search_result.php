@@ -461,7 +461,7 @@
                             
                         </td>
                         <td>
-                            <a class='btn btn-sm btn-color col-md-4' style='margin-left:10px;padding-right: 17px;' onclick='get_penalty_details("<?php echo $row->booking_id; ?>","<?php echo $row->current_status; ?>","<?php echo $row->assigned_vendor_id;?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
+                            <a class='btn btn-sm btn-color col-md-4 <?php if(empty($row->penalty_active)){echo "disabled";} ?>' style='margin-left:10px;padding-right: 17px;' onclick='get_penalty_details("<?php echo $row->booking_id; ?>","<?php echo $row->current_status; ?>","<?php echo $row->assigned_vendor_id;?>")'  href='javascript:void(0)' title='Remove Penalty'> <i class='fa fa-times-circle' aria-hidden='true'></i></a>
                         </td>
                         <td>
                             <a class="btn btn-sm btn-color" title="Helper Document" data-toggle="modal" data-target="#showBrandCollateral" onclick="get_brand_collateral('<?php echo $row->booking_id; ?>')"><i class="fa fa-file-text-o" aria-hidden="true"></i></a>

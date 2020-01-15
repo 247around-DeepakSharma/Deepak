@@ -696,5 +696,9 @@ define('INPROCESS_COMPLETED_BY_ENGINEER_STATUS', 'InProcess Completed By Enginee
 define('INPROCESS_CANCELLED_BY_ENGINEER_STATUS', 'InProcess Cancelled By Engineer');
 define('BOOKING_COMPLETED_BY_ENGINEER_STATUS', 'Booking Completed By Engineer');
 define('BOOKING_CANCELLED_BY_ENGINEER_STATUS', 'Booking Cancelled By Engineer');
+define('_247AROUND_ENGINEER_NOTIFICATIONS', 'engg_notify');
+
+
+
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
