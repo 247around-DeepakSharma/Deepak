@@ -322,6 +322,173 @@ class Engineer extends CI_Controller {
         //$row[] = "<a onClick=\"javascript: return confirm('Delete Engineer?');\" id='edit' class='btn btn-small btn-danger' href=" . base_url() . "employee/vendor/delete_engineer/".$engineer_list->id.">Delete</a>";
         return $row;
     }
+
+//// Engineers for notification ////
+
+
+      function get_engineer_details_for_notification(){
+        $data = $this->get_engineer_details_data_for_notification();
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->reusable_model->count_all_result("engineer_details", $post['where']),
+            "recordsFiltered" =>  $this->reusable_model->count_all_filtered_result("engineer_details", "count(engineer_details.id) as numrows", $post),
+            "data" => $data['data'],
+        );
+        echo json_encode($output); die();
+    }
+    
+    function get_engineer_details_data_for_notification(){
+       $service_center_id = "";
+        if($this->input->post("service_center_id")){
+            $service_center_id = $this->input->post("service_center_id");
+        }
+
+        //print_r($_POST['service_center_id']);  exit;
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = array("engineer_details.id" => "ASC");
+        $post['draw'] = $this->input->post('draw');
+        $post['column_order'] = array();
+        $post['column_search'] = array("engineer_details.name", "service_centres.name", "engineer_details.phone", "engineer_details.alternate_phone");
+        $post['join'] = array(
+            "service_centres" => "service_centres.id = engineer_details.service_center_id",
+            'entity_identity_proof' => 'entity_identity_proof.entity_id = engineer_details.id AND entity_identity_proof.entity_type = "engineer"',
+        );
+        $post['joinType'] = array("service_centres" => "LEFT", "entity_identity_proof", "LEFT");
+        $post['where'] = array('delete' => 0);
+        if($service_center_id){
+            $post['where']['service_center_id'] = $service_center_id;
+        }
+        
+        $data = array();
+        $no = $post['start'];
+        
+        $list =  $this->reusable_model->get_datatable_data("engineer_details", "engineer_details.id, engineer_details.name, engineer_details.phone, engineer_details.alternate_phone,engineer_details.device_firebase_token, engineer_details.active, entity_identity_proof.identity_proof_type as identity_proof, engineer_details.varified, engineer_details.create_date, service_centres.name as company_name, service_centres.state, service_centres.district", $post);
+        //echo $this->db->last_query(); die();
+        foreach ($list as $key => $value) {
+           $service_id  = $this->engineer_model->get_engineer_appliance(array("engineer_id"=>$value->id, "is_active"=>1), "service_id");
+           $appliances = array();
+           if(!empty($service_id)){
+                foreach ($service_id as  $values) {
+                     $service_name = $this->booking_model->selectservicebyid($values['service_id']);
+                     if(!empty($service_name)){
+                        array_push($appliances, $service_name[0]['services']); 
+                     }
+                }
+           }
+           $value->appliance_name = implode(",", $appliances);
+            
+           $no++;
+           $row = $this->get_engineer_details_table_for_notification($value, $no);
+           $data[] = $row;
+        }
+        
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+    function get_engineer_details_table_for_notification($engineer_list, $no){
+        $row = array();
+        $row_action = "";
+        $row[] = $no;
+     //   if(!$this->input->post("service_center_id")){
+            $row[] = $engineer_list->company_name;
+            $row[] = $engineer_list->state;
+            $row[] = $engineer_list->district;
+       // }
+        $row[] = "<a href='".base_url()."employee/vendor/get_edit_engineer_form/".$engineer_list->id."'>".$engineer_list->name."</a>"; 
+        $row[] = $engineer_list->appliance_name;
+        $row[] = $engineer_list->phone;
+        $row[] = date('Y-m-d', strtotime($engineer_list->create_date));
+        //$row[] = $engineer_list->device_firebase_token;
+        if (!empty($engineer_list->device_firebase_token)) {
+           $row[] = "<input type='checkbox' name='token' class='send_notification' data-check_firebase='".$engineer_list->device_firebase_token."'  /> <button  data-token_firebase='".$engineer_list->device_firebase_token."' class='btn btn-small btn-primary class='send_notification_btn''>Send</button>";
+        }else{
+            $row[] = "<button class='btn btn-small disabled btn-primary'>Send</button>";
+        }
+        
+        
+        return $row;
+    }
+
+
+
+    /**
+     *  @desc  : This is used to load view of excel file for engg bulk notification
+     *  @param : void
+     *  @return : load view of Excel
+     */
+    function upload_engg_notification_excel($data = "") {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/upload_engg_notification');
+    }
+
+    /**
+     *  @desc  : This is used send engg bulk notification
+     *  @param : void
+     *  @return : load view of Excel
+     */
+
+
+function send_notication($firebase_token=""){
+
+
+ 
+$msg = array
+(
+    'body'  => $text,
+    'title'     => 'This Abhishek',
+    'subtitle'  => 'This is a subtitle. subtitle',
+    'tickerText'    => 'Ticker text here...Ticker text here...Ticker text here',
+    'vibrate'   => 1,
+    'sound'     => 1,
+    'largeIcon' => 'large_icon',
+    'smallIcon' => 'small_icon'
+);
+$fields = array
+(
+    'registration_ids'  => $firebase_token,
+    'notification'          => $msg
+);
+ // echo "message json------------";
+ // echo "<br>";
+ // echo json_encode($fields);
+ // echo "<br>"; 
+ // echo "--------------";
+$headers = array
+(
+    'Authorization: key=' . API_ACCESS_KEY,
+    'Content-Type: application/json'
+);
+ 
+$ch = curl_init();
+curl_setopt( $ch,CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send' );  //https://fcm.googleapis.com/fcm
+curl_setopt( $ch,CURLOPT_POST, true );
+curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
+curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
+curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER, false );
+curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $fields ) );
+$result = curl_exec($ch );
+curl_close( $ch );
+echo $result;
+
+
+
+
+
+    }
+
+
+/////////  END //////////////
+
+
+
+
     
     /*This function is used to load view for download booking details closed by engineer*/
     function download_engineer_bookings(){
@@ -521,6 +688,16 @@ class Engineer extends CI_Controller {
         }
     }
     
+
+   function  transfer_incentive_to_paytm_wallet_with_notification($order_id,$mobile,$amount,$engg_id){
+
+         $order_id = $this->get_incentive_order_id($engg_id);
+         $incentive_transffered = $this->transfer_incentive_to_paytm_wallet($order_id, $mobile, $amount, $engg_id);
+
+   }
+
+
+
     /*@desc - This function is used to create order id for transffering engineer incenive. here INC = Incentive
     *@param - $engineer_id
     *@return - $order_id
@@ -529,4 +706,16 @@ class Engineer extends CI_Controller {
         $order_id = $engineer_id."INC".date("YmdHis");
         return $order_id;
     }
+
+    /*@desc - This function is used to get list of enggineer and send them Firebase Notifications
+    */
+    function get_all_engineers_for_notification(){
+         
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/engineers_list_for_notifications');
+
+    }
+
+
+
 }

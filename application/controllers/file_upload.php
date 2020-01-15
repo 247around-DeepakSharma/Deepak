@@ -43,7 +43,7 @@ class File_upload extends CI_Controller {
 
         log_message('info', __FUNCTION__ . "=> File Upload Process Begin " . print_r($_POST, true));
         //get file extension and file tmp name
-        $file_status = $this->get_upload_file_type();
+        $file_status = $this->get_upload_file_type();         
         $redirect_to = $this->input->post('redirect_url'); 
         if ($file_status['file_name_lenth']) {
             if ($file_status['status']) {
@@ -89,6 +89,10 @@ class File_upload extends CI_Controller {
                         case MSL_TRANSFERED_BY_PARTNER_BY_EXCEL:
                             //process msl excel  
                             $response = $this->process_msl_upload_file($data);
+                            break;
+                        case _247AROUND_ENGINEER_NOTIFICATIONS:
+                            //process msl excel  
+                            $response = $this->process_engg_notification_upload_file($data);
                             break;
                         default :
                             log_message("info", " upload file type not found");
@@ -225,6 +229,74 @@ class File_upload extends CI_Controller {
         $response['highest_column'] = $highestColumn;
         return $response;
     }
+
+
+
+     /**
+     * @desc: This function is used to process the engg notifications 
+     * @param $data array  //consist file temporary name, file extension and status(file type is correct or not) and post data from upload form
+     * @param $response array  response message and status
+     */
+    function process_engg_notification_upload_file($data) {        
+        log_message('info', __FUNCTION__ . " => process upload engg notify file");
+        $sheetUniqueRowData = array();
+        $response = array();
+        //column which must be present in the  upload engg file
+        $header_column_need_to_be_present = array('phone','message');        
+        //check if required column is present in upload file header
+        $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
+                
+        if ($check_header['status']) {
+            $invalid_data = array();
+            $flag = 1;
+            $valid_flage = 1;
+            $msg = "";
+
+            for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+ 
+                $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                
+                if (!empty(array_filter($sanitizes_row_data))) {
+                    $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                   // $rowData['agent_id'] = $this->session->userdata('agent_id');;
+
+        } 
+         
+        $rowData  = array_filter($rowData);   
+        $insert_id = $this->engineer_model->insert_engg_notification_data($rowData);
+        $engg_details = $this->engineer_model->get_engineers_details(array('phone'=>$rowData['phone']),"*");
+        if (!empty($engg_details[0]['device_firebase_token']) && $insert_id) {
+                log_message('info', __FUNCTION__ . 'Notification Data inserted');
+
+                $url = base_url()."employee/engineer/send_notication/".$engg_details[0]['device_firebase_token']; 
+                $requestData_post = array(
+                    'text'=>trim($rowData['message'])
+                );
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_HEADER, false);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POST, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData_post));
+                $curl_response = curl_exec($ch);
+                curl_close($ch);
+
+        }else{
+            $data_noti=array('notified'=>0);
+            $this->engineer_model->update_engg_notification_data($data_noti,$insert_id);
+
+        }
+             
+   
+}
+ }
+            $response['status'] = TRUE;
+            $response['message'] = "Notific";
+        return $response;
+    }
+
+
+
 
     /**
      * @desc: This function is used to process the inventory data 
