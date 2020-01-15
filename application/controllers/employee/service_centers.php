@@ -5836,8 +5836,8 @@ class Service_centers extends CI_Controller {
 
         $output = array(
             "draw" => $post['draw'],
-            "recordsTotal" => $this->service_centers_model->count_all_defective_parts_shipped_by_sf_list($where),
-            "recordsFiltered" => $this->service_centers_model->count_defective_parts_shipped_by_sf_list($where),
+            "recordsTotal" => $this->service_centers_model->count_all_defective_parts_shipped_by_sf_list($where, $group_by, $order_by, $post),
+            "recordsFiltered" => $this->service_centers_model->count_defective_parts_shipped_by_sf_list($where, $group_by, $order_by, $post),
             "data" => $data
         );
 

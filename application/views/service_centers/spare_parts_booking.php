@@ -232,8 +232,18 @@ if ($this->uri->segment(3)) {
         });
 
         $("#datatable1").dataTable({
-            "pageLength": 200,
-            "lengthMenu": [[200, 500,-1], [200, 500, "All"]],
+            "pageLength": 100,
+            dom: 'Bfrtip',
+            // Configure the drop down options.
+            lengthMenu: [
+            [ 100, 200,500, -1 ],
+            [ '100', '200', '500', 'All' ]
+            ],
+            // Add to buttons the pageLength option.
+            buttons: [
+            'pageLength','excel',
+            ]
+
         });
     });
     

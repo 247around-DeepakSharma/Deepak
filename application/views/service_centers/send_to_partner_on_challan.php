@@ -297,17 +297,16 @@
 
 <script>
     $('#defective_parts_send_to_partner_on_challan').DataTable({
-        pageLength:500,
+        pageLength:100,
         dom: 'Bfrtip',
+        // Configure the drop down options.
+        lengthMenu: [
+            [ 100, 200,500, -1 ],
+            [ '100', '200', '500', 'All' ]
+        ],
+        // Add to buttons the pageLength option.
         buttons: [
-            {
-                extend: 'excel',
-                text: 'Export',
-                exportOptions: {
-                    columns: [ 0, 1, 2,3,4, 5,6,7,8,9,10,11]
-                },
-                title: 'defective_parts_send_to_partner'
-            }
+            'pageLength','excel',
         ]
     });
     
