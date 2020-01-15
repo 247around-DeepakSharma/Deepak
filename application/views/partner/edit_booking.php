@@ -848,6 +848,11 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                           $("#priceList").html(data1.table);
                           $("#upcountry_data").val(data1.upcountry_data);
                           $('#submitform').attr('disabled',false);
+                          var isRepeatChecked = $('.repeat_Service:checkbox:checked').length;
+                          if(isRepeatChecked > 0)
+                          {
+                            $("#repeat_reason_holder").show();
+                          }        
                           
                         if(blDisableAcCategoryOptions == '1') {
                             $('.price_checkbox[data-price_tag="Gas Recharge (R410) - In Warranty"]').prop('disabled', true);
