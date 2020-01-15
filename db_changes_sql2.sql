@@ -1736,5 +1736,19 @@ ALTER TABLE `paytm_transaction_callback` ADD `engineer_id` INT(11) NULL DEFAULT 
 
 
 ---Abhishek 10-01-2019
+ 
 ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `device_id`;
  
+ALTER TABLE `engineer_details` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `update_date`;
+
+CREATE TABLE `247around`.`engineer_notification_data` ( `id` INT NOT NULL ,  `phone` VARCHAR(20) NULL DEFAULT NULL ,  `message` TEXT NULL DEFAULT NULL ,  `agent_id` INT(11) NULL DEFAULT NULL ,  `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ) ENGINE = InnoDB;
+
+ALTER TABLE `engineer_notification_data` ADD `amount` INT(11) NOT NULL DEFAULT '0' AFTER `phone`;
+ALTER TABLE `engineer_notification_data` ADD `incentive_id` INT(11) NOT NULL DEFAULT '0' AFTER `id`;
+ALTER TABLE `engineer_notification_data` DROP `incentive_id`;
+
+RENAME TABLE `247around`.`engineer_notification_data` TO `247around`.`engg_notification_detail`;
+ALTER TABLE `engg_notification_detail` DROP `amount`;
+ALTER TABLE `engg_notification_detail` ADD `id` INT(11) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
+ALTER TABLE `engg_notification_detail` DROP `id`;
+ALTER TABLE `engg_notification_detail` ADD `notified` INT(5) NOT NULL DEFAULT '1' AFTER `message`;

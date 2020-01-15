@@ -1142,7 +1142,7 @@ class engineerApi extends CI_Controller {
     function processEngineerLogin(){ 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
          log_message('info', "Request Login: " .print_r($requestData,true));
-         log_message("info",$requestData);   /// logging data 
+        
         $data = $this->dealer_model->entity_login(array("entity" => "engineer", 
             "active" =>1, "user_id" => $requestData["mobile"]));
         if(!empty($data)){ 
@@ -1150,6 +1150,11 @@ class engineerApi extends CI_Controller {
             "active" =>1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if(!empty($login)){
                 $engineer  = $this->engineer_model->get_engineers_details(array("id" => $login[0]['entity_id'], "active" => 1), "service_center_id, name");
+                $engg_data=array(
+                    'device_firebase_token'=>$requestData['device_firebase_token']
+                );
+                $engg_where = array('id' => $engineer[0]['id']);
+                $engineer_update_id = $this->vendor_model->update_engineer($engg_where, $engg_data);
                 if(!empty($engineer)){
                     $sc_agent = $this->service_centers_model->get_sc_login_details_by_id($engineer[0]['service_center_id']);
                     $data[0]['service_center_id'] = $engineer[0]['service_center_id'];
@@ -1158,7 +1163,7 @@ class engineerApi extends CI_Controller {
                     $device['deviceInfo'] = $requestData["deviceInfo"];
                     $device["device_id"] = $this->deviceId;
                     $device['app_version'] = $requestData["app_version"];
-                    $device['device_firebase_token']=$requestData['device_firebase_token'];   /// Server Error problem
+                    // $device['device_firebase_token']=$requestData['device_firebase_token'];   /// Server Error problem
                     $this->partner_model->update_login_details($device, array("agent_id" => $data[0]['agent_id'])); ///  Firebase device token ///
                     $this->jsonResponseString['response'] = $data[0];
                     $this->sendJsonResponse(array('0000', 'success'));
@@ -2351,7 +2356,7 @@ class engineerApi extends CI_Controller {
                 }
 
                 //Call curl for updating spare parts using code from where service center ask for spare parts
-                $url = base_url()."employee/service_centers/update_spare_parts"; 
+                $url = base_url()."employee/service_centers/transfer_incentive_to_paytm_wallet"; 
                 $ch = curl_init($url);
                 curl_setopt($ch, CURLOPT_HEADER, false);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
