@@ -459,12 +459,18 @@
    function chkPrice(curval,maxval){
     //alert(curval.val());
     let flg=true;
-        if(!isNaN(curval.val())){
-            if(parseFloat(curval.val())<0) {
-                alert('Cannot be less than 0.00');
+        var cntrl_id = $(curval).attr('id');
+        var arr_cntrl_id = cntrl_id.split("_");
+        cntrl_id = arr_cntrl_id[arr_cntrl_id.length - 2]+"_"+arr_cntrl_id[arr_cntrl_id.length - 1];
+        var partner_discount = $("#partner_paid_basic_charges_"+cntrl_id).val();
+        var around_discount = $("#discount_"+cntrl_id).val();
+        var total_discount = parseFloat(partner_discount) + parseFloat(around_discount);
+        if(!isNaN(curval.val()) && !isNaN(total_discount)){
+            if(parseFloat(curval.val())<0 || parseFloat(total_discount)<0) {
+                alert('Discount Cannot be less than 0.00');
                flg=false;
-            } else if(parseFloat(curval.val())>parseFloat(maxval)) {
-               alert('Cannot be more than Std.Charges');
+            } else if((parseFloat(curval.val())>parseFloat(maxval)) || (parseFloat(total_discount)>parseFloat(maxval))) {
+               alert('Total Discount '+total_discount+' Cannot be more than Std.Charges');
                flg=false;
             }
         } else {
