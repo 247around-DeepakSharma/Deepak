@@ -590,7 +590,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                                     } else {
                                                                         echo $around_net_payable;
                                                                     }?>"
-                                                                placeholder='Enter discount' readonly />
+                                                                placeholder='Enter discount' readonly onblur='chkPrice($(this),<?php echo $ct ?>)'/>
                                                             </td>
                                                             <?php } else{
                                                             ?>
@@ -829,7 +829,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                                         } else {
                                                                             echo $around_net_payable;
                                                                         }?>"
-                                                                    placeholder='Enter discount' readonly />
+                                                                    placeholder='Enter discount' readonly onblur='chkPrice($(this),<?php echo $ct ?>)'/>
                                                                 </td>
                                                                 <td>
                                                                    
@@ -1352,12 +1352,17 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     function chkPrice(curval,maxval){
     //alert(curval.val());
     let flg=true;
-        if(!isNaN(curval.val())){
-            if(parseFloat(curval.val())<0) {
-                alert('Cannot be less than 0.00');
+        var cntrl_id = $(curval).attr('id');
+        cntrl_id= cntrl_id.substr(cntrl_id.length - 3)
+        var partner_discount = $("#partner_paid_basic_charges_"+cntrl_id).val();
+        var around_discount = $("#discount_"+cntrl_id).val();
+        var total_discount = parseFloat(partner_discount) + parseFloat(around_discount);
+        if(!isNaN(curval.val()) && !isNaN(total_discount)){
+            if(parseFloat(curval.val())<0 || parseFloat(total_discount)<0) {
+                alert('Discount Cannot be less than 0.00');
                flg=false;
-            } else if(parseFloat(curval.val())>parseFloat(maxval)) {
-               alert('Cannot be more than Std.Charges');
+            } else if((parseFloat(curval.val())>parseFloat(maxval)) || (parseFloat(total_discount)>parseFloat(maxval))) {
+               alert('Total Discount '+total_discount+' Cannot be more than Std.Charges');
                flg=false;
             }
         } else {
