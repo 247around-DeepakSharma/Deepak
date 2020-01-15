@@ -3031,7 +3031,7 @@ class engineerApi extends CI_Controller {
         }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings); 
 
-        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
+        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation','Tech Visit'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
         $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
         $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
         // If no data found against warranty, consider booking as of Out Warranty
