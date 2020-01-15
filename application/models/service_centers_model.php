@@ -493,7 +493,7 @@ class Service_centers_model extends CI_Model {
         if($order_by){
             $this->db->order_by($order_by, FALSE);
         }
-        if($limit){
+        if($limit > 0){
             $this->db->limit($limit, $offset);
         }
         $query = $this->db->get();
@@ -537,6 +537,64 @@ class Service_centers_model extends CI_Model {
 
         return $query->num_rows();
 
+    }
+    
+     /**
+     *  @desc : This function is used to get total defective parts shipped  by SF
+     *  @param : $where 
+     *  @return: Array()
+     */
+    public function count_all_defective_parts_shipped_by_sf_list($where, $group_by, $order_by, $post) {
+        $this->_spare_parts_booking_query($where, 'count(distinct(spare_parts_details.id)) as numrows');
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+               
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    /**
+     *  @desc : This function is used to get total filtered defective parts shipped  by SF
+     *  @param : $where 
+     *  @return: Array()
+     */
+    function count_defective_parts_shipped_by_sf_list($where, $group_by, $order_by, $post){
+        $this->_spare_parts_booking_query($where, 'count(distinct(spare_parts_details.id)) as numrows');
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+                
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
     }
     
     /**

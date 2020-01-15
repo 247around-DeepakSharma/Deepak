@@ -5843,10 +5843,10 @@ class Service_centers extends CI_Controller {
         $group_by = "spare_parts_details.id";
         $limit = $post['length'];
         $offset = $post['start'];
-        $post['column_search'] = array('spare_parts_details.booking_id');
+        $post['column_search'] = array('spare_parts_details.booking_id', 'spare_parts_details.awb_by_sf','service_centres.name');
         $order_by = "spare_parts_details.defective_part_shipped_date DESC, spare_parts_details.booking_id";
         $list = $this->service_centers_model->get_spare_parts_booking($where, $select, $group_by, $order_by, $offset, $limit, 0, NULL, $post);
-
+  
         $no = $post['start'];
         $data=array();
         //$no =0;
@@ -5859,8 +5859,8 @@ class Service_centers extends CI_Controller {
 
         $output = array(
             "draw" => $post['draw'],
-            "recordsTotal" => count($data),
-            "recordsFiltered" => count($data),
+            "recordsTotal" => $this->service_centers_model->count_all_defective_parts_shipped_by_sf_list($where, $group_by, $order_by, $post),
+            "recordsFiltered" => $this->service_centers_model->count_defective_parts_shipped_by_sf_list($where, $group_by, $order_by, $post),
             "data" => $data
         );
 
@@ -8289,7 +8289,7 @@ class Service_centers extends CI_Controller {
                     'partner_id' => $form_details[0]['partner_id'],
                     'is_micro_wh' => $form_details[0]['is_micro_wh'],
                     'purchase_invoice_id' => $form_details[0]['purchase_invoice_id'],
-                    'model_number_shipped' => $form_details[0]['purchase_invoice_id'],
+                    'model_number_shipped' => $form_details[0]['model_number_shipped'],
                     'parts_shipped' => $form_details[0]['parts_shipped'],
                     'shipped_parts_type' => $form_details[0]['shipped_parts_type'],
                     'shipped_date' => $form_details[0]['shipped_date'],
@@ -8317,7 +8317,7 @@ class Service_centers extends CI_Controller {
                     'partner_id' => $to_details[0]['partner_id'],
                     'is_micro_wh' => $to_details[0]['is_micro_wh'],
                     'purchase_invoice_id' => $to_details[0]['purchase_invoice_id'],
-                    'model_number_shipped' => $to_details[0]['purchase_invoice_id'],
+                    'model_number_shipped' => $to_details[0]['model_number_shipped'],
                     'parts_shipped' => $to_details[0]['parts_shipped'],
                     'shipped_parts_type' => $to_details[0]['shipped_parts_type'],
                     'shipped_date' => $to_details[0]['shipped_date'],

@@ -73,6 +73,7 @@ class engineerApi extends CI_Controller {
 
             $jsonRequestData = $_POST['request'];
 
+
             $requestData = json_decode($jsonRequestData, true);
             
             $this->token = $requestData['token'];
@@ -1140,6 +1141,8 @@ class engineerApi extends CI_Controller {
 
     function processEngineerLogin(){ 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
+         log_message('info', "Request Login: " .print_r($requestData,true));
+         log_message("info",$requestData);   /// logging data 
         $data = $this->dealer_model->entity_login(array("entity" => "engineer", 
             "active" =>1, "user_id" => $requestData["mobile"]));
         if(!empty($data)){ 
@@ -1155,7 +1158,8 @@ class engineerApi extends CI_Controller {
                     $device['deviceInfo'] = $requestData["deviceInfo"];
                     $device["device_id"] = $this->deviceId;
                     $device['app_version'] = $requestData["app_version"];
-                    $this->partner_model->update_login_details($device, array("agent_id" => $data[0]['agent_id']));
+                    $device['device_firebase_token']=$requestData['device_firebase_token'];   /// Server Error problem
+                    $this->partner_model->update_login_details($device, array("agent_id" => $data[0]['agent_id'])); ///  Firebase device token ///
                     $this->jsonResponseString['response'] = $data[0];
                     $this->sendJsonResponse(array('0000', 'success'));
                 } else {
@@ -3027,7 +3031,7 @@ class engineerApi extends CI_Controller {
         }
         $arrBookingsWarrantyStatus = $this->warranty_utilities->get_bookings_warranty_status($arrBookings); 
 
-        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
+        $arr_warranty_status = ['IW' => ['In Warranty', 'Presale Repair', 'AMC', 'Repeat', 'Installation','Tech Visit'], 'OW' => ['Out Of Warranty', 'Out Warranty', 'AMC', 'Repeat'], 'EW' => ['Extended', 'AMC', 'Repeat']];
         $arr_warranty_status_full_names = array('IW' => 'In Warranty', 'OW' => 'Out Of Warranty', 'EW' => 'Extended Warranty');
         $warranty_checker_status = $arrBookingsWarrantyStatus[$booking_id];
         // If no data found against warranty, consider booking as of Out Warranty

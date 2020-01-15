@@ -40,7 +40,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     <?php } ?>
     
     <?php if(!empty($str_disabled)) { ?> 
-    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, .price_checkbox, #source_code, #partner_source, #service_id {
+    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, #source_code, #partner_source, #service_id {
         pointer-events : none !important;
         background : #eee !important;
     }    
@@ -140,8 +140,9 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                             <?php
                                                 $flag = 0;
                                                 foreach ($city as $key => $cites) {
+                                                    $selected_city = !empty($booking_history[0]['city']) ? strtolower($booking_history[0]['city']) : "";
                                                     ?>
-                                            <option <?php if(strtolower($cites['district']) == strtolower($booking_history[0]['city'])){ echo "Selected"; $flag = 1; } else {if($is_repeat){echo 'disabled';}}?>><?php echo $cites['district']; ?></option>
+                                            <option <?php if(strtolower($cites['district']) == $selected_city){ echo "Selected"; $flag = 1; } else {if($is_repeat){echo 'disabled';}}?>><?php echo $cites['district']; ?></option>
                                             <?php }
                                                 ?>
                                            <?php if($flag == 0){ ?>
@@ -465,10 +466,13 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                 <div class="select-model-div">
                                                     <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
                                                         <option selected disabled>Select Appliance Model</option>
-                                                        <?php foreach ($model[0] as $value) { ?>
-                                                        <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
-                                                            ><?php echo $value['model']; ?></option>
-                                                        <?php } ?>
+                                                        <?php
+                                                        if(!empty($model[0])){
+                                                            foreach ($model[0] as $value) { ?>
+                                                            <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
+                                                                ><?php echo $value['model']; ?></option>
+                                                            <?php }                                                        
+                                                        } ?>
                                                     </select>
                                                 </div>
                                             </div>

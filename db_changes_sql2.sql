@@ -1713,3 +1713,7 @@ update service_centres set asm_id = 10181 where id IN (204,205,207,294,297,320,3
 
 --Abhay 06-01-2020
 ALTER TABLE `paytm_transaction_callback` ADD `engineer_id` INT(11) NULL DEFAULT NULL AFTER `response_api`;
+
+
+---Abhishek 10-01-2019
+ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `device_id`;
