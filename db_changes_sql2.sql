@@ -1716,7 +1716,6 @@ ALTER TABLE `paytm_transaction_callback` ADD `engineer_id` INT(11) NULL DEFAULT 
 
 
 ---Abhishek 10-01-2019
-
 ALTER TABLE `engineer_details` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `update_date`;
 CREATE TABLE `engineer_notification_detail` (
  `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1874,3 +1873,8 @@ ALTER TABLE accessories_product_description ADD update_date datetime DEFAULT NUL
 
 -- Kajal 25-02-2020
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'SF Accessories Invoice', NULL, 'employee/accessories/sf_accessories_invoice', '3', '69', 'accountant,accountmanager,admin,developer', 'main_nav', '1', CURRENT_TIMESTAMP);
+
+ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `device_id`;
+
+--Ankit 15-01-2019
+ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT NULL AFTER consumed_part_status_id;
