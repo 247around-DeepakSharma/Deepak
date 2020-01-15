@@ -295,6 +295,7 @@ class File_upload extends CI_Controller {
  }
             $response['status'] = TRUE;
             $response['message'] = "Notific";
+            $response['redirect_to'] = 'employee/engineer/upload_engg_notification_excel';
         return $response;
     }
 
