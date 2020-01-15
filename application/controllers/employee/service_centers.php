@@ -1886,6 +1886,9 @@ class Service_centers extends CI_Controller {
                     $data['nrn_flag'] = 1;
                 }
 
+                $data['spare_parts_details'] = $this->partner_model->get_spare_parts_by_any('spare_parts_details.*, inventory_master_list.part_number', ['booking_id' => $booking_id, 'spare_parts_details.status != "' . _247AROUND_CANCELLED . '"' => NULL, 'parts_shipped is not null' => NULL, 'consumed_part_status_id is null' => NULL], FALSE, FALSE, FALSE, ['is_inventory' => true]);
+                $data['spare_consumed_status'] = $this->reusable_model->get_search_result_data('spare_consumption_status', 'id, consumed_status,status_description,tag', ['active' => 1], NULL, NULL, ['consumed_status' => SORT_ASC], NULL, NULL);
+                
                 $this->load->view('service_centers/header');
                 $this->load->view('service_centers/get_update_form', $data);
             } else {
@@ -2177,6 +2180,7 @@ class Service_centers extends CI_Controller {
                 CASE SPARE_PARTS_REQUIRED:
                 CASE SPARE_OOW_EST_REQUESTED:
                     log_message('info', __FUNCTION__ . " " . $reason . " :" . $this->session->userdata('service_center_id'));
+                    $this->update_part_consumption($this->input->post());
                     $this->update_spare_parts();
                     break;
 
@@ -2329,7 +2333,26 @@ class Service_centers extends CI_Controller {
             return true;
         }
     }
-
+    
+    /**
+     * Update consumption at the time of spare part request.
+     * @param type $post
+     */
+    function update_part_consumption($post) {
+        if(!empty($post['spare_consumption_status'])) { 
+            foreach($post['spare_consumption_status'] as $spare_id => $consumed_status_id) {
+                $update_data = [];
+                $update_data['spare_parts_details.consumed_part_status_id'] = $consumed_status_id;
+                if(!empty($post['consumption_remarks']) && !empty($post['consumption_remarks'][$spare_id])) {
+                    $update_data['spare_parts_details.consumption_remarks'] = $post['consumption_remarks'][$spare_id];
+                }
+                $this->service_centers_model->update_spare_parts(array('spare_parts_details.id' => $spare_id), $update_data);
+            }
+        }
+        
+        return true;
+    }
+    
     /**
      * @desc: This is used to insert spare parts details into table provided by SF
      * IF Booking date is not empty means its 247Around booking. We reschedule that booking.
