@@ -1717,3 +1717,6 @@ ALTER TABLE `paytm_transaction_callback` ADD `engineer_id` INT(11) NULL DEFAULT 
 
 ---Abhishek 10-01-2019
 ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `device_id`;
+
+--Ankit 15-01-2019
+ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT NULL AFTER consumed_part_status_id;
