@@ -262,5 +262,12 @@ class Warranty extends CI_Controller {
             echo "success";
         }
     }
+    
+    
+    public function add_warranty_plan()
+    {
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('warranty/add_warranty_plan');
+    }
  
 }
