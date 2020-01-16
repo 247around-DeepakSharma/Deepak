@@ -1141,8 +1141,7 @@ class engineerApi extends CI_Controller {
 
     function processEngineerLogin(){ 
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
-         log_message('info', "Request Login: " .print_r($requestData,true));
-        
+         //log_message('info', "Request Login: " .print_r($requestData,true));
         $data = $this->dealer_model->entity_login(array("entity" => "engineer", 
             "active" =>1, "user_id" => $requestData["mobile"]));
         if(!empty($data)){ 
@@ -1153,8 +1152,8 @@ class engineerApi extends CI_Controller {
                 $engg_data=array(
                     'device_firebase_token'=>$requestData['device_firebase_token']
                 );
-                $engg_where = array('id' => $engineer[0]['id']);
-                $engineer_update_id = $this->vendor_model->update_engineer($engg_where, $engg_data);
+                $engg_where = array('id' => $login[0]['entity_id']);
+                $this->vendor_model->update_engineer($engg_where, $engg_data);
                 if(!empty($engineer)){
                     $sc_agent = $this->service_centers_model->get_sc_login_details_by_id($engineer[0]['service_center_id']);
                     $data[0]['service_center_id'] = $engineer[0]['service_center_id'];
