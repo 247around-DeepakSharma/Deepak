@@ -2284,6 +2284,11 @@ $(".serial_no_edit").click(function() {
         var data_value = $(this).siblings("input").val();
         $(this).siblings(".serial_no_text").text($(this).siblings("input").val());
         
+        if(data_value == ''){
+          alert("Detail should not be blank."); 
+          return false;  
+        }
+        
         $.ajax({
             url: "<?php echo base_url() ?>employee/inventory/update_spare_parts_column",
             type: "POST",
@@ -2311,7 +2316,7 @@ $(".serial_no_edit").click(function() {
                     }
                 } else {
                     alert("There is a problem to update");
-                    alert(data);
+                    
                 }
                 
             }
