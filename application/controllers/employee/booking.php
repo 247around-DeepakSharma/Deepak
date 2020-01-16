@@ -1504,7 +1504,7 @@ class Booking extends CI_Controller {
         if (!empty($result)) {
             if($is_sf_panel)
             {
-                $html = "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Final Charges</th><th>Selected Services</th></tr></thead>";
+                $html = "<thead><tr><th>Service Category</th><th style='display:none;'>Std. Charges</th><th>Customer Net Payable</th><th>Selected Services</th></tr></thead>";
             }
             elseif(!$is_saas){
                 $html = "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr></thead>";
@@ -1525,7 +1525,7 @@ class Booking extends CI_Controller {
                 }
                 else
                 {
-                    $html .= "<td>" . $prices['customer_total'] . "</td>";
+                    $html .= "<td style='display:none;'>" . $prices['customer_total'] . "</td>";
                     $html .= "<td>" . $prices['customer_net_payable'] . "<input  type='hidden' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/></td>";
                 }
                 
