@@ -8324,7 +8324,7 @@ class Service_centers extends CI_Controller {
                     'partner_id' => $to_details[0]['partner_id'],
                     'is_micro_wh' => $to_details[0]['is_micro_wh'],
                     'purchase_invoice_id' => $to_details[0]['purchase_invoice_id'],
-                    'model_number_shipped' => $to_details[0]['model_number_shipped'],
+                    'model_number_shipped' => $to_details[0]['model_number'], ////  during part requested shipped data NA
                     'parts_shipped' => $to_details[0]['parts_shipped'],
                     'shipped_parts_type' => $to_details[0]['shipped_parts_type'],
                     'shipped_date' => $to_details[0]['shipped_date'],

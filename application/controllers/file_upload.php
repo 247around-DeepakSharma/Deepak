@@ -4,18 +4,19 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 ini_set('memory_limit', -1);
+
 class File_upload extends CI_Controller {
-    
+
     //global variable
     var $Columfailed = "";
     var $dataToInsert = array();
     var $not_exists_model = array();
     var $not_exists_parts = array();
     var $remap_bom_array = array();
-    
+
     function __Construct() {
         parent::__Construct();
-        
+
         //load library
         $this->load->library('PHPReport');
         $this->load->library('miscelleneous');
@@ -23,7 +24,7 @@ class File_upload extends CI_Controller {
         $this->load->library('table');
         $this->load->library('invoice_lib');
         $this->load->library('booking_utilities');
-        
+
         //load model
         $this->load->model('inventory_model');
         $this->load->model('partner_model');
@@ -34,7 +35,6 @@ class File_upload extends CI_Controller {
         $this->load->helper(array('form', 'url', 'file', 'array'));
     }
 
-    
     /** @desc: This function is used to process the upload file
      * @param: void
      * @return JSON
@@ -43,13 +43,13 @@ class File_upload extends CI_Controller {
 
         log_message('info', __FUNCTION__ . "=> File Upload Process Begin " . print_r($_POST, true));
         //get file extension and file tmp name
-        $file_status = $this->get_upload_file_type();         
-        $redirect_to = $this->input->post('redirect_url'); 
+        $file_status = $this->get_upload_file_type();
+        $redirect_to = $this->input->post('redirect_url');
         if ($file_status['file_name_lenth']) {
             if ($file_status['status']) {
                 //get file header
                 $data = $this->read_upload_file_header($file_status);
-                $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);              
+                $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
                 $data['post_data'] = $this->input->post();
                 if (!empty($data['post_data']['partner_id'])) {
                     $data['post_data']['entity_type'] = "partner";
@@ -99,7 +99,7 @@ class File_upload extends CI_Controller {
                             $response['status'] = FALSE;
                             $response['message'] = 'Something Went wrong!!!';
                     }
-                   
+
                     //save file into database send send response based on file upload status  
                     if (isset($response['status']) && ($response['status'])) {
 
@@ -115,7 +115,7 @@ class File_upload extends CI_Controller {
                     $this->send_email($data, $response);
                     if (isset($response['status']) && ($response['status'])) {
                         $redirect_to = $response['redirect_to'];
-                        $this->session->set_flashdata('details',$response['message']); 
+                        $this->session->set_flashdata('details', $response['message']);
                         redirect(base_url() . $redirect_to);
                     }
                 } else {
@@ -139,8 +139,8 @@ class File_upload extends CI_Controller {
      * @param void
      * @param $response array   //consist file temporary name, file extension and status(file type is correct or not)
      */
-    private function get_upload_file_type(){ 
-        log_message('info', __FUNCTION__ . "=> getting upload file type"); 
+    private function get_upload_file_type() {
+        log_message('info', __FUNCTION__ . "=> getting upload file type");
         if (!empty($_FILES['file']['name']) && strlen($_FILES['file']['name']) > 0 && strlen($_FILES['file']['name']) <= 44) {
             if (!empty($_FILES['file']['name']) && $_FILES['file']['size'] > 0) {
                 $pathinfo = pathinfo($_FILES["file"]["name"]);
@@ -155,12 +155,11 @@ class File_upload extends CI_Controller {
                         $response['file_ext'] = 'Excel5';
                         break;
                 }
-                if(!empty($response['file_ext'])) {
+                if (!empty($response['file_ext'])) {
                     $response['status'] = True;
                     $response['file_name_lenth'] = True;
                     $response['message'] = 'File has been uploaded successfully. ';
-                }
-                else {
+                } else {
                     $response['status'] = False;
                     $response['file_name_lenth'] = false;
                     $response['message'] = 'File type is not supported. Allowed extentions are xls or xlsx. ';
@@ -184,7 +183,7 @@ class File_upload extends CI_Controller {
         }
         return $response;
     }
-    
+
     /**
      * @desc: This function is used to get the file header
      * @param $file array  //consist file temporary name, file extension and status(file type is correct or not)
@@ -230,98 +229,91 @@ class File_upload extends CI_Controller {
         return $response;
     }
 
-
-
-     /**
+    /**
      * @desc: This function is used to process the engg notifications 
      * @param $data array  //consist file temporary name, file extension and status(file type is correct or not) and post data from upload form
      * @param $response array  response message and status
      */
-    function process_engg_notification_upload_file($data) {        
+    function process_engg_notification_upload_file($data) {
         log_message('info', __FUNCTION__ . " => process upload engg notify file");
         $sheetUniqueRowData = array();
         $response = array();
         //column which must be present in the  upload engg file
-        $header_column_need_to_be_present = array('phone','message');        
+        $header_column_need_to_be_present = array('phone', 'message');
+        $coloumn_need_count = count($header_column_need_to_be_present);
+        $excel_col_count = count(array_filter($data['header_data']));
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
-                
-        if ($check_header['status']) {
+
+        if ($check_header['status'] && ($excel_col_count == $coloumn_need_count)) {
             $invalid_data = array();
             $flag = 1;
             $valid_flage = 1;
             $msg = "";
-
+            $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_SUCCESS_STATUS, "default", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
- 
+
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
-                
+
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                   // $rowData['agent_id'] = $this->session->userdata('agent_id');;
+                    // $rowData['agent_id'] = $this->session->userdata('agent_id');;
+                }
 
-        } 
-         
-        $rowData  = array_filter($rowData);   
-        $insert_id = $this->engineer_model->insert_engg_notification_data($rowData);
-        $engg_details = $this->engineer_model->get_engineers_details(array('phone'=>$rowData['phone']),"*");
-        if (!empty($engg_details[0]['device_firebase_token']) && $insert_id) {
-                log_message('info', __FUNCTION__ . 'Notification Data inserted');
 
-                $url = base_url()."employee/engineer/send_notication/".$engg_details[0]['device_firebase_token']; 
-                $requestData_post = array(
-                    'text'=>trim($rowData['message'])
-                );
-                $ch = curl_init($url);
-                curl_setopt($ch, CURLOPT_HEADER, false);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_POST, true);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData_post));
-                $curl_response = curl_exec($ch);
-                curl_close($ch);
+                $engg_details = $this->engineer_model->get_engineers_details(array('phone' => $rowData['phone']), "*");
+                if (!empty($engg_details[0]['device_firebase_token'])) {
+                    log_message('info', __FUNCTION__ . 'Notification Data inserted');
 
-        }else{
-            $data_noti=array('notified'=>0);
-            $this->engineer_model->update_engg_notification_data($data_noti,$insert_id);
-
+                    $url = base_url() . "employee/engineer/send_notication/" . $engg_details[0]['device_firebase_token'];
+                    $requestData_post = array(
+                        'text' => trim($rowData['message']),
+                        'phone' => $rowData['phone']
+                    );
+                    $ch = curl_init($url);
+                    curl_setopt($ch, CURLOPT_HEADER, false);
+                    curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
+                    curl_setopt($ch, CURLOPT_POST, true);
+                    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($requestData_post));
+                    $curl_response = curl_exec($ch);
+                    curl_close($ch);
+                }
+            }
+            echo 'success';
+        } else {
+            $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
+            echo 'error';
         }
-             
-   
-}
- }
-            $response['status'] = TRUE;
-            $response['message'] = "Notific";
-            $response['redirect_to'] = 'employee/engineer/upload_engg_notification_excel';
-        return $response;
+
+        exit;
+
+        //  return $response;
     }
-
-
-
 
     /**
      * @desc: This function is used to process the inventory data 
      * @param $data array  //consist file temporary name, file extension and status(file type is correct or not) and post data from upload form
      * @param $response array  response message and status
      */
-    function process_inventory_upload_file($data) {        
+    function process_inventory_upload_file($data) {
         log_message('info', __FUNCTION__ . " => process upload inventory file");
         $partner_id = $this->input->post('partner_id');
         $service_id = $this->input->post('service_id');
         $sheetUniqueRowData = array();
         $response = array();
-        if($data['saas_module'] == 1){
+        if ($data['saas_module'] == 1) {
             $around_margin = 'partner_margin';
-        }else{
+        } else {
             $around_margin = 'around_margin';
-        }       
-                
+        }
+
         //$file_appliance_arr = array();
         //column which must be present in the  upload inventory file
-        $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate', $around_margin, 'vendor_margin');        
+        $header_column_need_to_be_present = array('part_name', 'part_number', 'part_type', 'basic_price', 'hsn_code', 'gst_rate', $around_margin, 'vendor_margin');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
-                
+
         if ($check_header['status']) {
             $invalid_data = array();
             $flag = 1;
@@ -331,7 +323,7 @@ class File_upload extends CI_Controller {
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
-                
+
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
                     if ($data['saas_module'] == 1) {
@@ -339,13 +331,13 @@ class File_upload extends CI_Controller {
                     } else {
                         $margin = $rowData['around_margin'];
                     }
-                    
+
                     if (!empty($rowData['appliance']) && !empty($rowData['part_name']) && !empty($rowData['part_number']) &&
                             !empty($rowData['part_type']) && !empty($rowData['basic_price']) && ($rowData['basic_price'] > 0) &&
                             (!is_null($margin) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($margin >= 0) : ($margin > 0)) && $margin <= 30 ) &&
-                            (!is_null($rowData['vendor_margin']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['vendor_margin'] >= 0) : ($rowData['vendor_margin'] > 0)) && $rowData['vendor_margin'] <= 15 ) && 
+                            (!is_null($rowData['vendor_margin']) && ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($rowData['vendor_margin'] >= 0) : ($rowData['vendor_margin'] > 0)) && $rowData['vendor_margin'] <= 15 ) &&
                             ((isset($data['saas_module']) && ($data['saas_module'] == 1)) ? ($margin >= $rowData['vendor_margin'] || ($margin <= $rowData['vendor_margin'])) : ($margin >= $rowData['vendor_margin']))) {
-                        
+
                         $where['hsn_code'] = $rowData['hsn_code'];
 
                         $hsncode_data = $this->invoices_model->get_hsncode_details('id,hsn_code,gst_rate', $where);
@@ -408,36 +400,36 @@ class File_upload extends CI_Controller {
                     }
                 }
             }
-            
-           
+
+
             if ($flag == 1) {
 
                 if ($valid_flage == 1) {
                     $is_file_contains_unique_data = $this->check_unique_in_array_data($sheetUniqueRowData);
 
                     if ($is_file_contains_unique_data['status']) {
-                        if(!empty($this->dataToInsert)){
-                            foreach ($this->dataToInsert as $key=>$val){
+                        if (!empty($this->dataToInsert)) {
+                            foreach ($this->dataToInsert as $key => $val) {
                                 $part_type_return_val = null;
                                 $is_part_type_exists = false;
 
-                                if(isset($val['is_return'])){
+                                if (isset($val['is_return'])) {
                                     $is_part_type_exists = true;
                                     $part_type_return_val = $val['is_return'];
                                     unset($val['is_return']);
                                 }
 
-                                $where = array('inventory_master_list.entity_id' => $partner_id, 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING , 'part_number' => $val['part_number']);//, 'service_id' => $val['service_id']
+                                $where = array('inventory_master_list.entity_id' => $partner_id, 'inventory_master_list.entity_type' => _247AROUND_PARTNER_STRING, 'part_number' => $val['part_number']); //, 'service_id' => $val['service_id']
                                 $select = 'inventory_master_list.type, inventory_master_list.service_id, inventory_master_list.part_name, inventory_master_list.part_number';
                                 $inventory_details = $this->inventory_model->get_inventory_master_list_data($select, $where);
-                                                                              
-                                if(empty($inventory_details)) {
+
+                                if (empty($inventory_details)) {
                                     $insert_id = $this->inventory_model->insert_inventory_master_list_data($val);
-                                    log_message("info", __METHOD__. " safdsf ". $insert_id);
+                                    log_message("info", __METHOD__ . " safdsf " . $insert_id);
                                     if ($insert_id) {
                                         log_message("info", __METHOD__ . " inventory file data inserted succcessfully");
-                                        if($is_part_type_exists){
-                                            log_message("info", __METHOD__. " adding part type return mapping for the part type ", $val['type']);
+                                        if ($is_part_type_exists) {
+                                            log_message("info", __METHOD__ . " adding part type return mapping for the part type ", $val['type']);
 
                                             $part_type_mapping_data = array();
                                             $tmp_mapping_data = array();
@@ -448,24 +440,23 @@ class File_upload extends CI_Controller {
                                             $tmp_mapping_data['part_type'] = $val['type'];
                                             $tmp_mapping_data['is_return'] = $part_type_return_val;
 
-                                            array_push($part_type_mapping_data,$tmp_mapping_data);
+                                            array_push($part_type_mapping_data, $tmp_mapping_data);
 
                                             $part_type_mapping_id = $this->inventory_model->insert_part_type_mapping_batch($part_type_mapping_data);
 
-                                            if($part_type_mapping_id){
-                                                log_message("info", __METHOD__ . " part type mapping added succcessfully for ". $val['type'] . " with mapping id ". $part_type_mapping_id);
-                                            }else{
-                                                log_message("info", __METHOD__ . " part type mapping not added succcessfully for ". $val['type'] . " with mapping id ". $part_type_mapping_id);
+                                            if ($part_type_mapping_id) {
+                                                log_message("info", __METHOD__ . " part type mapping added succcessfully for " . $val['type'] . " with mapping id " . $part_type_mapping_id);
+                                            } else {
+                                                log_message("info", __METHOD__ . " part type mapping not added succcessfully for " . $val['type'] . " with mapping id " . $part_type_mapping_id);
                                             }
-                                        }else{
-                                            log_message("info", __METHOD__. " no value provided for part type return for part type ". $val['type']);
+                                        } else {
+                                            log_message("info", __METHOD__ . " no value provided for part type return for part type " . $val['type']);
                                         }
-                                        
                                     }
                                 } else {
                                     $rows_affected = 0;
-                                    if(($inventory_details[0]['service_id'] === $val['service_id'])) {
-                                        
+                                    if (($inventory_details[0]['service_id'] === $val['service_id'])) {
+
                                         $inventory_data = array("type" => $val['type'], 'description' => $val['description'], 'hsn_code' => $val['hsn_code'],
                                             'gst_rate' => $val['gst_rate'], 'oow_around_margin' => $val['oow_around_margin'], 'oow_vendor_margin' => $val['oow_vendor_margin']);
                                         if ($data['saas_module'] == 1) {
@@ -473,8 +464,8 @@ class File_upload extends CI_Controller {
                                         }
                                         $rows_affected = $this->inventory_model->update_inventory_master_list_data($where, $inventory_data);
                                     }
-                                    if($rows_affected > 0) {
-                                        log_message("info", __METHOD__ . " Inventory Master List Type updated from ".$inventory_details[0]['type']." to ".$val['type']." of Part Number -> ".$val['part_number']." & Service ID -> ".$val['service_id']." .");
+                                    if ($rows_affected > 0) {
+                                        log_message("info", __METHOD__ . " Inventory Master List Type updated from " . $inventory_details[0]['type'] . " to " . $val['type'] . " of Part Number -> " . $val['part_number'] . " & Service ID -> " . $val['service_id'] . " .");
                                     }
                                 }
                             }
@@ -521,18 +512,15 @@ class File_upload extends CI_Controller {
         return $response;
     }
 
-
-
-/**
+    /**
 
      * @desc: This function is used to validate upload file header
      * @param $actual_header array this is actual header. It contains all the required column
      * @param $upload_file_header array this is upload file header. It contains all column from the upload file header
      * @param $return_data array
 
-**/
-
- function process_msl_upload_file($data) {
+     * */
+    function process_msl_upload_file($data) {
         log_message('info', __FUNCTION__ . " => process upload msl file");
         //  $partner_id = $this->input->post('partner_id');
         //  $service_id = $this->input->post('service_id');
@@ -571,72 +559,72 @@ class File_upload extends CI_Controller {
             );
 
             $this->table->set_template($template1);
-            $this->table->set_heading(array('Part Number', 'Invoice Id','HSN Code','Error Type'));
+            $this->table->set_heading(array('Part Number', 'Invoice Id', 'HSN Code', 'Error Type'));
             //get file data to process
             $post_data = array();
-            $error_type="";
+            $error_type = "";
             $reciver_entity_id = 0;
-            $error_array=array();
+            $error_array = array();
             for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                 $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                 $sanitizes_row_data = array_map('trim', $rowData_array[0]);
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                    if (!empty($rowData['sap_vendor_id']) && !empty($rowData['part_code'])  && !empty($rowData['quantity'])  && !empty($rowData['basic_price'])  && !empty($rowData['hsn_code']) && !empty($rowData['invoice_id']) && !empty($rowData['gst_rate']) && !empty($rowData['from_gst']) && !empty($rowData['to_gst'])) {
+                    if (!empty($rowData['sap_vendor_id']) && !empty($rowData['part_code']) && !empty($rowData['quantity']) && !empty($rowData['basic_price']) && !empty($rowData['hsn_code']) && !empty($rowData['invoice_id']) && !empty($rowData['gst_rate']) && !empty($rowData['from_gst']) && !empty($rowData['to_gst'])) {
                         $select = '*';
                         $where_part = array('part_number' => $rowData['part_code']);
                         $where_in_parts = array();
-                        
+
                         $part_details = $this->inventory_model->get_inventory_master_list_data($select, $where_part, $where_in_parts);
-                        if(empty($part_details)){
-                          $error_type = "Part not found in inventory"; 
-                          $error_array[] =$error_type;
-                          $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type);  
+                        if (empty($part_details)) {
+                            $error_type = "Part not found in inventory";
+                            $error_array[] = $error_type;
+                            $this->table->add_row($rowData['part_code'], $rowData['invoice_id'], $rowData['hsn_code'], $error_type);
                         }
                         $from_gst_data = $this->inventory_model->get_entity_gst_data('*', $where = array('gst_number' => $rowData['from_gst']));
-                        if(empty($from_gst_data)){
-                          $error_type = "From gst details not found";  
-                          $error_array[] =$error_type;
-                          $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type);
+                        if (empty($from_gst_data)) {
+                            $error_type = "From gst details not found";
+                            $error_array[] = $error_type;
+                            $this->table->add_row($rowData['part_code'], $rowData['invoice_id'], $rowData['hsn_code'], $error_type);
                         }
                         $to_gst_data = $this->inventory_model->get_entity_gst_data('*', $where = array('gst_number' => $rowData['to_gst']));
-                        if(empty($to_gst_data)){
-                          $error_type = "To gst details not found"; 
-                          $error_array[] =$error_type;
-                          $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type);
+                        if (empty($to_gst_data)) {
+                            $error_type = "To gst details not found";
+                            $error_array[] = $error_type;
+                            $this->table->add_row($rowData['part_code'], $rowData['invoice_id'], $rowData['hsn_code'], $error_type);
                         }
                         $wh_details = $this->vendor_model->getVendorContact(trim($rowData['sap_vendor_id']));
-                         if(empty($wh_details)){
-                          $error_type = "Warehouse details not found"; 
-                          $error_array[] =$error_type;
-                          $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type); 
+                        if (empty($wh_details)) {
+                            $error_type = "Warehouse details not found";
+                            $error_array[] = $error_type;
+                            $this->table->add_row($rowData['part_code'], $rowData['invoice_id'], $rowData['hsn_code'], $error_type);
                         }
 
 
                         $invoice_exist = $this->check_invoice_id_exists($rowData['invoice_id']);
                         if ($invoice_exist) {
-                          $error_type = "Duplicate Invoice details  found"; 
-                          $error_array[] =$error_type;
-                          $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type); 
+                            $error_type = "Duplicate Invoice details  found";
+                            $error_array[] = $error_type;
+                            $this->table->add_row($rowData['part_code'], $rowData['invoice_id'], $rowData['hsn_code'], $error_type);
                         }
 
                         $vendors_array[] = $rowData['sap_vendor_id'];
 
-                        if (!empty($part_details) && !empty($from_gst_data) && !empty($to_gst_data) && !empty($wh_details)  && !empty($part_details) ) {
-                              
+                        if (!empty($part_details) && !empty($from_gst_data) && !empty($to_gst_data) && !empty($wh_details) && !empty($part_details)) {
+
                             $reciver_entity_id = $wh_details[0]['id'];
-                            $is_wh_micro =0;
-                            if ($wh_details[0]['is_micro_wh']==1) {
-                               $is_wh_micro=2;
-                            }else if($wh_details[0]['is_wh']==1){
-                                $is_wh_micro=1;
+                            $is_wh_micro = 0;
+                            if ($wh_details[0]['is_micro_wh'] == 1) {
+                                $is_wh_micro = 2;
+                            } else if ($wh_details[0]['is_wh'] == 1) {
+                                $is_wh_micro = 1;
                             }
 
-                            $invoice_price=0;
+                            $invoice_price = 0;
 
                             if (isset($post_data[$rowData['invoice_id']])) {
-                                
-                                $invoice_price = round($invoice_price+$part_details[0]['price'],2);
+
+                                $invoice_price = round($invoice_price + $part_details[0]['price'], 2);
                                 $part = array(
                                     'shippingStatus' => 1,
                                     'service_id' => $part_details[0]['service_id'],
@@ -644,20 +632,19 @@ class File_upload extends CI_Controller {
                                     'part_number' => $part_details[0]['part_number'],
                                     'booking_id' => '',
                                     'quantity' => $rowData['quantity'],
-                                    'part_total_price' => round($part_details[0]['price'],2),
+                                    'part_total_price' => round($part_details[0]['price'], 2),
                                     'hsn_code' => $rowData['hsn_code'],
                                     'gst_rate' => $rowData['gst_rate'],
                                     'inventory_id' => $part_details[0]['inventory_id'],
                                 );
-                                if ($rowData['sap_vendor_id']!=$post_data[$rowData['invoice_id']]['wh_id']) {
+                                if ($rowData['sap_vendor_id'] != $post_data[$rowData['invoice_id']]['wh_id']) {
                                     $error_type = "Duplicate Invoice ID  found for Different Vendors";
-                                    $error_array[] =$error_type;
-                                    $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type); 
-
+                                    $error_array[] = $error_type;
+                                    $this->table->add_row($rowData['part_code'], $rowData['invoice_id'], $rowData['hsn_code'], $error_type);
                                 }
                                 array_push($post_data[$rowData['invoice_id']]['part'], $part);
                             } else {
-                                 
+
                                 $part = array(
                                     'shippingStatus' => 1,
                                     'service_id' => $part_details[0]['service_id'],
@@ -671,78 +658,72 @@ class File_upload extends CI_Controller {
                                     'inventory_id' => $part_details[0]['inventory_id'],
                                 );
                                 $parts_array[] = $part;
-                                $invoice_price = $invoice_price+$part_details[0]['price'];
+                                $invoice_price = $invoice_price + $part_details[0]['price'];
                                 $post_data[$rowData['invoice_id']]['is_wh_micro'] = $is_wh_micro;
                                 $post_data[$rowData['invoice_id']]['dated'] = date('Y-m-d H:i:s');
                                 $post_data[$rowData['invoice_id']]['invoice_id'] = $rowData['invoice_id'];
-                                $post_data[$rowData['invoice_id']]['invoice_amount'] = $invoice_price+(($invoice_price*$rowData['gst_rate'])/100);
+                                $post_data[$rowData['invoice_id']]['invoice_amount'] = $invoice_price + (($invoice_price * $rowData['gst_rate']) / 100);
                                 $post_data[$rowData['invoice_id']]['courier_name'] = $rowData['courier_name'];
                                 $post_data[$rowData['invoice_id']]['awb_number'] = $rowData['awb_number'];
                                 $post_data[$rowData['invoice_id']]['courier_shipment_date'] = $rowData['courier_shipment_date'];
                                 $post_data[$rowData['invoice_id']]['from_gst_number'] = $from_gst_data[0]['id'];
                                 $post_data[$rowData['invoice_id']]['to_gst_number'] = $to_gst_data[0]['id'];
-                                $post_data[$rowData['invoice_id']]['wh_id'] =$wh_details[0]['id'];
-                                $post_data[$rowData['invoice_id']]['partner_id'] =_247AROUND;
+                                $post_data[$rowData['invoice_id']]['wh_id'] = $wh_details[0]['id'];
+                                $post_data[$rowData['invoice_id']]['partner_id'] = _247AROUND;
                                 $post_data[$rowData['invoice_id']]['partner_name'] = $is_wh_micro;
                                 $post_data[$rowData['invoice_id']]['wh_name'] = $wh_details[0]['company_name'];
                                 $post_data[$rowData['invoice_id']]['invoice_tag'] = 'MSL';
-                                $post_data[$rowData['invoice_id']]['invoice_file'] =false;
+                                $post_data[$rowData['invoice_id']]['invoice_file'] = false;
                                 $post_data[$rowData['invoice_id']]['transfered_by'] = MSL_TRANSFERED_BY_PARTNER;
                                 $post_data[$rowData['invoice_id']]['is_defective_part_return_wh'] = 1;
                                 $post_data[$rowData['invoice_id']]['part'] = array();
-                                 array_push($post_data[$rowData['invoice_id']]['part'], $part);
+                                array_push($post_data[$rowData['invoice_id']]['part'], $part);
                             }
                         }
                     } else {
-                        $error_type ="Error in header";
+                        $error_type = "Error in header";
                         $error_array[] = $error_type;
-                        $this->table->add_row($rowData['part_code'],$rowData['invoice_id'],$rowData['hsn_code'],$error_type);
+                        $this->table->add_row($rowData['part_code'], $rowData['invoice_id'], $rowData['hsn_code'], $error_type);
                     }
                 }
             }
-            
-            
         } else {
-         $this->table->add_row("-","-","-","Excel header is Incorrect");
+            $this->table->add_row("-", "-", "-", "Excel header is Incorrect");
         }
 
         $err_msg = $this->table->generate();
 
         if (empty($error_array)) {
-             
-        foreach ($post_data as $post) {
-            
-            $post_json = json_encode($post, true);
-            $url = base_url() . 'employee/inventory/process_msl_upload_excel';
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_json);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
-            $response1 = curl_exec($ch);
-            curl_close($ch);
+
+            foreach ($post_data as $post) {
+
+                $post_json = json_encode($post, true);
+                $url = base_url() . 'employee/inventory/process_msl_upload_excel';
+                $ch = curl_init($url);
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+                curl_setopt($ch, CURLOPT_POSTFIELDS, $post_json);
+                curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+                $response1 = curl_exec($ch);
+                curl_close($ch);
+            }
+
+
+            $response['status'] = TRUE;
+            $response['message'] = $err_msg;
+            $response['bulk_msl'] = TRUE;
+            $response['redirect_to'] = 'inventory/msl_excel_upload';
+        } else {
+            $response['status'] = FALSE;
+            $response['message'] = $err_msg;
+            $response['redirect_to'] = 'inventory/msl_excel_upload';
+            // $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
+            $this->miscelleneous->load_nav_header();
+            $this->load->view('employee/msl_excel_upload_errors', $response);
         }
 
-         
-          $response['status'] = TRUE;
-          $response['message'] = $err_msg;
-          $response['bulk_msl'] = TRUE;
-          $response['redirect_to'] = 'inventory/msl_excel_upload';
-       
-        }else{
-         $response['status'] = FALSE;
-         $response['message'] = $err_msg;
-         $response['redirect_to'] = 'inventory/msl_excel_upload';
-         // $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], FILE_UPLOAD_FAILED_STATUS, "", $data['post_data']['entity_type'], $data['post_data']['entity_id']);
-         $this->miscelleneous->load_nav_header();
-         $this->load->view('employee/msl_excel_upload_errors',$response);
-
-        }
- 
 
         return $response;
     }
-
-
 
     function check_invoice_id_exists($invoice_id_temp) {
         $res = array();
@@ -750,15 +731,13 @@ class File_upload extends CI_Controller {
             $invoice_id = str_replace("/", "-", $invoice_id_temp);
             $count = $this->invoices_model->get_invoices_details(array('invoice_id' => $invoice_id), 'count(invoice_id) as count');
             if (!empty($count[0]['count'])) {
-               return TRUE;
+                return TRUE;
             } else {
                 return FALSE;
             }
         } else {
-           return FALSE;
+            return FALSE;
         }
-
- 
     }
 
     /**
@@ -778,11 +757,10 @@ class File_upload extends CI_Controller {
             $return_data['status'] = FALSE;
             $return_data['message'] = $this->Columfailed;
         }
-        
+
         return $return_data;
     }
-    
-    
+
     /**
      * @desc: This function is used to create new part number based on partner_id,service_id and part description
      * @param $partner_id integer partner_id 
@@ -793,27 +771,28 @@ class File_upload extends CI_Controller {
     function create_inventory_part_number($partner_id, $service_id, $data) {
 
         $new_part_number = "";
-        $tmp_serial_number = $data['part_name'].'-'.$partner_id . "-" . $service_id . "-";
+        $tmp_serial_number = $data['part_name'] . '-' . $partner_id . "-" . $service_id . "-";
         $old_part_number = $this->inventory_model->get_inventory_master_list_data('part_number', array('part_name' => $data['part_name'], 'entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING));
-        
+
         if (!empty($old_part_number)) {
             $part_number_arr = array_values(array_column($old_part_number, 'part_number'));
-            /**check if our custom part number present in the array or not
+            /*             * check if our custom part number present in the array or not
              * if custom part number present then increase number by one else create new part number
-            */
-            $is_tmp_serial_number_exists = array_filter($part_number_arr, function($value) use ($tmp_serial_number) { return stripos($value, $tmp_serial_number) !== false;});
+             */
+            $is_tmp_serial_number_exists = array_filter($part_number_arr, function($value) use ($tmp_serial_number) {
+                return stripos($value, $tmp_serial_number) !== false;
+            });
             if (!empty($is_tmp_serial_number_exists)) {
 
                 $new_serial_num = array();
                 foreach ($is_tmp_serial_number_exists as $key => $value) {
-                    $old_serial_num = explode($tmp_serial_number,$part_number_arr[$key])[1];
+                    $old_serial_num = explode($tmp_serial_number, $part_number_arr[$key])[1];
                     array_push($new_serial_num, $old_serial_num);
                 }
-                
+
                 rsort($new_serial_num);
-                $new_part_number = $tmp_serial_number.($new_serial_num[0] + 1);
-                
-            }else{
+                $new_part_number = $tmp_serial_number . ($new_serial_num[0] + 1);
+            } else {
                 $new_part_number = $tmp_serial_number . "1";
             }
         } else {
@@ -821,44 +800,42 @@ class File_upload extends CI_Controller {
         }
         return $new_part_number;
     }
-    
+
     /**
      * @desc: This function is used to get required array from the given array
      * @param $parentArray array() 
      * @param $subsetArrayToGet array() 
      * @return array()
      */
-    function get_sub_array(array $parentArray, array $subsetArrayToGet)
-    {
+    function get_sub_array(array $parentArray, array $subsetArrayToGet) {
         return array_intersect_key($parentArray, array_flip($subsetArrayToGet));
     }
-    
-    
+
     /**
      * @desc: This function is used to sanitize file data and make final data to insert
      * @param $data array() 
      * @return void
      */
-    function sanitize_inventory_data_to_insert($data){
-        
+    function sanitize_inventory_data_to_insert($data) {
+
         $tmp_data['service_id'] = $data['service_id'];
-        $tmp_data['part_name'] = trim(str_replace(array('"',"'"), "", $data['part_name']));
-        $tmp_data['part_number'] = trim(str_replace(array('"',"'"), "", $data['part_number']));
-        $tmp_data['description'] = trim(str_replace(array('"',"'"), "", $data['part_description']));
+        $tmp_data['part_name'] = trim(str_replace(array('"', "'"), "", $data['part_name']));
+        $tmp_data['part_number'] = trim(str_replace(array('"', "'"), "", $data['part_number']));
+        $tmp_data['description'] = trim(str_replace(array('"', "'"), "", $data['part_description']));
 //        $tmp_data['serial_number'] = (isset($data['serial_number']) && !empty($data['serial_number'])) ? trim($data['serial_number']):null;
-        $tmp_data['type'] = (isset($data['part_type']) && !empty($data['part_type'])) ? trim($data['part_type']):null;
-        $tmp_data['size'] = (isset($data['size']) && !empty($data['size'])) ? trim($data['size']):null;
-        $tmp_data['price'] = (isset($data['basic_price']) && !empty($data['basic_price'])) ? trim($data['basic_price']):null;
-        $tmp_data['hsn_code'] = (isset($data['hsn_code']) && !empty($data['hsn_code'])) ? trim($data['hsn_code']):null;
-        $tmp_data['gst_rate'] = (isset($data['gst_rate']) && !empty($data['gst_rate'])) ? trim($data['gst_rate']):null;
+        $tmp_data['type'] = (isset($data['part_type']) && !empty($data['part_type'])) ? trim($data['part_type']) : null;
+        $tmp_data['size'] = (isset($data['size']) && !empty($data['size'])) ? trim($data['size']) : null;
+        $tmp_data['price'] = (isset($data['basic_price']) && !empty($data['basic_price'])) ? trim($data['basic_price']) : null;
+        $tmp_data['hsn_code'] = (isset($data['hsn_code']) && !empty($data['hsn_code'])) ? trim($data['hsn_code']) : null;
+        $tmp_data['gst_rate'] = (isset($data['gst_rate']) && !empty($data['gst_rate'])) ? trim($data['gst_rate']) : null;
 
         if ($this->session->userdata('userType') == _247AROUND_PARTNER_STRING && $this->session->userdata('partner_id')) {
-            if($this->session->userdata('partner_id')==VIDEOCON_ID){
-            $tmp_data['oow_vendor_margin'] = 10;
-            $tmp_data['oow_around_margin'] = 15; 
-            }else{
-            $tmp_data['oow_vendor_margin'] = 15;
-            $tmp_data['oow_around_margin'] = 15;  
+            if ($this->session->userdata('partner_id') == VIDEOCON_ID) {
+                $tmp_data['oow_vendor_margin'] = 10;
+                $tmp_data['oow_around_margin'] = 15;
+            } else {
+                $tmp_data['oow_vendor_margin'] = 15;
+                $tmp_data['oow_around_margin'] = 15;
             }
         } else {
             $tmp_data['oow_vendor_margin'] = (isset($data['vendor_margin']) && !is_null($data['vendor_margin'])) ? trim($data['vendor_margin']) : REPAIR_OOW_VENDOR_PERCENTAGE;
@@ -868,53 +845,51 @@ class File_upload extends CI_Controller {
         $tmp_data['entity_id'] = $this->input->post('partner_id');
         $tmp_data['entity_type'] = _247AROUND_PARTNER_STRING;
 
-        if(isset($data['is_part_return'])){
+        if (isset($data['is_part_return'])) {
             $tmp_data['is_return'] = (strtolower($data['is_part_return']) == PART_TYPE_RETURN_MAPPING_FILE_VALUE) ? 1 : 0;
         }
-        
+
         array_push($this->dataToInsert, $tmp_data);
-        
     }
-    
-     /**
+
+    /**
      * @desc: This function is used to check duplicate values in the file and remove them 
      * @param $data array() 
      * @param $unique_arr array()
      * @return $response
      */
-    function check_unique_in_array_data($data,$unique_arr = null){
+    function check_unique_in_array_data($data, $unique_arr = null) {
         //get unique 
-        if(!empty($unique_arr)){
+        if (!empty($unique_arr)) {
             $is_unique_appliance = count(array_unique($unique_arr));
-        }else{
+        } else {
             $is_unique_appliance = 1;
         }
-        
+
         //get unique file data
         $arr_duplicates = array_diff_assoc($data, array_unique($data));
-        
+
         //if appliance is not unique return message with duplicate appliance name
         //else if file has unique appliance then check file has unique combination else remove duplicate data from the final data
-        if($is_unique_appliance == 1){
-            if(empty($arr_duplicates)){
+        if ($is_unique_appliance == 1) {
+            if (empty($arr_duplicates)) {
                 $response['status'] = TRUE;
                 $response['message'] = "";
-            }else{
-                foreach($arr_duplicates as $key => $value){
+            } else {
+                foreach ($arr_duplicates as $key => $value) {
                     unset($this->dataToInsert[$key]);
                 }
                 $response['status'] = TRUE;
                 $response['message'] = "";
             }
-            
-        }else{
+        } else {
             $response['status'] = FALSE;
             $response['message'] = "File contains invalid data. Please check file and upload again.";
         }
-        
+
         return $response;
     }
-    
+
     /**
      * @desc: This function is used to send email on file upload
      * @param $data array() 
@@ -926,48 +901,46 @@ class File_upload extends CI_Controller {
         $am_email = "";
         if ($this->input->post('partner_id')) {
             //$get_partner_am_id = $this->partner_model->getpartner_details('account_manager_id', array('partners.id' => $this->input->post('partner_id')));
-            $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id", 
-                        array('partners.id' => $this->input->post('partner_id')),"",0,1,1,"partners.id");
+            $get_partner_am_id = $this->partner_model->getpartner_data("group_concat(distinct agent_filters.agent_id) as account_manager_id",
+                    array('partners.id' => $this->input->post('partner_id')), "", 0, 1, 1, "partners.id");
             if (!empty($get_partner_am_id[0]['account_manager_id'])) {
                 //$am_email = $this->employee_model->getemployeefromid($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
                 $am_email = $this->employee_model->getemployeeMailFromID($get_partner_am_id[0]['account_manager_id'])[0]['official_email'];
             }
         }
-                
-        $to = $this->session->userdata('official_email').",".$am_email;
+
+        $to = $this->session->userdata('official_email') . "," . $am_email;
         $agent_name = !empty($this->session->userdata('emp_name')) ? $this->session->userdata('emp_name') : _247AROUND_DEFAULT_AGENT_NAME;
 
         if ($response['status']) {
-            $subject = str_replace('-', ' ', $data['post_data']['file_type']) . " File uploaded by " . $agent_name." successfully.";
+            $subject = str_replace('-', ' ', $data['post_data']['file_type']) . " File uploaded by " . $agent_name . " successfully.";
         } else {
             $subject = "Failed!!! " . str_replace('-', '', $data['post_data']['file_type']) . " File uploaded by " . $agent_name;
         }
-        
+
         //Getting template from Database
         $template = $this->booking_model->get_booking_email_template("file_upload_email");
-        $attachment = TMP_FOLDER.$data['file_name'];
+        $attachment = TMP_FOLDER . $data['file_name'];
         if (!empty($template)) {
             $body = $response['message'];
-            if(!empty($response['data'])) {
-                $body .= "<br> ".$response['data'];
+            if (!empty($response['data'])) {
+                $body .= "<br> " . $response['data'];
             }
             $body .= "<br> <b>File Name</b> " . $data['file_name'];
-            
+
             $sendmail = $this->notify->sendEmail($template[2], $to, $template[3], "", $subject, $body, $attachment, 'inventory_not_found');
-            
+
             if ($sendmail) {
                 log_message('info', __FUNCTION__ . 'Mail Send successfully');
             } else {
                 log_message('info', __FUNCTION__ . 'Error in Sending Mail');
             }
         }
-        if(file_exists($attachment)){
+        if (file_exists($attachment)) {
             unlink($attachment);
         }
-        
-        
     }
-    
+
     /**
      * @desc: This function is used to update model in partner_appliance_details table
      * @param $data array  //consist file temporary name, file extension and status(file type is correct or not) and post data from upload form
@@ -990,25 +963,24 @@ class File_upload extends CI_Controller {
                     $rowData = array_combine($data['header_data'], $rowData_array[0]);
                     if (!empty($this->input->post('partner_id')) && !empty($this->input->post('service_id')) && !empty($rowData['model'])) {
                         $validate_model_number = true;
-                        if(strpos($rowData['model'], "'")){
+                        if (strpos($rowData['model'], "'")) {
+                            $validate_model_number = false;
+                        } else if (strpos($rowData['model'], '"')) {
                             $validate_model_number = false;
                         }
-                        else if(strpos($rowData['model'], '"')){
-                            $validate_model_number = false;
-                        }
-                        if($validate_model_number){
+                        if ($validate_model_number) {
                             $partner_model_id = "";
                             $model_description = "";
                             $partner_brand_id = "";
-                            if(isset($rowData['partner_model_id'])){
+                            if (isset($rowData['partner_model_id'])) {
                                 $partner_model_id = $rowData['partner_model_id'];
                             }
 
-                            if(isset($rowData['model_description'])){
+                            if (isset($rowData['model_description'])) {
                                 $model_description = $rowData['model_description'];
                             }
 
-                            if(isset($rowData['partner_brand_id'])){
+                            if (isset($rowData['partner_brand_id'])) {
                                 $partner_brand_id = $rowData['partner_brand_id'];
                             }
 
@@ -1019,12 +991,11 @@ class File_upload extends CI_Controller {
                                 'entity_id' => $this->input->post('partner_id')
                             );
                             $model_detail = $this->inventory_model->get_appliance_model_details("id", $aplliance_model_where);
-                            if(empty($model_detail)){
-                                $aplliance_model_where["partner_model_id"] =  $partner_model_id;
-                                $aplliance_model_where["model_description"] =  $model_description;
-                                $appliance_model_id = $this->inventory_model->insert_appliance_model_data($aplliance_model_where); 
-                            }
-                            else{
+                            if (empty($model_detail)) {
+                                $aplliance_model_where["partner_model_id"] = $partner_model_id;
+                                $aplliance_model_where["model_description"] = $model_description;
+                                $appliance_model_id = $this->inventory_model->insert_appliance_model_data($aplliance_model_where);
+                            } else {
                                 $appliance_model_id = $model_detail[0]['id'];
                             }
 
@@ -1037,7 +1008,7 @@ class File_upload extends CI_Controller {
                                 "model" => $appliance_model_id
                             );
                             $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where, 'id');
-                            if(empty($partner_model_details)){
+                            if (empty($partner_model_details)) {
                                 // ---------------------------------------------------------------------
                                 // Check case if model exists with some other capacity/category
                                 // update data in this case
@@ -1049,36 +1020,31 @@ class File_upload extends CI_Controller {
                                     "model" => $appliance_model_id
                                 );
                                 $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where_without_category_capacity, 'id, model');
-                                if(!empty($partner_model_details))
-                                {
-                                    $partner_appliance_id = $this->partner_model->update_partner_appliance_details(array("id"=>$partner_model_details[0]['id']), array("category"=>$partner_model_where["category"], 'capacity' => $partner_model_where["capacity"]));
-                                }
-                                else {
+                                if (!empty($partner_model_details)) {
+                                    $partner_appliance_id = $this->partner_model->update_partner_appliance_details(array("id" => $partner_model_details[0]['id']), array("category" => $partner_model_where["category"], 'capacity' => $partner_model_where["capacity"]));
+                                } else {
                                     // ----------------------------------------------------------------------
-                                    unset($partner_model_where["model"]); 
-                                    $partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"] = NULL;
+                                    unset($partner_model_where["model"]);
+                                    $partner_model_where["(model IS NULL OR model != '" . $appliance_model_id . "')"] = NULL;
                                     $partner_model_details = $this->partner_model->get_partner_appliance_details($partner_model_where, 'id, model');
-                                    if(!empty($partner_model_details)){
-                                        if($partner_model_details[0]['model'] == NULL){
-                                           $partner_appliance_id = $this->partner_model->update_partner_appliance_details(array("id"=>$partner_model_details[0]['id']), array("model"=>$appliance_model_id));
-                                        }
-                                        else if($partner_model_details[0]['model'] != $appliance_model_id){
-                                            unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
+                                    if (!empty($partner_model_details)) {
+                                        if ($partner_model_details[0]['model'] == NULL) {
+                                            $partner_appliance_id = $this->partner_model->update_partner_appliance_details(array("id" => $partner_model_details[0]['id']), array("model" => $appliance_model_id));
+                                        } else if ($partner_model_details[0]['model'] != $appliance_model_id) {
+                                            unset($partner_model_where["(model IS NULL OR model != '" . $appliance_model_id . "')"]);
                                             $partner_model_where['model'] = $appliance_model_id;
                                             $partner_model_where['partner_brand_id'] = $partner_brand_id;
                                             $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
                                         }
-                                    }
-                                    else{
-                                        unset($partner_model_where["(model IS NULL OR model != '".$appliance_model_id."')"]);
+                                    } else {
+                                        unset($partner_model_where["(model IS NULL OR model != '" . $appliance_model_id . "')"]);
                                         $partner_model_where['model'] = $appliance_model_id;
                                         $partner_model_where['partner_brand_id'] = $partner_brand_id;
                                         $partner_appliance_id = $this->partner_model->insert_partner_appliance_detail($partner_model_where);
                                     }
-                                }                            
-                            }
-                            else{
-                               $partner_appliance_id =  $partner_model_details[0]['id'];
+                                }
+                            } else {
+                                $partner_appliance_id = $partner_model_details[0]['id'];
                             }
                             if ($partner_appliance_id) {
                                 log_message("info", __METHOD__ . " partner appliance file data inserted succcessfully");
@@ -1095,30 +1061,27 @@ class File_upload extends CI_Controller {
                                 $response['status'] = FALSE;
                                 $response['message'] = "Something went wrong in inserting data.";
                             }
+                        } else {
+                            array_push($nonValidData, $rowData['model']);
                         }
-                        else{
-                            array_push($nonValidData, $rowData['model']); 
-                        }
-                    }
-                    else {
+                    } else {
                         log_message("info", __METHOD__ . " Partner/service/model can not be empty");
                         $response['status'] = FALSE;
                         $response['message'] = "Please Select Partner And Appliance Both OR Model Number can not be empty";
                     }
-                }
-                else {
+                } else {
                     log_message("info", __METHOD__ . " Partner/service/model can not be empty");
                     $response['status'] = FALSE;
                     $response['message'] = "Please Select Partner And Appliance Both OR Model Number can not be empty";
                 }
             }
-            if(!empty($nonValidData)){
+            if (!empty($nonValidData)) {
                 $model_string = "";
                 foreach ($nonValidData as $model_number) {
-                   $model_string = $model_number.", ".$model_string;
+                    $model_string = $model_number . ", " . $model_string;
                 }
                 $response['status'] = FALSE;
-                $response['message'] = "Model Number has quotes, Please remove and upload again - ".rtrim($model_string, ' ,');
+                $response['message'] = "Model Number has quotes, Please remove and upload again - " . rtrim($model_string, ' ,');
             }
         } else {
             $response['status'] = FALSE;
@@ -1133,8 +1096,8 @@ class File_upload extends CI_Controller {
      * @param $data array() 
      * @return void
      */
-    function sanitize_partner_appliance_data_to_insert($data){
-        
+    function sanitize_partner_appliance_data_to_insert($data) {
+
         $tmp_data['partner_id'] = $data['partnerid'];
         $tmp_data['service_id'] = trim($data['serviceid']);
         $tmp_data['brand'] = trim($data['brand']);
@@ -1142,11 +1105,10 @@ class File_upload extends CI_Controller {
         $tmp_data['capacity'] = trim($data['capacity']);
         $tmp_data['model'] = trim($data['model']);
         $tmp_data['create_date'] = date('Y-m-d H:i:s');
-        
+
         array_push($this->dataToInsert, $tmp_data);
-        
     }
-    
+
     /**
      * @desc: This function is used to update model in appliance_model_details table
      * @param $data array  //consist file temporary name, file extension and status(file type is correct or not) and post data from upload form
@@ -1161,7 +1123,7 @@ class File_upload extends CI_Controller {
         $header_column_need_to_be_present = array('appliance', 'model_number');
         //check if required column is present in upload file header
         $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
-        
+
         if ($check_header['status']) {
             $services_list = $this->booking_model->selectservice();
             $services = array();
@@ -1175,26 +1137,25 @@ class File_upload extends CI_Controller {
                 if (!empty(array_filter($sanitizes_row_data))) {
                     $rowData = array_combine($data['header_data'], $row_data_array[0]);
                     $subArray = $this->get_sub_array($rowData, array('appliance', 'model_number'));
-                    if(isset($services[trim($rowData['appliance'])]) && !empty($services[trim($rowData['appliance'])])){
+                    if (isset($services[trim($rowData['appliance'])]) && !empty($services[trim($rowData['appliance'])])) {
                         $rowData['service_id'] = $services[trim($rowData['appliance'])];
                         $rowData['partner_id'] = $this->input->post('partner_id');
                         array_push($sheet_unique_row_data, implode('_join_', $subArray));
                         $this->sanitize_partner_appliance_model_data_to_insert($rowData);
-                    }else{
+                    } else {
                         $flag = FALSE;
                         $row_number = $row;
                         break;
                     }
-                    
                 }
             }
-            
-            if($flag){
+
+            if ($flag) {
                 //check file contains unique data
                 $is_file_contains_unique_data = $this->check_unique_in_array_data($sheet_unique_row_data);
                 if ($is_file_contains_unique_data['status']) {
                     $insert_id = $this->inventory_model->insert_appliance_model_details_batch($this->dataToInsert);
-    
+
                     if ($insert_id) {
                         log_message("info", __METHOD__ . " partner appliance model details file data inserted succcessfully");
                         $response['status'] = TRUE;
@@ -1209,17 +1170,16 @@ class File_upload extends CI_Controller {
                     $response['status'] = FALSE;
                     $response['message'] = $is_file_contains_unique_data['message'];
                 }
-            }else{
+            } else {
                 log_message("info", __METHOD__ . " " . "Uploaded  file dose not contains right appliance name");
                 $response['status'] = FALSE;
                 $response['message'] = "Uploaded  file dose not contains right appliance name. Please check spelling in the file at line $row_number";
             }
-            
         } else {
             $response['status'] = $check_header['status'];
             $response['message'] = $check_header['message'];
         }
-        
+
         return $response;
     }
 
@@ -1228,18 +1188,17 @@ class File_upload extends CI_Controller {
      * @param $data array() 
      * @return void
      */
-    function sanitize_partner_appliance_model_data_to_insert($data){
-        
+    function sanitize_partner_appliance_model_data_to_insert($data) {
+
         $tmp_data['entity_id'] = trim($data['partner_id']);
         $tmp_data['entity_type'] = _247AROUND_PARTNER_STRING;
         $tmp_data['service_id'] = trim($data['service_id']);
         $tmp_data['model_number'] = trim($data['model_number']);
         $tmp_data['create_date'] = date('Y-m-d H:i:s');
-        
+
         array_push($this->dataToInsert, $tmp_data);
     }
-    
-    
+
     /**
      * @desc: This function is used to do the inventory and model mapping from file upload
      * @param $data array() 
@@ -1251,7 +1210,7 @@ class File_upload extends CI_Controller {
         $partner_id = trim($this->input->post('partner_id'));
         $flag = false;
         if ($partner_id) {
-            $model_details = $this->inventory_model->get_appliance_model_details('id,model_number', array('entity_id' => trim($this->input->post('partner_id')), 'entity_type' => _247AROUND_PARTNER_STRING,"appliance_model_details.active" => 1));
+            $model_details = $this->inventory_model->get_appliance_model_details('id,model_number', array('entity_id' => trim($this->input->post('partner_id')), 'entity_type' => _247AROUND_PARTNER_STRING, "appliance_model_details.active" => 1));
             $part_number_details = $this->inventory_model->get_inventory_master_list_data('inventory_id,part_number', array('entity_id' => $partner_id, 'entity_type' => _247AROUND_PARTNER_STRING));
 
             $model = array();
@@ -1282,9 +1241,8 @@ class File_upload extends CI_Controller {
                         if (array_key_exists($sanitizes_row_data[0], $model_arr)) {
                             //check part exist in our database
                             //print_r($sanitizes_row_data[0]);
-                            $response = $this->process_bom_mapping($model_arr[$sanitizes_row_data[0]], $part_number_arr, $sanitizes_row_data,$rowData_array[0][0]);
+                            $response = $this->process_bom_mapping($model_arr[$sanitizes_row_data[0]], $part_number_arr, $sanitizes_row_data, $rowData_array[0][0]);
                             //array_push($remap_bom_array, end($this->dataToInsert));
-                           
                         } else {
                             array_push($this->not_exists_model, $sanitizes_row_data[0]);
                             $flag = true;
@@ -1319,11 +1277,11 @@ class File_upload extends CI_Controller {
                     $not_exist_data_msg .= "<br> Below part number does not exists in our record: <br>";
                     $not_exist_data_msg .= $this->table->generate();
                 }
- 
+
                 if (!empty($this->dataToInsert)) {
                     $insert_data = $this->inventory_model->insert_batch_inventory_model_mapping($this->dataToInsert);
                     if ($insert_data) {
-                         $this->remap_in_bom_map($this->remap_bom_array);
+                        $this->remap_in_bom_map($this->remap_bom_array);
                         log_message("info", __METHOD__ . count($this->dataToInsert) . " mapping created succcessfully");
                         $response['status'] = TRUE;
                         $message = "<b>" . count($this->dataToInsert) . "</b> mapping created successfully.";
@@ -1331,10 +1289,10 @@ class File_upload extends CI_Controller {
                     } else {
                         log_message("info", __METHOD__ . " error in creating mapping.");
                         $response['status'] = FALSE;
-                        if(!empty($data['saas_module'])){
-                           $response['message'] = "Either mapping already exists or something gone wrong. Please contact to backoffice team.";
+                        if (!empty($data['saas_module'])) {
+                            $response['message'] = "Either mapping already exists or something gone wrong. Please contact to backoffice team.";
                         } else {
-                          $response['message'] = "Either mapping already exists or something gone wrong. Please contact backoffice team.";  
+                            $response['message'] = "Either mapping already exists or something gone wrong. Please contact backoffice team.";
                         }
                     }
                 } else {
@@ -1358,44 +1316,40 @@ class File_upload extends CI_Controller {
         return $response;
     }
 
+    function remap_in_bom_map($remap_bom_array) {
 
-function remap_in_bom_map($remap_bom_array){
-
-        $agentid='';
+        $agentid = '';
         if ($this->session->userdata('userType') == 'employee') {
-          $agentid=$this->session->userdata('id');
-          $agent_name =$this->session->userdata('emp_name');
-          $login_partner_id = _247AROUND;
-          $login_service_center_id =NULL;
-        }else if($this->session->userdata('userType') == 'service_center'){
-          $agentid=$this->session->userdata('agent_id');
-          $agent_name =$this->session->userdata('service_center_name');
-          $login_service_center_id = $this->session->userdata('service_center_id');
-          $login_partner_id =NULL;
-
-        }else if($this->session->userdata('userType') == 'partner'){
-                 $agentid=$this->session->userdata('agent_id');
-          $agent_name =$this->session->userdata('partner_name');
-          $login_service_center_id = $this->session->userdata('partner_id');
-          $login_partner_id =NULL;
+            $agentid = $this->session->userdata('id');
+            $agent_name = $this->session->userdata('emp_name');
+            $login_partner_id = _247AROUND;
+            $login_service_center_id = NULL;
+        } else if ($this->session->userdata('userType') == 'service_center') {
+            $agentid = $this->session->userdata('agent_id');
+            $agent_name = $this->session->userdata('service_center_name');
+            $login_service_center_id = $this->session->userdata('service_center_id');
+            $login_partner_id = NULL;
+        } else if ($this->session->userdata('userType') == 'partner') {
+            $agentid = $this->session->userdata('agent_id');
+            $agent_name = $this->session->userdata('partner_name');
+            $login_service_center_id = $this->session->userdata('partner_id');
+            $login_partner_id = NULL;
         }
 
         foreach ($remap_bom_array as $rowkey => $rowvalue) {
-                   
-                   $where = array(
-                        'spare_parts_details.status'=>SPARE_PARTS_REQUESTED,
-                        'spare_parts_details.entity_type'=>_247AROUND_PARTNER_STRING,
-                        'spare_parts_details.requested_inventory_id'=>$rowvalue['inventory_id'],
-                        'spare_parts_details.model_number'=>trim($rowvalue['model_name'])
-                   ); 
-                    $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id,spare_parts_details.model_number,spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
-                . " requested_inventory_id";
-                  $post['is_inventory'] = true;
-                  $spares = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
-                  $this->miscelleneous->spareTransfer($spares, $agentid, $agent_name, $login_partner_id, $login_service_center_id, ""); 
 
+            $where = array(
+                'spare_parts_details.status' => SPARE_PARTS_REQUESTED,
+                'spare_parts_details.entity_type' => _247AROUND_PARTNER_STRING,
+                'spare_parts_details.requested_inventory_id' => $rowvalue['inventory_id'],
+                'spare_parts_details.model_number' => trim($rowvalue['model_name'])
+            );
+            $select = "spare_parts_details.id,spare_parts_details.quantity,spare_parts_details.booking_id,spare_parts_details.model_number,spare_parts_details.entity_type, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
+                    . " requested_inventory_id";
+            $post['is_inventory'] = true;
+            $spares = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
+            $this->miscelleneous->spareTransfer($spares, $agentid, $agent_name, $login_partner_id, $login_service_center_id, "");
         }
-
     }
 
     /**
@@ -1451,7 +1405,7 @@ function remap_in_bom_map($remap_bom_array){
                             $where_in = array(trim($rowData['part_code']), trim($rowData['alt_part_code']));
                             $select = 'inventory_master_list.inventory_id, inventory_master_list.part_number';
                             $inventory_id_details = $this->inventory_model->get_inventory_master_list_data($select, $where, $where_in);
-                            $model = $this->inventory_model->get_appliance_model_details("*", array('model_number' => trim($rowData['model_number']), "entity_id" =>$partner_id ));
+                            $model = $this->inventory_model->get_appliance_model_details("*", array('model_number' => trim($rowData['model_number']), "entity_id" => $partner_id));
                             if (!empty($model)) {
                                 if (!empty($inventory_id_details) && count($inventory_id_details) > 1) {
                                     $tmp_arr = array();
@@ -1517,7 +1471,7 @@ function remap_in_bom_map($remap_bom_array){
                                     foreach ($inventory_group_id_list as $value) {
                                         if ($value['group_id'] === $max_group_id) {
                                             $insertUpdateFlag = $this->inventory_model->update_group_wise_inventory_id(array('alternate_inventory_set.group_id' => $min_group_id), array('alternate_inventory_set.id' => $value['id']));
-                                            (!empty($insertUpdateFlag) ?  ++$count : array_push($notInserted, $val));
+                                            (!empty($insertUpdateFlag) ? ++$count : array_push($notInserted, $val));
                                         } else {
                                             array_push($notInserted, $val);
                                         }
@@ -1533,20 +1487,20 @@ function remap_in_bom_map($remap_bom_array){
                                     $inventory_group_data = array('group_id' => $inventory_group_id_list[0]['group_id'], 'inventory_id' => $val['alt_inventory_id'], 'model_id' => $val['model_id']);
                                 }
                                 $insertUpdateFlag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);
-                                (!empty($insertUpdateFlag) ?  ++$count : array_push($notInserted, $val));
+                                (!empty($insertUpdateFlag) ? ++$count : array_push($notInserted, $val));
                             }
                         } else {
                             $max_group_id_details = $this->inventory_model->get_generic_table_details('alternate_inventory_set', 'MAX(alternate_inventory_set.group_id) as max_group_id', array(), array());
                             $group_id = ($max_group_id_details[0]['max_group_id'] + 1);
                             $inventory_group_data = array('group_id' => $group_id, 'inventory_id' => $val['alt_inventory_id'], 'model_id' => $val['model_id']);
                             $insertUpdateFlag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group_data);
-                            (!empty($insertUpdateFlag) ?  ++$count : array_push($notInserted, $val));
+                            (!empty($insertUpdateFlag) ? ++$count : array_push($notInserted, $val));
 
                             $inventory_group = array('group_id' => $group_id, 'inventory_id' => $val['inventory_id'], 'model_id' => $val['model_id']);
                             $insertUpdateFlag = $this->inventory_model->insert_group_wise_inventory_id($inventory_group);
-                            (!empty($insertUpdateFlag) ?  ++$count : array_push($notInserted, $val));
+                            (!empty($insertUpdateFlag) ? ++$count : array_push($notInserted, $val));
                         }
-                        
+
                         $insert_inventory = $this->insert_Inventory_Model_Data(trim($val['inventory_id']), trim($val['model_id']), 1);
                         $insert_alt_inventory = $this->insert_Inventory_Model_Data(trim($val['alt_inventory_id']), trim($val['model_id']), 0);
                         if ($insert_inventory && $insert_alt_inventory) {
@@ -1566,7 +1520,7 @@ function remap_in_bom_map($remap_bom_array){
                         );
                         $select = "spare_parts_details.id,spare_parts_details.booking_id, spare_parts_details.entity_type,spare_parts_details.quantity, booking_details.state,spare_parts_details.service_center_id,inventory_master_list.part_number, spare_parts_details.partner_id, booking_details.partner_id as booking_partner_id,"
                                 . " requested_inventory_id";
-                        $post['where_in'] = array('spare_parts_details.requested_inventory_id' => array(trim($val['inventory_id']), trim($val['alt_inventory_id'])), 'model_number' => $val['model_number'] );
+                        $post['where_in'] = array('spare_parts_details.requested_inventory_id' => array(trim($val['inventory_id']), trim($val['alt_inventory_id'])), 'model_number' => $val['model_number']);
                         $post['is_inventory'] = true;
                         $bookings_spare = $this->partner_model->get_spare_parts_by_any($select, $where, TRUE, FALSE, false, $post);
 
@@ -1616,49 +1570,50 @@ function remap_in_bom_map($remap_bom_array){
      * @param $uploaded_file_parts array()  //uploaded file parts details 
      * @return void
      */
-    function process_bom_mapping($model_number_id,$part_number_arr,$uploaded_file_parts,$model_name){
+    function process_bom_mapping($model_number_id, $part_number_arr, $uploaded_file_parts, $model_name) {
         //get only parts details from the uploaded file array. remove model number from first index of the array.
         //here we assume that first index of the file is always model number 
-       // $model = $uploaded_file_parts[0];
+        // $model = $uploaded_file_parts[0];
         /// print_r($remap_bom_array);      
         unset($uploaded_file_parts[0]);
-        foreach ($uploaded_file_parts as $value){
+        foreach ($uploaded_file_parts as $value) {
             //check if uploaded part exists in our database
             if (!empty($value)) {
-                if(array_key_exists(str_replace(array('"',"'"), "", $value), $part_number_arr)){
+                if (array_key_exists(str_replace(array('"', "'"), "", $value), $part_number_arr)) {
                     $tmp = array();
-                    $tmp['inventory_id'] = $part_number_arr[str_replace(array('"',"'"), "", $value)];
+                    $tmp['inventory_id'] = $part_number_arr[str_replace(array('"', "'"), "", $value)];
                     $tmp['model_number_id'] = $model_number_id;
                     $tmp2 = array();
-                    $tmp2['inventory_id'] = $part_number_arr[str_replace(array('"',"'"), "", $value)];
+                    $tmp2['inventory_id'] = $part_number_arr[str_replace(array('"', "'"), "", $value)];
                     $tmp2['model_number_id'] = $model_number_id;
                     $tmp2['model_name'] = $model_name;
                     array_push($this->dataToInsert, $tmp);
                     array_push($this->remap_bom_array, $tmp2);
-                }else{
+                } else {
                     array_push($this->not_exists_parts, $value);
-                }   
+                }
             }
         }
     }
+
     /**
      * @desc This function is used to upload partner serial no file
      */
-    function process_upload_serial_number(){
+    function process_upload_serial_number() {
         $partner_id = trim($this->input->post('partner_id'));
-        if(!empty($partner_id)){
+        if (!empty($partner_id)) {
             $file_status = $this->get_upload_file_type();
             if ($file_status['status']) {
                 $data = $this->read_upload_file_header($file_status);
                 if ($data['status']) {
-                    log_message('info', __METHOD__. " ". print_r($data['header_data'], TRUE));
-                    $data['post_data']['file_type'] = $partner_id."_".PARTNER_SERIAL_NUMBER_FILE_TYPE;
-                    
+                    log_message('info', __METHOD__ . " " . print_r($data['header_data'], TRUE));
+                    $data['post_data']['file_type'] = $partner_id . "_" . PARTNER_SERIAL_NUMBER_FILE_TYPE;
+
                     //column which must be present in the  upload inventory file
-                    $header_column_need_to_be_present = array('invoicedate','skuname','skucode','productcategoryname',
+                    $header_column_need_to_be_present = array('invoicedate', 'skuname', 'skucode', 'productcategoryname',
                         'brandname', 'modelname', 'colorname', 'stockbin', 'serialnumber');
                     //check if required column is present in upload file header
-                    $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
+                    $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
                     if ($check_header['status']) {
                         $existingData = array();
                         $emptyarray = 0;
@@ -1670,60 +1625,58 @@ function remap_in_bom_map($remap_bom_array){
                         $this->table->set_template($template);
 
                         $this->table->set_heading(array('Serial Number'));
-                       
+
                         //get file data to process
                         for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
                             $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                            $sanitizes_row_data = array_map('trim',$rowData_array[0]);
-                            if(!empty(array_filter($sanitizes_row_data))){
+                            $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                            if (!empty(array_filter($sanitizes_row_data))) {
                                 $rowData = array_combine($data['header_data'], $rowData_array[0]);
 
-                                if(!empty($rowData['serialnumber'])){
+                                if (!empty($rowData['serialnumber'])) {
 
-                                    $result = $this->partner_model->getpartner_serialno(array('partner_id' =>$partner_id, 'serial_number' => $rowData['serialnumber'], "active" => 1));
-                                    if(empty($result)){
+                                    $result = $this->partner_model->getpartner_serialno(array('partner_id' => $partner_id, 'serial_number' => $rowData['serialnumber'], "active" => 1));
+                                    if (empty($result)) {
                                         $invoiceData = NULL;
-                                        if(!empty($rowData['invoicedate'])){
+                                        if (!empty($rowData['invoicedate'])) {
                                             $dateObj2 = PHPExcel_Shared_Date::ExcelToPHPObject($rowData['invoicedate']);
-                                            $invoiceData =  $dateObj2->format('Y-m-d');
+                                            $invoiceData = $dateObj2->format('Y-m-d');
                                         }
-                                        $array = array('partner_id' =>$partner_id,
-                                           'serial_number' => $rowData['serialnumber'],
-                                           'invoice_date' => $invoiceData,
-                                           'sku_name' => $rowData['skuname'],
-                                           'sku_code' => $rowData['skucode'],
-                                           'category_name' => $rowData['productcategoryname'],
-                                           'brand_name' => $rowData['brandname'],
-                                           'model_number' => $rowData['modelname'], 
-                                           'added_by' => "247around", 
-                                           'color' => $rowData['colorname'], 
-                                           'stock_bin' => $rowData['stockbin']);
-                                       
-                                       array_push($validData, $array);
+                                        $array = array('partner_id' => $partner_id,
+                                            'serial_number' => $rowData['serialnumber'],
+                                            'invoice_date' => $invoiceData,
+                                            'sku_name' => $rowData['skuname'],
+                                            'sku_code' => $rowData['skucode'],
+                                            'category_name' => $rowData['productcategoryname'],
+                                            'brand_name' => $rowData['brandname'],
+                                            'model_number' => $rowData['modelname'],
+                                            'added_by' => "247around",
+                                            'color' => $rowData['colorname'],
+                                            'stock_bin' => $rowData['stockbin']);
+
+                                        array_push($validData, $array);
                                     } else {
                                         $this->table->add_row($rowData['serialnumber']);
                                         array_push($existingData, $rowData['serialnumber']);
                                     }
                                 } else {
-                                    $emptyarray ++;
+                                    $emptyarray++;
                                 }
                             }
                         }
-                       
+
                         $file_upload_status = FILE_UPLOAD_FAILED_STATUS;
-                        if(!empty($validData)){
-                            $status =$this->partner_model->insert_partner_serial_number_in_batch($validData);
-                            if($status){
+                        if (!empty($validData)) {
+                            $status = $this->partner_model->insert_partner_serial_number_in_batch($validData);
+                            if ($status) {
                                 $response['status'] = TRUE;
                                 $response['message'] = "File Successfully uploaded.";
                                 $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
                                 $message = "File Successfully uploaded.";
-                                
                             } else {
                                 $response['status'] = FALSE;
                                 $response['message'] = "File upload Failed.";
                                 $message = "File upload Failed. ";
-                                
                             }
                         } else {
                             $response['status'] = FALSE;
@@ -1732,137 +1685,131 @@ function remap_in_bom_map($remap_bom_array){
                         }
                     } else {
                         $response['status'] = FALSE;
-                        $response['message'] = "File upload Failed. ".$check_header['message'];
-                        $message = "File upload Failed. ".$check_header['message'];
-                        
-                        
+                        $response['message'] = "File upload Failed. " . $check_header['message'];
+                        $message = "File upload Failed. " . $check_header['message'];
                     }
                 } else {
                     $response['status'] = FALSE;
                     $response['message'] = "File upload Failed. Empty file has been uploaded";
                     $message = "File upload Failed. Empty file has been uploaded";
-                   
                 }
-                $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], 
-                    $data['post_data']['file_type'], $file_upload_status, "", "partner", $partner_id);
-            
-                $this->send_email($data,$response);
+                $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'],
+                        $data['post_data']['file_type'], $file_upload_status, "", "partner", $partner_id);
+
+                $this->send_email($data, $response);
             } else {
-                
+
                 $message = "File upload Failed. Empty file has been uploaded";
             }
-            
         } else {
-            
+
             $message = "Unable to find Partner, Please refresh and try again";
-            
         }
-        
+
         echo $message;
     }
-    
+
     /**
      * @desc This function is used to upload docket number file only has two columns awb_number and courier_charges
      */
-    function process_docket_number_file_upload(){ 
-            $data = array();
-            //$redirect_to = $this->input->post('redirect_url');
-            $file_upload_status = FILE_UPLOAD_FAILED_STATUS;
-            $file_status = $this->get_upload_file_type();
-            if ($file_status['status']) {
-                $data = $this->read_upload_file_header($file_status);
-                if ($data['status']) {
-                    $data['post_data']['file_type'] = DOCKET_NUMBER_FILE_TYPE;
-                    //column which must be present in the  upload inventory file
-                    $header_column_need_to_be_present = array('awb_number', 'courier_charges', 'invoice_id', 'courier_name', 'billable_weight', 'actual_weight');
-                    
-                    //check if required column is present in upload file header
-                    $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
-                    if ($check_header['status']) {
-                        $inValidData = FALSE;
-                        $notfoundData = array();
-                        $template = array(
-                            'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
-                        );
-                        $this->table->set_template($template);
-                        $this->table->set_heading(array('AWB Number'));
-                        //get file data to process
-                        for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
-                            $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                            $sanitizes_row_data = array_map('trim',$rowData_array[0]);
-                            if(!empty(array_filter($sanitizes_row_data))){
-                                $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                                if(!empty($rowData['awb_number']) && !empty($rowData['courier_charges']) && !empty($rowData['invoice_id']) && !empty($rowData['billable_weight']) && !empty($rowData['actual_weight'])){
-                                    $courier_company_detail = $this->inventory_model->update_docket_price($rowData);
-                                    if(!empty($courier_company_detail['inValidData'])){
-                                        $inValidData = TRUE;
-                                        $this->table->add_row($courier_company_detail['inValidData']);
-                                    }
-                                    if(!empty($courier_company_detail['notfoundData'])){
-                                        $notfoundData[] = $courier_company_detail['notfoundData'];
-                                    }
+    function process_docket_number_file_upload() {
+        $data = array();
+        //$redirect_to = $this->input->post('redirect_url');
+        $file_upload_status = FILE_UPLOAD_FAILED_STATUS;
+        $file_status = $this->get_upload_file_type();
+        if ($file_status['status']) {
+            $data = $this->read_upload_file_header($file_status);
+            if ($data['status']) {
+                $data['post_data']['file_type'] = DOCKET_NUMBER_FILE_TYPE;
+                //column which must be present in the  upload inventory file
+                $header_column_need_to_be_present = array('awb_number', 'courier_charges', 'invoice_id', 'courier_name', 'billable_weight', 'actual_weight');
+
+                //check if required column is present in upload file header
+                $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+                if ($check_header['status']) {
+                    $inValidData = FALSE;
+                    $notfoundData = array();
+                    $template = array(
+                        'table_open' => '<table border="1" cellpadding="2" cellspacing="1" class="mytable">'
+                    );
+                    $this->table->set_template($template);
+                    $this->table->set_heading(array('AWB Number'));
+                    //get file data to process
+                    for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                        $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                        if (!empty(array_filter($sanitizes_row_data))) {
+                            $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                            if (!empty($rowData['awb_number']) && !empty($rowData['courier_charges']) && !empty($rowData['invoice_id']) && !empty($rowData['billable_weight']) && !empty($rowData['actual_weight'])) {
+                                $courier_company_detail = $this->inventory_model->update_docket_price($rowData);
+                                if (!empty($courier_company_detail['inValidData'])) {
+                                    $inValidData = TRUE;
+                                    $this->table->add_row($courier_company_detail['inValidData']);
                                 }
-                                else{
-                                    //log_message('info', __METHOD__. "data not found ". print_r($data['header_data'], TRUE));
+                                if (!empty($courier_company_detail['notfoundData'])) {
+                                    $notfoundData[] = $courier_company_detail['notfoundData'];
                                 }
+                            } else {
+                                //log_message('info', __METHOD__. "data not found ". print_r($data['header_data'], TRUE));
                             }
                         }
-                        if($inValidData){
-                            $response['status'] = TRUE;
-                            $email_message = "Duplicate entry found for below AWB number. Please check : <br>";
-                            $email_message .= $this->table->generate();
-                            $response['message'] = $email_message;
-                            $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
-                            $returnData['status'] = TRUE;
-                            $returnData['message'] = "File Successfully Uploaded.";
-                        } 
-                        else {
-                            $response['status'] = TRUE;
-                            $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
-                            $response['message'] = "Docket Number Successfully Uploaded. ";
-                            $returnData['status'] = TRUE;
-                            $returnData['message'] = "File Successfully Uploaded.";
-                        }
+                    }
+                    if ($inValidData) {
+                        $response['status'] = TRUE;
+                        $email_message = "Duplicate entry found for below AWB number. Please check : <br>";
+                        $email_message .= $this->table->generate();
+                        $response['message'] = $email_message;
+                        $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
+                        $returnData['status'] = TRUE;
+                        $returnData['message'] = "File Successfully Uploaded.";
                     } else {
-                        $response['status'] = FALSE;
-                        $response['message'] = "File upload Failed. ".$check_header['message'];
-                        $returnData['status'] = FALSE;
-                        $returnData['message'] = "File upload Failed. ".$check_header['message'];
+                        $response['status'] = TRUE;
+                        $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
+                        $response['message'] = "Docket Number Successfully Uploaded. ";
+                        $returnData['status'] = TRUE;
+                        $returnData['message'] = "File Successfully Uploaded.";
                     }
                 } else {
                     $response['status'] = FALSE;
-                    $response['message'] = "File upload Failed. Empty file has been uploaded";
+                    $response['message'] = "File upload Failed. " . $check_header['message'];
                     $returnData['status'] = FALSE;
-                    $returnData['message'] = "File upload Failed. Empty file has been uploaded";
-                }
-                $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'], $file_upload_status);
-                $this->send_email($data,$response);
-                if(!empty($notfoundData)){
-                    $this->table->set_template($template);
-                    $this->table->set_heading(array('AWB Number'));
-                    foreach ($notfoundData as $value) {
-                        $this->table->add_row($value);
-                    }
-                    $response['status'] = TRUE;
-                    $email_message = "Below AWB number not found. Please check and upload only below data again: <br>";
-                    $email_message .= $this->table->generate();
-                    $response['message'] = $email_message;
-                    $this->send_email($data,$response);
+                    $returnData['message'] = "File upload Failed. " . $check_header['message'];
                 }
             } else {
+                $response['status'] = FALSE;
+                $response['message'] = "File upload Failed. Empty file has been uploaded";
                 $returnData['status'] = FALSE;
-                $returnData['message'] = $file_status['message'];
+                $returnData['message'] = "File upload Failed. Empty file has been uploaded";
             }
+            $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], $file_upload_status);
+            $this->send_email($data, $response);
+            if (!empty($notfoundData)) {
+                $this->table->set_template($template);
+                $this->table->set_heading(array('AWB Number'));
+                foreach ($notfoundData as $value) {
+                    $this->table->add_row($value);
+                }
+                $response['status'] = TRUE;
+                $email_message = "Below AWB number not found. Please check and upload only below data again: <br>";
+                $email_message .= $this->table->generate();
+                $response['message'] = $email_message;
+                $this->send_email($data, $response);
+            }
+        } else {
+            $returnData['status'] = FALSE;
+            $returnData['message'] = $file_status['message'];
+        }
         echo json_encode($returnData);
     }
 
     /**
      * @desc load upload payment file view
      */
-    function upload_payment_file(){
+    function upload_payment_file() {
         $this->miscelleneous->load_nav_header();
-	$this->load->view('employee/upload_payment_summary_invoice');
+        $this->load->view('employee/upload_payment_summary_invoice');
     }
+
     /**
      * @desc: this function used to process sf payment.
      * We will upload custom payment file.
@@ -1898,69 +1845,63 @@ function remap_in_bom_map($remap_bom_array){
                             $invalid_data['message'] = "Invalid Row Sheet";
                         }
                     }
-                    
+
                     $total_amount = (array_sum(array_column($sheetRowData, 'amount_paid')));
                     $p_amount_paid = $this->input->post("total_amount_paid");
-                    if(abs(round($total_amount,0)) == round($p_amount_paid,0) ){
+                    if (abs(round($total_amount, 0)) == round($p_amount_paid, 0)) {
                         $main_data = $this->get_service_center_filtered_data($sheetRowData);
-                        if($main_data['status']){
-                            if(!empty($main_data['data'])){
+                        if ($main_data['status']) {
+                            if (!empty($main_data['data'])) {
                                 foreach ($main_data['data'] as $value) {
-                                    
+
                                     $this->invoice_lib->process_add_new_transaction($value);
                                 }
-                                
+
                                 $response['status'] = TRUE;
                                 $response['message'] = "File Successfully uploaded.";
                                 $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
                                 $message = "File Successfully uploaded.";
-                                
                             } else {
                                 $response['status'] = FALSE;
                                 $response['message'] = "Data Filtered - Empty ";
-                                $message = "Payment file upload Failed"; 
+                                $message = "Payment file upload Failed";
                             }
                         } else {
-                             $response['status'] = FALSE;
-                             if(isset($main_data['message'])){
-                                 $response['message'] = $main_data['message'];
-                             } else {
-                                 $response['message'] = "File upload failed due to row data";
-                             }
-                             
-                             $message = "Payment file upload Failed"; 
-                        }
+                            $response['status'] = FALSE;
+                            if (isset($main_data['message'])) {
+                                $response['message'] = $main_data['message'];
+                            } else {
+                                $response['message'] = "File upload failed due to row data";
+                            }
 
+                            $message = "Payment file upload Failed";
+                        }
                     } else {
                         $response['status'] = FALSE;
                         $response['message'] = "Total Amount Paid amount is not matching.";
-                        $message = "Payment file upload Failed - Total Amount Paid amount is not matching."; 
+                        $message = "Payment file upload Failed - Total Amount Paid amount is not matching.";
                     }
-                
                 } else {
                     $response['status'] = FALSE;
-                    $response['message'] = "File upload Failed. ".$check_header['message'];
-                    $message = "Payment file upload Failed. ".$check_header['message']; 
+                    $response['message'] = "File upload Failed. " . $check_header['message'];
+                    $message = "Payment file upload Failed. " . $check_header['message'];
                 }
-                
-                $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'], $file_upload_status, "", "", "", $this->input->post("total_amount_paid"));
-                $this->send_email($data,$response);
-                
+
+                $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], $file_upload_status, "", "", "", $this->input->post("total_amount_paid"));
+                $this->send_email($data, $response);
             } else {
                 $response['status'] = FALSE;
                 $response['message'] = "File upload Failed. Empty file has been uploaded";
                 $message = "Payment file upload Failed. Empty file has been uploaded";
-                
             }
-            
-            
         } else {
             $response['status'] = FALSE;
-            $message = $file_status['message'];//"Unable to find Partner, Please refresh and try again";
+            $message = $file_status['message']; //"Unable to find Partner, Please refresh and try again";
         }
-        
-        echo $response['status']."~~".$message;
+
+        echo $response['status'] . "~~" . $message;
     }
+
     /**
      * @desc this is used to customized all excel data.
      * All data grouped accordingly SC
@@ -1975,8 +1916,8 @@ function remap_in_bom_map($remap_bom_array){
         $notifications = array();
         foreach ($data as $value) {
             if (round(abs($value['amount_due']), 0) >= round($value['amount_paid'], 0)) {
-                if($value['amount_paid'] == 0){
-                    if(!empty($value['invoice_remarks'])){
+                if ($value['amount_paid'] == 0) {
+                    if (!empty($value['invoice_remarks'])) {
                         $this->invoices_model->update_partner_invoices(array('invoice_id' => $value['invoice_id']), array('remarks' => $value['invoice_remarks']));
                         $notifications['failure'][$value['vendor_id']] = $value['invoice_remarks'];
                     }
@@ -2004,38 +1945,36 @@ function remap_in_bom_map($remap_bom_array){
                     if (!empty($value['invoice_remarks'])) {
                         $notifications['success'][$value['vendor_id']] = $value['invoice_remarks'];
                     }
-                   
                 }
-                
             } else {
                 $v['status'] = false;
-                $v['message'] = array('invoice_id' => "Amount Paid greater than amount due. Invoice ID: - ". $value['invoice_id']);
-               
+                $v['message'] = array('invoice_id' => "Amount Paid greater than amount due. Invoice ID: - " . $value['invoice_id']);
+
                 break;
             }
         }
-        
-        if(!empty($notifications)){
+
+        if (!empty($notifications)) {
             $this->send_dashboard_notification_to_vendor($notifications);
         }
-        
+
         log_message('info', __METHOD__ . " DATA " . print_r($main_data, true));
         $v['data'] = $main_data;
         return $v;
     }
-    
-    /**Desc - This function is used to show payment status of vendor **/
-    function send_dashboard_notification_to_vendor($notifications){
+
+    /*     * Desc - This function is used to show payment status of vendor * */
+
+    function send_dashboard_notification_to_vendor($notifications) {
         $data = array();
         $notification_type = "";
         foreach ($notifications as $key => $value) {
-            if($key == "success"){
-               $notification_type = PAYMENT_SUCCESS_NOTICATION_TYPE;
+            if ($key == "success") {
+                $notification_type = PAYMENT_SUCCESS_NOTICATION_TYPE;
+            } else {
+                $notification_type = PAYMENT_HOLD_NOTICATION_TYPE;
             }
-            else{
-               $notification_type = PAYMENT_HOLD_NOTICATION_TYPE; 
-            }
-            
+
             foreach ($value as $vid => $remarks) {
                 $rowData = array();
                 $rowData['entity_type'] = _247AROUND_SF_STRING;
@@ -2043,7 +1982,7 @@ function remap_in_bom_map($remap_bom_array){
                 $rowData['notification_type'] = $notification_type;
                 $rowData['message'] = $remarks;
                 $rowData['marquee'] = 1;
-                $rowData['start_date'] =  date("Y-m-d 00:00:00");
+                $rowData['start_date'] = date("Y-m-d 00:00:00");
                 $rowData['end_date'] = date('Y-m-d 00:00:00', strtotime("+2 day", strtotime(date("Y-m-d 00:00:00"))));
                 $rowData['create_date'] = date("Y-m-d H:i:s");
                 array_push($data, $rowData);
@@ -2051,68 +1990,67 @@ function remap_in_bom_map($remap_bom_array){
         }
         $this->dashboard_model->insert_dashboard_notification($data);
     }
-    
+
     /**
      * @desc - This function is used to update partner royalty on specified bookings
      * @param Array $data (excel data)
      * @return Array
      */
-    function process_partner_royalty_file_upload(){ 
-            $data = array();
-            $file_upload_status = FILE_UPLOAD_FAILED_STATUS;
-            $file_status = $this->get_upload_file_type();
-            if ($file_status['status']) {
-                $data = $this->read_upload_file_header($file_status);
-                if ($data['status']) {
-                    $data['post_data']['file_type'] = PARTNER_ROYALTY_FILE_TYPE;
-                    //column which must be present in the  upload inventory file
-                    $header_column_need_to_be_present = array('partner_royalty_charge');
-                    //check if required column is present in upload file header
-                    $check_header = $this->check_column_exist($header_column_need_to_be_present,$data['header_data']);
-                    if ($check_header['status']) {
-                        $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
-                        //get file data to process
-                        for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
-                            $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
-                            $sanitizes_row_data = array_map('trim',$rowData_array[0]);
-                            if(!empty(array_filter($sanitizes_row_data))){
-                                $rowData = array_combine($data['header_data'], $rowData_array[0]);
-                                $invoice_tax_amount = (($rowData['partner_royalty_charge'] * 18)/100);
-                                $invoice_basic_amount = $rowData['partner_royalty_charge'] - $invoice_tax_amount;
-                                $royalty_invoice_data = array(
-                                    'entity_type' => _247AROUND_PARTNER_STRING,
-                                    'entity_id' => $this->input->post('partner_id'),
-                                    'booking_id' => $rowData['booking_id'],
-                                    'booking_unit_id' => $rowData['booking_unit_id'],
-                                    'invoice_type' => ROYALTY,
-                                    'invoice_id' => $this->input->post('invoice_id'),
-                                    'booking_basic_amount' => $invoice_basic_amount,
-                                    'booking_tax_amount' => $invoice_tax_amount,
-                                );
-                                $this->invoices_model->insert_into_booking_debit_credit_detils($royalty_invoice_data);
-                                $this->reusable_model->update_table_where_in('booking_unit_details', array("royalty_invoice"=>$this->input->post('invoice_id')), array('id'=>$rowData['booking_unit_id']));
-                                $returnData['status'] = TRUE;
-                                $returnData['message'] = "File Successfully Uploaded";
-                            }
+    function process_partner_royalty_file_upload() {
+        $data = array();
+        $file_upload_status = FILE_UPLOAD_FAILED_STATUS;
+        $file_status = $this->get_upload_file_type();
+        if ($file_status['status']) {
+            $data = $this->read_upload_file_header($file_status);
+            if ($data['status']) {
+                $data['post_data']['file_type'] = PARTNER_ROYALTY_FILE_TYPE;
+                //column which must be present in the  upload inventory file
+                $header_column_need_to_be_present = array('partner_royalty_charge');
+                //check if required column is present in upload file header
+                $check_header = $this->check_column_exist($header_column_need_to_be_present, $data['header_data']);
+                if ($check_header['status']) {
+                    $file_upload_status = FILE_UPLOAD_SUCCESS_STATUS;
+                    //get file data to process
+                    for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
+                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
+                        $sanitizes_row_data = array_map('trim', $rowData_array[0]);
+                        if (!empty(array_filter($sanitizes_row_data))) {
+                            $rowData = array_combine($data['header_data'], $rowData_array[0]);
+                            $invoice_tax_amount = (($rowData['partner_royalty_charge'] * 18) / 100);
+                            $invoice_basic_amount = $rowData['partner_royalty_charge'] - $invoice_tax_amount;
+                            $royalty_invoice_data = array(
+                                'entity_type' => _247AROUND_PARTNER_STRING,
+                                'entity_id' => $this->input->post('partner_id'),
+                                'booking_id' => $rowData['booking_id'],
+                                'booking_unit_id' => $rowData['booking_unit_id'],
+                                'invoice_type' => ROYALTY,
+                                'invoice_id' => $this->input->post('invoice_id'),
+                                'booking_basic_amount' => $invoice_basic_amount,
+                                'booking_tax_amount' => $invoice_tax_amount,
+                            );
+                            $this->invoices_model->insert_into_booking_debit_credit_detils($royalty_invoice_data);
+                            $this->reusable_model->update_table_where_in('booking_unit_details', array("royalty_invoice" => $this->input->post('invoice_id')), array('id' => $rowData['booking_unit_id']));
+                            $returnData['status'] = TRUE;
+                            $returnData['message'] = "File Successfully Uploaded";
                         }
-                        
-                        $this->miscelleneous->update_file_uploads($data['file_name'],TMP_FOLDER.$data['file_name'], $data['post_data']['file_type'], $file_upload_status);
-                      
-                    } else {
-                        $returnData['status'] = FALSE;
-                        $returnData['message'] = "File upload Failed. ".$check_header['message'];
                     }
+
+                    $this->miscelleneous->update_file_uploads($data['file_name'], TMP_FOLDER . $data['file_name'], $data['post_data']['file_type'], $file_upload_status);
                 } else {
                     $returnData['status'] = FALSE;
-                    $returnData['message'] = "File upload Failed. Empty file has been uploaded";
+                    $returnData['message'] = "File upload Failed. " . $check_header['message'];
                 }
             } else {
                 $returnData['status'] = FALSE;
                 $returnData['message'] = "File upload Failed. Empty file has been uploaded";
             }
-            echo json_encode($returnData);
+        } else {
+            $returnData['status'] = FALSE;
+            $returnData['message'] = "File upload Failed. Empty file has been uploaded";
+        }
+        echo json_encode($returnData);
     }
-    
+
     /**
      * @desc - This function is used to insert model mapping data for uploaded alternate parts
      * @param $inventory_id, $alt_inventory_id
@@ -2121,33 +2059,31 @@ function remap_in_bom_map($remap_bom_array){
     function insert_Inventory_Model_Data($inventory_id, $model_id, $bom_main) {
         $data_model_mapping = array();
         $inventory_details = $this->inventory_model->get_inventory_model_data("*", array('inventory_id' => $inventory_id, 'model_number_id' => $model_id));
-        if(empty($inventory_details)) {
+        if (empty($inventory_details)) {
             $tmp = array();
             $tmp['model_number_id'] = $model_id;
             $tmp['inventory_id'] = trim($inventory_id);
             $tmp['bom_main_part'] = $bom_main;
             array_push($data_model_mapping, $tmp);
-            
+
             return $this->inventory_model->insert_batch_inventory_model_mapping($data_model_mapping);
-            
         } else {
             return TRUE;
         }
     }
-    
+
     /** @desc: This function is used to upload the partner mapping with service configuration
      * @param: void
      * @return void
      */
-    function import_partner_appliance_configuration() {    
-        
-            log_message('info', __FUNCTION__ . ' Function Start For Mapping Partner Appliance Configuration By '.$this->session->userdata('id'));
-            $this->miscelleneous->load_nav_header();
-            $this->load->view('employee/import_partner_appliance_configuration');        
+    function import_partner_appliance_configuration() {
+
+        log_message('info', __FUNCTION__ . ' Function Start For Mapping Partner Appliance Configuration By ' . $this->session->userdata('id'));
+        $this->miscelleneous->load_nav_header();
+        $this->load->view('employee/import_partner_appliance_configuration');
     }
-    
-    function upload_partner_appliance_list()
-    {
+
+    function upload_partner_appliance_list() {
         $file_status = $this->get_upload_file_type();
         $partner_id = $this->input->post('partner_id');
         $returnMsg = [];
@@ -2159,51 +2095,49 @@ function remap_in_bom_map($remap_bom_array){
                 //get file header
                 $data = $this->read_upload_file_header($file_status);
                 $data['post_data'] = $this->input->post();
-                $is_data_validated = true;                
-                
+                $is_data_validated = true;
+
                 //column which must be present in the  upload inventory file
-                $header_column_need_to_be_present = array('product', 'category', 'capacity');        
+                $header_column_need_to_be_present = array('product', 'category', 'capacity');
                 //check if required column is present in upload file header
                 $check_header = $this->check_column_exist($header_column_need_to_be_present, array_filter($data['header_data']));
-                $arr_mismatch = array_diff_assoc($header_column_need_to_be_present,$data['header_data']);
+                $arr_mismatch = array_diff_assoc($header_column_need_to_be_present, $data['header_data']);
 
-                if(!empty($arr_mismatch))
-                {
-                   // Invalid file format
-                   $errorMsg = 'Uploaded File format not Matches with requested format';
-                   $this->session->set_flashdata('file_error', $errorMsg);
-                   redirect(base_url() . 'file_upload/upload_partner_appliance_list');
+                if (!empty($arr_mismatch)) {
+                    // Invalid file format
+                    $errorMsg = 'Uploaded File format not Matches with requested format';
+                    $this->session->set_flashdata('file_error', $errorMsg);
+                    redirect(base_url() . 'file_upload/upload_partner_appliance_list');
                 }
-                
-                if($data['highest_row'] <= 1)
-                {
-                   // Empty file
-                   $errorMsg = 'Empty file uploaded';
-                   $this->session->set_flashdata('file_error', $errorMsg);
-                   redirect(base_url() . 'file_upload/upload_partner_appliance_list');
+
+                if ($data['highest_row'] <= 1) {
+                    // Empty file
+                    $errorMsg = 'Empty file uploaded';
+                    $this->session->set_flashdata('file_error', $errorMsg);
+                    redirect(base_url() . 'file_upload/upload_partner_appliance_list');
                 }
-                
+
                 if ($check_header['status']) {
-                    
+
                     // apply loop for validation.
                     for ($row = 2, $i = 0; $row <= $data['highest_row']; $row++, $i++) {
-                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);                        
+                        $rowData_array = $data['sheet']->rangeToArray('A' . $row . ':' . $data['highest_column'] . $row, NULL, TRUE, FALSE);
                         $sanitizes_row_data = $rowData_array[0];
-                        
+
                         if (!empty(array_filter($sanitizes_row_data))) {
 //                            $returnMsg[$row][0] = $sanitizes_row_data[0]; // Partner
                             $returnMsg[$row][0] = $sanitizes_row_data[0]; // Product
                             $returnMsg[$row][1] = $sanitizes_row_data[1]; // Category
                             $returnMsg[$row][2] = $sanitizes_row_data[2]; // Capacity  
-                            
+
                             $sanitizes_row_data = array_map('trim', $rowData_array[0]);
                             $sanitizes_row_data = array_map('strtoupper', $rowData_array[0]);
-                            
+
                             $data['header_data'] = array_map('trim', $data['header_data']);
                             $data['header_data'] = array_map('strtoupper', $data['header_data']);
                             $rowData = array_combine($data['header_data'], $rowData_array[0]);
                             $returnMsg[$row][3] = "";
-                            
+
                             // check empty data.
                             if (empty($rowData['PRODUCT']) || empty($rowData['CATEGORY']) || empty($rowData['CAPACITY'])) {
                                 // Insert Status of Record
@@ -2211,51 +2145,45 @@ function remap_in_bom_map($remap_bom_array){
                                 $is_data_validated = false;
                                 continue;
                             }
-                            
+
                             // Check For Product
-                            $arr_service = $this->reusable_model->get_search_result_data('services', 'id', ['UPPER(TRIM(services))' => $rowData['PRODUCT']], NULL, NULL, NULL, NULL, NULL);                            
+                            $arr_service = $this->reusable_model->get_search_result_data('services', 'id', ['UPPER(TRIM(services))' => $rowData['PRODUCT']], NULL, NULL, NULL, NULL, NULL);
                             if (empty($arr_service)) {
                                 $returnMsg[$row][3] .= 'Product Not Found<br/>`';
                                 $is_data_validated = false;
                                 continue;
-                            }
-                            else
-                            {
+                            } else {
                                 $service_id = $arr_service[0]['id'];
                             }
-                            
+
                             // Check For Category
-                            $category = strtoupper(preg_replace("/[^a-zA-Z0-9.-]/", "", $rowData['CATEGORY']));                            
-                            $arr_category = $this->reusable_model->get_search_result_data('category', 'id', ['private_key' => $category], NULL, NULL, NULL, NULL, NULL);                            
+                            $category = strtoupper(preg_replace("/[^a-zA-Z0-9.-]/", "", $rowData['CATEGORY']));
+                            $arr_category = $this->reusable_model->get_search_result_data('category', 'id', ['private_key' => $category], NULL, NULL, NULL, NULL, NULL);
                             if (empty($arr_category) && $is_data_validated) {
                                 // insert category.
                                 $category_data['private_key'] = $category;
                                 $category_data['name'] = $rowData['CATEGORY'];
                                 $category_id = $this->reusable_model->insert_into_table('category', $category_data);
                                 $returnMsg[$row][3] .= 'Inserted Category Data<br/>';
-                            }
-                            else
-                            {
+                            } else {
                                 $category_id = $arr_category[0]['id'];
                             }
-                            
+
                             // Check For Capacity
-                            $capacity = strtoupper(preg_replace("/[^a-zA-Z0-9.-]/", "", $rowData['CAPACITY']));                            
-                            $arr_capacity = $this->reusable_model->get_search_result_data('capacity', 'id', ['private_key' => $capacity], NULL, NULL, NULL, NULL, NULL);                            
+                            $capacity = strtoupper(preg_replace("/[^a-zA-Z0-9.-]/", "", $rowData['CAPACITY']));
+                            $arr_capacity = $this->reusable_model->get_search_result_data('capacity', 'id', ['private_key' => $capacity], NULL, NULL, NULL, NULL, NULL);
                             if (empty($arr_capacity) && $is_data_validated) {
                                 // insert capacity.
                                 $capacity_data['private_key'] = $capacity;
                                 $capacity_data['name'] = $rowData['CAPACITY'];
                                 $capacity_id = $this->reusable_model->insert_into_table('capacity', $capacity_data);
                                 $returnMsg[$row][3] .= 'Inserted Capacity Data<br/>';
-                            }
-                            else
-                            {
+                            } else {
                                 $capacity_id = $arr_capacity[0]['id'];
                             }
-                            
+
                             // check for service-category-capacity mapping
-                            $service_category_mapping_data = $this->reusable_model->get_search_result_data('service_category_mapping', 'id', ['service_id' => $service_id, 'category_id' => $category_id, 'capacity_id' => $capacity_id], NULL, NULL, NULL, NULL, NULL);                            
+                            $service_category_mapping_data = $this->reusable_model->get_search_result_data('service_category_mapping', 'id', ['service_id' => $service_id, 'category_id' => $category_id, 'capacity_id' => $capacity_id], NULL, NULL, NULL, NULL, NULL);
                             if (empty($service_category_mapping_data) && $is_data_validated) {
                                 // insert service-category-capacity mapping data.
                                 $service_category_mapping_data['service_id'] = $service_id;
@@ -2263,34 +2191,29 @@ function remap_in_bom_map($remap_bom_array){
                                 $service_category_mapping_data['capacity_id'] = $capacity_id;
                                 $appliance_configuration_id = $this->reusable_model->insert_into_table('service_category_mapping', $service_category_mapping_data);
                                 $returnMsg[$row][3] .= 'Inserted Record for Service-Category-Mapping';
-                            }
-                            else
-                            {
+                            } else {
                                 $appliance_configuration_id = $service_category_mapping_data[0]['id'];
-                            }                            
-                            
+                            }
+
                             // check for partner-appliance mapping
-                            $partner_appliance_mapping_data = $this->reusable_model->get_search_result_data('partner_appliance_mapping', 'id', ['partner_id' => $partner_id, 'appliance_configuration_id' => $appliance_configuration_id], NULL, NULL, NULL, NULL, NULL);                            
+                            $partner_appliance_mapping_data = $this->reusable_model->get_search_result_data('partner_appliance_mapping', 'id', ['partner_id' => $partner_id, 'appliance_configuration_id' => $appliance_configuration_id], NULL, NULL, NULL, NULL, NULL);
                             if (empty($partner_appliance_mapping_data) && $is_data_validated) {
                                 // insert partner-appliance mapping data.
                                 $partner_appliance_mapping_data['partner_id'] = $partner_id;
                                 $partner_appliance_mapping_data['appliance_configuration_id'] = $appliance_configuration_id;
                                 $partner_appliance_mapping_id = $this->reusable_model->insert_into_table('partner_appliance_mapping', $partner_appliance_mapping_data);
                                 $returnMsg[$row][3] .= 'Success';
-                            }
-                            else
-                            {
+                            } else {
                                 $returnMsg[$row][3] .= 'Mapping already exists';
                                 $partner_appliance_mapping_id = $partner_appliance_mapping_data[0]['id'];
-                            }                            
-                        }                                
+                            }
+                        }
                     }
-                }                
+                }
             }
         }
         $this->miscelleneous->load_nav_header();
-        $this->load->view('employee/import_partner_appliance_configuration', ['partner_id' => $partner_id, 'data' => $returnMsg]);        
+        $this->load->view('employee/import_partner_appliance_configuration', ['partner_id' => $partner_id, 'data' => $returnMsg]);
     }
 
 }
-
