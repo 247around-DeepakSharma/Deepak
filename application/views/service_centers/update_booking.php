@@ -182,6 +182,7 @@ else
                                                 <table class="table priceList table-striped table-bordered" name="priceList" id="priceList_1">
                                                     <tr>
                                                         <th>Service Category</th>
+                                                        <th>Customer Charges</th>
                                                         <th>Customer Net Payable</th>
                                                         <th>Selected Services</th>
                                                     </tr>
@@ -214,6 +215,7 @@ else
                                                                     } else {
                                                                         echo $partner_net_payable;
                                                                     }?>" readonly  />
+                                                            <td><?php echo $ct; ?></td>
                                                             <td>
                                                                 <?php  if(isset($unit_details[0]['quantity'])){
                                                                     $customer_net_payable = 0;
@@ -258,6 +260,9 @@ else
                                                                             echo "style= 'pointer-events: none;'";
                                                                         }
                                                                         else{
+                                                                            if($price['service_category'] ==  REPAIR_OOW_PARTS_PRICE_TAGS){
+                                                                                echo "style= 'pointer-events: none;'";
+                                                                            }
                                                                             if(($tags['price_tags'] == $price['service_category'])){
                                                                                 echo " checked ";
                                                                                 if($price['service_category'] ==  REPEAT_BOOKING_TAG){
@@ -354,6 +359,7 @@ else
                                                         <tr>
                                                             <th>Service Category</th>
                                                             <th>Customer Charges</th>
+                                                            <th>Customer Net Payable</th>
                                                             <th>Selected Services</th>
                                                         </tr>
                                                         <tbody>
@@ -386,6 +392,7 @@ else
                                                                         } else {
                                                                             echo $partner_net_payable;
                                                                         }?>" readonly />
+                                                                <td><?php echo $ct; ?></td>
                                                                 <td>
                                                                     <?php  if(isset($booking_unit_details['quantity'])){
                                                                         $customer_net_payable = NUll;
