@@ -22,14 +22,27 @@
     </div>
 
     <div class="col-md-2"> 
-        <label>Received Pic &nbsp;<span style="color:red;">*</span></label>
+        <label>Received Defective Pic &nbsp;</label>
     </div>        
     <div class="col-md-4"> 
         <input type="file" name="received_defective_part_pic_by_wh" id="received_defective_part_pic_by_wh">
         <input type="hidden" name="received_defective_part_pic_by_wh_exist" id="received_defective_part_pic_by_wh_exist">
     </div>          
 </div>    
-
+<div class="row form-group" style="padding: 10px;"> 
+    <div class="col-md-2"> 
+        <label>Weight</label>
+    </div>        
+    <div class="col-md-4"> 
+        <input type="number" class="form-control" style="width: 100%; display: inline-block;" id="defective_parts_shipped_weight_in_kg" name="defective_parts_shipped_kg" value="" placeholder="Weight"> 
+    </div>
+     <div class="col-md-2"> 
+        <label><strong> in KG</strong> </label>
+    </div> 
+    <div class="col-md-4">
+        <input type="number" class="form-control" style="width: 50%; display: inline-block;" id="defective_parts_shipped_weight_in_gram"   value=""   name="defective_parts_shipped_gram" placeholder="Weight">&nbsp;<strong>in Gram </strong>   
+    </div>        
+</div> 
 <div class="row form-group" style="padding: 10px;"> 
     <div class="col-md-3"> 
         <label>Remarks&nbsp;<span style="color:red;">*</span></label>
@@ -61,5 +74,78 @@
 
 
 <script>
+    
+    $("#defective_parts_shipped_weight_in_kg").on({
+        "click": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
+        },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
+
+    $("#defective_parts_shipped_weight_in_gram").on({
+        "click": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
+
+        },
+        "keypress": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 2) {
+                $(this).val('');
+                return false;
+            }
+
+            if (weight_kg == '0' || weight_kg == '00' || weight_kg == '000') {
+                $(this).val('');
+                return false;
+            }
+        },
+        "mouseleave": function () {
+            var weight_kg = $(this).val();
+            if (weight_kg.length > 3) {
+                $(this).val('');
+                return false;
+            }
+        }
+    });
     $(".spare_consumption_status").select2();
 </script>
