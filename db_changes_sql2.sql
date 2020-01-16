@@ -1752,3 +1752,12 @@ ALTER TABLE `engg_notification_detail` DROP `amount`;
 ALTER TABLE `engg_notification_detail` ADD `id` INT(11) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
 ALTER TABLE `engg_notification_detail` DROP `id`;
 ALTER TABLE `engg_notification_detail` ADD `notified` INT(5) NOT NULL DEFAULT '1' AFTER `message`;
+ 
+
+ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `device_id`;
+
+--Ankit 15-01-2019
+ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT NULL AFTER consumed_part_status_id;
+ALTER TABLE `engg_notification_detail` DROP `notified`;
+ALTER TABLE `engg_notification_detail`  ADD `notified` INT(5) NOT NULL DEFAULT '1'  AFTER `message`,  ADD `fire_base_response` TEXT NULL DEFAULT NULL  AFTER `notified`;
+ 
