@@ -80,7 +80,7 @@ function getCategoryForService(div_id) {
     var div_no = div_id.split('_');
 
     postData['service_id'] = $("#service_id").val();
-    postData['partner_id'] = $("#source_code").find(':selected').attr('data-id');
+    postData['partner_id'] = $("#partner_id").val();
     postData['partner_type'] = $("#partner_type").val();
     postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
 
@@ -109,13 +109,8 @@ function getCapacityForCategory(category, div_id, add_booking) {
     add_booking = add_booking || false;
     var postData = {};
     var div_no = div_id.split('_');
-    var source_code = $("#source_code").find(':selected').attr('data-id');
-    if(source_code === undefined)
-    {
-        source_code = $("#source_code").val();
-    }
     postData['service_id'] = $("#service_id").val();
-    postData['partner_id'] = source_code;
+    postData['partner_id'] = $("#partner_id").val();
     postData['category'] = category;
     postData['partner_type'] = $("#partner_type").val();
     postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
@@ -167,13 +162,13 @@ function getPricesForCategoryCapacity(div_id,add_booking) {
         postData['service_id'] = $("#service_id").val();
         postData['brand'] = $('#appliance_brand_' + div_no[2]).val();
         postData['category'] = $("#appliance_category_" + div_no[2]).val();
-        
+        postData['is_sf_panel'] = $("#is_sf_panel").val(); 
         postData['partner_type'] = $("#partner_type").val();
         postData['booking_city'] = $("#booking_city").val();
         postData['booking_pincode'] = $("#booking_pincode").val();
         postData['clone_number'] = div_no[2];
         postData['assigned_vendor_id'] = $("#assigned_vendor_id").val();
-        postData['partner_id'] = source_code;
+        postData['partner_id'] = $("#partner_id").val();;
         postData['add_booking'] = add_booking;
         postData['is_repeat'] = (($("#is_repeat").val()) ? $("#is_repeat").val(): 0);
         if(postData['is_repeat'] !== 1) {
@@ -272,11 +267,8 @@ function check_prepaid_balance(type) {
 
 function addBookingDialog(chanel = '') {
     var delivered_price_tags = [];
-    var partner_id = $("#source_code").find(':selected').attr('data-id');
+    var partner_id = $("#partner_id").val();
     var is_sf_panel = $("#is_sf_panel").val();
-    if(chanel == "sf_update"){
-         var partner_id = $("#source_code").val();
-    }
     $(".price_checkbox:checked").each(function (i) {
              var price_tags = $("#"+ $(this).attr('id')).attr('data-price_tag');
              delivered_price_tags.push(price_tags);
@@ -308,6 +300,7 @@ function addBookingDialog(chanel = '') {
     var booking_type = $("#booking_type").val();
     var is_active = $("#is_active").val();
     var div_count = $('.purchase_date').length;
+    var partner_id = $("#partner_id").val();
     var is_sf_panel = $("#is_sf_panel").val();
     var user_email = $("#booking_user_email").val();
     var parant_id = $('#parent_id').val();
@@ -1193,14 +1186,9 @@ function getModelForServiceCategoryCapacity(div_id) {
    
     var postData = {};
     var div_no = div_id.split('_');
-    var source_code = $("#source_code").find(':selected').attr('data-id');
-    if(source_code === undefined)
-    {
-        source_code = $("#source_code").val();
-    }
     
     postData['service_id'] = $("#service_id").val();
-    postData['partner_id'] = source_code;
+    postData['partner_id'] = $("#partner_id").val();
     postData['partner_type'] = $("#partner_type").val();
     postData['brand'] = $("#appliance_brand_" + div_no[2]).val();
     postData['category'] = $("#appliance_category_" + div_no[2]).val();
@@ -1280,7 +1268,7 @@ function getCapacityCategoryForModel(model_number, div_id) {
     var postData = {};
     var div_no = div_id.split('_');
     postData['model_number'] = model_number;
-    postData['partner_id'] = $("#source_code").val();
+    postData['partner_id'] = $("#partner_id").val();
     sendAjaxRequest(postData, CategoryCapacityForModelUrl).done(function (data) {
         var obj = JSON.parse(data);
         $("#appliance_category_" + div_no[2]).val(obj[0]['category']);
