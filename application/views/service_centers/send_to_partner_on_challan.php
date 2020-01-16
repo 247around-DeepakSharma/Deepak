@@ -248,7 +248,7 @@
                                     <label for="defective_parts_shippped_courier_pic_by_wh" class="col-md-4">No Of Boxes *</label>
                                     <div class="col-md-8">
                                         <select class="form-control" id="shipped_spare_parts_boxes_count" name="shipped_spare_parts_boxes_count"  required="">
-                                            <option selected="" disabled="" value="">Select Boxes</option>
+                                            <option selected disabled>Select Boxes</option>
                                             <?php for ($i = 1; $i < 11; $i++) { ?>
                                                 <option value="<?php echo $i; ?>" ><?php echo $i; ?></option>
                                             <?php } ?>
