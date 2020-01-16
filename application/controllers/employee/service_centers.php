@@ -6382,10 +6382,14 @@ class Service_centers extends CI_Controller {
         if (empty($is_cron)) {
             $this->check_WH_UserSession();
         }
-
+        
         $post_data = $this->input->post();
         $this->validate_received_defective_part_pic_file();
         $receive_defective_pic_by_wh = $this->input->post("receive_defective_pic_by_wh");
+        $defective_parts_shipped_kg = $this->input->post("defective_parts_shipped_kg") ? : 0;
+        $defective_parts_shipped_gram = $this->input->post("defective_parts_shipped_gram") ? : 000;
+        $received_weight = $defective_parts_shipped_kg.".".$defective_parts_shipped_gram;
+        
         if (!empty($post_data['consumption_data'])) { // if you receive multiple part.
             $consumption_data = json_decode($post_data['consumption_data'], true);
             $post_data['remarks'] = $consumption_data['remarks'];
@@ -6418,12 +6422,15 @@ class Service_centers extends CI_Controller {
                 }
             }
         }
-
+        
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
             'defective_part_received_by_wh' => 1, 'remarks_defective_part_by_wh' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
             'defective_part_received_date_by_wh' => date("Y-m-d H:i:s"), 'received_defective_part_pic_by_wh' => $receive_defective_pic_by_wh));
 
         if ($response) {
+            
+            $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail['awb_by_sf']), 
+                            array('actual_weight' => $received_weight, "billable_weight" => $received_weight));
 
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
                     . " SF Id" . $this->session->userdata('service_center_id'));

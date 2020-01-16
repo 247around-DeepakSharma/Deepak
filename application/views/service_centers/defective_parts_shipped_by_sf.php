@@ -271,6 +271,8 @@ if(flag) {
         }
         
         formData.append('received_defective_part_pic_by_wh_exist', $("#received_defective_part_pic_by_wh_exist").val());
+        formData.append('defective_parts_shipped_kg', $("#defective_parts_shipped_weight_in_kg").val());
+        formData.append('defective_parts_shipped_gram', $("#defective_parts_shipped_weight_in_gram").val());
         
         $('#multiple_received_part_consumption_data').val(JSON.stringify({consumed_status_id:$('#spare_consumption_status').val(), remarks:$('#multiple-consumption-remarks').val()}));
         
