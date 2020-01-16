@@ -106,10 +106,10 @@
 
 
                         <div class="col-md-3">
-                            <input type="file" class="form-control"  id="fileInput" name="file" required="">
+                            <input type="file" class="form-control"  id="fileInput"  name="file" required="">
 <?php echo form_error('file'); ?>
                         </div>
-                        <input type= "button"  class="col-md-2 btn btn-success btn-sm" id="smbtn" value ="Upload" > 
+                        <input type= "button"  class="col-md-2 btn btn-success btn-sm"  disabled="" id="smbtn" value ="Upload" > 
                         <a class="btn btn-primary btn-sm" style="float:right" target='_blank' href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/partner_model_sample_file.xlsx'>Download Sample File</a>
                     </div>
                 </form>
@@ -167,6 +167,31 @@
         });
     }
 
+
+$("#fileInput").change(function(){
+
+        var f = this.files[0];
+        var flag=false;
+        var ext = this.value.match(/\.(.+)$/)[1];
+        switch (ext) {
+        case 'xlsx':
+        case 'xls':
+        case 'XLS':
+        case 'XLSX':
+             flag=true;
+        }
+        //here I CHECK if the FILE SIZE is bigger than 5 MB (numbers below are in bytes)
+        if (f.size > 5242882 || f.fileSize > 5242882 || flag==false)
+        {
+           //show an alert to the user
+           swal("Error!", "Allowed file size exceeded. (Max. 5 MB) and must be PDF", "error");
+           //reset file upload control
+           this.value = null;
+        }else{
+          $("#smbtn").removeAttr("disabled");
+        }
+
+});
 
 
     $("#smbtn").click(function (e) {
