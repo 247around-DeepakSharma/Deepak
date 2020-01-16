@@ -588,6 +588,7 @@ class Service_centers extends CI_Controller {
 
                                 // variable $unit_id  is existing id in booking unit details table of given booking id 
                                 $data = array();
+                                $ud_data = array();
                                 if ($unit_temp_id != $unit_id) {
                                     $data['added_by_sf'] = 1;
                                 }
@@ -627,6 +628,8 @@ class Service_centers extends CI_Controller {
                                     $data['serial_number'] = $trimSno;
                                     $data['serial_number_pic'] = trim($serial_number_pic[$unit_id]);
                                     $data['is_sn_correct'] = $is_sn_correct[$unit_id];
+                                    $ud_data['serial_number'] = $trimSno;
+                                    $ud_data['serial_number_pic'] = trim($serial_number_pic[$unit_id]);
                                 }
                                 if (!empty($getremarks[0]['service_center_remarks'])) {
 
@@ -647,8 +650,12 @@ class Service_centers extends CI_Controller {
 
                                 $i++;
                                 $this->vendor_model->update_service_center_action($booking_id, $data);
+                                if(!empty($ud_data))
+                                {
+                                    $this->booking_model->update_booking_unit_details($booking_id, $data);
                             }
                         }
+                    }
                     }
 
                     if ($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
