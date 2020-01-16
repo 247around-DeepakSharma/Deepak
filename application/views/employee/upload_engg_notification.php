@@ -184,7 +184,7 @@ $("#fileInput").change(function(){
         if (f.size > 5242882 || f.fileSize > 5242882 || flag==false)
         {
            //show an alert to the user
-           swal("Error!", "Allowed file size exceeded. (Max. 5 MB) and must be PDF", "error");
+           swal("Error!", "Allowed file size exceeded. (Max. 5 MB) and must be Excel", "error");
            //reset file upload control
            this.value = null;
         }else{
