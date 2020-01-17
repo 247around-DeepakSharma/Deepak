@@ -391,6 +391,7 @@
                                         <th class="text-center" data-orderable="false">Requested Quantity</th>
                                         <th class="text-center" data-orderable="false">Shipped Quantity</th>
                                         <th class="text-center" data-orderable="false">Part Shipped Date</th>
+                                        <th class="text-center" data-orderable="false">Consumption Reason</th>
                                         <th class="text-center" data-orderable="false">Courier Name</th>
                                         <th class="text-center" data-orderable="false">AWB</th>
                                         <th class="text-center" data-orderable="false">Courier Charges</th>
