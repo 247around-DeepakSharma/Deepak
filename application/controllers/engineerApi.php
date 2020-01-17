@@ -1960,7 +1960,7 @@ class engineerApi extends CI_Controller {
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     $bookings[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
-                    $spare_resquest = $this->checkSparePartsOrder($value);
+                    $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
                     $bookings[$key]['message'] =  $spare_resquest['message'];
                 }
@@ -1984,7 +1984,7 @@ class engineerApi extends CI_Controller {
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     $missed_bookings[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
-                    $spare_resquest = $this->checkSparePartsOrder($value);
+                    $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
                     $bookings[$key]['message'] =  $spare_resquest['message']; 
                 }
@@ -2013,7 +2013,7 @@ class engineerApi extends CI_Controller {
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     $tomorrowBooking[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
-                    $spare_resquest = $this->checkSparePartsOrder($value);
+                    $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
                     $bookings[$key]['message'] =  $spare_resquest['message']; 
 
