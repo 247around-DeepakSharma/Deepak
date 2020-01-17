@@ -15,6 +15,7 @@ class Warranty extends CI_Controller {
         $this->load->library("session");
         $this->load->library('miscelleneous');
         $this->load->library('warranty_utilities');
+        $this->load->model('reusable_model');
         if ($this->session->userdata('loggedIn') == TRUE) {
             return TRUE;
         } else {
@@ -264,10 +265,524 @@ class Warranty extends CI_Controller {
     }
     
     
-    public function add_warranty_plan()
+    public function add_warranty_plan($data = array())
     {
         $this->miscelleneous->load_nav_header();
-        $this->load->view('warranty/add_warranty_plan');
+        $this->load->view('warranty/add_warranty_plan', $data);
     }
  
+    
+    function get_partner_list_dropdown()
+    {
+        try
+        {
+            if ($this->input->is_ajax_request()) {
+                $data = '';
+                $result = $this->warranty_model->get_partner_list();
+                foreach($result as $row)
+                {
+                    $data.= "<option value='".$row['id']."'>".$row['name']."</option>";
+                }
+                echo $data;
+             }
+            else {
+                echo '';
+            }
+            
+        }
+        catch(Exception $ex)
+        {
+            echo '';
+        }
+    }
+    
+    
+    function get_partner_service_list_dropdown()
+    {
+        try
+        {
+            if ($this->input->is_ajax_request()) {
+                $data = '<option value="0" selected>Select</option>';
+                $partner_id = $this->input->post('partner_id', TRUE);
+                $result = $this->warranty_model->get_partner_service_list($partner_id);
+                foreach($result as $row)
+                {
+                    $data.= "<option value='".$row['service_id']."'>".$row['services']."</option>";
+                }
+                echo $data;
+             }
+            else {
+                echo '';
+            }
+            
+        }
+        catch(Exception $ex)
+        {
+            echo '';
+        }
+    }
+    
+   
+    function get_state_list_dropdown()
+    {
+        try
+        {
+            if ($this->input->is_ajax_request()) {
+                $data = '';
+                $result = $this->warranty_model->get_state_list();
+                foreach($result as $row)
+                {
+                    $data.= "<option value='".$row['id']."'>".$row['name']."</option>";
+                }
+                echo $data;
+             }
+            else {
+                echo '';
+            }
+            
+        }
+        catch(Exception $ex)
+        {
+            echo '';
+        }
+    }
+    
+    
+    function save_warranty_plan()
+    {
+        try
+        {
+            if ($this->input->server('REQUEST_METHOD') == 'POST') {
+                
+                //start validation
+                $this->form_validation->set_rules('plan_name', 'plan name', 'trim|required'); 
+                $this->form_validation->set_rules('partner', 'partner', 'callback_validate_partner'); 
+                $this->form_validation->set_rules('service', 'service', 'callback_validate_service'); 
+                $this->form_validation->set_rules('state', 'state', 'callback_validate_state'); 
+                $this->form_validation->set_rules('warranty_type', 'warranty type', 'callback_validate_warranty_type'); 
+                $this->form_validation->set_rules('start_date', 'plan start date', 'callback_validate_start_date'); 
+                $this->form_validation->set_rules('end_date', 'plan end date', 'callback_validate_end_date['.$this->input->post("start_date", TRUE).']'); 
+                $this->form_validation->set_rules('warranty_period', 'warranty period', 'callback_validate_warranty_period'); 
+                $this->form_validation->set_rules('warranty_grace_period', 'warranty grace period', 'callback_validate_warranty_grace_period'); 
+                
+                if ($this->form_validation->run() == FALSE) { 
+                    //validation fail
+                   // $this->session->set_flashdata('error','Please Fill All Mandatory Fields.'.validation_errors());
+                    
+                    //load view again with filled data
+                    $this->add_warranty_plan($_POST);
+                    
+                    //redirect(base_url().'employee/warranty/add_warranty_plan');
+                } 
+                else { 
+                    //validation success
+                       $arr_data = array();
+                       $arr_data['plan_name'] = $this->input->post('plan_name', TRUE);
+                       $arr_data['partner_id'] = $this->input->post('partner', TRUE);
+                       $arr_data['warranty_type'] = $this->input->post('warranty_type', TRUE);
+                       $arr_data['service_id'] = $this->input->post('service', TRUE);
+                       $arr_data['period_start'] = $this->input->post('start_date', TRUE);
+                       $end_date = $this->input->post('end_date', TRUE);
+                       $arr_data['period_end'] = $end_date." 23:59:59";
+                       $arr_data['warranty_period'] = $this->input->post('warranty_period', TRUE);
+                       $arr_data['warranty_grace_period'] = $this->input->post('warranty_grace_period', TRUE);
+                       $state = $this->input->post('state');
+                       $arr_data['plan_description'] = $this->input->post('description', TRUE);
+                       
+                       //check if user selected checkboxes or not
+                       if(isset($_POST['service_charge']))
+                       {
+                           $arr_data['inclusive_svc_charge'] = $_POST['service_charge'];
+                       }
+                       else
+                       {
+                           $arr_data['inclusive_svc_charge'] = 0;
+                       }  
+                       
+                       if(isset($_POST['gas_charge']))
+                       {
+                           $arr_data['inclusive_gas_charge'] = $_POST['gas_charge'];
+                       }
+                       else
+                       {
+                           $arr_data['inclusive_gas_charge'] = 0;
+                       }  
+                       
+                       if(isset($_POST['transport_charge']))
+                       {
+                           $arr_data['inclusive_transport_charge'] = $_POST['transport_charge'];
+                       }
+                       else
+                       {
+                           $arr_data['inclusive_transport_charge'] = 0;
+                       }  
+                       
+                       $arr_data['is_active'] = 1;
+                       $arr_data['create_date'] = date("y-m-d H:i:s");
+                       //get employee id from session
+                       $created_by_name = $this->session->userdata('employee_id');
+                       $created_by_id = $this->session->userdata('id');
+                       $arr_data['created_by'] = $created_by_name;
+                       $arr_data['plan_depends_on'] = 1;
+                       
+                       //transaction start
+                       $this->db->trans_start();
+                       
+                       //insert data in warranty_plans table
+                       $plan_id = $this->reusable_model->insert_into_table('warranty_plans', $arr_data);
+                        if (empty($plan_id)) {
+                            //Insert was not successful
+                            $this->db->trans_rollback();
+                            $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');    
+                            redirect(base_url().'employee/warranty/add_warranty_plan');
+                            return false;
+                        }
+                        else
+                        {
+                            //Insert was successful
+                            //check if all states were selected or not
+                            $all_selected = 0;
+                            foreach($state as $state_code)
+                            {
+                                //all state code is 0
+                                if($state_code == 0)
+                                {
+                                    $all_selected = 1;
+                                    break;
+                                }
+                            }
+                            
+                            //Inserting data in warranty_plan_state_mapping table to map plan state wise
+                            if($all_selected)
+                            {
+                                //all states were selected, so get list of all states from db and then save data in table
+                                $all_states = $result = $this->warranty_model->get_state_list();
+                                if($all_states)
+                                {
+                                    foreach($all_states as $state_code)
+                                    {
+                                        $state_data = [];
+                                        $state_data['state_code'] = $state_code['id'];
+                                        $state_data['plan_id'] = $plan_id;
+                                        $state_data['create_date'] = date('Y-m-d H:i:s');
+                                        $state_data['created_by'] = $created_by_id;
+                                        $plan_state_mapping_id = $this->reusable_model->insert_into_table('warranty_plan_state_mapping', $state_data);                                    
+                                        if(empty($plan_state_mapping_id))
+                                        {
+                                            $this->db->trans_rollback();
+                                            $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');    
+                                            redirect(base_url().'employee/warranty/add_warranty_plan');
+                                            return false;
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    //states not found
+                                    $this->db->trans_rollback();
+                                    $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');    
+                                    redirect(base_url().'employee/warranty/add_warranty_plan');
+                                    return false;
+                                }    
+                                
+                            }
+                            else
+                            {
+                                 //all states were not selected
+                                foreach($state as $state_code)
+                                {
+                                    $state_data = [];
+                                    $state_data['state_code'] = $state_code;
+                                    $state_data['plan_id'] = $plan_id;
+                                    $state_data['create_date'] = date('Y-m-d H:i:s');
+                                    $state_data['created_by'] = $created_by_id;
+                                    $plan_state_mapping_id = $this->reusable_model->insert_into_table('warranty_plan_state_mapping', $state_data);                                    
+                                    if(empty($plan_state_mapping_id))
+                                    {
+                                        $this->db->trans_rollback();
+                                        $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');    
+                                        redirect(base_url().'employee/warranty/add_warranty_plan');
+                                        return false;
+                                    }
+                                }
+                                
+                            }    
+                            
+                            
+                        }
+                        
+                        $this->db->trans_complete();
+                        if ($this->db->trans_status() === FALSE)
+                        {
+                            //transaction was unsuccessful, so rollback transaction
+                            $this->db->trans_rollback();
+                            $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');    
+                            redirect(base_url().'employee/warranty/add_warranty_plan');
+                            return false;
+                        }
+                        else
+                        {
+                            //transaction was successful, so commit transaction
+                            $this->db->trans_commit();
+                            $this->session->set_flashdata('success','Warranty plan saved successfully.');    
+                            redirect(base_url().'employee/warranty/add_warranty_plan');
+                        }    
+                       
+                }
+
+             }
+            else {
+               // $this->session->set_flashdata('error','Something went wrong. Please try again after sometime');
+                redirect(base_url().'employee/warranty/add_warranty_plan');
+            }
+            
+        }
+        catch(Exception $ex)
+        {
+            $this->db->trans_rollback();
+            $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');
+            redirect(base_url().'employee/warranty/add_warranty_plan');
+        }
+    }
+    
+    
+    public function validate_warranty_period($integer)
+    {
+        $valid = 0;
+        if(isset($integer))
+        {
+            $integer = trim($integer);
+            if(ctype_digit($integer) && $integer > 0)
+            {
+                $valid = 1;
+            }
+            
+        }
+       
+        
+        if($valid)
+        {
+            return true;
+        }
+        else
+        {
+            $this->form_validation->set_message('validate_warranty_period', 'The warranty period field should be valid integer');
+            return FALSE;
+        }    
+        
+    }
+    
+     public function validate_warranty_grace_period($integer)
+    {
+        $valid = 0;
+        if(isset($integer))
+        {
+            $integer = trim($integer);
+            if(ctype_digit($integer) && $integer > 0)
+            {
+                $valid = 1;
+            }
+            
+        }
+       
+        
+        if($valid)
+        {
+            return true;
+        }
+        else
+        {
+            $this->form_validation->set_message('validate_warranty_grace_period', 'The warranty grace period field should be valid integer');
+            return FALSE;
+        }    
+        
+    }
+    
+    
+     public function validate_partner($integer)
+    {
+        $valid = 0;
+        if(isset($integer))
+        {
+            $integer = trim($integer);
+            if(ctype_digit($integer) && $integer > 0)
+            {
+                $valid = 1;
+            }
+            
+        }
+       
+        
+        if($valid)
+        {
+            return true;
+        }
+        else
+        {
+            $this->form_validation->set_message('validate_partner', 'The partner field should be valid');
+            return FALSE;
+        }    
+        
+    }
+    
+    public function validate_service($integer)
+    {
+        $valid = 0;
+        if(isset($integer))
+        {
+            $integer = trim($integer);
+            if(ctype_digit($integer) && $integer > 0)
+            {
+                $valid = 1;
+            }
+            
+        }
+       
+        
+        if($valid)
+        {
+            return true;
+        }
+        else
+        {
+            $this->form_validation->set_message('validate_service', 'The service field should be valid');
+            return FALSE;
+        }    
+        
+    }
+    
+    
+     public function validate_state($state_array)
+    {
+        $valid = 1;
+        if(isset($state_array))
+        {
+            //check if sttae array is not empty
+            if(count($state_array)>0)
+            {
+                //check if each state code is integer
+                foreach($state_array as $state_code)
+                {
+                    if(!ctype_digit($state_code))
+                    {
+                        $valid = 0;
+                        break;
+                    }
+                }
+            }
+            else {
+                 $valid = 0;
+            }
+            
+            
+        }
+        else
+        {
+            $valid = 0;
+        }    
+        
+        if($valid)
+        {
+            return true;
+        }
+        else
+        {
+            $this->form_validation->set_message('validate_state', 'The state field should be valid');
+            return FALSE;
+        }    
+        
+    }
+    
+    
+    public function validate_start_date($date)
+    {
+        $valid = 0;
+        if(isset($date))
+        {
+            $date = trim($date);
+            $date_arr  = explode('-', $date);
+            if (count($date_arr) == 3) {
+                if (checkdate($date_arr[1], $date_arr[2], $date_arr[0])) {
+                    $valid = 1;
+                } 
+            } 
+            
+        }
+       
+        
+        if($valid)
+        {
+            return true;
+        }
+        else
+        {
+            $this->form_validation->set_message('validate_start_date', 'The start date field should be valid date');
+            return FALSE;
+        }    
+    }
+    
+    
+    public function validate_end_date($date, $start_date)
+    {
+        $valid = 0;
+        if(isset($date))
+        {
+            $date = trim($date);
+            $date_arr  = explode('-', $date);
+            if (count($date_arr) == 3) {
+                if (checkdate($date_arr[1], $date_arr[2], $date_arr[0])) {
+                    $valid = 1;
+                } 
+            } 
+            
+        }
+       
+        
+        if($valid)
+        {
+            
+            if($date<$start_date)
+            {
+                $this->form_validation->set_message('validate_end_date', 'The end date field should be less than start date date '.$start_date);
+                return FALSE;
+            }
+            else
+            {
+                return true;
+            }
+        }
+        else
+        {
+            $this->form_validation->set_message('validate_end_date', 'The end date field should be valid date');
+            return FALSE;
+        }    
+    }
+    
+    
+     public function validate_warranty_type($integer)
+    {
+        $valid = 0;
+        if(isset($integer))
+        {
+            $integer = trim($integer);
+            if(ctype_digit($integer) && ($integer == 1 or $integer == 2))
+            {
+                $valid = 1;
+            }
+            
+        }
+       
+        
+        if($valid)
+        {
+            return true;
+        }
+        else
+        {
+            $this->form_validation->set_message('validate_warranty_type', 'The warranty type field should be valid');
+            return FALSE;
+        }    
+        
+    }
+    
 }

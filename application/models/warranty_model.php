@@ -7,6 +7,7 @@ class Warranty_model extends CI_Model {
      */
     function __construct() {
         parent::__Construct();
+        $this->load->helper('custom_functions_helper');
     }
 
     /**
@@ -254,5 +255,34 @@ class Warranty_model extends CI_Model {
         log_message ('info', __METHOD__);
         $this->db->where('plan_id', $plan_id);
         $this->db->update('warranty_plans', ['is_active' => 0]);
+    }
+    
+    function get_partner_list()
+    {
+        $this->db->select('id, public_name as name');
+        $this->db->order_by('name');
+        $query = $this->db->get("partners");
+        $results = $query->result_array();
+        return $results;
+    }
+    
+    function get_partner_service_list($partner_id)
+    {
+        $params = array($partner_id);
+        $query = "SELECT pad.service_id, s.services FROM partner_appliance_details as pad, services as s where pad.service_id = s.id and partner_id=? group by pad.partner_id, pad.service_id order by services";
+//        $response = $this->db->query($query, $params);
+//        $results = $response->result_array();
+        $results = execute_paramaterised_query($query, $params);
+        return $results;
+    }
+    
+    
+    function get_state_list()
+    {
+        $this->db->select('state_code as id, state as name');
+        $this->db->order_by('name');
+        $query = $this->db->get("state_code");
+        $results = $query->result_array();
+        return $results;
     }
 }
