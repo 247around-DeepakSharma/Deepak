@@ -233,7 +233,7 @@ class Service_centers_model extends CI_Model {
         $userSelect = $join = $groupBy = $having = "";
         $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL OR booking_details.amount_due != 0)";
          if($is_partner){
-            $where_sc = " AND (partners.booking_review_for IS NOT NULL AND booking_details.amount_due = 0)";
+            $where_sc = " AND (partners.booking_review_for IS NOT NULL)";
         }
         if($status == "Cancelled"){
             $where_sc = $where_sc." AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id "
