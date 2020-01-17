@@ -588,6 +588,7 @@ class Service_centers extends CI_Controller {
 
                                 // variable $unit_id  is existing id in booking unit details table of given booking id 
                                 $data = array();
+                                $ud_data = array();
                                 if ($unit_temp_id != $unit_id) {
                                     $data['added_by_sf'] = 1;
                                 }
@@ -627,6 +628,8 @@ class Service_centers extends CI_Controller {
                                     $data['serial_number'] = $trimSno;
                                     $data['serial_number_pic'] = trim($serial_number_pic[$unit_id]);
                                     $data['is_sn_correct'] = $is_sn_correct[$unit_id];
+                                    $ud_data['serial_number'] = $trimSno;
+                                    $ud_data['serial_number_pic'] = trim($serial_number_pic[$unit_id]);
                                 }
                                 if (!empty($getremarks[0]['service_center_remarks'])) {
 
@@ -647,8 +650,12 @@ class Service_centers extends CI_Controller {
 
                                 $i++;
                                 $this->vendor_model->update_service_center_action($booking_id, $data);
+                                if(!empty($ud_data))
+                                {
+                                    $this->booking_model->update_booking_unit_details($booking_id, $data);
                             }
                         }
+                    }
                     }
 
                     if ($booking_symptom['symptom_id_booking_completion_time'] || $booking_symptom['defect_id_completion'] || $booking_symptom['solution_id']) {
@@ -6382,10 +6389,14 @@ class Service_centers extends CI_Controller {
         if (empty($is_cron)) {
             $this->check_WH_UserSession();
         }
-
+        
         $post_data = $this->input->post();
         $this->validate_received_defective_part_pic_file();
         $receive_defective_pic_by_wh = $this->input->post("receive_defective_pic_by_wh");
+        $defective_parts_shipped_kg = $this->input->post("defective_parts_shipped_kg") ? : 0;
+        $defective_parts_shipped_gram = $this->input->post("defective_parts_shipped_gram") ? : 000;
+        $received_weight = $defective_parts_shipped_kg.".".$defective_parts_shipped_gram;
+        
         if (!empty($post_data['consumption_data'])) { // if you receive multiple part.
             $consumption_data = json_decode($post_data['consumption_data'], true);
             $post_data['remarks'] = $consumption_data['remarks'];
@@ -6418,12 +6429,15 @@ class Service_centers extends CI_Controller {
                 }
             }
         }
-
+        
         $response = $this->service_centers_model->update_spare_parts(array('id' => $spare_id), array('status' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
             'defective_part_received_by_wh' => 1, 'remarks_defective_part_by_wh' => DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE,
             'defective_part_received_date_by_wh' => date("Y-m-d H:i:s"), 'received_defective_part_pic_by_wh' => $receive_defective_pic_by_wh));
 
         if ($response) {
+            
+            $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail['awb_by_sf']), 
+                            array('actual_weight' => $received_weight, "billable_weight" => $received_weight));
 
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
                     . " SF Id" . $this->session->userdata('service_center_id'));
@@ -8317,7 +8331,7 @@ class Service_centers extends CI_Controller {
                     'partner_id' => $to_details[0]['partner_id'],
                     'is_micro_wh' => $to_details[0]['is_micro_wh'],
                     'purchase_invoice_id' => $to_details[0]['purchase_invoice_id'],
-                    'model_number_shipped' => $to_details[0]['model_number_shipped'],
+                    'model_number_shipped' => $to_details[0]['model_number'], ////  during part requested shipped data NA
                     'parts_shipped' => $to_details[0]['parts_shipped'],
                     'shipped_parts_type' => $to_details[0]['shipped_parts_type'],
                     'shipped_date' => $to_details[0]['shipped_date'],

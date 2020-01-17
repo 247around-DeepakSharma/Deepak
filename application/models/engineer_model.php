@@ -428,4 +428,28 @@ class Engineer_model extends CI_Model {
         }
         $this->db->update("engineer_incentive_details", $data);
     }
+
+
+    /*
+     *@Desc - This function is used to insert engineer notification details
+     *@param - $data, $where
+     *@return - 
+     */
+
+    function insert_engg_notification_data($data){
+        $this->db->insert("engg_notification_detail", $data);
+        return $this->db->insert_id();
+
+    }
+
+
+    function update_engg_notification_data($data,$id){
+        $this->db->where('id',$id);
+        $this->db->update("engg_notification_detail", $data);
+        return $this->db->insert_id();
+
+    }
+
+
+
 }

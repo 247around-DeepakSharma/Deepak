@@ -1462,7 +1462,7 @@ class Booking extends CI_Controller {
         $assigned_vendor_id = $this->input->post('assigned_vendor_id');
         $phone_number = trim($this->input->post('phone_number'));
         $is_saas = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
-        $is_sf_panel = (($this->session->userdata('userType') == 'service_center') && !empty($this->session->userdata('service_center_id')) && !empty($this->session->userdata('is_sf'))) ? true : false;
+        $is_sf_panel = $this->input->post('is_sf_panel');
         if($this->input->post('add_booking')){
             $add_booking = $this->input->post('add_booking');
         }
@@ -1503,7 +1503,7 @@ class Booking extends CI_Controller {
         if (!empty($result)) {
             if($is_sf_panel)
             {
-                $html = "<thead><tr><th>Service Category</th><th>Final Charges</th><th>Selected Services</th></tr></thead>";
+                $html = "<thead><tr><th>Service Category</th><th style='display:none;'>Std. Charges</th><th>Customer Net Payable</th><th>Selected Services</th></tr></thead>";
             }
             elseif(!$is_saas){
                 $html = "<thead><tr><th>Service Category</th><th>Std. Charges</th><th>Partner Discount</th><th>Final Charges</th><th>247around Discount</th><th>Selected Services</th></tr></thead>";
@@ -1524,13 +1524,14 @@ class Booking extends CI_Controller {
                 }
                 else
                 {
+                    $html .= "<td style='display:none;'>" . $prices['customer_total'] . "</td>";
                     $html .= "<td>" . $prices['customer_net_payable'] . "<input  type='hidden' class='form-control partner_discount' name= 'partner_paid_basic_charges[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='partner_paid_basic_charges_" . $i . "_" . $clone_number . "' value = '" . $prices['partner_net_payable'] . "' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'/></td>";
                 }
                 
                 if(!$is_sf_panel)
                 {
                     if(!$is_saas){
-                        $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
+                        $html .= "<td><input  type='text' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly onblur='chkPrice($(this),". $prices['customer_total'].")'></td>";
                     }
                     else{
                         $html .= "<td><input  type='hidden' class='form-control discount' name= 'discount[$brand_id][$clone_number][" . $prices['id'] . "][]'  id='discount_" . $i . "_" . $clone_number . "' value = '". $prices['around_net_payable']."' placeholder='Enter discount' readonly></td>";
@@ -2389,6 +2390,7 @@ class Booking extends CI_Controller {
                         $data_service_center['additional_service_charge'] = $data['customer_paid_extra_charges'];
                         $data_service_center['parts_cost'] = $data['customer_paid_parts'];
                         $data_service_center['serial_number'] = $data['serial_number'];
+                        $data_service_center['serial_number_pic'] = $data['serial_number_pic'];
                         $data_service_center['amount_paid'] = $total_amount_paid;
                         if ($k == 0) {
                             $data_service_center['upcountry_charges'] = $upcountry_charges;
@@ -2444,6 +2446,7 @@ class Booking extends CI_Controller {
                 $service_center['additional_service_charge'] = $data['customer_paid_extra_charges'];
                 $service_center['parts_cost'] = $data['customer_paid_parts'];
                 $service_center['serial_number'] = $data['serial_number'];
+                $service_center['serial_number_pic'] = $data['serial_number_pic'];
                 $service_center['amount_paid'] = $total_amount_paid;
                 if ($k == 0) {
                     $service_center['upcountry_charges'] = $upcountry_charges;
