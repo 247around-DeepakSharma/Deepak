@@ -652,8 +652,8 @@ class Service_centers extends CI_Controller {
                                 $this->vendor_model->update_service_center_action($booking_id, $data);
                                 if(!empty($ud_data))
                                 {
-                                    $this->booking_model->update_booking_unit_details($booking_id, $data);
-                            }
+                                    $this->booking_model->update_booking_unit_details($booking_id, $ud_data);
+                                }
                         }
                     }
                     }
