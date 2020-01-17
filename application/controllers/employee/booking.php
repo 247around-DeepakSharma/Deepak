@@ -2390,6 +2390,7 @@ class Booking extends CI_Controller {
                         $data_service_center['additional_service_charge'] = $data['customer_paid_extra_charges'];
                         $data_service_center['parts_cost'] = $data['customer_paid_parts'];
                         $data_service_center['serial_number'] = $data['serial_number'];
+                        $data_service_center['serial_number_pic'] = $data['serial_number_pic'];
                         $data_service_center['amount_paid'] = $total_amount_paid;
                         if ($k == 0) {
                             $data_service_center['upcountry_charges'] = $upcountry_charges;
@@ -2445,6 +2446,7 @@ class Booking extends CI_Controller {
                 $service_center['additional_service_charge'] = $data['customer_paid_extra_charges'];
                 $service_center['parts_cost'] = $data['customer_paid_parts'];
                 $service_center['serial_number'] = $data['serial_number'];
+                $service_center['serial_number_pic'] = $data['serial_number_pic'];
                 $service_center['amount_paid'] = $total_amount_paid;
                 if ($k == 0) {
                     $service_center['upcountry_charges'] = $upcountry_charges;
