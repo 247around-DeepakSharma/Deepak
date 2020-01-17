@@ -1840,7 +1840,10 @@ class engineerApi extends CI_Controller {
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-            $select = "count(distinct(booking_details.booking_id)) as bookings";
+        	///  Abhishek ... Insread of count passing the entire response ////
+            $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
+                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
             $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
                     . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
@@ -1878,9 +1881,9 @@ class engineerApi extends CI_Controller {
             } else {
                 $incentive = 0;
             }
-
-            $response['missedBookingsCount'] = $missed_bookings_count[0]['bookings'];
-            $response['tomorrowBookingsCount'] = $tommorow_bookings_count[0]['bookings'];
+///  Abhishek /// reducing server hit for click on miss booking and tomorrow booking and and passing data in one hit 
+            $response['missedBooking'] = $this->getMissedBookings($requestData); ////  Change Key for missbooking with distance 
+            $response['tomorrowBooking'] = $this->getTommorowBookings($requestData);  // Change Key for tomorrow booking with distance 
             $response['todayMorningBooking'] = $morning_slot_bookings;
             $response['todayAfternoonBooking'] = $noon_slot_bookings;
             $response['todayEveningBooking'] = $evening_slot_bookings;
@@ -1962,10 +1965,9 @@ class engineerApi extends CI_Controller {
         return $bookings;
     }
 
-    function getMissedBookings() {
+    function getMissedBookings($requestData=array()) {
         log_message("info", __METHOD__ . " Entering..");
-        $response = array();
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $response = array();  ////  Removing Call from API and making internal call
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
@@ -1980,19 +1982,17 @@ class engineerApi extends CI_Controller {
                 }
             }
             $response['missedBooking'] = $missed_bookings;
-            log_message("info", __METHOD__ . "Missed Bookings Found Successfully");
-            $this->jsonResponseString['response'] = $response;
-            $this->sendJsonResponse(array('0000', 'success'));
+ 			return $response;  ////  Removing return to response  making internal call
         } else {
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"] . " or Service Center Id not found - " . $requestData["service_center_id"]);
             $this->sendJsonResponse(array('0023', 'Engineer ID or Service Center Id not found'));
         }
     }
 
-    function getTommorowBookings() {
+    function getTommorowBookings($requestData=array()) {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+ 
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, "
@@ -2007,9 +2007,8 @@ class engineerApi extends CI_Controller {
                 }
             }
             $response['tomorrowBooking'] = $tomorrowBooking;
-            log_message("info", __METHOD__ . "Tommorow Bookings Found Successfully");
-            $this->jsonResponseString['response'] = $response;
-            $this->sendJsonResponse(array('0000', 'success'));
+////  Removing return to response  making internal call
+           return $response;
         } else {
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"] . " or Service Center Id not found - " . $requestData["service_center_id"]);
             $this->sendJsonResponse(array('0024', 'Engineer ID or Service Center Id not found'));
