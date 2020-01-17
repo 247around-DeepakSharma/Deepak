@@ -3015,16 +3015,16 @@ class engineerApi extends CI_Controller {
         }
     }
 
-    function checkSparePartsOrder() {
+    function checkSparePartsOrder($booking_id="") {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        //$requestData = json_decode($this->jsonRequestData['qsh'], true);
         $is_est_approved = false;
         $check_spare_flag = false;
         $est_approved_msg = "";
-        if (!empty($requestData["booking_id"])) {
-            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData["booking_id"]));
-            $data['bookinghistory'] = $this->booking_model->getbooking_history($requestData["booking_id"]);
+        if (!empty($booking_id)) { /// New variable for new response
+            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));  /// New variable for new response
+            $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);   /// New variable for new response
             if (!empty($data['bookinghistory'][0])) {
                 if (isset($data['bookinghistory']['spare_parts'])) {
                     foreach ($data['bookinghistory']['spare_parts'] as $sp) {
