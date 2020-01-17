@@ -1882,8 +1882,8 @@ class engineerApi extends CI_Controller {
                 $incentive = 0;
             }
 ///  Abhishek /// reducing server hit for click on miss booking and tomorrow booking and and passing data in one hit 
-            $response['missedBookingsCount'] = $missed_bookings_count;
-            $response['tomorrowBookingsCount'] = $tommorow_bookings_count;
+            $response['missedBooking'] = $missed_bookings_count; ////  Change Key for missbooking 
+            $response['tomorrowBooking'] = $tommorow_bookings_count;  // Change Key for tomorrow booking 
             $response['todayMorningBooking'] = $morning_slot_bookings;
             $response['todayAfternoonBooking'] = $noon_slot_bookings;
             $response['todayEveningBooking'] = $evening_slot_bookings;
