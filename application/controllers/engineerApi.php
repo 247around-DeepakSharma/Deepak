@@ -1959,6 +1959,10 @@ class engineerApi extends CI_Controller {
                     $distance_array = explode(" ", $distance_details['distance']['text']);
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     $bookings[$key]['booking_distance'] = $distance;
+                    // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
+                    $spare_resquest = $this->checkSparePartsOrder($value);
+                    $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                    $bookings[$key]['message'] =  $spare_resquest['message'];
                 }
             }
         }
@@ -1979,6 +1983,10 @@ class engineerApi extends CI_Controller {
                     $distance_array = explode(" ", $distance_details['distance']['text']);
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     $missed_bookings[$key]['booking_distance'] = $distance;
+                    // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
+                    $spare_resquest = $this->checkSparePartsOrder($value);
+                    $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                    $bookings[$key]['message'] =  $spare_resquest['message']; 
                 }
             }
             //$response['missedBooking'] = $missed_bookings;  removing child array
@@ -2004,6 +2012,11 @@ class engineerApi extends CI_Controller {
                     $distance_array = explode(" ", $distance_details['distance']['text']);
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     $tomorrowBooking[$key]['booking_distance'] = $distance;
+                    // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
+                    $spare_resquest = $this->checkSparePartsOrder($value);
+                    $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                    $bookings[$key]['message'] =  $spare_resquest['message']; 
+
                 }
             }
           //  $response['tomorrowBooking'] = $tomorrowBooking;  //// Remove Child array index
@@ -3044,15 +3057,19 @@ class engineerApi extends CI_Controller {
                     }
                 }
                 log_message("info", "Spare parts flag found");
-                $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array('0000', 'success'));
+            //// Removing JSON return make internal call and return Array
+                return $response;
             } else {
-                log_message("info", __METHOD__ . " Booking ID Not Found ");
-                $this->sendJsonResponse(array('0051', 'Booking ID Not Found'));
+           //// Removing JSON return make internal call and return Array
+            	    $response["spare_flag"] = 0;
+                    $response["message"] = "Booking data not found";
+                    return $response;
             }
         } else {
-            log_message("info", __METHOD__ . " Booking ID Not Found ");
-            $this->sendJsonResponse(array('0052', 'Booking ID Not Found'));
+        	//// Removing JSON return make internal call and return Array
+                    $response["spare_flag"] = 0;
+                    $response["message"] = "Booking data not found";
+                    return $response;
         }
     }
 
