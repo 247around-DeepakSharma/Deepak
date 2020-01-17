@@ -748,21 +748,21 @@
      $("#shipped_spare_parts_weight_in_kg").on({
         "click": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='') ) {
                 $(this).val('');
                 return false;
             }
         },
         "keypress": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 1) {
+            if (weight_kg.length > 2 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
             }
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
             }
@@ -773,21 +773,21 @@
     $("#shipped_spare_parts_weight_in_gram").on({
         "click": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
+            if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
             }
         },
         "keypress": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 2) {
+            if (weight_kg.length > 2 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
             }
         },
         "mouseleave": function () {
             var weight_kg = $(this).val();
-            if (weight_kg.length > 3) {
+            if (weight_kg.length > 3 || (Number(weight_kg) < 1 && weight_kg !='')) {
                 $(this).val('');
                 return false;
             }
