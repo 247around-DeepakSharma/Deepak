@@ -1981,8 +1981,8 @@ class engineerApi extends CI_Controller {
                     $missed_bookings[$key]['booking_distance'] = $distance;
                 }
             }
-            $response['missedBooking'] = $missed_bookings;
- 			return $response;  ////  Removing return to response  making internal call
+            //$response['missedBooking'] = $missed_bookings;  removing child array
+ 			return $missed_bookings;  ////  Removing return to response  making internal call
         } else {
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"] . " or Service Center Id not found - " . $requestData["service_center_id"]);
             $this->sendJsonResponse(array('0023', 'Engineer ID or Service Center Id not found'));
@@ -2006,9 +2006,9 @@ class engineerApi extends CI_Controller {
                     $tomorrowBooking[$key]['booking_distance'] = $distance;
                 }
             }
-            $response['tomorrowBooking'] = $tomorrowBooking;
+          //  $response['tomorrowBooking'] = $tomorrowBooking;  //// Remove Child array index
 ////  Removing return to response  making internal call
-           return $response;
+           return $tomorrowBooking;
         } else {
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"] . " or Service Center Id not found - " . $requestData["service_center_id"]);
             $this->sendJsonResponse(array('0024', 'Engineer ID or Service Center Id not found'));
