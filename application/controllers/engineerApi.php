@@ -1840,7 +1840,10 @@ class engineerApi extends CI_Controller {
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-            $select = "count(distinct(booking_details.booking_id)) as bookings";
+        	///  Abhishek ... Insread of count passing the entire response ////
+            $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
+                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
             $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
                     . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
@@ -1878,9 +1881,9 @@ class engineerApi extends CI_Controller {
             } else {
                 $incentive = 0;
             }
-
-            $response['missedBookingsCount'] = $missed_bookings_count[0]['bookings'];
-            $response['tomorrowBookingsCount'] = $tommorow_bookings_count[0]['bookings'];
+///  Abhishek /// reducing server hit for click on miss booking and tomorrow booking and and passing data in one hit 
+            $response['missedBookingsCount'] = $missed_bookings_count;
+            $response['tomorrowBookingsCount'] = $tommorow_bookings_count;
             $response['todayMorningBooking'] = $morning_slot_bookings;
             $response['todayAfternoonBooking'] = $noon_slot_bookings;
             $response['todayEveningBooking'] = $evening_slot_bookings;
