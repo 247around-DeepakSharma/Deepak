@@ -1584,7 +1584,7 @@ class Spare_parts extends CI_Controller {
         
         if( isset($post['where']['status']) && $post['where']['status'] ==  DEFECTIVE_PARTS_SHIPPED){
             unset($post['where']['status']);
-            $post['where_in']['status'] = [DEFECTIVE_PARTS_SHIPPED, OK_PARTS_SHIPPED];
+            $post['where_in']['status'] = [DEFECTIVE_PARTS_SHIPPED, DAMAGE_PARTS_SHIPPED, OK_PARTS_SHIPPED];
             $post['where']['approved_defective_parts_by_admin'] = $this->input->post('approved_defective_parts_by_admin');
         }
         
