@@ -1985,8 +1985,8 @@ class engineerApi extends CI_Controller {
                     $missed_bookings[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
-                    $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
-                    $bookings[$key]['message'] =  $spare_resquest['message']; 
+                    $missed_bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                    $missed_bookings[$key]['message'] =  $spare_resquest['message']; 
                 }
             }
             //$response['missedBooking'] = $missed_bookings;  removing child array
@@ -2014,8 +2014,8 @@ class engineerApi extends CI_Controller {
                     $tomorrowBooking[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
                     $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
-                    $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
-                    $bookings[$key]['message'] =  $spare_resquest['message']; 
+                    $tomorrowBooking[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                    $tomorrowBooking[$key]['message'] =  $spare_resquest['message']; 
 
                 }
             }
