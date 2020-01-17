@@ -110,7 +110,7 @@
 <?php echo form_error('file'); ?>
                         </div>
                         <input type= "button"  class="col-md-2 btn btn-success btn-sm"  disabled="" id="smbtn" value ="Upload" > 
-                        <a class="btn btn-primary btn-sm" style="float:right" target='_blank' href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/partner_model_sample_file.xlsx'>Download Sample File</a>
+                        <a class="btn btn-primary btn-sm" style="float:right" target='_blank' href='https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/engg_notify_sample_file.xlsx'>Download Sample File</a>
                     </div>
                 </form>
     <!--            <a href="<?php //echo base_url();  ?>BookingSummary/download_latest_file/appliance" class="col-md-2"><button class="btn btn-success btn-sm">Download Latest File</button></a>-->
