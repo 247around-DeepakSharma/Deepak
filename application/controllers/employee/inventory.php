@@ -3587,6 +3587,7 @@ class Inventory extends CI_Controller {
      * @desc This is used to update spare related field. Just pass field name, value and spare ID
      */
     function update_spare_parts_column() {
+        ob_end_clean();
         $this->form_validation->set_rules('data', 'Data', 'required');
         $this->form_validation->set_rules('id', 'id', 'required');
         $this->form_validation->set_rules('column', 'column', 'required');
