@@ -1006,14 +1006,16 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
 </script>
 <script>
     check_pincode();
-    $("#booking_request_symptom").select2();
-    $(".select-model").select2({
-        width:"239px"
-    });
+    $("#booking_request_symptom").select2();    
     <?php if(empty($str_disabled)) { ?> 
     $(".booking_source").select2();
     $("#partner_source").select2();
-    <?php } ?> 
+    $(".select-model").select2({
+        width:"239px"
+    });
+    <?php } else { ?>
+    $(".purchase_date").attr("tabindex",-1);   
+    <?php } ?>
     //$("#service_id").select2();
     $('#service_id').css('pointer-events','none'); 
     $("#booking_city").select2({
