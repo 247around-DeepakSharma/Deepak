@@ -1161,7 +1161,7 @@ function alpha(e) {
         $("#dat_of_puchase").css("cursor", "not-allowed");
         $("#dat_of_puchase").css("pointer-events","none");
         $("#dop_calendar").attr("onclick", "").unbind("click");
-        
+        $("#dop").attr("tabindex",-1);
      <?php } } ?>
          
     <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ if($is_disable){ ?>
