@@ -445,7 +445,7 @@ class vendor extends CI_Controller {
         $html .= " " . $updated_vendor_details['is_buyback_gst_invoice'] . '</li>';
         $html .= "</ul>";
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
-        
+        $cc = ACCOUNTANT_EMAILID;
         if(!empty($managerData)) {
             $to .= ",".$managerData[0]['official_email'];
         }
@@ -455,6 +455,7 @@ class vendor extends CI_Controller {
         //Send report via email
         $this->email->from(NOREPLY_EMAIL_ID, '247around Team');
         $this->email->to($to);
+        $this->email->cc($cc);
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
            $subject = "Vendor Updated : " . $_POST['name'] . ' - By ' . $logged_user_name;
         }else{
