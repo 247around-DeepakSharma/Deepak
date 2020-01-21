@@ -614,16 +614,14 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     });
     $("#price_tag").select2();
     // $("#service_name").select2();
-    $("#booking_request_symptom").select2();    
+    $("#booking_request_symptom").select2();
+    $("#model_number_1").select2();
     <?php if(empty($str_disabled)) { ?> 
         $("#appliance_brand_1").select2();
         $("#appliance_capacity_1").select2();
         $("#appliance_category_1").select2();
         $("#partner_source").select2();
-        $("#model_number_1").select2();
-    <?php } else { ?>
-        $("#purchase_date").attr("tabindex",-1);   
-    <?php } ?>
+    <?php } ?>     
     
     var today = new Date();
     
@@ -797,9 +795,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                      var input_text = '<span id="model_number_2"><select class="form-control select-model"  name="model_number" id="model_number_1" onchange="check_booking_request()"><option selected disabled>Select Model</option></select></span>';
                                     $("#model_number_2").html(input_text).change();
                                     $("#model_number_1").append(data).change();
-                                    <?php if(empty($str_disabled)) { ?> 
                                     $("#model_number_1").select2();
-                                    <?php } ?>
                                     $('.select-model').next(".select2-container").show();
                                 }
                             }
