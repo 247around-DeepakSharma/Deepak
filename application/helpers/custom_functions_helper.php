@@ -95,3 +95,12 @@ function convert_number_to_words($number) {
           $words[$point = $point % 10] : '';
   return $result . "Rupees Only ";
 }
+
+
+function execute_paramaterised_query($query, $params_array)
+{
+    $CI =& get_instance();
+    $response = $CI->db->query($query, $params_array);
+    return $results = $response->result_array();
+       
+}

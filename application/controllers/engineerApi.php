@@ -1960,7 +1960,7 @@ class engineerApi extends CI_Controller {
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     $bookings[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
-                    $spare_resquest = $this->checkSparePartsOrder($value);
+                    $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                     $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
                     $bookings[$key]['message'] =  $spare_resquest['message'];
                 }
@@ -1984,9 +1984,9 @@ class engineerApi extends CI_Controller {
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     $missed_bookings[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
-                    $spare_resquest = $this->checkSparePartsOrder($value);
-                    $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
-                    $bookings[$key]['message'] =  $spare_resquest['message']; 
+                    $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
+                    $missed_bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                    $missed_bookings[$key]['message'] =  $spare_resquest['message']; 
                 }
             }
             //$response['missedBooking'] = $missed_bookings;  removing child array
@@ -2013,9 +2013,9 @@ class engineerApi extends CI_Controller {
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     $tomorrowBooking[$key]['booking_distance'] = $distance;
                     // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
-                    $spare_resquest = $this->checkSparePartsOrder($value);
-                    $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
-                    $bookings[$key]['message'] =  $spare_resquest['message']; 
+                    $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
+                    $tomorrowBooking[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                    $tomorrowBooking[$key]['message'] =  $spare_resquest['message']; 
 
                 }
             }
@@ -3015,16 +3015,16 @@ class engineerApi extends CI_Controller {
         }
     }
 
-    function checkSparePartsOrder() {
+    function checkSparePartsOrder($booking_id="") {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        //$requestData = json_decode($this->jsonRequestData['qsh'], true);
         $is_est_approved = false;
         $check_spare_flag = false;
         $est_approved_msg = "";
-        if (!empty($requestData["booking_id"])) {
-            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData["booking_id"]));
-            $data['bookinghistory'] = $this->booking_model->getbooking_history($requestData["booking_id"]);
+        if (!empty($booking_id)) { /// New variable for new response
+            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));  /// New variable for new response
+            $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);   /// New variable for new response
             if (!empty($data['bookinghistory'][0])) {
                 if (isset($data['bookinghistory']['spare_parts'])) {
                     foreach ($data['bookinghistory']['spare_parts'] as $sp) {
