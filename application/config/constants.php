@@ -698,7 +698,10 @@ define('BOOKING_COMPLETED_BY_ENGINEER_STATUS', 'Booking Completed By Engineer');
 define('BOOKING_CANCELLED_BY_ENGINEER_STATUS', 'Booking Cancelled By Engineer');
 define('_247AROUND_ENGINEER_NOTIFICATIONS', 'engg_notify');
 define( 'API_ACCESS_KEY_FIREBASE', 'AAAA4jTNT0A:APA91bFeqC-QN3TTsbzJc5W-Bk0NIzm0px_z8IOYXlNIaXByGgvg34_igzLCFKiF8VdCtkCod7xkBTIVlymGI2Cb5XijOBFDzwvE6jMC1Inx0of3G5S8lqVmh37bHjZAcQ4GOnpz75rC');
-
+define( 'API_KARIX_USER_ID', 'be546f8d-468b-4e75-a93b-7159ceaeb2b0');
+define( 'API_KARIX_PASSWORD','d01bb1f0-cd7e-469f-b3f7-d61cc76223b0');
+define( 'API_KARIX_SOURCE','+13253077759');
+define( 'API_KARIX_CHANNEL','whatsapp');  // Use "sms" or "whatsapp"
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */
