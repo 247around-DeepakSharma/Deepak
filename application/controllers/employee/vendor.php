@@ -445,6 +445,7 @@ class vendor extends CI_Controller {
         $html .= " " . $updated_vendor_details['is_buyback_gst_invoice'] . '</li>';
         $html .= "</ul>";
         $to = ANUJ_EMAIL_ID . ',' . $rm_email;
+        // Added Accounts team Mail Id in CC in mail
         $cc = ACCOUNTANT_EMAILID;
         if(!empty($managerData)) {
             $to .= ",".$managerData[0]['official_email'];
