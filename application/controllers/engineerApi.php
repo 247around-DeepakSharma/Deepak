@@ -1136,9 +1136,18 @@ class engineerApi extends CI_Controller {
                 "active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
                 $engineer = $this->engineer_model->get_engineers_details(array("id" => $login[0]['entity_id'], "active" => 1), "service_center_id, name");
+                /*  handle condition for OLD APK where device token not present  Abhishek  */ 
+                $engg_data=array();
+                if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
                 $engg_data = array(
                     'device_firebase_token' => $requestData['device_firebase_token']
                 );
+                }else{
+                $engg_data = array(
+                    'device_firebase_token' => NULL
+                );  
+                }
+
                 $engg_where = array('id' => $login[0]['entity_id']);
                 $this->vendor_model->update_engineer($engg_where, $engg_data);
                 if (!empty($engineer)) {
@@ -1163,7 +1172,7 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array('0014', 'User Id does not exist'));
         }
     }
-
+/*  This function is used to process complete the booking  Comment : Abhishek */
     function processCompleteBookingByEngineer() {
         $postData = json_decode($this->jsonRequestData['qsh'], true);
         $requestData = json_decode($postData['completeBookingByEngineer'], true);
@@ -1293,6 +1302,13 @@ class engineerApi extends CI_Controller {
             $en["signature"] = $sign_pic_url;
             $en['closed_date'] = date("Y-m-d H:i:s");
             $bookinghistory = $this->booking_model->getbooking_history($booking_id);
+            /*   Whatsapp sms sending  Abhishek */
+            $customer_phone = $bookinghistory[0]['phone_number'];
+            $whatsapp_array = array(
+              'booking_id'=>$booking_id,
+              'name'=>$bookinghistory[0]['name']
+            );
+            $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);
             if (!empty($requestData['location'])) {
                 $location = json_decode($requestData['location'], true);
                 $en["pincode"] = $location['pincode'];
@@ -1345,6 +1361,41 @@ class engineerApi extends CI_Controller {
         } else {
 
             $this->sendJsonResponse(array('0018', 'Please Add All Deatils'));
+        }
+    }
+    
+    
+    /*  Function to send whatsapp SMS when engg complete */
+
+    function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()) {
+        require_once('assest/whatsapp/vendor/autoload.php');
+// Configure HTTP basic authorization: basicAuth
+        $config = Karix\Configuration::getDefaultConfiguration();
+        $config->setUsername(API_KARIX_USER_ID);
+        $config->setPassword(API_KARIX_PASSWORD);
+
+        $apiInstance = new Karix\Api\MessageApi(
+                // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
+                // This is optional, `GuzzleHttp\Client` will be used as default.
+                new GuzzleHttp\Client(),
+                $config
+        );
+        $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
+        $text = "Dear , " . $whatsapp_array['name'] . " Your service for booking id- " . $whatsapp_array['booking_id'] . " has been completed. Thank Your for choosing us!";
+        date_default_timezone_set('UTC');
+        $phone_number = "+91" . $phone_number;
+        $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
+        $message->setDestination([$phone_number]);
+        $message->setSource(API_KARIX_SOURCE);
+        $message->setContent([
+            "text" => $text,
+        ]);
+
+        try {
+            $result = $apiInstance->sendMessage($message);
+            return TRUE;
+        } catch (Exception $e) {
+            return FALSE;
         }
     }
 
@@ -3544,7 +3595,10 @@ class engineerApi extends CI_Controller {
                         $data['Bookings'][$key]['appliance_brand'] = $unit_data[0]['appliance_brand'];
                         $data['Bookings'][$key]['appliance_category'] = $unit_data[0]['appliance_category'];
                         $data['Bookings'][$key]['appliance_capacity'] = $unit_data[0]['appliance_capacity'];
-
+                        // Removing extra hit  Giving flag in same hit  Abhishek ///
+                        $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
+                        $data['Bookings'][$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                        $data['Bookings'][$key]['message'] =  $spare_resquest['message']; 
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if (!empty($query_scba)) {

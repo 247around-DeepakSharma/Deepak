@@ -167,7 +167,7 @@
                             </div>
                             
                             
-                            <div col-md-12>
+                            <div class="col-md-12">
                                 <div class="col-md-6">
                                  <div  class="form-group <?php
                                     if (form_error('start_date')) {
@@ -175,7 +175,7 @@
                                     }
                                     ?>">
                                     <label  for="start_date" class="col-md-3 vertical-align">Start Date*</label>
-                                    <div class="col-md-8">
+                                    <div class="col-md-8 calender-input">
                                         <input id="start_date" class="form-control" value="<?php echo set_value('start_date');?>" name="start_date" type="text" value = "" max="<?=date('Y-m-d', strtotime('+ 10 years'));?>" autocomplete='off' onkeydown="return false">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                         <?php echo form_error('start_date'); ?>
@@ -194,7 +194,7 @@
                                     }
                                     ?>">
                                     <label  for="end_date" class="col-md-3 vertical-align">End Date*</label>
-                                    <div class="col-md-8">
+                                    <div class="col-md-8 calender-input">
                                         <input id="end_date" class="form-control" value="<?php echo set_value('end_date');?>" name="end_date" type="text" value = "" max="<?=date('Y-m-d', strtotime('+ 10 years'));?>" autocomplete='off' onkeydown="return false">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                         <?php echo form_error('end_date'); ?>

@@ -1,3 +1,13 @@
+<style>
+body {
+  background-color: #f8f8f8;
+}
+
+table {
+    background-color: #fff;
+}
+</style>
+
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
 
 <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
@@ -74,7 +84,7 @@
                             </li>
 
                             <li role="presentation">
-                                <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true"  data-url="<?php echo base_url();?>partner/get_nrn_approval"  >
+                                <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_nrn_approval"  >
                                     Approved NRN
                                 </a>
                             </li>
@@ -581,5 +591,5 @@
     }
     #datatable1 td:nth-child(8){
             padding-left: 82px !important;
-    }   
+    }
     </style>
