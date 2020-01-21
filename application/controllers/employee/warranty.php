@@ -264,14 +264,22 @@ class Warranty extends CI_Controller {
         }
     }
     
-    
+     /**
+     *  @desc : This function is used display add warranty plan form
+     *  @param : void
+     *  @return : void
+     */
     public function add_warranty_plan($data = array())
     {
         $this->miscelleneous->load_nav_header();
         $this->load->view('warranty/add_warranty_plan', $data);
     }
  
-    
+    /**
+     *  @desc : This function is used return dropdown option containing all partners
+     *  @param : void
+     *  @return : array
+     */
     function get_partner_list_dropdown()
     {
         try
@@ -297,6 +305,11 @@ class Warranty extends CI_Controller {
     }
     
     
+    /**
+     *  @desc : This function is used return product option containing products of particular partner
+     *  @param : partner id
+     *  @return : array
+     */
     function get_partner_service_list_dropdown()
     {
         try
@@ -322,7 +335,12 @@ class Warranty extends CI_Controller {
         }
     }
     
-   
+     
+    /**
+     *  @desc : This function is used return state option containing all states
+     *  @param : void
+     *  @return : array
+     */
     function get_state_list_dropdown()
     {
         try
@@ -348,6 +366,11 @@ class Warranty extends CI_Controller {
     }
     
     
+     /**
+     *  @desc : This function is used save warranty plan of partner in db
+     *  @param : array
+     *  @return : void
+     */
     function save_warranty_plan()
     {
         try
@@ -700,6 +723,7 @@ class Warranty extends CI_Controller {
         if(isset($date))
         {
             $date = trim($date);
+            $date = date("Y-m-d", strtotime($date));
             $date_arr  = explode('-', $date);
             if (count($date_arr) == 3) {
                 if (checkdate($date_arr[1], $date_arr[2], $date_arr[0])) {
@@ -728,6 +752,7 @@ class Warranty extends CI_Controller {
         if(isset($date))
         {
             $date = trim($date);
+            $date = date("Y-m-d", strtotime($date));
             $date_arr  = explode('-', $date);
             if (count($date_arr) == 3) {
                 if (checkdate($date_arr[1], $date_arr[2], $date_arr[0])) {
@@ -785,4 +810,376 @@ class Warranty extends CI_Controller {
         
     }
     
+      
+    /**
+     *  @desc : This function is used to display list of all warranty plans
+     *  @param : void
+     *  @return : void
+     */
+    public function warranty_plan_list()
+    {
+        $this->checkUserSession();
+        $this->miscelleneous->load_nav_header();
+        $this->load->view("warranty/warranty_plan_list");
+    }
+    
+    
+     /**
+     * @desc: Check user Seession
+     * @return boolean
+     */
+    function checkUserSession() {
+        if (($this->session->userdata('loggedIn') == TRUE) && ($this->session->userdata('userType') == 'employee')) {
+            return TRUE;
+        } else {
+            redirect(base_url() . "employee/login");
+        }
+    }
+    
+     /**
+     *  @desc : This function is used to show warranty plan list
+     *  @param : void
+     *  @return : void
+     */
+    function get_warranty_plan_list() {
+
+
+        $data = $this->get_warranty_plan_data();
+
+        $post = $data['post'];
+        $output = array(
+            "draw" => $this->input->post('draw'),
+            "recordsTotal" => $this->warranty_model->count_all_warranty_plan_list($post),
+            "recordsFiltered" => $this->warranty_model->count_filtered_warranty_plan_list($post),
+            "data" => $data['data'],
+        );
+       echo json_encode($output);
+    }
+
+    function get_warranty_plan_data() {
+        $post['length'] = $this->input->post('length');
+        $post['start'] = $this->input->post('start');
+        $search = $this->input->post('search');
+        $post['search_value'] = $search['value'];
+        $post['order'] = $this->input->post('order');
+
+        $post['column_order'] = array();
+        //column which will be searchable in datatable search
+        $post['column_search'] = array('wp.plan_name', 'wp.warranty_period', 's.services', 'p.public_name');
+
+        $where = array();
+        $i = 0;
+        //adding partner filter for query     
+        if(isset($_POST['partner_id']) && $_POST['partner_id'] != 0)
+        {
+            $where['p.id'] = $_POST['partner_id'];
+        }
+        //adding product filter for query     
+        if(isset($_POST['service_id']) && $_POST['service_id'] != 0)
+        {
+            $where['s.id'] = $_POST['service_id'];
+        }
+        $post['where'] = $where;
+
+        $select = "wp.plan_id, wp.plan_name, wp.plan_description, wp.period_start, wp.period_end, wp.warranty_period, wp.is_active, s.services, p.public_name, s.id as service_id, p.id as partner_id";
+        $list = $this->warranty_model->get_warranty_plan_list($post, $select);
+        $data = array();
+        $no = $post['start'];
+        //create table data for each row
+        foreach ($list as $model_list) {
+            $no++;
+            $row = $this->get_warranty_plan_table($model_list, $no);
+            $data[] = $row;
+        }
+
+        return array(
+            'data' => $data,
+            'post' => $post
+        );
+    }
+    
+     function get_warranty_plan_table($model_list, $no) {
+        $row = array();
+        $json_data = json_encode($model_list);
+        $row[] = $no;
+        $row[] = $model_list->plan_name;
+        $row[] = $model_list->plan_description;
+        $row[] = $model_list->period_start;
+        $row[] = $model_list->period_end;
+        $row[] = $model_list->public_name;
+        $row[] = $model_list->services;
+        $row[] = $model_list->warranty_period . " months";
+        $row_number = $no - 1;
+        
+        if($model_list->is_active == 1)
+        {
+            //warranty plan is active
+            $row[] = "Active";
+            $row[] = "<button class='btn btn-warning btn-sm' data='" . $json_data . "' onclick='change_warranty_plan_status(".$model_list->plan_id.",0,".$row_number.")'>Inactive</button>";
+        }
+        else
+        {
+            //warranty plan is inactive
+            $row[] = "Inactive";
+            $row[] = "<button class='btn btn-success btn-sm' data='" . $json_data . "' onclick='change_warranty_plan_status(".$model_list->plan_id.",1,".$row_number.")'>Active</button>";
+        }    
+        $row[] = "<button class='btn btn-primary btn-sm' onclick='warranty_plan_details(".$model_list->plan_id.")'>Edit</button>";
+
+        return $row;
+    }
+    
+    
+     /**
+     *  @desc : This function is used display details of a particular warranty plan
+     *  @param : array
+     *  @return : void
+     */
+    function warranty_plan_details($plan_id)
+    {
+        try {
+            //check if valid plan id is passed
+            if(ctype_digit($plan_id))
+            {
+                $this->checkUserSession();
+                $this->miscelleneous->load_nav_header();
+                //get warranty plan details on basis of plan id
+                $data['details'] = $this->warranty_model->get_warranty_plan_details($plan_id);
+                
+                if($data['details'])
+                {
+                    $data['plan_id'] = base64_encode($data['details'][0]['plan_id']);
+                    //get all partner list
+                    $data['partner_list'] = $this->warranty_model->get_partner_list();
+                    //get partner product list
+                    $data['partner_service_list'] = $this->warranty_model->get_partner_service_list($data['details'][0]['partner_id']);
+                    //get all state list
+                    $data['state_list'] = $this->warranty_model->get_state_list();
+                    //get list of states for plan
+                    $data['warranty_plan_state_list'] = $this->warranty_model->get_warranty_plan_state_list($data['details'][0]['plan_id']);
+                    $data['warranty_plan_state_list'] = array_column($data['warranty_plan_state_list'], "state_code");
+                    $this->load->view("warranty/warranty_plan_details", $data);
+                }
+                else
+                {
+                    $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');
+                    redirect(base_url().'employee/warranty/warranty_plan_list');
+                }    
+                
+            }
+            else
+            {
+                $this->session->set_flashdata('error','Warranty plan not found!');
+                redirect(base_url() . "employee/warranty/warranty_plan_list");
+            }    
+
+        } 
+        catch(Exception $ex)
+        {
+            $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');
+            redirect(base_url().'employee/warranty/warranty_plan_list');
+        }
+        
+    }
+    
+    
+    
+     /**
+     *  @desc : This function is used update warranty plan of partner in db
+     *  @param : array
+     *  @return : void
+     */
+    function update_warranty_plan()
+    {
+        try
+        {
+            if ($this->input->server('REQUEST_METHOD') == 'POST') {
+                //get plan_id from hidden field
+                $plan_id = $this->input->post('plan_id', TRUE);
+                if(!empty($plan_id))
+                {
+                    //decrypt plan_id
+                    $plan_id = base64_decode($plan_id);
+                    if(ctype_digit($plan_id))
+                    {
+                        //valid plan_id
+                        //start validation
+                        $this->form_validation->set_rules('plan_name', 'plan name', 'trim|required'); 
+                        $this->form_validation->set_rules('partner', 'partner', 'callback_validate_partner'); 
+                        $this->form_validation->set_rules('service', 'service', 'callback_validate_service'); 
+                        $this->form_validation->set_rules('state', 'state', 'callback_validate_state'); 
+                        $this->form_validation->set_rules('warranty_type', 'warranty type', 'callback_validate_warranty_type'); 
+                        $this->form_validation->set_rules('start_date', 'plan start date', 'callback_validate_start_date'); 
+                        $this->form_validation->set_rules('end_date', 'plan end date', 'callback_validate_end_date['.$this->input->post("start_date", TRUE).']'); 
+                        $this->form_validation->set_rules('warranty_period', 'warranty period', 'callback_validate_warranty_period'); 
+                        $this->form_validation->set_rules('warranty_grace_period', 'warranty grace period', 'callback_validate_warranty_grace_period'); 
+
+                        if ($this->form_validation->run() == FALSE) { 
+                            //validation fail
+                            $this->session->set_flashdata('error','Please Fill All Mandatory Fields.'.validation_errors());    
+                            redirect(base_url().'employee/warranty/warranty_plan_details');
+                        } 
+                        else { 
+                            //validation success
+                               $arr_data = array();
+                               $arr_data['plan_name'] = $this->input->post('plan_name', TRUE);
+                               $arr_data['partner_id'] = $this->input->post('partner', TRUE);
+                               $arr_data['warranty_type'] = $this->input->post('warranty_type', TRUE);
+                               $arr_data['service_id'] = $this->input->post('service', TRUE);
+                               $arr_data['period_start'] = $this->input->post('start_date', TRUE);
+                               $end_date = $this->input->post('end_date', TRUE);
+                               $end_date = date("Y-m-d", strtotime($end_date));
+                               $arr_data['period_end'] = $end_date." 23:59:59";
+                               $arr_data['warranty_period'] = $this->input->post('warranty_period', TRUE);
+                               $arr_data['warranty_grace_period'] = $this->input->post('warranty_grace_period', TRUE);
+                               $state = $this->input->post('state');
+                               $arr_data['plan_description'] = $this->input->post('description', TRUE);
+                               
+                               $created_by_name = $this->session->userdata('employee_id');
+                               $created_by_id = $this->session->userdata('id');
+
+                               //check if user selected checkboxes or not
+                               if(isset($_POST['service_charge']))
+                               {
+                                   $arr_data['inclusive_svc_charge'] = $_POST['service_charge'];
+                               }
+                               else
+                               {
+                                   $arr_data['inclusive_svc_charge'] = 0;
+                               }  
+
+                               if(isset($_POST['gas_charge']))
+                               {
+                                   $arr_data['inclusive_gas_charge'] = $_POST['gas_charge'];
+                               }
+                               else
+                               {
+                                   $arr_data['inclusive_gas_charge'] = 0;
+                               }  
+
+                               if(isset($_POST['transport_charge']))
+                               {
+                                   $arr_data['inclusive_transport_charge'] = $_POST['transport_charge'];
+                               }
+                               else
+                               {
+                                   $arr_data['inclusive_transport_charge'] = 0;
+                               }  
+
+                               //transaction start
+                               $this->db->trans_start();
+
+                               //update data in warranty_plans table
+                                $this->db->where('plan_id', $plan_id);
+                                $this->db->update('warranty_plans', $arr_data);
+                                
+                                //delete existing mapping of states with warranty plan
+                                $this->db->delete('warranty_plan_state_mapping', array('plan_id' => $plan_id));
+                                
+                                
+                                
+                                    //check if all states were selected or not
+                                    $all_selected = 0;
+                                    foreach($state as $state_code)
+                                    {
+                                        //all state code is 0
+                                        if($state_code == 0)
+                                        {
+                                            $all_selected = 1;
+                                            break;
+                                        }
+                                    }
+
+                                    //Inserting data in warranty_plan_state_mapping table to map plan state wise
+                                    if($all_selected)
+                                    {
+                                        //all states were selected, so get list of all states from db and then save data in table
+                                        $all_states = $result = $this->warranty_model->get_state_list();
+                                        if($all_states)
+                                        {
+                                            foreach($all_states as $state_code)
+                                            {
+                                                $state_data = [];
+                                                $state_data['state_code'] = $state_code['id'];
+                                                $state_data['plan_id'] = $plan_id;
+                                                $state_data['create_date'] = date('Y-m-d H:i:s');
+                                                $state_data['created_by'] = $created_by_id;
+                                                $this->db->insert('warranty_plan_state_mapping', $state_data);                                  
+                                            }
+                                        }
+                                        else
+                                        {
+                                            //states not found
+                                            $this->db->trans_rollback();
+                                            $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');    
+                                            redirect(base_url().'employee/warranty/warranty_plan_details');
+                                            return false;
+                                        }    
+
+                                    }
+                                    else
+                                    {
+                                         //all states were not selected
+                                        foreach($state as $state_code)
+                                        {
+                                            $state_data = [];
+                                            $state_data['state_code'] = $state_code;
+                                            $state_data['plan_id'] = $plan_id;
+                                            $state_data['create_date'] = date('Y-m-d H:i:s');
+                                            $state_data['created_by'] = $created_by_id;
+                                            $this->db->insert('warranty_plan_state_mapping', $state_data);                                  
+                                        }
+
+                                    }    
+
+
+                                
+
+                                $this->db->trans_complete();
+                                if ($this->db->trans_status() === FALSE)
+                                {
+                                    //transaction was unsuccessful, so rollback transaction
+                                    $this->db->trans_rollback();
+                                    $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');    
+                                    redirect(base_url().'employee/warranty/warranty_plan_details');
+                                    return false;
+                                }
+                                else
+                                {
+                                    //transaction was successful, so commit transaction
+                                    $this->db->trans_commit();
+                                    $this->session->set_flashdata('success','Warranty plan updated successfully.');    
+                                    redirect(base_url().'employee/warranty/warranty_plan_list');
+                                }    
+
+                        }
+                    }
+                    else
+                    {
+                        //invalid plan_id
+                        $this->session->set_flashdata('error','Cannot perform this action.');    
+                        redirect(base_url().'employee/warranty/warranty_plan_details');
+                    }    
+                }
+                else
+                {
+                    //plan_id not found
+                    $this->session->set_flashdata('error','Cannot perform this action.');    
+                    redirect(base_url().'employee/warranty/warranty_plan_details');
+                }    
+                
+
+             }
+            else {
+                $this->session->set_flashdata('error','Something went wrong. Please try again after sometime');
+                redirect(base_url().'employee/warranty/warranty_plan_list');
+            }
+            
+        }
+        catch(Exception $ex)
+        {
+            $this->db->trans_rollback();
+            $this->session->set_flashdata('error','Something went wrong. Please try again after sometime.');
+            redirect(base_url().'employee/warranty/warranty_plan_details');
+        }
+    }
 }

@@ -15,3 +15,5 @@ application/config/email.php
 application/config/config.php
 index.php
 /application/nbproject/private/
+
+application/js/base_url.js

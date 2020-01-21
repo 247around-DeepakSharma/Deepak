@@ -285,4 +285,128 @@ class Warranty_model extends CI_Model {
         $results = $query->result_array();
         return $results;
     }
+    
+    
+     /**
+     *  @desc : This function is used to get warranty plan data
+     *  @param : $post string
+     *  @param : $select string
+     *  @return: Array()
+     */
+    function get_warranty_plan_list($post, $select = "",$is_array = false) {
+        $this->_get_warranty_plan_list_list($post, $select);
+        if ($post['length'] != -1) {
+            $this->db->limit($post['length'], $post['start']);
+        }
+        
+        $query = $this->db->get();
+     //   echo $this->db->last_query();
+        log_message('info', __METHOD__. " ".$this->db->last_query());
+        if($is_array){
+            return $query->result_array();
+        }else{
+            return $query->result();
+        }
+    }
+    
+    
+     /**
+     * @Desc: This function is used to get data from the warranty_plans table
+     * @params: $post array
+     * @params: $select string
+     * @return: void
+     * 
+     */
+    function _get_warranty_plan_list_list($post,$select){
+        
+        if (empty($select)) {
+            $select = '*';
+        }
+        $this->db->distinct();
+        $this->db->select($select,FALSE);
+        $this->db->from('warranty_plans as wp');
+        $this->db->join('services as s', 'wp.service_id = s.id');
+        $this->db->join('partners as p', 'wp.partner_id = p.id ');
+
+        if (!empty($post['where'])) {
+            $this->db->where($post['where']);
+        }
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+        if (!empty($post['order'])) {
+            $this->db->order_by($post['column_order'][$post['order'][0]['column']], $post['order'][0]['dir']);
+        } else {
+            $this->db->order_by('wp.plan_name','ASC');
+        }
+    }
+    
+    
+     /**
+     *  @desc : This function is used to get total warranty_plans data
+     *  @param : $post string
+     *  @return: Array()
+     */
+    public function count_all_warranty_plan_list($post) {
+        $this->_get_warranty_plan_list_list($post, 'count(distinct(wp.plan_id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+      /**
+     *  @desc : This function is used to get total filtered warranty_plans data
+     *  @param : $post string
+     *  @return: Array()
+     */
+    function count_filtered_warranty_plan_list($post){
+        $this->_get_warranty_plan_list_list($post, 'count(distinct(wp.plan_id)) as numrows');
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    
+    function get_warranty_plan_details($plan_id)
+    {
+        $this->db->select('wp.plan_id, wp.plan_name, wp.plan_description, wp.period_start, wp.period_end, wp.warranty_period, wp.is_active, s.id as service_id, p.id as partner_id, wp.warranty_type, wp.inclusive_svc_charge, wp.inclusive_gas_charge, wp.inclusive_transport_charge, wp.warranty_grace_period');
+        $this->db->from('warranty_plans as wp');
+        $this->db->join('services as s', 'wp.service_id = s.id');
+        $this->db->join('partners as p', 'wp.partner_id = p.id ');
+        $this->db->where('plan_id', $plan_id);
+        $query = $this->db->get();
+        $num_rows = $query->num_rows();
+        if($num_rows == 1)
+        {
+            $results = $query->result_array();
+            return $results;
+        }
+        else 
+        {
+            return false;
+        }
+        
+    }
+    
+    
+    function get_warranty_plan_state_list($plan_id)
+    {
+        $params = array($plan_id);
+        $query = "select distinct(state_code) from warranty_plan_state_mapping where plan_id = ?";
+        $results = execute_paramaterised_query($query, $params);
+        return $results;
+    }
+    
+    
 }

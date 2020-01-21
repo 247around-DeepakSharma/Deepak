@@ -104,14 +104,14 @@
                                             <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
                                                 <option value="" selected disabled>Select Reason</option>
                                                 <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
-                                                    if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['consumed_status']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
+                                                    if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['reason_text']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
                                                     <option value="<?php echo $status['id']; ?>" data-shipped_inventory_id="<?php echo $spare_part_detail['shipped_inventory_id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"
                                                     <?php if(isset($en_consumpton_details)){
                                                         if($en_consumpton_details[$spare_part_detail['id']]['consumption_status_id'] == $status['id']){
                                                            echo "selected"; 
                                                         }
                                                     } ?>
-                                                    ><?php echo $status['consumed_status']; ?></option>
+                                                    ><?php echo $status['reason_text']; ?></option>
                                                 <?php $description_no++; } ?>
                                             </select>
 
@@ -1226,7 +1226,7 @@ function alpha(e) {
         $("#dat_of_puchase").css("cursor", "not-allowed");
         $("#dat_of_puchase").css("pointer-events","none");
         $("#dop_calendar").attr("onclick", "").unbind("click");
-        
+        $("#dop").attr("tabindex",-1);
      <?php } } ?>
          
     <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ if($is_disable){ ?>

@@ -77,11 +77,11 @@
         }
         ?>
         <div id="container-1" class="panel-body form_container" style="display:block;padding-top: 0px;">
-            <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/warranty/save_warranty_plan" method="POST">
+            <form name="myForm" class="form-horizontal" id ="booking_form" novalidate="novalidate" action="<?php echo base_url() ?>employee/warranty/update_warranty_plan" method="POST">
                 <div  class = "panel panel-info">
-                    <div class="panel-heading" style="background-color:#ECF0F1"><center><b>Add Warranty Plan</b></center></div>
+                    <div class="panel-heading" style="background-color:#ECF0F1"><center><b>Update Warranty Plan</b></center></div>
                         <div class="panel-body">
-                            
+                            <input type='hidden' name='plan_id' value='<?php  echo $plan_id;  ?>'>
                             <div class="col-md-12">
                                 <div class="col-md-6">
                                     <div  class="form-group <?php
@@ -91,7 +91,7 @@
                                         ?>">
                                         <label  for="plan_name" class="col-md-3">Plan Name*</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control blockspacialchar" value="<?php echo set_value('plan_name');?>" id="plan_name" name="plan_name" placeholder="Plan Name">
+                                            <input  type="text" class="form-control blockspacialchar" value="<?php echo $details[0]['plan_name'];?>" id="plan_name" name="plan_name" placeholder="Plan Name">
                                             <?php echo form_error('plan_name'); ?>
                                             <p class="alert alert-danger error_message" id="plan_name_error">
                                                 
@@ -110,6 +110,9 @@
                                         <div class="col-md-8">
                                             <select id="partner" class="form-control" name ="partner">
                                                 <option value="0" selected>Select</option>
+                                                <?php foreach($partner_list as $partner){ ?>
+                                                <option value="<?php echo $partner['id'] ?>"  <?php if($details[0]['partner_id'] == $partner['id']) {echo "selected";} ?> ><?php echo $partner['name']; ?></option>
+                                                <?php } ?>
                                             </select>
                                             <?php echo form_error('partner'); ?>
                                             <p class="alert alert-danger error_message" id="partner_error">
@@ -132,8 +135,8 @@
                                         <label for="state" class="col-md-3 vertical-align">Warranty Type*</label>
                                         <div class="col-md-8">
                                             <select id="warranty_type" class="warranty_type form-control" name ="warranty_type">
-                                                <option value="1">In Warranty</option>
-                                                <option value="2">Extended Warranty</option>
+                                                <option value="1" <?php if($details[0]['warranty_type'] == 1) {echo "selected";} ?> >In Warranty</option>
+                                                <option value="2" <?php if($details[0]['warranty_type'] == 2) {echo "selected";} ?> >Extended Warranty</option>
                                             </select>
                                             
                                             <?php echo form_error('warranty_type'); ?>
@@ -154,8 +157,10 @@
                                         <div class="col-md-8">
                                             <select id="service" class="form-control" name ="service" data-toggle="tooltip" data-placement="top" data-html="true">
                                                 <option value="0" selected>Select</option>
+                                                <?php foreach($partner_service_list as $partner_service){ ?>
+                                                <option value="<?php echo $partner_service['service_id'] ?>"  <?php if($details[0]['service_id'] == $partner_service['service_id']) {echo "selected";} ?> ><?php echo $partner_service['services']; ?></option>
+                                                <?php } ?>
                                             </select>
-                                            <p>Please select product after selecting partner.</p>
                                             <?php echo form_error('service'); ?>
                                             <p class="alert alert-danger error_message" id="service_error">
                                                 
@@ -176,7 +181,7 @@
                                     ?>">
                                     <label  for="start_date" class="col-md-3 vertical-align">Start Date*</label>
                                     <div class="col-md-8 calender-input">
-                                        <input id="start_date" class="form-control" value="<?php echo set_value('start_date');?>" name="start_date" type="text" value = "" max="<?=date('Y-m-d', strtotime('+ 10 years'));?>" autocomplete='off' onkeydown="return false">
+                                        <input id="start_date" class="form-control" value="<?php echo $details[0]['period_start'];?>" name="start_date" type="text" value = "" max="<?=date('Y-m-d', strtotime('+ 10 years'));?>" autocomplete='off' onkeydown="return false">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                         <?php echo form_error('start_date'); ?>
                                         <p class="alert alert-danger error_message" id="start_date_error">
@@ -195,7 +200,7 @@
                                     ?>">
                                     <label  for="end_date" class="col-md-3 vertical-align">End Date*</label>
                                     <div class="col-md-8 calender-input">
-                                        <input id="end_date" class="form-control" value="<?php echo set_value('end_date');?>" name="end_date" type="text" value = "" max="<?=date('Y-m-d', strtotime('+ 10 years'));?>" autocomplete='off' onkeydown="return false">
+                                        <input id="end_date" class="form-control" value="<?php echo $details[0]['period_end'];?>" name="end_date" type="text" value = "" max="<?=date('Y-m-d', strtotime('+ 10 years'));?>" autocomplete='off' onkeydown="return false">
                                         <span class="input-group-addon add-on"><span class="glyphicon glyphicon-calendar"></span></span>
                                         <?php echo form_error('end_date'); ?>
                                         <p class="alert alert-danger error_message" id="end_date_error">
@@ -216,7 +221,7 @@
                                         ?>">
                                         <label  for="warranty_period" class="col-md-3">Warranty Period in Months*</label>
                                         <div class="col-md-8">
-                                            <input  type="text" class="form-control blockspacialchar" value="<?php echo set_value('warranty_period');?>" id="warranty_period" name="warranty_period" placeholder="Warranty Period">
+                                            <input  type="text" class="form-control blockspacialchar" value="<?php echo $details[0]['warranty_period'];?>" id="warranty_period" name="warranty_period" placeholder="Warranty Period">
                                             <?php echo form_error('warranty_period'); ?>
                                             <p class="alert alert-danger error_message" id="warranty_period_error">
 
@@ -232,7 +237,7 @@
                                         ?>">
                                         <label for="warranty_grace_period" class="col-md-3 vertical-align">Warranty Grace Period In Days*</label>
                                         <div class="col-md-8"> 
-                                            <input  type="text" class="form-control blockspacialchar" value="<?php echo set_value('warranty_grace_period');?>" id="warranty_grace_period" name="warranty_grace_period" placeholder="Warranty Grace Period">
+                                            <input  type="text" class="form-control blockspacialchar" value="<?php echo $details[0]['warranty_grace_period'];?>" id="warranty_grace_period" name="warranty_grace_period" placeholder="Warranty Grace Period">
                                             <?php echo form_error('warranty_grace_period'); ?>
                                             <p class="alert alert-danger error_message" id="warranty_grace_period_error">
 
@@ -254,7 +259,9 @@
                                         ?>">
                                         <label for="service_charge" class="col-md-3 vertical-align">Inclusive Service Charge*</label>
                                         <div class="col-md-8">
-                                            <input type="checkbox" name="service_charge" id="service_charge" value="1">
+                                            <input type="checkbox" name="service_charge"  <?php if($details[0]['inclusive_svc_charge'] == 1){
+                                                echo "checked";
+                                            } ?> id="service_charge" value="1">
                                             
                                             <?php echo form_error('service_charge'); ?>
                                            
@@ -270,7 +277,9 @@
                                         ?>">
                                         <label for="gas_charge" class="col-md-3 vertical-align">Inclusive Gas Charge*</label>
                                         <div class="col-md-8">
-                                            <input type="checkbox" name="gas_charge" id="gas_charge" value="1">
+                                            <input type="checkbox" name="gas_charge" <?php if($details[0]['inclusive_gas_charge'] == 1){
+                                                echo "checked";
+                                            } ?> id="gas_charge" value="1">
                                             
                                             <?php echo form_error('gas_charge'); ?>
                                            
@@ -285,7 +294,9 @@
                                         ?>">
                                         <label for="transport_charge" class="col-md-3 vertical-align">Inclusive Transport Charge*</label>
                                         <div class="col-md-8">
-                                            <input type="checkbox" name="transport_charge" id="transport_charge" value="1">
+                                            <input type="checkbox" name="transport_charge" <?php if($details[0]['inclusive_transport_charge'] == 1){
+                                                echo "checked";
+                                            } ?> id="transport_charge" value="1">
                                             
                                             <?php echo form_error('transport_charge'); ?>
                                            
@@ -295,8 +306,7 @@
                                 
                                 
                             </div>
-                            
-                            
+
                             <div class="col-md-12">
                                 <div class="col-md-6">
                                     <div  class="form-group <?php
@@ -307,7 +317,13 @@
                                         <label  for="state" class="col-md-3 vertical-align">State*</label>
                                         <div class="col-md-8">
                                             <select id="state" class="form-control" name ="state[]" multiple>
-                                                <option value="0" selected>All</option>
+                                                <option value="0">All</option>
+                                                <?php foreach($state_list as $states){ ?>
+                                                <option value="<?php echo $states['id'] ?>"  
+                                                    <?php if(in_array ($states['id'], $warranty_plan_state_list)) {echo "selected";} ?> >
+                                                    <?php echo $states['name']; ?>
+                                                </option>
+                                                <?php } ?>
                                             </select>
                                             <?php echo form_error('state'); ?>
                                             <p class="alert alert-danger error_message" id="state_error">
@@ -324,8 +340,8 @@
                                         ?>">
                                         <label for="description" class="col-md-3 vertical-align">Description</label>
                                         <div class="col-md-8"> 
-                                            <textarea class="form-control blockspacialchar" rows = "5" cols = "50" value="<?php echo set_value('description');?>" name = "description" id="description">
-                                                
+                                            <textarea class="form-control blockspacialchar" rows = "5" cols = "50" name = "description" id="description">
+                                               <?php echo $details[0]['plan_description']; ?>
                                              </textarea>
                                             <?php echo form_error('description'); ?>
                                             <p class="alert alert-danger error_message" id="description_error">
@@ -344,8 +360,8 @@
                 
                     <div class="clear clear_bottom">
                         <br>
-                        <center><input type="submit" value="Save Plan Details" class="btn btn-primary" id="submit_btn">
-                        <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/view_warranty_plan>Cancel</a>"; ?>
+                        <center><input type="submit" value="Update Plan Details" class="btn btn-primary" id="submit_btn">
+                        <?php echo "<a class='btn btn-small btn-primary cancel' href=" . base_url() . "employee/vendor/get_warranty_plan_list>Cancel</a>"; ?>
                         </center>
 <!--                    </div>-->
                 </div>
@@ -370,11 +386,6 @@
     
     $(document).ready(function(){
        // $('#service').tooltip({'trigger':'focus', 'title': 'Please select product after selecting partner.'});
-        //loading partner dropdown
-        get_partner_list();
-        
-        //loading state dropdown
-        get_state_list();
         
         //form validation starts here
         $('#submit_btn').click(function(){
@@ -516,23 +527,6 @@
 
 //form validation ends here
 
-
-//function to get partrner list in dropdown
-function get_partner_list()
-{
-    $.ajax({
-       type: 'POST',
-       url: '<?php echo base_url(); ?>employee/warranty/get_partner_list_dropdown',
-       data: {}
-     })
-     .done (function(data) {
-         $('#partner').append(data);
-     })
-     .fail(function(jqXHR, textStatus, errorThrown){
-         alert("Something went wrong while loading partner list!");
-      })
-}
-
 //function to load product list in dropdown on basis of partner selected
 $('#partner').change(function(){
     var partner_id = $(this).val();
@@ -548,23 +542,5 @@ $('#partner').change(function(){
          alert("Something went wrong while loading partner service list!");
       })
 })
-
-
-//function to get state list in dropdown
-function get_state_list()
-{
-    $.ajax({
-       type: 'POST',
-       url: '<?php echo base_url(); ?>employee/warranty/get_state_list_dropdown',
-       data: {}
-     })
-     .done (function(data) {
-         $('#state').append(data);
-     })
-     .fail(function(jqXHR, textStatus, errorThrown){
-         alert("Something went wrong while loading state list!");
-      })
-}
-
     
 </script>
