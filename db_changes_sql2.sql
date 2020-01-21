@@ -1738,5 +1738,6 @@ ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT
 ALTER TABLE `engg_notification_detail` DROP `notified`;
 ALTER TABLE `engg_notification_detail`  ADD `notified` INT(5) NOT NULL DEFAULT '1'  AFTER `message`,  ADD `fire_base_response` TEXT NULL DEFAULT NULL  AFTER `notified`;
 
-
- 
+--Ankit Bhatt 2020-01-21
+ insert into header_navigation(entity_type, title, link, level, parent_ids, groups, nav_type, is_active, create_date)
+values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
