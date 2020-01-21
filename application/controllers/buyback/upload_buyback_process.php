@@ -304,7 +304,9 @@ class Upload_buyback_process extends CI_Controller {
         }
 
         $temp_arr['partner_name'] = $rowData['partner_name'];
-        $temp_arr['subcat'] = $rowData['subcat'];
+        if(!empty($rowData['subcat'])) {
+            $temp_arr['subcat'] = $rowData['subcat'];
+        }
         $temp_arr['order_id'] = $rowData['partner_order_id'];
         $temp_arr['city'] = $rowData['city'];
         $temp_arr['tracking_id'] = isset($rowData['tracking_id']) ? $rowData['tracking_id'] : '';
