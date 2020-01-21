@@ -312,5 +312,58 @@ class File_process extends CI_Controller {
             echo json_encode(array("response" => "failed", "message" => "Data Not Found"));
         }
     }
+    
+    
+    /**
+     * @desc This is used to generate spare quote requested data file
+     * @param String $partner_id
+     */
+    function downloadPendingSpareQuote($partner_id,$entity_type) {
+        log_message("info", __METHOD__ . " Partner ID " . $partner_id);
+
+        $spare_parts = $this->partner_model->get_spare_parts_quote_booking_list($partner_id,$entity_type);
+        if (!empty($spare_parts)) {
+            $template = "Spare_Quote_Requested_Parts.xlsx";
+            $templateDir = __DIR__ . "/excel-templates/";
+            $config = array(
+                'template' => $template,
+                'templateDir' => $templateDir
+            );
+
+            //load template
+            if(ob_get_length() > 0) {
+            ob_end_clean();
+        }
+            $R = new PHPReport($config);
+            $R->load(array(
+                array(
+                    'id' => 'spare',
+                    'repeat' => true,
+                    'data' => $spare_parts
+                ),
+                    )
+            );
+
+            $output_file_excel = "spare_parts_quote-" . date("Y-m-d") . ".xlsx";
+            $opt = TMP_FOLDER. $output_file_excel;
+
+            $R->render('excel', $opt);
+
+            log_message('info', __FUNCTION__ . ' File created ' . $output_file_excel);
+            $res1 = 0;
+
+            if (file_exists($opt)) {
+                system(" chmod 777 " . $opt, $res1);
+
+                echo json_encode(array("response" => "success", "path" => base_url() . "file_process/downloadFile/" . $output_file_excel));
+            } else {
+                log_message("info", __METHOD__ . " Partner ID " . $partner_id. " File Not Generated");
+                echo json_encode(array("response" => "failed", "message" => "File Not Generated"));
+            }
+        } else {
+            log_message("info", __METHOD__ . " Partner ID " . $partner_id. " Data Not Found");
+            echo json_encode(array("response" => "failed", "message" => "Data Not Found"));
+        }
+    }
 
 }
