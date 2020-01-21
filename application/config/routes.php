@@ -299,5 +299,7 @@ $route['partner/inventory/upload_alternate_spare_parts_file'] = 'employee/spare_
 $route['partner/inventory/download_alternate_parts'] = 'employee/partner/show_download_alternate_parts';
 $route['engineer/download_engineer_bookings'] = 'employee/engineer/download_engineer_bookings';
 $route['employee/courier/add_courier_service'] = 'employee/spare_parts/add_courier_service';
+
+$route['warranty/warranty_plan_details/(:any)'] = 'employee/warranty/warranty_plan_details/$1';
 /* End of file routes.php */
 /* Location: ./application/config/routes.php */

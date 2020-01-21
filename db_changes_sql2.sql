@@ -3,9 +3,16 @@ ALTER TABLE `service_center_booking_action` ADD `added_by_sf` INT(1) NOT NULL DE
 
 ALTER TABLE `booking_unit_details` ADD `added_by_sf` INT(1) NOT NULL DEFAULT '0';
 
+
+--Abhay 25/5/19
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES (NULL, '247001', 'Pending', 'Warehouse acknowledged to receive MSL', 'Booking In Progress', 'Warehouse acknowledged to receive MSL', 'Warehouse', 'Send Spare to SF', '0000-00-00 00:00:00');
+INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES (NULL, '247001', 'Pending', 'Partner shipped spare to Warehouse', 'Booking In Progress', 'Partner shipped spare to Warehouse', 'Warehouse', 'Acknowledge Spare', '0000-00-00 00:00:00');
+
+
 ALTER TABLE `booking_unit_details` ADD `added_by_sf` INT(1) NOT NULL DEFAULT '0';
 
 ALTER TABLE `booking_unit_details` ADD `added_by_sf` INT(1) NOT NULL DEFAULT '0';
+
 
 ----Abhishek -----
 
@@ -14,12 +21,9 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Customer has  Wrong Pincode ', 'vendor', '1');
 INSERT INTO `booking_cancellation_reasons` (`id`, `reason`, `reason_of`, `show_on_app`) VALUES (NULL, 'Not Servicable in Your Area', 'vendor', '1');
-
+ 
 ---ABhishek ----
 ALTER TABLE `spare_parts_details` ADD `defective_part_rejected_by_partner` TINYINT(4) NOT NULL DEFAULT '0' AFTER `part_requested_on_approval`;
-
-ALTER TABLE `spare_parts_details` ADD `defective_part_rejected_by_partner` TINYINT(4) NOT NULL DEFAULT '0' AFTER `part_requested_on_approval`;
-
  
 --Kajal 23/5/2019 starting --
 insert into `partner_permission`(partner_id,permission_type,is_on,create_date,update_date) 
@@ -28,7 +32,6 @@ values(247001, 'partner_on_state_appliance',0,CURRENT_TIMESTAMP,CURRENT_TIMESTAM
 insert into agent_filters(entity_type,entity_id,contact_person_id,agent_id,state) 
 SELECT '247around',id, 0,account_manager_id,state FROM `partners` where account_manager_id is not NULL;
 --Kajal 23/5/2019 ending --
- 
 ---ABhishek ----
 ALTER TABLE `spare_parts_details` ADD `defective_part_rejected_by_partner` TINYINT(4) NOT NULL DEFAULT '0' AFTER `part_requested_on_approval`;
 
@@ -51,11 +54,7 @@ ALTER TABLE `entity_identity_proof`
 ALTER TABLE `entity_identity_proof`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
- 
---Abhay 25/5/19
-INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES (NULL, '247001', 'Pending', 'Warehouse acknowledged to receive MSL', 'Booking In Progress', 'Warehouse acknowledged to receive MSL', 'Warehouse', 'Send Spare to SF', '0000-00-00 00:00:00');
-INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES (NULL, '247001', 'Pending', 'Partner shipped spare to Warehouse', 'Booking In Progress', 'Partner shipped spare to Warehouse', 'Warehouse', 'Acknowledge Spare', '0000-00-00 00:00:00');
- 
+
 --Kajal 25-05-2019---
 
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) 
@@ -63,7 +62,29 @@ VALUES ('247Around', 'File Type List', NULL, 'employee/booking/show_file_type_li
 -- Abhishek ----
 UPDATE `email_template` SET `template` = 'Dear %s,<br><br> <b> %s </b> Service Franchise is Permanently <b> %s </b> now by %s.<br><br> Thanks<br> 247Around Team' WHERE `email_template`.`id` = 19;
 
+
 UPDATE `email_template` SET `template` = 'Dear %s,<br><br> <b> %s </b> Service Franchise is Temporarily <b> %s </b> now by %s. <br><br> Thanks<br> 247Around Team' WHERE `email_template`.`id` = 18;
+
+ 
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'send_mail_for_insert_update_applaince_by_sf', 'Update Appliance By SF', 'Hi ,<br> Charges Not add fro below category <br> Brand -%s , Category - %s <br> Capacity - %s <br> Service Category - %s . Please add the charges . <br> Thanks<br> 247Around Team', 'booking@247around.com', 'abhisheka@247around.com', 'abhaya@247around.com', 'abhisheka@247around.com', '1', '2016-09-26 18:30:00');
+
+ 
+ 
+
+-- Ankit 25-May-2019
+INSERT INTO `file_type` (`id`, `file_type`, `max_allowed_size`, `allowed_type`, `is_active`, `create_date`) VALUES (NULL, 'SF Purchase Invoice', NULL, NULL, '1', CURRENT_TIMESTAMP);
+ALTER TABLE `service_centre_charges` ADD COLUMN invoice_pod tinyint(1) NOT NULL DEFAULT 0 AFTER pod;
+ALTER TABLE service_center_booking_action ADD COLUMN sf_purchase_invoice varchar(512) NULL DEFAULT NULL AFTER sf_purchase_date;
+--- Ankit 27-05-2019
+ALTER TABLE booking_unit_details ADD COLUMN invoice_pod tinyint(1) NOT NULL DEFAULT 0 AFTER pod;
+
+--Kajal 27-05-2019---
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES 
+(NULL, 'new_partner_am_notification', 'New AM added for partner - %s', 'Dear All<br><br>AM details are as follows:- <br><br>%s<br>Looking forward for your best support and services to gain more business and trust from them.<br>\r\nThank you for being a valuable part of our service network!<br><br>Best Regards,<br>Team,<br>247around', 'noreply@247around.com', 'all-emp@247around.com', '', '', '1', CURRENT_TIMESTAMP);
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES 
+(NULL, 'update_partner_am_notification', 'AM updated for partner - %s', 'Dear All<br><br>AM details are as follows:- <br><br>%s<br>Looking forward for your best support and services to gain more business and trust from them.<br>\r\nThank you for being a valuable part of our service network!<br><br>Best Regards,<br>Team,<br>247around', 'noreply@247around.com', 'all-emp@247around.com', '', '', '1', CURRENT_TIMESTAMP);
 
  
  --Kajal 27-05-2019---
@@ -73,9 +94,9 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES 
 (NULL, 'update_partner_am_notification', 'AM updated for partner - %s', 'Dear All<br><br>AM details are as follows:- <br><br>%s<br>Looking forward for your best support and services to gain more business and trust from them.<br>\r\nThank you for being a valuable part of our service network!<br><br>Best Regards,<br>Team,<br>247around', 'noreply@247around.com', 'all-emp@247around.com', '', '', '1', CURRENT_TIMESTAMP); 
- 
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'send_mail_for_insert_update_applaince_by_sf', 'Update Appliance By SF', 'Hi ,<br> Charges Not add fro below category <br> Brand -%s , Category - %s <br> Capacity - %s <br> Service Category - %s . Please add the charges . <br> Thanks<br> 247Around Team', 'booking@247around.com', 'abhisheka@247around.com', 'abhaya@247around.com', 'abhisheka@247around.com', '1', '2016-09-26 18:30:00');
- 
+
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'send_mail_for_insert_update_applaince_by_sf', 'Update Appliance By SF', 'Hi ,<br> Charges Not add fro below category <br> Brand -%s , Category - %s <br> Capacity - %s <br> Service Category - %s . Please add the charges . <br> Thanks<br> 247Around Team', 'booking@247around.com', 'gurpreets@247around.com', 'abhaya@247around.com', 'abhisheka@247around.com', '1', '2016-09-26 18:30:00');
+
  --Kajal 27-05-2019---
 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES 
@@ -85,21 +106,52 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 (NULL, 'update_partner_am_notification', 'AM updated for partner - %s', 'Dear All<br><br>AM details are as follows:- <br><br>%s<br>Looking forward for your best support and services to gain more business and trust from them.<br>\r\nThank you for being a valuable part of our service network!<br><br>Best Regards,<br>Team,<br>247around', 'noreply@247around.com', 'all-emp@247around.com', '', '', '1', CURRENT_TIMESTAMP); 
  
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'send_mail_for_insert_update_applaince_by_sf', 'Update Appliance By SF', 'Hi ,<br> Charges Not add fro below category <br> Brand -%s , Category - %s <br> Capacity - %s <br> Service Category - %s . Please add the charges . <br> Thanks<br> 247Around Team', 'booking@247around.com', 'gurpreets@247around.com', 'abhaya@247around.com', 'abhisheka@247around.com', '1', '2016-09-26 18:30:00');
-
-
+ 
  UPDATE `email_template` SET `template` = 'Hi ,<br> Charges Not add for below category <br> Brand -%s , <br>Category - %s <br> Capacity - %s <br> Service Category - %s  <br> . Please add the charges . <br> Thanks<br> 247Around Team' WHERE `email_template`.`id` = 158;
+----Abhishek ----
+--
+-- Table structure for table `entity_gst_details`
+--
 
--- Ankit 25-May-2019
-INSERT INTO `file_type` (`id`, `file_type`, `max_allowed_size`, `allowed_type`, `is_active`, `create_date`) VALUES (NULL, 'SF Purchase Invoice', NULL, NULL, '1', CURRENT_TIMESTAMP);
-ALTER TABLE `service_centre_charges` ADD COLUMN invoice_pod tinyint(1) NOT NULL DEFAULT 0 AFTER pod;
-ALTER TABLE service_center_booking_action ADD COLUMN sf_purchase_invoice varchar(512) NULL DEFAULT NULL AFTER sf_purchase_date;
---- Ankit 27-05-2019
-ALTER TABLE booking_unit_details ADD COLUMN invoice_pod tinyint(1) NOT NULL DEFAULT 0 AFTER pod;
-ALTER TABLE booking_unit_details ADD COLUMN sf_purchase_invoice varchar(512) NULL DEFAULT NULL AFTER sf_purchase_date;
- UPDATE `email_template` SET `template` = 'Hi ,<br> Charges Not add for below category <br> Brand -%s , <br>Category - %s <br> Capacity - %s <br> Service Category - %s  <br> . Please add the charges . <br> Thanks<br> 247Around Team' WHERE `email_template`.`id` = 158;
-  ---Abhishek ---
+CREATE TABLE `entity_gst_details` (
+  `id` int(11) NOT NULL,
+  `entity_id` int(11) NOT NULL,
+  `entity_type` varchar(15) NOT NULL,
+  `gst_number` varchar(16) NOT NULL,
+  `gst_file` varchar(500) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `entity_gst_details`
+--
+ALTER TABLE `entity_gst_details`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `entity_gst_details`
+--
+ALTER TABLE `entity_gst_details`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ 
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+-----  Abhishek End ------
+ ---Abhishek ---
+
+ 
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'spare_not_transfer_from_wh_to_wh', 'Spare for booking ID - %s not transferred', 'Spare not transferred due to no available of stock ,Booking ID is %s, <br/>Inventory ID is %s . <br>\r\n', 'noreply@247around.com', '247around_dev@247around.com', 'abhisheka@247around.com', 'abhaya@247around.com', '1', '', '2018-10-30 10:48:05');
-
+ 
+INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'spare_not_transfer_from_wh_to_wh', 'Spare for booking ID - %s not transferred', 'Spare not transferred due to no available of stock ,Booking ID is %s, <br/>Inventory ID is %s . <br>\r\n', 'noreply@247around.com', '247around_dev@247around.com', 'abhisheka@247around.com', 'abhaya@247around.com', '1', '', '2018-10-30 10:48:05');
 --Chhavi
 CREATE TABLE `fake_cancellation_missed_call_log` (
   `id` int(11) NOT NULL,
@@ -132,7 +184,7 @@ ALTER TABLE `fake_cancellation_missed_call_log`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
  
---Kalyani 07-June-2019
+
 INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Download SF Penalty Summary', '', 'employee/vendor/penalty_summary', '2', '36', 'admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);--Chhavi 12-June-2019
 CREATE TABLE `booking_request_type_state_change` (
   `id` int(11) NOT NULL,
@@ -168,7 +220,15 @@ ALTER TABLE `booking_request_type_state_change`
 ALTER TABLE `booking_request_type_state_change`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
+
 UPDATE `email_template` SET `template` = 'Spare not transferred due to no available of stock ,Details are - %s,', `to` = 'abhisheka@247around.com', `bcc` = 'abhisheka@247around.com' WHERE `email_template`.`id` = 159;
+--Kalyani 07-June-2019
+INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Download SF Penalty Summary', '', 'employee/vendor/penalty_summary', '2', '36', 'admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
+ALTER TABLE `invoice_details` ADD `from_gst_number` VARCHAR(25) NULL DEFAULT NULL AFTER `total_amount`, ADD `to_gst_number` VARCHAR(25) NULL DEFAULT NULL AFTER `from_gst_number`;
+
+
+
+ALTER TABLE `vendor_partner_invoices` CHANGE `invoice_file_main` `invoice_file_main` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 
 -- Prity Bhardwaj 26-June-2019
 CREATE TABLE `service_center_brand_mapping` (
@@ -185,13 +245,9 @@ CREATE TABLE `service_center_brand_mapping` (
   CONSTRAINT fk_scbm_brand_id_appliance_brands_id FOREIGN KEY (brand_id) REFERENCES appliance_brands (id)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
---Kalyani 07-June-2019
-INSERT INTO `header_navigation` (`id`, `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES (NULL, '247Around', 'Download SF Penalty Summary', '', 'employee/vendor/penalty_summary', '2', '36', 'admin,developer,inventory_manager,regionalmanager', 'main_nav', '1', CURRENT_TIMESTAMP);
-ALTER TABLE `invoice_details` ADD `from_gst_number` VARCHAR(25) NULL DEFAULT NULL AFTER `total_amount`, ADD `to_gst_number` VARCHAR(25) NULL DEFAULT NULL AFTER `from_gst_number`;
-
-
-ALTER TABLE `vendor_partner_invoices` CHANGE `invoice_file_main` `invoice_file_main` VARCHAR(255) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
-
+--- Gorakh 28-06-2019 
+INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
+('spare_part_shipment_pending', 'Spare Parts Shipment Pending', 'Please find the attachment', NULL, 'noreply@247around.com', '', 'gorakhn@247around.com,gorakhn@247around.com,gorakhn@247around.com', '', '1', '2019-06-28 05:52:56');
 --Kajal 26/06/2019 starting --
 UPDATE `header_navigation` SET `title` = 'Inventory Master List' WHERE `header_navigation`.`title`='Spare Part List';
 
@@ -203,10 +259,6 @@ INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `
 ALTER TABLE `file_uploads` ADD `agent_type` VARCHAR(25) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'employee' AFTER `agent_id`;
 --Kajal 26/06/2019 ending --
 
---- Gorakh 28-06-2019 
-INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
-('spare_part_shipment_pending', 'Spare Parts Shipment Pending', 'Please find the attachment', NULL, 'noreply@247around.com', '', 'gorakhn@247around.com,gorakhn@247around.com,gorakhn@247around.com', '', '1', '2019-06-28 05:52:56');
-
 --Abhishek----
 ALTER TABLE `appliance_updated_by_sf` CHANGE `capacity` `capacity` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
 
@@ -214,8 +266,11 @@ ALTER TABLE `appliance_updated_by_sf` CHANGE `capacity` `capacity` VARCHAR(64) C
 --Abhay 01/07/2019
 
 ALTER TABLE `spare_parts_details` ADD `partner_warehouse_packaging_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `vendor_courier_invoice_id`;
+--Abhay /07/2019
 
-ALTER TABLE employee_relation ADD COLUMN individual_service_centres_id text NULL DEFAULT NULL AFTER service_centres_id;
+ALTER TABLE `entity_gst_details` ADD `city` VARCHAR(64) NOT NULL AFTER `gst_file`, ADD `pincode` INT(11) NOT NULL AFTER `city`, ADD `address` VARCHAR(256) NOT NULL AFTER `pincode`;
+
+ALTER TABLE `inventory_ledger` ADD `micro_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `invoice_id`;
 
 --Kalyani 04-July-2019
 ALTER TABLE `engineer_booking_action` ADD `model_number` VARCHAR(255) NULL DEFAULT NULL AFTER `cancellation_reason`;
@@ -225,18 +280,9 @@ ALTER TABLE `engineer_booking_action` ADD `symptom` INT NULL DEFAULT NULL AFTER 
 ALTER TABLE `engineer_booking_action` ADD `service_charge` INT NOT NULL DEFAULT '0' AFTER `cancellation_reason`;
 ALTER TABLE `engineer_booking_action` ADD `additional_service_charge` INT NOT NULL DEFAULT '0' AFTER `service_charge`;
 ALTER TABLE `engineer_booking_action` ADD `parts_cost` INT NOT NULL DEFAULT '0' AFTER `additional_service_charge`;
-
 ALTER TABLE `engineer_booking_action` ADD `amount_paid` INT NULL AFTER `cancellation_reason`;
 
 ALTER TABLE employee_relation ADD COLUMN individual_service_centres_id text NULL DEFAULT NULL AFTER service_centres_id;
---Abhay /07/2019
-
-ALTER TABLE `entity_gst_details` ADD `city` VARCHAR(64) NOT NULL AFTER `gst_file`, ADD `pincode` INT(11) NOT NULL AFTER `city`, ADD `address` VARCHAR(256) NOT NULL AFTER `pincode`;
-
-ALTER TABLE `inventory_ledger` ADD `micro_invoice_id` VARCHAR(128) NULL DEFAULT NULL AFTER `invoice_id`;
---- Gorakh 28-06-2019 
-INSERT INTO `email_template` (`tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES
-('spare_part_shipment_pending', 'OUT OF TAT - UNDELIVERED %s COURIER', 'Please find attached excel in which mentioned undelivered <b>%s</b> courier above 5 days.', NULL, 'noreply@247around.com', '', '', '', '1', '2019-06-28 05:52:56');
 
 --Kajal 12/07/2019 --
 ALTER TABLE `spare_parts_details` ADD `cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL AFTER `shipped_quantity`;
@@ -329,18 +375,8 @@ ALTER TABLE service_category_mapping ADD CONSTRAINT `uk_scm_service_category_cap
 ALTER TABLE `engineer_booking_action` ADD `booking_status` INT NOT NULL AFTER `solution`;
 -- Prity 16-July-2019
 ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT uk_state_plan UNIQUE (plan_id, state_code);
---Kajal 13/07/2019 --
-ALTER TABLE `spare_parts_details` CHANGE `cancellation_reason` `spare_cancellation_reason` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL;
-
--- Kajal 19-July-2019 --
-ALTER TABLE `inventory_model_mapping` ADD `bom_main_part` INT(1) NOT NULL DEFAULT '1' COMMENT '1 - Main Part, 0 - Alternate Part' AFTER `max_quantity`;
-
---Ankit 15/07/2019 --
-ALTER TABLE service_center_brand_mapping ADD COLUMN service_id int(11) NOT NULL AFTER service_center_id;
-
 -- Ankit 17-July-2019
 ALTER TABLE service_center_brand_mapping ADD COLUMN created_by varchar(150) NOT NULL AFTER create_date;
-
 -- Prity 18-July-2019
 CREATE TABLE `partner_appliance_mapping` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -369,7 +405,6 @@ ALTER TABLE `engineer_details` ADD `varified` BOOLEAN NOT NULL DEFAULT FALSE AFT
 INSERT INTO `header_navigation` (`entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
 ('247Around', 'Download serviceable BOM', NULL, 'employee/inventory/download_serviceable_bom', 2, '89', 'accountmanager,admin,closure,developer,inventory_manager', 'main_nav', 1, '2018-06-05 05:27:42');
 
-
 ALTER TABLE warranty_plans add column service_id int(11) NULL DEFAULT NULL after partner_id;
 ALTER TABLE warranty_plans ADD CONSTRAINT `fk_warranty_plans_services` FOREIGN KEY(`service_id`) REFERENCES services(id);
 ALTER TABLE warranty_plans add column `create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP;
@@ -385,6 +420,9 @@ ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT uk_model_plan UNIQUE (pla
 
 --Kalyani 01-08-2019
 ALTER TABLE `engineer_booking_action` ADD `cancellation_remark` VARCHAR(255) NOT NULL AFTER `cancellation_reason`;
+--Kalyani 03-08-2019
+ALTER TABLE `ewaybill_details` ADD `vehicle_number` VARCHAR(255) NOT NULL AFTER `ewaybill_generated_date`;
+ALTER TABLE `ewaybill_details` ADD `invoice_id` VARCHAR(255) NOT NULL AFTER `vehicle_number`;
 
 -- Prity 02-08-2019
 -- Query to add data in partner_appliance_mapping Table
@@ -406,11 +444,6 @@ FROM
         LEFT JOIN 
     service_category_mapping ON (partner_appliance_details.service_id = service_category_mapping.service_id AND category.id = service_category_mapping.category_id AND capacity.id = service_category_mapping.capacity_id)    
 ;
-
---Kalyani 03-08-2019
-ALTER TABLE `ewaybill_details` ADD `vehicle_number` VARCHAR(255) NOT NULL AFTER `ewaybill_generated_date`;
-ALTER TABLE `ewaybill_details` ADD `invoice_id` VARCHAR(255) NOT NULL AFTER `vehicle_number`;
-
 
 --Kajal 02/08/2019 Start --
 UPDATE `spare_parts_details` JOIN `booking_cancellation_reasons` ON spare_parts_details.spare_cancellation_reason=booking_cancellation_reasons.reason SET spare_parts_details.spare_cancellation_reason=booking_cancellation_reasons.id WHERE spare_parts_details.spare_cancellation_reason<>'' ;
@@ -570,13 +603,6 @@ INSERT INTO entity_login_table (entity, entity_id, entity_name, contact_person_i
 UPDATE `sms_template` SET `template` = 'Hi %S,Your Engineer Login is created.User Id - %s,Password - %s. download engineer app from https://urlzs.com/zoUkF.247around' WHERE `sms_template`.`tag` = 'engineer_login_sms_template';
 --Gorakh 08-08-2019
 ALTER TABLE `inventory_model_mapping` ADD `active` TINYINT DEFAULT 1 AFTER  `create_date`;
-=======
- 
--- Ankit 13-08-2019
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'not_delivered_bb_orders', NULL, ' ', 'sunilk@247around.com', 'kmardee@amazon.com,ybhargav@amazon.com', 'sunilk@247around.com', '', '1', '', CURRENT_TIMESTAMP);
- 
---Gorakh 08-08-2019
-ALTER TABLE `inventory_model_mapping` ADD `active` TINYINT DEFAULT 1 AFTER  `create_date`;
 
 -- Menus for category/capacity
 INSERT INTO `header_navigation` ( `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
@@ -594,24 +620,43 @@ ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_ma
 ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_part_type_inventory_parts_type_id FOREIGN KEY (part_type_id) REFERENCES inventory_parts_type (id);
 ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_plan_id_warranty_plan_plan_id FOREIGN KEY (plan_id) REFERENCES warranty_plans (plan_id);
 
-
 --- Abhishek -----
 
 CREATE TABLE spare_nrn_approval ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `booking_id` VARCHAR(50) NOT NULL ,  `email_to` VARCHAR(100) NULL DEFAULT NULL ,  `remark` TEXT NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
 
 ALTER TABLE `spare_nrn_approval` ADD `approval_file` TEXT NULL DEFAULT NULL AFTER `email_to`;
 ALTER TABLE `spare_parts_details` ADD `nrn_approv_by_partner` INT(5) NOT NULL DEFAULT '0' AFTER `spare_cancellation_reason`;
- 
+
  
 -- Ankit 13-08-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'not_delivered_bb_orders', NULL, ' ', 'sunilk@247around.com', 'kmardee@amazon.com,ybhargav@amazon.com', 'sunilk@247around.com', '', '1', '', CURRENT_TIMESTAMP);
 
+ 
 ---Abhishek--
 INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES (NULL, '247130', 'Pending', 'NRN Approved By Partner', 'NRN Approved By Partner', 'NRN Approved By Partner', 'Partner', NULL, CURRENT_TIMESTAMP);
  
 -- Kajal 20-08-2019
 INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare_part_lost', 'Part Sold', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
 UPDATE `invoice_tags` SET `tag` = 'part_lost' WHERE `invoice_tags`.`sub_category` = 'Defective Part Lost';
+
+--sachin 13-08-2019
+
+CREATE TABLE `boloaaka`.`courier_file_upload_header_mapping` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `docket_number` VARCHAR(64) NULL DEFAULT NULL , `booking_station` VARCHAR(128) NULL DEFAULT NULL , `delivery_station` VARCHAR(128) NULL DEFAULT NULL , `consignee_name` VARCHAR(256) NULL DEFAULT NULL , `courier_booking_date` VARCHAR(64) NULL DEFAULT NULL , `assured_delivery_date` VARCHAR(64) NULL DEFAULT NULL , `delivery_date` VARCHAR(64) NULL DEFAULT NULL , `docket_status` VARCHAR(64) NULL DEFAULT NULL , `docket_current_status` VARCHAR(64) NULL DEFAULT NULL , `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP , `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `courier_file_upload_header_mapping` ADD `courier_partner_id` INT(11) NOT NULL AFTER `id`;
+
+CREATE TABLE `boloaaka`.`courier_status_file_details` ( `id` INT(11) NOT NULL AUTO_INCREMENT , `docket_no` VARCHAR(64) NOT NULL , `booking_stn` VARCHAR(64) NOT NULL , `delivery_stn` VARCHAR(64) NOT NULL , `bkg_dt` DATETIME NOT NULL , `assured_dly_dt` DATETIME NOT NULL , `delivery_date` DATETIME NOT NULL , `docket_status` VARCHAR(128) NOT NULL , `docket_curr_status` VARCHAR(128) NOT NULL , `consignee_name` VARCHAR(64) NOT NULL , `order_no` VARCHAR(64) NOT NULL , `remarks` VARCHAR(256) NOT NULL , `deps` VARCHAR(64) NOT NULL , `no_of_pkgs` VARCHAR(32) NOT NULL , `actual_wt` DECIMAL(10,2) NOT NULL , `charged_wt` DECIMAL(10,2) NOT NULL , `only_booking_amt` DECIMAL(10,2) NOT NULL , `cargo_value` DECIMAL(10,2) NOT NULL , `freight_amt` DECIMAL(10,2) NOT NULL , `cust_remarks` VARCHAR(256) NOT NULL , `bkg_zone` VARCHAR(64) NOT NULL , `dly_zone` VARCHAR(64) NOT NULL , `prod_service_name` VARCHAR(128) NOT NULL , `create_date` TIMESTAMP NOT NULL , `update_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP , PRIMARY KEY (`id`)) ENGINE = InnoDB;
+
+ALTER TABLE `courier_status_file_details` CHANGE `delivery_date` `delivery_date` DATETIME NULL DEFAULT NULL;
+ALTER TABLE `courier_status_file_details` CHANGE `create_date` `create_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE `courier_status_file_details` CHANGE `bkg_dt` `bkg_dt` DATE NOT NULL;
+ALTER TABLE `courier_status_file_details` CHANGE `assured_dly_dt` `assured_dly_dt` DATE NOT NULL;
+ALTER TABLE `courier_status_file_details` CHANGE `delivery_date` `delivery_date` DATE NULL DEFAULT NULL;
+
+INSERT INTO `courier_file_upload_header_mapping` (`id`, `courier_partner_id`, `docket_number`, `booking_station`, `delivery_station`, `consignee_name`, `courier_booking_date`, `assured_delivery_date`, `delivery_date`, `docket_status`, `docket_current_status`, `create_date`, `update_date`) VALUES ('10000', '10002', 'docket_no', 'booking_stn', 'delivery_stn', 'consignee_name', 'bkg_dt', 'assured_dly_dt', 'delivery_date', 'docket_status', 'docket_curr_status', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+
+--Kalyani 22-08-2019
+ALTER TABLE `spare_parts_details` ADD `part_requested_by_engineer` BOOLEAN NOT NULL DEFAULT FALSE AFTER `nrn_approv_by_partner`;
 
 -- Kajal 22-08-2019
 UPDATE `invoice_tags` SET `tag` = 'Out-of-Warranty' WHERE `invoice_tags`.`sub_category` = 'Out-of-Warranty';
@@ -979,7 +1024,14 @@ VALUES (NULL, 'sf_invoice_summary', 'SF Invoice Summary for period: %s to %s',
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) 
 VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s to %s', 
 'Dear Partner, Invoice Summary are as follows:- <br><br>%s<br>
+
 <br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
+ 
+--Abhay 03 Sept
+ALTER TABLE `inventory_alternate_spare_parts_mapping` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `alt_inventory_id`;
+ALTER TABLE `alternate_inventory_set` ADD `model_id` INT(11) NULL DEFAULT NULL AFTER `inventory_id`;
+-- Ankit 03-09-2019
+ALTER TABLE spare_consumption_status ADD COLUMN status_description text NULL DEFAULT NULL AFTER consumed_status; 
 
 -- Kajal 04-09-2019
 UPDATE `email_template` SET `subject` = 'Spare shipped by %s to %s' , `template` = 'Dear Partner,<br><br> <b>%s</b> shipped below spare to your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around' , `cc` = 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com' WHERE `email_template`.`tag` = 'msl_send_by_wh_to_partner';
@@ -987,12 +1039,29 @@ UPDATE `email_template` SET `subject` = 'Spare shipped by %s to %s' , `template`
 -- Kajal 05-09-2019
 UPDATE `email_template` SET `from` = 'defective-outward@247around.com', `cc` = 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com' WHERE `email_template`.`tag` = 'defective_spare_send_by_wh_to_partner';
 
+ALTER TABLE spare_consumption_status ADD COLUMN status_description text NULL DEFAULT NULL AFTER consumed_status; 
+
+--Kalyani 04-Aug-2019
+ALTER TABLE `entity_gst_details` ADD `state_stamp_picture` VARCHAR(256) NULL AFTER `phone_number`;
+
 -- Kajal 06-09-2019
-
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_wh', 'Spare shipped by %s to %s', 'Dear SF,<br><br> <b>%s</b> shipped below spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', NULL, 'defective-outward@247around.com', '', 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com', '', '1', CURRENT_TIMESTAMP);
-
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `booking_id`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'msl_send_by_microwh_to_wh', 'New Spare shipped by %s to %s', 'Dear SF,<br><br> <b>%s</b> shipped below new spare from your warehouse.<br><br> %s <br> <b>Courier Details </b><br><br> %s<br> Regards,<br> 247around', NULL, 'defective-outward@247around.com', '', 'warehouse_noida@247around.com, anuj@247around.com, defective-outward@247around.com', '', '1', CURRENT_TIMESTAMP);
+ 
 
+ --Abhishek---
+ CREATE TABLE `spare_qty_mgmt` ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `spare_id` INT(11) NOT NULL ,  `booking_id` VARCHAR(60) NOT NULL ,  `qty` INT(11) NOT NULL DEFAULT '1' ,  `sf_id` INT NOT NULL ,  `created_on` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
+ ALTER TABLE `spare_qty_mgmt` ADD `awb_by_sf_defective` VARCHAR(50) NOT NULL AFTER `created_on`, ADD `def_courier_price_by_sf` INT(11) NOT NULL AFTER `awb_by_sf_defective`, ADD `def_courier_name` VARCHAR(50) NOT NULL AFTER `def_courier_price_by_sf`;
+
+ ALTER TABLE `spare_qty_mgmt` ADD `qty_status` INT(11) NOT NULL DEFAULT '1' AFTER `qty`;
+ ALTER TABLE `spare_qty_mgmt` ADD `is_defective_qty` VARCHAR(100) NOT NULL AFTER `qty_status`;
+ ALTER TABLE `spare_qty_mgmt` CHANGE `awb_by_sf_defective` `awb_by_sf_defective` VARCHAR(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL, CHANGE `def_courier_price_by_sf` `def_courier_price_by_sf` DECIMAL(11) NULL DEFAULT NULL, CHANGE `def_courier_name` `def_courier_name` VARCHAR(50) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL;
+ ALTER TABLE `spare_qty_mgmt` CHANGE `qty_status` `qty_status` VARCHAR(100) NULL DEFAULT NULL;
+
+ ALTER TABLE `spare_qty_mgmt` CHANGE `is_defective_qty` `is_defective_qty` SMALLINT(5) NOT NULL DEFAULT '1';
+ALTER TABLE `courier_company_invoice_details` ADD `courier_invoice_file` VARCHAR(100) NULL DEFAULT NULL AFTER `box_count`;
+ALTER TABLE `courier_company_invoice_details` ADD `shippment_date` DATE NULL DEFAULT NULL AFTER `courier_invoice_file`;
+ALTER TABLE `courier_company_invoice_details` ADD `created_by` VARCHAR(50) NULL DEFAULT NULL AFTER `shippment_date`, ADD `is_exist` TINYINT(5) NOT NULL DEFAULT '0' AFTER `created_by`;
+ 
 -- Ankit 09-09-2019
 CREATE TABLE wrong_part_shipped_details (
     id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -1004,7 +1073,6 @@ CREATE TABLE wrong_part_shipped_details (
 
 --Kalyani 10-09-2019
 UPDATE `sms_template` SET `template` = 'Get 5 Percent Cashback On Your %s Booking. Download QR Code from %s Or Engineer Job Card & Pay On Paytm App. Use Paytm even if technician refuses and asks for Cash. 5 Percent Discount ONLY available on Payments made through Paytm. %s 247around' WHERE `sms_template`.`tag` = "customer_qr_download";
-
 
 --Kalyani 11-09-2019
 INSERT INTO `query_report` (`id`, `main_description`, `query1_description`, `query2_description`, `query1`, `query2`, `role`, `priority`, `type`, `active`, `result`, `create_date`) VALUES (NULL, 'Total Bookings Closed By Engineer', 'Completed', 'Cancelled', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= \"2019-08-01\" AND internal_status = \"Completed\"', 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= \"2019-08-01\" AND internal_status = \"Cancelled\"', 'developer', '1', 'service', '1', NULL, CURRENT_TIMESTAMP);
@@ -1018,66 +1086,24 @@ ALTER TABLE `part_type_return_mapping` ADD `inventory_id` INT(11) NOT NULL AFTER
 
 --Kalyani 12-09-2019
 ALTER TABLE `engineer_booking_action` ADD `purchase_invoice` VARCHAR(255) NULL DEFAULT NULL AFTER `serial_number_pic`;
- 
--- Menus for category/capacity
-INSERT INTO `header_navigation` ( `entity_type`, `title`, `title_icon`, `link`, `level`, `parent_ids`, `groups`, `nav_type`, `is_active`, `create_date`) VALUES
-('247Around', 'Partner Category Capacity Mapping', NULL, 'employee/service_centre_charges/show_partner_appliances', 2, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:13:09'),
-( '247Around', 'Capacity', NULL, 'capacity', 2, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:11:02'),
-( '247Around', 'Category', NULL, 'category', 1, '52', 'admin,developer', 'main_nav', 1, '2019-08-06 09:07:06');
 
--- Add Foriegn key Constraints on Warranty Tables
-ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT `fk_warranty_plan_model_mapping_services` FOREIGN KEY(`service_id`) REFERENCES services(id);
-ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT `fk_warranty_plan_model_mapping_plans` FOREIGN KEY(`plan_id`) REFERENCES warranty_plans(plan_id);
-ALTER TABLE warranty_plan_model_mapping ADD CONSTRAINT `fk_warranty_plan_model_mapping_model` FOREIGN KEY(`model_id`) REFERENCES appliance_model_details(id);
-ALTER TABLE warranty_plans  ADD CONSTRAINT `fk_warranty_plan_partner_id_partners_id` FOREIGN KEY (partner_id) REFERENCES partners (id);
-ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_mapping_plan_id_warranty_plan_plan_id FOREIGN KEY (plan_id) REFERENCES warranty_plans (plan_id);
-ALTER TABLE warranty_plan_state_mapping ADD CONSTRAINT fk_warranty_plan_state_mapping_state_code_state_state_code FOREIGN KEY (state_code) REFERENCES state_code (state_code);
-ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_part_type_inventory_parts_type_id FOREIGN KEY (part_type_id) REFERENCES inventory_parts_type (id);
-ALTER TABLE warranty_plan_part_type_mapping ADD CONSTRAINT fk_wpptm_plan_id_warranty_plan_plan_id FOREIGN KEY (plan_id) REFERENCES warranty_plans (plan_id);
+-- Ankit 12-SEP-2019
+ALTER TABLE spare_consumption_status ADD COLUMN tag varchar(100) NULL DEFAULT NULL AFTER id;
+
+UPDATE `spare_consumption_status` SET `tag` = 'part_consumed' WHERE `spare_consumption_status`.`id` = 1;
+UPDATE `spare_consumption_status` SET `tag` = 'part_not_received_courier_lost' WHERE `spare_consumption_status`.`id` = 2;
+UPDATE `spare_consumption_status` SET `tag` = 'damage_broken_part_received' WHERE `spare_consumption_status`.`id` = 3;
+UPDATE `spare_consumption_status` SET `tag` = 'wrong_part_received' WHERE `spare_consumption_status`.`id` = 4;
+UPDATE `spare_consumption_status` SET `tag` = 'ok_part_received_but_not_used' WHERE `spare_consumption_status`.`id` = 5;
+UPDATE `spare_consumption_status` SET `tag` = 'part_cancelled' WHERE `spare_consumption_status`.`id` = 6;
+UPDATE `spare_consumption_status` SET `tag` = 'nrn_approved' WHERE `spare_consumption_status`.`id` = 7;
+
+ALTER TABLE wrong_part_shipped_details ADD COLUMN create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ;
 
 
---- Abhishek -----
-
-CREATE TABLE spare_nrn_approval ( `id` INT(11) NOT NULL AUTO_INCREMENT ,  `booking_id` VARCHAR(50) NOT NULL ,  `email_to` VARCHAR(100) NULL DEFAULT NULL ,  `remark` TEXT NOT NULL ,    PRIMARY KEY  (`id`)) ENGINE = InnoDB;
-
-ALTER TABLE `spare_nrn_approval` ADD `approval_file` TEXT NULL DEFAULT NULL AFTER `email_to`;
-ALTER TABLE `spare_parts_details` ADD `nrn_approv_by_partner` INT(5) NOT NULL DEFAULT '0' AFTER `spare_cancellation_reason`;
- 
-ALTER TABLE `inventory_model_mapping` ADD `active` TINYINT DEFAULT 1 AFTER  `create_date`;
-
--- Kajal 20-08-2019
-INSERT INTO `internal_status` (`id`, `page`, `status`, `active`, `sf_update_active`, `method_name`, `redirect_url`, `create_date`) VALUES (NULL, 'bill_defective_spare_part_lost', 'Part Sold', '1', '0', NULL, NULL, CURRENT_TIMESTAMP);
-UPDATE `invoice_tags` SET `tag` = 'part_lost' WHERE `invoice_tags`.`sub_category` = 'Defective Part Lost';
- 
--- Ankit 13-08-2019
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `email_tag`, `create_date`) VALUES (NULL, 'not_delivered_bb_orders', NULL, ' ', 'sunilk@247around.com', 'kmardee@amazon.com,ybhargav@amazon.com', 'sunilk@247around.com', '', '1', '', CURRENT_TIMESTAMP);
-
----Abhishek--
-INSERT INTO `partner_booking_status_mapping` (`id`, `partner_id`, `247around_current_status`, `247around_internal_status`, `partner_current_status`, `partner_internal_status`, `actor`, `next_action`, `create_date`) VALUES (NULL, '247130', 'Pending', 'NRN Approved By Partner', 'NRN Approved By Partner', 'NRN Approved By Partner', 'Partner', NULL, CURRENT_TIMESTAMP);
-  
--- Kajal 22-08-2019
-UPDATE `invoice_tags` SET `tag` = 'Out-of-Warranty' WHERE `invoice_tags`.`sub_category` = 'Out-of-Warranty';
-
--- Prity 26-08-2019
-ALTER TABLE warranty_plans add column `plan_depends_on` int(11) NOT NULL DEFAULT 1 COMMENT '1 => Model Specific (Plan Valid on Model Number), 2 => Service Specific (Plan Valid on Product eg : AC, WM)';
-
--- Ankit 29-08-2019
-CREATE TABLE spare_consumption_status (
-	id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
-	consumed_status varchar(255) NOT NULL,
-	is_consumed tinyint(0) NOT NULL DEFAULT 0,
-	create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	update_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-INSERT INTO `spare_consumption_status` (`id`, `consumed_status`, `is_consumed`, `create_date`, `update_date`) VALUES (NULL, 'Product consumed', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Product not delivered', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Damage/Broken part received', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Wrong part received', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Part shipped but not used', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Part cancelled', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP), (NULL, 'Part not NRN approved', '0', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
-
-ALTER TABLE spare_parts_details ADD COLUMN consumed_part_status_id int(11) NULL DEFAULT NULL AFTER old_status;
-
--- Kajal 29-08-2019
-ALTER TABLE `inventory_master_list` ADD `is_invoice` INT(1) NOT NULL DEFAULT '0' AFTER `part_image`;
-
-
+--Pranjal 30-8-2019 - for adding link for RM Mapping
+insert into `header_navigation`(`entity_type`,`title`,`link`,`level`,`groups`,`nav_type`,`is_active`)
+values ('247Around','RM Mapping','employee/user/rm_state_mapping',1,'admin,developer','right_nav','1')
 -- Gorakh 31-08-2019
 ALTER TABLE `hsn_code_details` ADD `service_id` INT NULL DEFAULT NULL AFTER `agent_id`;
 CREATE TABLE `spare_invoice_details` (
@@ -1397,7 +1423,9 @@ VALUES (NULL, 'partner_invoice_summary', 'Partner Invoice Summary for period: %s
 <br/>Thanks,<br/>247around Team', 'billing@247around.com', 'accounts@247around.com', 'abhaya@247around.com', '', '1', CURRENT_TIMESTAMP);
  
  
-
+--Pranjal 30-8-2019 - for adding link for RM Mapping
+insert into `header_navigation`(`entity_type`,`title`,`link`,`level`,`groups`,`nav_type`,`is_active`)
+values ('247Around','RM Mapping','employee/user/rm_state_mapping',1,'admin,developer','right_nav','1')
 --Abhishek--2-sep-2019
 ALTER TABLE `spare_parts_details` ADD `shipped_to_partner_qty` INT(11) NOT NULL DEFAULT '1' AFTER `shipped_quantity`;
  
@@ -1488,34 +1516,19 @@ ALTER TABLE `part_type_return_mapping` ADD `inventory_id` INT(11) NOT NULL AFTER
 --Gorakh 23-09-2019
 RENAME TABLE `boloaaka`.`spare_invoice_details` TO `boloaaka`.`oow_spare_invoice_details`; 
 --Ankit 24-09-2019
-ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1
-
- 
-
---Pranjal 9/5/2019 --
-INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, NUll, 'TAT Between 24 - 48 hrs', NULL, '30', '1');
-INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, NUll, 'TAT Between 48 - 72 hrs', NULL, '40', '1');
-INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, NUll, 'TAT Greater Than 72 hrs', NULL, '50', '1');
-
-INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, NUll, 'Upcountry SVC TAT Between 48 -72 hrs', NULL, '30', '1');
-INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, NUll, 'Upcountry SVC TAT Between 72 -120 hrs', NULL, '40', '1');
-INSERT INTO `penalty_details` (`id`, `partner_id`, `escalation_id`, `criteria`, `penalty_amount`, `unit_%_rate`, `active`) VALUES (NULL, NULL, NUll, 'Upcountry SVC TAT Greater Than 120 hrs', NULL, '50', '1');
-
 ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1;
 -- Prity Sharma 25-09-2019
 ALTER TABLE booking_unit_details CHANGE COLUMN sf_purchase_date sf_purchase_date date NULL DEFAULT NULL;
- 
 -- Ankit 27-09-2019
 ALTER TABLE partners ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER auth_token;
 ALTER TABLE service_centres ADD COLUMN is_booking_close_by_app_only tinyint(1) NOT NULL DEFAULT 0 AFTER is_wh;
 --Gorakh 28-09-2019
 ALTER TABLE `courier_company_invoice_details` CHANGE `billable_weight` `billable_weight` VARCHAR(20) NOT NULL;
- 
 ALTER TABLE wrong_part_shipped_details ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1
  --Gorakh 20-09-2019
 ALTER TABLE `spare_parts_details` ADD `wh_challan_number` VARCHAR(128) NULL DEFAULT NULL AFTER `sf_challan_number`;
 ALTER TABLE `spare_parts_details` ADD `wh_challan_file` VARCHAR(128) NULL DEFAULT NULL AFTER `sf_challan_file`;
- 
+
 --Kajal 01-10-2019
 UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_07.jpg' WHERE `entity_gst_details`.`id` = 2;
 UPDATE `entity_gst_details` SET `state_stamp_picture` = 'seal_09.jpg' WHERE `entity_gst_details`.`id` = 7;
@@ -1526,9 +1539,6 @@ INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, 
 
 --Kalyani 11-10-2019
 INSERT INTO `partner_summary_report_mapping` (`Title`, `sub_query`, `is_default`, `partner_id`, `is_active`, `index_in_report`) VALUES ('Engineer Name', 'engineer_details.name AS engineer_name', '1', '', '1', '50');
-
--- Kajal 11-10-2019
-ALTER TABLE `file_uploads` ADD `amount_paid` DECIMAL(10,2) NOT NULL DEFAULT '0.00' AFTER `result`;
 
 --Kajal 11-10-2019
 ALTER TABLE `file_uploads` ADD `amount_paid` DECIMAL(10,2) NOT NULL DEFAULT '0.00' AFTER `result`;
@@ -1552,10 +1562,8 @@ ALTER TABLE `engineer_consumed_spare_details`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 COMMIT;
 
-
 --Kalyani 31-10-2019 
 UPDATE query_report SET query2 = 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND closed_date >= "2019-08-01" AND internal_status = "Cancelled" AND engineer_booking_action.booking_id in (select DISTINCT booking_id from engineer_booking_action group by booking_id having count(DISTINCT internal_status)=1)' WHERE id = '59';
-
 UPDATE query_report SET query2 = 'SELECT count(DISTINCT(booking_id)) as count FROM `engineer_booking_action` WHERE closed_date IS NOT NULL AND DATE(closed_date) = CURDATE() AND internal_status = "Cancelled" AND engineer_booking_action.booking_id in (select DISTINCT booking_id from engineer_booking_action group by booking_id having count(DISTINCT internal_status)=1)' WHERE id = '58'
 
 --Gorakh 24-10-2019
@@ -1583,14 +1591,6 @@ ALTER TABLE `service_centres` DROP `is_booking_close_by_app_only`;
 ALTER TABLE `partners` DROP `is_booking_close_by_app_only`;
 ALTER TABLE query_report add column ownership varchar(100) NULL DEFAULT NULL ;
 
---  Prity 12-11-2019
-UPDATE `header_navigation` SET `level` = '3', parent_ids = 256 WHERE `header_navigation`.`id` = 251;
-UPDATE `header_navigation` SET `level` = '3', parent_ids = 256 WHERE `header_navigation`.`id` = 248;
-UPDATE `header_navigation` SET `title` = 'Add Models to Plan' WHERE `header_navigation`.`id` = 257;
- 
-ALTER TABLE `booking_details` ADD `nrn_approved` INT(2) NOT NULL DEFAULT '0' AFTER `technical_solution`;
- 
-
 --Kalyani 12-11-2019
 CREATE TABLE `engineer_incentive_details` (
   `id` int(11) NOT NULL,
@@ -1613,7 +1613,6 @@ COMMIT;
 ALTER TABLE spare_consumption_status ADD COLUMN active tinyint(1) NOT NULL DEFAULT 1 AFTER update_date;
 
 --Kalyani 27-11-2019
-
 INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Software', 'software');
 
 -- Kalyani 02-12-2019
@@ -1643,14 +1642,6 @@ UPDATE spare_consumption_status SET reason_text = 'Ok/Damage Part Received' wher
 UPDATE spare_consumption_status SET reason_text = 'Ok/Wrong Part Received' where id = 4;
 UPDATE spare_consumption_status SET reason_text = 'Ok Part Received' where id = 5;
 
---Kalyani 09-12-2019
-INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'insufficient_balance_paytm_wallet', 'Paytm wallet has insufficient balance', 'Dear Sir,<br>Paytm wallet has insufficient balance for engineer incentive amount transfer.\r\n<br/>Thanks,<br/>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', CURRENT_TIMESTAMP);
-
---Gorakh 16-12-2019
-ALTER TABLE `spare_parts_details` ADD `defective_part_received_by_wh` TINYINT NULL DEFAULT '0' AFTER `wh_to_partner_defective_shipped_date`, ADD `defective_part_received_date_by_wh` DATETIME NULL DEFAULT NULL AFTER `defective_part_received_by_wh`;
-ALTER TABLE `spare_parts_details` ADD `remarks_defective_part_by_wh` VARCHAR(260) NULL DEFAULT NULL AFTER `defective_part_received_date_by_wh`;
-ALTER TABLE `spare_parts_details` ADD `defective_part_rejected_by_wh` TINYINT(4) NOT NULL DEFAULT '0' AFTER `remarks_defective_part_by_wh`;
-
 -- Ankit 13-06-2019
 CREATE TABLE courier_lost_spare_status (
 	id int(11) NOT NULL PRIMARY KEY AUTO_INCREMENT,
@@ -1662,7 +1653,6 @@ CREATE TABLE courier_lost_spare_status (
 	create_date datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	update_date datetime NULL DEFAULT NULL
 );
- 
 
 --Kalyani 09-12-2019
 INSERT INTO `email_template` (`id`, `tag`, `subject`, `template`, `from`, `to`, `cc`, `bcc`, `active`, `create_date`) VALUES (NULL, 'insufficient_balance_paytm_wallet', 'Paytm wallet has insufficient balance', 'Dear Sir,<br>Paytm wallet has insufficient balance for engineer incentive amount transfer.\r\n<br/>Thanks,<br/>247around Team', 'noreply@247around.com', 'kalyanit@247around.com', 'kalyanit@247around.com', '', '1', CURRENT_TIMESTAMP);
@@ -1671,22 +1661,13 @@ ALTER TABLE `spare_parts_details` ADD `defective_part_received_by_wh` TINYINT NU
 ALTER TABLE `spare_parts_details` ADD `remarks_defective_part_by_wh` VARCHAR(260) NULL DEFAULT NULL AFTER `defective_part_received_date_by_wh`;
 ALTER TABLE `spare_parts_details` ADD `defective_part_rejected_by_wh` TINYINT(4) NOT NULL DEFAULT '0' AFTER `remarks_defective_part_by_wh`;
 
--- Kajal 16-12-2019
-ALTER TABLE `courier_details` ADD `sender_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `partner_invoice_id`, ADD `receiver_city` VARCHAR(64) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL AFTER `sender_city`;
-
-
-/*   VIEW     */
-
-
-
-CREATE OR REPLACE VIEW `sf_brand_wise_tat_report` AS select `service_centres`.`name` AS `sf_name`,`service_centres`.`state` AS `state`,`service_centres`.`district` AS `district`,`service_centres`.`id` AS `id`,`partners`.`id` AS `partner_id`,`partners`.`public_name` AS `partner_name`,sum(`spare_parts_details`.`shipped_quantity`) AS `parts_count_to_shipped`,sum(`spare_parts_details`.`challan_approx_value`) AS `parts_charge` from (((`spare_parts_details` join `booking_details` on((`booking_details`.`booking_id` = `spare_parts_details`.`booking_id`))) join `partners` on((`partners`.`id` = `booking_details`.`partner_id`))) join `service_centres` on((`service_centres`.`id` = `booking_details`.`assigned_vendor_id`))) where ((`spare_parts_details`.`status` not in ('Cancelled','Completed','Defective parts send by warehouse to partner','Partner acknowledge defective parts send by warehouse','Defective Part Shipped By SF','Defective Part Received By Partner','Damage Part Shipped By SF','Ok Part Shipped By SF')) and ((to_days(now()) - to_days(str_to_date(`spare_parts_details`.`shipped_date`,'%Y-%m-%d'))) >= 45)) group by `booking_details`.`partner_id`,`booking_details`.`assigned_vendor_id` order by service_centres.district,service_centres.state,service_centres.name ASC
- 
---Gorakh 20-12-2019
-ALTER TABLE `spare_parts_details`  ADD `received_defective_part_pic_by_wh` VARCHAR(200) NULL DEFAULT NULL  AFTER `defective_part_rejected_by_wh`,  ADD `rejected_defective_part_pic_by_wh` VARCHAR(200) NULL DEFAULT NULL  AFTER `received_defective_part_pic_by_wh`;
-
 
 --Kalyani 19-12-2019
 ALTER TABLE `engineer_incentive_details` ADD UNIQUE(`booking_details_id`);
+
+/*   VIEW     */
+
+CREATE OR REPLACE VIEW `sf_brand_wise_tat_report` AS select `service_centres`.`name` AS `sf_name`,`service_centres`.`state` AS `state`,`service_centres`.`district` AS `district`,`service_centres`.`id` AS `id`,`partners`.`id` AS `partner_id`,`partners`.`public_name` AS `partner_name`,sum(`spare_parts_details`.`shipped_quantity`) AS `parts_count_to_shipped`,sum(`spare_parts_details`.`challan_approx_value`) AS `parts_charge` from (((`spare_parts_details` join `booking_details` on((`booking_details`.`booking_id` = `spare_parts_details`.`booking_id`))) join `partners` on((`partners`.`id` = `booking_details`.`partner_id`))) join `service_centres` on((`service_centres`.`id` = `booking_details`.`assigned_vendor_id`))) where ((`spare_parts_details`.`status` not in ('Cancelled','Completed','Defective parts send by warehouse to partner','Partner acknowledge defective parts send by warehouse','Defective Part Shipped By SF','Defective Part Received By Partner','Damage Part Shipped By SF','Ok Part Shipped By SF')) and ((to_days(now()) - to_days(str_to_date(`spare_parts_details`.`shipped_date`,'%Y-%m-%d'))) >= 45)) group by `booking_details`.`partner_id`,`booking_details`.`assigned_vendor_id` order by service_centres.district,service_centres.state,service_centres.name ASC
  
 /*****  Abhishek   ***/
 ALTER TABLE `partners` ADD `spare_approval_by_partner` BOOLEAN NOT NULL DEFAULT FALSE AFTER `oot_spare_to_be_shipped`;
@@ -1707,7 +1688,6 @@ CREATE TABLE `pincode_district_mapping` (
     `state` VARCHAR(30) CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL , 
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
-INSERT INTO `collateral_type` (`id`, `collateral_tag`, `collateral_type`, `document_type`) VALUES (NULL, 'Brand_Collateral', 'Software', 'software');
 
 INSERT into `pincode_district_mapping` (pincode, district, state) SELECT distinct pincode, district, state FROM `india_pincode` where length(pincode)=6 group by pincode;
 
@@ -1730,15 +1710,13 @@ update service_centres set asm_id = 10160 where id IN (54,60,184,214,221,222,233
 update service_centres set asm_id = 10170 where id IN (1292,1293,1294,1295,1297,263,275,282,305,316,318,325,361,471,661,690,733,847,852,921,969,994,1026,65,89,218,253,376,401,526,580,629,635,654,689,702,726,797,862,865,873,874,878,881,900,914,916,922,939,940,954,972,983,1048,1079,1124,1165,1196,1222,1252,1275,1295,633,1040,1151,882,1111,1126,1197,1204,980,219,389,642,659,1130,979,1125,707,1023,1191,948,476,272,1316,1006,1106);
 update service_centres set asm_id = 10178 where id IN (227,228,230,231,257,337,339,346,347,350,363,364,367,368,427,435,475,504,507,533,536,544,551,582,611,612,625,627,639,640,641,649,664,673,694,714,763,764,780,781,786,787,789,790,801,806,811,814,823,824,827,832,844,861,866,869,877,895,897,898,905,909,943,947,949,951,953,955,966,971,978,1003,1024,1036,1063,1076,1091,1095,1096,1147,1163,1167,1170,1198,1213,1228,1234,1235,1249,1283,1286,1287,1132);
 update service_centres set asm_id = 10181 where id IN (204,205,207,294,297,320,322,394,396,405,437,451,453,454,456,458,460,461,492,496,497,499,510,511,517,530,549,552,586,590,631,646,725,740,756,803,887,888,917,927,1004,1110,1175,1255,1273,1280,1291,209,238,240,270,285,287,295,303,345,379,391,477,523,540,594,662,728,946,1029,1058,1142,681,1044,563);
- 
+
 --Abhay 06-01-2020
 ALTER TABLE `paytm_transaction_callback` ADD `engineer_id` INT(11) NULL DEFAULT NULL AFTER `response_api`;
 
 
 ---Abhishek 10-01-2019
- 
-ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `device_id`;
- 
+
 ALTER TABLE `engineer_details` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `update_date`;
 
 CREATE TABLE `247around`.`engineer_notification_data` ( `id` INT NOT NULL ,  `phone` VARCHAR(20) NULL DEFAULT NULL ,  `message` TEXT NULL DEFAULT NULL ,  `agent_id` INT(11) NULL DEFAULT NULL ,  `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ) ENGINE = InnoDB;
@@ -1752,7 +1730,6 @@ ALTER TABLE `engg_notification_detail` DROP `amount`;
 ALTER TABLE `engg_notification_detail` ADD `id` INT(11) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
 ALTER TABLE `engg_notification_detail` DROP `id`;
 ALTER TABLE `engg_notification_detail` ADD `notified` INT(5) NOT NULL DEFAULT '1' AFTER `message`;
- 
 
 ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `device_id`;
 
@@ -1760,4 +1737,7 @@ ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT N
 ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT NULL AFTER consumed_part_status_id;
 ALTER TABLE `engg_notification_detail` DROP `notified`;
 ALTER TABLE `engg_notification_detail`  ADD `notified` INT(5) NOT NULL DEFAULT '1'  AFTER `message`,  ADD `fire_base_response` TEXT NULL DEFAULT NULL  AFTER `notified`;
- 
+
+--Ankit Bhatt 2020-01-21
+ insert into header_navigation(entity_type, title, link, level, parent_ids, groups, nav_type, is_active, create_date)
+values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
