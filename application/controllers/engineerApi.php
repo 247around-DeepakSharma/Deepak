@@ -1136,9 +1136,18 @@ class engineerApi extends CI_Controller {
                 "active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
                 $engineer = $this->engineer_model->get_engineers_details(array("id" => $login[0]['entity_id'], "active" => 1), "service_center_id, name");
+                /*  handle condition for OLD APK where device token not present  Abhishek  */ 
+                $engg_data=array();
+                if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
                 $engg_data = array(
                     'device_firebase_token' => $requestData['device_firebase_token']
                 );
+                }else{
+                $engg_data = array(
+                    'device_firebase_token' => NULL
+                );  
+                }
+
                 $engg_where = array('id' => $login[0]['entity_id']);
                 $this->vendor_model->update_engineer($engg_where, $engg_data);
                 if (!empty($engineer)) {
