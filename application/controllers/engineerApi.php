@@ -3547,6 +3547,7 @@ class engineerApi extends CI_Controller {
                         // Removing extra hit  Giving flag in same hit  Abhishek ///
                         $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
                         $data['Bookings'][$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                        $data['Bookings'][$key]['message'] =  $spare_resquest['message']; 
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if (!empty($query_scba)) {
