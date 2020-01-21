@@ -3544,7 +3544,9 @@ class engineerApi extends CI_Controller {
                         $data['Bookings'][$key]['appliance_brand'] = $unit_data[0]['appliance_brand'];
                         $data['Bookings'][$key]['appliance_category'] = $unit_data[0]['appliance_category'];
                         $data['Bookings'][$key]['appliance_capacity'] = $unit_data[0]['appliance_capacity'];
-
+                        // Removing extra hit  Giving flag in same hit  Abhishek ///
+                        $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
+                        $data['Bookings'][$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if (!empty($query_scba)) {
