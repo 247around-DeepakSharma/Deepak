@@ -469,6 +469,10 @@ class Inventory_model extends CI_Model {
     }
     
     function update_inventory_stock($where,$data){
+        $session_info = $this->session->all_userdata();
+        log_message('Data inventory', __METHOD__.print_r($data,true));
+        log_message('Where Stock', __METHOD__.print_r($where,true));
+        log_message('User Data', __METHOD__.json_encode($session_info));
         $this->db->where($where);
         $this->db->set('stock', $data, FALSE);
         $this->db->update('inventory_stocks');
