@@ -1136,9 +1136,18 @@ class engineerApi extends CI_Controller {
                 "active" => 1, "user_id" => $requestData["mobile"], "password" => md5($requestData["password"])));
             if (!empty($login)) {
                 $engineer = $this->engineer_model->get_engineers_details(array("id" => $login[0]['entity_id'], "active" => 1), "service_center_id, name");
+                /*  handle condition for OLD APK where device token not present  Abhishek  */ 
+                $engg_data=array();
+                if(isset($requestData['device_firebase_token']) && !empty($requestData['device_firebase_token'])){
                 $engg_data = array(
                     'device_firebase_token' => $requestData['device_firebase_token']
                 );
+                }else{
+                $engg_data = array(
+                    'device_firebase_token' => NULL
+                );  
+                }
+
                 $engg_where = array('id' => $login[0]['entity_id']);
                 $this->vendor_model->update_engineer($engg_where, $engg_data);
                 if (!empty($engineer)) {
@@ -1163,7 +1172,7 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array('0014', 'User Id does not exist'));
         }
     }
-
+/*  This function is used to process complete the booking  Comment : Abhishek */
     function processCompleteBookingByEngineer() {
         $postData = json_decode($this->jsonRequestData['qsh'], true);
         $requestData = json_decode($postData['completeBookingByEngineer'], true);
@@ -1293,6 +1302,14 @@ class engineerApi extends CI_Controller {
             $en["signature"] = $sign_pic_url;
             $en['closed_date'] = date("Y-m-d H:i:s");
             $bookinghistory = $this->booking_model->getbooking_history($booking_id);
+            /*   Whatsapp sms sending  Abhishek */
+            $customer_phone = $bookinghistory[0]['phone_number'];
+            $whatsapp_array = array(
+              'booking_id'=>$booking_id,
+              'name'=>$bookinghistory[0]['name'],
+              'amount_pay'=>$data['amount_paid']
+            );
+            $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);
             if (!empty($requestData['location'])) {
                 $location = json_decode($requestData['location'], true);
                 $en["pincode"] = $location['pincode'];
@@ -1345,6 +1362,42 @@ class engineerApi extends CI_Controller {
         } else {
 
             $this->sendJsonResponse(array('0018', 'Please Add All Deatils'));
+        }
+    }
+    
+    
+    /*  Function to send whatsapp SMS when engg complete */
+
+    function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()) {
+        require_once('whatsapp/vendor/autoload.php');  // conf directory
+// Configure HTTP basic authorization: basicAuth
+        $config = Karix\Configuration::getDefaultConfiguration();
+        $config->setUsername(API_KARIX_USER_ID);
+        $config->setPassword(API_KARIX_PASSWORD);
+
+        $apiInstance = new Karix\Api\MessageApi(
+                // If you want use custom http client, pass your client which implements `GuzzleHttp\ClientInterface`.
+                // This is optional, `GuzzleHttp\Client` will be used as default.
+                new GuzzleHttp\Client(),
+                $config
+        );
+        $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
+        $text = "Dear  " . $whatsapp_array['name'] . ", Your service for Booking ID " . $whatsapp_array['booking_id'] . " has been completed. Amount paid is -".$whatsapp_array['amount_pay']."INR. Thank Your for choosing 247Around.";
+        date_default_timezone_set('UTC');
+        $phone_number = "+91" . $phone_number;
+        $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
+        $message->setDestination([$phone_number]);
+        $message->setSource(API_KARIX_SOURCE);
+        $message->setContent([
+            "text" => $text,
+        ]);
+
+        try {
+            $result = $apiInstance->sendMessage($message);
+            log_message('Whatsapp Response', __METHOD__ . json_encode($result));
+            return TRUE;
+        } catch (Exception $e) {
+            return FALSE;
         }
     }
 
@@ -1840,7 +1893,10 @@ class engineerApi extends CI_Controller {
         $response = array();
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
-            $select = "count(distinct(booking_details.booking_id)) as bookings";
+        	///  Abhishek ... Insread of count passing the entire response ////
+            $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
+                    . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
+                    . "symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status";
             $slot_select = 'distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,'
                     . 'booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, '
                     . 'booking_details.create_date, symptom.symptom, booking_details.booking_remarks, service_center_booking_action.current_status as service_center_booking_action_status';
@@ -1878,9 +1934,9 @@ class engineerApi extends CI_Controller {
             } else {
                 $incentive = 0;
             }
-
-            $response['missedBookingsCount'] = $missed_bookings_count[0]['bookings'];
-            $response['tomorrowBookingsCount'] = $tommorow_bookings_count[0]['bookings'];
+///  Abhishek /// reducing server hit for click on miss booking and tomorrow booking and and passing data in one hit 
+            $response['missedBooking'] = $this->getMissedBookings($requestData); ////  Change Key for missbooking with distance 
+            $response['tomorrowBooking'] = $this->getTommorowBookings($requestData);  // Change Key for tomorrow booking with distance 
             $response['todayMorningBooking'] = $morning_slot_bookings;
             $response['todayAfternoonBooking'] = $noon_slot_bookings;
             $response['todayEveningBooking'] = $evening_slot_bookings;
@@ -1956,16 +2012,19 @@ class engineerApi extends CI_Controller {
                     $distance_array = explode(" ", $distance_details['distance']['text']);
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     $bookings[$key]['booking_distance'] = $distance;
+                    // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
+                    $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
+                    $bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                    $bookings[$key]['message'] =  $spare_resquest['message'];
                 }
             }
         }
         return $bookings;
     }
 
-    function getMissedBookings() {
+    function getMissedBookings($requestData=array()) {
         log_message("info", __METHOD__ . " Entering..");
-        $response = array();
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $response = array();  ////  Removing Call from API and making internal call
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks,"
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, booking_details.service_id, booking_details.create_date,"
@@ -1977,22 +2036,24 @@ class engineerApi extends CI_Controller {
                     $distance_array = explode(" ", $distance_details['distance']['text']);
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     $missed_bookings[$key]['booking_distance'] = $distance;
+                    // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
+                    $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
+                    $missed_bookings[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                    $missed_bookings[$key]['message'] =  $spare_resquest['message']; 
                 }
             }
-            $response['missedBooking'] = $missed_bookings;
-            log_message("info", __METHOD__ . "Missed Bookings Found Successfully");
-            $this->jsonResponseString['response'] = $response;
-            $this->sendJsonResponse(array('0000', 'success'));
+            //$response['missedBooking'] = $missed_bookings;  removing child array
+ 			return $missed_bookings;  ////  Removing return to response  making internal call
         } else {
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"] . " or Service Center Id not found - " . $requestData["service_center_id"]);
             $this->sendJsonResponse(array('0023', 'Engineer ID or Service Center Id not found'));
         }
     }
 
-    function getTommorowBookings() {
+    function getTommorowBookings($requestData=array()) {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+ 
         if (!empty($requestData["engineer_id"]) && !empty($requestData["service_center_id"])) {
             $select = "distinct(booking_details.booking_id), booking_details.booking_date, users.name, booking_details.booking_address, booking_details.state, booking_unit_details.appliance_brand, services.services, booking_details.request_type, booking_details.booking_remarks, "
                     . "booking_pincode, booking_primary_contact_no, booking_details.booking_timeslot, booking_unit_details.appliance_category, booking_unit_details.appliance_category, booking_unit_details.appliance_capacity, booking_details.amount_due, booking_details.partner_id, "
@@ -2004,12 +2065,16 @@ class engineerApi extends CI_Controller {
                     $distance_array = explode(" ", $distance_details['distance']['text']);
                     $distance = sprintf("%.2f", str_pad($distance_array[0], 2, "0", STR_PAD_LEFT));
                     $tomorrowBooking[$key]['booking_distance'] = $distance;
+                    // Abhishek Removing Extra hit for check spare req eligiblity passing in same request
+                    $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
+                    $tomorrowBooking[$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                    $tomorrowBooking[$key]['message'] =  $spare_resquest['message']; 
+
                 }
             }
-            $response['tomorrowBooking'] = $tomorrowBooking;
-            log_message("info", __METHOD__ . "Tommorow Bookings Found Successfully");
-            $this->jsonResponseString['response'] = $response;
-            $this->sendJsonResponse(array('0000', 'success'));
+          //  $response['tomorrowBooking'] = $tomorrowBooking;  //// Remove Child array index
+////  Removing return to response  making internal call
+           return $tomorrowBooking;
         } else {
             log_message("info", __METHOD__ . " Engineer ID Not Found - " . $requestData["engineer_id"] . " or Service Center Id not found - " . $requestData["service_center_id"]);
             $this->sendJsonResponse(array('0024', 'Engineer ID or Service Center Id not found'));
@@ -3003,16 +3068,16 @@ class engineerApi extends CI_Controller {
         }
     }
 
-    function checkSparePartsOrder() {
+    function checkSparePartsOrder($booking_id="") {
         log_message("info", __METHOD__ . " Entering..");
         $response = array();
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        //$requestData = json_decode($this->jsonRequestData['qsh'], true);
         $is_est_approved = false;
         $check_spare_flag = false;
         $est_approved_msg = "";
-        if (!empty($requestData["booking_id"])) {
-            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $requestData["booking_id"]));
-            $data['bookinghistory'] = $this->booking_model->getbooking_history($requestData["booking_id"]);
+        if (!empty($booking_id)) { /// New variable for new response
+            $unit_details = $this->booking_model->get_unit_details(array('booking_id' => $booking_id));  /// New variable for new response
+            $data['bookinghistory'] = $this->booking_model->getbooking_history($booking_id);   /// New variable for new response
             if (!empty($data['bookinghistory'][0])) {
                 if (isset($data['bookinghistory']['spare_parts'])) {
                     foreach ($data['bookinghistory']['spare_parts'] as $sp) {
@@ -3045,15 +3110,19 @@ class engineerApi extends CI_Controller {
                     }
                 }
                 log_message("info", "Spare parts flag found");
-                $this->jsonResponseString['response'] = $response;
-                $this->sendJsonResponse(array('0000', 'success'));
+            //// Removing JSON return make internal call and return Array
+                return $response;
             } else {
-                log_message("info", __METHOD__ . " Booking ID Not Found ");
-                $this->sendJsonResponse(array('0051', 'Booking ID Not Found'));
+           //// Removing JSON return make internal call and return Array
+            	    $response["spare_flag"] = 0;
+                    $response["message"] = "Booking data not found";
+                    return $response;
             }
         } else {
-            log_message("info", __METHOD__ . " Booking ID Not Found ");
-            $this->sendJsonResponse(array('0052', 'Booking ID Not Found'));
+        	//// Removing JSON return make internal call and return Array
+                    $response["spare_flag"] = 0;
+                    $response["message"] = "Booking data not found";
+                    return $response;
         }
     }
 
@@ -3528,7 +3597,10 @@ class engineerApi extends CI_Controller {
                         $data['Bookings'][$key]['appliance_brand'] = $unit_data[0]['appliance_brand'];
                         $data['Bookings'][$key]['appliance_category'] = $unit_data[0]['appliance_category'];
                         $data['Bookings'][$key]['appliance_capacity'] = $unit_data[0]['appliance_capacity'];
-
+                        // Removing extra hit  Giving flag in same hit  Abhishek ///
+                        $spare_resquest = $this->checkSparePartsOrder($value['booking_id']);
+                        $data['Bookings'][$key]['spare_eligibility'] =  $spare_resquest['spare_flag'];
+                        $data['Bookings'][$key]['message'] =  $spare_resquest['message']; 
                         $query_scba = $this->vendor_model->get_service_center_booking_action_details('*', array('booking_id' => $value['booking_id'], 'current_status' => 'InProcess'));
                         $data['Bookings'][$key]['service_center_booking_action_status'] = "Pending";
                         if (!empty($query_scba)) {

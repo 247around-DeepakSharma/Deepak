@@ -1,3 +1,17 @@
+<style>
+body {
+  background-color: #f8f8f8;
+}
+
+table {
+    background-color: #fff;
+}
+.download_btn{
+    background-color: #2a3f54;
+    border-color: #2a3f54;
+}
+</style>
+
 <link rel="stylesheet" href="<?php echo base_url();?>css/jquery.loading.css">
 
 <script src="<?php echo base_url();?>js/jquery.loading.js"></script>
@@ -74,7 +88,7 @@
                             </li>
 
                             <li role="presentation">
-                                <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true"  data-url="<?php echo base_url();?>partner/get_nrn_approval"  >
+                                <a href="#tabs-6" role="tab" data-toggle="tab" aria-expanded="true" data-url="<?php echo base_url();?>partner/get_nrn_approval"  >
                                     Approved NRN
                                 </a>
                             </li>
@@ -100,6 +114,8 @@
                                     <div class="x_panel">
                                         <div class="x_title">
                                          <h2>Pending Spares Quotes </h2>
+                                         <div class="pull-right"><button style="background-color: #2a3f54;border-color:#2a3f54;" id="pending_spare_quote_download" onclick="pending_spare_quote_download()" class="btn btn-sm btn-primary">Download</button>
+                                            <span style="color:#337ab7" id="message_pending_spare_quote_download"></span></div>
                                             <div class="clearfix"></div>
                                             </div>
                                         <div class="x_content">
@@ -570,6 +586,36 @@
          }
        });
    }
+   
+   
+    function pending_spare_quote_download(){
+        $("#pending_spare_quote_download").css("display", "none");
+        $("#message_pending_spare_quote_download").text("Download In Progress");
+         $.ajax({
+            type: 'POST',
+
+            url: '<?php echo base_url(); ?>file_process/downloadPendingSpareQuote/' + <?php echo $this->session->userdata("partner_id");?> + '/' + '<?php echo str_replace(" ","_",SPARE_OOW_EST_REQUESTED) ; ?>',
+
+            contentType: false,
+            cache: false,
+            processData: false,
+            success: function (data) {
+                var jsondata = JSON.parse(data);
+                
+                if(jsondata['response'] === "success"){
+                    $("#pending_spare_quote_download").css("display", "block");
+                    $("#message_pending_spare_quote_download").text("");
+                    window.location.href = jsondata['path'];
+                } else if(jsondata['response'] === "failed"){
+                    alert(jsondata['message']);
+                    $("#pending_spare_quote_download").css("display", "block");
+                    $("#message_pending_spare_quote_download").text("");
+                } else {
+                     $("#message_pending_spare_quote_download").text("File Download Failed");
+                }
+            }
+        });
+    }
     
 </script>
 <style>
@@ -581,5 +627,5 @@
     }
     #datatable1 td:nth-child(8){
             padding-left: 82px !important;
-    }   
+    }
     </style>

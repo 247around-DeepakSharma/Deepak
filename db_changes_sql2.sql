@@ -1752,3 +1752,6 @@ CREATE TABLE `spare_state_change_tracker` (
 
 ALTER TABLE `spare_state_change_tracker` ADD `create_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `service_center_id`;
  
+--Ankit Bhatt 2020-01-21
+ insert into header_navigation(entity_type, title, link, level, parent_ids, groups, nav_type, is_active, create_date)
+values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());

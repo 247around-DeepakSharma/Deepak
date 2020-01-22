@@ -863,7 +863,9 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     
     $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
     
-
+    <?php if(!empty($str_disabled)) { ?> 
+        $(".purchase_date").attr("tabindex",-1);   
+    <?php } ?>
 
 
 </script>
