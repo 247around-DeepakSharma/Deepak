@@ -1306,7 +1306,8 @@ class engineerApi extends CI_Controller {
             $customer_phone = $bookinghistory[0]['phone_number'];
             $whatsapp_array = array(
               'booking_id'=>$booking_id,
-              'name'=>$bookinghistory[0]['name']
+              'name'=>$bookinghistory[0]['name'],
+              'amount_pay'=>$data['amount_paid']
             );
             $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);
             if (!empty($requestData['location'])) {
@@ -1368,7 +1369,7 @@ class engineerApi extends CI_Controller {
     /*  Function to send whatsapp SMS when engg complete */
 
     function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()) {
-        require_once('assest/whatsapp/vendor/autoload.php');
+        require_once('whatsapp/vendor/autoload.php');  // conf directory
 // Configure HTTP basic authorization: basicAuth
         $config = Karix\Configuration::getDefaultConfiguration();
         $config->setUsername(API_KARIX_USER_ID);
@@ -1381,7 +1382,7 @@ class engineerApi extends CI_Controller {
                 $config
         );
         $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
-        $text = "Dear , " . $whatsapp_array['name'] . " Your service for booking id- " . $whatsapp_array['booking_id'] . " has been completed. Thank Your for choosing us!";
+        $text = "Dear  " . $whatsapp_array['name'] . ", Your service for Booking ID " . $whatsapp_array['booking_id'] . " has been completed. Amount paid is -".$whatsapp_array['amount_pay']."INR. Thank Your for choosing 247Around.";
         date_default_timezone_set('UTC');
         $phone_number = "+91" . $phone_number;
         $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
