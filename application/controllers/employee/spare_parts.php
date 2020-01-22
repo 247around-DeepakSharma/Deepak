@@ -2435,7 +2435,7 @@ class Spare_parts extends CI_Controller {
         $delivered_sp = array();
         $sms_template_tag = '';
         $reason_text = '';
-
+        
         $spare_approval_date = date('Y-m-d');
         $approval_agent_id = _247AROUND_DEFAULT_AGENT;
         $approval_entity_type = _247AROUND_SF_STRING;
@@ -2670,6 +2670,18 @@ class Spare_parts extends CI_Controller {
                 }
 
                 if ($affected_id) {
+                    /* Insert Spare Tracking Details */
+                    if (!empty($spare_id)) {
+
+                        if (!empty($spare_data['partner_id'])) {
+                            $partner_id = $spare_data['partner_id'];
+                        }
+                        if (!empty($data['status'])) {
+                            $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($reason), 'agent_id' => $this->session->userdata("id"), 'partner_id' => $partner_id, 'service_center_id' => $service_center_id);
+                            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        }
+                    }
+
                     $actor = _247AROUND_PARTNER_STRING;
                     $next_action = PARTNER_WILL_SEND_NEW_PARTS;
                     $booking['internal_status'] = SPARE_PARTS_REQUIRED;

@@ -4833,7 +4833,7 @@ function generate_image($base64, $image_name,$directory){
      * @return boolean
      */
     public function update_spare_consumption_status($post_data, $booking_id, $service_center_details = [], $complete = 0) {
-        
+               
         $spare_part_shipped_count = 0;
         if (!empty($post_data['spare_consumption_status'])) {
             $courier_lost_spare = [];
@@ -4942,6 +4942,12 @@ function generate_image($base64, $image_name,$directory){
                             }
                         }
                     }
+                }
+               
+                /* Insert Spare Tracking Details */
+                if (!empty($spare_id)) {
+                    $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($post_data['closing_remarks']), 'agent_id' => $this->My_CI->session->userdata("service_center_agent_id"), 'partner_id' => $post_data['partner_id'], 'service_center_id' => $this->My_CI->session->userdata('service_center_id'));
+                    $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
             }
 
