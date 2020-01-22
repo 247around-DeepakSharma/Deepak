@@ -4000,7 +4000,9 @@ class Booking extends CI_Controller {
             "inventory_master_list as requested_inventory" => "spare_parts_details.requested_inventory_id = requested_inventory.inventory_id",
             "inventory_master_list as shipped_inventory" => "spare_parts_details.shipped_inventory_id = shipped_inventory.inventory_id",
             "employee as emp_asm" => "service_centres.asm_id = emp_asm.id",
-            "employee as emp_rm" => "service_centres.rm_id = emp_rm.id");
+            "employee as emp_rm" => "service_centres.rm_id = emp_rm.id",
+            "agent_filters" => "booking_details.partner_id = agent_filters.entity_id AND agent_filters.entity_type = '"._247AROUND_EMPLOYEE_STRING."' AND (TRIM(UPPER(agent_filters.state)) = TRIM(UPPER(booking_details.state)))",
+            "employee as emp_am" => "agent_filters.agent_id = emp_am.id");
         // limit array for pagination
         $limitArray = array('length'=>$receieved_Data['length'],'start'=>$receieved_Data['start']);
        // all where condition array
@@ -4023,7 +4025,7 @@ class Booking extends CI_Controller {
          if($receieved_Data['request_type']){
             $whereInArray['booking_details.request_type'] = $requestTypeArray;
         }
-        $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left', 'spare_parts_details'=>'left','inventory_master_list as requested_inventory' => 'left', 'inventory_master_list as shipped_inventory' => 'left', 'employee as emp_asm' => 'left', 'employee as emp_rm' => 'left');
+        $JoinTypeTableArray = array('service_centres'=>'left','bookings_sources'=>'left','booking_unit_details'=>'left','services'=>'left', 'spare_parts_details'=>'left','inventory_master_list as requested_inventory' => 'left', 'inventory_master_list as shipped_inventory' => 'left', 'employee as emp_asm' => 'left', 'employee as emp_rm' => 'left', 'agent_filters' => 'left', 'employee as emp_am' => 'left');
       
        //Performing Sorting on datatable
        if(!empty($receieved_Data['order']))
@@ -4069,7 +4071,7 @@ class Booking extends CI_Controller {
                 // select field to display
         $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_details.request_type,booking_unit_details.product_or_services,booking_details."
-                . "current_status,booking_details.internal_status, emp_asm.full_name as asm_name,emp_rm.full_name as rm_name, spare_parts_details.parts_requested,requested_inventory.part_number as requested_part_number,"
+                . "current_status,booking_details.internal_status, emp_asm.full_name as asm_name,emp_rm.full_name as rm_name,emp_am.full_name as am_name,spare_parts_details.parts_requested,requested_inventory.part_number as requested_part_number,"
                 . "spare_parts_details.parts_shipped,shipped_inventory.part_number as shipped_part_number,DATE_FORMAT(STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d'), '%d-%m-%Y') as parts_shipped_date,booking_details.actor as Dependency";
         $select_explode=explode(',',$select);
         array_unshift($select_explode,"s.no");
@@ -4131,7 +4133,7 @@ class Booking extends CI_Controller {
                 . "booking_details.upcountry_distance,booking_details.is_penalty,booking_details.create_date,booking_details.update_date,"
                 . "booking_details.service_center_closed_date as service_center_closed_date, "
                 . "booking_details.closed_date as 247around_closed_date, "
-                . "emp_asm.full_name as asm_name,emp_rm.full_name as rm_name,spare_parts_details.parts_requested,requested_inventory.part_number as requested_part_number,"
+                . "emp_asm.full_name as asm_name,emp_rm.full_name as rm_name,emp_am.full_name as am_name,spare_parts_details.parts_requested,requested_inventory.part_number as requested_part_number,"
                 . "spare_parts_details.parts_shipped,shipped_inventory.part_number as shipped_part_number,DATE_FORMAT(STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d'), '%d-%m-%Y') as parts_shipped_date,booking_details.actor as Dependency";
          
        if($is_not_empty){
@@ -4144,7 +4146,7 @@ class Booking extends CI_Controller {
                     "Partner Source","Partner Current Status","Partner Internal Status","Booking Address","Pincode","District","State","Primary Contact Number","Current Booking Date","First Booking Date","Age Of Booking",
                     "TAT","Booking Timeslot","Booking Remarks","Query Remarks","Cancellation Reason","Reschedule_reason","Vendor(SF)",
                     "Rating","Vendor Rating Comments","Closing Remarks","Count Reschedule","Count Escalation",
-                    "Is Upcountry","Upcountry Pincode","Upcountry Distance","IS Penalty","Create Date","Update Date","Service Center Closed Date","247Around Closed","ASM Name","RM Name","Part Name Requested", "Part Type Requested", "Part Name Shipped", "Part Type Shipped", "Part Shipped Date", "Dependency");
+                    "Is Upcountry","Upcountry Pincode","Upcountry Distance","IS Penalty","Create Date","Update Date","Service Center Closed Date","247Around Closed","ASM Name","RM Name","AM Name","Part Name Requested", "Part Type Requested", "Part Name Shipped", "Part Type Shipped", "Part Shipped Date", "Dependency");
                 $this->miscelleneous->downloadCSV($data['data'],$headings,"booking_search_summary");   
        }
        else{
