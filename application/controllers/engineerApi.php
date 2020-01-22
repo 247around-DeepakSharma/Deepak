@@ -1393,6 +1393,7 @@ class engineerApi extends CI_Controller {
 
         try {
             $result = $apiInstance->sendMessage($message);
+            log_message('Whatsapp Response', __METHOD__ . json_encode($result));
             return TRUE;
         } catch (Exception $e) {
             return FALSE;
