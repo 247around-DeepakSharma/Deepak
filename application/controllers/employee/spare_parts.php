@@ -623,12 +623,17 @@ class Spare_parts extends CI_Controller {
             $data[] = $row;
         }
         
-        $total = $this->inventory_model->count_spare_filtered($post);
-       
+        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id', array('spare_parts_details.status' => SPARE_PART_ON_APPROVAL, 'spare_parts_details.part_requested_on_approval' => 0), false, false, false);
+        if (!empty($spare_parts_list)) {
+            $total = count($spare_parts_list);
+        } else {
+            $total = 0;
+        }
+
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
-            "recordsFiltered" =>  $total,
+            "recordsFiltered" =>  $this->inventory_model->count_spare_filtered($post),
             "unapproved" => $total,
             "data" => $data,            
             "bookings_data" => $arrBookingsData
