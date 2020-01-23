@@ -415,6 +415,9 @@ class engineerApi extends CI_Controller {
 
             case 'todaysSlotBookings':
                 $this->getTodaysSlotBookings();
+/*   get users notification on phone number */
+            case 'usernotifications':
+                $this->getUserNotifications();
 
             default:
                 break;
@@ -1309,7 +1312,7 @@ class engineerApi extends CI_Controller {
               'name'=>$bookinghistory[0]['name'],
               'amount_pay'=>$data['amount_paid']
             );
-            $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);
+       //     $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);  As of now not sending whatsapp msg
             if (!empty($requestData['location'])) {
                 $location = json_decode($requestData['location'], true);
                 $en["pincode"] = $location['pincode'];
@@ -1370,7 +1373,7 @@ class engineerApi extends CI_Controller {
 
     function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()) {
         $base =base_url(); /// path with base url
-        require_once($base.'whatsapp/vendor/autoload.php');  // conf directory
+        include('whatsapp/vendor/autoload.php');  // conf directory
 // Configure HTTP basic authorization: basicAuth
         $config = Karix\Configuration::getDefaultConfiguration();
         $config->setUsername(API_KARIX_USER_ID);
@@ -3677,5 +3680,41 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array("0066", $validation['message']));
         }
     }
+
+
+/*  This function is used to get the notifications of user in app */
+    function getUserNotifications(){
+
+        log_message("info", __METHOD__ . " Entering..in notifications");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        if ($validation['status']) {
+            $select = '*';
+            $where =array(
+                'phone'=>$requestData["mobile"]
+            );
+            $response = $this->_getUserNotifications($select,$where);
+            if (!empty($response)) {
+                log_message("info", __METHOD__ . "Notifications Found");
+                $this->jsonResponseString['response'] = $response;
+                $this->sendJsonResponse(array(API_NOTIFICATIONS_SUCCESS, API_NOTIFICATIONS_SUCCESS_MSG));
+            } else {
+                log_message("info", __METHOD__ . "Notifications not found");
+                $this->jsonResponseString['response'] = array();
+                $this->sendJsonResponse(array('0000', 'Notifications not found'));
+            }
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->sendJsonResponse(array("0066", $validation['message']));
+        }
+    }
+
+/*  This function is used to get the notifications of user in app */
+    function _getUserNotifications($select,$where){
+
+       return  $this->engineer_model->get_engg_notification_data($select,$where);
+    }
+
+
 
 }
