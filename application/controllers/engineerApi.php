@@ -3696,11 +3696,11 @@ class engineerApi extends CI_Controller {
             $response = $this->_getUserNotifications($select,$where);
             if (!empty($response)) {
                 log_message("info", __METHOD__ . "Notifications Found");
-                $this->jsonResponseString['response'] = $response;
+                $this->jsonResponseString['response']['notifications'] = $response;  /////response key according to umesh
                 $this->sendJsonResponse(array(API_NOTIFICATIONS_SUCCESS, API_NOTIFICATIONS_SUCCESS_MSG));
             } else {
                 log_message("info", __METHOD__ . "Notifications not found");
-                $this->jsonResponseString['response'] = array();
+                $this->jsonResponseString['response']['notifications'] = array();  ////response key according to umesh
                 $this->sendJsonResponse(array('0000', 'Notifications not found'));
             }
         } else {
