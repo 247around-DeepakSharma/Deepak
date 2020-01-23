@@ -1738,6 +1738,20 @@ ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT
 ALTER TABLE `engg_notification_detail` DROP `notified`;
 ALTER TABLE `engg_notification_detail`  ADD `notified` INT(5) NOT NULL DEFAULT '1'  AFTER `message`,  ADD `fire_base_response` TEXT NULL DEFAULT NULL  AFTER `notified`;
 
+--Gorakh Nath 16-01-2020
+CREATE TABLE `spare_state_change_tracker` ( 
+    `id` INT(11) NOT NULL AUTO_INCREMENT , 
+    `spare_id` INT(11) NOT NULL,	
+    `action` VARCHAR(300) DEFAULT NULL , 
+    `remarks` VARCHAR(400) DEFAULT NULL , 
+    `agent_id` INT(11) NOT NULL,
+    `partner_id` INT(11) NOT NULL,
+    `service_center_id` INT(11) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+
+ALTER TABLE `spare_state_change_tracker` ADD `create_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `service_center_id`;
+ 
 --Ankit Bhatt 2020-01-21
  insert into header_navigation(entity_type, title, link, level, parent_ids, groups, nav_type, is_active, create_date)
 values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
