@@ -467,7 +467,7 @@ class Engineer_model extends CI_Model {
          $this->db->where($where);
          $this->db->from('engg_notification_detail');
          $query = $this->db->get();
-         return $query->result();
+         return $query->result_array();
 
     }
 
