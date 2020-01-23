@@ -6121,7 +6121,7 @@ class Service_centers extends CI_Controller {
 
                             if ($response) {
                                 if (!empty($part_details['requested_inventory_id']) && $part_details['spare_id'] != "new") {
-                                    $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], $data['shipped_quantity']);
+                                    $this->inventory_model->update_pending_inventory_stock_request(_247AROUND_SF_STRING, $sf_id, $part_details['requested_inventory_id'], -$data['shipped_quantity']);
                                 }
                                 if ($this->input->post('is_wh') && !empty($data['shipped_inventory_id'])) {
                                     //update inventory stocks
