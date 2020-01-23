@@ -1780,6 +1780,10 @@ class Partner extends CI_Controller {
 //            $booking_details['service_center_closed_date'] = NULL;
             $booking_details['cancellation_reason'] = NULL;
             $booking_details['booking_request_symptom'] = $post['booking_request_symptom'];
+            if(!empty($post['repeat_reason']))
+            {
+                $booking_details['repeat_reason'] = $post['repeat_reason'];
+            }
             $upcountry_data = json_decode($post['upcountry_data'], TRUE);
 
             $unit_details['service_id'] = $appliance_details['service_id'] = $booking_details['service_id'];
