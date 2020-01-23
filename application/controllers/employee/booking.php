@@ -1691,9 +1691,9 @@ class Booking extends CI_Controller {
      *  @return : booking details and load view
      */
     function viewdetails($booking_id = null) {
-        if(empty($booking_id)){
-            $message = "function Booking::viewdetails() Booking Id Not Found, REFERRER : ".$_SERVER['HTTP_REFERER'];
-            $this->notify->sendEmail(NOREPLY_EMAIL_ID, 'pritys@247around.com', NULL, NULL, 'ERROR', $message, "","BOOKING_VIEW_DETAILS");
+        if (empty($booking_id)) {
+            $message = "function Booking::viewdetails() Booking Id Not Found, REFERRER : " . $_SERVER['HTTP_REFERER'];
+            $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEV_BOOKINGS_MAIL, NULL, NULL, 'ERROR', $message, "", "BOOKING_VIEW_DETAILS");
             return;
         }
         $data['booking_history'] = $this->booking_model->getbooking_filter_service_center($booking_id);

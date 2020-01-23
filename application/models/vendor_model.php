@@ -997,7 +997,7 @@ class vendor_model extends CI_Model {
             $message = "function vendor_model::insert_service_center_action(). Data already exists, REFERRER : '".(!empty($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : "")."', PATH : ".(!empty($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : "");
             $res = $this->get_service_center_booking_action_details('*', ['booking_id' => $data['booking_id'], 'unit_details_id' => $data['unit_details_id'], 'service_center_id' => $data['service_center_id']]);
             if(!empty($res[0]['id'])){
-                $this->notify->sendEmail(NOREPLY_EMAIL_ID, 'pritys@247around.com', NULL, NULL, 'ERROR', $message, "","INSERT_SERVICE_CENTER_BOOKING_ACTION");                        
+                $this->notify->sendEmail(NOREPLY_EMAIL_ID, DEV_BOOKINGS_MAIL, NULL, NULL, 'ERROR', $message, "","INSERT_SERVICE_CENTER_BOOKING_ACTION");                        
                 return $res[0]['id'];
             }
         }
