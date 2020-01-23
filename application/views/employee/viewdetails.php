@@ -682,7 +682,7 @@
                                         </td>
                                         <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
                                         <!--   Show spare Apprival Date --->
-                                        <?php if(!empty($sp['spare_approval_date'])){ ?>
+                                        <?php if(!empty($sp['spare_approval_date']) && $sp['spare_approval_date']!='0000-00-00'){ ?>
                                         <td><?php echo date_format(date_create($sp['spare_approval_date']),'d-m-Y'); ?></td>
                                         <?php }else{ ?>
                                          <td>-</td>
