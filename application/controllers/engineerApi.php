@@ -1369,7 +1369,8 @@ class engineerApi extends CI_Controller {
     /*  Function to send whatsapp SMS when engg complete */
 
     function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()) {
-        require_once('whatsapp/vendor/autoload.php');  // conf directory
+        $base =base_url(); /// path with base url
+        require_once($base.'whatsapp/vendor/autoload.php');  // conf directory
 // Configure HTTP basic authorization: basicAuth
         $config = Karix\Configuration::getDefaultConfiguration();
         $config->setUsername(API_KARIX_USER_ID);
@@ -1394,6 +1395,7 @@ class engineerApi extends CI_Controller {
 
         try {
             $result = $apiInstance->sendMessage($message);
+            log_message('Whatsapp Response', __METHOD__ . json_encode($result));
             return TRUE;
         } catch (Exception $e) {
             return FALSE;
