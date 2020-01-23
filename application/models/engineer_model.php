@@ -436,7 +436,7 @@ class Engineer_model extends CI_Model {
      */
 
     function insert_engg_notification_data($data){
-        $this->db->insert("engg_notification_detail", $data);
+        $this->db->insert("engineer_notification_detail", $data);
         return $this->db->insert_id();
 
     }
@@ -448,7 +448,7 @@ class Engineer_model extends CI_Model {
      */
     function update_engg_notification_data($data,$id){
         $this->db->where('id',$id);
-        $this->db->update("engg_notification_detail", $data);
+        $this->db->update("engineer_notification_detail", $data);
         return $this->db->insert_id();
 
     }
@@ -464,7 +464,7 @@ class Engineer_model extends CI_Model {
 
          $this->db->select($select); 
          $this->db->where($where);
-         $this->db->from('engg_notification_detail');
+         $this->db->from('engineer_notification_detail');
          $query = $this->db->get();
          return $query->result_array();
 
