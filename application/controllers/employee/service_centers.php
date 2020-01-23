@@ -7975,19 +7975,24 @@ class Service_centers extends CI_Controller {
             //$to_email = (!empty($service_center[0]['email']) ? $service_center[0]['email'] : NULL);
             $to = (!empty($vendor[0]['primary_contact_email']) ? $vendor[0]['primary_contact_email'] : NULL); //POC
             // set CC.
-            $cc = [];
+            $arr_cc = [];
             // owner
             if (!empty($vendor[0]['owner_email'])) {
-                $cc[] = $vendor[0]['owner_email'];
+                $arr_cc[] = $vendor[0]['owner_email'];
             }
             // RM
             $rm = $this->vendor_model->get_rm_sf_relation_by_sf_id($this->session->userdata['service_center_id']);
             if (!empty($rm[0]['official_email'])) {
-                $cc[] = $rm[0]['official_email'];
+                $arr_cc[] = $rm[0]['official_email'];
             }
             // subject
             $subject = "Password changed for : {$this->session->userdata['service_center_name']}";
             if (!empty($to)) {
+                $cc = "";
+                if(!empty($arr_cc))
+                {
+                    $cc = implode(',', $arr_cc);
+                }
                 $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, "", $subject, "Password has been changed successfully.", "", CHANGE_PASSWORD);
                 log_message('info', __FUNCTION__ . 'Change password mail sent.');
             }
