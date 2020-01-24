@@ -414,8 +414,8 @@ class invoices_model extends CI_Model {
                 . "  invoice_email_to,invoice_email_cc, booking_details.rating_stars,  "
                 . " `booking_details`.partner_id, `booking_details`.source, "
                 . " CASE WHEN (serial_number_pic = '' OR serial_number_pic IS NULL) THEN ('') ELSE (CONCAT('".S3_WEBSITE_URL.SERIAL_NUMBER_PIC_DIR."/', serial_number_pic)) END as serial_number_pic,"
-                . "  DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%D %b %Y') as booking_date, "
-                . " `booking_details`.city, `booking_details`.state, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%D %b %Y') as closed_date,price_tags, "
+                . "  DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date, "
+                . " `booking_details`.city, `booking_details`.state, DATE_FORMAT(`booking_unit_details`.ud_closed_date, '%d-%b-%Y') as closed_date,price_tags, "
                 . " `booking_unit_details`.appliance_capacity,`booking_unit_details`.appliance_category,`booking_unit_details`.appliance_brand, "
                 . "  booking_details.booking_primary_contact_no,  "
                 . " `services`.services, users.name, "
@@ -2477,7 +2477,7 @@ class invoices_model extends CI_Model {
     }
     function get_partner_invoice_warehouse_packaging_courier_data($partner_id, $from_date, $to_date){
         log_message('info', __METHOD__. " Enterring..");
-        $sql = 'SELECT GROUP_CONCAT(sp.id) as sp_id, bd.booking_id, sp.parts_shipped as part_name, DATE_FORMAT(sp.shipped_date, "%D %b %Y") as shipped_date, '
+        $sql = 'SELECT GROUP_CONCAT(sp.id) as sp_id, bd.booking_id, sp.parts_shipped as part_name, DATE_FORMAT(sp.shipped_date, "%d-%b-%Y") as shipped_date, '
                 . ' sp.awb_by_partner as awb, sp.courier_name_by_partner as courier_name '
                 . ' FROM spare_parts_details as sp '
                 . ' JOIN  booking_details as bd ON bd.booking_id = sp.booking_id  '
