@@ -301,9 +301,9 @@
                         <td><?php print_r($unit_detail['price_tags']); ?></td>
 
                         <?php if ($booking_history[0]['current_status'] != "Completed") { ?>
-                        
+                        <?php $up_charges = 0; ?>
                         <?php if ($booking_history[0]['is_upcountry'] == 1) { ?>
-                        <td><?php $up_charges = 0; if($key == 0) { if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
+                        <td><?php if($key == 0) { if ($booking_history[0]['upcountry_paid_by_customer'] == 0) {
                             echo "0";
                             } else if($booking_history[0]['flat_upcountry'] == 1){
                                   $up_charges =  $booking_history[0]['upcountry_to_be_paid_by_customer'];
@@ -387,6 +387,7 @@
                                 <th >Parts Warranty Status</th>
                                 <th >Requested Quantity</th>
                                 <th >Requested Date</th>
+                                <th>Approval Date</th>
                                 <th >Date Of Purchase</th>
                                 <th >Invoice Image </th>
                                 <th >Serial Number Image </th>
@@ -426,6 +427,12 @@
                                     <a class="btn btn-link check-stocks" title="Check stock in inventory" data-inventory="<?php echo $sp['requested_inventory_id']; ?>" data-vendor="<?php echo $sp['service_center_id']; ?>"><?php echo $sp['quantity']; ?></a>
                                 </td>
                                 <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
+                                <!--   Show spare Apprival Date --->
+                                <?php if(!empty($sp['spare_approval_date']) && $sp['spare_approval_date']!='0000-00-00'){ ?>
+                                      <td><?php echo date_format(date_create($sp['spare_approval_date']),'d-m-Y'); ?></td>
+                                <?php }else{ ?>
+                                     <td>-</td>
+                                <?php  } ?> 
                                 <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
                                 <td><?php if (!is_null($sp['invoice_pic'])) {
                                     if ($sp['invoice_pic'] != '0') { ?> <a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY; ?>/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here</a><?php }

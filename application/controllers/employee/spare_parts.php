@@ -171,7 +171,7 @@ class Spare_parts extends CI_Controller {
         $post['select'] = "spare_parts_details.booking_id,spare_parts_details.partner_id, spare_parts_details.quantity,spare_parts_details.shipped_quantity,users.name, booking_primary_contact_no, service_centres.name as sc_name,"
                 . "partners.public_name as source, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, spare_parts_details.is_micro_wh,"
                 . "partners.public_name as source, defective_part_shipped, courier_name_by_sf, awb_by_sf, courier_charges_by_sf, spare_parts_details.defective_part_shipped_date, "
-                . "remarks_defective_part_by_sf, defective_courier_receipt,sf_challan_file, defective_part_required, spare_parts_details.id, inventory_master_list.part_number ";
+                . "remarks_defective_part_by_sf, defective_courier_receipt,sf_challan_file, defective_part_required, spare_parts_details.id, inventory_master_list.part_number, spare_consumption_status.consumed_status";
 
         // $post['column_order'] = array();
         $post['column_order'] = array(NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'age_defective_part_shipped_date', NULL);
@@ -312,8 +312,13 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->remarks_defective_part_by_sf;
         $row[] = $spare_list->remarks_defective_part_by_partner;
         $row[] = '<a href="' . S3_WEBSITE_URL . 'misc-images/' . $spare_list->defective_courier_receipt . '" target="_blank">Click Here</a>';
-        $row[] = '<a href="' . S3_WEBSITE_URL . 'misc-images/' . $spare_list->rejected_defective_part_pic_by_wh . '" target="_blank">Click Here</a>';
-
+        
+        if(!empty($spare_list->rejected_defective_part_pic_by_wh)){
+         $row[] = '<a href="' . S3_WEBSITE_URL . 'misc-images/' . $spare_list->rejected_defective_part_pic_by_wh . '" target="_blank">Click Here</a>';   
+        }else{
+         $row[] = '';   
+        }
+        
         if ($this->session->userdata('user_group') == "inventory_manager" || $this->session->userdata('user_group') == "admin" || $this->session->userdata('user_group') == "developer" || $this->session->userdata('user_group') == "accountmanager") {
             $row[] = '<button type="button" data-button="Mark Shipped"  data-booking_id="' . $spare_list->booking_id . '" data-url="' . base_url() . 'employee/inventory/update_action_on_spare_parts/' . $spare_list->id . '/' . $spare_list->booking_id . '/DEFECTIVE_PARTS_SHIPPED_BY_SF" class="btn btn-warning btn-sm open-adminremarks" data-toggle="modal" data-target="#myModal2"><i class="glyphicon glyphicon-send" style="font-size:16px;"></i></button>';
             if ($spare_list->defective_part_required == '0') {
@@ -611,17 +616,12 @@ class Spare_parts extends CI_Controller {
             $data[] = $row;
         }
 
-        $spare_parts_list = $this->partner_model->get_spare_parts_by_any('spare_parts_details.id', array('spare_parts_details.status' => SPARE_PART_ON_APPROVAL, 'spare_parts_details.part_requested_on_approval' => 0), false, false, false);
-        if (!empty($spare_parts_list)) {
-            $total = count($spare_parts_list);
-        } else {
-            $total = 0;
-        }
-
+        
+        $total = $this->inventory_model->count_spare_filtered($post);
         $output = array(
             "draw" => $post['draw'],
             "recordsTotal" => $this->inventory_model->count_spare_parts($post),
-            "recordsFiltered" => $this->inventory_model->count_spare_filtered($post),
+            "recordsFiltered" =>  $total,
             "unapproved" => $total,
             "data" => $data,
             "bookings_data" => $arrBookingsData
@@ -808,6 +808,7 @@ class Spare_parts extends CI_Controller {
         $row[] = $spare_list->quantity;
         $row[] = $spare_list->shipped_quantity;
         $row[] = date("jS M, Y", strtotime($spare_list->defective_part_shipped_date));
+        $row[] = $spare_list->consumed_status;
         $row[] = $spare_list->courier_name_by_sf;
         $row[] = $spare_list->awb_by_sf;
         $row[] = "<i class='fa fa-inr'></i>" . $spare_list->courier_charges_by_sf;
@@ -1626,7 +1627,7 @@ class Spare_parts extends CI_Controller {
 
         if (isset($post['where']['status']) && $post['where']['status'] == DEFECTIVE_PARTS_SHIPPED) {
             unset($post['where']['status']);
-            $post['where_in']['status'] = [DEFECTIVE_PARTS_SHIPPED, OK_PARTS_SHIPPED];
+            $post['where_in']['status'] = [DEFECTIVE_PARTS_SHIPPED, DAMAGE_PARTS_SHIPPED, OK_PARTS_SHIPPED];
             $post['where']['approved_defective_parts_by_admin'] = $this->input->post('approved_defective_parts_by_admin');
         }
 
@@ -2430,7 +2431,7 @@ class Spare_parts extends CI_Controller {
         $delivered_sp = array();
         $sms_template_tag = '';
         $reason_text = '';
-
+        
         $spare_approval_date = date('Y-m-d');
         $approval_agent_id = _247AROUND_DEFAULT_AGENT;
         $approval_entity_type = _247AROUND_SF_STRING;
@@ -2665,6 +2666,18 @@ class Spare_parts extends CI_Controller {
                 }
 
                 if ($affected_id) {
+                    /* Insert Spare Tracking Details */
+                    if (!empty($spare_id)) {
+
+                        if (!empty($spare_data['partner_id'])) {
+                            $partner_id = $spare_data['partner_id'];
+                        }
+                        if (!empty($data['status'])) {
+                            $tracking_details = array('spare_id' => $spare_id, 'action' => $data['status'], 'remarks' => trim($reason), 'agent_id' => $this->session->userdata("id"), 'partner_id' => $partner_id, 'service_center_id' => $service_center_id);
+                            $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                        }
+                    }
+
                     $actor = _247AROUND_PARTNER_STRING;
                     $next_action = PARTNER_WILL_SEND_NEW_PARTS;
                     $booking['internal_status'] = SPARE_PARTS_REQUIRED;

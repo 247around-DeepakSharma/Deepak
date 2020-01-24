@@ -3978,7 +3978,7 @@ function generate_image($base64, $image_name,$directory){
             if($booking_id){
                 $where['booking_details.booking_id'] = $booking_id;
             }
-            $where['booking_details.amount_due'] = 0;
+            //$where['booking_details.amount_due'] = 0;
             $where['service_center_booking_action.current_status'] = 'InProcess';
             $where['booking_details.is_in_process'] = 0;
             $tempData = $this->My_CI->partner_model->get_booking_review_data($where,$whereIN,$booking_id);
@@ -4833,7 +4833,7 @@ function generate_image($base64, $image_name,$directory){
      * @return boolean
      */
     public function update_spare_consumption_status($post_data, $booking_id, $service_center_details = [], $complete = 0) {
-        
+               
         $spare_part_shipped_count = 0;
         if (!empty($post_data['spare_consumption_status'])) {
             $courier_lost_spare = [];
@@ -4942,6 +4942,12 @@ function generate_image($base64, $image_name,$directory){
                             }
                         }
                     }
+                }
+               
+                /* Insert Spare Tracking Details */
+                if (!empty($spare_id)) {
+                    $tracking_details = array('spare_id' => $spare_id, 'action' => $status, 'remarks' => trim($post_data['closing_remarks']), 'agent_id' => $this->My_CI->session->userdata("service_center_agent_id"), 'partner_id' => $post_data['partner_id'], 'service_center_id' => $this->My_CI->session->userdata('service_center_id'));
+                    $this->My_CI->service_centers_model->insert_spare_tracking_details($tracking_details);
                 }
             }
 

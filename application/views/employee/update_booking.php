@@ -40,7 +40,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
     <?php } ?>
     
     <?php if(!empty($str_disabled)) { ?> 
-    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, .price_checkbox, #source_code, #partner_source, #service_id {
+    .appliance_brand, .appliance_category, .appliance_capacity, .purchase_date, .select-model, .input-model, #source_code, #partner_source, #service_id {
         pointer-events : none !important;
         background : #eee !important;
     }    
@@ -140,8 +140,9 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                             <?php
                                                 $flag = 0;
                                                 foreach ($city as $key => $cites) {
+                                                    $selected_city = !empty($booking_history[0]['city']) ? strtolower($booking_history[0]['city']) : "";
                                                     ?>
-                                            <option <?php if(strtolower($cites['district']) == strtolower($booking_history[0]['city'])){ echo "Selected"; $flag = 1; } else {if($is_repeat){echo 'disabled';}}?>><?php echo $cites['district']; ?></option>
+                                            <option <?php if(strtolower($cites['district']) == $selected_city){ echo "Selected"; $flag = 1; } else {if($is_repeat){echo 'disabled';}}?>><?php echo $cites['district']; ?></option>
                                             <?php }
                                                 ?>
                                            <?php if($flag == 0){ ?>
@@ -465,10 +466,13 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                 <div class="select-model-div">
                                                     <select class="form-control select-model"  <?php if(!empty($appliance_id)) { echo "disabled"; } ?>  id="model_number_1" name="model_number[]" onchange="check_booking_request()">
                                                         <option selected disabled>Select Appliance Model</option>
-                                                        <?php foreach ($model[0] as $value) { ?>
-                                                        <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
-                                                            ><?php echo $value['model']; ?></option>
-                                                        <?php } ?>
+                                                        <?php
+                                                        if(!empty($model[0])){
+                                                            foreach ($model[0] as $value) { ?>
+                                                            <option <?php if(!empty($booking_model_number)) {if(trim(strtoupper($value['model'])) == trim(strtoupper($booking_model_number))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } elseif(isset($unit_details[0]['model_number'])) {if(trim(strtoupper($value['model'])) == trim(strtoupper($unit_details[0]['model_number']))) { echo "selected"; } else{  if($is_repeat){ echo "disabled"; }} } ?>
+                                                                ><?php echo $value['model']; ?></option>
+                                                            <?php }                                                        
+                                                        } ?>
                                                     </select>
                                                 </div>
                                             </div>
@@ -586,7 +590,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                                     } else {
                                                                         echo $around_net_payable;
                                                                     }?>"
-                                                                placeholder='Enter discount' readonly />
+                                                                placeholder='Enter discount' readonly onblur='chkPrice($(this),<?php echo $ct ?>)'/>
                                                             </td>
                                                             <?php } else{
                                                             ?>
@@ -825,7 +829,7 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
                                                                         } else {
                                                                             echo $around_net_payable;
                                                                         }?>"
-                                                                    placeholder='Enter discount' readonly />
+                                                                    placeholder='Enter discount' readonly onblur='chkPrice($(this),<?php echo $ct ?>)'/>
                                                                 </td>
                                                                 <td>
                                                                    
@@ -1006,14 +1010,16 @@ $str_disabled = $is_spare_requested ? "pointer-events:none;background:#eee;" : "
 </script>
 <script>
     check_pincode();
-    $("#booking_request_symptom").select2();
-    $(".select-model").select2({
-        width:"239px"
-    });
+    $("#booking_request_symptom").select2();    
     <?php if(empty($str_disabled)) { ?> 
     $(".booking_source").select2();
     $("#partner_source").select2();
-    <?php } ?> 
+    $(".select-model").select2({
+        width:"239px"
+    });
+    <?php } else { ?>
+    $(".purchase_date").attr("tabindex",-1);   
+    <?php } ?>
     //$("#service_id").select2();
     $('#service_id').css('pointer-events','none'); 
     $("#booking_city").select2({
@@ -1348,12 +1354,17 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     function chkPrice(curval,maxval){
     //alert(curval.val());
     let flg=true;
-        if(!isNaN(curval.val())){
-            if(parseFloat(curval.val())<0) {
-                alert('Cannot be less than 0.00');
+        var cntrl_id = $(curval).attr('id');
+        cntrl_id= cntrl_id.substr(cntrl_id.length - 3)
+        var partner_discount = $("#partner_paid_basic_charges_"+cntrl_id).val();
+        var around_discount = $("#discount_"+cntrl_id).val();
+        var total_discount = parseFloat(partner_discount) + parseFloat(around_discount);
+        if(!isNaN(curval.val()) && !isNaN(total_discount)){
+            if(parseFloat(curval.val())<0 || parseFloat(total_discount)<0) {
+                alert('Discount Cannot be less than 0.00');
                flg=false;
-            } else if(parseFloat(curval.val())>parseFloat(maxval)) {
-               alert('Cannot be more than Std.Charges');
+            } else if((parseFloat(curval.val())>parseFloat(maxval)) || (parseFloat(total_discount)>parseFloat(maxval))) {
+               alert('Total Discount '+total_discount+' Cannot be more than Std.Charges');
                flg=false;
             }
         } else {

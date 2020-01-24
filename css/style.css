@@ -183,3 +183,12 @@ legend {
     border-color: #00695C;
     color:#fff;
 }
+
+
+.calender-input .input-group-addon.add-on{
+    width: 36px;
+    height: 34px;
+    position: absolute;
+    top: 0;
+    right: 16px;
+}

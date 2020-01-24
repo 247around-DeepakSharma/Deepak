@@ -134,6 +134,13 @@
         }
 
     }
+    
+    div.dt-buttons {
+        float: left;
+        margin-top: 35px;
+        margin-bottom: 5px;
+        margin-left: 5px;
+    }
 
 </style>
 
@@ -163,6 +170,18 @@
             },
             "order": [],
             "pageLength": 25,
+            dom: 'Blfrtip',
+            lengthMenu: [[ 25, 50, 100, -1 ],[ '25', '50', '100', 'All' ]],
+            buttons: [
+                {
+                    extend: 'excelHtml5',
+                    text: 'Export',
+                    exportOptions: {
+                       ccolumns: [ 1,2,3,4,5,6,7,8,9,10,11]
+                    },
+                    title: 'defective_parts_shipped_by_sf'
+                }
+            ],
             "ordering": false,
             "ajax": {
                 url: "<?php echo base_url(); ?>employee/service_centers/get_defective_parts_shipped_by_sf_list",
@@ -252,6 +271,8 @@ if(flag) {
         }
         
         formData.append('received_defective_part_pic_by_wh_exist', $("#received_defective_part_pic_by_wh_exist").val());
+        formData.append('defective_parts_shipped_kg', $("#defective_parts_shipped_weight_in_kg").val());
+        formData.append('defective_parts_shipped_gram', $("#defective_parts_shipped_weight_in_gram").val());
         
         $('#multiple_received_part_consumption_data').val(JSON.stringify({consumed_status_id:$('#spare_consumption_status').val(), remarks:$('#multiple-consumption-remarks').val()}));
         

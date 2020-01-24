@@ -401,7 +401,7 @@ class Engineer_model extends CI_Model {
         return $query->result_array();
     }
     
-    /*
+    /*@author Abhishek Awasthi
      *@Desc - This function is used to insert engineer incentive details
      *@param - $data
      *@return - resultant last insert id
@@ -411,7 +411,7 @@ class Engineer_model extends CI_Model {
         return $this->db->insert_id();
     }
     
-    /*
+    /* @author Abhishek Awasthi
      *@Desc - This function is used to update engineer incentive details
      *@param - $data, $where
      *@return - 
@@ -428,4 +428,108 @@ class Engineer_model extends CI_Model {
         }
         $this->db->update("engineer_incentive_details", $data);
     }
+
+
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to insert engineer notification details
+     *@param - $data
+     *@return - 
+     */
+
+    function insert_engg_notification_data($data){
+        $this->db->insert("engineer_notification_detail", $data);
+        return $this->db->insert_id();
+
+    }
+
+  /* @author Abhishek Awasthi
+     *@Desc - This function is used to update engineer notification details
+     *@param - $data, $id
+     *@return - 
+     */
+    function update_engg_notification_data($data,$id){
+        $this->db->where('id',$id);
+        $this->db->update("engineer_notification_detail", $data);
+        return $this->db->insert_id();
+
+    }
+
+
+  /*  @author Abhishek Awasthi
+     *@Desc - This function is used to insert engineer notification details
+     *@param - $select, $where
+     *@return - 
+     */
+
+    function get_engg_notification_data($select,$where){
+
+         $this->db->select($select); 
+         $this->db->where($where);
+         $this->db->from('engineer_notification_detail');
+         $query = $this->db->get();
+         return $query->result_array();
+
+    }
+
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to get partners
+     *@param - $select, $where
+     *@return - 
+     */
+
+
+    function get_partnersList_data($select,$where){
+
+         $this->db->select($select); 
+         $this->db->where($where);
+         $this->db->from('partners');
+         $query = $this->db->get();
+         return $query->result_array();
+
+    }
+
+
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to get partners appliances
+     *@param - $select, $where
+     *@return - 
+     */
+
+
+    function get_partner_appliances($select,$where){
+
+         $this->db->distinct();
+         $this->db->select($select); 
+         $this->db->where($where);
+         $this->db->from('services');
+         $this->db->join('partner_appliance_details', 'partner_appliance_details.service_id = services.id');
+         $query = $this->db->get();
+         return $query->result_array();
+
+    }
+
+
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to get partners app models
+     *@param - $select, $where
+     *@return - 
+     */
+
+
+   function  getPartner_appliancesModels($select,$where){
+
+         $this->db->distinct();
+         $this->db->select($select); 
+         $this->db->where($where);
+         $this->db->from('appliance_model_details');
+         $query = $this->db->get();
+         return $query->result_array();
+
+   }
+
+
+
+
+
+
 }

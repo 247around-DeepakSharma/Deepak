@@ -115,7 +115,7 @@
                 url: "<?php echo base_url(); ?>employee/upload_booking_file/get_upload_file_history",
                 type: "POST",
                 data: function(d){
-                   // d.file_source = '<?php echo ENGINEER_INCENTIVE_FILE_TYPE; ?>',
+                   // d.file_source = '<?php //echo ENGINEER_INCENTIVE_FILE_TYPE; ?>',
                     //d.partner_id= $("#partner_id").val(),
                     d.file_type = '<?php echo ENGINEER_INCENTIVE_FILE_TYPE; ?>';
                 }

@@ -67,6 +67,66 @@
                             </tr>                            
                         </table>
                     </div>
+                    <?php if(!empty($spare_parts_details)) { ?>
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-12" style="margin-left:-16px;">
+                            <table class="table table-bordered spare-consumption">
+                                <caption style="font-weight:bold;">Please let us know the status of the previously requested parts.</caption>
+                                <thead>
+                                    <tr style="background-color:#f5f5f5;">
+                                        <th width="2%">S.No.</th>
+                                        <th width="20%">Part Number</th>
+                                        <th width="15%">Part Name</th>
+                                        <th width="10%">Part Type</th>
+                                        <th width="15%">Status</th>
+                                        <th width="23%">
+                                            <a href="javascript:void(0);" data-trigger="hover" data-html="true" data-toggle="popover" data-placement="left" title="Consumption Status Description" data-content="">
+                                            <span class="glyphicon glyphicon-info-sign"></span>
+                                            </a> Consumption Reason<span style="color:red;">*</span> 
+                                        </th>
+                                        <th width="15%">Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php 
+                                        foreach($spare_parts_details as $SerialNo => $spare_part_detail) { $consumption_status_description = '';
+                                        if(empty($spare_part_detail['parts_shipped'])) { continue; }
+                                        //echo"<pre>";print_r($bookinghistory['spare_parts']);exit; 
+                                    ?>
+                                    <tr>
+                                        <td><?php echo ++$SerialNo; ?></td>
+                                        <td><?php echo $spare_part_detail['part_number']; ?></td>
+                                        <td><?php echo $spare_part_detail['parts_requested']; ?></td>
+                                        <td><?php echo $spare_part_detail['parts_requested_type']; ?></td>
+                                        <td><?php echo $spare_part_detail['status']; ?></td>
+                                        <td>
+                                            <select style="width:100%;" name="spare_consumption_status[<?php echo $spare_part_detail['id']; ?>]" class="spare_consumption_status" id="spare_consumption_status_<?php echo $spare_part_detail['id']; ?>">
+                                                <option value="" selected disabled>Select Reason</option>
+                                                <?php $description_no = 1; foreach($spare_consumed_status as $k => $status) {
+                                                    if (!empty($status['status_description'])) { $consumption_status_description .= $description_no.". <span style='font-size:12px;font-weight:bold;'>{$status['reason_text']}</span>: <span style='font-size:12px;'>{$status['status_description']}.</span><br />"; } ?>
+                                                    <option value="<?php echo $status['id']; ?>" data-shipped_inventory_id="<?php echo $spare_part_detail['shipped_inventory_id']; ?>" data-tag="<?php echo $status['tag']; ?>" data-part_number="<?php echo $spare_part_detail['part_number']; ?>" data-spare_id="<?php echo $spare_part_detail['id']; ?>"
+                                                    <?php if(isset($en_consumpton_details)){
+                                                        if($en_consumpton_details[$spare_part_detail['id']]['consumption_status_id'] == $status['id']){
+                                                           echo "selected"; 
+                                                        }
+                                                    } ?>
+                                                    ><?php echo $status['reason_text']; ?></option>
+                                                <?php $description_no++; } ?>
+                                            </select>
+
+                                        </td>
+                                        <td>
+                                            <textarea name="consumption_remarks[<?php echo $spare_part_detail['id']; ?>]" rows="2" class="form-control"></textarea>
+                                        </td>
+                                    </tr>
+                                    <?php } ?>
+                                </tbody>
+                            </table>
+                            <span hidden id="status_consumption_status"><?php echo $consumption_status_description; ?></span>
+                        </div>
+                    </div>
+                    <?php } ?>
                     <input type="hidden" class="form-control"  name="booking_id" value = "<?php echo $booking_id; ?>">
                     <input type="hidden" class="form-control"  name="amount_due" value = "<?php if (isset($bookinghistory[0]['amount_due'])) {echo $bookinghistory[0]['amount_due']; }?>">
 
@@ -191,7 +251,7 @@
                                             <input type="hidden" value="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo $unit_serial_number_pic;}  ?>"  name="serial_number_pic_exist" >
                                         </div>
                                         <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ ?>
-                                            <a target="_blank" class="<?php if(!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)){echo 'hide';}  ?>" href="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo S3_WEBSITE_URL."/".SERIAL_NUMBER_PIC_DIR."/".$unit_serial_number_pic;}  ?>">View</a>
+                                            <a target="_blank" class="<?php if(!isset($unit_serial_number_pic) ||  empty($unit_serial_number_pic)){echo 'hide';}  ?>" href="<?php if(isset($unit_serial_number_pic) && !empty($unit_serial_number_pic)){echo S3_WEBSITE_URL.SERIAL_NUMBER_PIC_DIR."/".$unit_serial_number_pic;}  ?>">View</a>
                                      <?php    } ?>
 
                                     </div>
@@ -484,6 +544,8 @@
     </div>
 </div>
 <script type="text/javascript">
+    $(".spare_consumption_status").select2();
+    $('[data-toggle="popover"]').attr('data-content', $('#status_consumption_status').html());
 function alpha(e) {
    var k;
    document.all ? k = e.keyCode : k = e.which;
@@ -697,13 +759,21 @@ function alpha(e) {
     
      });
 
-
-     
      if(checkbox_value ===0){
           alert('Please select atleast one checkbox.');
           checkbox_value = 0;
      }
-     
+
+     // check for consumption reason.
+     $('.spare-consumption').children('tbody').children('tr').each(function(index) {
+        var checkReason = $(this).find("td:eq(5)").children('.spare_consumption_status').val();
+        if(checkReason == null || checkReason == '') {
+            alert('Please provide consumption reason of previously requested parts.');
+            checkbox_value = 0;
+            return false;
+        }
+     });
+
       var reason = $("input[name='reason']:checked"). val();
       if(reason === "<?php echo CUSTOMER_ASK_TO_RESCHEDULE; ?>" 
               || reason === "<?php echo PRODUCT_NOT_DELIVERED_TO_CUSTOMER; ?>" 
@@ -1156,7 +1226,7 @@ function alpha(e) {
         $("#dat_of_puchase").css("cursor", "not-allowed");
         $("#dat_of_puchase").css("pointer-events","none");
         $("#dop_calendar").attr("onclick", "").unbind("click");
-        
+        $("#dop").attr("tabindex",-1);
      <?php } } ?>
          
     <?php if(isset($unit_serial_number_pic)  && !empty($unit_serial_number_pic)){ if($is_disable){ ?>

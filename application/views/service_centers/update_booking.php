@@ -182,11 +182,12 @@ else
                                                 <table class="table priceList table-striped table-bordered" name="priceList" id="priceList_1">
                                                     <tr>
                                                         <th>Service Category</th>
-                                                        <th>Customer Charges</th>
+                                                        <th style="display:none;">Customer Charges</th>
+                                                        <th>Customer Net Payable</th>
                                                         <th>Selected Services</th>
                                                     </tr>
                                                     <tbody>
-                                                        <?php if(!empty($prices)) { ?>
+                                                        <?php if(!empty($prices)) {?>
                                                         <?php $clone_number = 1; $i=0; $div = 1; $k=0; foreach ( $prices[0] as  $price) { ?>
                                                         <tr>
                                                             <td><?php echo $price['service_category']; ?></td>
@@ -201,7 +202,7 @@ else
                                                                     }
                                                                     ?>
                                                                 <input type="hidden" class="form-control partner_discount" name="<?php echo "partner_paid_basic_charges[".$unit_details[0]['brand_id']."][".$clone_number."][". $price['id']."][]"; ?>" id="<?php echo "partner_paid_basic_charges_". $div . "_1"; ?>" value = "<?php  if(isset($unit_details[0]['quantity'])){
-                                                                    $partner_net_payable = NUll;
+                                                                    $partner_net_payable = NUll;                                                                    
                                                                        foreach ($unit_details[0]['quantity'] as  $tags) {
                                                                            if($tags['price_tags'] == $price['service_category'] ){
                                                                               $partner_net_payable = $tags['partner_net_payable'];
@@ -214,17 +215,21 @@ else
                                                                     } else {
                                                                         echo $partner_net_payable;
                                                                     }?>" readonly  />
+                                                            <td style="display:none;"><?php echo $ct; ?></td>
                                                             <td>
                                                                 <?php  if(isset($unit_details[0]['quantity'])){
-                                                                    $customer_net_payable = 0;
-                                                                       foreach ($unit_details[0]['quantity'] as  $tags) {
+                                                                        $customer_net_payable = NULL;
+                                                                        foreach ($unit_details[0]['quantity'] as  $tags) {
                                                                            if($tags['price_tags'] == $price['service_category'] ){
                                                                               $customer_net_payable = $tags['customer_net_payable'];
                                                                            }
                                                                         }
+                                                                        if(is_null($customer_net_payable)){
+                                                                            echo $price['customer_net_payable'];
+                                                                        } else {
+                                                                            echo $customer_net_payable;
+                                                                        }
                                                                     }
-                                                                    
-                                                                    echo $customer_net_payable;
                                                                     ?>
                                                             </td>
                                                             <input type="hidden" class="form-control discount" name="<?php echo "discount[".$unit_details[0]['brand_id']."][".$clone_number."][". $price['id']."][]"; ?>" id="<?php echo "discount_".$div . "_1"; ?>"
@@ -258,6 +263,9 @@ else
                                                                             echo "style= 'pointer-events: none;'";
                                                                         }
                                                                         else{
+                                                                            if($price['service_category'] ==  REPAIR_OOW_PARTS_PRICE_TAGS){
+                                                                                echo "style= 'pointer-events: none;'";
+                                                                            }
                                                                             if(($tags['price_tags'] == $price['service_category'])){
                                                                                 echo " checked ";
                                                                                 if($price['service_category'] ==  REPEAT_BOOKING_TAG){
@@ -353,7 +361,8 @@ else
                                                     <table class="table priceList table-striped table-bordered" name="priceList" id='<?php echo "priceList_".$number ?>'>
                                                         <tr>
                                                             <th>Service Category</th>
-                                                            <th>Customer Charges</th>
+                                                            <th style="display:none;">Customer Charges</th>
+                                                            <th>Customer Net Payable</th>
                                                             <th>Selected Services</th>
                                                         </tr>
                                                         <tbody>
@@ -386,6 +395,7 @@ else
                                                                         } else {
                                                                             echo $partner_net_payable;
                                                                         }?>" readonly />
+                                                                <td style="display:none;"><?php echo $ct; ?></td>
                                                                 <td>
                                                                     <?php  if(isset($booking_unit_details['quantity'])){
                                                                         $customer_net_payable = NUll;
@@ -853,7 +863,9 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     
     $("#purchase_date_1").datepicker({dateFormat: 'YYYY-MM-DD', maxDate: 0});
     
-
+    <?php if(!empty($str_disabled)) { ?> 
+        $(".purchase_date").attr("tabindex",-1);   
+    <?php } ?>
 
 
 </script>
@@ -863,11 +875,12 @@ function get_parent_booking(contactNumber,serviceID,partnerID,isChecked,is_alrea
     color: red;
     }
     
+    // Do not allow User to Change Request type if spare is Already Requested.
     <?php if(!empty($str_disabled)) { ?> 
-    .price_checkbox {
+/*    .price_checkbox {
         pointer-events : none !important;
         background : #eee !important;
-    }    
+    }    */
     <?php } ?>
 </style>
 <?php if($this->session->userdata('error')){$this->session->unset_userdata('error');} ?>

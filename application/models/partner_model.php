@@ -2670,6 +2670,39 @@ function get_data_for_partner_callback($booking_id) {
         return NULL;
       }
     }
+    
+    
+    /**
+     * This method is used to get booking in which spare part quote is asked 
+     * @param type $where
+     * @return array
+     */
+    function get_spare_parts_quote_booking_list($partner_id,$entity_type)
+    {
+        $params = array($partner_id,str_replace("_"," ",$entity_type));
+        $query = "SELECT services.services, spare_parts_details.parts_requested, spare_parts_details.model_number, spare_parts_details.serial_number, "
+                . "assigned_vendor_id, amount_due, spare_parts_details.id, spare_parts_details.quantity, spare_parts_details.booking_id, defective_parts_pic, "
+                . "serial_number_pic, booking_details.partner_id, inventory_master_list.part_number, DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(date_of_request, '%Y-%m-%d')) AS age_of_request, "
+                . "service_centres.company_name, service_centres.primary_contact_phone_1, service_centres.address, service_centres.district, service_centres.pincode,service_centres.state,service_centres.gst_no, "
+                . "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d')) AS age_of_shipped_date, spare_parts_details.quantity, "
+                . "spare_parts_details.shipped_quantity, DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(spare_parts_details.spare_cancelled_date, '%Y-%m-%d')) AS spare_cancelled_date, "
+                . "DATEDIFF(CURRENT_TIMESTAMP, STR_TO_DATE(spare_parts_details.acknowledge_date, '%Y-%m-%d')) AS age_of_delivered_to_sf, DATEDIFF(CURRENT_TIMESTAMP, "
+                . "STR_TO_DATE(booking_details.service_center_closed_date, '%Y-%m-%d')) AS age_part_pending_to_sf, DATEDIFF(CURRENT_TIMESTAMP, "
+                . "STR_TO_DATE(spare_parts_details.defective_part_shipped_date, '%Y-%m-%d')) AS age_defective_part_shipped_date, DATEDIFF(CURRENT_TIMESTAMP, "
+                . "STR_TO_DATE(estimate_cost_given_date, '%Y-%m-%d')) AS age_of_est_given "
+                . "FROM (`spare_parts_details`) LEFT JOIN `booking_details` ON `spare_parts_details`.`booking_id` = `booking_details`.`booking_id` "
+                . "LEFT JOIN `spare_consumption_status` ON `spare_parts_details`.`consumed_part_status_id` = `spare_consumption_status`.`id` "
+                . "LEFT JOIN `partners` ON `partners`.`id` = `booking_details`.`partner_id` "
+                . "LEFT JOIN `service_centres` ON `service_centres`.`id` = `booking_details`.`assigned_vendor_id` "
+                . "LEFT JOIN `users` ON `users`.`user_id` = `booking_details`.`user_id` "
+                . "LEFT JOIN `inventory_master_list` ON `inventory_master_list`.`inventory_id` = `spare_parts_details`.`requested_inventory_id` "
+                . "LEFT JOIN `inventory_master_list` as im ON `im`.`inventory_id` = `spare_parts_details`.`shipped_inventory_id` "
+                . "LEFT JOIN `services` ON `booking_details`.`service_id` = `services`.`id`";
+        $query.=" where `booking_details`.`partner_id` = ? AND `status` = ? ";
+        $query.=" ORDER BY `spare_parts_details`.`part_requested_on_approval` ASC, `spare_parts_details`.`date_of_request` DESC";
+        $results = execute_paramaterised_query($query, $params);
+        return $results;
+    }
 
 }
 

@@ -1073,8 +1073,9 @@ class Inventory extends CI_Controller {
         if (!($this->session->userdata('partner_id') || $this->session->userdata('service_center_id'))) {
             $this->checkUserSession();
         }
-
+        
         if (!empty($id)) {
+            $spare_part_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_details.partner_id, spare_parts_details.service_center_id", array('spare_parts_details.id' => $id ),true);
             $remarks = $this->input->post("remarks");
             if (!empty($this->input->post("spare_cancel_reason"))) {
                 $remarks = $this->input->post("spare_cancel_reason") . " , " . $remarks;
@@ -1151,6 +1152,14 @@ class Inventory extends CI_Controller {
                     if ($line_items < 2) {
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                     }
+                    
+                    /* Insert Spare Tracking Details */
+                    if (!empty($id)) {
+                        $tracking_details = array('spare_id' => $id, 'action' => $data['status'], 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata('id'), 'partner_id' => $spare_part_data[0]["partner_id"], 'service_center_id' => $spare_part_data[0]["service_center_id"]);
+                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    }
+                    
+                    
                     break;
                 case 'CANCEL_COMPLETED_BOOKING_PARTS':
                     $where = array('id' => $id);
@@ -1171,6 +1180,11 @@ class Inventory extends CI_Controller {
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
 
                     $b['internal_status'] = "Courier Invoice Rejected By Admin";
+                    /* Insert Spare Tracking Details */
+                    if (!empty($id)) {
+                        $tracking_details = array('spare_id' => $id, 'action' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata('id'), 'partner_id' => $spare_part_data[0]["partner_id"], 'service_center_id' => $spare_part_data[0]["service_center_id"]);
+                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    }
 
                     break;
                 case 'APPROVE_COURIER_INVOICE':
@@ -1187,12 +1201,17 @@ class Inventory extends CI_Controller {
                     $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '", "' . OK_PART_TO_BE_SHIPPED . '", "' . DAMAGE_PART_TO_BE_SHIPPED . '") ' => NULL));
                     if (empty($defective_part_pending_details)) {
                         $spare_data['status'] = DEFECTIVE_PARTS_SHIPPED;
-                        $where = array("id" => $booking_id);
+                        $where = array("id" => $id);
                         $this->service_centers_model->update_spare_parts($where, $spare_data);
                     }
 
-                    $where = array("id" => $id);
-                    $this->service_centers_model->update_spare_parts($where, $data);
+                    $this->service_centers_model->update_spare_parts(array("id" => $id), $data);
+                    
+                    /* Insert Spare Tracking Details */
+                    if (!empty($id)) {
+                        $tracking_details = array('spare_id' => $id, 'action' => $data['status'], 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata('id'), 'partner_id' => $spare_part_data[0]["partner_id"], 'service_center_id' => $spare_part_data[0]["service_center_id"]);
+                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    }
 
                     $new_state = "Courier Invoice Approved By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
@@ -3556,6 +3575,7 @@ class Inventory extends CI_Controller {
      * @desc This is used to update spare related field. Just pass field name, value and spare ID
      */
     function update_spare_parts_column() {
+        ob_end_clean();
         $this->form_validation->set_rules('data', 'Data', 'required');
         $this->form_validation->set_rules('id', 'id', 'required');
         $this->form_validation->set_rules('column', 'column', 'required');
@@ -3828,9 +3848,8 @@ class Inventory extends CI_Controller {
                             $action_agent_id = "";
                             if ($this->session->userdata('service_center_id')) {
                                 $agent_id = $this->session->userdata('service_center_id');
-                                $action_agent_id = $this->session->userdata('id');
+                                $action_agent_id = $this->session->userdata('service_center_agent_id');
                                 $action_entity_id = $this->session->userdata('service_center_id');
-                                ;
                                 $agent_type = _247AROUND_SF_STRING;
                             } else if ($this->session->userdata('id')) {
                                 $agent_id = $this->session->userdata('id');
@@ -4141,6 +4160,12 @@ class Inventory extends CI_Controller {
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
 
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
+                /* Insert Spare Tracking Details */
+                if (!empty($fomData['spare_id'])) {
+                    $spare_part_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_details.partner_id, spare_parts_details.service_center_id", array('spare_parts_details.id' => $fomData['spare_id'] ),true);
+                    $tracking_details = array('spare_id' => $fomData['spare_id'], 'action' => SPARE_SHIPPED_TO_WAREHOUSE, 'remarks' => '', 'agent_id' => $action_agent_id, 'partner_id' => $spare_part_data[0]["partner_id"], 'service_center_id' => $spare_part_data[0]["service_center_id"]);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                }
                 if ($update_spare_part) {
                     $actor = $next_action = NULL;
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $ledger['booking_id']);
@@ -5480,6 +5505,9 @@ class Inventory extends CI_Controller {
                 if (!empty($val['spare_id'])) {
                     $data["spare_parts_details.wh_to_partner_defective_shipped_date"] = date('Y-m-d H:i:s');
                     $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
+                    /* Insert Spare Tracking Details */
+                    $tracking_details = array('spare_id' => $val['spare_id'], 'action' => $data['status'], 'remarks' => '', 'agent_id' => $this->session->userdata("service_center_agent_id"), 'partner_id' => $val['booking_partner_id'], 'service_center_id' => $val['service_center_id']);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     $agent_id = $this->session->userdata('service_center_agent_id');
                     $agent_name = $this->session->userdata('service_center_name');
                     $service_center_id = $this->session->userdata('service_center_id');
@@ -6776,7 +6804,8 @@ class Inventory extends CI_Controller {
             } else {
                 $select = "spare_parts_details.booking_id,spare_parts_details.partner_challan_number,spare_parts_details.sf_challan_number,"
                         . "spare_parts_details.partner_challan_file,spare_parts_details.sf_challan_file,spare_parts_details.awb_by_partner,spare_parts_details.awb_by_sf,"
-                        . "spare_parts_details.courier_pic_by_partner,spare_parts_details.parts_shipped,im.part_number,spare_parts_details.shipped_parts_type,im.price,im.gst_rate";
+                        . "spare_parts_details.courier_pic_by_partner,spare_parts_details.parts_shipped,im.part_number,spare_parts_details.shipped_parts_type,im.price,im.gst_rate,"
+                        . "spare_parts_details.awb_by_wh, spare_parts_details.wh_challan_number, spare_parts_details.wh_challan_file";
                 $where = array();
 
                 if ($this->input->post('sf_id')) {
@@ -6804,7 +6833,7 @@ class Inventory extends CI_Controller {
 
                     $docket_details = $this->inventory_model->get_spare_courier_details($select, $where);
                 } else {
-                    $select .= ",service_centres.name as 'sf_name'";
+                    $select .= ",service_centres.name as 'sf_name', sc.name as wh_name";
                     if (!empty($docket_number)) {
                         $docket_number_arr = explode(',', $docket_number);
                         $docket_number_arr_str = implode(',', array_map(function($val) {
@@ -6824,7 +6853,7 @@ class Inventory extends CI_Controller {
                         }
                     }
                     $post['is_inventory'] = TRUE;
-                    $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE, FALSE, $post);
+                    $docket_details = $this->partner_model->get_spare_parts_by_any($select, $where, FALSE, TRUE, FALSE, $post,TRUE);
                 }
 
 
@@ -6855,7 +6884,7 @@ class Inventory extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
         $service_center_id = $this->input->post('service_center_id');
-        $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status',"
+        $select = "spare_parts_details.id as spare_id, services.services as 'Appliance',  booking_details.booking_id as 'Booking ID',  booking_details.assigned_vendor_id as 'Assigned Vendor Id', service_centres.name as 'SF Name', service_centres.district as 'SF City', service_centres.state as 'SF State', (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'Inactive' END) as 'SF Status', partners.public_name as 'Partner Name', GROUP_CONCAT(employee.full_name) as 'Account Manager Name', booking_details.current_status as 'Booking Status', booking_details.partner_current_status as 'Partner Current Booking Status',"
                 . "spare_parts_details.status as 'Spare Status', (CASE WHEN spare_parts_details.part_warranty_status = 1 THEN 'In-Warranty' WHEN spare_parts_details.part_warranty_status = 2 THEN 'Out-Warranty' END) as 'Spare Warranty Status', (CASE WHEN spare_parts_details.nrn_approv_by_partner = 1 THEN 'Approved' ELSE 'Not Approved' END) as 'NRN Status', service_center_closed_date as 'Service Center Closed Date', spare_parts_details.spare_cancelled_date as 'Spare Part Cancellation Date', bcr.reason as 'Spare Cancellation Reason', booking_details.request_type as 'Booking Request Type', spare_parts_details.model_number as 'Requested Model Number',spare_parts_details.parts_requested as 'Requested Part',spare_parts_details.parts_requested_type as 'Requested Part Type', i.part_number as 'Requested Part Number', spare_parts_details.date_of_request as 'Spare Part Requested Date',"
                 . "if(spare_parts_details.is_micro_wh='0','Partner',if(spare_parts_details.is_micro_wh='1',concat('Microwarehouse - ',sc.name),sc.name)) as 'Requested On Partner/Warehouse',"
                 . "spare_parts_details.model_number_shipped as 'Shipped Model Number',spare_parts_details.parts_shipped as 'Shipped Part',spare_parts_details.shipped_parts_type as 'Shipped Part Type',iml.part_number as 'Shipped Part Number',"

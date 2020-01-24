@@ -233,7 +233,7 @@ class Service_centers_model extends CI_Model {
         $userSelect = $join = $groupBy = $having = "";
         $where_sc = "AND (partners.booking_review_for NOT LIKE '%".$status."%' OR partners.booking_review_for IS NULL OR booking_details.amount_due != 0)";
          if($is_partner){
-            $where_sc = " AND (partners.booking_review_for IS NOT NULL AND booking_details.amount_due = 0)";
+            $where_sc = " AND (partners.booking_review_for IS NOT NULL)";
         }
         if($status == "Cancelled"){
             $where_sc = $where_sc." AND NOT EXISTS (SELECT 1 FROM service_center_booking_action sc_sub WHERE sc_sub.booking_id = sc.booking_id "
@@ -493,7 +493,7 @@ class Service_centers_model extends CI_Model {
         if($order_by){
             $this->db->order_by($order_by, FALSE);
         }
-        if($limit){
+        if($limit > 0){
             $this->db->limit($limit, $offset);
         }
         $query = $this->db->get();
@@ -537,6 +537,64 @@ class Service_centers_model extends CI_Model {
 
         return $query->num_rows();
 
+    }
+    
+     /**
+     *  @desc : This function is used to get total defective parts shipped  by SF
+     *  @param : $where 
+     *  @return: Array()
+     */
+    public function count_all_defective_parts_shipped_by_sf_list($where, $group_by, $order_by, $post) {
+        $this->_spare_parts_booking_query($where, 'count(distinct(spare_parts_details.id)) as numrows');
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+               
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
+    }
+    
+    /**
+     *  @desc : This function is used to get total filtered defective parts shipped  by SF
+     *  @param : $where 
+     *  @return: Array()
+     */
+    function count_defective_parts_shipped_by_sf_list($where, $group_by, $order_by, $post){
+        $this->_spare_parts_booking_query($where, 'count(distinct(spare_parts_details.id)) as numrows');
+        
+        if (!empty($post['search_value'])) {
+            $like = "";
+            foreach ($post['column_search'] as $key => $item) { // loop column 
+                // if datatable send POST for search
+
+                if ($key === 0) { // first loop
+                    $like .= "( " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                } else {
+                    $like .= " OR " . $item . " LIKE '%" . $post['search_value'] . "%' ";
+                }
+            }
+            $like .= ") ";
+
+            $this->db->where($like, null, false);
+        }
+
+                
+        $query = $this->db->get();
+        return $query->result_array()[0]['numrows'];
     }
     
     /**
@@ -1477,4 +1535,22 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         
         return false;
     }
+    
+    
+    /*
+     * @desc: Insert Spare Tracking History On Line Item
+     * @param :Array $data
+     * @return : Int $last_inserted_id
+     */
+    function insert_spare_tracking_details($data) {
+
+        if (!empty($data)) {
+            $this->db->insert('spare_state_change_tracker', $data);
+            return $this->db->insert_id();
+            log_message('info', __FUNCTION__ . '=> Insert Spare Tracking History: ' . $this->db->last_query());
+        } else {
+            return false;
+        }
+    }
+
 }

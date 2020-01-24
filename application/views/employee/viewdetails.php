@@ -638,6 +638,7 @@
                                         <th> Parts Warranty Status </th>    
                                         <th>Requested Quantity </th>                                
                                         <th >Requested Date</th>
+                                        <th >Approval Date</th>
                                         <th >Date Of Purchase</th>
                                         <th >Invoice Image </th>
                                         <th >Serial Number Image </th>
@@ -680,6 +681,13 @@
                                             <a class="btn btn-link check-stocks" title="Check stock in inventory" data-inventory="<?php echo $sp['requested_inventory_id']; ?>" data-vendor="<?php echo $sp['service_center_id']; ?>"><?php echo $sp['quantity']; ?></a>
                                         </td>
                                         <td><?php echo date_format(date_create($sp['create_date']),'d-m-Y h:i:A'); ?></td>
+                                        <!--   Show spare Apprival Date --->
+                                        <?php if(!empty($sp['spare_approval_date']) && $sp['spare_approval_date']!='0000-00-00'){ ?>
+                                        <td><?php echo date_format(date_create($sp['spare_approval_date']),'d-m-Y'); ?></td>
+                                        <?php }else{ ?>
+                                         <td>-</td>
+                                        <?php  } ?>
+
                                         <td><?php echo date_format(date_create($sp['date_of_purchase']),'d-m-Y'); ?></td>
 
                                         <td><div class="progress-bar progress-bar-success myprogress" id="<?php echo "myprogressinvoice_pic".$sp['id'] ?>" role="progressbar" style="width:0%">0%</div><?php if (!is_null($sp['invoice_pic'])) {
@@ -2284,6 +2292,11 @@ $(".serial_no_edit").click(function() {
         var data_value = $(this).siblings("input").val();
         $(this).siblings(".serial_no_text").text($(this).siblings("input").val());
         
+        if(data_value == ''){
+          alert("Detail should not be blank."); 
+          return false;  
+        }
+        
         $.ajax({
             url: "<?php echo base_url() ?>employee/inventory/update_spare_parts_column",
             type: "POST",
@@ -2311,7 +2324,7 @@ $(".serial_no_edit").click(function() {
                     }
                 } else {
                     alert("There is a problem to update");
-                    alert(data);
+                    
                 }
                 
             }
