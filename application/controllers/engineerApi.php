@@ -420,7 +420,7 @@ class engineerApi extends CI_Controller {
                 $this->getUserNotifications();
 
 /*   get partners active list */
-            case 'partnerslist':
+            case 'partners':
                 $this->getActivepartnersList();   
 
 /*   get partner appliances */
