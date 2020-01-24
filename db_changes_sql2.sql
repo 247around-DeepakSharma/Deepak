@@ -1718,18 +1718,16 @@ ALTER TABLE `paytm_transaction_callback` ADD `engineer_id` INT(11) NULL DEFAULT 
 ---Abhishek 10-01-2019
 
 ALTER TABLE `engineer_details` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `update_date`;
+CREATE TABLE `engineer_notification_detail` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `phone` varchar(20) DEFAULT NULL,
+ `message` text CHARACTER SET utf8 COLLATE utf8_bin,
+ `notified` int(5) NOT NULL DEFAULT '1',
+ `fire_base_response` text,
+ `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=latin1
 
-CREATE TABLE `247around`.`engineer_notification_data` ( `id` INT NOT NULL ,  `phone` VARCHAR(20) NULL DEFAULT NULL ,  `message` TEXT NULL DEFAULT NULL ,  `agent_id` INT(11) NULL DEFAULT NULL ,  `created_on` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ) ENGINE = InnoDB;
-
-ALTER TABLE `engineer_notification_data` ADD `amount` INT(11) NOT NULL DEFAULT '0' AFTER `phone`;
-ALTER TABLE `engineer_notification_data` ADD `incentive_id` INT(11) NOT NULL DEFAULT '0' AFTER `id`;
-ALTER TABLE `engineer_notification_data` DROP `incentive_id`;
-
-RENAME TABLE `247around`.`engineer_notification_data` TO `247around`.`engg_notification_detail`;
-ALTER TABLE `engg_notification_detail` DROP `amount`;
-ALTER TABLE `engg_notification_detail` ADD `id` INT(11) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
-ALTER TABLE `engg_notification_detail` DROP `id`;
-ALTER TABLE `engg_notification_detail` ADD `notified` INT(5) NOT NULL DEFAULT '1' AFTER `message`;
 
 ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `device_id`;
 
@@ -1738,6 +1736,20 @@ ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT
 ALTER TABLE `engg_notification_detail` DROP `notified`;
 ALTER TABLE `engg_notification_detail`  ADD `notified` INT(5) NOT NULL DEFAULT '1'  AFTER `message`,  ADD `fire_base_response` TEXT NULL DEFAULT NULL  AFTER `notified`;
 
+--Gorakh Nath 16-01-2020
+CREATE TABLE `spare_state_change_tracker` ( 
+    `id` INT(11) NOT NULL AUTO_INCREMENT , 
+    `spare_id` INT(11) NOT NULL,	
+    `action` VARCHAR(300) DEFAULT NULL , 
+    `remarks` VARCHAR(400) DEFAULT NULL , 
+    `agent_id` INT(11) NOT NULL,
+    `partner_id` INT(11) NOT NULL,
+    `service_center_id` INT(11) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+
+ALTER TABLE `spare_state_change_tracker` ADD `create_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `service_center_id`;
+ 
 --Ankit Bhatt 2020-01-21
  insert into header_navigation(entity_type, title, link, level, parent_ids, groups, nav_type, is_active, create_date)
 values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());

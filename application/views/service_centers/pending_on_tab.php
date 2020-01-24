@@ -201,7 +201,8 @@
                                             ?>  disabled <?php } } }  if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { echo 'disabled';}?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                         <?php }else{ ?>
 
-                                            <a href="#" class='btn btn-sm btn-success disabled' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+                                              <a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php  if($is_engineer_app == '1')  { if (is_null($row->assigned_engineer_id) || (!empty($row->is_booking_close_by_app_active))) { 
+                                            ?>  disabled <?php } } }  if($row->service_center_current_status == SF_BOOKING_INPROCESS_STATUS && !empty($row->service_center_closed_date)) { echo 'disabled';}?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
 
                                         <?php } ?>
                                         </td>
@@ -428,8 +429,9 @@
                                             <a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if($is_engineer_app == '1') { if (is_null($row->assigned_engineer_id) || !empty($row->is_booking_close_by_app_active)) { 
                                             ?>  disabled <?php } } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
                                         <?php }else{ ?>
-
-                                            <a href="#" class='btn btn-sm btn-success disabled' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
+<!--- Enable Option to complete booking ffrom sf in NRN Case  -->
+                                            <a href="<?php echo base_url(); ?>service_center/get_sf_edit_booking_form/<?php echo urlencode(base64_encode($row->booking_id));?>/<?php echo urlencode(base64_encode($redirect_url))?>" class='btn btn-sm btn-success <?php if($this->session->userdata('is_update') == 1){ ?> <?php if($is_engineer_app == '1') { if (is_null($row->assigned_engineer_id) || !empty($row->is_booking_close_by_app_active)) { 
+                                            ?>  disabled <?php } } } ?>' title='Complete'><i class='fa fa-thumbs-up' aria-hidden='true'></i></a>
 
                                         <?php } ?>
                                         </td>

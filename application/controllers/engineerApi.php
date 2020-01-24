@@ -415,6 +415,22 @@ class engineerApi extends CI_Controller {
 
             case 'todaysSlotBookings':
                 $this->getTodaysSlotBookings();
+/*   get users notification on phone number */
+            case 'usernotifications':
+                $this->getUserNotifications();
+
+/*   get partners active list */
+            case 'partners':
+                $this->getActivepartnersList();   
+
+/*   get partner appliances */
+            case 'partnerAppliances':  
+                $this->getPartner_appliances();  ////getPartner_appliances
+
+
+/*   get partner appliances */
+            case 'partnerappliancesModels':  
+                $this->getPartnerAppliancesModels();  ////getPartner_appliances
 
             default:
                 break;
@@ -1306,9 +1322,10 @@ class engineerApi extends CI_Controller {
             $customer_phone = $bookinghistory[0]['phone_number'];
             $whatsapp_array = array(
               'booking_id'=>$booking_id,
-              'name'=>$bookinghistory[0]['name']
+              'name'=>$bookinghistory[0]['name'],
+              'amount_pay'=>$data['amount_paid']
             );
-            $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);
+       //     $this->send_whatsapp_on_booking_complete($customer_phone,$whatsapp_array);  As of now not sending whatsapp msg
             if (!empty($requestData['location'])) {
                 $location = json_decode($requestData['location'], true);
                 $en["pincode"] = $location['pincode'];
@@ -1368,7 +1385,8 @@ class engineerApi extends CI_Controller {
     /*  Function to send whatsapp SMS when engg complete */
 
     function send_whatsapp_on_booking_complete($phone_number, $whatsapp_array = array()) {
-        require_once('assest/whatsapp/vendor/autoload.php');
+        $base =base_url(); /// path with base url
+        include('whatsapp/vendor/autoload.php');  // conf directory
 // Configure HTTP basic authorization: basicAuth
         $config = Karix\Configuration::getDefaultConfiguration();
         $config->setUsername(API_KARIX_USER_ID);
@@ -1381,7 +1399,7 @@ class engineerApi extends CI_Controller {
                 $config
         );
         $message = new Karix\Model\CreateMessage(); // Karix\Model\CreateAccount | Subaccount object
-        $text = "Dear , " . $whatsapp_array['name'] . " Your service for booking id- " . $whatsapp_array['booking_id'] . " has been completed. Thank Your for choosing us!";
+        $text = "Dear  " . $whatsapp_array['name'] . ", Your service for Booking ID " . $whatsapp_array['booking_id'] . " has been completed. Amount paid is -".$whatsapp_array['amount_pay']."INR. Thank Your for choosing 247Around.";
         date_default_timezone_set('UTC');
         $phone_number = "+91" . $phone_number;
         $message->setChannel(API_KARIX_CHANNEL); // Use "sms" or "whatsapp"
@@ -1393,6 +1411,7 @@ class engineerApi extends CI_Controller {
 
         try {
             $result = $apiInstance->sendMessage($message);
+            log_message('Whatsapp Response', __METHOD__ . json_encode($result));
             return TRUE;
         } catch (Exception $e) {
             return FALSE;
@@ -3137,7 +3156,7 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $missing_key = "";
         $check = true;
-        $validateKeys = array("booking_id", "partner_id", "service_id");
+        $validateKeys = array("booking_id", "partner_id", "service_id","primary_contact");  /*  for parent bookings */
         foreach ($validateKeys as $key) {
             if (!array_key_exists($key, $requestData)) {
                 $check = false;
@@ -3172,6 +3191,8 @@ class engineerApi extends CI_Controller {
             unset($booking_details['appliance_id']);
             unset($booking_details['c2c']);
             $response['booking_details'] = $booking_details;
+            /* Abhishek check for paarent bookings in repeat bookings */
+            $response['parents'] = $this->booking_model->get_posible_parent_booking_id($requestData['primary_contact'],$requestData['service_id'],$requestData['partner_id'],30);
 
             /** get model number and date of purchase if spare part already ordered * */
             $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase', array('booking_id' => $requestData["booking_id"]));
@@ -3674,5 +3695,173 @@ class engineerApi extends CI_Controller {
             $this->sendJsonResponse(array("0066", $validation['message']));
         }
     }
+
+
+/*  This function is used to get the notifications of user in app */
+    function getUserNotifications(){
+
+        log_message("info", __METHOD__ . " Entering..in notifications");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        if ($validation['status']) {
+            $select = '*';
+            $where =array(
+                'phone'=>$requestData["mobile"]
+            );
+            $response = $this->_getUserNotifications($select,$where);
+            if (!empty($response)) {
+                log_message("info", __METHOD__ . "Notifications Found");
+                $this->jsonResponseString['response']['notifications'] = $response;  /////response key according to umesh
+                $this->sendJsonResponse(array(API_NOTIFICATIONS_SUCCESS, API_NOTIFICATIONS_SUCCESS_MSG));
+            } else {
+                log_message("info", __METHOD__ . "Notifications not found");
+                $this->jsonResponseString['response']['notifications'] = array();  ////response key according to umesh
+                $this->sendJsonResponse(array('0000', 'Notifications not found'));
+            }
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->sendJsonResponse(array("0066", $validation['message']));
+        }
+    }
+
+/*   Abhishek php This function is used to get the notifications of user in app */
+    function _getUserNotifications($select,$where){
+
+       return  $this->engineer_model->get_engg_notification_data($select,$where);
+    }
+
+
+/* Abhishek  
+
+API for getting partner  list in APP
+
+*/
+    function getActivepartnersList(){
+
+        log_message("info", __METHOD__ . " Entering..in partners list");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("mobile"), $requestData);
+        if ($validation['status']) {
+            $select = 'id,company_name,public_name';
+            $where =array(
+                'is_active'=>1
+            );
+            $response = $this->_partnersList($select,$where);
+            if (!empty($response)) {
+                log_message("info", __METHOD__ . "partners Found");
+                $this->jsonResponseString['response']['partners'] = $response;  /////response key according to umesh
+                $this->sendJsonResponse(array('0000', 'success'));
+            } else {
+                log_message("info", __METHOD__ . "partners not found");
+                $this->jsonResponseString['response']['partners'] = array();  ////response key according to umesh
+                $this->sendJsonResponse(array('0000', 'partners not found'));
+            }
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->sendJsonResponse(array("0066", $validation['message']));
+        }
+
+    }
+
+    /*   Abhishek   This function is used to get partners list in app */
+    function _partnersList($select,$where){
+
+       return  $this->engineer_model->get_partnersList_data($select,$where);
+    }
+
+
+
+/* This  Abhishek php function is to get appliances of partner */
+
+
+    function getPartner_appliances(){
+
+        log_message("info", __METHOD__ . " Entering..in partners list");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("partner_id"), $requestData);
+        if ($validation['status']) {
+            $select = 'services.id,services.services,partner_appliance_details.partner_id';
+            $where =array(
+                'partner_appliance_details.partner_id'=>$resquestdata['partner_id']  /// Resolve Fatal Error
+
+            );
+            $response = $this->_getPartner_appliances($select,$where);
+            if (!empty($response)) {
+                log_message("info", __METHOD__ . "partners Found");
+                $this->jsonResponseString['response']['partner_appliances'] = $response;  /////response key according to umesh
+                $this->sendJsonResponse(array('0000', 'success'));
+            } else {
+                log_message("info", __METHOD__ . "partners not found");
+                $this->jsonResponseString['response']['partner_appliances'] = array();  ////response key according to umesh
+                $this->sendJsonResponse(array('0000', 'partners not found'));
+            }
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->sendJsonResponse(array("0066", $validation['message']));
+        }
+
+
+    }
+
+
+/*  Abhishek This function is to get appliances of partner */
+
+function _getPartner_appliances($select,$where){
+
+    return  $this->engineer_model->get_partner_appliances($select,$where);
+}
+
+
+/*  Abhishek php This function is to get appliances model of partner */
+
+function getPartnerAppliancesModels(){
+
+
+      log_message("info", __METHOD__ . " Entering..in partners list");
+        $requestData = json_decode($this->jsonRequestData['qsh'], true);
+        $validation = $this->validateKeys(array("partner_id"), $requestData);
+        if ($validation['status']) {
+             $select = 'appliance_model_details.id,appliance_model_details.service_id,appliance_model_details.model_number,appliance_model_details.entity_id';
+            $where =array(
+                'appliance_model_details.service_id'=>$requestData['service_id'],
+                'appliance_model_details.entity_id'=>$requestData['partner_id'],
+                'appliance_model_details.active'=>1
+
+            );
+            $response = $this->getPartner_appliancesModels($select,$where);
+            if (!empty($response)) {
+                log_message("info", __METHOD__ . "partners Found");
+                $this->jsonResponseString['response']['partner_appliances_models'] = $response;  /////response key according to umesh
+                $this->sendJsonResponse(array('0000', 'success'));
+            } else {
+                log_message("info", __METHOD__ . "partners not found");
+                $this->jsonResponseString['response']['partner_appliances_models'] = array();  ////response key according to umesh
+                $this->sendJsonResponse(array('0000', 'partners not found'));
+            }
+        } else {
+            log_message("info", __METHOD__ . $validation['message']);
+            $this->sendJsonResponse(array("0066", $validation['message']));
+        }
+
+
+}
+
+/*  Abhishek  This is to get models of appliance  */ 
+
+function _getPartner_appliancesModels($select,$where){
+
+    return  $this->engineer_model->getPartner_appliancesModels($select,$where);
+
+}
+
+
+
+
+
+
+
+
+
+
 
 }

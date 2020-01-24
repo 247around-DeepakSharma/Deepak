@@ -1073,8 +1073,9 @@ class Inventory extends CI_Controller {
         if (!($this->session->userdata('partner_id') || $this->session->userdata('service_center_id'))) {
             $this->checkUserSession();
         }
-
+        
         if (!empty($id)) {
+            $spare_part_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_details.partner_id, spare_parts_details.service_center_id", array('spare_parts_details.id' => $id ),true);
             $remarks = $this->input->post("remarks");
             if (!empty($this->input->post("spare_cancel_reason"))) {
                 $remarks = $this->input->post("spare_cancel_reason") . " , " . $remarks;
@@ -1151,6 +1152,14 @@ class Inventory extends CI_Controller {
                     if ($line_items < 2) {
                         $this->vendor_model->update_service_center_action($booking_id, $sc_data);
                     }
+                    
+                    /* Insert Spare Tracking Details */
+                    if (!empty($id)) {
+                        $tracking_details = array('spare_id' => $id, 'action' => $data['status'], 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata('id'), 'partner_id' => $spare_part_data[0]["partner_id"], 'service_center_id' => $spare_part_data[0]["service_center_id"]);
+                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    }
+                    
+                    
                     break;
                 case 'CANCEL_COMPLETED_BOOKING_PARTS':
                     $where = array('id' => $id);
@@ -1171,6 +1180,11 @@ class Inventory extends CI_Controller {
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
 
                     $b['internal_status'] = "Courier Invoice Rejected By Admin";
+                    /* Insert Spare Tracking Details */
+                    if (!empty($id)) {
+                        $tracking_details = array('spare_id' => $id, 'action' => DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE, 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata('id'), 'partner_id' => $spare_part_data[0]["partner_id"], 'service_center_id' => $spare_part_data[0]["service_center_id"]);
+                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    }
 
                     break;
                 case 'APPROVE_COURIER_INVOICE':
@@ -1187,12 +1201,17 @@ class Inventory extends CI_Controller {
                     $defective_part_pending_details = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . DEFECTIVE_PARTS_PENDING . '", "' . DEFECTIVE_PARTS_REJECTED_BY_WAREHOUSE . '", "' . OK_PART_TO_BE_SHIPPED . '", "' . DAMAGE_PART_TO_BE_SHIPPED . '") ' => NULL));
                     if (empty($defective_part_pending_details)) {
                         $spare_data['status'] = DEFECTIVE_PARTS_SHIPPED;
-                        $where = array("id" => $booking_id);
+                        $where = array("id" => $id);
                         $this->service_centers_model->update_spare_parts($where, $spare_data);
                     }
 
-                    $where = array("id" => $id);
-                    $this->service_centers_model->update_spare_parts($where, $data);
+                    $this->service_centers_model->update_spare_parts(array("id" => $id), $data);
+                    
+                    /* Insert Spare Tracking Details */
+                    if (!empty($id)) {
+                        $tracking_details = array('spare_id' => $id, 'action' => $data['status'], 'remarks' => trim($remarks), 'agent_id' => $this->session->userdata('id'), 'partner_id' => $spare_part_data[0]["partner_id"], 'service_center_id' => $spare_part_data[0]["service_center_id"]);
+                        $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                    }
 
                     $new_state = "Courier Invoice Approved By Admin";
                     $old_state = DEFECTIVE_PARTS_SHIPPED;
@@ -3829,9 +3848,8 @@ class Inventory extends CI_Controller {
                             $action_agent_id = "";
                             if ($this->session->userdata('service_center_id')) {
                                 $agent_id = $this->session->userdata('service_center_id');
-                                $action_agent_id = $this->session->userdata('id');
+                                $action_agent_id = $this->session->userdata('service_center_agent_id');
                                 $action_entity_id = $this->session->userdata('service_center_id');
-                                ;
                                 $agent_type = _247AROUND_SF_STRING;
                             } else if ($this->session->userdata('id')) {
                                 $agent_id = $this->session->userdata('id');
@@ -4142,6 +4160,12 @@ class Inventory extends CI_Controller {
                     'defective_return_to_entity_type' => _247AROUND_SF_STRING, 'is_micro_wh' => $is_wh_micro);
 
                 $update_spare_part = $this->service_centers_model->update_spare_parts(array('id' => $fomData['spare_id']), $a);
+                /* Insert Spare Tracking Details */
+                if (!empty($fomData['spare_id'])) {
+                    $spare_part_data = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, booking_details.partner_id, spare_parts_details.service_center_id", array('spare_parts_details.id' => $fomData['spare_id'] ),true);
+                    $tracking_details = array('spare_id' => $fomData['spare_id'], 'action' => SPARE_SHIPPED_TO_WAREHOUSE, 'remarks' => '', 'agent_id' => $action_agent_id, 'partner_id' => $spare_part_data[0]["partner_id"], 'service_center_id' => $spare_part_data[0]["service_center_id"]);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+                }
                 if ($update_spare_part) {
                     $actor = $next_action = NULL;
                     $partner_status = $this->booking_utilities->get_partner_status_mapping_data(_247AROUND_PENDING, SPARE_SHIPPED_TO_WAREHOUSE, _247AROUND, $ledger['booking_id']);
@@ -5481,6 +5505,9 @@ class Inventory extends CI_Controller {
                 if (!empty($val['spare_id'])) {
                     $data["spare_parts_details.wh_to_partner_defective_shipped_date"] = date('Y-m-d H:i:s');
                     $affected_id = $this->service_centers_model->update_spare_parts(array('id' => $val['spare_id']), $data);
+                    /* Insert Spare Tracking Details */
+                    $tracking_details = array('spare_id' => $val['spare_id'], 'action' => $data['status'], 'remarks' => '', 'agent_id' => $this->session->userdata("service_center_agent_id"), 'partner_id' => $val['booking_partner_id'], 'service_center_id' => $val['service_center_id']);
+                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
                     $agent_id = $this->session->userdata('service_center_agent_id');
                     $agent_name = $this->session->userdata('service_center_name');
                     $service_center_id = $this->session->userdata('service_center_id');
@@ -8075,10 +8102,10 @@ class Inventory extends CI_Controller {
 
         $post = $this->post_sale_purchage_invoice();
         $partner_id = trim($_POST['partner_id']);
-        $select = "invoice_details.invoice_id,invoice_details.inventory_id, date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'invoice_date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'invoice_type', part_number, "
+        $select = "invoice_details.id, invoice_details.invoice_id,invoice_details.inventory_id, date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'invoice_date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'invoice_type', part_number, "
                 . "invoice_details.description, invoice_details.hsn_code, invoice_details.qty,invoice_details.settle_qty, rate, invoice_details.taxable_value, (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS gst_rate,"
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS gst_tax_amount, total_amount, vendor_partner_invoices.type, entt_gst_dtl.gst_number,entity_gst_details.gst_number as to_gst_number,"
-                . "vendor_partner_invoices.sub_category,courier_details.AWB_no,courier_details.courier_name,date_format(courier_details.shipment_date, \"%d-%m-%Y %H:%i:%s\") as shipment_date";
+                . "vendor_partner_invoices.sub_category";
 
         $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
@@ -8167,9 +8194,9 @@ class Inventory extends CI_Controller {
         $row[] = $spare_list->gst_number;
         $row[] = $spare_list->to_gst_number;
         $row[] = $spare_list->sub_category;
-        $row[] = $spare_list->AWB_no;
-        $row[] = $spare_list->courier_name;
-        $row[] = $spare_list->shipment_date;
+//        $row[] = $spare_list->AWB_no;
+//        $row[] = $spare_list->courier_name;
+//        $row[] = $spare_list->shipment_date;
 
         return $row;
     }
