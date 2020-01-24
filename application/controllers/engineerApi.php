@@ -3156,7 +3156,7 @@ class engineerApi extends CI_Controller {
         $requestData = json_decode($this->jsonRequestData['qsh'], true);
         $missing_key = "";
         $check = true;
-        $validateKeys = array("booking_id", "partner_id", "service_id");
+        $validateKeys = array("booking_id", "partner_id", "service_id","primary_contact");  /*  for parent bookings */
         foreach ($validateKeys as $key) {
             if (!array_key_exists($key, $requestData)) {
                 $check = false;
@@ -3191,6 +3191,8 @@ class engineerApi extends CI_Controller {
             unset($booking_details['appliance_id']);
             unset($booking_details['c2c']);
             $response['booking_details'] = $booking_details;
+            /* Abhishek check for paarent bookings in repeat bookings */
+            $response['parents'] = $this->booking_model->get_posible_parent_booking_id($requestData['primary_contact'],$requestData['service_id'],$requestData['partner_id'],30);
 
             /** get model number and date of purchase if spare part already ordered * */
             $spare_details = $this->partner_model->get_spare_parts_by_any('spare_parts_details.model_number, spare_parts_details.date_of_purchase', array('booking_id' => $requestData["booking_id"]));
