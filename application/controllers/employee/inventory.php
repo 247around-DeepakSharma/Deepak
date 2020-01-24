@@ -8163,7 +8163,10 @@ function get_bom_list_by_inventory_id($inventory_id) {
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS gst_tax_amount, total_amount, vendor_partner_invoices.type, entt_gst_dtl.gst_number,entity_gst_details.gst_number as to_gst_number,"
                 . "vendor_partner_invoices.sub_category";
 
-        $post['column_search'] = array('invoice_details.invoice_id','invoice_details.description', 'entity_gst_details.gst_number', 'AWB_no',
+        $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
+
+        $post['column_search'] = array('invoice_details.invoice_id', 'invoice_details.description', 'entity_gst_details.gst_number',
+
             'courier_name', 'part_number');
         $list = $this->inventory_model->get_inventory_ledger_details_data_view($select, $where,$post);
 
