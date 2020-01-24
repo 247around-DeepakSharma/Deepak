@@ -419,19 +419,6 @@ class engineerApi extends CI_Controller {
             case 'usernotifications':
                 $this->getUserNotifications();
 
-/*   get partners active list */
-            case 'partnerslist':
-                $this->getActivepartnersList();   
-
-/*   get partner appliances */
-            case 'partnerAppliances':  
-                $this->getPartner_appliances();  ////getPartner_appliances
-
-
-/*   get partner appliances */
-            case 'partnerappliancesModels':  
-                $this->getPartnerAppliancesModels();  ////getPartner_appliances
-
             default:
                 break;
         }
@@ -3722,143 +3709,11 @@ class engineerApi extends CI_Controller {
         }
     }
 
-/*   Abhishek php This function is used to get the notifications of user in app */
+/*  This function is used to get the notifications of user in app */
     function _getUserNotifications($select,$where){
 
        return  $this->engineer_model->get_engg_notification_data($select,$where);
     }
-
-
-/* Abhishek  
-
-API for getting partner  list in APP
-
-*/
-    function getActivepartnersList(){
-
-        log_message("info", __METHOD__ . " Entering..in partners list");
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("mobile"), $requestData);
-        if ($validation['status']) {
-            $select = 'id,company_name,public_name';
-            $where =array(
-                'is_active'=>1
-            );
-            $response = $this->_partnersList($select,$where);
-            if (!empty($response)) {
-                log_message("info", __METHOD__ . "partners Found");
-                $this->jsonResponseString['response']['partners'] = $response;  /////response key according to umesh
-                $this->sendJsonResponse(array('0000', 'success'));
-            } else {
-                log_message("info", __METHOD__ . "partners not found");
-                $this->jsonResponseString['response']['partners'] = array();  ////response key according to umesh
-                $this->sendJsonResponse(array('0000', 'partners not found'));
-            }
-        } else {
-            log_message("info", __METHOD__ . $validation['message']);
-            $this->sendJsonResponse(array("0066", $validation['message']));
-        }
-
-    }
-
-    /*   Abhishek   This function is used to get partners list in app */
-    function _partnersList($select,$where){
-
-       return  $this->engineer_model->get_partnersList_data($select,$where);
-    }
-
-
-
-/* This  Abhishek php function is to get appliances of partner */
-
-
-    function getPartner_appliances(){
-
-        log_message("info", __METHOD__ . " Entering..in partners list");
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("partner_id"), $requestData);
-        if ($validation['status']) {
-            $select = 'services.id,services.services,partner_appliance_details.partner_id';
-            $where =array(
-                'partner_appliance_details.partner_id'=>$resquestdata['partner_id'],
-
-            );
-            $response = $this->_getPartner_appliances($select,$where);
-            if (!empty($response)) {
-                log_message("info", __METHOD__ . "partners Found");
-                $this->jsonResponseString['response']['partner_appliances'] = $response;  /////response key according to umesh
-                $this->sendJsonResponse(array('0000', 'success'));
-            } else {
-                log_message("info", __METHOD__ . "partners not found");
-                $this->jsonResponseString['response']['partner_appliances'] = array();  ////response key according to umesh
-                $this->sendJsonResponse(array('0000', 'partners not found'));
-            }
-        } else {
-            log_message("info", __METHOD__ . $validation['message']);
-            $this->sendJsonResponse(array("0066", $validation['message']));
-        }
-
-
-    }
-
-
-/*  Abhishek This function is to get appliances of partner */
-
-function _getPartner_appliances($select,$where){
-
-    return  $this->engineer_model->get_partner_appliances($select,$where);
-}
-
-
-/*  Abhishek php This function is to get appliances model of partner */
-
-function getPartnerAppliancesModels(){
-
-
-      log_message("info", __METHOD__ . " Entering..in partners list");
-        $requestData = json_decode($this->jsonRequestData['qsh'], true);
-        $validation = $this->validateKeys(array("partner_id"), $requestData);
-        if ($validation['status']) {
-             $select = 'appliance_model_details.id,appliance_model_details.service_id,appliance_model_details.model_number,appliance_model_details.entity_id';
-            $where =array(
-                'appliance_model_details.service_id'=>$requestData['service_id'],
-                'appliance_model_details.entity_id'=>$requestData['partner_id'],,
-                'appliance_model_details.active'=>1
-
-            );
-            $response = $this->getPartner_appliancesModels($select,$where);
-            if (!empty($response)) {
-                log_message("info", __METHOD__ . "partners Found");
-                $this->jsonResponseString['response']['partner_appliances_models'] = $response;  /////response key according to umesh
-                $this->sendJsonResponse(array('0000', 'success'));
-            } else {
-                log_message("info", __METHOD__ . "partners not found");
-                $this->jsonResponseString['response']['partner_appliances_models'] = array();  ////response key according to umesh
-                $this->sendJsonResponse(array('0000', 'partners not found'));
-            }
-        } else {
-            log_message("info", __METHOD__ . $validation['message']);
-            $this->sendJsonResponse(array("0066", $validation['message']));
-        }
-
-
-}
-
-/*  Abhishek  This is to get models of appliance  */ 
-
-function _getPartner_appliancesModels($select,$where){
-
-    return  $this->engineer_model->getPartner_appliancesModels($select,$where);
-
-}
-
-
-
-
-
-
-
-
 
 
 
