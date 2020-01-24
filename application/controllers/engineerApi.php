@@ -3822,7 +3822,7 @@ function getPartnerAppliancesModels(){
              $select = 'appliance_model_details.id,appliance_model_details.service_id,appliance_model_details.model_number,appliance_model_details.entity_id';
             $where =array(
                 'appliance_model_details.service_id'=>$requestData['service_id'],
-                'appliance_model_details.entity_id'=>$requestData['partner_id'],,
+                'appliance_model_details.entity_id'=>$requestData['partner_id'],
                 'appliance_model_details.active'=>1
 
             );
