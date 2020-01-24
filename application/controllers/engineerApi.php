@@ -3780,7 +3780,7 @@ API for getting partner  list in APP
         if ($validation['status']) {
             $select = 'services.id,services.services,partner_appliance_details.partner_id';
             $where =array(
-                'partner_appliance_details.partner_id'=>$resquestdata['partner_id'],
+                'partner_appliance_details.partner_id'=>$resquestdata['partner_id']  /// Resolve Fatal Error
 
             );
             $response = $this->_getPartner_appliances($select,$where);
@@ -3822,7 +3822,7 @@ function getPartnerAppliancesModels(){
              $select = 'appliance_model_details.id,appliance_model_details.service_id,appliance_model_details.model_number,appliance_model_details.entity_id';
             $where =array(
                 'appliance_model_details.service_id'=>$requestData['service_id'],
-                'appliance_model_details.entity_id'=>$requestData['partner_id'],,
+                'appliance_model_details.entity_id'=>$requestData['partner_id'],
                 'appliance_model_details.active'=>1
 
             );
