@@ -8102,10 +8102,10 @@ class Inventory extends CI_Controller {
 
         $post = $this->post_sale_purchage_invoice();
         $partner_id = trim($_POST['partner_id']);
-        $select = "invoice_details.invoice_id,invoice_details.inventory_id, date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'invoice_date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'invoice_type', part_number, "
+        $select = "invoice_details.id, invoice_details.invoice_id,invoice_details.inventory_id, date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'invoice_date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'invoice_type', part_number, "
                 . "invoice_details.description, invoice_details.hsn_code, invoice_details.qty,invoice_details.settle_qty, rate, invoice_details.taxable_value, (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS gst_rate,"
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS gst_tax_amount, total_amount, vendor_partner_invoices.type, entt_gst_dtl.gst_number,entity_gst_details.gst_number as to_gst_number,"
-                . "vendor_partner_invoices.sub_category,courier_details.AWB_no,courier_details.courier_name,date_format(courier_details.shipment_date, \"%d-%m-%Y %H:%i:%s\") as shipment_date";
+                . "vendor_partner_invoices.sub_category";
 
         $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 
@@ -8194,9 +8194,9 @@ class Inventory extends CI_Controller {
         $row[] = $spare_list->gst_number;
         $row[] = $spare_list->to_gst_number;
         $row[] = $spare_list->sub_category;
-        $row[] = $spare_list->AWB_no;
-        $row[] = $spare_list->courier_name;
-        $row[] = $spare_list->shipment_date;
+//        $row[] = $spare_list->AWB_no;
+//        $row[] = $spare_list->courier_name;
+//        $row[] = $spare_list->shipment_date;
 
         return $row;
     }
