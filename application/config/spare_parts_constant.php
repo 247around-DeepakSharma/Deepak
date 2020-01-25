@@ -170,3 +170,4 @@ define('OK_PART_BUT_NOT_USED_CONSUMPTION_STATUS_ID', '5');
 define('DAMAGE_PARTS_SHIPPED', 'Damage Part Shipped By SF');
 
 define('COURIER_LOST_APPROVED_STATUS', 'Courier Lost Approved');
+define('PART_CONSUMED_STATUS_ID', '1');

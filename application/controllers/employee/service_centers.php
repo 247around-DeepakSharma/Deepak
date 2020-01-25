@@ -6329,7 +6329,7 @@ class Service_centers extends CI_Controller {
      */
     function acknowledge_received_defective_parts($spare_id, $booking_id, $partner_id, $is_cron = "") {
         log_message('info', __FUNCTION__ . " SF ID: " . $this->session->userdata('service_center_id') . " Booking Id " . $booking_id);
-
+        $send_mail = 0;
         if (empty($is_cron)) {
             $this->check_WH_UserSession();
         }
@@ -6357,6 +6357,7 @@ class Service_centers extends CI_Controller {
             $spare_consumption_status_tag = $this->reusable_model->get_search_result_data('spare_consumption_status', '*', ['id' => $spare_part_detail['consumed_part_status_id']], NULL, NULL, NULL, NULL, NULL)[0];
             if (!empty($spare_part_detail['shipped_inventory_id']) && in_array($spare_consumption_status_tag['tag'], [PART_SHIPPED_BUT_NOT_USED_TAG, WRONG_PART_RECEIVED_TAG, DAMAGE_BROKEN_PART_RECEIVED_TAG])) {
                 //update inventory stocks
+                $send_mail = 1;
                 $is_entity_exist = $this->reusable_model->get_search_query('inventory_stocks', 'inventory_stocks.id', array('entity_id' => $this->session->userdata('service_center_id'), 'entity_type' => _247AROUND_SF_STRING, 'inventory_id' => $spare_part_detail['shipped_inventory_id']), NULL, NULL, NULL, NULL, NULL)->result_array();
                 if (!empty($is_entity_exist)) {
                     $stock = "stock + '" . $spare_part_detail['shipped_quantity'] . "'";
@@ -6458,6 +6459,37 @@ class Service_centers extends CI_Controller {
 //                $this->session->set_userdata($userSession);
 //                redirect(base_url() . "service_center/defective_spare_parts");
             }
+        }
+        
+        if($send_mail == 1)
+        {
+            //send mail
+            $this->send_mail_for_parts_received_by_warehouse($booking_id);
+        }
+    
+    }
+    
+    
+     /**
+     * @desc This function is send mail when warehouse receive parts from SF
+
+     */
+    function send_mail_for_parts_received_by_warehouse($booking_id) {
+        $email_template = $this->booking_model->get_booking_email_template(WAREHOUSE_RECEIVE_PART_FROM_SF);
+        $query = "SELECT spd.create_date, sc.name as service_centre_name, spd.parts_requested, spd.model_number,  spd.quantity, spd.invoice_pic, spd.remarks_by_sc as consumption_reason, case when il.sender_entity_type = 'vendor' then sc.name  else p.public_name end as shipped_by".
+                 " FROM booking_details as bd, spare_parts_details as spd, service_centres as sc, inventory_ledger as il, partners as p".
+                 " WHERE bd.booking_id = spd.booking_id and bd.assigned_vendor_id = sc.id and spd.booking_id = il.booking_id and p.id=bd.partner_id and bd.booking_id = ?";
+        $params = array($booking_id);
+        $results = execute_paramaterised_query($query, $params);
+        if (!empty($email_template) && $results) {
+
+            $to = $email_template[1];
+            $cc = $email_template[3];
+            $bcc = $email_template[4];
+            $subject = vsprintf($email_template[4], array());
+            $emailBody = vsprintf($email_template[0], array($booking_id, $results[0]['service_centre_name'], $results[0]['create_date'], $results[0]['shipped_by'], $results[0]['parts_requested'], $results[0]['model_number'], $results[0]['quantity'], $results[0]['consumption_reason'], '', $results[0]['invoice_pic']));
+
+            $this->notify->sendEmail($email_template[2], $to, $cc, $bcc, $subject, $emailBody, "", WAREHOUSE_RECEIVE_PART_FROM_SF, "", $booking_id);
         }
     }
 
@@ -6896,7 +6928,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "') AND spare_parts_details.is_micro_wh IN (1,2) AND spare_parts_details.awb_by_wh IS NULL AND spare_parts_details.consumed_part_status_id NOT IN (4,5) ";
+                    . " AND defective_part_required = '1' AND reverse_purchase_invoice_id IS NULL AND status IN ('" . _247AROUND_COMPLETED . "','" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "') AND spare_parts_details.is_micro_wh IN (1,2) AND spare_parts_details.awb_by_wh IS NULL AND spare_parts_details.consumed_part_status_id IN (".PART_CONSUMED_STATUS_ID.") ";
             $where .= " AND booking_details.partner_id = " . $partner_id;
 
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
@@ -6936,7 +6968,7 @@ class Service_centers extends CI_Controller {
             $data['filtered_partner'] = $this->input->post('partner_id');
             $sf_id = $this->session->userdata('service_center_id');
             $where = "spare_parts_details.defective_return_to_entity_id = '" . $sf_id . "' AND spare_parts_details.defective_return_to_entity_type = '" . _247AROUND_SF_STRING . "'"
-                    . "AND spare_parts_details.wh_to_partner_defective_shipped_date IS NULL AND defective_part_required = '1' AND status IN ('" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "','" . _247AROUND_COMPLETED . "') ";
+                    . "AND spare_parts_details.wh_to_partner_defective_shipped_date IS NULL AND defective_part_required = '1' AND status IN ('" . DEFECTIVE_PARTS_RECEIVED_BY_WAREHOUSE . "','" . _247AROUND_COMPLETED . "') AND spare_parts_details.consumed_part_status_id = ".PART_CONSUMED_STATUS_ID;
             $where .= " AND spare_parts_details.entity_type = '" . _247AROUND_PARTNER_STRING . "' AND booking_details.partner_id = " . $partner_id;
             $data['spare_parts'] = $this->partner_model->get_spare_parts_booking_list($where, $offset, '', true, 0, null, false, " ORDER BY status = spare_parts_details.booking_id ");
         } else {

@@ -3981,7 +3981,7 @@ function generate_image($base64, $image_name,$directory){
             if($booking_id){
                 $where['booking_details.booking_id'] = $booking_id;
             }
-            $where['booking_details.amount_due'] = 0;
+            //$where['booking_details.amount_due'] = 0;
             $where['service_center_booking_action.current_status'] = 'InProcess';
             $where['booking_details.is_in_process'] = 0;
             $tempData = $this->My_CI->partner_model->get_booking_review_data($where,$whereIN,$booking_id);
