@@ -8661,7 +8661,7 @@ class Partner extends CI_Controller {
        /*  Default case if somehow index does not come */
        if(!isset($postData['length']) || !isset($postData['start']) || empty($postData['length']) || empty($postData['start'])){
         $postData['length'] = 25;
-        $postData['start'] = 0
+        $postData['start'] = 0;
        }
 
        
