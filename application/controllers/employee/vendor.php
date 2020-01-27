@@ -391,7 +391,7 @@ class vendor extends CI_Controller {
         $logged_user_name = $this->employee_model->getemployeefromid($this->session->userdata('id'))[0]['full_name'];
         
         if(!empty($rm_id)) {
-            $managerData = $this->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups' => 'regionalmanager'));
+            $managerData = $this->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL));
         }
         if($this->input->post('id') !== null && !empty($this->input->post('id'))){
             $html = "<p>Following SF has been Updated :</p><ul>";
@@ -3157,7 +3157,7 @@ class vendor extends CI_Controller {
         $where = array('is_CP' => '0');
         $select = "*, (CASE WHEN service_centres.active = 1 THEN 'Active' ELSE 'In-Active' END) as active_status, (CASE WHEN service_centres.on_off = 1 THEN 'On' ELSE 'Off' END) as on_off_status";
         $whereIN = array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("id"=>explode(",",$serviceCenters));
@@ -3355,7 +3355,7 @@ class vendor extends CI_Controller {
         if($this->input->post()){
             $data = $this->input->post();   
         }
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $current_rm_id = $this->session->userdata('id');
         }
         if(array_key_exists("rm",$data)){
@@ -4215,7 +4215,7 @@ class vendor extends CI_Controller {
             $where = "";
             $option = '<option selected="" disabled="">Select Service Center</option>';
         }
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id') );
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN = array("id"=>explode(",",$serviceCenters));

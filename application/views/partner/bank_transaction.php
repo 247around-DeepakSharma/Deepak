@@ -24,7 +24,7 @@
                             <?php //foreach ($bank_statement as $value) { ?>
                                 <tr>
                                     <td><?php //echo $count; $count++;?></td>
-                                    <td><?php //echo date("jS M, Y", strtotime($value['transaction_date'])); ?></td>
+                                    <td><?php //echo date("d-M-Y", strtotime($value['transaction_date'])); ?></td>
                                     <td><?php //echo round($value['credit_amount'], 0);?></td>
                                     <td><?php //echo $value['invoice_id']; ?></td>
                                     <td><?php //echo $value['description']; ?></td>

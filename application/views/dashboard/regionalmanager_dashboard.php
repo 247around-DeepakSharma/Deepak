@@ -866,7 +866,7 @@ if($this->session->userdata("wrong_pincode_msg")){
                 <div class="x_content collapse" id="escalation_data_div">
 
                     <div class="table-responsive" id="escalation_data">
-                        <input type="text" id="session_id_holder" style="display:none;" value="<?php if ($this->session->userdata('user_group') == 'regionalmanager') {
+                        <input type="text" id="session_id_holder" style="display:none;" value="<?php if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             echo $this->session->userdata('id');
         } ?>">          
                         <button type="button"class="btn btn-default" style="float:right" data-toggle="tooltip"data-placement="left"title="To calculate escalation percentage, logic use current months booking and current month escalation ">?</button>

@@ -418,7 +418,7 @@ class User extends CI_Controller {
      * @Desc: This function is used to process rm state mapping form
      * @parmas: POST Array
      * @return: void
-     * @assumption funtion to be called by employee where group is regionalmanager
+     * @assumption funtion to be called by employee where group is regionalmanager or areasalesmanager
      * @Developer: Pranjal
      * @Date: 8/22/2019
      */
@@ -600,7 +600,7 @@ class User extends CI_Controller {
         
         //add a blank row in employee_relation only when user is regional manager
         //code updated dt: 8/21/2019 by PB
-        if($data1['groups'] == 'regionalmanager'){
+        if(($data1['groups'] == _247AROUND_RM) || ($data1['groups'] == _247AROUND_ASM)){
             
             //add in relation table if not exist
             $this->employee_model->chk_entry_in_employee_relation($id);
@@ -622,7 +622,7 @@ class User extends CI_Controller {
         
         $this->session->set_userdata('success','Employee Added Successfully.');
         
-        if($data1['groups'] == 'regionalmanager'){
+        if(($data1['groups'] == _247AROUND_RM) || ($data1['groups'] == _247AROUND_ASM)){
             redirect(base_url() . "employee/user/rm_state_mapping/".$id);
         }else {
              redirect(base_url() . "employee/user/show_employee_list");

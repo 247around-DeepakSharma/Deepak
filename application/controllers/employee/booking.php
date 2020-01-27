@@ -2193,7 +2193,7 @@ class Booking extends CI_Controller {
      */
     function review_bookings($booking_id = "") {
         $whereIN = $where = $join = array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             if (!empty($sf_list)) {
                 $serviceCenters = $sf_list[0]['service_centres_id'];
@@ -3474,7 +3474,7 @@ class Booking extends CI_Controller {
         else {
             $data['state'] = $this->booking_model->get_advance_search_result_data("state_code","DISTINCT(state)",NULL,NULL,NULL,array('state'=>'ASC'));
         }
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
             $vendorWhere['employee_relation.agent_id'] = $rm_id;
             $vendorJoin['employee_relation'] = "FIND_IN_SET(service_centres.id,employee_relation.service_centres_id)";
@@ -3488,7 +3488,7 @@ class Booking extends CI_Controller {
         $data['status'] = $status;
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if($status == _247AROUND_PENDING){
-            $data['rm'] = $this->reusable_model->get_search_result_data("employee","employee.id,employee.full_name",array("groups"=>"regionalmanager"),NULL,NULL,array("full_name"=>"ASC"),NULL,array());
+            $data['rm'] = $this->reusable_model->get_search_result_data("employee","employee.id,employee.full_name",array("groups IN ('"._247AROUND_RM."','"._247AROUND_ASM."')"=>NULL),NULL,NULL,array("full_name"=>"ASC"),NULL,array());
         
             echo $this->load->view('employee/pending_booking_filter_page', $data, TRUE);
         } else {
@@ -3508,7 +3508,7 @@ class Booking extends CI_Controller {
         //RM Specific Bookings
          $sfIDArray =array();
          $partnerArray = array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
             $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
@@ -3545,10 +3545,10 @@ class Booking extends CI_Controller {
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
-            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
-            STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
+            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+            STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y') as initial_booking_date_as_dateformat, (CASE WHEN spare_parts_details.booking_id IS NULL THEN 'no_spare' ELSE
             MIN(DATEDIFF(CURRENT_TIMESTAMP , spare_parts_details.acknowledge_date)) END) as spare_age,
-            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state,
+            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as booking_age,service_centres.state,
             service_center_booking_action.current_status as service_center_current_status";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray,0,'Spare');
          }
@@ -3556,9 +3556,9 @@ class Booking extends CI_Controller {
              $select = "services.services,users.name as customername,penalty_on_booking.active as penalty_active, booking_files.file_name as booking_files_bookings,
             users.phone_number, booking_details.*,service_centres.name as service_centre_name,
             service_centres.district as city, service_centres.primary_contact_name,booking_unit_details.appliance_brand,DATE_FORMAT(STR_TO_DATE(booking_details.booking_date, '%d-%m-%Y'), '%d-%b-%Y') as booking_date,
-            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
-            STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,
-            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age,service_centres.state,
+            service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+            STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y') as initial_booking_date_as_dateformat,
+            DATEDIFF(CURRENT_TIMESTAMP , STR_TO_DATE(booking_details.initial_booking_date, '%d-%b-%Y')) as booking_age,service_centres.state,
             service_center_booking_action.current_status as service_center_current_status";
             $list = $this->booking_model->get_bookings_by_status($new_post,$select,$sfIDArray);
          }
@@ -3659,7 +3659,7 @@ class Booking extends CI_Controller {
                         }
                     }
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
-                if(($this->session->userdata('is_am') == '1') || $this->session->userdata('user_group') == 'regionalmanager'){
+                if(($this->session->userdata('is_am') == '1') || ($this->session->userdata('user_group') == _247AROUND_RM) || ($this->session->userdata('user_group') == _247AROUND_ASM)){
                     $post['where']  = array("(booking_details.current_status = '"._247AROUND_RESCHEDULED."' OR (booking_details.current_status = '"._247AROUND_PENDING."' ))"=>NULL,
                         "service_center_closed_date IS NULL"=>NULL);
                     $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
@@ -4072,7 +4072,7 @@ class Booking extends CI_Controller {
         $select = "booking_details.booking_id,bookings_sources.source,booking_details.city,service_centres.company_name,services.services,booking_unit_details.appliance_brand,"
                 . "booking_unit_details.appliance_category,booking_unit_details.appliance_capacity,booking_details.request_type,booking_unit_details.product_or_services,booking_details."
                 . "current_status,booking_details.internal_status, emp_asm.full_name as asm_name,emp_rm.full_name as rm_name,emp_am.full_name as am_name,spare_parts_details.parts_requested,requested_inventory.part_number as requested_part_number,"
-                . "spare_parts_details.parts_shipped,shipped_inventory.part_number as shipped_part_number,DATE_FORMAT(STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d'), '%d-%m-%Y') as parts_shipped_date,booking_details.actor as Dependency";
+                . "spare_parts_details.parts_shipped,shipped_inventory.part_number as shipped_part_number,DATE_FORMAT(STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d'), '%d-%b-%Y') as parts_shipped_date,booking_details.actor as Dependency";
         $select_explode=explode(',',$select);
         array_unshift($select_explode,"s.no");
         $data = $this->get_advance_search_result_data($receieved_Data,$select,$select_explode);
@@ -4123,8 +4123,8 @@ class Booking extends CI_Controller {
                 . "current_status,booking_details.internal_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
                 . "booking_details.booking_primary_contact_no,booking_details.booking_date,booking_details.initial_booking_date, "
-                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as age_of_booking, "
-                ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as TAT, "
+                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y')) ELSE '' END) as age_of_booking, "
+                ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y')) ELSE '' END) as TAT, "
                 . "booking_details.booking_timeslot,booking_details.booking_remarks,"
                 . "booking_details.query_remarks,booking_details.cancellation_reason,"
                 . "booking_details.reschedule_reason,service_centres.name,booking_details.rating_stars,booking_details.rating_comments,"
@@ -4134,7 +4134,7 @@ class Booking extends CI_Controller {
                 . "booking_details.service_center_closed_date as service_center_closed_date, "
                 . "booking_details.closed_date as 247around_closed_date, "
                 . "emp_asm.full_name as asm_name,emp_rm.full_name as rm_name,emp_am.full_name as am_name,spare_parts_details.parts_requested,requested_inventory.part_number as requested_part_number,"
-                . "spare_parts_details.parts_shipped,shipped_inventory.part_number as shipped_part_number,DATE_FORMAT(STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d'), '%d-%m-%Y') as parts_shipped_date,booking_details.actor as Dependency";
+                . "spare_parts_details.parts_shipped,shipped_inventory.part_number as shipped_part_number,DATE_FORMAT(STR_TO_DATE(spare_parts_details.shipped_date, '%Y-%m-%d'), '%d-%b-%Y') as parts_shipped_date,booking_details.actor as Dependency";
          
        if($is_not_empty){
                 $receieved_Data['length'] = -1;
@@ -4760,8 +4760,8 @@ class Booking extends CI_Controller {
                 . "current_status,booking_details.order_id,booking_details.type,booking_details.partner_source,booking_details.partner_current_status,booking_details.partner_internal_status,"
                 . "booking_details.booking_address,booking_details.booking_pincode,booking_details.district,booking_details.state,"
                 . "booking_details.booking_primary_contact_no,booking_details.booking_date,booking_details.initial_booking_date,"
-                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as age_of_booking,"
-                ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y')) ELSE '' END) as TAT, "
+                ."(CASE WHEN current_status  IN ('"._247AROUND_PENDING."','"._247AROUND_RESCHEDULED."','"._247AROUND_FOLLOWUP."') THEN DATEDIFF(CURDATE(),STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y')) ELSE '' END) as age_of_booking,"
+                ."(CASE WHEN current_status  IN('Completed','Cancelled') THEN DATEDIFF(date(booking_details.service_center_closed_date),STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y')) ELSE '' END) as TAT, "
                 . " booking_details.booking_timeslot,booking_details.booking_remarks,"
                 . "booking_details.query_remarks,booking_details.cancellation_reason,"
                 . "booking_details.reschedule_reason,service_centres.name,booking_details.vendor_rating_stars,booking_details.vendor_rating_comments,"
@@ -5276,7 +5276,7 @@ class Booking extends CI_Controller {
         //RM Specific Bookings
          $sfIDArray =array();
          $partnerArray = array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
             $rmServiceCentersData=  $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
@@ -5309,8 +5309,8 @@ class Booking extends CI_Controller {
             services.services,penalty_on_booking.active as penalty_active,users.phone_number,booking_details.order_id,booking_details.request_type,booking_details.internal_status,
             booking_details.booking_address,booking_details.booking_pincode,booking_details.booking_timeslot,
             booking_details.booking_remarks,service_centres.name as service_centre_name, engineer_details.name as engineer_name, booking_details.is_upcountry, service_centres.primary_contact_name,
-             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,
-             booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as  initial_booking_date";
+             service_centres.primary_contact_phone_1,STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y') as booking_day,booking_details.create_date,
+             booking_details.partner_internal_status,STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y') as  initial_booking_date";
             
             $list =  $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray,1); 
         }
@@ -5321,8 +5321,8 @@ class Booking extends CI_Controller {
                     . "services.services, service_centres.name as service_centre_name, "
                     . "service_centres.district as city, service_centres.primary_contact_name,"
                     . " service_centres.primary_contact_phone_1,
-                       STR_TO_DATE(booking_details.booking_date,'%d-%m-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
-                       STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , 
+                       STR_TO_DATE(booking_details.booking_date,'%d-%b-%Y') as booking_day,booking_details.create_date,booking_details.partner_internal_status,
+                       STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y') as initial_booking_date_as_dateformat,DATEDIFF(CURRENT_TIMESTAMP , 
                        STR_TO_DATE(booking_details.initial_booking_date, '%d-%m-%Y')) as booking_age";
             
             $list = $this->booking_model->get_bookings_by_status($post,$select,$sfIDArray, 2); 
@@ -5418,7 +5418,7 @@ class Booking extends CI_Controller {
     }
     function review_rescheduled_bookings($is_tab = 0){
       $whereIN = $where = $join = array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
@@ -5442,7 +5442,7 @@ class Booking extends CI_Controller {
         if(!$booking_id) {
             $booking_id  = NULL;
         }
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
@@ -5536,7 +5536,7 @@ class Booking extends CI_Controller {
         $is_partner = $post_data['is_partner'];
         $whereIN = $having = [];
         
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));

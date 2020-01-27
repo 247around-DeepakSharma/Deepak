@@ -173,12 +173,14 @@
                             <th>Partner Status </th>
                             <td><?php echo $booking_history[0]['partner_internal_status']; ?></td>
                         </tr>
+                        <tr>
+                            <th>Initial Booking Date </th>
+                            <td style="max-width: 330px;"><?php echo $this->miscelleneous->get_formatted_date($booking_history[0]['initial_booking_date']); ?></td>                        
                         <?php if($booking_history[0]['internal_status'] != 'Completed') {?>
-                         <tr>
                             <th> Actor / Action </th>
                             <td><?php echo $booking_history[0]['actor']." / ".$booking_history[0]['next_action']; ?></td>
-                        </tr>
                         <?php } ?>
+                        </tr>
                         <tr>
                             <th>Booking Create / Closed Dated </th>
                             <td><?php if(!empty($booking_history[0]['closed_date'])){ echo $this->miscelleneous->get_formatted_date($booking_history[0]['create_date']).
