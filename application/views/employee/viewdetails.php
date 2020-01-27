@@ -44,6 +44,13 @@
     z-index: 999999;
     background: url('<?php echo base_url();  ?>images/loading_new.gif') 50% 50% no-repeat rgba(249,249,249,0.80);
   }
+  body {
+    background-color: #fff;
+  }
+
+  table {
+      background-color: #f8f8f8;
+  }
 </style>
  <div class="loader hide"></div>
 <div class="page-wrapper" style="margin-top:35px;">
