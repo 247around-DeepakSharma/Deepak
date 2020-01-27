@@ -350,7 +350,7 @@ function get_qr_code_response($booking_id, $amount_due, $pocNumber, $user_id, $u
 
         $getbooking = $this->My_CI->booking_model->getbooking_history($booking_id,"join");
 
-        if (!empty($getbooking)) {
+        if (!empty($getbooking) && !empty($getbooking[0]['booking_id'])) {
             $date1 = date('d-m-Y', strtotime('now'));
             $date2 = $getbooking[0]['booking_date'];
             $datetime1 = date_create($date1);
