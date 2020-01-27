@@ -1753,3 +1753,7 @@ ALTER TABLE `spare_state_change_tracker` ADD `create_date` DATETIME NOT NULL DEF
 --Ankit Bhatt 2020-01-21
  insert into header_navigation(entity_type, title, link, level, parent_ids, groups, nav_type, is_active, create_date)
 values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
+
+--Ankit Bhatt 2020-01-22
+insert into `email_template`(tag, subject, template, cc, bcc, active)
+values('parts_received_by_warehouse','Parts Received By Warehouse', 'Parts Received By Warehouse:<br>Booking Id : %s <br>SF: %s <br>Receive Date : %s <br>Shipped By : %s <br>Part Name : %s <br>Part Number : %s <br>Quantity : %s <br>Consumption Reason : %s <br>Warehouse : %s <br>Image Link : %s <br>Thanks!!', 'ankitb@247around.com', 'ankitb@247around.com', '','', 1);

@@ -2830,7 +2830,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = invoice_details.from_gst_number','left');
         $this->db->join('entity_gst_details', 'entity_gst_details.id = invoice_details.to_gst_number','left');
         $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = invoice_details.inventory_id');
-        $this->db->join('courier_details', 'inventory_ledger.courier_id = courier_details.id','left');
+        //$this->db->join('courier_details', 'inventory_ledger.courier_id = courier_details.id','left');
 
         if (!empty($post['search']['value'])) {
              $like = "";
@@ -2876,7 +2876,7 @@ class Inventory_model extends CI_Model {
         $this->db->join('entity_gst_details As entt_gst_dtl', 'entt_gst_dtl.id = invoice_details.from_gst_number','left');
         $this->db->join('entity_gst_details', 'entity_gst_details.id = invoice_details.to_gst_number','left');
         $this->db->join('inventory_master_list', 'inventory_master_list.inventory_id = invoice_details.inventory_id');
-        $this->db->join('courier_details', 'inventory_ledger.courier_id = courier_details.id','left');
+        //$this->db->join('courier_details', 'inventory_ledger.courier_id = courier_details.id','left');
 
 
         if (!empty($post['search']['value'])) {
