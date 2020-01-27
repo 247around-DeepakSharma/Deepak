@@ -205,7 +205,7 @@ class Inventory extends CI_Controller {
         //Getting ID of logged in user
         $id = $this->session->userdata('id');
         //Getting employee relation if present
-        if ($this->session->userdata('user_group') == 'regionalmanager') {
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list_array = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list_array)) {
                 $sf_list = $sf_list_array[0]['service_centres_id'];
@@ -1555,7 +1555,7 @@ class Inventory extends CI_Controller {
         $where['where'] = array("booking_details.booking_id" => $booking_id);
         //RM Specific Bookings
         $sfIDArray = array();
-        if ($this->session->userdata('user_group') == 'regionalmanager') {
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
             $rmServiceCentersData = $this->reusable_model->get_search_result_data("employee_relation", "service_centres_id", array("agent_id" => $rm_id), NULL, NULL, NULL, NULL, NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
@@ -2393,7 +2393,7 @@ class Inventory extends CI_Controller {
 
         //RM Specific stocks
         $sfIDArray = array();
-        if ($this->session->userdata('user_group') == 'regionalmanager') {
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
             $rmServiceCentersData = $this->reusable_model->get_search_result_data("employee_relation", "service_centres_id", array("agent_id" => $rm_id), NULL, NULL, NULL, NULL, NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
@@ -3101,15 +3101,6 @@ class Inventory extends CI_Controller {
             }
             $select = "inventory_master_list.*,inventory_stocks.stock,inventory_stocks.pending_request_count,services.services,inventory_stocks.entity_id as receiver_entity_id,inventory_stocks.entity_type as receiver_entity_type";
 
-            //RM Specific stocks
-//            $sfIDArray =array();
-//            if($this->session->userdata('user_group') == 'regionalmanager'){
-//                $rm_id = $this->session->userdata('id');
-//                $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
-//                $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
-//                $sfIDArray = explode(",",$sfIDList);
-//            }
-
             $list = $this->inventory_model->get_inventory_stock_list($post, $select);
             $data = array();
             $no = $post['start'];
@@ -3213,7 +3204,7 @@ class Inventory extends CI_Controller {
 
         //RM Specific stocks
         $sfIDArray = array();
-        if ($this->session->userdata('user_group') == 'regionalmanager') {
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
             $rmServiceCentersData = $this->reusable_model->get_search_result_data("employee_relation", "service_centres_id", array("agent_id" => $rm_id), NULL, NULL, NULL, NULL, NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];

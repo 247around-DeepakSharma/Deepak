@@ -1609,7 +1609,7 @@ class Miscelleneous {
         $booking['service'] = NULL;
         
         if(!empty($rm_id)) {
-            $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups' => 'regionalmanager'));
+            $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $rm_id, 'employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL));
             
             if(!empty($managerData)) {
                 $cc .= $managerData[0]['official_email'];
@@ -3242,7 +3242,7 @@ function generate_image($base64, $image_name,$directory){
             
             $amEmail = $this->My_CI->reusable_model->get_search_result_data("booking_details","group_concat(distinct employee.official_email) as official_email",$where,$partnerJoin,NULL,NULL,NULL,NULL,array());
             if(!empty($bookingData[0]['emp_id'])) {
-                $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $bookingData[0]['emp_id'], 'employee.groups' => 'regionalmanager'));
+                $managerData = $this->My_CI->employee_model->getemployeeManagerDetails("employee.*",array('employee_hierarchy_mapping.employee_id' => $bookingData[0]['emp_id'], 'employee.groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL));
             }
             
             $template = $this->My_CI->booking_model->get_booking_email_template(BAD_RATING);
@@ -5038,4 +5038,24 @@ function generate_image($base64, $image_name,$directory){
         }
     }
     
+    /**
+     * @desc : This funtion is used to get all junior employees associated with given employee
+     * @param : employee id
+     * @return : array
+     * @author : Prity Sharma
+     * @date  : 22-01-2020
+    */
+    function get_child_managers($emp_id){
+        $arr_emp = [$emp_id];
+        $count = 0;
+        $emp_data = $this->My_CI->employee_model->getemployeeManagerfromid(array("manager_id IN ($emp_id)" => NULL));
+        // count condition is used to avoid infinite loop in some corrupted case
+        while(!empty($emp_data) && $count < 50){
+            $count++;
+            $emp_ids = array_column($emp_data, 'employee_id');
+            $arr_emp = array_merge($arr_emp, $emp_ids);
+            $emp_data = $this->My_CI->employee_model->getemployeeManagerfromid(array("manager_id IN (".implode(',', $emp_ids).")" => NULL));
+        }
+        return $arr_emp;
+    }
 }

@@ -16,7 +16,7 @@ select { width: 8.5em;height:2em; }
             </select>
             </div>
             <?php
-           if($this->session->userdata('user_group') != 'regionalmanager'){
+           if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             ?>
             <div class='col-md-4 form-group'>
             <select name='rm' id='rm'>
