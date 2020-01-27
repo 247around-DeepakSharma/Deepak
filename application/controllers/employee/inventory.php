@@ -1571,7 +1571,7 @@ class Inventory extends CI_Controller {
         $data['capacity'] = $unit_details[0]['appliance_capacity'];
         $data['remarks'] = $this->input->post("estimate_remarks");
         $data['order_id'] = $booking_details[0]->order_id;
-        $data['date'] = date("jS M, Y");
+        $data['date'] = date("d-M-Y");
         $data['company_name'] = $partner_data[0]['company_name'];
         $data['company_address'] = $partner_data[0]['address'] . ", " . $partner_data[0]['district'] . ", Pincode " . $partner_data[0]['state'];
 
@@ -8093,7 +8093,7 @@ class Inventory extends CI_Controller {
 
         $post = $this->post_sale_purchage_invoice();
         $partner_id = trim($_POST['partner_id']);
-        $select = "invoice_details.id, invoice_details.invoice_id,invoice_details.inventory_id, date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'invoice_date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'invoice_type', part_number, "
+        $select = "invoice_details.id, invoice_details.invoice_id,invoice_details.inventory_id, date_format(vendor_partner_invoices.invoice_date, \"%d-%b-%Y %h:%i:%s\") AS 'invoice_date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'invoice_type', part_number, "
                 . "invoice_details.description, invoice_details.hsn_code, invoice_details.qty,invoice_details.settle_qty, rate, invoice_details.taxable_value, (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS gst_rate,"
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS gst_tax_amount, total_amount, vendor_partner_invoices.type, entt_gst_dtl.gst_number,entity_gst_details.gst_number as to_gst_number,"
                 . "vendor_partner_invoices.sub_category";
@@ -8202,10 +8202,10 @@ class Inventory extends CI_Controller {
 
         $partner_id = $this->input->post('partner_id');
 
-        $select = "invoice_details.invoice_id AS 'Invoice Id', date_format(vendor_partner_invoices.invoice_date, \"%d-%m-%Y %h:%i:%s\") AS 'Invoice Date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', part_number AS 'Part Number', "
+        $select = "invoice_details.invoice_id AS 'Invoice Id', date_format(vendor_partner_invoices.invoice_date, \"%d-%b-%Y %h:%i:%s\") AS 'Invoice Date', case when (type_code = 'B') THEN 'Purchase Invoice' ELSE 'Sale Invoice' END AS 'Invoice Type', part_number AS 'Part Number', "
                 . "invoice_details.description AS 'Description', invoice_details.hsn_code AS 'HSN Code', invoice_details.qty AS 'Quantity',invoice_details.settle_qty AS 'Settled Quantity', rate AS 'Rate', invoice_details.taxable_value AS 'Taxable Value', (invoice_details.cgst_tax_rate + invoice_details.igst_tax_rate + invoice_details.sgst_tax_rate) AS 'GST Rate',"
                 . " (invoice_details.cgst_tax_amount + invoice_details.igst_tax_amount + invoice_details.sgst_tax_amount) AS 'GST Tax Amount', total_amount AS 'Total Amount', vendor_partner_invoices.type AS Type, entt_gst_dtl.gst_number AS 'From GST Number',entity_gst_details.gst_number AS 'To GST Number',"
-                . "vendor_partner_invoices.sub_category AS 'Sub Category',courier_details.AWB_no AS 'Awb_Number',courier_details.courier_name AS 'Courier Name',date_format(courier_details.shipment_date, \"%d-%m-%Y %H:%i:%s\") AS 'Shipment Date'";
+                . "vendor_partner_invoices.sub_category AS 'Sub Category',courier_details.AWB_no AS 'Awb_Number',courier_details.courier_name AS 'Courier Name',date_format(courier_details.shipment_date, \"%d-%b-%Y %H:%i:%s\") AS 'Shipment Date'";
 
         $where = array("sub_category IN ('" . MSL_DEFECTIVE_RETURN . "', '" . IN_WARRANTY . "', '" . MSL . "', '" . MSL_NEW_PART_RETURN . "')" => NULL, "vendor_partner_invoices.vendor_partner_id" => $partner_id);
 

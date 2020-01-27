@@ -1403,7 +1403,7 @@ FROM booking_unit_details JOIN booking_details ON  booking_details.booking_id = 
         }else{
             $this->db->select("invoice_id");
             $this->db->select("type");
-            $this->db->select("DATE_FORMAT(invoice_date,'%d-%m-%Y' ) as 'invoice_date'");
+            $this->db->select("DATE_FORMAT(invoice_date,'%d-%b-%Y' ) as 'invoice_date'");
             $this->db->select("parts_count");
             $this->db->select("vertical");
             $this->db->select("category");

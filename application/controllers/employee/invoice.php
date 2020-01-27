@@ -212,8 +212,8 @@ class Invoice extends CI_Controller {
             else{
                 $email_template = $this->booking_model->get_booking_email_template("resend_invoice"); 
                 $email_template_name = "resend_invoice";
-                $subject = vsprintf($email_template[4], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
-                $message = vsprintf($email_template[0], array(date("jS M, Y", strtotime($start_date)), date("jS M, Y", strtotime($end_date))));
+                $subject = vsprintf($email_template[4], array(date("d-M-Y", strtotime($start_date)), date("d-M-Y", strtotime($end_date))));
+                $message = vsprintf($email_template[0], array(date("d-M-Y", strtotime($start_date)), date("d-M-Y", strtotime($end_date))));
             }
             // download invoice pdf file to local machine
             if ($vendor_partner == "vendor") {

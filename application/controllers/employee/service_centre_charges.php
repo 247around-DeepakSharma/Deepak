@@ -1453,8 +1453,9 @@ class service_centre_charges extends CI_Controller {
                         
                         $email_template = $this->booking_model->get_booking_email_template(MISC_CHARGES_DETAILS_ON_EMAIL);
                         if(!empty($email_template)){
-                            $to = $email_template[1]. ", ".$this->session->userdata('official_email');
-                            $cc = $email_template[3];
+
+                            
+                            $to = $email_template[1]. ", ".$this->session->userdata('official_email'). ", ". $this->employee_model->getemployeeManagerDetails("employee.official_email",array('employee_hierarchy_mapping.employee_id' => $this->session->userdata('employee_id')))[0][0];
                             $subject = vsprintf($email_template[4], array($booking_id));
                             $bcc = $email_template[5];
                             $agent_id = $this->session->userdata('emp_name');
