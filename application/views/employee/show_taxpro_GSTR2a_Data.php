@@ -92,6 +92,18 @@
             <div class="clear"></div>
             <div class="panel-body">
                 <div class="col-md-12 ">
+                    <div class="row">
+                        <div class="form-inline">
+                            <div class="form-group col-md-3">
+                                <select class="form-control" id="state" name="state">
+                                    <option value="1">Delhi</option>
+                                    <option value="2">Uttar Pradesh</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-success col-md-2" id="get_gst_data">Submit</button>
+                        </div>
+                    </div>
+                    <br>
                     <div id="container_1" class="form_container">
                         <input type="hidden" id="entity_type" value="vendor">
                         <table id="GSTR2a_table" class="table table-striped table-bordered" style="width:100%">
@@ -216,6 +228,7 @@
                 "type": "POST",
                 data: function(d){
                     d.entity = $("#entity_type").val();
+                    d.state = $("#state").val();
                 }
             },
             "columnDefs": [
@@ -374,5 +387,16 @@
             $(select).closest("tr").find("button").attr("disabled", true);
         }
     }
+    
+    
+    //function to get gst data on basis of filter
+     $('#get_gst_data').on('click',function(){
+        var state_id = $('#state').val();
+        if(state_id && state_id > 0){
+        GSTR2a_datatable.ajax.reload(null, false);
+        }else{
+            alert("Please Select State");
+        }
+    });
  
 </script>

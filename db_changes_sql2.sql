@@ -1757,3 +1757,7 @@ values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list'
 --Ankit Bhatt 2020-01-22
 insert into `email_template`(tag, subject, template, cc, bcc, active)
 values('parts_received_by_warehouse','Parts Received By Warehouse', 'Parts Received By Warehouse:<br>Booking Id : %s <br>SF: %s <br>Receive Date : %s <br>Shipped By : %s <br>Part Name : %s <br>Part Number : %s <br>Quantity : %s <br>Consumption Reason : %s <br>Warehouse : %s <br>Image Link : %s <br>Thanks!!', 'ankitb@247around.com', 'ankitb@247around.com', '','', 1);
+
+--Ankit Bhatt 2020-01-27
+ALTER TABLE taxpro_gstr2a_data ADD COLUMN state_gstin varchar(30);
+update taxpro_gstr2a_data set state_gstin = '07AAFCB1281J1ZQ' where state_gstin ='';
