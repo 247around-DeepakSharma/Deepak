@@ -415,17 +415,21 @@ class engineerApi extends CI_Controller {
 
             case 'todaysSlotBookings':
                 $this->getTodaysSlotBookings();
+                break;
 /*   get users notification on phone number */
             case 'usernotifications':
                 $this->getUserNotifications();
+                break;
 
 /*   get partners active list */
             case 'partners':
-                $this->getActivepartnersList();   
+                $this->getActivepartnersList(); 
+                break;  
 
 /*   get partner appliances */
             case 'partnerAppliances':  
                 $this->getPartner_appliances();  ////getPartner_appliances
+                break;
 
 
 /*   get partner appliances */
