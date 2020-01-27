@@ -757,7 +757,7 @@ class Miscelleneous {
                     //service center booking action table as well.
                     log_message('info', __FUNCTION__ . " Request to delete booking from service center action table Booking ID" . $booking_id);
                     $this->My_CI->service_centers_model->delete_booking_id($booking_id);
-                    if (!empty($data[0]['isEngineerApp']) && ($data[0]['isEngineerApp'] == 1)) {
+                    if (!empty($data[0]) && !empty($data[0]['isEngineerApp']) && ($data[0]['isEngineerApp'] == 1)) {
                         $this->My_CI->engineer_model->delete_booking_from_engineer_table($booking_id);
                     }
                     log_message('info', __FUNCTION__ . " Booking Not Assign-  Booking Id  " . print_r($booking_id, true));
