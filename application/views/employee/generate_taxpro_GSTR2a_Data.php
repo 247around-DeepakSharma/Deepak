@@ -31,6 +31,21 @@
                             </div>
                             <div class="col-md-4"></div>
                         </div>
+                        <div class="col-md-12">
+                            <div class="col-md-4"></div>
+                            <div class="col-md-4">
+                                <div  class="form-group">
+                                    <label  for="state" class="col-md-4" style="text-align: right;">Select State *</label>
+                                    <div class="col-md-6">
+                                        <select id="state" class="state form-control" name ="state">
+                                            <option value="1">Delhi</option>
+                                            <option value="2">Uttar Pradesh</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4"></div>
+                        </div>
                         <div class="form-group col-md-12">
                             <div class="col-md-4"></div>
                             <div class="col-md-4 form-group">
@@ -58,6 +73,7 @@
     $(document).ready(function(){
         $("#success_msg_div").hide();
         $("#error_msg_div").hide();
+        $("#state").select2();
     });
     
     function generate_otp(){
@@ -99,7 +115,7 @@
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/accounting/generate_taxpro_auth_token',
-                data: {otp:$("#otp").val()},
+                data: {otp:$("#otp").val(), state:$("#state").val()},
                 beforeSend: function(){
                     $('body').loadingModal({
                     position: 'auto',
@@ -111,7 +127,6 @@
                     });
                 },
                 success: function (data) {
-                    // console.log(data);
                     if(data == "success"){
                         $("#success_msg").text("GSTR2a data updated successfully.");
                         $("#success_msg_div").show();

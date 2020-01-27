@@ -1784,3 +1784,7 @@ SELECT * FROM `employee` WHERE full_name like '%sankara%'; -- 10146
 
 update `employee` set groups = 'areasalesmanager' where groups = 'regionalmanager';
 update `employee` set groups = 'regionalmanager' where id IN  (36,24,38,10146);
+
+--Ankit Bhatt 2020-01-27
+ALTER TABLE taxpro_gstr2a_data ADD COLUMN state_gstin varchar(30);
+update taxpro_gstr2a_data set state_gstin = '07AAFCB1281J1ZQ' where state_gstin ='';
