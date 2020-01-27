@@ -934,8 +934,15 @@
                     <?php foreach($unit_details as $unit){?>
                     <tr>
                         <td><?php echo $unit["price_tags"];?></td>
-                        <td><?php if($unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
-                        <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
+                        No";} ?></td>
+<!--- Abhishek if en_is_broken  is not available check -->
+                        <td><?php if(isset($unit['en_is_broken'])  && $unit['en_is_broken'] ==1){ echo "Yes"; } else { echo "No";} ?></td>
+<!--- Abhishek if serial number pic and serial number is not available check -->
+                        <?php if(isset($unit['en_serial_number_pic']) && $unit['en_serial_number'] && !empty($unit['en_serial_number']) && !empty($unit['en_serial_number_pic'])){ ?>
+                            <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/<?php echo SERIAL_NUMBER_PIC_DIR;?>/<?php echo $unit['en_serial_number_pic'];?>" target="_blank"><?php  echo $unit['en_serial_number']; ?></a></td>
+                       <?php  }else{ ?>
+                        <td> - </td>
+                        <?php }  ?>
                         
                         <td><?php  echo $unit['en_current_status']." / ".$unit['en_internal_status']; ?></td>
                     </tr>
