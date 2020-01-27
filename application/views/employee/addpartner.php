@@ -2517,7 +2517,7 @@
                                                     </a>
 
                                                 </td> 
-                                                <td><?php echo date("jS M, Y", strtotime($val['update_date'])); ?></td>
+                                                <td><?php echo date("d-M-Y", strtotime($val['update_date'])); ?></td>
                                                 <td>    
                                                     <?php if ($val['active'] == 1) { ?>                                                     
                                                     <button type="button" class="btn btn-default" style="background-color: #d9534f; border-color: #fff; width: 90px; color: #fff;"  id="<?php echo $val['wh_on_of_id'] . "-" . $val['micro_wh_mp_id']; ?>" onclick="remove_micro_warehose(this.id)">Deactivate</button>

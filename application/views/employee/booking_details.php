@@ -136,9 +136,9 @@
                         </tr>
                         <tr>
                             <th>Booking Create / Closed Dated </th>
-                            <td><?php if(!empty($booking_history[0]['closed_date'])){ echo date("jS M, Y", strtotime($booking_history[0]['create_date'])).
-                                " / ".date("jS M, Y", strtotime($booking_history[0]['closed_date'])); } 
-                                else  { echo date("jS M, Y", strtotime($booking_history[0]['create_date'])); } ?></td>
+                            <td><?php if(!empty($booking_history[0]['closed_date'])){ echo date("d-M-Y", strtotime($booking_history[0]['create_date'])).
+                                " / ".date("d-M-Y", strtotime($booking_history[0]['closed_date'])); } 
+                                else  { echo date("d-M-Y", strtotime($booking_history[0]['create_date'])); } ?></td>
                             <th>EDD / Delivery Date</th>
                             <td><?php echo $booking_history[0]['estimated_delivery_date']." / ".$booking_history[0]['delivery_date']; ?></td>
                         </tr>

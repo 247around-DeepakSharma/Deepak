@@ -873,7 +873,7 @@ class Accounting extends CI_Controller {
         $row[] = $invoice_list->invoice_id.$invoice_links;
         $row[] = $invoice_list->type;
         $row[] = $invoice_list->num_bookings."/".$invoice_list->parts_count;
-        $row[] = date("jS M, Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("jS M, Y", strtotime($invoice_list->from_date)). " to ". date("jS M, Y", strtotime($invoice_list->to_date));
+        $row[] = date("d-M-Y", strtotime($invoice_list->invoice_date))." <br/><br/> ".date("d-M-Y", strtotime($invoice_list->from_date)). " to ". date("d-M-Y", strtotime($invoice_list->to_date));
         $row[] = $invoice_list->total_amount_collected;
         $row[] = sprintf("%.2f",($invoice_list->total_service_charge + $invoice_list->service_tax));
         $row[] = sprintf("%.2f", $invoice_list->total_additional_service_charge );
@@ -1198,7 +1198,7 @@ class Accounting extends CI_Controller {
             $row[] = $no;
         }
         $row[] = $order_list->invoice_id;
-        $row[] = date("jS M, Y", strtotime($order_list->from_date)). " to ". date("jS M, Y", strtotime($order_list->to_date));
+        $row[] = date("d-M-Y", strtotime($order_list->from_date)). " to ". date("d-M-Y", strtotime($order_list->to_date));
         $row[] = $order_list->type;
         $row[] = $order_list->sub_category;
         $row[] = '<a href="https://s3.amazonaws.com/'.BITBUCKET_DIRECTORY.'/invoices-excel/'.$order_list->invoice_file_main.'">'.$order_list->invoice_file_main.'</a>';
@@ -1245,8 +1245,8 @@ class Accounting extends CI_Controller {
         else{
             $row[] = "Partner";
         }
-        $row[] = date("jS M, Y", strtotime($order_list->invoice_date));
-        $row[] = date("jS M, Y", strtotime($order_list->from_date)) . " to " . date("jS M, Y", strtotime($order_list->to_date));
+        $row[] = date("d-M-Y", strtotime($order_list->invoice_date));
+        $row[] = date("d-M-Y", strtotime($order_list->from_date)) . " to " . date("d-M-Y", strtotime($order_list->to_date));
         $row[] = $order_list->sub_category;
         $row[] = $order_list->num_bookings . "/" . $order_list->parts_count;
         $row[] = $order_list->tds_amount;
@@ -1299,7 +1299,7 @@ class Accounting extends CI_Controller {
         $row = array();
        
         $row[] = $no;
-        $row[] = date("jS M, Y", strtotime($transaction_list->transaction_date));
+        $row[] = date("d-M-Y", strtotime($transaction_list->transaction_date));
         $row[] = round($transaction_list->credit_amount,0);
         $row[] = $transaction_list->invoice_id;
         $row[] = $transaction_list->description;

@@ -3870,7 +3870,7 @@ function generate_image($base64, $image_name,$directory){
         $data['booking_id'] = $booking_id;
         $data['spare_id'] = $spare_id;
         $bookingData = $this->My_CI->reusable_model->get_search_result_data("booking_details","booking_details.is_upcountry,booking_details.partner_id,service_centres.non_working_days,"
-                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%m-%Y') as initial_booking_date,booking_details.request_type,booking_details.partner_id",
+                . "STR_TO_DATE(booking_details.initial_booking_date,'%d-%b-%Y') as initial_booking_date,booking_details.request_type,booking_details.partner_id",
                 array("booking_id"=>$booking_id),array("service_centres"=>"service_centres.id = booking_details.assigned_vendor_id"),NULL,NULL,NULL,NULL,array());
         $this->get_faulty_booking_criteria($bookingData[0]['partner_id']);
         $data['leg_1'] = $this->get_tat_with_considration_of_non_working_day($bookingData[0]['non_working_days'],$bookingData[0]['initial_booking_date'],date("Y-m-d"));
@@ -4751,7 +4751,7 @@ function generate_image($base64, $image_name,$directory){
                  //Check if new completion date is equal to or greater then booking_date
                  date_default_timezone_set('Asia/Kolkata');
                  // get booking_date
-                 $booking_date = $this->My_CI->reusable_model->get_search_result_data("booking_details", 'STR_TO_DATE(booking_details.booking_date,"%d-%m-%Y") as booking_date', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL, array())[0]['booking_date'];
+                 $booking_date = $this->My_CI->reusable_model->get_search_result_data("booking_details", 'STR_TO_DATE(booking_details.booking_date,"%d-%b-%Y") as booking_date', array('booking_id' => $booking_id), NULL, NULL, NULL, NULL, NULL, array())[0]['booking_date'];
                  // If time is before 12 PM then completion date will be yesturday's date
                  //if (date('H') < 13) {
                  $bookingData['service_center_closed_date'] = date('Y-m-d H:i:s', (strtotime('-1 day', strtotime(date('Y-m-d H:i:s')))));
