@@ -4105,7 +4105,7 @@ class Partner extends CI_Controller {
         foreach ($partners as $partner) {
 
             //fetch spare parts sent 7 days or more ago
-            $select = "spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
+            $select = "spare_parts_details.booking_id,DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%d-%b-%Y') as date";
             $where = array('spare_parts_details.partner_id' => $partner['id'],
                 'defective_part_shipped_date IS NOT NULL' => null,
                 "spare_parts_details.status IN ('".OK_PARTS_SHIPPED."', '".DEFECTIVE_PARTS_SHIPPED."')" => NULL,		
@@ -4154,7 +4154,7 @@ class Partner extends CI_Controller {
         $partners = $this->partner_model->getpartner_details($select, $where_get_partner, '1');
         foreach ($partners as $partner) {
 
-            $select = "spare_parts_details.booking_id,spare_parts_details.id, DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%D %b %Y') as date";
+            $select = "spare_parts_details.booking_id,spare_parts_details.id, DATE_FORMAT(spare_parts_details.defective_part_shipped_date, '%d-%b-%Y') as date";
             $where = array('spare_parts_details.defective_return_to_entity_id' => $partner['id'],
                 'spare_parts_details.defective_part_required' => 1 ,
                 'spare_parts_details.defective_part_rejected_by_partner'=>0,

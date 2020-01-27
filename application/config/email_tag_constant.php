@@ -141,3 +141,4 @@ define('DEFECTIVE_SPARE_SEND_BY_WH_TO_PARTNER','defective_spare_send_by_wh_to_pa
 define('MSL_SEND_BY_MICROWH_TO_WH','msl_send_by_microwh_to_wh');
 define('COURIER_LOST_SPARE_PARTS', 'courier_lost_spare_parts');
 define('INSUFFICIENT_BALANCE_PAYTM_WALLET', 'insufficient_balance_paytm_wallet');
+define('WAREHOUSE_RECEIVE_PART_FROM_SF', 'parts_received_by_warehouse');
