@@ -695,8 +695,9 @@ class Invoice_lib {
         if(!empty($sf_details)){
             $excel_data['excel_data']['sf_name'] = $sf_details[0]['company_name'];
             $excel_data['excel_data']['sf_address'] = $sf_details[0]['address'];
-            $excel_data['excel_data']['sf_contact_person_name'] = $sf_details[0]['contact_person_name'];
-            $excel_data['excel_data']['sf_contact_number'] = $sf_details[0]['contact_number'];
+            /*   Abhishek Check for undefined vaiables */
+            $excel_data['excel_data']['partner_contact_person_name'] = isset($sf_details[0]['contact_person_name']) ? $sf_details[0]['contact_person_name'] : '-';
+            $excel_data['excel_data']['sf_contact_number'] = isset($sf_details[0]['contact_number']) ? $sf_details[0]['contact_number'] : '-';
             $excel_data['excel_data']['sf_gst_number'] = $sf_details[0]['gst_number'];
         }
                             
@@ -704,8 +705,9 @@ class Invoice_lib {
                         
             $excel_data['excel_data']['partner_name'] = $partner_details[0]['company_name'];
             $excel_data['excel_data']['partner_address'] = $partner_details[0]['address'];
-            $excel_data['excel_data']['partner_contact_person_name'] = $partner_details[0]['contact_person_name'];
-            $excel_data['excel_data']['partner_contact_number'] = $partner_details[0]['contact_number'];
+             /*   Abhishek Check for undefined vaiables */
+            $excel_data['excel_data']['partner_contact_person_name'] = isset($partner_details[0]['contact_person_name']) ? $partner_details[0]['contact_person_name'] : '-';
+            $excel_data['excel_data']['partner_contact_number'] = isset($partner_details[0]['contact_number']) ? $partner_details[0]['contact_number'] : '-';
             $excel_data['excel_data']['partner_gst'] = $partner_details[0]['gst_number'];  
         }
         $excel_data['excel_data']['partner_challan_no'] = $partner_challan_number;
