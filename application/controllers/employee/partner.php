@@ -8632,7 +8632,7 @@ class Partner extends CI_Controller {
 
     }
 
-
+/*   Abhishek this function used to get NRN Approved Bookings */
 
       function get_nrn_approval_table(){
       $agent_id = $this->session->userdata('agent_id');
@@ -8657,6 +8657,14 @@ class Partner extends CI_Controller {
            $state = $this->input->post('state');
            $where = $where." AND booking_details.state = '$state'";
        }
+
+       /*  Default case if somehow index does not come */
+       if(!isset($postData['length']) || !isset($postData['start']) || empty($postData['length']) || empty($postData['start'])){
+        $postData['length'] = 25;
+        $postData['start'] = 0
+       }
+
+       
        if(!empty($postData['search'])){
             $booking_id = $postData['search']['value'];
            $where = $where." AND booking_details.booking_id LIKE '%".$booking_id."%'";
