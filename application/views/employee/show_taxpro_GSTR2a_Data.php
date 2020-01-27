@@ -236,6 +236,7 @@
                 "type": "POST",
                 data: function(d){
                     d.entity = $("#entity_type").val();
+                    d.state = $("#state").val();
                 }
             },
             "columnDefs": [

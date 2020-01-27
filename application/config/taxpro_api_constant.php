@@ -27,6 +27,7 @@ define('TAXPRO__FEATCH_GSTR2A_URL', 'https://api.taxprogsp.co.in/taxpayerapi/dec
 
 //taxpro GSTR2a data for UP
 //define('TAXPRO__FEATCH_GSTR2A_URL_UP', 'https://api.taxprogsp.co.in/taxpayerapi/dec/v0.3/returns/gstr2a?action=B2B&aspid='.ASP_ID.'&password='.ASP_PASSWORD.'&gstin='._247_AROUND_GSTIN_UP.'&username='.USER_NAME_GSTIN.'&authtoken=');
+
 //taxpayer api error codes
 define('INVALID_GSTIN', 'GSP050D');
 define('INVALID_GSTIN_MSG', 'You have entered invalid GST number');

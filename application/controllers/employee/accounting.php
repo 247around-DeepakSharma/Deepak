@@ -1455,7 +1455,7 @@ class Accounting extends CI_Controller {
         $response = json_decode($api_response);
        // print_r($response);
         if($response->status_cd == '1'){
-           $this->fetch_taxpro_gstr2a_data($response->auth_token);
+           $this->fetch_taxpro_gstr2a_data($response->auth_token, $state);
            echo "success";
         }
         else{
@@ -1546,7 +1546,8 @@ class Accounting extends CI_Controller {
                                 'invoice_date' => $date,
                                 'checksum' => $checksum,
                                 'gstr2a_period' => $ret_period,
-                                'create_date' => date('Y-m-d H:i:s')
+                                'create_date' => date('Y-m-d H:i:s'),
+                                'state_gstin' => $gstin
                             );
                         $check_checksum = $this->accounting_model->get_taxpro_gstr2a_data('id', array('checksum' => $checksum));
                         if(empty($check_checksum)){

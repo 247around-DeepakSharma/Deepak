@@ -52,7 +52,6 @@
                             </div>
                             <div class="col-md-4"></div>
                         </div>
-
                         <div class="form-group col-md-12">
                             <div class="col-md-4"></div>
                             <div class="col-md-4 form-group">
@@ -81,6 +80,7 @@
     $(document).ready(function(){
         $("#success_msg_div").hide();
         $("#error_msg_div").hide();
+        $("#state").select2();
     });
     
     $("#generate_otp").click(function(){
@@ -122,7 +122,7 @@
             $.ajax({
                 type: 'POST',
                 url: '<?php echo base_url(); ?>employee/accounting/generate_taxpro_auth_token',
-                data: {otp:$("#otp").val()},
+                data: {otp:$("#otp").val(), state:$("#state").val()},
                 beforeSend: function(){
                     $('body').loadingModal({
                     position: 'auto',

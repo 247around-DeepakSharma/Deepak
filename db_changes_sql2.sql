@@ -1731,3 +1731,80 @@ update service_centres set asm_id = 10160 where id IN (54,60,184,214,221,222,233
 update service_centres set asm_id = 10170 where id IN (1292,1293,1294,1295,1297,263,275,282,305,316,318,325,361,471,661,690,733,847,852,921,969,994,1026,65,89,218,253,376,401,526,580,629,635,654,689,702,726,797,862,865,873,874,878,881,900,914,916,922,939,940,954,972,983,1048,1079,1124,1165,1196,1222,1252,1275,1295,633,1040,1151,882,1111,1126,1197,1204,980,219,389,642,659,1130,979,1125,707,1023,1191,948,476,272,1316,1006,1106);
 update service_centres set asm_id = 10178 where id IN (227,228,230,231,257,337,339,346,347,350,363,364,367,368,427,435,475,504,507,533,536,544,551,582,611,612,625,627,639,640,641,649,664,673,694,714,763,764,780,781,786,787,789,790,801,806,811,814,823,824,827,832,844,861,866,869,877,895,897,898,905,909,943,947,949,951,953,955,966,971,978,1003,1024,1036,1063,1076,1091,1095,1096,1147,1163,1167,1170,1198,1213,1228,1234,1235,1249,1283,1286,1287,1132);
 update service_centres set asm_id = 10181 where id IN (204,205,207,294,297,320,322,394,396,405,437,451,453,454,456,458,460,461,492,496,497,499,510,511,517,530,549,552,586,590,631,646,725,740,756,803,887,888,917,927,1004,1110,1175,1255,1273,1280,1291,209,238,240,270,285,287,295,303,345,379,391,477,523,540,594,662,728,946,1029,1058,1142,681,1044,563);
+--Abhay 06-01-2020
+ALTER TABLE `paytm_transaction_callback` ADD `engineer_id` INT(11) NULL DEFAULT NULL AFTER `response_api`;
+
+
+---Abhishek 10-01-2019
+
+ALTER TABLE `engineer_details` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `update_date`;
+CREATE TABLE `engineer_notification_detail` (
+ `id` int(11) NOT NULL AUTO_INCREMENT,
+ `phone` varchar(20) DEFAULT NULL,
+ `message` text CHARACTER SET utf8 COLLATE utf8_bin,
+ `notified` int(5) NOT NULL DEFAULT '1',
+ `fire_base_response` text,
+ `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=latin1
+
+
+ALTER TABLE `entity_login_table` ADD `device_firebase_token` TEXT NULL DEFAULT NULL AFTER `device_id`;
+
+--Ankit 15-01-2019
+ALTER TABLE spare_parts_details ADD COLUMN consumption_remarks text NULL DEFAULT NULL AFTER consumed_part_status_id;
+ALTER TABLE `engg_notification_detail` DROP `notified`;
+ALTER TABLE `engg_notification_detail`  ADD `notified` INT(5) NOT NULL DEFAULT '1'  AFTER `message`,  ADD `fire_base_response` TEXT NULL DEFAULT NULL  AFTER `notified`;
+
+--Ankit Bhatt 2020-01-21
+ insert into header_navigation(entity_type, title, link, level, parent_ids, groups, nav_type, is_active, create_date)
+values('247Around', 'Warranty Plan List', 'employee/warranty/warranty_plan_list', 2, 52, 'admin,developer', 'main_nav', 1, now());
+
+--Gorakh Nath 16-01-2020
+CREATE TABLE `spare_state_change_tracker` ( 
+    `id` INT(11) NOT NULL AUTO_INCREMENT , 
+    `spare_id` INT(11) NOT NULL,	
+    `action` VARCHAR(300) DEFAULT NULL , 
+    `remarks` VARCHAR(400) DEFAULT NULL , 
+    `agent_id` INT(11) NOT NULL,
+    `partner_id` INT(11) NOT NULL,
+    `service_center_id` INT(11) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
+
+ALTER TABLE `spare_state_change_tracker` ADD `create_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `service_center_id`;
+
+--Ankit Bhatt 2020-01-22
+insert into `email_template`(tag, subject, template, cc, bcc, active)
+values('parts_received_by_warehouse','Parts Received By Warehouse', 'Parts Received By Warehouse:<br>Booking Id : %s <br>SF: %s <br>Receive Date : %s <br>Shipped By : %s <br>Part Name : %s <br>Part Number : %s <br>Quantity : %s <br>Consumption Reason : %s <br>Warehouse : %s <br>Image Link : %s <br>Thanks!!', 'ankitb@247around.com', 'ankitb@247around.com', '','', 1);
+
+
+-- Prity Sharma 27-01-2020
+CREATE TABLE `rm_region_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `region` varchar(25) NOT NULL,
+  `rm_id` int(10) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `update_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  FOREIGN KEY `fk_rm` (`rm_id`) REFERENCES employee(`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+INSERT INTO `rm_region_mapping` (`region`, `rm_id`) VALUES ('North', '36');
+INSERT INTO `rm_region_mapping` (`region`, `rm_id`) VALUES ('South', '10146');
+INSERT INTO `rm_region_mapping` (`region`, `rm_id`) VALUES ('East', '38');
+INSERT INTO `rm_region_mapping` (`region`, `rm_id`) VALUES ('West', '24');
+
+INSERT INTO `entity_role` (`entity_type`, `department`, `role`, `is_filter_applicable`, `create_date`) VALUES ('247Around', 'Operations', 'areasalesmanager', '0', now());
+
+SELECT * FROM `employee` WHERE full_name like '%arun%'; -- 36
+SELECT * FROM `employee` WHERE full_name like '%rajendra%'; -- 24
+SELECT * FROM `employee` WHERE full_name like '%souvik%'; -- 38
+SELECT * FROM `employee` WHERE full_name like '%sankara%'; -- 10146
+
+update `employee` set groups = 'areasalesmanager' where groups = 'regionalmanager';
+update `employee` set groups = 'regionalmanager' where id IN  (36,24,38,10146);
+
+--Ankit Bhatt 2020-01-27
+ALTER TABLE taxpro_gstr2a_data ADD COLUMN state_gstin varchar(30);
+update taxpro_gstr2a_data set state_gstin = '07AAFCB1281J1ZQ' where state_gstin ='';
