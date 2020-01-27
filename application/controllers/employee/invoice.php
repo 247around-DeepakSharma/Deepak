@@ -51,7 +51,7 @@ class Invoice extends CI_Controller {
         $this->checkUserSession();
         $invoicingSummary = $this->invoices_model->getsummary_of_invoice("vendor",array('active' => 1, 'is_sf' => 1), date('Y-m-d'));
         $select = "service_centres.name, service_centres.id";
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
           $rmSpecificData = $this->get_rm_specific_service_centers_invoice_data($this->session->userdata('id'),$invoicingSummary);
           $whereIN = array("id"=>$rmSpecificData['serviceCenters']);
           $data['invoicing_summary']= $rmSpecificData["invoiceSummaryData"];
@@ -88,7 +88,7 @@ class Invoice extends CI_Controller {
             $sf_cp['active'] = $vendor_type;
         }
           $invoicingSummary= $this->invoices_model->getsummary_of_invoice($vendor_partner,$sf_cp, $due_date, $partner_source_type);
-          if($this->session->userdata('user_group') == 'regionalmanager'){
+          if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
           $rmSpecificData = $this->get_rm_specific_service_centers_invoice_data($this->session->userdata('id'),$invoicingSummary);
           $data['invoicing_summary']= $rmSpecificData["invoiceSummaryData"];
         }

@@ -83,7 +83,7 @@ class dashboard_model extends CI_Model {
                     left join state_code on (booking_details.state = state_code.state)
                     left join employee_relation on find_in_set(state_code.state_code, employee_relation.state_code)
                     left join employee_hierarchy_mapping on (employee_relation.agent_id = employee_hierarchy_mapping.manager_id)
-                    left join employee on (employee_relation.agent_id = employee.id and employee.groups = 'regionalmanager')
+                    left join employee on (employee_relation.agent_id = employee.id and employee.groups IN ('"._247AROUND_RM."','"._247AROUND_ASM."'))
                 where 
                     assigned_vendor_id is null AND booking_details.state <> ''	{$where}
                 group by 

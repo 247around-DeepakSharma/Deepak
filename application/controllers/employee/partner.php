@@ -4382,7 +4382,7 @@ class Partner extends CI_Controller {
         if(count($state_arr) === count($arr_state)) {
             $data['account_manager_details'][0]['state'] = "Pan India";
         }
-        $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups' => 'regionalmanager', 'active' => 1));
+        $data['rm_details'] = $this->employee_model->get_employee_by_group(array('groups IN ("'._247AROUND_RM.'","'._247AROUND_ASM.'")'=>NULL, 'active' => 1));
         $data['holidayList'] = $this->employee_model->get_holiday_list();
         //$this->load->view('partner/header');
         $this->miscelleneous->load_partner_nav_header();
