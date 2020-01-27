@@ -2193,7 +2193,7 @@ class Booking extends CI_Controller {
      */
     function review_bookings($booking_id = "") {
         $whereIN = $where = $join = array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             if (!empty($sf_list)) {
                 $serviceCenters = $sf_list[0]['service_centres_id'];
@@ -3569,7 +3569,7 @@ class Booking extends CI_Controller {
         else {
             $data['state'] = $this->booking_model->get_advance_search_result_data("state_code","DISTINCT(state)",NULL,NULL,NULL,array('state'=>'ASC'));
         }
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
             $vendorWhere['employee_relation.agent_id'] = $rm_id;
             $vendorJoin['employee_relation'] = "FIND_IN_SET(service_centres.id,employee_relation.service_centres_id)";
@@ -3583,7 +3583,7 @@ class Booking extends CI_Controller {
         $data['status'] = $status;
         $data['saas_module'] = $this->booking_utilities->check_feature_enable_or_not(PARTNER_ON_SAAS);
         if($status == _247AROUND_PENDING){
-            $data['rm'] = $this->reusable_model->get_search_result_data("employee","employee.id,employee.full_name",array("groups"=>"regionalmanager"),NULL,NULL,array("full_name"=>"ASC"),NULL,array());
+            $data['rm'] = $this->reusable_model->get_search_result_data("employee","employee.id,employee.full_name",array("groups IN ('"._247AROUND_RM."','"._247AROUND_ASM."')"=>NULL),NULL,NULL,array("full_name"=>"ASC"),NULL,array());
         
             echo $this->load->view('employee/pending_booking_filter_page', $data, TRUE);
         } else {
@@ -3603,7 +3603,7 @@ class Booking extends CI_Controller {
         //RM Specific Bookings
          $sfIDArray =array();
          $partnerArray = array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
             $rmServiceCentersData= $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
@@ -3754,7 +3754,7 @@ class Booking extends CI_Controller {
                         }
                     }
             }else if(strtolower($booking_status) == 'pending' && empty ($booking_id)){
-                if(($this->session->userdata('is_am') == '1') || $this->session->userdata('user_group') == 'regionalmanager'){
+                if(($this->session->userdata('is_am') == '1') || ($this->session->userdata('user_group') == _247AROUND_RM) || ($this->session->userdata('user_group') == _247AROUND_ASM)){
                     $post['where']  = array("(booking_details.current_status = '"._247AROUND_RESCHEDULED."' OR (booking_details.current_status = '"._247AROUND_PENDING."' ))"=>NULL,
                         "service_center_closed_date IS NULL"=>NULL);
                     $post['where_not_in']['booking_details.internal_status']  = array(SPARE_PARTS_SHIPPED,SF_BOOKING_CANCELLED_STATUS,SF_BOOKING_COMPLETE_STATUS);
@@ -5369,7 +5369,7 @@ class Booking extends CI_Controller {
         //RM Specific Bookings
          $sfIDArray =array();
          $partnerArray = array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $rm_id = $this->session->userdata('id');
             $rmServiceCentersData=  $this->reusable_model->get_search_result_data("employee_relation","service_centres_id",array("agent_id"=>$rm_id),NULL,NULL,NULL,NULL,NULL);
             $sfIDList = $rmServiceCentersData[0]['service_centres_id'];
@@ -5511,7 +5511,7 @@ class Booking extends CI_Controller {
     }
     function review_rescheduled_bookings($is_tab = 0){
       $whereIN = $where = $join = array();
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
@@ -5535,7 +5535,7 @@ class Booking extends CI_Controller {
         if(!$booking_id) {
             $booking_id  = NULL;
         }
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));
@@ -5629,7 +5629,7 @@ class Booking extends CI_Controller {
         $is_partner = $post_data['is_partner'];
         $whereIN = $having = [];
         
-        if($this->session->userdata('user_group') == 'regionalmanager'){
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list = $this->vendor_model->get_employee_relation($this->session->userdata('id'));
             $serviceCenters = $sf_list[0]['service_centres_id'];
             $whereIN =array("service_center_id"=>explode(",",$serviceCenters));

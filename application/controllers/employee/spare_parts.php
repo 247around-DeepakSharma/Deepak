@@ -1981,7 +1981,7 @@ $select = 'spare_parts_details.entity_type,spare_parts_details.quantity,spare_pa
         }
         $id = $this->session->userdata('id');
         //Getting employee relation if present
-        if ($this->session->userdata('user_group') == 'regionalmanager') {
+        if($this->session->userdata('user_group') == _247AROUND_RM || $this->session->userdata('user_group') == _247AROUND_ASM){
             $sf_list_array = $this->vendor_model->get_employee_relation($id);
             if (!empty($sf_list_array)) {
                 $sf_list = $sf_list_array[0]['service_centres_id'];

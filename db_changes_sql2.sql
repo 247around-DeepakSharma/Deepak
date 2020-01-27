@@ -1757,3 +1757,30 @@ ALTER TABLE `spare_state_change_tracker` ADD `create_date` DATETIME NOT NULL DEF
 --Ankit Bhatt 2020-01-22
 insert into `email_template`(tag, subject, template, cc, bcc, active)
 values('parts_received_by_warehouse','Parts Received By Warehouse', 'Parts Received By Warehouse:<br>Booking Id : %s <br>SF: %s <br>Receive Date : %s <br>Shipped By : %s <br>Part Name : %s <br>Part Number : %s <br>Quantity : %s <br>Consumption Reason : %s <br>Warehouse : %s <br>Image Link : %s <br>Thanks!!', 'ankitb@247around.com', 'ankitb@247around.com', '','', 1);
+
+
+-- Prity Sharma 27-01-2020
+CREATE TABLE `rm_region_mapping` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `region` varchar(25) NOT NULL,
+  `rm_id` int(10) NOT NULL,
+  `create_date` timestamp NOT NULL DEFAULT current_timestamp(),
+  `update_date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  FOREIGN KEY `fk_rm` (`rm_id`) REFERENCES employee(`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=latin1;
+
+INSERT INTO `rm_region_mapping` (`region`, `rm_id`) VALUES ('North', '36');
+INSERT INTO `rm_region_mapping` (`region`, `rm_id`) VALUES ('South', '10146');
+INSERT INTO `rm_region_mapping` (`region`, `rm_id`) VALUES ('East', '38');
+INSERT INTO `rm_region_mapping` (`region`, `rm_id`) VALUES ('West', '24');
+
+INSERT INTO `entity_role` (`entity_type`, `department`, `role`, `is_filter_applicable`, `create_date`) VALUES ('247Around', 'Operations', 'areasalesmanager', '0', now());
+
+SELECT * FROM `employee` WHERE full_name like '%arun%'; -- 36
+SELECT * FROM `employee` WHERE full_name like '%rajendra%'; -- 24
+SELECT * FROM `employee` WHERE full_name like '%souvik%'; -- 38
+SELECT * FROM `employee` WHERE full_name like '%sankara%'; -- 10146
+
+update `employee` set groups = 'areasalesmanager' where groups = 'regionalmanager';
+update `employee` set groups = 'regionalmanager' where id IN  (36,24,38,10146);

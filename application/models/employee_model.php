@@ -131,7 +131,7 @@ class Employee_model extends CI_Model{
        */
       function get_rm_details(){
           $this->db->select('*');
-          $this->db->where('groups','regionalmanager');
+          $this->db->where_in('groups',[_247AROUND_RM,_247AROUND_ASM]);
           $this->db->where('active','1');
           $query = $this->db->get('employee');
           return $query->result_array();
@@ -146,7 +146,7 @@ class Employee_model extends CI_Model{
        */
       function get_rm_details_by_id($id){
           $this->db->select('*');
-          $this->db->where('groups','regionalmanager');
+          $this->db->where_in('groups',[_247AROUND_RM,_247AROUND_ASM]);
           $this->db->where('active','1');
           $this->db->where('id',$id);
           $query = $this->db->get('employee');
@@ -211,7 +211,14 @@ class Employee_model extends CI_Model{
       
       function get_employee_email_by_group($groups){
           $this->db->select('official_email');
-          $this->db->where('groups',$groups);
+          if(is_array($groups))
+          {
+              $this->db->where_in('groups',$groups);
+          }
+          else
+          {
+              $this->db->where('groups',$groups);
+          }
           $query = $this->db->get('employee');
           return $query->result_array();
       }
@@ -415,7 +422,7 @@ FROM
    
    
    /**
-    * @desc : This procedure is to update its manager mapping if he is a regionalmanager 
+    * @desc : This procedure is to update its manager mapping if he is a regionalmanager or areasalesmanager 
     * @param type $id
     * @return type
     */
@@ -424,7 +431,7 @@ FROM
                . "Left Join ( select e1.id,`employee_relation`.`individual_service_centres_id`, `employee_relation`.`state_code` "
                . "from `employee_hierarchy_mapping` join `employee` e1 on e1.`id` =`employee_hierarchy_mapping`.`manager_id` "
                . "join `employee_relation` on `employee_relation`.`agent_id`=`employee_hierarchy_mapping`.`employee_id` "
-               . "where e1.`groups`='regionalmanager' and `employee_hierarchy_mapping`.`employee_id`=".$id.") a "
+               . "where e1.`groups` IN ('"._247AROUND_RM."','"._247AROUND_ASM."') and `employee_hierarchy_mapping`.`employee_id`=".$id.") a "
                . "on a.id=`employee_relation`.agent_id "
                . "set `employee_relation`.`state_code`= if((`employee_relation`.`state_code` is null or `employee_relation`.`state_code` =''),a.`state_code`,concat(`employee_relation`.`state_code`, concat(',',a.`state_code`) )), "
                . "`employee_relation`.`service_centres_id`=if((`employee_relation`.`service_centres_id` is null or `employee_relation`.`service_centres_id` =''),a.`individual_service_centres_id`,concat(`employee_relation`.`service_centres_id`,concat(',',a.`individual_service_centres_id`)) ) "
@@ -507,7 +514,7 @@ FROM
                     LEFT JOIN employee ON (employee_relation.agent_id = employee.id)
                     LEFT JOIN state_code ON FIND_IN_SET(state_code.state_code , employee_relation.state_code)
                 WHERE 
-                    employee.groups = 'regionalmanager' AND
+                    employee.groups IN ('"._247AROUND_RM."','"._247AROUND_ASM."') AND
                     state_code.state = '".trim($state)."'";
        return $this->db->query($sql)->result_array();
    }
