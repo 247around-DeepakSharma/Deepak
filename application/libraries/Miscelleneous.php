@@ -674,7 +674,7 @@ class Miscelleneous {
             $data = $this->My_CI->booking_model->getbooking_history($booking_id, "join");
             if (!empty($data)) {
                 log_message('info', __FUNCTION__ . " Booking Id DATA Found " . print_r($booking_id, true));
-                if (!is_null($data[0]['assigned_vendor_id'])) {
+                if (!empty($data[0]['assigned_vendor_id'])) {
                     log_message('info', __FUNCTION__ . " Booking Assigned");
                     $unit_details = $this->My_CI->booking_model->get_unit_details(array('booking_id' => $booking_id));
                     if (!empty($unit_details)) {
@@ -753,7 +753,7 @@ class Miscelleneous {
                     //service center booking action table as well.
                     log_message('info', __FUNCTION__ . " Request to delete booking from service center action table Booking ID" . $booking_id);
                     $this->My_CI->service_centers_model->delete_booking_id($booking_id);
-                    if ($data[0]['isEngineerApp'] == 1) {
+                    if (!empty($data[0]['isEngineerApp']) && ($data[0]['isEngineerApp'] == 1)) {
                         $this->My_CI->engineer_model->delete_booking_from_engineer_table($booking_id);
                     }
                     log_message('info', __FUNCTION__ . " Booking Not Assign-  Booking Id  " . print_r($booking_id, true));
@@ -4106,7 +4106,7 @@ function generate_image($base64, $image_name,$directory){
                         
                         if(!empty($sp['requested_inventory_id'])){
                             $sf_state = $this->My_CI->vendor_model->getVendorDetails("service_centres.state", array('service_centres.id' => $assigned_vendor_id));
-                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $assigned_vendor_id,$spare['model_number']);
+                            $stock =$this->My_CI->miscelleneous->check_inventory_stock($sp['requested_inventory_id'], $partner_id, $sf_state[0]['state'], $assigned_vendor_id,$sp['model_number']);
                             if(!empty($stock)){
 
                                 $this->My_CI->service_centers_model->update_spare_parts(array('id' => $sp['id']), 

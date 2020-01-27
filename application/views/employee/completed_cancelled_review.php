@@ -1,10 +1,11 @@
 <?php
 $tab_class = !empty($data_id) ? $data_id : "all";
 if(is_numeric($this->uri->segment(3)) && !empty($this->uri->segment(3))){ $sn_no =  $this->uri->segment(3) +1; } else{ $sn_no = 1;} 
+$arr_bookings = !empty($bookings_data) ? json_encode($bookings_data) : "";
 ?>
 <script type="text/javascript" src="<?php echo base_url();?>js/base_url.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>js/review_bookings.js"></script>      
-<input type='hidden' name='arr_bookings' id='arr_bookings' value='<?= json_encode($bookings_data); ?>'>
+<input type='hidden' name='arr_bookings' id='arr_bookings' value='<?= $arr_bookings; ?>'>
 <input type="hidden" name="comment_booking_id" value="" id="comment_booking_id">
 <div class="" style="margin-top: 30px;">
          <div class="row">
