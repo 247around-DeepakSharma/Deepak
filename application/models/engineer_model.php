@@ -465,6 +465,7 @@ class Engineer_model extends CI_Model {
 
          $this->db->select($select); 
          $this->db->where($where);
+         $this->db->order_by("id", "desc"); /// Order in decresing order in notifications //
          $this->db->from('engineer_notification_detail');
          $query = $this->db->get();
          return $query->result_array();
