@@ -4374,6 +4374,9 @@ class vendor extends CI_Controller {
                 header('Content-Type: application/octet-stream');
                 header("Content-Disposition: attachment; filename=\"$output_file_name\""); 
                 readfile($output_file_excel);
+                // Delete file from temp folder
+                // @modified by : Ankit Rajvanshi
+                unlink($output_file_excel);
                 exit;
             } 
 
