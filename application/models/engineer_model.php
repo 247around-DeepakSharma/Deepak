@@ -528,6 +528,24 @@ class Engineer_model extends CI_Model {
    }
 
 
+    /* @author Abhishek Awasthi
+     *@Desc - This function is used to spare with spare id
+     *@param - $spare id
+     *@return - Row
+     */
+
+
+   function check_cancell_allowed($spare){
+
+         $this->db->select("*"); 
+         $this->db->where('id',$spare);
+         $this->db->from('spare_parts_details');
+         $query = $this->db->get();
+         return $query->result_array();
+
+   }
+
+
 
 
 
