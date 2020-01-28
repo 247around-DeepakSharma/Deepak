@@ -112,7 +112,7 @@
                         </tr>
                         <tr>
                             <th>Booking Date/ Timeslot </th>
-                            <td><?php echo $booking_history[0]['booking_date']." / ".$booking_history[0]['booking_timeslot']; ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($booking_history[0]['booking_date']))." / ".$booking_history[0]['booking_timeslot']; ?></td>
                             <th>Amount Due / Paid  </th>
                             <td><?php echo $booking_history[0]['amount_due']." /  ".$booking_history[0]['amount_paid']; ?></td>
                         </tr>
@@ -140,7 +140,7 @@
                                 " / ".date("d-M-Y", strtotime($booking_history[0]['closed_date'])); } 
                                 else  { echo date("d-M-Y", strtotime($booking_history[0]['create_date'])); } ?></td>
                             <th>EDD / Delivery Date</th>
-                            <td><?php echo $booking_history[0]['estimated_delivery_date']." / ".$booking_history[0]['delivery_date']; ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($booking_history[0]['estimated_delivery_date']))." / ".date("d-M-Y", strtotime($booking_history[0]['delivery_date'])); ?></td>
                         </tr>
                         <tr>
                             <th>Rating Stars </th>
@@ -307,7 +307,7 @@
                                     <td><?php echo $unit_detail['appliance_category']."/<br/>".$unit_detail['appliance_capacity']?></td>
                                     <td><?php echo $unit_detail['model_number']?></td>
                                     <td><?php echo $unit_detail['serial_number']?></td>
-                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo $unit_detail['purchase_date'];}?></td>
+                                    <td><?php if(!empty($unit_detail['purchase_date'])) {echo date("d-M-Y", strtotime($unit_detail['purchase_date']));}?></td>
                                     <td><?php echo $unit_detail['appliance_description']?></td>
                                     <?php if($booking_history[0]['current_status'] != "Completed"){ ?>
                                     <td><?php  print_r($unit_detail['price_tags']); ?></td>
@@ -407,7 +407,7 @@
                                     <tr>
                                         <td><?php echo $sp['model_number']; ?></td>
                                         <td><?php echo $sp['parts_requested']; ?></td>
-                                        <td><?php echo $sp['create_date']; ?></td>
+                                        <td><?php echo date("d-M-Y", strtotime($sp['create_date'])); ?></td>
                                         <td><?php if (!is_null($sp['invoice_pic'])) {
                                             if ($sp['invoice_pic'] != '0') {
                                             ?> <a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['invoice_pic']; ?> " target="_blank">Click Here to view Invoice Image</a><?php }
@@ -427,7 +427,7 @@
                                             ?>
                                         </td>
                                         <td><?php echo $sp['serial_number']; ?></td>
-                                        <td><?php echo $sp['acknowledge_date']; ?></td>
+                                        <td><?php echo date("d-M-Y", strtotime($sp['acknowledge_date'])); ?></td>
                                         <td><?php echo $sp['remarks_by_sc']; ?></td>
                                         <td><?php echo $sp['status']; ?></td>
                                     </tr>
@@ -495,7 +495,7 @@
                                         <td><?php echo $sp['parts_shipped']; ?></td>
                                         <td><?php echo $sp['courier_name_by_partner']; ?></td>
                                         <td><?php echo $sp['awb_by_partner']; ?></td>
-                                        <td><?php echo $sp['shipped_date']; ?></td>
+                                        <td><?php echo date("d-M-Y", strtotime($sp['shipped_date'])); ?></td>
                                         <td><?php echo $sp['edd']; ?></td>
                                         <td><?php echo $sp['remarks_by_partner']; ?></td>
                                         <td><?php echo $sp['partner_challan_number']; ?></td>
@@ -536,7 +536,7 @@
                                         <td><?php echo $sp['awb_by_sf']; ?></td>
                                         <td><?php echo $sp['courier_charges_by_sf']; ?></td>
                                         <td><a href="https://s3.amazonaws.com/bookings-collateral/misc-images/<?php echo $sp['defective_courier_receipt']; ?> " target="_blank">Click Here to view</a></td>
-                                        <td><?php echo date('Y-m-d', strtotime($sp['defective_part_shipped_date'])); ?></td>
+                                        <td><?php echo date('d-M-Y', strtotime($sp['defective_part_shipped_date'])); ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_sf']; ?></td>
                                         <td><?php echo $sp['remarks_defective_part_by_partner']; ?></td>
                                         <td><?php echo $sp['sf_challan_number']; ?></td>
@@ -589,7 +589,7 @@
                                 <td><?php
                                     $old_date = $penalty[$key]['penalty_remove_date'];
                                     $old_date_timestamp = strtotime($old_date);
-                                    $new_date = date('j F, Y g:i A', $old_date_timestamp);
+                                    $new_date = date('j b, Y g:i A', $old_date_timestamp);
                                     echo $new_date;
                                     ?>
                                 </td>
@@ -644,7 +644,7 @@
                         <tr>
                             <td><?php echo $signature_details[0]['amount_paid']; ?></td>
                             <td><a href="https://s3.amazonaws.com/<?php echo BITBUCKET_DIRECTORY;?>/engineer-uploads/<?php echo $signature_details[0]['signature'];?>" target="_blank">Click Here</a></td>
-                            <td><?php echo $signature_details[0]['closed_date']; ?></td>
+                            <td><?php echo date("d-M-Y", strtotime($signature_details[0]['closed_date'])); ?></td>
                             <td><?php echo $signature_details[0]['address']; ?></td>
                             <td><?php echo $signature_details[0]['remarks']; ?></td>
                             
