@@ -2773,12 +2773,16 @@ class Service_centers extends CI_Controller {
             $actor = $next_action = NULL;
             //Update Spare Parts table
             $ss = $this->service_centers_model->update_spare_parts($where, $sp_data);
-            
+           
              /* Insert Spare Tracking Details */
-                if (!empty($id)) {
-                    $tracking_details = array('spare_id' => $id, 'action' => $sp_data['status'], 'remarks' => '', 'agent_id' => $this->session->userdata("service_center_agent_id"), 'partner_id' => $partner_id, 'service_center_id' => $service_center_id);
-                    $this->service_centers_model->insert_spare_tracking_details($tracking_details);
-                }
+            if (!empty($id)) {
+                $tracking_details = array('spare_id' => $id, 'action' => $sp_data['status'], 'remarks' => '', 'agent_id' => $this->session->userdata("service_center_agent_id"), 'partner_id' => $partner_id, 'service_center_id' => $service_center_id);
+                $this->service_centers_model->insert_spare_tracking_details($tracking_details);
+            }
+            $pre_sp = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, awb_by_partner", array('id' => $id));
+            if(!empty($pre_sp) && !empty($pre_sp[0]['awb_by_partner'])){
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $pre_sp[0]['awb_by_partner'], 'is_delivered' => 0), array('is_delivered' => 1, 'delivered_date' => date('Y-m-d H:i:s')));
+            }
 
             if ($ss) { //if($ss){
                 $is_requested = $this->partner_model->get_spare_parts_by_any("spare_parts_details.id, status, booking_id", array('booking_id' => $booking_id, 'status IN ("' . SPARE_SHIPPED_BY_PARTNER . '", "'
@@ -6385,9 +6389,10 @@ class Service_centers extends CI_Controller {
             $this->service_centers_model->insert_spare_tracking_details($tracking_details);
         }
         if ($response) {
-           
-            $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail['awb_by_sf']), 
-                            array('actual_weight' => $received_weight, "billable_weight" => $received_weight));
+            
+            if(!empty($spare_part_detail[0]['awb_by_sf'])){
+                $this->inventory_model->update_courier_company_invoice_details(array('awb_number' => $spare_part_detail[0]['awb_by_sf'], 'is_delivered' => 0), array('is_delivered' => 1, 'delivered_date' => date('Y-m-d H:i:s'), 'actual_weight' => $received_weight, "billable_weight" => $received_weight));
+            }
 
             log_message('info', __FUNCTION__ . " Received Defective Spare Parts " . $booking_id
                     . " SF Id" . $this->session->userdata('service_center_id'));

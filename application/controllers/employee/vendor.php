@@ -1924,6 +1924,12 @@ class vendor extends CI_Controller {
                         $directory_xls = "engineer-id-proofs/" . $pan_file;
                         $this->s3->putObjectFile(TMP_FOLDER.$pan_file, $bucket, $directory_xls, S3::ACL_PUBLIC_READ);
                         $data_identity['identity_proof_pic'] = $pan_file;
+                        
+                        // delete file from temp folder
+                        $f = TMP_FOLDER.$pan_file;
+                        if (file_exists($f)) {
+                            unlink($f);
+                        }
                     }
 
                     if ($this->session->userdata('userType') == 'service_center') {

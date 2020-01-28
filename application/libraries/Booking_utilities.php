@@ -266,6 +266,14 @@ class Booking_utilities {
             if($pdf_response['response'] === 'Success'){ 
                 //Update JOb Card Booking
                 $this->My_CI->booking_model->update_booking($booking_id,  array('booking_jobcard_filename'=>$output_file_pdf));
+                $f = TMP_FOLDER.$output_file_pdf;
+                unlink($f);
+                if (!empty($qr) && file_exists($qr)) {
+                    $res1 = 0;
+                    system(" chmod 777 " . $qr, $res1);
+                    unlink($qr);
+                }
+                
                 return true;
             } else {
                 log_message('info', __FUNCTION__ . ' Error in Booking PDF not created '. $booking_id);
