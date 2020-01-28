@@ -133,7 +133,7 @@ class Employee_model extends CI_Model{
           $this->db->select('*');
           $this->db->where_in('groups',[_247AROUND_RM,_247AROUND_ASM]);
           $this->db->where('active','1');
-          $query = $this->db->get('employee');
+          $query = $this->db->get('employee');          
           return $query->result_array();
       }
       
@@ -518,4 +518,31 @@ FROM
                     state_code.state = '".trim($state)."'";
        return $this->db->query($sql)->result_array();
    }
+   
+    /**
+     * @Desc: This function is used to get all regions (North,South,East,West)
+     * @params: void
+     * @return: Array
+     * @author Prity Sharma
+     * @date : 22-01-2020
+    */
+    function get_regions(){
+        $this->db->select('region,rm_id');
+        $this->db->distinct();
+        $query = $this->db->get('rm_region_mapping');
+        return $query->result_array();
+    }
+    
+    /**
+     * @Desc: This function maps a region with its respective RM (North,South,East,West)
+     * @params: void
+     * @return: NULL
+     * @author Prity Sharma
+     * @date : 27-01-2020
+    */
+    function map_region_to_rm($region, $rm_id){
+        $this->db->set("rm_id",$rm_id);
+        $this->db->where('region', $region);
+        $this->db->update("rm_region_mapping");
+    }
 }
