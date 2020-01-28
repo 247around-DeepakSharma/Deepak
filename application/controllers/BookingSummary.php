@@ -1032,6 +1032,7 @@ EOD;
                 if ($value['is_update'] == '1') {
                     $where = " AND id = '" . $value['id'] . "'";
                     $data['data'] = $this->reporting_utils->send_sc_crimes_report_mail_data($where);
+                    
                     if (!empty($data['data']) && $data['data'][0]['not_update'] > 0) {
                         
                         //get rm email
@@ -1047,11 +1048,15 @@ EOD;
 
                         $file_path = "";
                         if (!empty($file_data)) {
-                            $file_path = TMP_FOLDER . $data['data'][0]['service_center_name'] . "-" . date('Y-m-d');
+                            $serviceCenterName=$data['data'][0]['service_center_name'];
+                            $serviceCenterName  =   strtolower($serviceCenterName);
+                            $serviceCenterName  =   str_replace(' ', '-', $serviceCenterName);  // Replaces all spaces with hyphens.
+                            $serviceCenterName  =   preg_replace('/[^A-Za-z0-9\-]/', '', $serviceCenterName); // Removes special chars.
+                            $file_path          =   TMP_FOLDER . $serviceCenterName . "-" . date('Y-m-d');
+			    //$file_path = TMP_FOLDER . $data['data'][0]['service_center_name'] . "-" . date('Y-m-d'); Removed line
                             $file = fopen($file_path . ".txt", "a+") or die("Unable to open file!");
 
                             foreach ($file_data as $booking_id) {
-
                                 fwrite($file, $booking_id['booking_id'] . "\n");
                             }
                             fclose($file);
@@ -1065,7 +1070,12 @@ EOD;
 
                         $this->notify->sendEmail(NOREPLY_EMAIL_ID, $to, $cc, $bcc, $subject, $view, $file_path . ".txt",SC_CRIME_REPORT_FOR_SF);
                         exec("rm -rf " . escapeshellarg($file_path));
-                    } else {
+                        if (isset($file_path) && $file_path!='') 
+                        {                            
+                            unlink($file_path.'.txt');
+                        }
+                                                
+                    } else {                        
                         log_message('info', __FUNCTION__ . " Empty Data Get");
                     }
                 }
